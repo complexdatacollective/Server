@@ -1,0 +1,40 @@
+{
+  "name": "network-canvas-server",
+  "version": "4.0.0",
+  "productName": "Network Canvas Server",
+  "description": "A tool analyzing and exporting Network Canvas interviews.",
+  "private": true,
+  "engines": {
+    "node": "6.9.1",
+    "npm": "3.10.7"
+  },
+  "devDependencies": {
+    "react-scripts": "0.9.3",
+    "electron": "^1.4.15",
+    "electron-installer-dmg": "^0.2.0",
+    "electron-packager": "^8.5.2",
+    "electron-winstaller": "^2.5.2",
+    "icon-gen": "^1.0.7"
+  },
+  "dependencies": {
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "electron": "electron .",
+    "generate-icons": "icon-gen -i public/icons/round/Srv-Round.svg -o public/icons/round -m ico,icns -r -n ico=round,icns=round",
+    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=public/icons/round/round.icns --prune=true --out=release-builds --version-string.CompanyName=\"Complex Data Collective\" --version-string.FileDescription=CE --version-string.ProductName=\"Network Canvas Server\" --version-string.ProductVersion=\"4.0.0\"",
+    "package-win": "electron-packager . --overwrite --asar=true --platform=win32 --arch=ia32 --icon=public/icons/round/round.ico --prune=true --out=release-builds --version-string.CompanyName=\"Complex Data Collective\" --version-string.FileDescription=CE --version-string.ProductName=\"Network Canvas Server\" --version-string.ProductVersion=\"4.0.0\"",
+    "package-linux": "electron-packager . --overwrite --platform=linux --arch=x64 --icon=public/icons/round/NC-Round@2x.png --prune=true --out=release-builds --version-string.CompanyName=\"Complex Data Collective\" --version-string.FileDescription=CE --version-string.ProductName=\"Network Canvas Server\" --version-string.ProductVersion=\"4.0.0\"",
+    "create-installer-mac": "electron-installer-dmg ./release-builds/Network\\ Canvas-darwin-x64/Network\\ Canvas Server.app Network\\ Canvas --out=release-builds --overwrite --icon=public/icons/round/round.icns"
+  },
+  "repository": {
+    "type": "git"
+  },
+  "homepage": ".",
+  "main": "src/electron-starter.js"
+}
