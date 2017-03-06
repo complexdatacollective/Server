@@ -2,7 +2,7 @@
   "name": "network-canvas-server",
   "version": "4.0.0",
   "productName": "Network Canvas Server",
-  "description": "A tool analyzing and exporting Network Canvas interviews.",
+  "description": "A tool for storing, analyzing, and exporting Network Canvas interview data.",
   "private": true,
   "engines": {
     "node": "6.9.1",
