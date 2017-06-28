@@ -1,4 +1,5 @@
 const electron = require('electron');
+const { execFile } = require('child_process');
 // Module to control application life.
 const app = electron.app;
 // Module to create native browser window.
@@ -11,13 +12,25 @@ const url = require('url');
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 
+// Start background Neo4j process
+// const neo4jPath = path.join(__dirname, 'vendor', 'neo4j-community-3.2.1', 'bin', 'neo4j');
+const neo4jPath = path.join('./', 'vendor', 'neo4j-community-3.2.1', 'bin', 'neo4j');
+
+const child = execFile(neo4jPath, ['console'], (error, stdout, stderr) => {
+  if (error) {
+    throw error;
+  }
+  console.log(stdout);
+});
+
+
 function createWindow() {
     // Create the browser window.
     mainWindow = new BrowserWindow({width: 800, height: 600, center: true, title: 'Network Canvas'});
     mainWindow.maximize();
     // and load the index.html of the app.
     mainWindow.loadURL(url.format({
-      pathname:path.join(__dirname,'index.html'),
+      pathname: path.join(__dirname,'index.html'),
       protocol:'file:'
     }));
 

@@ -9,20 +9,21 @@
     "npm": "3.10.7"
   },
   "devDependencies": {
-    "react-scripts": "0.9.3",
     "electron": "^1.4.15",
     "electron-installer-dmg": "^0.2.0",
     "electron-packager": "^8.5.2",
     "electron-winstaller": "^2.5.2",
-    "icon-gen": "^1.0.7"
+    "icon-gen": "^1.0.7",
+    "react-scripts": "0.9.3"
   },
   "dependencies": {
+    "neo4j": "^2.0.0-RC2",
     "react": "^15.4.2",
     "react-dom": "^15.4.2"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && ln -s ./vendor ./build/vendor",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "electron": "electron ./build",
