@@ -1,43 +1,22 @@
+/*global electron, icpRenderer*/
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import './index.css';
-import neo4j from 'neo4j';
 
-const proto = 'bolt://';
-const host = 'localhost:7474';
-const user = 'neo4j';
-const password = 'neo4j';
+const { ipcRenderer } = window.require('electron');
 
-var db = new neo4j.GraphDatabase(`${proto}${user}:${password}@${host}`);
+ipcRenderer.on('NEO4J_RESULT', (event, arg) => {
+  console.log(arg) // prints "pong"
+});
 
-// db.cypher({
-//     query: 'MATCH (u:User {email: {email}}) RETURN u',
-//     params: {
-//         email: 'alice@example.com',
-//     },
-// }, function (err, results) {
-//     if (err) throw err;
-//     var result = results[0];
-//     if (!result) {
-//         console.log('No user found.');
-//     } else {
-//         var user = result['u'];
-//         console.log(JSON.stringify(user, null, 4));
-//     }
-// });
-//
-// resultPromise.then(result => {
-//   session.close();
-//
-//   const singleRecord = result.records[0];
-//   const node = singleRecord.get(0);
-//
-//   console.log(node.properties.name);
-//
-//   // on application exit:
-//    driver.close();
-//  });
+ipcRenderer.on('NEO4J_ERROR', (event, arg) => {
+  console.log('neo4j error', arg) // prints "pong"
+})
+
+var timer = setTimeout(() => {
+  ipcRenderer.send('NEO4J_QUERY', 'MATCH (you {name:"You"})-[:FRIEND]->(yourFriends) RETURN you, yourFriends');
+}, 5000);
 
 ReactDOM.render(
   <App />,

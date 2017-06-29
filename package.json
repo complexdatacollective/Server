@@ -17,13 +17,13 @@
     "react-scripts": "0.9.3"
   },
   "dependencies": {
-    "neo4j": "^2.0.0-RC2",
+    "neo4j-driver": "^1.3.0",
     "react": "^15.4.2",
     "react-dom": "^15.4.2"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && ln -s ./vendor ./build/vendor",
+    "build": "rm -rf ./build && react-scripts build && ln -s ./vendor ./build/vendor",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "electron": "electron ./build",
