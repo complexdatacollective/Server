@@ -23,7 +23,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "rm -rf ./build && react-scripts build && ln -s ./vendor ./build/vendor",
+    "clean": "rm -rf ./build",
+    "build": "npm run clean && react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "electron": "electron ./build",
