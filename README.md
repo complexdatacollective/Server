@@ -1,13 +1,12 @@
-# Network Canvas
+# Network Canvas Server 
 Technologies used:
-ES6 (via Babel)
-React
-Redux
-Electron
-Cordova
-SCSS
-Jest (Testing suite)
-React Scripts
+- ES6 (via Babel)
+- React
+- Redux
+- Electron
+- SCSS
+- Jest (Testing suite)
+- React Scripts
 
 # Operation
 ## Installation
@@ -27,7 +26,6 @@ This repository assumes that `npm` is installed. If you don't have it installed,
 |`package-mac`|Uses electron-packager to package an OSX release.|
 |`package-win`|Uses electron-packager to package a Windows release.|
 |`package-linux`|Uses electron-packager to package a Linux release.|
-|`package-cordova`|Builds Android and iOS cordova projects|
 |`create-installer-mac`|Creates a DMG based installer for OSX.|
 
 
