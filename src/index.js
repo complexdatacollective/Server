@@ -12,20 +12,11 @@ import AppRouter from './routes';
 
 injectTapEventPlugin();
 
-function startApp() {
-  ReactDOM.render(
-    <Provider store={store}>
-      <App>
-        <AppRouter />
-      </App>
-    </Provider>,
-    document.getElementById('root'),
-  );
-}
-if (window.cordova) {
-  console.log('cordova');
-  document.addEventListener('deviceready', startApp, false);
-} else {
-  console.log('not cordova');
-  startApp();
-}
+ReactDOM.render(
+  <Provider store={store}>
+    <App>
+      <AppRouter />
+    </App>
+  </Provider>,
+  document.getElementById('root'),
+);
