@@ -1,25 +1,15 @@
 const path = require('path');
 const url = require('url');
 const menubar = require('menubar');
-const BrowserWindow = require('electron').BrowserWindow;
+const { BrowserWindow, ipcMain } = require('electron');
 // // Module to create native browser window.
 // const BrowserWindow = electron.BrowserWindow;
-
-const trayUrl = url.format({
-  pathname: path.join(__dirname, 'index.html'),
-  hash: '#/tray',
-  protocol: 'file:',
-});
-
-const mb = menubar({
-  index: trayUrl,
-});
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 
-function createWindow() {
+function openMainWindow() {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
@@ -46,4 +36,21 @@ function createWindow() {
   })
 }
 
-mb.on('ready', createWindow);
+ipcMain.on('OPEN_MAIN_WINDOW', (event, arg) => {
+  openMainWindow();
+});
+
+const trayUrl = url.format({
+  pathname: path.join(__dirname, 'index.html'),
+  hash: '#/tray',
+  protocol: 'file:',
+});
+
+// 'Start' GUI
+const mb = menubar({
+  index: trayUrl,
+});
+
+mb.on('after-create-window', function() {
+  mb.window.openDevTools();
+});
