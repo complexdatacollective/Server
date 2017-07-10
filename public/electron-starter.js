@@ -46,9 +46,16 @@ const trayUrl = url.format({
   protocol: 'file:',
 });
 
+const icon = url.format({
+  pathname: path.join(__dirname, 'icons', 'round', 'round.png'),
+  protocol: 'file:',
+})
+
 // 'Start' GUI
 const mb = menubar({
   index: trayUrl,
+  icon: icon,
+  preloadWindow: true,
 });
 
 mb.on('after-create-window', function() {
