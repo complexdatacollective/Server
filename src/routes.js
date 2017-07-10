@@ -7,11 +7,12 @@ import {
   Redirect,
   Switch,
 } from 'react-router-dom';
-import { HomePage } from './containers';
+import { HomePage, Tray } from './containers';
 
 export default () => (
   <Router>
     <Switch>
+      <Route path="/tray" component={Tray} />
       <Route path="/" component={HomePage} />
     </Switch>
   </Router>
