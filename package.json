@@ -1,8 +1,8 @@
 {
-  "name": "network-canvas",
+  "name": "network-canvas-server",
   "version": "4.0.0",
-  "productName": "Network Canvas",
-  "description": "A touch-optimised framework for capturing personal network data.",
+  "productName": "Network Canvas Server",
+  "description": "A tool for storing, analyzing, and exporting Network Canvas interview data.",
   "private": true,
   "engines": {
     "node": "6.9.1",
@@ -80,12 +80,10 @@
     "whatwg-fetch": "2.0.2"
   },
   "dependencies": {
-    "@mars/heroku-js-runtime-env": "^3.0.0",
     "axios": "^0.16.1",
     "classnames": "^2.2.5",
     "create-react-class": "^15.5.3",
     "electron": "^1.4.15",
-    "gridle": "^2.0.48",
     "history": "^4.5.1",
     "lodash": "^4.17.4",
     "menubar": "^5.2.3",
@@ -93,12 +91,9 @@
     "prop-types": "^15.5.8",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
-    "react-draggable": "^2.2.3",
-    "react-hammerjs": "^0.5.0",
     "react-icons": "^2.2.3",
     "react-redux": "^4.4.5",
     "react-router-dom": "^4.1.1",
-    "react-tap-event-plugin": "^2.0.1",
     "react-test-renderer": "^15.5.4",
     "react-transform-hmr": "^1.0.4",
     "react-transition-group": "^1.1.3",
@@ -111,7 +106,6 @@
     "reselect": "^3.0.0",
     "rxjs": "^5.4.0",
     "sass-svg": "^1.0.1",
-    "semantic-ui-react": "^0.67.2",
     "upgrade": "^1.1.0"
   },
   "homepage": ".",

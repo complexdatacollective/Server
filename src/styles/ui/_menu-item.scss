@@ -1,0 +1,19 @@
+@mixin menu-item($settings) {
+  @include typography('title-4');
+  text-transform: uppercase;  // Should this be part of typography?
+  font-weight: bold;  // Should this be part of typography?
+  letter-spacing: 3px;  // Should this be part of typography?
+  text-align: left;
+  border: none;
+  outline: none;
+  background-color: palette('menu');
+  padding: 15px 25px 15px 20px;
+  cursor: pointer;
+  color: #6D6F77;
+  border-bottom: #F2F2F2 1px solid;
+
+  &:hover {
+    background: map-get($settings, 'hover');
+    color: palette('selected');
+  }
+}

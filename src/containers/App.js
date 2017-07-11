@@ -8,7 +8,7 @@ require('../styles/main.scss');
   * @param props {object} - children
   */
 const App = props => (
-  <div>
+  <div className="app">
     { props.children }
   </div>
 );

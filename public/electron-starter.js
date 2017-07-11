@@ -14,7 +14,7 @@ function openMainWindow() {
     width: 800,
     height: 600,
     center: true,
-    title: 'Network Canvas Server'
+    title: 'Network Canvas Server',
   });
 
   mainWindow.maximize();
@@ -25,20 +25,16 @@ function openMainWindow() {
   }));
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools({ mode:'detach' });
+  mainWindow.webContents.openDevTools({ mode: 'detach' });
 
   // Emitted when the window is closed.
-  mainWindow.on('closed', function () {
-      // Dereference the window object, usually you would store windows
-      // in an array if your app supports multi windows, this is the time
-      // when you should delete the corresponding element.
-      mainWindow = null
-  })
+  mainWindow.on('closed', () => {
+    // Dereference the window object, usually you would store windows
+    // in an array if your app supports multi windows, this is the time
+    // when you should delete the corresponding element.
+    mainWindow = null;
+  });
 }
-
-ipcMain.on('OPEN_MAIN_WINDOW', (event, arg) => {
-  openMainWindow();
-});
 
 const trayUrl = url.format({
   pathname: path.join(__dirname, 'index.html'),
@@ -49,15 +45,26 @@ const trayUrl = url.format({
 const icon = url.format({
   pathname: path.join(__dirname, 'icons', 'round', 'round.png'),
   protocol: 'file:',
-})
+});
 
 // 'Start' GUI
 const mb = menubar({
   index: trayUrl,
-  icon: icon,
+  icon,
   preloadWindow: true,
+  width: 300,
+  height: 210,
+  tooltip: 'Network Canvas Server',
 });
 
-mb.on('after-create-window', function() {
-  mb.window.openDevTools();
+// mb.on('after-create-window', () => {
+//   mb.window.openDevTools();
+// });
+
+ipcMain.on('OPEN_MAIN_WINDOW', () => {
+  openMainWindow();
+});
+
+ipcMain.on('QUIT', () => {
+  mb.app.quit();
 });

@@ -1,13 +1,42 @@
 {
-  "name": "network-canvas",
+  "name": "network-canvas-server",
   "version": "4.0.0",
-  "productName": "Network Canvas",
-  "description": "A touch-optimised framework for capturing personal network data.",
+  "productName": "Network Canvas Server",
+  "description": "A tool for storing, analyzing, and exporting Network Canvas interview data.",
   "private": true,
+  "homepage": ".",
   "engines": {
     "node": "6.9.1",
     "npm": "3.10.7"
   },
-  "homepage": ".",
-  "main": "electron-starter.js"
+  "dependencies": {
+    "axios": "^0.16.1",
+    "classnames": "^2.2.5",
+    "create-react-class": "^15.5.3",
+    "electron": "^1.4.15",
+    "history": "^4.5.1",
+    "lodash": "^4.17.4",
+    "menubar": "^5.2.3",
+    "network-canvas-ui": "https://github.com/codaco/Network-Canvas-UI.git",
+    "prop-types": "^15.5.8",
+    "react": "^15.3.2",
+    "react-dom": "^15.3.2",
+    "react-icons": "^2.2.3",
+    "react-redux": "^4.4.5",
+    "react-router-dom": "^4.1.1",
+    "react-test-renderer": "^15.5.4",
+    "react-transform-hmr": "^1.0.4",
+    "react-transition-group": "^1.1.3",
+    "redux": "^3.6.0",
+    "redux-form": "^6.4.3",
+    "redux-logger": "^2.7.4",
+    "redux-observable": "^0.14.1",
+    "redux-persist": "^4.3.1",
+    "redux-thunk": "^2.1.0",
+    "reselect": "^3.0.0",
+    "rxjs": "^5.4.0",
+    "sass-svg": "^1.0.1",
+    "upgrade": "^1.1.0"
+  },
+  "main": "./electron-starter.js"
 }
