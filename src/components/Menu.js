@@ -1,18 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const TrayMenu = ({ children }) => (
-  <div className="tray__menu">
+const Menu = ({ children, ...props }) => (
+  <div {...props}>
     { children }
   </div>
 );
 
-TrayMenu.propTypes = {
+Menu.propTypes = {
   children: PropTypes.node,
 };
 
-TrayMenu.defaultProps = {
+Menu.defaultProps = {
   children: null,
 };
 
-export default TrayMenu;
+export default Menu;

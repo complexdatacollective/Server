@@ -1,2 +1,20 @@
 .export-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: spacing(3);
+
+  &__heading {
+    &-title {
+      @include typography(title-1);
+      text-align: left;
+    }
+    &-subtitle {
+      @include typography(title-2, medium);
+      text-align: left;
+    }
+  }
+
+  &__options {
+  }
 }

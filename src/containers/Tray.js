@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { ipcRenderer } from 'electron';
-import TrayMenu from '../components/TrayMenu';
-import TrayMenuItem from '../components/TrayMenuItem';
+import Menu from '../components/Menu';
+import MenuItem from '../components/MenuItem';
 
 class Tray extends Component {
   openMainWindow = () => {
@@ -15,14 +15,14 @@ class Tray extends Component {
   render() {
     return (
       <div className="tray">
-        <TrayMenu>
-          <TrayMenuItem action={this.openMainWindow}>
+        <Menu className="tray__menu">
+          <MenuItem className="tray__menu-item" action={this.openMainWindow}>
             Export data
-          </TrayMenuItem>
-          <TrayMenuItem action={this.quit}>
+          </MenuItem>
+          <MenuItem className="tray__menu-item" action={this.quit}>
             Quit
-          </TrayMenuItem>
-        </TrayMenu>
+          </MenuItem>
+        </Menu>
       </div>
     );
   }

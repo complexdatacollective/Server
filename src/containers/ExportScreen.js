@@ -1,8 +1,21 @@
 import React from 'react';
+import { NarrativePanel } from '../components';
 
 const ExportScreen = () => (
   <div className="export-screen">
-    Hello world
+    <div className="export-screen__heading">
+      <h1 className="export-screen__heading-title">Network Canvas</h1>
+      <h2 className="export-screen__heading-subtitle">Exporter</h2>
+    </div>
+    <div className="export-screen__options">
+      <NarrativePanel title="Presets">
+        Some options go here...
+      </NarrativePanel>
+      <NarrativePanel title="Advanced options">
+        Some options go here...
+      </NarrativePanel>
+      <button>Export</button>
+    </div>
   </div>
 );
 
