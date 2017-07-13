@@ -1,8 +1,18 @@
+/* eslint-disable no-console */
+
 const io = require('socket.io');
 const PrivateSocket = require('private-socket');
-const levelup = require('levelup');
+const level = require('level');
 
-const db = levelup('./responses');
+// level.destroy('./responses');
+
+const db = level('./responses', { valueEncoding: 'json' });
+
+// same as:
+db.createReadStream({ keys: true, values: true })
+  .on('data', ({ key, value }) => {
+    console.log(key, ':', value);
+  });
 
 const createServer = (port) => {
   const server = io(port);
