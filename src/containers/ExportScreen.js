@@ -1,5 +1,5 @@
 import React from 'react';
-import { NarrativePanel } from '../components';
+import { NarrativePanel } from 'network-canvas-ui';
 
 const ExportScreen = () => (
   <div className="export-screen">

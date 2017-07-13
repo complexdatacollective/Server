@@ -1,9 +1,8 @@
-@import '~network-canvas-ui/src/styles/all.scss';
-@import 'ui/index';
+@import '~network-canvas-ui/lib/styles/all.scss';
+@import 'helpers/all';
+@import 'ui/all';
 
 @import 'reset';
 @import 'app';
 
-@import 'export-screen';
-@import 'tray';
-@import 'narrative-panel';
+@import 'components/all';
