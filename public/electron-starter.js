@@ -2,8 +2,7 @@ const path = require('path');
 const url = require('url');
 const menubar = require('menubar');
 const { BrowserWindow, ipcMain } = require('electron');
-// // Module to create native browser window.
-// const BrowserWindow = electron.BrowserWindow;
+const server = require('./server');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -50,7 +49,7 @@ const icon = url.format({
   protocol: 'file:',
 });
 
-// 'Start' GUI
+// Start GUI
 const mb = menubar({
   index: trayUrl,
   icon,
@@ -64,8 +63,12 @@ const mb = menubar({
 //   mb.window.openDevTools();
 // });
 
-ipcMain.on('OPEN_MAIN_WINDOW', (_, route) => {
-  openMainWindow(route);
+mb.on('ready', () => {
+  server(80);
+});
+
+ipcMain.on('OPEN_MAIN_WINDOW', () => {
+  openMainWindow();
 });
 
 ipcMain.on('QUIT', () => {
