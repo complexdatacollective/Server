@@ -10,13 +10,15 @@ abab@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/abab/-/abab-1.0.3.tgz#b81de5f7274ec4e756d797cd834f303642724e5d"
 
-abbrev@1:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.0.tgz#d0554c2256636e2f56e7c2e5ad183f859428d81f"
-
-abbrev@1.0.x:
+abbrev@1, abbrev@1.0.x:
   version "1.0.9"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.0.9.tgz#91b4792588a7738c25f35dd6f63752a2f8776135"
+
+abstract-leveldown@~2.4.0:
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/abstract-leveldown/-/abstract-leveldown-2.4.1.tgz#b3bfedb884eb693a12775f0c55e9f0a420ccee64"
+  dependencies:
+    xtend "~4.0.0"
 
 accepts@1.3.3, accepts@~1.3.3:
   version "1.3.3"
@@ -1936,7 +1938,7 @@ combined-stream@^1.0.5, combined-stream@~1.0.5:
   dependencies:
     delayed-stream "~1.0.0"
 
-commander@2.9.0, commander@2.9.x, commander@~2.9.0:
+commander@2.9.0, commander@2.9.x, commander@^2.9.0, commander@~2.9.0:
   version "2.9.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.9.0.tgz#9c99094176e12240cb22d6c5146098400fe0f7d4"
   dependencies:
@@ -1947,10 +1949,6 @@ commander@^2.8.1, commander@~2.8.1:
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.8.1.tgz#06be367febfda0c330aa1e2a072d3dc9762425d4"
   dependencies:
     graceful-readlink ">= 1.0.0"
-
-commander@^2.9.0:
-  version "2.11.0"
-  resolved "https://registry.yarnpkg.com/commander/-/commander-2.11.0.tgz#157152fd1e7a6c8d98a5b715cf376df928004563"
 
 commondir@^1.0.1:
   version "1.0.1"
@@ -2480,6 +2478,12 @@ default-require-extensions@^1.0.0:
   dependencies:
     strip-bom "^2.0.0"
 
+deferred-leveldown@~1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/deferred-leveldown/-/deferred-leveldown-1.2.1.tgz#5d25c3310f5fe909946f6240dc9f90dd109a71ef"
+  dependencies:
+    abstract-leveldown "~2.4.0"
+
 define-properties@^1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/define-properties/-/define-properties-1.1.2.tgz#83a73f2fea569898fb737193c8f873caf6d45c94"
@@ -2916,7 +2920,7 @@ enzyme@^2.0.0, enzyme@^2.8.2:
     prop-types "^15.5.10"
     uuid "^3.0.1"
 
-errno@^0.1.1, errno@^0.1.3, errno@^0.1.4:
+errno@^0.1.1, errno@^0.1.3, errno@^0.1.4, errno@~0.1.1:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/errno/-/errno-0.1.4.tgz#b896e23a9e5e8ba33871fc996abd3635fc9a1c7d"
   dependencies:
@@ -5207,6 +5211,37 @@ less@^2.7.1:
     request "^2.72.0"
     source-map "^0.5.3"
 
+level-codec@~6.1.0:
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/level-codec/-/level-codec-6.1.0.tgz#f5df0a99582f76dac43855151ab6f4e4d0d60045"
+
+level-errors@^1.0.3, level-errors@~1.0.3:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/level-errors/-/level-errors-1.0.4.tgz#3585e623974c737a93755492a43c0267cda4425f"
+  dependencies:
+    errno "~0.1.1"
+
+level-iterator-stream@~1.3.0:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/level-iterator-stream/-/level-iterator-stream-1.3.1.tgz#e43b78b1a8143e6fa97a4f485eb8ea530352f2ed"
+  dependencies:
+    inherits "^2.0.1"
+    level-errors "^1.0.3"
+    readable-stream "^1.0.33"
+    xtend "^4.0.0"
+
+levelup@^1.3.8:
+  version "1.3.8"
+  resolved "https://registry.yarnpkg.com/levelup/-/levelup-1.3.8.tgz#fb442c488efbea1043f7eb9929a792a74fbd1da6"
+  dependencies:
+    deferred-leveldown "~1.2.1"
+    level-codec "~6.1.0"
+    level-errors "~1.0.3"
+    level-iterator-stream "~1.3.0"
+    prr "~1.0.1"
+    semver "~5.1.0"
+    xtend "~4.0.0"
+
 levn@^0.3.0, levn@~0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/levn/-/levn-0.3.0.tgz#3b09924edf9f083c0490fdd4c0bc4421e04764ee"
@@ -5671,7 +5706,7 @@ mime-types@^2.1.12, mime-types@~2.1.11, mime-types@~2.1.15, mime-types@~2.1.7:
   dependencies:
     mime-db "~1.27.0"
 
-mime@1.2.x, mime@^1.2.11:
+mime@1.2.x:
   version "1.2.11"
   resolved "https://registry.yarnpkg.com/mime/-/mime-1.2.11.tgz#58203eed86e3a5ef17aed2b7d9ebd47f0a60dd10"
 
@@ -5679,7 +5714,7 @@ mime@1.3.4:
   version "1.3.4"
   resolved "https://registry.yarnpkg.com/mime/-/mime-1.3.4.tgz#115f9e3b6b3daf2959983cb38f149a2d40eb5d53"
 
-mime@^1.3.4:
+mime@^1.2.11, mime@^1.3.4:
   version "1.3.6"
   resolved "https://registry.yarnpkg.com/mime/-/mime-1.3.6.tgz#591d84d3653a6b0b4a3b9df8de5aa8108e72e5e0"
 
@@ -6894,6 +6929,10 @@ prr@~0.0.0:
   version "0.0.0"
   resolved "https://registry.yarnpkg.com/prr/-/prr-0.0.0.tgz#1a84b85908325501411853d0081ee3fa86e2926a"
 
+prr@~1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/prr/-/prr-1.0.1.tgz#d3fc114ba06995a45ec6893f484ceb1d78f5f476"
+
 ps-tree@^1.0.1:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/ps-tree/-/ps-tree-1.1.0.tgz#b421b24140d6203f1ed3c76996b4427b08e8c014"
@@ -7231,7 +7270,7 @@ readable-stream@1.0, readable-stream@~1.0.2:
     isarray "0.0.1"
     string_decoder "~0.10.x"
 
-readable-stream@^1.1.8, readable-stream@~1.1.9:
+readable-stream@^1.0.33, readable-stream@^1.1.8, readable-stream@~1.1.9:
   version "1.1.14"
   resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-1.1.14.tgz#7cf4c54ef648e3813084c636dd2079e166c081d9"
   dependencies:
@@ -7642,15 +7681,15 @@ right-align@^0.1.1:
   dependencies:
     align-text "^0.1.1"
 
-rimraf@2, rimraf@2.5.4, rimraf@^2.2.8, rimraf@^2.5.4:
-  version "2.5.4"
-  resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-2.5.4.tgz#96800093cbf1a0c86bd95b4625467535c29dfa04"
+rimraf@2, rimraf@^2.5.1, rimraf@^2.6.0, rimraf@^2.6.1:
+  version "2.6.1"
+  resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-2.6.1.tgz#c2338ec643df7a1b7fe5c54fa86f57428a55f33d"
   dependencies:
     glob "^7.0.5"
 
-rimraf@^2.5.1, rimraf@^2.6.0, rimraf@^2.6.1:
-  version "2.6.1"
-  resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-2.6.1.tgz#c2338ec643df7a1b7fe5c54fa86f57428a55f33d"
+rimraf@2.5.4, rimraf@^2.2.8, rimraf@^2.5.4:
+  version "2.5.4"
+  resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-2.5.4.tgz#96800093cbf1a0c86bd95b4625467535c29dfa04"
   dependencies:
     glob "^7.0.5"
 
@@ -7790,6 +7829,10 @@ semver-diff@^2.0.0:
 semver@~4.3.3:
   version "4.3.6"
   resolved "https://registry.yarnpkg.com/semver/-/semver-4.3.6.tgz#300bc6e0e86374f7ba61068b5b1ecd57fc6532da"
+
+semver@~5.1.0:
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-5.1.1.tgz#a3292a373e6f3e0798da0b20641b9a9c5bc47e19"
 
 send@0.15.3:
   version "0.15.3"
@@ -9105,7 +9148,7 @@ xmlhttprequest-ssl@1.5.3:
   version "1.5.3"
   resolved "https://registry.yarnpkg.com/xmlhttprequest-ssl/-/xmlhttprequest-ssl-1.5.3.tgz#185a888c04eca46c3e4070d99f7b49de3528992d"
 
-xtend@^4.0.0, xtend@^4.0.1:
+xtend@^4.0.0, xtend@^4.0.1, xtend@~4.0.0:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/xtend/-/xtend-4.0.1.tgz#a5c6d532be656e23db820efb943a1f04998d63af"
 
