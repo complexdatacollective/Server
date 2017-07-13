@@ -4,8 +4,8 @@ import Menu from '../components/Menu';
 import MenuItem from '../components/MenuItem';
 
 class Tray extends Component {
-  openMainWindow = () => {
-    ipcRenderer.send('OPEN_MAIN_WINDOW');
+  openMainWindow = (route) => {
+    ipcRenderer.send('OPEN_MAIN_WINDOW', route);
   }
 
   quit = () => {
@@ -16,7 +16,10 @@ class Tray extends Component {
     return (
       <div className="tray">
         <Menu className="tray__menu">
-          <MenuItem className="tray__menu-item" action={this.openMainWindow}>
+          <MenuItem className="tray__menu-item" action={() => { this.openMainWindow('/'); }}>
+            Overview
+          </MenuItem>
+          <MenuItem className="tray__menu-item" action={() => { this.openMainWindow('/export'); }}>
             Export data
           </MenuItem>
           <MenuItem className="tray__menu-item" action={this.quit}>

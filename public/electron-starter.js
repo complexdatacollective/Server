@@ -9,31 +9,34 @@ const { BrowserWindow, ipcMain } = require('electron');
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 
-function openMainWindow() {
-  mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    center: true,
-    title: 'Network Canvas Server',
-  });
+function openMainWindow(route = '/') {
+  if (!mainWindow) {
+    mainWindow = new BrowserWindow({
+      width: 800,
+      height: 600,
+      center: true,
+      title: 'Network Canvas Server',
+    });
 
-  mainWindow.maximize();
+    mainWindow.maximize();
+
+    // Open the DevTools.
+    mainWindow.webContents.openDevTools({ mode: 'detach' });
+
+    // Emitted when the window is closed.
+    mainWindow.on('closed', () => {
+      // Dereference the window object, usually you would store windows
+      // in an array if your app supports multi windows, this is the time
+      // when you should delete the corresponding element.
+      mainWindow = null;
+    });
+  }
 
   mainWindow.loadURL(url.format({
     pathname: path.join(__dirname, 'index.html'),
+    hash: `#${route}`,
     protocol: 'file:',
   }));
-
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools({ mode: 'detach' });
-
-  // Emitted when the window is closed.
-  mainWindow.on('closed', () => {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    mainWindow = null;
-  });
 }
 
 const trayUrl = url.format({
@@ -61,8 +64,8 @@ const mb = menubar({
 //   mb.window.openDevTools();
 // });
 
-ipcMain.on('OPEN_MAIN_WINDOW', () => {
-  openMainWindow();
+ipcMain.on('OPEN_MAIN_WINDOW', (_, route) => {
+  openMainWindow(route);
 });
 
 ipcMain.on('QUIT', () => {
