@@ -6,7 +6,7 @@ const level = require('level');
 
 // level.destroy('./responses');
 
-const db = level('./responses', { valueEncoding: 'json' });
+const db = level('./db/responses', { valueEncoding: 'json' });
 
 // same as:
 db.createReadStream({ keys: true, values: true })
