@@ -10,7 +10,7 @@
   },
   "scripts": {
     "start": "node scripts/start.js",
-    "build": "node scripts/build.js && (cd build && npm install)",
+    "build": "node scripts/build.js && (cd build && yarn install)",
     "server": "node public/server.js",
     "lint": "eslint src",
     "test": "node scripts/test.js --env=jsdom",
@@ -86,7 +86,7 @@
     "create-react-class": "^15.5.3",
     "electron": "^1.4.15",
     "history": "^4.5.1",
-    "level": "^1.7.0",
+    "ip": "^1.1.5",
     "lodash": "^4.17.4",
     "menubar": "^5.2.3",
     "network-canvas-ui": "https://github.com/codaco/Network-Canvas-UI.git",

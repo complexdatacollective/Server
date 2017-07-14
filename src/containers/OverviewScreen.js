@@ -1,4 +1,5 @@
 import React from 'react';
+import { ServerPanel } from '../components';
 
 const OverviewScreen = () => (
   <div className="screen">
@@ -8,6 +9,7 @@ const OverviewScreen = () => (
     </div>
     <div className="screen__main">
       Various stats and info go here.
+      <ServerPanel />
     </div>
   </div>
 );

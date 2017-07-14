@@ -1,42 +1,50 @@
 /* eslint-disable no-console */
 
+const Emitter = require('events').EventEmitter;
 const io = require('socket.io');
 const PrivateSocket = require('private-socket');
-const level = require('level');
+const ip = require('ip');
 
-// level.destroy('./responses');
+const events = [];
 
-const db = level('./db/responses', { valueEncoding: 'json' });
+class Server extends Emitter {
+  constructor(port) {
+    super();
 
-// same as:
-db.createReadStream({ keys: true, values: true })
-  .on('data', ({ key, value }) => {
-    console.log(key, ':', value);
-  });
+    this.server = io(port);
 
-const createServer = (port) => {
-  const server = io(port);
+    console.log(`Server started on port ${port}.`);
 
-  console.log(`Server started on port ${port}.`);
+    this.server.on('connect', (socket) => {
+      console.log('Client connected.');
+      const ps = new PrivateSocket(socket);
+      console.log('Private socket established, listening...');
 
-  server.on('connect', (socket) => {
-    console.log('Client connected.');
-    const ps = new PrivateSocket(socket);
-    console.log('Private socket established, listening...');
-
-    ps.on('data', (data) => {
-      db.put(new Date().getTime(), {
-        type: 'response',
-        data,
-      }, (err) => {
-        if (err) return console.log('Ooops!', err);
-        return console.log('Saved', data);
+      ps.on('data', (data) => {
+        console.log('Received:', data);
       });
     });
-  });
+  }
 
-  return server;
-};
+  getOverview() {
+    console.log(this.server);
+    return {
+      ip: ip.address(),
+      // port: this.server.port,
+      // connections: this.server.sockets,
+    };
+  }
+
+  on(name, cb, ...rest) {
+    if (events.indexOf(name) !== -1) {
+      return Emitter.prototype.on.apply(this, [name, cb, ...rest]);
+    }
+
+    return this.server.on(name, cb);
+  }
+}
+
+const createServer = port => new Server(port);
 
 if (require.main === module) {
   createServer(8081);
