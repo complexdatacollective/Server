@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "axios": "^0.16.1",
+    "bluebird": "^3.5.0",
     "classnames": "^2.2.5",
     "create-react-class": "^15.5.3",
     "electron": "^1.4.15",
@@ -18,6 +19,7 @@
     "ip": "^1.1.5",
     "lodash": "^4.17.4",
     "menubar": "^5.2.3",
+    "nedb": "^1.8.0",
     "network-canvas-ui": "https://github.com/codaco/Network-Canvas-UI.git",
     "private-socket": "https://github.com/codaco/PrivateSocket.git",
     "prop-types": "^15.5.8",

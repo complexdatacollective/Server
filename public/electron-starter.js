@@ -2,7 +2,7 @@ const path = require('path');
 const url = require('url');
 const menubar = require('menubar');
 const { BrowserWindow, ipcMain } = require('electron');
-const Server = require('./server');
+const { createServer } = require('./server');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -64,20 +64,7 @@ const mb = menubar({
 // });
 
 mb.on('ready', () => {
-  const server = Server(8081);
-
-  console.log(server);
-
-  const updateOverview = () => {
-    global.server = {
-      overview: server.getOverview(),
-    };
-  };
-
-  updateOverview();
-
-  server.on('connect', updateOverview);
-  server.on('disconnect', updateOverview);
+  createServer(8080);
 });
 
 ipcMain.on('OPEN_MAIN_WINDOW', () => {
