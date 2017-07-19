@@ -63,8 +63,29 @@ const mb = menubar({
 //   mb.window.openDevTools();
 // });
 
+const updateServerOverview = (data) => {
+  global.serverOverview = Object.assign({}, global.serverOverview, data);
+};
+
 mb.on('ready', () => {
-  createServer(8080);
+  createServer(8080).then((server) => {
+    const overview = {
+      port: server.options.port,
+      publicKey: server.options.keys.publicKey,
+      startTime: new Date().getTime(),
+      clients: server.clients(),
+    };
+
+    updateServerOverview(overview);
+
+    server.on('connect', (socket) => {
+      updateServerOverview({ clients: server.clients() });
+
+      socket.on('disconnect', () => {
+        updateServerOverview({ clients: server.clients() })
+      });
+    });
+  });
 });
 
 ipcMain.on('OPEN_MAIN_WINDOW', () => {

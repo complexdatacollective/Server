@@ -9,12 +9,12 @@ const defaultPort = 8080;
 const events = [];
 
 class Server extends Emitter {
-  constructor({ port, keys } = { keys: null }) {
+  constructor(options = { port: defaultPort, keys: null }) {
     super();
-    this.keys = keys;
-    this.server = io(port);
+    this.options = options;
+    this.server = io(this.options.port);
     this.listen();
-    console.log(`Server started on port ${port}.`);
+    console.log(`Server started on port ${this.options.port}.`);
   }
 
   listen() {
@@ -22,13 +22,17 @@ class Server extends Emitter {
     this.server.on('connect', (socket) => {
       console.log('Client connected.');
 
-      const ps = new PrivateSocket(socket, { keys: this.keys });
+      const ps = new PrivateSocket(socket, { keys: this.options.keys });
       console.log('Private socket established, listening...');
 
       ps.on('data', (data) => {
         console.log('Received:', data);
       });
     });
+  }
+
+  clients() {
+    return Object.keys(this.server.sockets.sockets).length;
   }
 
   on(name, cb, ...rest) {
@@ -39,8 +43,6 @@ class Server extends Emitter {
     return this.server.on(name, cb);
   }
 }
-
-const getSettings = () => Settings.get();
 
 const saveSettings = settings => Settings.set(settings);
 
@@ -57,7 +59,7 @@ const ensurePemKeyPair = (settings) => {
 };
 
 const createServer = port =>
-  getSettings()
+  Settings.get()
     .then(ensurePemKeyPair)
     .then(saveSettings)
     .then((settings) => {
