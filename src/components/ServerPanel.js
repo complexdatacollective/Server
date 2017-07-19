@@ -1,10 +1,7 @@
-/* eslint-disable */
-
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { PanelItem } from '../components';
-
-const remote = require('electron').remote;
+import ipc from '../containers/ipc';
 
 const defaultServerOverview = {
   ip: 'x.x.x.x',
@@ -13,29 +10,20 @@ const defaultServerOverview = {
   publicKey: '',
 };
 
-const getServerOverview = () =>
-  remote ? Object.assign({}, defaultServerOverview, remote.getGlobal('serverOverview')) : defaultServerOverview;
+const ServerPanel = ({ serverOverview }) => {
+  const overview = { ...defaultServerOverview, ...serverOverview };
+  return (
+    <div className="server-panel">
+      <PanelItem label="IP" value={overview.ip} />
+      <PanelItem label="Clients" value={overview.clients} />
+      <PanelItem label="Uptime" value={overview.uptime} />
+      <PanelItem label="Public Key" value={overview.publicKey} />
+    </div>
+  );
+};
 
-class ServerPanel extends Component {
-  render() {
-    const {
-      overview,
-    } = this.props;
-    return (
-      <div className="server-panel">
-        <PanelItem label="IP" value={overview.ip} />
-        <PanelItem label="Clients" value={overview.clients} />
-        <PanelItem label="Uptime" value={overview.uptime} />
-        <PanelItem label="Public Key" value={overview.publicKey} />
-      </div>
-    );
-  }
-}
+ServerPanel.propTypes = {
+  serverOverview: PropTypes.any.isRequired,
+};
 
-function mapStateToProps(state) {
-  return {
-    overview: getServerOverview(),
-  }
-}
-
-export default connect(mapStateToProps)(ServerPanel);
+export default ipc('serverOverview')(ServerPanel);

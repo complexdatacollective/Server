@@ -4,9 +4,11 @@ const menubar = require('menubar');
 const { BrowserWindow, ipcMain } = require('electron');
 const { createServer } = require('./server');
 
+const port = 8080;
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow;
+let mainWindow = null;
 
 function openMainWindow(route = '/') {
   if (!mainWindow) {
@@ -63,12 +65,14 @@ const mb = menubar({
 //   mb.window.openDevTools();
 // });
 
-const updateServerOverview = (data) => {
-  global.serverOverview = Object.assign({}, global.serverOverview, data);
+const updateGlobal = (property, data) => {
+  const mergedData = Object.assign({}, global[property], data);
+  global[property] = mergedData;
+  if (mainWindow) { mainWindow.webContents.send('GLOBAL_UPDATED'); }
 };
 
 mb.on('ready', () => {
-  createServer(8080).then((server) => {
+  createServer(port).then((server) => {
     const overview = {
       port: server.options.port,
       publicKey: server.options.keys.publicKey,
@@ -76,13 +80,13 @@ mb.on('ready', () => {
       clients: server.clients(),
     };
 
-    updateServerOverview(overview);
+    updateGlobal('serverOverview', overview);
 
     server.on('connect', (socket) => {
-      updateServerOverview({ clients: server.clients() });
+      updateGlobal('serverOverview', { clients: server.clients() });
 
       socket.on('disconnect', () => {
-        updateServerOverview({ clients: server.clients() })
+        updateGlobal('serverOverview', { clients: server.clients() });
       });
     });
   });
