@@ -1,5 +1,5 @@
 {
-  "name": "network-canvas-server",
+  "name": "network-canvas-server-app",
   "version": "4.0.0",
   "productName": "Network Canvas Server",
   "description": "A tool for storing, analyzing, and exporting Network Canvas interview data.",

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { ipcRenderer } from 'electron';
-import Menu from '../components/Menu';
 import MenuItem from '../components/MenuItem';
 
 class Tray extends Component {
@@ -15,7 +14,7 @@ class Tray extends Component {
   render() {
     return (
       <div className="tray">
-        <Menu className="tray__menu">
+        <div className="tray__menu">
           <MenuItem className="tray__menu-item" action={() => { this.openMainWindow('/'); }}>
             Overview
           </MenuItem>
@@ -25,7 +24,7 @@ class Tray extends Component {
           <MenuItem className="tray__menu-item" action={this.quit}>
             Quit
           </MenuItem>
-        </Menu>
+        </div>
       </div>
     );
   }
