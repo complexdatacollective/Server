@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { RechartBarChart, ReactVisSample, VictorySample } from '../components';
 
 require('../styles/main.scss');
 
@@ -10,6 +11,9 @@ require('../styles/main.scss');
 const App = props => (
   <div className="app">
     { props.children }
+    <RechartBarChart />
+    <VictorySample />
+    <ReactVisSample />
   </div>
 );
 
