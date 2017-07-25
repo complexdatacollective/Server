@@ -2,52 +2,49 @@
 
 import React from 'react';
 import { mount, shallow } from 'enzyme';
-import { ipcRenderer, remote } from 'electron';
+import { ipcRenderer } from 'electron';
 import ipc from '../ipc';
 
 jest.mock('electron');
 
-const globalProperty = 'server';
+const property = 'serverProperty';
+const PROPERTY = 'SERVER_PROPERTY';
 
 const MockComponent = () => (
   <div>Intentionally left empty</div>
 );
 
-function setup(property = globalProperty) {
-  const serverGlobalConnector = ipc(property);
-  return {
-    component: serverGlobalConnector(MockComponent),
-  };
-}
+const propertyConnector = ipc(property);
+const WrappedComponent = propertyConnector(MockComponent);
 
 describe('ipc HOC', () => {
   beforeEach(() => {
     ipcRenderer.on.mockReset();
+    ipcRenderer.send.mockReset();
   });
 
   it('It should render', () => {
-    const Component = setup().component;
-    const subject = shallow(<Component />);
+    const subject = shallow(<WrappedComponent />);
 
     expect(subject).toMatchSnapshot();
   });
 
-  it('It should return a HOC Wrapped Component', () => {
-    remote.getGlobal
-      .mockReturnValueOnce({ foo: 'bar' })
-      .mockReturnValueOnce({ baz: 'buzz' });
+  it('It should request the property over IPC on initialisation', () => {
+    shallow(<WrappedComponent />);
 
-    const Component = setup().component;
+    expect(ipcRenderer.send.mock.calls[0][0]).toEqual(`REQUEST_${PROPERTY}`);
+  });
 
-    const subject = mount((
-      <Component foo="bar" />
-    )).find('MockComponent');
+  it('It should set props on the wrapped component ', () => {
+    const subject = mount(<WrappedComponent />);
 
-    expect(subject.prop(globalProperty)).toEqual({ foo: 'bar' });
+    // Manually call the listener with data from 'icpRender'
+    const propertyListener = ipcRenderer.on.mock.calls.find(call => call[0] === `${PROPERTY}`)[1];
+    const ipcEvent = {};
+    const ipcData = { foo: 'bar' };
+    propertyListener(ipcEvent, ipcData);
 
-    const globalUpdatedCallback = ipcRenderer.on.mock.calls[0][1];
-    globalUpdatedCallback();
-
-    expect(subject.prop(globalProperty)).toEqual({ baz: 'buzz' });
+    // Check ipc data is assigned to wrapped component prop
+    expect(subject.find(MockComponent).prop(property)).toEqual({ foo: 'bar' });
   });
 });

@@ -63,7 +63,7 @@ ShallowWrapper {
       "_instance": Tray {
         "_reactInternalInstance": [Circular],
         "context": Object {},
-        "openMainWindow": [Function],
+        "openWindow": [Function],
         "props": Object {},
         "quit": [Function],
         "refs": Object {},

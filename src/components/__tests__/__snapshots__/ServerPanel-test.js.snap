@@ -57,7 +57,7 @@ ShallowWrapper {
         },
         "refs": Object {},
         "state": Object {
-          "serverOverview": undefined,
+          "serverOverview": null,
         },
         "updater": Object {
           "enqueueCallback": [Function],

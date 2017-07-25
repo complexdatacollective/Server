@@ -7,10 +7,10 @@ ShallowWrapper {
   },
   "length": 1,
   "node": <MockComponent
-    server={undefined} />,
+    serverProperty={null} />,
   "nodes": Array [
     <MockComponent
-      server={undefined} />,
+      serverProperty={null} />,
   ],
   "options": Object {},
   "renderer": ReactShallowRenderer {
@@ -28,7 +28,7 @@ ShallowWrapper {
         "props": Object {},
         "refs": Object {},
         "state": Object {
-          "server": undefined,
+          "serverProperty": null,
         },
         "updater": Object {
           "enqueueCallback": [Function],
@@ -49,10 +49,10 @@ ShallowWrapper {
       "_pendingStateQueue": null,
       "_renderedComponent": NoopInternalComponent {
         "_currentElement": <MockComponent
-          server={undefined} />,
+          serverProperty={null} />,
         "_debugID": 2,
         "_renderedOutput": <MockComponent
-          server={undefined} />,
+          serverProperty={null} />,
       },
       "_renderedNodeType": 1,
       "_rootNodeID": 0,

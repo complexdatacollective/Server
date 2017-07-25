@@ -3,22 +3,22 @@ import { ipcRenderer } from 'electron';
 import MenuItem from '../components/MenuItem';
 
 class Tray extends Component {
-  openMainWindow = (route) => {
-    ipcRenderer.send('OPEN_MAIN_WINDOW', route);
+  openWindow = (route) => {
+    ipcRenderer.send('WINDOW_OPEN', route);
   }
 
   quit = () => {
-    ipcRenderer.send('QUIT');
+    ipcRenderer.send('APP_QUIT');
   }
 
   render() {
     return (
       <div className="tray">
         <div className="tray__menu">
-          <MenuItem className="tray__menu-item" action={() => { this.openMainWindow('/'); }}>
+          <MenuItem className="tray__menu-item" action={() => { this.openWindow('/'); }}>
             Overview
           </MenuItem>
-          <MenuItem className="tray__menu-item" action={() => { this.openMainWindow('/export'); }}>
+          <MenuItem className="tray__menu-item" action={() => { this.openWindow('/export'); }}>
             Export data
           </MenuItem>
           <MenuItem className="tray__menu-item" action={this.quit}>

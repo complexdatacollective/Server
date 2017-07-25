@@ -1,28 +1,38 @@
 import React, { Component } from 'react';
-import { ipcRenderer, remote } from 'electron';
+import { ipcRenderer } from 'electron';
+import changeCase from 'change-case';
 
-const getGlobal = property => (remote ? remote.getGlobal(property) : {});
+export default (property) => {
+  const PROPERTY = changeCase.constantCase(property);
 
-export default property =>
-  WrappedComponent =>
-    class IPCComponent extends Component {
+  return (WrappedComponent) => {
+    const requestUpdate = () => {
+      ipcRenderer.send(`REQUEST_${PROPERTY}`);
+    };
+
+    return class IPCComponent extends Component {
       constructor() {
         super();
 
         this.state = {
-          [property]: getGlobal(property),
+          [property]: null,
         };
 
-        if (ipcRenderer && ipcRenderer.on) {
-          ipcRenderer.on('GLOBAL_UPDATED', () => {
-            this.setState({
-              [property]: getGlobal(property),
-            });
+        this.listen();
+        requestUpdate();
+      }
+
+      listen() {
+        ipcRenderer.on(`${PROPERTY}`, (_, data) => {
+          this.setState({
+            [property]: data,
           });
-        }
+        });
       }
 
       render() {
         return <WrappedComponent {...this.state} {...this.props} />;
       }
     };
+  };
+};

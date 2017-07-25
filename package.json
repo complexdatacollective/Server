@@ -82,6 +82,7 @@
   },
   "dependencies": {
     "axios": "^0.16.1",
+    "change-case": "^3.0.1",
     "classnames": "^2.2.5",
     "create-react-class": "^15.5.3",
     "electron": "^1.4.15",
