@@ -1,12 +1,14 @@
 const { ipcMain } = require('electron');
-const { createMainWindow } = require('./mainWindow');
-const { createTray } = require('./tray');
-const { createServer } = require('./server');
+const { createMainWindow } = require('./components/mainWindow');
+const { createTray } = require('./components/tray');
+const { createServer } = require('./components/serverManager');
 
-const port = 8080;
 const mainWindow = createMainWindow();
 const tray = createTray();
-const server = createServer(port);
+
+createServer(8080).then((server) => {
+  server.stop();
+});
 
 ipcMain.on('REQUEST_SERVER_OVERVIEW', () => {
   mainWindow.send(
