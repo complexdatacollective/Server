@@ -30,17 +30,17 @@ class MainWindow {
   open(route = '/') {
     this.create();
 
-    this.window.loadURL(url.format({
+    const loadUrl = url.format({
       pathname: path.join(__dirname, 'index.html'),
       hash: `#${route}`,
       protocol: 'file:',
-    }));
+    });
+
+    this.window.loadURL(loadUrl);
   }
 
   send(...args) {
     if (!this.window) { return; }
-
-    console.log('sending', ...args);
 
     this.window.webContents.send(...args);
   }
