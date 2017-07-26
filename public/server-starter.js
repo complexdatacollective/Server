@@ -1,5 +1,3 @@
 const { createServer } = require('./components/serverManager');
 
-createServer(8080).then((server) => {
-  server.stop();
-});
+createServer(8080);

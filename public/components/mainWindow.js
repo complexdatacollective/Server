@@ -31,7 +31,7 @@ class MainWindow {
     this.create();
 
     const loadUrl = url.format({
-      pathname: path.join(__dirname, 'index.html'),
+      pathname: path.join(__dirname, '../', 'index.html'),
       hash: `#${route}`,
       protocol: 'file:',
     });

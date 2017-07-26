@@ -5,6 +5,7 @@ const { set: saveSettings, get: getSettings } = require('./settings');
 
 const SERVER_READY = 'SERVER_READY';
 const STOP_SERVER = 'STOP_SERVER';
+const SERVER_STATUS = 'SERVER_STATUS';
 
 const ensurePemKeyPair = (settings) => {
   if (!settings || !settings.keys) {
@@ -28,6 +29,13 @@ const serverTaskHandler = ({ action }) => {
   switch (action) {
     case STOP_SERVER:
       return process.exit();
+    case SERVER_STATUS:
+      return process.send({
+        action: SERVER_STATUS,
+        data: {
+          ip: '100.50.50.50',
+        },
+      });
     default:
       return false;
   }
@@ -39,7 +47,19 @@ class ServerProcess {
   }
 
   stop() {
-    this.process.send({ action: STOP_SERVER });
+    this.send({ action: STOP_SERVER });
+  }
+
+  send(data) {
+    this.process.send(data);
+  }
+
+  onMessage(action, cb) {
+    this.process.on('message', (message) => {
+      if (message.action === action) {
+        cb(message.data);
+      }
+    });
   }
 }
 
