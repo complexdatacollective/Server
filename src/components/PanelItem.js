@@ -12,7 +12,10 @@ const PanelItem = ({ label, value }) => (
 
 PanelItem.propTypes = {
   label: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+  ]).isRequired,
 };
 
 export default PanelItem;

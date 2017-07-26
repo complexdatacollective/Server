@@ -1,31 +1,29 @@
-/* eslint-disable */
-
-import React, { Component } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { PanelItem } from '../components';
+import ipc from '../containers/ipc';
 
-const remote = require('electron').remote;
+const defaultServerOverview = {
+  ip: 'x.x.x.x',
+  clients: 0,
+  uptime: 0,
+  publicKey: '',
+};
 
-const getOverview = () => {
-  if(!remote) {
-    return {
-      ip: 'x.x.x.x',
-      clients: 0,
-    };
-  }
-  return remote.getGlobal('server');
-}
+const ServerPanel = ({ serverOverview }) => {
+  const overview = { ...defaultServerOverview, ...serverOverview };
+  return (
+    <div className="server-panel">
+      <PanelItem label="IP" value={JSON.stringify(overview.ip)} />
+      <PanelItem label="Clients" value={overview.clients} />
+      <PanelItem label="Uptime" value={overview.uptime} />
+      <PanelItem label="Public Key" value={overview.publicKey} />
+    </div>
+  );
+};
 
-class ServerPanel extends Component {
-  render() {
-    const overview = getOverview();
+ServerPanel.propTypes = {
+  serverOverview: PropTypes.any.isRequired,
+};
 
-    return (
-      <div className="server-panel">
-        <PanelItem label="IP" value={overview.ip} />
-        <PanelItem label="Clients" value={overview.clients} />
-      </div>
-    );
-  }
-}
-
-export default ServerPanel;
+export default ipc('serverOverview')(ServerPanel);
