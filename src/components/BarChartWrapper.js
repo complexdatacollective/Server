@@ -11,7 +11,7 @@ const data = [
       { name: 'Page G', uv: 3490, pv: 4300, amt: 2100 },
 ];
 
-const RechartBarChart = () => (
+const BarChartWrapper = () => (
   <BarChart
     width={600}
     height={300}
@@ -29,4 +29,4 @@ const RechartBarChart = () => (
   </BarChart>
 );
 
-export default RechartBarChart;
+export default BarChartWrapper;
