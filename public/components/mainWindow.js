@@ -37,6 +37,7 @@ class MainWindow {
     });
 
     this.window.loadURL(loadUrl);
+    this.window.show();
   }
 
   send(...args) {
