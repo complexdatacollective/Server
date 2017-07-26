@@ -25,21 +25,20 @@ const startServer = port =>
     .then(saveSettings)
     .then(settings => new Server(port, settings));
 
-const serverTaskHandler = ({ action }) => {
-  switch (action) {
-    case STOP_SERVER:
-      return process.exit();
-    case SERVER_STATUS:
-      return process.send({
-        action: SERVER_STATUS,
-        data: {
-          ip: '100.50.50.50',
-        },
-      });
-    default:
-      return false;
-  }
-};
+const serverTaskHandler = server =>
+  ({ action }) => {
+    switch (action) {
+      case STOP_SERVER:
+        return process.exit();
+      case SERVER_STATUS:
+        return process.send({
+          action: SERVER_STATUS,
+          data: server.status(),
+        });
+      default:
+        return false;
+    }
+  };
 
 class ServerProcess {
   constructor({ ps }) {
@@ -80,8 +79,8 @@ module.exports = {
 };
 
 if (require.main === module) {
-  process.on('message', serverTaskHandler);
-  startServer(process.env.PORT).then(() => {
+  startServer(process.env.PORT).then((server) => {
+    process.on('message', serverTaskHandler(server));
     process.send({ action: SERVER_READY });
   });
 }

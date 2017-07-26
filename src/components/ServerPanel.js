@@ -14,7 +14,7 @@ const ServerPanel = ({ serverOverview }) => {
   const overview = { ...defaultServerOverview, ...serverOverview };
   return (
     <div className="server-panel">
-      <PanelItem label="IP" value={overview.ip} />
+      <PanelItem label="IP" value={JSON.stringify(overview.ip)} />
       <PanelItem label="Clients" value={overview.clients} />
       <PanelItem label="Uptime" value={overview.uptime} />
       <PanelItem label="Public Key" value={overview.publicKey} />
