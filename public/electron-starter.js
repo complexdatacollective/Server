@@ -1,18 +1,32 @@
 const { ipcMain } = require('electron');
-const { createMainWindow } = require('./mainWindow');
-const { createTray } = require('./tray');
-const { createServer } = require('./server');
+const { createMainWindow } = require('./components/mainWindow');
+const { createTray } = require('./components/tray');
+const { createServer } = require('./components/serverManager');
 
-const port = 8080;
 const mainWindow = createMainWindow();
 const tray = createTray();
-const server = createServer(port);
+
+let server = null;
+
+createServer(8080).then((serverProcess) => {
+  server = serverProcess;
+});
+
+// tray.on('after-create-window', () => {
+//   tray.window.openDevTools({ mode: 'undocked' });
+// });
 
 ipcMain.on('REQUEST_SERVER_OVERVIEW', () => {
-  mainWindow.send(
-    'SERVER_OVERVIEW',
-    {},
-  );
+  if (!server) { return; }
+
+  server.onMessage('SERVER_STATUS', (data) => {
+    mainWindow.send(
+      'SERVER_OVERVIEW',
+      data,
+    );
+  });
+
+  server.send({ action: 'SERVER_STATUS' });
 });
 
 ipcMain.on('WINDOW_OPEN', (route) => {

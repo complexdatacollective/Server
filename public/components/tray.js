@@ -8,7 +8,7 @@ const icon = url.format({
 });
 
 const trayUrl = url.format({
-  pathname: path.join(__dirname, 'index.html'),
+  pathname: path.join(__dirname, '../', 'index.html'),
   hash: '#/tray',
   protocol: 'file:',
 });

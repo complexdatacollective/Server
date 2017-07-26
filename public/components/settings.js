@@ -22,7 +22,7 @@ const set = settings =>
       (err) => {
         if (err) { reject(err); return; }
         resolve(settings);
-      },
+      }
     );
   });
 
