@@ -1,29 +1,34 @@
 const { fork } = require('child_process');
 const PrivateSocket = require('private-socket');
+const Datastore = require('nedb');
 const Server = require('./Server');
-const { set: saveSettings, get: getSettings } = require('./settings');
+const settings = require('./settings');
 
 const SERVER_READY = 'SERVER_READY';
 const STOP_SERVER = 'STOP_SERVER';
 const SERVER_STATUS = 'SERVER_STATUS';
 
-const ensurePemKeyPair = (settings) => {
-  if (!settings || !settings.keys) {
+const db = new Datastore({ filename: 'db/app', autoload: true });
+const appSettings = settings(db);
+
+const ensurePemKeyPair = (currentAppSettings) => {
+  if (!currentAppSettings || !currentAppSettings.keys) {
     return PrivateSocket.generatePemKeyPair()
       .then(
         keypair =>
-          Object.assign({}, settings, { keys: keypair })
+          Object.assign({}, currentAppSettings, { keys: keypair })
       );
   }
 
-  return settings;
+  return currentAppSettings;
 };
 
 const startServer = port =>
-  getSettings()
+  appSettings
+    .get()
     .then(ensurePemKeyPair)
-    .then(saveSettings)
-    .then(settings => new Server(port, settings));
+    .then(appSettings.set)
+    .then(currentAppSettings => new Server(port, currentAppSettings));
 
 const serverTaskHandler = server =>
   ({ action }) => {
