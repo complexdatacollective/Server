@@ -23,9 +23,9 @@ const BarChartWrapper = () => (
     <XAxis dataKey="name" />
     <YAxis />
     <CartesianGrid strokeDasharray="3 3" />
-    <Tooltip />
+    <Tooltip labelStyle={{ color: '#e82d3f' }} />
     <Legend />
-    <Bar dataKey="pv" fill="#8884d8" />
+    <Bar dataKey="pv" fill="#0fb2e2" />
   </BarChart>
 );
 
