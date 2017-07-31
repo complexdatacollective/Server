@@ -1,24 +1,14 @@
 const path = require('path');
-const url = require('url');
-const menubar = require('menubar');
+const { Menu, Tray } = require('electron');
 
-const icon = url.format({
-  pathname: path.join(__dirname, 'icons', 'round', 'round.png'),
-  protocol: 'file:',
-});
+exports.createTray = (template) => {
+  const tray = new Tray(path.join(__dirname, '../', 'icons', 'round', 'round.png'));
 
-const trayUrl = url.format({
-  pathname: path.join(__dirname, '../', 'index.html'),
-  hash: '#/tray',
-  protocol: 'file:',
-});
+  const contextMenu = Menu.buildFromTemplate(template);
 
-exports.createTray = () =>
-  menubar({
-    index: trayUrl,
-    icon,
-    preloadWindow: true,
-    width: 300,
-    height: 210,
-    tooltip: 'Network Canvas Server',
-  });
+  tray.setToolTip('Network Canvas Server');
+
+  tray.setContextMenu(contextMenu);
+
+  return tray;
+};

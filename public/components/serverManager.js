@@ -83,9 +83,11 @@ class ServerProcess {
     this.process.send(data);
   }
 
-  on(cb) {
+  on(action, cb) {
     this.process.on('message', (message) => {
-      cb(message);
+      if (action === message.action) {
+        cb(message);
+      }
     });
   }
 }

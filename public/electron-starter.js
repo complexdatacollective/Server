@@ -1,44 +1,52 @@
-const { ipcMain } = require('electron');
+const { app, ipcMain } = require('electron');
 const { createMainWindow } = require('./components/mainWindow');
 const { createTray } = require('./components/tray');
 const { createServer } = require('./components/serverManager');
 
-const mainWindow = createMainWindow();
-const tray = createTray();
-
 let server = null;
+
+const mainWindow = createMainWindow();
 
 createServer(8080, 'db/app').then((serverProcess) => {
   server = serverProcess;
+
+  server.on(
+    'SERVER_STATUS',
+    ({ data }) =>
+      mainWindow.send('SERVER_OVERVIEW', data)
+  );
 });
 
-// tray.on('after-create-window', () => {
-//   tray.window.openDevTools({ mode: 'undocked' });
-// });
-
-const serverActionHandler = ({ action, data }) => {
-  switch (action) {
-    case 'SERVER_STATUS':
-      return mainWindow.send(
-        'SERVER_OVERVIEW',
-        data,
-      );
-    default:
-      return null;
-  }
-};
+const trayMenu = [
+  {
+    label: 'Overview',
+    click: () => { mainWindow.open('/overview'); }
+  },
+  {
+    label: 'Export data',
+    click: () => { mainWindow.open('/export'); }
+  },
+  {
+    label: 'Quit',
+    click: () => { app.quit(); }
+  },
+];
 
 ipcMain.on('REQUEST_SERVER_OVERVIEW', () => {
   if (!server) { return; }
 
-  server.on(serverActionHandler);
   server.send({ action: 'REQUEST_SERVER_STATUS' });
 });
 
-ipcMain.on('WINDOW_OPEN', (route) => {
-  mainWindow.open(route);
+app.on('ready', () => {
+  app.dock.hide();
+  createTray(trayMenu);
 });
 
-ipcMain.on('APP_QUIT', () => {
-  tray.app.quit();
+// Don't quit when all windows are closed.
+app.on('window-all-closed', () => { });  // no op
+
+app.on('before-quit', () => {
+  // Quit spawned server process
+  server.stop();
 });
