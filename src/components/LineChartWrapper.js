@@ -1,14 +1,18 @@
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
+// days with no data are represented with null values
 const data = [
-    { name: 'A', value: 40, other: 22 },
-    { name: 'B', value: 75, other: 43 },
-    { name: 'C', value: 32, other: 45 },
-    { name: 'D', value: 20, other: 67 },
-    { name: 'E', value: 100, other: 56 },
-    { name: 'F', value: 5, other: 75 },
-    { name: 'G', value: 15, other: 89 }];
+    { time: new Date(2017, 6, 24).toLocaleDateString(), value: 40, other: 22 },
+    { time: new Date(2017, 6, 25).toLocaleDateString() },
+    { time: new Date(2017, 6, 26).toLocaleDateString(), value: 75, other: 43 },
+    { time: new Date(2017, 6, 27).toLocaleDateString(), value: 32, other: 45 },
+    { time: new Date(2017, 6, 28).toLocaleDateString(), value: 20, other: 67 },
+    { time: new Date(2017, 6, 29).toLocaleDateString() },
+    { time: new Date(2017, 6, 30).toLocaleDateString(), value: 100, other: 56 },
+    { time: new Date(2017, 7, 1).toLocaleDateString(), value: 5, other: 75 },
+    { time: new Date(2017, 7, 2).toLocaleDateString(), other: 61 },
+    { time: new Date(2017, 7, 3).toLocaleDateString(), value: 15, other: 89 }];
 
 const LineChartWrapper = () => (
   <LineChart
@@ -21,13 +25,15 @@ const LineChartWrapper = () => (
       dataKey="value"
       name="First set"
       stroke="#0fb2e2"
+      connectNulls
     />
     <Line
       dataKey="other"
       name="Second set"
       stroke="#00c9a2"
+      connectNulls
     />
-    <XAxis dataKey="name" />
+    <XAxis dataKey="time" interval="preserveStart" />
     <YAxis />
     <CartesianGrid strokeDasharray="3 3" />
     <Legend />

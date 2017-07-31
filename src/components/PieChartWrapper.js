@@ -17,17 +17,17 @@ const PieChartWrapper = () => (
     width={600}
     height={300}
     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-    data={data}
   >
     <CartesianGrid strokeDasharray="3 3" />
     <Tooltip />
     <Legend />
     <Pie
       data={data}
+      dataKey="value"
       nameKey="name"
       outerRadius={100}
     >
-      {data.map((entry, index) => <Cell fill={COLORS[index % COLORS.length]} />)}
+      {data.map((entry, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
     </Pie>
   </PieChart>
 );

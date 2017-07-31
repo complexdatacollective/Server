@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { BarChartWrapper, LineChartWrapper, PieChartWrapper } from '../components';
 
 require('../styles/main.scss');
 
@@ -11,9 +10,6 @@ require('../styles/main.scss');
 const App = props => (
   <div className="app">
     { props.children }
-    <BarChartWrapper />
-    <PieChartWrapper />
-    <LineChartWrapper />
   </div>
 );
 
