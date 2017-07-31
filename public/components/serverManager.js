@@ -9,7 +9,18 @@ const STOP_SERVER = 'STOP_SERVER';
 const SERVER_STATUS = 'SERVER_STATUS';
 const REQUEST_SERVER_STATUS = 'REQUEST_SERVER_STATUS';
 
-// Module when run as fork:
+/**
+ * This files runs in two modes:
+ * 1. As a main process, in which case it automatically initialises a Server
+ *    based on environment variables PORT and APP_SETTINGS_DB
+ * 2. As a module, in which case it exports the createServer() method, which
+ *    will spawn this file as a new process (see 1. above), and return the
+ *    process wrapped in a ServerProcess instance.
+ *
+ * It mignt make sense to break it down into separate files/modules.
+ */
+
+// 1. Running as a main process:
 
 const ensurePemKeyPair = (currentAppSettings) => {
   if (!currentAppSettings || !currentAppSettings.keys) {
@@ -57,7 +68,7 @@ if (require.main === module) {
   });
 }
 
-// Module exports:
+// 1. Running as a module:
 
 class ServerProcess {
   constructor({ ps }) {
