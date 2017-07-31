@@ -7,9 +7,9 @@ const settings = require('./settings');
 const SERVER_READY = 'SERVER_READY';
 const STOP_SERVER = 'STOP_SERVER';
 const SERVER_STATUS = 'SERVER_STATUS';
+const REQUEST_SERVER_STATUS = 'REQUEST_SERVER_STATUS';
 
-const db = new Datastore({ filename: 'db/app', autoload: true });
-const appSettings = settings(db);
+// Module when run as fork:
 
 const ensurePemKeyPair = (currentAppSettings) => {
   if (!currentAppSettings || !currentAppSettings.keys) {
@@ -23,19 +23,24 @@ const ensurePemKeyPair = (currentAppSettings) => {
   return currentAppSettings;
 };
 
-const startServer = port =>
-  appSettings
-    .get()
+const startServer = (port, appSettingsDb) => {
+  if (!port) { throw new Error('You must specify a server port'); }
+  if (!appSettingsDb) { throw new Error('You must specify a settings database'); }
+
+  const appSettings = settings(new Datastore({ filename: appSettingsDb, autoload: true }));
+
+  return appSettings.get()
     .then(ensurePemKeyPair)
     .then(appSettings.set)
     .then(currentAppSettings => new Server(port, currentAppSettings));
+};
 
 const serverTaskHandler = server =>
   ({ action }) => {
     switch (action) {
       case STOP_SERVER:
         return process.exit();
-      case SERVER_STATUS:
+      case REQUEST_SERVER_STATUS:
         return process.send({
           action: SERVER_STATUS,
           data: server.status(),
@@ -45,31 +50,38 @@ const serverTaskHandler = server =>
     }
   };
 
+if (require.main === module) {
+  startServer(process.env.PORT, process.env.APP_SETTINGS_DB).then((server) => {
+    process.on('message', serverTaskHandler(server));
+    process.send({ action: SERVER_READY });
+  });
+}
+
+// Module exports:
+
 class ServerProcess {
   constructor({ ps }) {
     this.process = ps;
   }
 
   stop() {
-    this.send({ action: STOP_SERVER });
+    this.process.send({ action: STOP_SERVER });
   }
 
   send(data) {
     this.process.send(data);
   }
 
-  onMessage(action, cb) {
+  on(cb) {
     this.process.on('message', (message) => {
-      if (message.action === action) {
-        cb(message.data);
-      }
+      cb(message);
     });
   }
 }
 
-const createServer = port =>
+const createServer = (port, db) =>
   new Promise((resolve) => {
-    const ps = fork(`${__filename}`, [], { env: { PORT: port } });
+    const ps = fork(`${__filename}`, [], { env: { PORT: port, APP_SETTINGS_DB: db } });
     ps.on('message', ({ action }) => {
       if (action === SERVER_READY) {
         resolve(new ServerProcess({
@@ -81,11 +93,5 @@ const createServer = port =>
 
 module.exports = {
   createServer,
+  ServerProcess,
 };
-
-if (require.main === module) {
-  startServer(process.env.PORT).then((server) => {
-    process.on('message', serverTaskHandler(server));
-    process.send({ action: SERVER_READY });
-  });
-}

@@ -8,7 +8,7 @@ const tray = createTray();
 
 let server = null;
 
-createServer(8080).then((serverProcess) => {
+createServer(8080, 'db/app').then((serverProcess) => {
   server = serverProcess;
 });
 
@@ -16,17 +16,23 @@ createServer(8080).then((serverProcess) => {
 //   tray.window.openDevTools({ mode: 'undocked' });
 // });
 
+const serverActionHandler = ({ action, data }) => {
+  switch (action) {
+    case 'SERVER_STATUS':
+      return mainWindow.send(
+        'SERVER_OVERVIEW',
+        data,
+      );
+    default:
+      return null;
+  }
+};
+
 ipcMain.on('REQUEST_SERVER_OVERVIEW', () => {
   if (!server) { return; }
 
-  server.onMessage('SERVER_STATUS', (data) => {
-    mainWindow.send(
-      'SERVER_OVERVIEW',
-      data,
-    );
-  });
-
-  server.send({ action: 'SERVER_STATUS' });
+  server.on(serverActionHandler);
+  server.send({ action: 'REQUEST_SERVER_STATUS' });
 });
 
 ipcMain.on('WINDOW_OPEN', (route) => {
