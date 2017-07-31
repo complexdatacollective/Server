@@ -1,6 +1,6 @@
 # Network Canvas Server
 
-A data collection server for the Network Canvas app.
+A tool for storing, analyzing, and exporting Network Canvas interview data.
 
 # Getting started
 
@@ -38,7 +38,6 @@ This repository assumes that `npm` is installed. If you don't have it installed,
 |`test`|Runs testing suite.|
 |`build-docs`|Builds HTML API docs into the docs-build directory.|
 |`electron`|Runs the current code in electron, for testing.|
-|`generate-icons`|Uses icon-gen package to generate iconsets and icon files for OSX and Windows.|
 
 ## Running
 
