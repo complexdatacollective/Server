@@ -34,11 +34,11 @@ const ensurePemKeyPair = (currentAppSettings) => {
   return currentAppSettings;
 };
 
-const startServer = (port, appSettingsDb) => {
+const startServer = (port, settingsDb) => {
   if (!port) { throw new Error('You must specify a server port'); }
-  if (!appSettingsDb) { throw new Error('You must specify a settings database'); }
+  if (!settingsDb) { throw new Error('You must specify a settings database'); }
 
-  const appSettings = settings(new Datastore({ filename: appSettingsDb, autoload: true }));
+  const appSettings = settings(new Datastore({ filename: settingsDb, autoload: true }));
 
   return appSettings.get()
     .then(ensurePemKeyPair)
