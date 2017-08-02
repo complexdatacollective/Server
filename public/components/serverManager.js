@@ -9,6 +9,13 @@ const STOP_SERVER = 'STOP_SERVER';
 const SERVER_STATUS = 'SERVER_STATUS';
 const REQUEST_SERVER_STATUS = 'REQUEST_SERVER_STATUS';
 
+const actions = {
+  SERVER_READY,
+  STOP_SERVER,
+  SERVER_STATUS,
+  REQUEST_SERVER_STATUS
+};
+
 /**
  * This files runs in two modes:
  * 1. As a main process, in which case it automatically initialises a Server
@@ -107,4 +114,5 @@ const createServer = (port, db) =>
 module.exports = {
   createServer,
   ServerProcess,
+  actions
 };
