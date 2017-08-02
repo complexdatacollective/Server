@@ -1,0 +1,9 @@
+.dashboard {
+  display: flex;
+  flex-wrap: wrap;
+
+  > div {
+    background-color: palette('light-background');
+    margin: 1rem;
+  }
+}

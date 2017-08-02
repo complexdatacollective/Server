@@ -1,0 +1,16 @@
+.interview {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1rem;
+
+  &__label {
+    border-bottom: solid 1px;
+  }
+
+  .counts {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0 0 1rem;
+  }
+}

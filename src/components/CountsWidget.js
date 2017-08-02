@@ -1,0 +1,18 @@
+import React from 'react';
+import PropTypes from 'prop-types';
+
+const CountsWidget = ({ data }) => (
+  <div className="counts">
+    {data.map((entry, index) => (
+      <div key={index} className="counts__content">
+        <h4>{entry.name}: </h4>
+        <h1>{entry.count}</h1>
+      </div>))}
+  </div>
+);
+
+CountsWidget.propTypes = {
+  data: PropTypes.object.isRequired,
+};
+
+export default CountsWidget;
