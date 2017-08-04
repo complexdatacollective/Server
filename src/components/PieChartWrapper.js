@@ -1,5 +1,6 @@
 import React from 'react';
 import { PieChart, Pie, Cell, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { colorDictionary } from 'network-canvas-ui';
 
 const data = [
     { name: 'Group A', value: 400 },
@@ -9,7 +10,12 @@ const data = [
     { name: 'Group E', value: 100 },
     { name: 'Group F', value: 50 },
     { name: 'Group G', value: 150 }];
-const COLORS = ['#00c9a2', '#6b72ec', '#f7891e', '#0fb2e2'];
+const COLORS = [
+  colorDictionary['graph-data-1'],
+  colorDictionary['graph-data-2'],
+  colorDictionary['graph-data-3'],
+  colorDictionary['graph-data-4'],
+];
 
 
 const PieChartWrapper = () => (

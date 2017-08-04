@@ -1,5 +1,6 @@
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { colorDictionary } from 'network-canvas-ui';
 
 // days with no data are represented with null values
 const data = [
@@ -24,20 +25,20 @@ const LineChartWrapper = () => (
     <Line
       dataKey="value"
       name="First set"
-      stroke="#0fb2e2"
+      stroke={colorDictionary['graph-data-1']}
       connectNulls
     />
     <Line
       dataKey="other"
       name="Second set"
-      stroke="#00c9a2"
+      stroke={colorDictionary['graph-data-2']}
       connectNulls
     />
     <XAxis dataKey="time" interval="preserveStart" />
     <YAxis />
     <CartesianGrid strokeDasharray="3 3" />
     <Legend />
-    <Tooltip labelStyle={{ color: '#e82d3f' }} />
+    <Tooltip labelStyle={{ color: colorDictionary['graph-tooltip'] }} />
   </LineChart>
 );
 

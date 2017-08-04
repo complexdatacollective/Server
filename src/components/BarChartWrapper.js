@@ -1,5 +1,6 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { colorDictionary } from 'network-canvas-ui';
 
 const data = [
       { name: 'Page A', uv: 4000, pv: 2400, amt: 2400 },
@@ -23,9 +24,9 @@ const BarChartWrapper = () => (
     <XAxis dataKey="name" />
     <YAxis />
     <CartesianGrid strokeDasharray="3 3" />
-    <Tooltip labelStyle={{ color: '#e82d3f' }} />
+    <Tooltip labelStyle={{ color: colorDictionary['graph-tooltip'] }} />
     <Legend />
-    <Bar dataKey="pv" fill="#0fb2e2" />
+    <Bar dataKey="pv" fill={colorDictionary['graph-data-1']} />
   </BarChart>
 );
 
