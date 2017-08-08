@@ -17,11 +17,11 @@ const data = [
 ];
 
 const InterviewWidget = () => (
-  <div className="interview">
+  <div className="interview-widget">
     {data.map((entry, index) => (
       <div key={index}>
-        <h4 className="interview__label">{entry.name}</h4>
-        <CountsWidget className="interview__data" data={entry.data} />
+        <h4 className="interview-widget__label">{entry.name}</h4>
+        <CountsWidget className="interview-widget__data" data={entry.data} />
       </div>))}
   </div>
 );

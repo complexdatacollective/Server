@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChartWrapper, CountsWidget, InterviewWidget, LineChartWrapper, PieChartWrapper } from '../components';
+import { BarChart, CountsWidget, InterviewWidget, LineChart, PieChart } from '../components';
 
 const data = [
       { name: 'Node count', count: 423 },
@@ -8,12 +8,12 @@ const data = [
 ];
 
 const OverviewDashboard = () => (
-  <div className="dashboard">
+  <div className="overview-dashboard">
     <CountsWidget data={data} />
     <InterviewWidget />
-    <BarChartWrapper />
-    <PieChartWrapper />
-    <LineChartWrapper />
+    <BarChart />
+    <PieChart />
+    <LineChart />
   </div>
 );
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { PieChart, Pie, Cell, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { PieChart as RechartPieChart, Pie, Cell, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { colorDictionary } from 'network-canvas-ui';
 
 const data = [
@@ -18,8 +18,8 @@ const COLORS = [
 ];
 
 
-const PieChartWrapper = () => (
-  <PieChart
+const PieChart = () => (
+  <RechartPieChart
     width={600}
     height={300}
     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
@@ -35,7 +35,7 @@ const PieChartWrapper = () => (
     >
       {data.map((entry, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
     </Pie>
-  </PieChart>
+  </RechartPieChart>
 );
 
-export default PieChartWrapper;
+export default PieChart;

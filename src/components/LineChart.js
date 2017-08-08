@@ -1,5 +1,5 @@
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { LineChart as RechartLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { colorDictionary } from 'network-canvas-ui';
 
 // days with no data are represented with null values
@@ -15,8 +15,8 @@ const data = [
     { time: new Date(2017, 7, 2).toLocaleDateString(), other: 61 },
     { time: new Date(2017, 7, 3).toLocaleDateString(), value: 15, other: 89 }];
 
-const LineChartWrapper = () => (
-  <LineChart
+const LineChart = () => (
+  <RechartLineChart
     width={600}
     height={300}
     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
@@ -39,7 +39,7 @@ const LineChartWrapper = () => (
     <CartesianGrid strokeDasharray="3 3" />
     <Legend />
     <Tooltip labelStyle={{ color: colorDictionary['graph-tooltip'] }} />
-  </LineChart>
+  </RechartLineChart>
 );
 
-export default LineChartWrapper;
+export default LineChart;

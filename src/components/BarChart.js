@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { BarChart as RechartBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { colorDictionary } from 'network-canvas-ui';
 
 const data = [
@@ -12,8 +12,8 @@ const data = [
       { name: 'Page G', uv: 3490, pv: 4300, amt: 2100 },
 ];
 
-const BarChartWrapper = () => (
-  <BarChart
+const BarChart = () => (
+  <RechartBarChart
     width={600}
     height={300}
     data={data}
@@ -27,7 +27,7 @@ const BarChartWrapper = () => (
     <Tooltip labelStyle={{ color: colorDictionary['graph-tooltip'] }} />
     <Legend />
     <Bar dataKey="pv" fill={colorDictionary['graph-data-1']} />
-  </BarChart>
+  </RechartBarChart>
 );
 
-export default BarChartWrapper;
+export default BarChart;
