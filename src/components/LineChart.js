@@ -1,21 +1,9 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { LineChart as RechartLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { colorDictionary } from 'network-canvas-ui';
 
-// days with no data are represented with null values
-const data = [
-    { time: new Date(2017, 6, 24).toLocaleDateString(), value: 40, other: 22 },
-    { time: new Date(2017, 6, 25).toLocaleDateString() },
-    { time: new Date(2017, 6, 26).toLocaleDateString(), value: 75, other: 43 },
-    { time: new Date(2017, 6, 27).toLocaleDateString(), value: 32, other: 45 },
-    { time: new Date(2017, 6, 28).toLocaleDateString(), value: 20, other: 67 },
-    { time: new Date(2017, 6, 29).toLocaleDateString() },
-    { time: new Date(2017, 6, 30).toLocaleDateString(), value: 100, other: 56 },
-    { time: new Date(2017, 7, 1).toLocaleDateString(), value: 5, other: 75 },
-    { time: new Date(2017, 7, 2).toLocaleDateString(), other: 61 },
-    { time: new Date(2017, 7, 3).toLocaleDateString(), value: 15, other: 89 }];
-
-const LineChart = () => (
+const LineChart = ({ data }) => (
   <RechartLineChart
     width={600}
     height={300}
@@ -41,5 +29,9 @@ const LineChart = () => (
     <Tooltip labelStyle={{ color: colorDictionary['graph-tooltip'] }} />
   </RechartLineChart>
 );
+
+LineChart.propTypes = {
+  data: PropTypes.object.isRequired,
+};
 
 export default LineChart;

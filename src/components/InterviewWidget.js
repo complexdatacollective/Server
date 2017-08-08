@@ -1,22 +1,8 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { CountsWidget } from '.';
 
-const data = [
-  { name: 'Duration (minutes)',
-    data: [{ name: 'Mean', count: 23 },
-    { name: 'Min', count: 12 },
-    { name: 'Max', count: 56 }] },
-  { name: 'Node count',
-    data: [{ name: 'Mean', count: 15 },
-    { name: 'Min', count: 2 },
-    { name: 'Max', count: 67 }] },
-  { name: 'Edge count',
-    data: [{ name: 'Mean', count: 12 },
-    { name: 'Min', count: 2 },
-    { name: 'Max', count: 78 }] },
-];
-
-const InterviewWidget = () => (
+const InterviewWidget = ({ data }) => (
   <div className="interview-widget">
     {data.map((entry, index) => (
       <div key={index}>
@@ -25,5 +11,9 @@ const InterviewWidget = () => (
       </div>))}
   </div>
 );
+
+InterviewWidget.propTypes = {
+  data: PropTypes.object.isRequired,
+};
 
 export default InterviewWidget;

@@ -1,15 +1,8 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { PieChart as RechartPieChart, Pie, Cell, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { colorDictionary } from 'network-canvas-ui';
 
-const data = [
-    { name: 'Group A', value: 400 },
-    { name: 'Group B', value: 300 },
-    { name: 'Group C', value: 300 },
-    { name: 'Group D', value: 200 },
-    { name: 'Group E', value: 100 },
-    { name: 'Group F', value: 50 },
-    { name: 'Group G', value: 150 }];
 const COLORS = [
   colorDictionary['graph-data-1'],
   colorDictionary['graph-data-2'],
@@ -17,8 +10,7 @@ const COLORS = [
   colorDictionary['graph-data-4'],
 ];
 
-
-const PieChart = () => (
+const PieChart = ({ data }) => (
   <RechartPieChart
     width={600}
     height={300}
@@ -37,5 +29,9 @@ const PieChart = () => (
     </Pie>
   </RechartPieChart>
 );
+
+PieChart.propTypes = {
+  data: PropTypes.object.isRequired,
+};
 
 export default PieChart;
