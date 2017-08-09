@@ -5,10 +5,8 @@ const { createTray } = require('./components/tray');
 const { createServer } = require('./components/serverManager');
 
 const settingsDb = path.join(app.getPath('userData'), 'db', 'settings');
-console.log(settingsDb);
 
 let server = null;
-let tray = null;
 
 const mainWindow = createMainWindow();
 
@@ -45,7 +43,7 @@ ipcMain.on('REQUEST_SERVER_OVERVIEW', () => {
 
 app.on('ready', () => {
   app.dock.hide();
-  tray = createTray(trayMenu);
+  createTray(trayMenu);
 });
 
 // Don't quit when all windows are closed.
