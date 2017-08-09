@@ -1,4 +1,5 @@
 import React from 'react';
+import { OverviewDashboard } from '.';
 import { ServerPanel } from '../components';
 
 const OverviewScreen = () => (
@@ -10,6 +11,7 @@ const OverviewScreen = () => (
     <div className="screen__main">
       Various stats and info go here.
       <ServerPanel />
+      <OverviewDashboard />
     </div>
   </div>
 );
