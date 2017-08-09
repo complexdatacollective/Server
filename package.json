@@ -4,25 +4,26 @@
   "productName": "Network Canvas Server",
   "description": "A tool for storing, analyzing, and exporting Network Canvas interview data.",
   "private": true,
+  "author": "Complex Data Collective",
   "engines": {
     "node": "6.9.1",
     "npm": "3.10.7"
   },
   "scripts": {
     "start": "node scripts/start.js",
-    "build": "node scripts/build.js && (cd build && yarn install)",
+    "build": "node scripts/build.js",
     "server": "node ./public/server-starter",
     "lint": "eslint src",
     "test": "node scripts/test.js --env=jsdom",
     "test-update-snapshots": "node scripts/test.js --env=jsdom --updateSnapshot",
     "build-docs": "jsdoc src -r -d docs-build -c ./jsdoc.conf.json --verbose",
     "electron": "electron ./build",
-    "electron:dev": "electron ./public",
-    "generate-icons": "node generate-app-icons.js",
-    "package-mac": "electron-packager build/ --overwrite --platform=darwin --arch=x64 --icon=assets/icons/round/round.icns --prune=true --out=release-builds --version-string.CompanyName=\"Complex Data Collective\" --version-string.FileDescription=CE --version-string.ProductName=\"Network Canvas\" --version-string.ProductVersion=\"4.0.0\"",
-    "package-win": "electron-packager build/ --overwrite --asar=true --platform=win32 --arch=ia32 --icon=assets/icons/round/round.ico --prune=true --out=release-builds --version-string.CompanyName=\"Complex Data Collective\" --version-string.FileDescription=CE --version-string.ProductName=\"Network Canvas\" --version-string.ProductVersion=\"4.0.0\"",
-    "package-linux": "electron-packager build/ --overwrite --platform=linux --arch=x64 --icon=assets/icons/round/NC-Round@2x.png --prune=true --out=release-builds --version-string.CompanyName=\"Complex Data Collective\" --version-string.FileDescription=CE --version-string.ProductName=\"Network Canvas\" --version-string.ProductVersion=\"4.0.0\"",
-    "create-installer-mac": "electron-installer-dmg ./release-builds/Network\\ Canvas-darwin-x64/Network\\ Canvas.app Network\\ Canvas --out=release-builds --overwrite --icon=assets/icons/square/square.icns"
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "dist:mac": "electron-builder -m",
+    "dist:linux": "electron-builder -l",
+    "dist:win": "electron-builder -w",
+    "dist:all": "electron-builder -mlw"
   },
   "repository": {
     "type": "git"
@@ -46,9 +47,8 @@
     "custom-react-scripts": "0.0.21",
     "detect-port": "1.1.0",
     "dotenv": "2.0.0",
-    "electron-installer-dmg": "^0.2.0",
-    "electron-packager": "^8.5.2",
-    "electron-winstaller": "^2.5.2",
+    "electron": "^1.4.15",
+    "electron-builder": "^19.18.1",
     "enzyme": "^2.8.2",
     "eslint": "^3.18.0",
     "eslint-config-airbnb": "^15.0.1",
@@ -83,14 +83,15 @@
   },
   "dependencies": {
     "axios": "^0.16.1",
+    "bluebird": "^3.5.0",
     "change-case": "^3.0.1",
     "classnames": "^2.2.5",
     "create-react-class": "^15.5.3",
-    "electron": "^1.4.15",
     "history": "^4.5.1",
     "ip": "^1.1.5",
     "lodash": "^4.17.4",
     "menubar": "^5.2.3",
+    "nedb": "^1.8.0",
     "network-canvas-ui": "https://github.com/codaco/Network-Canvas-UI.git",
     "private-socket": "https://github.com/codaco/PrivateSocket.git",
     "prop-types": "^15.5.8",
@@ -115,8 +116,22 @@
     "socket.io": "^2.0.3",
     "upgrade": "^1.1.0"
   },
+  "build": {
+    "appId": "NetworkCanvasServer",
+    "directories": {
+      "app": "./build",
+      "buildResources": "build-resources",
+      "output": "release-builds"
+    },
+    "mac": {
+      "category": "public.app-category.education"
+    },
+    "win": {
+      "target": "nsis"
+    }
+  },
   "homepage": ".",
-  "main": "src/electron-starter.js",
+  "main": "build/electron-starter.js",
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{js,jsx}"
@@ -125,7 +140,7 @@
       "<rootDir>/config/polyfills.js"
     ],
     "testPathIgnorePatterns": [
-      "<rootDir>[/\\\\](build|docs|node_modules|scripts)[/\\\\]"
+      "<rootDir>[/\\\\](build|docs|node_modules|scripts|release-builds)[/\\\\]"
     ],
     "testEnvironment": "node",
     "testURL": "http://localhost",

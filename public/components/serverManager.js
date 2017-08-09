@@ -9,6 +9,13 @@ const STOP_SERVER = 'STOP_SERVER';
 const SERVER_STATUS = 'SERVER_STATUS';
 const REQUEST_SERVER_STATUS = 'REQUEST_SERVER_STATUS';
 
+const actions = {
+  SERVER_READY,
+  STOP_SERVER,
+  SERVER_STATUS,
+  REQUEST_SERVER_STATUS
+};
+
 /**
  * This files runs in two modes:
  * 1. As a main process, in which case it automatically initialises a Server
@@ -34,11 +41,11 @@ const ensurePemKeyPair = (currentAppSettings) => {
   return currentAppSettings;
 };
 
-const startServer = (port, appSettingsDb) => {
+const startServer = (port, settingsDb) => {
   if (!port) { throw new Error('You must specify a server port'); }
-  if (!appSettingsDb) { throw new Error('You must specify a settings database'); }
+  if (!settingsDb) { throw new Error('You must specify a settings database'); }
 
-  const appSettings = settings(new Datastore({ filename: appSettingsDb, autoload: true }));
+  const appSettings = settings(new Datastore({ filename: settingsDb, autoload: true }));
 
   return appSettings.get()
     .then(ensurePemKeyPair)
@@ -83,9 +90,11 @@ class ServerProcess {
     this.process.send(data);
   }
 
-  on(cb) {
+  on(action, cb) {
     this.process.on('message', (message) => {
-      cb(message);
+      if (action === message.action) {
+        cb(message);
+      }
     });
   }
 }
@@ -105,4 +114,5 @@ const createServer = (port, db) =>
 module.exports = {
   createServer,
   ServerProcess,
+  actions
 };

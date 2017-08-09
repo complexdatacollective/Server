@@ -23,6 +23,7 @@ ShallowWrapper {
         className="screen__main">
         Various stats and info go here.
         <IPCComponent />
+        <OverviewDashboard />
     </div>
 </div>,
   "nodes": Array [
@@ -43,6 +44,7 @@ ShallowWrapper {
             className="screen__main">
             Various stats and info go here.
             <IPCComponent />
+            <OverviewDashboard />
       </div>
 </div>,
   ],
@@ -97,6 +99,7 @@ ShallowWrapper {
                     className="screen__main">
                     Various stats and info go here.
                     <IPCComponent />
+                    <OverviewDashboard />
           </div>
 </div>,
         "_debugID": 2,
@@ -117,6 +120,7 @@ ShallowWrapper {
                     className="screen__main">
                     Various stats and info go here.
                     <IPCComponent />
+                    <OverviewDashboard />
           </div>
 </div>,
       },
