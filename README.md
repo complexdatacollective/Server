@@ -6,16 +6,15 @@ A tool for storing, analyzing, and exporting Network Canvas interview data.
 
 ## Background
 
-This application runs on Electron and consists of two parts, which correlate to Electron's main/rendering processes:
+This application runs on Electron and consists of two parts (and a third spawned), which correlate to Electron's main/rendering processes:
 
-1. The UI, which contains the tray menu: `/#/tray`, and the configuration/export screens.
-1. The Server, which receives data and adds it to a store.
+1. The UI, which contains the configuration/export screens.
+1. The main process, manages the tray and spawns a server process
+1. The Server process which receives data and adds it to a store [storage is not yet implemented]
 
 ### 1. The UI
 
 The UI is a React app which runs in Electron's BrowserWindow().
-
-The tray and main windows are separate instances, but run different paths on the same react app.
 
 It is possible to test the UI by running `npm run start`, and viewing the various paths in your browser.
 
