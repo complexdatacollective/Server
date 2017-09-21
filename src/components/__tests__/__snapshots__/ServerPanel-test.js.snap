@@ -8,27 +8,47 @@ ShallowWrapper {
     "findWhereUnwrapped": [Function],
   },
   "length": 1,
-  "node": <ServerPanel
-    serverOverview={
-        Object {
-            "clients": 0,
-            "ip": "x.x.x.x",
-            "publicKey": "",
-            "uptime": 0,
-          }
-    }
-/>,
+  "node": <div
+    className="server-panel"
+>
+    <PanelItem
+        label="IP"
+        value="\\"x.x.x.x\\""
+    />
+    <PanelItem
+        label="Clients"
+        value={0}
+    />
+    <PanelItem
+        label="Uptime"
+        value={0}
+    />
+    <PanelItem
+        label="Public Key"
+        value=""
+    />
+</div>,
   "nodes": Array [
-    <ServerPanel
-      serverOverview={
-            Object {
-                  "clients": 0,
-                  "ip": "x.x.x.x",
-                  "publicKey": "",
-                  "uptime": 0,
-                }
-      }
-/>,
+    <div
+      className="server-panel"
+>
+      <PanelItem
+            label="IP"
+            value="\\"x.x.x.x\\""
+      />
+      <PanelItem
+            label="Clients"
+            value={0}
+      />
+      <PanelItem
+            label="Uptime"
+            value={0}
+      />
+      <PanelItem
+            label="Public Key"
+            value=""
+      />
+</div>,
   ],
   "options": Object {},
   "renderer": ReactShallowRenderer {
@@ -36,7 +56,7 @@ ShallowWrapper {
       "_calledComponentWillUnmount": false,
       "_compositeType": 0,
       "_context": Object {},
-      "_currentElement": <IPCComponent
+      "_currentElement": <ServerPanel
         serverOverview={
                 Object {
                         "clients": 0,
@@ -49,7 +69,7 @@ ShallowWrapper {
       "_debugID": 1,
       "_hostContainerInfo": null,
       "_hostParent": null,
-      "_instance": IPCComponent {
+      "_instance": ServerPanel {
         "_reactInternalInstance": [Circular],
         "context": Object {},
         "props": Object {
@@ -62,7 +82,8 @@ ShallowWrapper {
         },
         "refs": Object {},
         "state": Object {
-          "serverOverview": null,
+          "notes": "",
+          "version": "0.0.0",
         },
         "updater": Object {
           "enqueueCallback": [Function],
@@ -82,29 +103,49 @@ ShallowWrapper {
       "_pendingReplaceState": false,
       "_pendingStateQueue": null,
       "_renderedComponent": NoopInternalComponent {
-        "_currentElement": <ServerPanel
-          serverOverview={
-                    Object {
-                              "clients": 0,
-                              "ip": "x.x.x.x",
-                              "publicKey": "",
-                              "uptime": 0,
-                            }
-          }
-/>,
+        "_currentElement": <div
+          className="server-panel"
+>
+          <PanelItem
+                    label="IP"
+                    value="\\"x.x.x.x\\""
+          />
+          <PanelItem
+                    label="Clients"
+                    value={0}
+          />
+          <PanelItem
+                    label="Uptime"
+                    value={0}
+          />
+          <PanelItem
+                    label="Public Key"
+                    value=""
+          />
+</div>,
         "_debugID": 2,
-        "_renderedOutput": <ServerPanel
-          serverOverview={
-                    Object {
-                              "clients": 0,
-                              "ip": "x.x.x.x",
-                              "publicKey": "",
-                              "uptime": 0,
-                            }
-          }
-/>,
+        "_renderedOutput": <div
+          className="server-panel"
+>
+          <PanelItem
+                    label="IP"
+                    value="\\"x.x.x.x\\""
+          />
+          <PanelItem
+                    label="Clients"
+                    value={0}
+          />
+          <PanelItem
+                    label="Uptime"
+                    value={0}
+          />
+          <PanelItem
+                    label="Public Key"
+                    value=""
+          />
+</div>,
       },
-      "_renderedNodeType": 1,
+      "_renderedNodeType": 0,
       "_rootNodeID": 0,
       "_topLevelWrapper": null,
       "_updateBatchNumber": null,
@@ -114,7 +155,7 @@ ShallowWrapper {
     "render": [Function],
   },
   "root": [Circular],
-  "unrendered": <IPCComponent
+  "unrendered": <ServerPanel
     serverOverview={
         Object {
             "clients": 0,

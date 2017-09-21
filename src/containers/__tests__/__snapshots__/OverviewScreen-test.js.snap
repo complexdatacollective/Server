@@ -29,7 +29,16 @@ ShallowWrapper {
         className="screen__main"
     >
         Various stats and info go here.
-        <IPCComponent />
+        <ServerPanel
+            serverOverview={
+                Object {
+                    "clients": 0,
+                    "ip": "x.x.x.x",
+                    "publicKey": "",
+                    "uptime": 0,
+                  }
+            }
+        />
         <OverviewDashboard />
     </div>
 </div>,
@@ -55,7 +64,16 @@ ShallowWrapper {
             className="screen__main"
       >
             Various stats and info go here.
-            <IPCComponent />
+            <ServerPanel
+                  serverOverview={
+                        Object {
+                              "clients": 0,
+                              "ip": "x.x.x.x",
+                              "publicKey": "",
+                              "uptime": 0,
+                            }
+                  }
+            />
             <OverviewDashboard />
       </div>
 </div>,
@@ -115,7 +133,16 @@ ShallowWrapper {
                     className="screen__main"
           >
                     Various stats and info go here.
-                    <IPCComponent />
+                    <ServerPanel
+                              serverOverview={
+                                        Object {
+                                                  "clients": 0,
+                                                  "ip": "x.x.x.x",
+                                                  "publicKey": "",
+                                                  "uptime": 0,
+                                                }
+                              }
+                    />
                     <OverviewDashboard />
           </div>
 </div>,
@@ -141,7 +168,16 @@ ShallowWrapper {
                     className="screen__main"
           >
                     Various stats and info go here.
-                    <IPCComponent />
+                    <ServerPanel
+                              serverOverview={
+                                        Object {
+                                                  "clients": 0,
+                                                  "ip": "x.x.x.x",
+                                                  "publicKey": "",
+                                                  "uptime": 0,
+                                                }
+                              }
+                    />
                     <OverviewDashboard />
           </div>
 </div>,
