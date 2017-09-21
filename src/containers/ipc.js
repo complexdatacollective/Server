@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { ipcRenderer } from 'electron';
 import changeCase from 'change-case';
+import { ipcRenderer } from '../utils/electron-shim';
 
 export default (property) => {
   const PROPERTY = changeCase.constantCase(property);
