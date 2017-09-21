@@ -26,4 +26,8 @@ ServerPanel.propTypes = {
   serverOverview: PropTypes.any.isRequired,
 };
 
+ServerPanel.defaultProps = {
+  serverOverview: defaultServerOverview,
+};
+
 export default ipc('serverOverview')(ServerPanel);

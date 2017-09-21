@@ -1,3 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
 exports[`<ServerPanel /> should render 1`] = `
 ShallowWrapper {
   "complexSelector": ComplexSelector {
@@ -14,7 +16,8 @@ ShallowWrapper {
             "publicKey": "",
             "uptime": 0,
           }
-    } />,
+    }
+/>,
   "nodes": Array [
     <ServerPanel
       serverOverview={
@@ -24,7 +27,8 @@ ShallowWrapper {
                   "publicKey": "",
                   "uptime": 0,
                 }
-      } />,
+      }
+/>,
   ],
   "options": Object {},
   "renderer": ReactShallowRenderer {
@@ -40,7 +44,8 @@ ShallowWrapper {
                         "publicKey": "",
                         "uptime": 0,
                       }
-        } />,
+        }
+/>,
       "_debugID": 1,
       "_hostContainerInfo": null,
       "_hostParent": null,
@@ -85,7 +90,8 @@ ShallowWrapper {
                               "publicKey": "",
                               "uptime": 0,
                             }
-          } />,
+          }
+/>,
         "_debugID": 2,
         "_renderedOutput": <ServerPanel
           serverOverview={
@@ -95,7 +101,8 @@ ShallowWrapper {
                               "publicKey": "",
                               "uptime": 0,
                             }
-          } />,
+          }
+/>,
       },
       "_renderedNodeType": 1,
       "_rootNodeID": 0,
@@ -115,6 +122,7 @@ ShallowWrapper {
             "publicKey": "",
             "uptime": 0,
           }
-    } />,
+    }
+/>,
 }
 `;

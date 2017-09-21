@@ -1,3 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
 exports[`<OverviewScreen /> should render 1`] = `
 ShallowWrapper {
   "complexSelector": ComplexSelector {
@@ -7,20 +9,25 @@ ShallowWrapper {
   },
   "length": 1,
   "node": <div
-    className="screen">
+    className="screen"
+>
     <div
-        className="screen__heading">
+        className="screen__heading"
+    >
         <h1
-            className="screen__heading-title">
+            className="screen__heading-title"
+        >
             Network Canvas
         </h1>
         <h2
-            className="screen__heading-subtitle">
+            className="screen__heading-subtitle"
+        >
             Overview
         </h2>
     </div>
     <div
-        className="screen__main">
+        className="screen__main"
+    >
         Various stats and info go here.
         <IPCComponent />
         <OverviewDashboard />
@@ -28,20 +35,25 @@ ShallowWrapper {
 </div>,
   "nodes": Array [
     <div
-      className="screen">
+      className="screen"
+>
       <div
-            className="screen__heading">
+            className="screen__heading"
+      >
             <h1
-                  className="screen__heading-title">
+                  className="screen__heading-title"
+            >
                   Network Canvas
             </h1>
             <h2
-                  className="screen__heading-subtitle">
+                  className="screen__heading-subtitle"
+            >
                   Overview
             </h2>
       </div>
       <div
-            className="screen__main">
+            className="screen__main"
+      >
             Various stats and info go here.
             <IPCComponent />
             <OverviewDashboard />
@@ -83,20 +95,25 @@ ShallowWrapper {
       "_pendingStateQueue": null,
       "_renderedComponent": NoopInternalComponent {
         "_currentElement": <div
-          className="screen">
+          className="screen"
+>
           <div
-                    className="screen__heading">
+                    className="screen__heading"
+          >
                     <h1
-                              className="screen__heading-title">
+                              className="screen__heading-title"
+                    >
                               Network Canvas
                     </h1>
                     <h2
-                              className="screen__heading-subtitle">
+                              className="screen__heading-subtitle"
+                    >
                               Overview
                     </h2>
           </div>
           <div
-                    className="screen__main">
+                    className="screen__main"
+          >
                     Various stats and info go here.
                     <IPCComponent />
                     <OverviewDashboard />
@@ -104,20 +121,25 @@ ShallowWrapper {
 </div>,
         "_debugID": 2,
         "_renderedOutput": <div
-          className="screen">
+          className="screen"
+>
           <div
-                    className="screen__heading">
+                    className="screen__heading"
+          >
                     <h1
-                              className="screen__heading-title">
+                              className="screen__heading-title"
+                    >
                               Network Canvas
                     </h1>
                     <h2
-                              className="screen__heading-subtitle">
+                              className="screen__heading-subtitle"
+                    >
                               Overview
                     </h2>
           </div>
           <div
-                    className="screen__main">
+                    className="screen__main"
+          >
                     Various stats and info go here.
                     <IPCComponent />
                     <OverviewDashboard />
