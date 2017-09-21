@@ -25,7 +25,7 @@ class Updater {
   }
 
   checkForUpdate = () => {
-    ipcRenderer.send('CHECK_FOR_UPDATE');
+    ipcRenderer.send('REQUEST_SERVER_OVERVIEW');
   }
 
   downloadUpdate = () => {
