@@ -1,3 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
 exports[`<MenuItem /> should render 1`] = `
 ShallowWrapper {
   "complexSelector": ComplexSelector {
@@ -7,12 +9,14 @@ ShallowWrapper {
   },
   "length": 1,
   "node": <button
-    onClick={[Function]}>
+    onClick={[Function]}
+>
     Foo
 </button>,
   "nodes": Array [
     <button
-      onClick={[Function]}>
+      onClick={[Function]}
+>
       Foo
 </button>,
   ],
@@ -23,7 +27,8 @@ ShallowWrapper {
       "_compositeType": 2,
       "_context": Object {},
       "_currentElement": <MenuItem
-        action={[Function]}>
+        action={[Function]}
+>
         Foo
 </MenuItem>,
       "_debugID": 1,
@@ -57,12 +62,14 @@ ShallowWrapper {
       "_pendingStateQueue": null,
       "_renderedComponent": NoopInternalComponent {
         "_currentElement": <button
-          onClick={[Function]}>
+          onClick={[Function]}
+>
           Foo
 </button>,
         "_debugID": 2,
         "_renderedOutput": <button
-          onClick={[Function]}>
+          onClick={[Function]}
+>
           Foo
 </button>,
       },
@@ -77,7 +84,8 @@ ShallowWrapper {
   },
   "root": [Circular],
   "unrendered": <MenuItem
-    action={[Function]}>
+    action={[Function]}
+>
     Foo
 </MenuItem>,
 }

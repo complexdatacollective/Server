@@ -23,5 +23,6 @@
       "react/forbid-prop-types": "off",
       "react/no-array-index-key": "off",
       "import/no-extraneous-dependencies": "off",
+      "no-mixed-operators": [1, {"allowSamePrecedence": true}]
     }
 }

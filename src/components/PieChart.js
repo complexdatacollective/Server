@@ -31,7 +31,7 @@ const PieChart = ({ data }) => (
 );
 
 PieChart.propTypes = {
-  data: PropTypes.object.isRequired,
+  data: PropTypes.array.isRequired,
 };
 
 export default PieChart;

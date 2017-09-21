@@ -1,3 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
 exports[`<Expandable /> should render 1`] = `
 ShallowWrapper {
   "complexSelector": ComplexSelector {
@@ -7,12 +9,14 @@ ShallowWrapper {
   },
   "length": 1,
   "node": <div
-    className="foo expandable">
+    className="foo expandable"
+>
     Bar
 </div>,
   "nodes": Array [
     <div
-      className="foo expandable">
+      className="foo expandable"
+>
       Bar
 </div>,
   ],
@@ -24,7 +28,8 @@ ShallowWrapper {
       "_context": Object {},
       "_currentElement": <Expandable
         className="foo"
-        open={false}>
+        open={false}
+>
         Bar
 </Expandable>,
       "_debugID": 1,
@@ -59,12 +64,14 @@ ShallowWrapper {
       "_pendingStateQueue": null,
       "_renderedComponent": NoopInternalComponent {
         "_currentElement": <div
-          className="foo expandable">
+          className="foo expandable"
+>
           Bar
 </div>,
         "_debugID": 2,
         "_renderedOutput": <div
-          className="foo expandable">
+          className="foo expandable"
+>
           Bar
 </div>,
       },
@@ -80,7 +87,8 @@ ShallowWrapper {
   "root": [Circular],
   "unrendered": <Expandable
     className="foo"
-    open={false}>
+    open={false}
+>
     Bar
 </Expandable>,
 }

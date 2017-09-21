@@ -22,7 +22,7 @@ const BarChart = ({ data }) => (
 );
 
 BarChart.propTypes = {
-  data: PropTypes.object.isRequired,
+  data: PropTypes.array.isRequired,
 };
 
 export default BarChart;

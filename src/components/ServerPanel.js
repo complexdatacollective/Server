@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { PanelItem } from '../components';
-import ipc from '../containers/ipc';
+import Updater from '../utils/Updater';
+
+const updater = new Updater();
 
 const defaultServerOverview = {
   ip: 'x.x.x.x',
@@ -10,20 +12,45 @@ const defaultServerOverview = {
   publicKey: '',
 };
 
-const ServerPanel = ({ serverOverview }) => {
-  const overview = { ...defaultServerOverview, ...serverOverview };
-  return (
-    <div className="server-panel">
-      <PanelItem label="IP" value={JSON.stringify(overview.ip)} />
-      <PanelItem label="Clients" value={overview.clients} />
-      <PanelItem label="Uptime" value={overview.uptime} />
-      <PanelItem label="Public Key" value={overview.publicKey} />
-    </div>
-  );
-};
+class ServerPanel extends Component {
+  constructor() {
+    super();
+
+    this.state = {
+      version: '0.0.0',
+      notes: '',
+    };
+
+    updater.on('UPDATE_AVAILABLE', ({ version, notes }) => {
+      this.setState({
+        ...defaultServerOverview,
+        version,
+        notes,
+      });
+    });
+  }
+
+  render() {
+    const { serverOverview } = this.props;
+
+    const overview = { ...defaultServerOverview, ...serverOverview };
+    return (
+      <div className="server-panel">
+        <PanelItem label="IP" value={JSON.stringify(overview.ip)} />
+        <PanelItem label="Clients" value={overview.clients} />
+        <PanelItem label="Uptime" value={overview.uptime} />
+        <PanelItem label="Public Key" value={overview.publicKey} />
+      </div>
+    );
+  }
+}
 
 ServerPanel.propTypes = {
-  serverOverview: PropTypes.any.isRequired,
+  serverOverview: PropTypes.object,
 };
 
-export default ipc('serverOverview')(ServerPanel);
+ServerPanel.defaultProps = {
+  serverOverview: defaultServerOverview,
+};
+
+export default ServerPanel;
