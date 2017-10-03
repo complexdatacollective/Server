@@ -13,11 +13,17 @@ const mainWindow = createMainWindow();
 createServer(8080, settingsDb).then((serverProcess) => {
   server = serverProcess;
 
-  server.on(
-    'SERVER_STATUS',
-    ({ data }) =>
-      mainWindow.send('SERVER_OVERVIEW', data)
-  );
+  ipcMain.on('REQUEST_SERVER_STATUS', (event) => {
+    serverProcess.on(
+      'SERVER_STATUS',
+      ({ data }) => {
+        console.log(data);
+        event.sender.send('SERVER_STATUS', data);
+      }
+    );
+
+    serverProcess.send({ action: 'REQUEST_SERVER_STATUS' });
+  });
 });
 
 const trayMenu = [

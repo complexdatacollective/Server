@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { PanelItem } from '../components';
-import Updater from '../utils/Updater';
-
-const updater = new Updater();
+import Server from '../utils/Server';
 
 const defaultServerOverview = {
   ip: 'x.x.x.x',
@@ -21,13 +19,14 @@ class ServerPanel extends Component {
       notes: '',
     };
 
-    updater.on('UPDATE_AVAILABLE', ({ version, notes }) => {
-      this.setState({
-        ...defaultServerOverview,
-        version,
-        notes,
-      });
+    this.server = new Server();
+
+    this.server.on('SERVER_STATUS', (data) => {
+      console.log('SERVER_STATUS', data);
+      this.setState({ serverOverview: data });
     });
+
+    this.server.requestServerStatus();
   }
 
   render() {
