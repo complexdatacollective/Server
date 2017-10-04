@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
 
-const Emitter = require('events').EventEmitter;
+const Emitter = require('events');
 const io = require('socket.io');
 const PrivateSocket = require('private-socket');
 const os = require('os');
@@ -51,7 +51,7 @@ class Server extends Emitter {
     if (events.indexOf(name) !== -1) {
       return Emitter.prototype.on.apply(this, [name, cb, ...rest]);
     }
-
+    console.log('socket', this.socketServer);
     return this.socketServer.on(name, cb);
   }
 }

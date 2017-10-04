@@ -17,6 +17,7 @@ class Server {
   }
 
   requestServerStatus = () => {
+    console.log('REQUESTING');
     ipcRenderer.send('REQUEST_SERVER_STATUS');
   }
 }

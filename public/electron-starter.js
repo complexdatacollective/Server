@@ -10,10 +10,12 @@ let server = null;
 
 const mainWindow = createMainWindow();
 
-createServer(8080, settingsDb).then((serverProcess) => {
+createServer(8080, settingsDb)
+.then((serverProcess) => {
   server = serverProcess;
-
+  console.log(server);
   ipcMain.on('REQUEST_SERVER_STATUS', (event) => {
+    console.log('request received', event);
     serverProcess.on(
       'SERVER_STATUS',
       ({ data }) => {
@@ -56,6 +58,8 @@ app.on('ready', () => {
 app.on('window-all-closed', () => { });  // no op
 
 app.on('before-quit', () => {
-  // Quit spawned server process
-  server.stop();
+  if (server) {
+    // Quit spawned server process
+    server.stop();
+  }
 });
