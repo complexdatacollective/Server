@@ -12,10 +12,22 @@ class Server extends Emitter {
     super();
     if (!port) return;
 
+
     this.options = options;
     this.started = new Date().getTime();
-    this.socketServer = io(port, { serveClient: false });
 
+    const server = require('http').createServer();
+    const io = require('socket.io')({
+      serveClient: false
+    });
+
+    this.socketServer = server;
+    io.attach(port);
+    // this.socketServer = io(port, { serveClient: false });
+
+    // this.socketServer.listen(port);
+    console.log('server', server);
+    // server.listen(port)
     this.listen();
   }
 
