@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { PanelItem } from '../components';
 import Server from '../utils/Server';
 
@@ -22,7 +21,6 @@ class ServerPanel extends Component {
     this.server = new Server();
 
     this.server.on('SERVER_STATUS', (data) => {
-      console.log('SERVER_STATUS', data);
       this.setState({ serverOverview: data });
     });
 
@@ -30,7 +28,7 @@ class ServerPanel extends Component {
   }
 
   render() {
-    const { serverOverview } = this.props;
+    const { serverOverview } = this.state;
 
     const overview = { ...defaultServerOverview, ...serverOverview };
     return (
@@ -43,13 +41,5 @@ class ServerPanel extends Component {
     );
   }
 }
-
-ServerPanel.propTypes = {
-  serverOverview: PropTypes.object,
-};
-
-ServerPanel.defaultProps = {
-  serverOverview: defaultServerOverview,
-};
 
 export default ServerPanel;

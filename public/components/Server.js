@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
 
-const Emitter = require('events');
+const Emitter = require('events').EventEmitter;
 const io = require('socket.io');
 const PrivateSocket = require('private-socket');
 const os = require('os');

@@ -103,8 +103,9 @@ const createServer = (port, db) => {
   if (!port) { throw new Error('You must specify a server port'); }
   if (!db) { throw new Error('You must specify a settings database'); }
 
-  new Promise((resolve) => {
-    const ps = fork(`${__filename}`, [], { env: { PORT: port, APP_SETTINGS_DB: db } });
+  return new Promise((resolve) => {
+    const env = { PORT: port, APP_SETTINGS_DB: db };
+    const ps = fork(`${__filename}`, [], { env });
     ps.on('message', ({ action }) => {
       if (action === SERVER_READY) {
         resolve(new ServerProcess({
@@ -113,7 +114,7 @@ const createServer = (port, db) => {
       }
     });
   });
-}
+};
 
 module.exports = {
   createServer,
