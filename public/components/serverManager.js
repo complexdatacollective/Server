@@ -99,7 +99,10 @@ class ServerProcess {
   }
 }
 
-const createServer = (port, db) =>
+const createServer = (port, db) => {
+  if (!port) { throw new Error('You must specify a server port'); }
+  if (!db) { throw new Error('You must specify a settings database'); }
+
   new Promise((resolve) => {
     const ps = fork(`${__filename}`, [], { env: { PORT: port, APP_SETTINGS_DB: db } });
     ps.on('message', ({ action }) => {
@@ -110,6 +113,7 @@ const createServer = (port, db) =>
       }
     });
   });
+}
 
 module.exports = {
   createServer,
