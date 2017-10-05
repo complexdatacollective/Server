@@ -54,16 +54,17 @@ class Server extends Emitter {
       return Emitter.prototype.on.apply(this, [name, cb, ...rest]);
     }
 
-    this.socketServer.on('connection', function connection(ws) {
+    this.socketServer.on('connection', (ws) => {
       console.log(name);
       ws.on('message', (message) => {
         console.log('received: %s', message);
         ws.send('some message');
+        if (message == 'REQUEST_SERVER_STATUS') {
+          ws.send(this.status())
+        }
         return ws.on(message, cb);
       });
     });
-
-
   }
 }
 
