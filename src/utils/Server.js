@@ -7,6 +7,7 @@ class Server {
     this.events = new EventEmitter();
     socket.addEventListener('message', (event) => {
       console.log('Message from server ', event.data);
+      console.log(event);
     });
     // ipcRenderer.on('SERVER_STATUS', (event, data) => {
     //   console.log('SERVER_STATUS', data);

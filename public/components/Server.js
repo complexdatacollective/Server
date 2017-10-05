@@ -44,7 +44,7 @@ class Server extends Emitter {
     return {
       uptime: new Date().getTime() - this.started,
       ip: os.networkInterfaces(),
-      clients: Object.keys(this.socketServer.sockets.sockets).length,
+      clients: this.socketServer.clients.size,
       publicKey: this.options.keys.publicKey,
     };
   }
@@ -60,7 +60,8 @@ class Server extends Emitter {
         console.log('received: %s', message);
         ws.send('some message');
         if (message == 'REQUEST_SERVER_STATUS') {
-          ws.send(this.status())
+          console.log(this.socketServer);
+          ws.send(JSON.stringify(this.status()));
         }
         return ws.on(message, cb);
       });
