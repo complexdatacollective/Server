@@ -10,23 +10,23 @@ let server = null;
 
 const mainWindow = createMainWindow();
 
-createServer(8080, settingsDb)
-.then((serverProcess) => {
-  server = serverProcess;
-  console.log(server);
-  ipcMain.on('REQUEST_SERVER_STATUS', (event) => {
-    console.log('request received', event);
-    serverProcess.on(
-      'SERVER_STATUS',
-      ({ data }) => {
-        console.log(data);
-        event.sender.send('SERVER_STATUS', data);
-      }
-    );
+// createServer(8080, settingsDb)
+// .then((serverProcess) => {
+//   server = serverProcess;
+//   console.log(server);
+//   ipcMain.on('REQUEST_SERVER_STATUS', (event) => {
+//     console.log('request received', event);
+//     serverProcess.on(
+//       'SERVER_STATUS',
+//       ({ data }) => {
+//         console.log(data);
+//         event.sender.send('SERVER_STATUS', data);
+//       }
+//     );
 
-    serverProcess.send({ action: 'REQUEST_SERVER_STATUS' });
-  });
-});
+//     serverProcess.send({ action: 'REQUEST_SERVER_STATUS' });
+//   });
+// });
 
 const trayMenu = [
   {

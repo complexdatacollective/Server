@@ -5,6 +5,7 @@ const io = require('socket.io');
 const PrivateSocket = require('private-socket');
 const os = require('os');
 
+const WebSocket = require('ws');
 const events = ['data'];
 
 class Server extends Emitter {
@@ -14,7 +15,7 @@ class Server extends Emitter {
 
     this.options = options;
     this.started = new Date().getTime();
-    this.socketServer = io(port, { serveClient: false });
+    this.socketServer = new WebSocket.Server({ port });
 
     this.listen();
   }
@@ -36,6 +37,7 @@ class Server extends Emitter {
         this.emit('data', data);
       });
     });
+
   }
 
   status() {
@@ -52,7 +54,16 @@ class Server extends Emitter {
       return Emitter.prototype.on.apply(this, [name, cb, ...rest]);
     }
 
-    return this.socketServer.on(name, cb);
+    this.socketServer.on('connection', function connection(ws) {
+      console.log(name);
+      ws.on('message', (message) => {
+        console.log('received: %s', message);
+        ws.send('some message');
+        return ws.on(message, cb);
+      });
+    });
+
+
   }
 }
 

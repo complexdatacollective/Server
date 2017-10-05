@@ -125,7 +125,8 @@
     "reselect": "^3.0.0",
     "rxjs": "^5.4.0",
     "socket.io": "^2.0.3",
-    "upgrade": "^1.1.0"
+    "upgrade": "^1.1.0",
+    "ws": "^3.2.0"
   },
   "build": {
     "extends": null,
