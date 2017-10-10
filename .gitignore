@@ -5,7 +5,7 @@
 /coverage
 /build
 /release-builds
-/db
+**/db
 /www
 
 npm-debug.log*

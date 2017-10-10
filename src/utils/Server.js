@@ -7,12 +7,8 @@ class Server {
     this.events = new EventEmitter();
     socket.addEventListener('message', (event) => {
       console.log('Message from server ', event.data);
-      console.log(event);
+      this.events.emit('SERVER_STATUS', event.data);
     });
-    // ipcRenderer.on('SERVER_STATUS', (event, data) => {
-    //   console.log('SERVER_STATUS', data);
-    //   this.events.emit('SERVER_STATUS', data);
-    // });
   }
 
   on(...args) {
@@ -21,7 +17,6 @@ class Server {
 
   requestServerStatus = () => {
     console.log('REQUESTING');
-    // ipcRenderer.send('REQUEST_SERVER_STATUS');
     // Connection opened
     socket.addEventListener('open', (event) => {
       console.log(event);

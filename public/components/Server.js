@@ -1,11 +1,10 @@
 /* eslint-disable class-methods-use-this */
 
 const Emitter = require('events').EventEmitter;
-const io = require('socket.io');
+const WebSocket = require('ws');
 const PrivateSocket = require('private-socket');
 const os = require('os');
 
-const WebSocket = require('ws');
 const events = ['data'];
 
 class Server extends Emitter {
@@ -55,12 +54,9 @@ class Server extends Emitter {
     }
 
     this.socketServer.on('connection', (ws) => {
-      console.log(name);
       ws.on('message', (message) => {
         console.log('received: %s', message);
-        ws.send('some message');
         if (message == 'REQUEST_SERVER_STATUS') {
-          console.log(this.socketServer);
           ws.send(JSON.stringify(this.status()));
         }
         return ws.on(message, cb);

@@ -1,6 +1,16 @@
+const { app } = require('electron');
+const path = require('path');
+
 const { createServer } = require('./components/serverManager');
 
-createServer(8080, 'asdf')
+let server = null;
+let dbSettings = path.join(path.dirname(require.main.filename), 'db', 'settings.json');
+const port = process.env.port || 8080;
+if (app) {
+  dbSettings = path.join(app.getPath('userData'), 'db', 'settings.json');
+}
+
+createServer(port, dbSettings)
 .then((serverProcess) => {
   server = serverProcess;
   server.on('REQUEST_SERVER_STATUS', (event) => {
@@ -17,5 +27,4 @@ createServer(8080, 'asdf')
   });
 });
 
-
-console.log("Server running on port 8080");
+console.log(`Server running on port ${port}`);

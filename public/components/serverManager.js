@@ -32,10 +32,10 @@ const actions = {
 const ensurePemKeyPair = (currentAppSettings) => {
   if (!currentAppSettings || !currentAppSettings.keys) {
     return PrivateSocket.generatePemKeyPair()
-      .then(
+    .then(
         keypair =>
-          Object.assign({}, currentAppSettings, { keys: keypair })
-      );
+        Object.assign({}, currentAppSettings, { keys: keypair })
+    );
   }
 
   return currentAppSettings;
@@ -48,9 +48,9 @@ const startServer = (port, settingsDb) => {
   const appSettings = settings(new Datastore({ filename: settingsDb, autoload: true }));
 
   return appSettings.get()
-    .then(ensurePemKeyPair)
-    .then(appSettings.set)
-    .then(currentAppSettings => new Server(port, currentAppSettings));
+  .then(ensurePemKeyPair)
+  .then(appSettings.set)
+  .then(currentAppSettings => new Server(port, currentAppSettings));
 };
 
 const serverTaskHandler = server =>

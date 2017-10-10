@@ -1,12 +1,12 @@
-const { app, ipcMain } = require('electron');
-const path = require('path');
+const { app } = require('electron');
+// const path = require('path');
 const { createMainWindow } = require('./components/mainWindow');
 const { createTray } = require('./components/tray');
-const { createServer } = require('./components/serverManager');
+// const { createServer } = require('./components/serverManager');
 
-const settingsDb = path.join(app.getPath('userData'), 'db', 'settings');
+// const settingsDb = path.join(app.getPath('userData'), 'db', 'settings');
 
-let server = null;
+// const server = null;
 
 const mainWindow = createMainWindow();
 
@@ -43,11 +43,11 @@ const trayMenu = [
   },
 ];
 
-ipcMain.on('REQUEST_SERVER_OVERVIEW', () => {
-  if (!server) { return; }
+// ipcMain.on('REQUEST_SERVER_OVERVIEW', () => {
+//   if (!server) { return; }
 
-  server.send({ action: 'REQUEST_SERVER_STATUS' });
-});
+//   server.send({ action: 'REQUEST_SERVER_STATUS' });
+// });
 
 app.on('ready', () => {
   app.dock.hide();
