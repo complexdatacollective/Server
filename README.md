@@ -33,7 +33,8 @@ This repository assumes that `npm` is installed. If you don't have it installed,
 |`npm run <script>`|Description|
 |------------------|-----------|
 |`start`|Serves your app at `localhost:3000`.|
-|`build`|Compiles assets and prepares app for production in the /build directory.|
+|`server`| Starts the server listening at `localhost:8080`.|
+|`build`|Compiles assets and prepares app for production in the /www directory.|
 |`test`|Runs testing suite.|
 |`build-docs`|Builds HTML API docs into the docs-build directory.|
 |`electron`|Runs the current code in electron, for testing.|
@@ -43,6 +44,7 @@ This repository assumes that `npm` is installed. If you don't have it installed,
 To run the UI:
 
 ```sh
+npm run server
 npm run start
 ```
 
@@ -52,6 +54,10 @@ To run the whole app (including server):
 $ npm run build
 $ npm run electron
 ```
+
+The electron app (and server components) are served out of the /www folder. Changes can be made in the /public folder but won't reflect in the app until another build is completed (`npm run build && npm run electron`).
+
+To speed up development, the server can be run headlessly out of /public using the command `npm run server` and the UI can be viewed at `localhost:3000` once started with `npm run dev`. Any changes made in /src will be automatically compiled, but any changes made in /public will have to restart the server in order for changes to be reflected.
 
 ## Application Structure
 

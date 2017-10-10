@@ -36,7 +36,6 @@ class Server extends Emitter {
         this.emit('data', data);
       });
     });
-
   }
 
   status() {
