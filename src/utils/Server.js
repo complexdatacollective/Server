@@ -16,7 +16,7 @@ class Server {
 
   requestServerStatus = () => {
     // Connection opened
-    socket.addEventListener('open', (event) => {
+    socket.addEventListener('open', () => {
       socket.send('REQUEST_SERVER_STATUS');
     });
   }

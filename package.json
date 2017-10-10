@@ -12,7 +12,7 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
-    "dev": "node ./public/server-starter && node scripts/start.js",
+    "server:dev": "node ./public/server-starter",
     "server": "node ./www/server-starter",
     "lint": "eslint src",
     "test": "node scripts/test.js --env=jsdom",
