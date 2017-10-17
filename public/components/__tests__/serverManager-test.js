@@ -3,7 +3,7 @@
 const path = require('path');
 const { createServer, actions } = require('../serverManager');
 
-const testPort = 0;  // Auto find port
+const testPort = 8001;  // Auto find port
 const testDb = path.join('db', 'test');
 
 describe('serverManager', () => {
