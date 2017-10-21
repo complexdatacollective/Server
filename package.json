@@ -12,6 +12,7 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
+    "server:dev": "node ./public/server-starter",
     "server": "node ./www/server-starter",
     "lint": "eslint src",
     "test": "node scripts/test.js --env=jsdom",
@@ -76,6 +77,7 @@
     "jsdoc": "^3.4.3",
     "jsdoc-babel": "^0.3.0",
     "json-loader": "0.5.4",
+    "mock-socket": "^7.0.0",
     "network-canvas-ui": "git+https://github.com/codaco/Network-Canvas-UI.git",
     "node-sass": "^4.5.2",
     "object-assign": "4.1.1",
@@ -125,7 +127,8 @@
     "reselect": "^3.0.0",
     "rxjs": "^5.4.0",
     "socket.io": "^2.0.3",
-    "upgrade": "^1.1.0"
+    "upgrade": "^1.1.0",
+    "ws": "^3.2.0"
   },
   "build": {
     "extends": null,

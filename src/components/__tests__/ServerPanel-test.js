@@ -2,7 +2,10 @@
 
 import React from 'react';
 import { shallow } from 'enzyme';
+import { WebSocket } from 'mock-socket';
 import ServerPanel from '../ServerPanel';
+
+global.WebSocket = WebSocket;
 
 const mockServerOverview = {
   ip: 'x.x.x.x',

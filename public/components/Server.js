@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 
 const Emitter = require('events').EventEmitter;
-const io = require('socket.io');
+const WebSocket = require('ws');
 const PrivateSocket = require('private-socket');
 const os = require('os');
 
@@ -14,7 +14,7 @@ class Server extends Emitter {
 
     this.options = options;
     this.started = new Date().getTime();
-    this.socketServer = io(port, { serveClient: false });
+    this.socketServer = new WebSocket.Server({ port });
 
     this.listen();
   }
@@ -42,7 +42,7 @@ class Server extends Emitter {
     return {
       uptime: new Date().getTime() - this.started,
       ip: os.networkInterfaces(),
-      clients: Object.keys(this.socketServer.sockets.sockets).length,
+      clients: this.socketServer.clients.size,
       publicKey: this.options.keys.publicKey,
     };
   }
@@ -52,7 +52,15 @@ class Server extends Emitter {
       return Emitter.prototype.on.apply(this, [name, cb, ...rest]);
     }
 
-    return this.socketServer.on(name, cb);
+    this.socketServer.on('connection', (ws) => {
+      ws.on('message', (message) => {
+        console.log('received: %s', message);
+        if (message == 'REQUEST_SERVER_STATUS') {
+          ws.send(JSON.stringify(this.status()));
+        }
+        return ws.on(message, cb);
+      });
+    });
   }
 }
 

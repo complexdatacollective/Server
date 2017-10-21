@@ -32,10 +32,10 @@ const actions = {
 const ensurePemKeyPair = (currentAppSettings) => {
   if (!currentAppSettings || !currentAppSettings.keys) {
     return PrivateSocket.generatePemKeyPair()
-      .then(
+    .then(
         keypair =>
-          Object.assign({}, currentAppSettings, { keys: keypair })
-      );
+        Object.assign({}, currentAppSettings, { keys: keypair })
+    );
   }
 
   return currentAppSettings;
@@ -48,9 +48,9 @@ const startServer = (port, settingsDb) => {
   const appSettings = settings(new Datastore({ filename: settingsDb, autoload: true }));
 
   return appSettings.get()
-    .then(ensurePemKeyPair)
-    .then(appSettings.set)
-    .then(currentAppSettings => new Server(port, currentAppSettings));
+  .then(ensurePemKeyPair)
+  .then(appSettings.set)
+  .then(currentAppSettings => new Server(port, currentAppSettings));
 };
 
 const serverTaskHandler = server =>
@@ -99,9 +99,13 @@ class ServerProcess {
   }
 }
 
-const createServer = (port, db) =>
-  new Promise((resolve) => {
-    const ps = fork(`${__filename}`, [], { env: { PORT: port, APP_SETTINGS_DB: db } });
+const createServer = (port, db) => {
+  if (!port) { throw new Error('You must specify a server port'); }
+  if (!db) { throw new Error('You must specify a settings database'); }
+
+  return new Promise((resolve) => {
+    const env = { PORT: port, APP_SETTINGS_DB: db };
+    const ps = fork(`${__filename}`, [], { env });
     ps.on('message', ({ action }) => {
       if (action === SERVER_READY) {
         resolve(new ServerProcess({
@@ -110,6 +114,7 @@ const createServer = (port, db) =>
       }
     });
   });
+};
 
 module.exports = {
   createServer,

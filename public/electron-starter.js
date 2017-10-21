@@ -1,24 +1,11 @@
-const { app, ipcMain } = require('electron');
-const path = require('path');
+const { app } = require('electron');
 const { createMainWindow } = require('./components/mainWindow');
 const { createTray } = require('./components/tray');
-const { createServer } = require('./components/serverManager');
 
-const settingsDb = path.join(app.getPath('userData'), 'db', 'settings');
-
-let server = null;
+// start the server
+require('./server-starter');
 
 const mainWindow = createMainWindow();
-
-createServer(8080, settingsDb).then((serverProcess) => {
-  server = serverProcess;
-
-  server.on(
-    'SERVER_STATUS',
-    ({ data }) =>
-      mainWindow.send('SERVER_OVERVIEW', data)
-  );
-});
 
 const trayMenu = [
   {
@@ -35,12 +22,6 @@ const trayMenu = [
   },
 ];
 
-ipcMain.on('REQUEST_SERVER_OVERVIEW', () => {
-  if (!server) { return; }
-
-  server.send({ action: 'REQUEST_SERVER_STATUS' });
-});
-
 app.on('ready', () => {
   app.dock.hide();
   createTray(trayMenu);
@@ -48,8 +29,3 @@ app.on('ready', () => {
 
 // Don't quit when all windows are closed.
 app.on('window-all-closed', () => { });  // no op
-
-app.on('before-quit', () => {
-  // Quit spawned server process
-  server.stop();
-});
