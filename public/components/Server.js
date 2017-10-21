@@ -47,15 +47,39 @@ class Server extends Emitter {
     };
   }
 
+  heartbeat() {
+    this.isAlive = true;
+    console.log(new Date().getTime());
+  }
+
   on(name, cb, ...rest) {
     if (events.indexOf(name) !== -1) {
       return Emitter.prototype.on.apply(this, [name, cb, ...rest]);
     }
 
-    this.socketServer.on('connection', (ws) => {
+    return this.socketServer.on('connection', (ws) => {
+      ws.isAlive = true;
+      ws.on('pong', this.heartbeat);
+      this.heartbeatInterval = 60;
+
+      setInterval(() => {
+        this.socketServer.clients.forEach((client) => {
+          if (client.isAlive === false) {
+            console.log('terminating dead client');
+            client.terminate();
+          }
+
+          client.isAlive = false;
+          console.log('heartbeat event fired');
+          client.ping('', false, true);
+          client.send(JSON.stringify(this.status()));
+        });
+      }, 1000 * this.heartbeatInterval);
+
+
       ws.on('message', (message) => {
         console.log('received: %s', message);
-        if (message == 'REQUEST_SERVER_STATUS') {
+        if (message === 'REQUEST_SERVER_STATUS') {
           ws.send(JSON.stringify(this.status()));
         }
         return ws.on(message, cb);
