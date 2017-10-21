@@ -81,6 +81,32 @@ ShallowWrapper {
           },
         },
         "refs": Object {},
+        "server": Server {
+          "events": Object {},
+          "requestServerStatus": [Function],
+          "socket": WebSocket {
+            "binaryType": "blob",
+            "listeners": Object {
+              "message": Array [
+                [Function],
+              ],
+              "open": Array [
+                [Function],
+              ],
+            },
+            "onclose": undefined,
+            "onerror": undefined,
+            "onmessage": Array [
+              [Function],
+            ],
+            "onopen": Array [
+              [Function],
+            ],
+            "protocol": "",
+            "readyState": 0,
+            "url": "ws://localhost:8080/",
+          },
+        },
         "state": Object {
           "notes": "",
           "version": "0.0.0",

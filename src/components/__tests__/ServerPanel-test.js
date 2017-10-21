@@ -5,8 +5,6 @@ import { shallow } from 'enzyme';
 import { WebSocket } from 'mock-socket';
 import ServerPanel from '../ServerPanel';
 
-console.log('hi');
-console.log(WebSocket);
 global.WebSocket = WebSocket;
 
 const mockServerOverview = {

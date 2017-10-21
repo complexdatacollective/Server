@@ -1,11 +1,11 @@
 import EventEmitter from 'event-emitter';
 
-const socket = new WebSocket('ws://localhost:8080');
-
 class Server {
   constructor() {
+    this.socket = new WebSocket('ws://localhost:8080');
+
     this.events = new EventEmitter();
-    socket.addEventListener('message', (event) => {
+    this.socket.addEventListener('message', (event) => {
       this.events.emit('SERVER_STATUS', event.data);
     });
   }
@@ -16,8 +16,8 @@ class Server {
 
   requestServerStatus = () => {
     // Connection opened
-    socket.addEventListener('open', () => {
-      socket.send('REQUEST_SERVER_STATUS');
+    this.socket.addEventListener('open', () => {
+      this.socket.send('REQUEST_SERVER_STATUS');
     });
   }
 }
