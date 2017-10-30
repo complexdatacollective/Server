@@ -24,7 +24,7 @@ class Server extends Emitter {
   }
 
   listen() {
-    this.on('connect', (socket) => {
+    this.socketServer.on('connection', (socket) => {
       // When a server connects generate a private socket
       const socketOptions = Object.assign({}, this.options);
       const ps = new PrivateSocket(socket, socketOptions);
@@ -34,6 +34,35 @@ class Server extends Emitter {
       ps.on('data', (data) => {
         // TODO: Could store data here or in some kind of HOC?
         this.emit('data', data);
+      });
+
+      socket.isAlive = true;
+      socket.on('pong', this.heartbeat);
+      this.heartbeatInterval = 60;
+
+      setInterval(() => {
+        if (!this.socketServer.clients) {
+          this.socketServer.close();
+        }
+        this.socketServer.clients.forEach((client) => {
+          if (client.isAlive === false) {
+            console.log('terminating dead client');
+            client.terminate();
+          }
+
+          client.isAlive = false;
+          console.log('heartbeat event fired');
+          client.ping('', false, true);
+          client.send(JSON.stringify(this.status()));
+        });
+      }, 1000 * this.heartbeatInterval);
+
+
+      socket.on('message', (message) => {
+        console.log('socket received: %s', message);
+        if (message === 'REQUEST_SERVER_STATUS') {
+          socket.send(JSON.stringify(this.status()));
+        }
       });
     });
   }
@@ -47,20 +76,16 @@ class Server extends Emitter {
     };
   }
 
+  heartbeat() {
+    this.isAlive = true;
+    console.log(new Date().getTime());
+  }
+
   on(name, cb, ...rest) {
+    console.log(name);
     if (events.indexOf(name) !== -1) {
       return Emitter.prototype.on.apply(this, [name, cb, ...rest]);
     }
-
-    this.socketServer.on('connection', (ws) => {
-      ws.on('message', (message) => {
-        console.log('received: %s', message);
-        if (message == 'REQUEST_SERVER_STATUS') {
-          ws.send(JSON.stringify(this.status()));
-        }
-        return ws.on(message, cb);
-      });
-    });
   }
 }
 
