@@ -1,13 +1,13 @@
 import EventEmitter from 'event-emitter';
+import io from 'socket.io-client';
 
 class Server {
   constructor() {
-    this.socket = new WebSocket('ws://localhost:8080');
+    this.socket = io('http://localhost:8080', {
+      path: '/rnd',
+    });
 
     this.events = new EventEmitter();
-    this.socket.addEventListener('message', (event) => {
-      this.events.emit('SERVER_STATUS', event.data);
-    });
   }
 
   on(...args) {
@@ -15,10 +15,24 @@ class Server {
   }
 
   requestServerStatus = () => {
-    // Connection opened
-    this.socket.addEventListener('open', () => {
-      this.socket.send('REQUEST_SERVER_STATUS');
+    const req = {
+      val: Math.floor(Math.random() * 10),
+    };
+
+    // // Connection opened
+    this.socket.on('connect', () => {
+      this.socket.emit('REQUEST_SERVER_STATUS', (data) => {
+        console.log(data);
+      });
+      this.socket.emit('randomRequest', req, (data) => {
+        console.log(req);
+        console.log('normal', req.val, data);
+      });
     });
+
+    // this.socket.addEventListener('open', () => {
+    //   this.socket.send('randomRequest');
+    // });
   }
 }
 
