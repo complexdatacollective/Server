@@ -3,7 +3,6 @@
 const Emitter = require('events').EventEmitter;
 // const WebSocket = require('ws');
 const io = require('socket.io')({
-  path: '/rnd',
   serveClient: false,
   origins: '*:*'
 });
@@ -13,25 +12,12 @@ const cote = require('cote');
 
 const events = ['data'];
 
-const randomResponder = new cote.Responder({
-  name: 'randomRep',
+
+const randomPublisher = new cote.Publisher({
+  name: 'randomPub',
   namespace: 'rnd',
-  respondsTo: ['randomRequest', 'promised request'], // types of requests this responder
-  // can respond to.
+  broadcasts: ['randomUpdate']
 });
-
-// request handlers are like any event handler.
-randomResponder.on('randomRequest', (req, cb) => {
-  const answer = ~~(Math.random() * 10);
-  console.log('request', req.val, 'answering with', answer);
-  cb(answer);
-});
-
-// const randomPublisher = new cote.Publisher({
-//   name: 'randomPub',
-//   namespace: 'rnd',
-//   broadcasts: ['randomUpdate']
-// });
 
 // const randomSubscriber = new cote.Subscriber({
 //   name: 'Random Subscriber',
@@ -44,20 +30,20 @@ randomResponder.on('randomRequest', (req, cb) => {
 //   console.log('notified of ', req);
 // });
 
-// function publishUpdate() {
-//   const val = {
-//     val: ~~(Math.random() * 1000)
-//   };
+function publishUpdate() {
+  const val = {
+    val: ~~(Math.random() * 1000)
+  };
 
-//   console.log('emitting', val);
+  console.log('emitting', val);
 
-//   // publish an event with arbitrary data at any time
-//   randomPublisher.publish('randomUpdate', val);
-// }
+  // publish an event with arbitrary data at any time
+  randomPublisher.publish('randomUpdate', val);
+}
 
-// publishUpdate();
+publishUpdate();
 
-// setInterval(publishUpdate, 3000);
+setInterval(publishUpdate, 3000);
 
 class Server extends Emitter {
   constructor(port, options) {
@@ -71,8 +57,7 @@ class Server extends Emitter {
 
     this.options = options;
     this.started = new Date().getTime();
-    // this.socketServer = io;
-    this.socketServer = new cote.Sockend(io, { name: 'sockend' });
+    this.socketServer = io;
 
     this.listen();
   }
@@ -82,10 +67,27 @@ class Server extends Emitter {
   }
 
   listen() {
+    const randomResponder = new cote.Responder({
+      name: 'randomRep',
+      namespace: 'rnd',
+      respondsTo: ['randomRequest', 'promised request'], // types of requests this responder
+      // can respond to.
+    });
+
+    // request handlers are like any event handler.
+    randomResponder.on('randomRequest', (req, cb) => {
+      const answer = Math.random() * 10;
+      console.log('request', req.val, 'answering with', answer);
+      cb(answer);
+    });
+
+    const sockend = new cote.Sockend(this.socketServer, { name: 'sockend' });
+    console.log(sockend);
+
     io.on('connection', (socket) => {
       console.log('connected');
       socket.on('REQUEST_SERVER_STATUS', () => {
-        socket.send(JSON.stringify(this.status()));
+        socket.emit('SERVER_STATUS', JSON.stringify(this.status()));
       });
     });
 
@@ -107,7 +109,7 @@ class Server extends Emitter {
     return {
       uptime: new Date().getTime() - this.started,
       ip: os.networkInterfaces(),
-      clients: 5,
+      clients: this.socketServer.engine.clientsCount,
       publicKey: this.options.keys.publicKey,
     };
   }
@@ -116,17 +118,6 @@ class Server extends Emitter {
     if (events.indexOf(name) !== -1) {
       return Emitter.prototype.on.apply(this, [name, cb, ...rest]);
     }
-
-
-    // this.socketServer.on('connection', (ws) => {
-    //   ws.on('message', (message) => {
-    //     console.log('received: %s', message);
-    //     if (message == 'REQUEST_SERVER_STATUS') {
-    //       ws.send(JSON.stringify(this.status()));
-    //     }
-    //     return ws.on(message, cb);
-    //   });
-    // });
   }
 }
 

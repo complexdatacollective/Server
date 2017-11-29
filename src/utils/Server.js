@@ -4,10 +4,16 @@ import io from 'socket.io-client';
 class Server {
   constructor() {
     this.socket = io('http://localhost:8080', {
-      path: '/rnd',
     });
 
     this.events = new EventEmitter();
+    this.socket.on('SERVER_STATUS', (data) => {
+      console.log(data);
+      this.events.emit('SERVER_STATUS', data);
+    });
+    this.socket.on('randomUpdate', (data) => {
+      console.log('update', data);
+    });
   }
 
   on(...args) {
