@@ -1,4 +1,6 @@
 # Network Canvas Server
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fcodaco%2FServer.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fcodaco%2FServer?ref=badge_shield)
+
 
 A tool for storing, analyzing, and exporting Network Canvas interview data.
 
@@ -68,3 +70,7 @@ To speed up development, the server can be run headlessly out of /public using t
 ├── public                   # Static public assets & main process source (inc. server)
 ├── src                      # UI application source code
 ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fcodaco%2FServer.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fcodaco%2FServer?ref=badge_large)
