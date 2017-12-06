@@ -10,40 +10,9 @@ const PrivateSocket = require('private-socket');
 const os = require('os');
 const cote = require('cote');
 
+const discoveryService = require('./discoveryService');
+
 const events = ['data'];
-
-
-const randomPublisher = new cote.Publisher({
-  name: 'randomPub',
-  namespace: 'rnd',
-  broadcasts: ['randomUpdate']
-});
-
-// const randomSubscriber = new cote.Subscriber({
-//   name: 'Random Subscriber',
-//   // namespace: 'rnd',
-//   // key: 'a certain key',
-//   subscribesTo: ['randomUpdate']
-// });
-
-// randomSubscriber.on('randomUpdate', (req) => {
-//   console.log('notified of ', req);
-// });
-
-function publishUpdate() {
-  const val = {
-    val: ~~(Math.random() * 1000)
-  };
-
-  console.log('emitting', val);
-
-  // publish an event with arbitrary data at any time
-  randomPublisher.publish('randomUpdate', val);
-}
-
-publishUpdate();
-
-setInterval(publishUpdate, 3000);
 
 class Server extends Emitter {
   constructor(port, options) {
@@ -58,6 +27,7 @@ class Server extends Emitter {
     this.options = options;
     this.started = new Date().getTime();
     this.socketServer = io;
+    this.sockend = new cote.Sockend(io, { name: 'sockend' });
 
     this.listen();
   }
@@ -67,23 +37,6 @@ class Server extends Emitter {
   }
 
   listen() {
-    const randomResponder = new cote.Responder({
-      name: 'randomRep',
-      namespace: 'rnd',
-      respondsTo: ['randomRequest', 'promised request'], // types of requests this responder
-      // can respond to.
-    });
-
-    // request handlers are like any event handler.
-    randomResponder.on('randomRequest', (req, cb) => {
-      const answer = Math.random() * 10;
-      console.log('request', req.val, 'answering with', answer);
-      cb(answer);
-    });
-
-    const sockend = new cote.Sockend(this.socketServer, { name: 'sockend' });
-    console.log(sockend);
-
     io.on('connection', (socket) => {
       console.log('connected');
       socket.on('REQUEST_SERVER_STATUS', () => {

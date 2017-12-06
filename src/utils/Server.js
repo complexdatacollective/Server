@@ -8,10 +8,10 @@ class Server {
 
     this.events = new EventEmitter();
     this.socket.on('SERVER_STATUS', (data) => {
-      console.log(data);
+      console.log('SERVER_STATUS', data);
       this.events.emit('SERVER_STATUS', data);
     });
-    this.socket.on('randomUpdate', (data) => {
+    this.socket.on('discoveryUpdate', (data) => {
       console.log('update', data);
     });
   }
@@ -27,18 +27,12 @@ class Server {
 
     // // Connection opened
     this.socket.on('connect', () => {
-      this.socket.emit('REQUEST_SERVER_STATUS', (data) => {
-        console.log(data);
-      });
-      this.socket.emit('randomRequest', req, (data) => {
+      this.socket.emit('REQUEST_SERVER_STATUS');
+      this.socket.emit('discoveryRequest', req, (data) => {
         console.log(req);
         console.log('normal', req.val, data);
       });
     });
-
-    // this.socket.addEventListener('open', () => {
-    //   this.socket.send('randomRequest');
-    // });
   }
 }
 
