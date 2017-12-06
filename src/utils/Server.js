@@ -22,7 +22,8 @@ class Server {
 
   requestServerStatus = () => {
     const req = {
-      val: Math.floor(Math.random() * 10),
+      deviceName: 'device-name',
+
     };
 
     // // Connection opened
@@ -30,7 +31,7 @@ class Server {
       this.socket.emit('REQUEST_SERVER_STATUS');
       this.socket.emit('discoveryRequest', req, (data) => {
         console.log(req);
-        console.log('normal', req.val, data);
+        console.log('normal', data);
       });
     });
   }
