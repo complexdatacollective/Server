@@ -1,20 +1,20 @@
 const cote = require('cote');
 
+const discoveryPublisher = new cote.Publisher({
+  name: 'discoveryPub',
+  namespace: 'disc',
+  broadcasts: ['unpairedDevice']
+});
+
+const discoveryResponder = new cote.Responder({
+  name: 'discoveryRep',
+  namespace: 'disc',
+  respondsTo: ['discoveryRequest', 'promised request'], // types of requests this responder
+  // can respond to.
+});
+
 class DiscoveryService {
   constructor(serverOptions) {
-    const discoveryPublisher = new cote.Publisher({
-      name: 'discoveryPub',
-      namespace: 'disc',
-      broadcasts: ['unpairedDevice']
-    });
-
-    const discoveryResponder = new cote.Responder({
-      name: 'discoveryRep',
-      namespace: 'disc',
-      respondsTo: ['discoveryRequest', 'promised request'], // types of requests this responder
-      // can respond to.
-    });
-
     setInterval(() => {
       const val = {
         unpairedDeviceCount: Math.floor(Math.random() * 2)
