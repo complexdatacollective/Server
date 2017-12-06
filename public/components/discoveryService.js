@@ -1,14 +1,26 @@
 const cote = require('cote');
 
-const discoveryResponder = new cote.Responder({
-  name: 'discoveryRep',
-  respondsTo: ['discoveryRequest', 'promised request'], // types of requests this responder
-  // can respond to.
-});
+class DiscoveryService {
+  constructor(serverOptions) {
+    console.log(serverOptions);
+    const discoveryResponder = new cote.Responder({
+      name: 'discoveryRep',
+      respondsTo: ['discoveryRequest', 'promised request'], // types of requests this responder
+      // can respond to.
+    });
 
-// request handlers are like any event handler.
-discoveryResponder.on('discoveryRequest', (req, cb) => {
-  const answer = Math.random() * 10;
-  console.log('request', req.val, 'answering with', answer);
-  cb(answer);
-});
+    // Device -> Server Discovery Service
+    discoveryResponder.on('discoveryRequest', (req, cb) => {
+      console.log(req);
+      const resp = {
+        randNum: Math.random() * 10,
+        publicKey: serverOptions.keys.publicKey,
+      };
+      console.log('request', req.deviceName, 'answering with', resp);
+      cb(resp);
+    });
+  }
+}
+
+module.exports = DiscoveryService;
+
