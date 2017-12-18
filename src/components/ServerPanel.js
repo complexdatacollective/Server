@@ -21,7 +21,7 @@ class ServerPanel extends Component {
     this.server = new Server();
 
     this.server.on('SERVER_STATUS', (data) => {
-      this.setState({ serverOverview: JSON.parse(data) });
+      this.setState({ serverOverview: data });
     });
   }
 
@@ -34,7 +34,7 @@ class ServerPanel extends Component {
         <PanelItem label="IP" value={JSON.stringify(overview.ip)} />
         <PanelItem label="Clients" value={overview.clients} />
         <PanelItem label="Uptime" value={overview.uptime} />
-        <PanelItem label="Public Key" value={overview.publicKey} />
+        <PanelItem label="Server Public Key" value={overview.publicKey} />
       </div>
     );
   }

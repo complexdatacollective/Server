@@ -2,15 +2,15 @@
 const cote = require('cote');
 
 const devicePublisher = new cote.Publisher({
-  name: 'discoveryPub',
-  namespace: 'disc',
+  name: 'devicePub',
+  namespace: 'device',
   broadcasts: ['unpairedDevice']
 });
 
 const deviceResponder = new cote.Responder({
-  name: 'discoveryRep',
-  namespace: 'disc',
-  respondsTo: ['discoveryRequest', 'pairingRequest'], // types of requests this responder
+  name: 'deviceResp',
+  namespace: 'device',
+  respondsTo: ['deviceDiscoveryRequest', 'pairingRequest'], // types of requests this responder
   // can respond to.
 });
 
@@ -38,7 +38,7 @@ class DeviceService {
       cb(resp);
     });
 
-    // Device -> Server Discovery Service
+    // Device -> Server Pairing Service
     deviceResponder.on('pairingRequest', (req, cb) => {
       console.log(req);
       const resp = {

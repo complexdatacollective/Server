@@ -8,7 +8,7 @@ import PrivateSocket from 'private-socket';
 class Server {
   constructor() {
     this.privateSocket = new PrivateSocket(io('http://localhost:8080'));
-    this.discoverySocket = io('http://localhost:8080/disc');
+    this.deviceSocket = io('http://localhost:8080/device');
     this.events = new EventEmitter();
 
     this.privateSocket.on('ready', () => {
@@ -23,13 +23,18 @@ class Server {
   }
 
   listen = () => {
-    this.discoverySocket.on('unpairedDevice', (data) => {
+    this.deviceSocket.on('unpairedDevice', (data) => {
       console.log('unpaired device', data);
     });
 
     this.privateSocket.on('SERVER_STATUS', (data) => {
-      console.log('SERVER_STATUS', data);
-      this.events.emit('SERVER_STATUS', data);
+      const { uptime, ip, clients, publicKey } = JSON.parse(data);
+      this.events.emit('SERVER_STATUS', {
+        ip: ip.address,
+        publicKey: this.getKeySnippet(publicKey),
+        clients,
+        uptime,
+      });
     });
 
     this.privateSocket.on('data', (data) => {
@@ -48,7 +53,7 @@ class Server {
       reqDate: new Date(),
     };
 
-    this.discoverySocket.emit('discoveryRequest', req, (data) => {
+    this.deviceSocket.emit('deviceDiscoveryRequest', req, (data) => {
       console.log(req);
       console.log('normal', data);
     });
@@ -61,7 +66,7 @@ class Server {
       reqDate: new Date(),
     };
 
-    this.discoverySocket.emit('pairingRequest', req, (data) => {
+    this.deviceSocket.emit('pairingRequest', req, (data) => {
       console.log(req);
       console.log('normal', data);
     });
