@@ -18,6 +18,7 @@ class Server {
     });
 
     this.discoveryRequest();
+    this.pairingRequest();
     this.listen();
   }
 
@@ -53,8 +54,20 @@ class Server {
     });
   }
 
+  pairingRequest = () => {
+    const req = {
+      deviceName: 'device-name',
+      protocol: 'protocol-name',
+      reqDate: new Date(),
+    };
+
+    this.discoverySocket.emit('pairingRequest', req, (data) => {
+      console.log(req);
+      console.log('normal', data);
+    });
+  }
+
   requestServerStatus = () => {
-    console.log(this.privateSocket);
     this.privateSocket.socket.emit('REQUEST_SERVER_STATUS');
   }
 

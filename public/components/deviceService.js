@@ -1,19 +1,20 @@
+/* eslint-disable class-methods-use-this */
 const cote = require('cote');
 
-const discoveryPublisher = new cote.Publisher({
+const devicePublisher = new cote.Publisher({
   name: 'discoveryPub',
   namespace: 'disc',
   broadcasts: ['unpairedDevice']
 });
 
-const discoveryResponder = new cote.Responder({
+const deviceResponder = new cote.Responder({
   name: 'discoveryRep',
   namespace: 'disc',
-  respondsTo: ['discoveryRequest', 'promised request'], // types of requests this responder
+  respondsTo: ['discoveryRequest', 'pairingRequest'], // types of requests this responder
   // can respond to.
 });
 
-class DiscoveryService {
+class DeviceService {
   constructor(serverOptions) {
     // setInterval(() => {
     //   const val = {
@@ -27,7 +28,7 @@ class DiscoveryService {
     // }, 3000);
 
     // Device -> Server Discovery Service
-    discoveryResponder.on('discoveryRequest', (req, cb) => {
+    deviceResponder.on('discoveryRequest', (req, cb) => {
       console.log(req);
       const resp = {
         randNum: Math.random() * 10,
@@ -36,8 +37,23 @@ class DiscoveryService {
       console.log('request', req.deviceName, 'answering with', resp);
       cb(resp);
     });
+
+    // Device -> Server Discovery Service
+    deviceResponder.on('pairingRequest', (req, cb) => {
+      console.log(req);
+      const resp = {
+        pairingPin: this.generatePairingPin()
+      };
+      console.log('request', req.deviceName, 'answering with', resp);
+      cb(resp);
+    });
   }
+
+  generatePairingPin() {
+    return Math.floor(1000 + Math.random() * 9999);
+  }
+
 }
 
-module.exports = DiscoveryService;
+module.exports = DeviceService;
 

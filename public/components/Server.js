@@ -9,7 +9,7 @@ const io = require('socket.io')({
   origins: '*:*'
 });
 
-const DiscoveryService = require('./discoveryService');
+const DeviceService = require('./deviceService');
 
 const events = ['data'];
 
@@ -28,7 +28,7 @@ class Server extends Emitter {
     this.socketServer = io;
     this.sockend = new cote.Sockend(io, { name: 'sockend' });
 
-    this.discoveryService = new DiscoveryService(options);
+    this.deviceService = new DeviceService(options);
     this.listen();
   }
 
