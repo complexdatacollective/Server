@@ -15,16 +15,16 @@ const discoveryResponder = new cote.Responder({
 
 class DiscoveryService {
   constructor(serverOptions) {
-    setInterval(() => {
-      const val = {
-        unpairedDeviceCount: Math.floor(Math.random() * 2)
-      };
+    // setInterval(() => {
+    //   const val = {
+    //     unpairedDeviceCount: Math.floor(Math.random() * 2)
+    //   };
 
-      console.log('emitting', val);
-      if (val.unpairedDeviceCount > 0) {
-        discoveryPublisher.publish('unpairedDevice', val);
-      }
-    }, 3000);
+    //   console.log('emitting', val);
+    //   if (val.unpairedDeviceCount > 0) {
+    //     discoveryPublisher.publish('unpairedDevice', val);
+    //   }
+    // }, 3000);
 
     // Device -> Server Discovery Service
     discoveryResponder.on('discoveryRequest', (req, cb) => {

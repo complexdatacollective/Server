@@ -23,8 +23,6 @@ class ServerPanel extends Component {
     this.server.on('SERVER_STATUS', (data) => {
       this.setState({ serverOverview: JSON.parse(data) });
     });
-
-    this.server.requestServerStatus();
   }
 
   render() {
