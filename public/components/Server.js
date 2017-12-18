@@ -37,23 +37,23 @@ class Server extends Emitter {
   }
 
   listen() {
-    io.on('connection', (socket) => {
+    io.on('connect', (socket) => {
       console.log('connected');
-      socket.on('REQUEST_SERVER_STATUS', () => {
-        socket.emit('SERVER_STATUS', JSON.stringify(this.status()));
-      });
-    });
-
-    this.on('connect', (socket) => {
       // When a server connects generate a private socket
       const socketOptions = Object.assign({}, this.options);
       const ps = new PrivateSocket(socket, socketOptions);
 
-      // When we get data from the privatesocket delegate to self:
-      // i.e. Server.on('data', ...);
+      ps.on('ready', () => {
+        console.log('Private connection ready.');
+      });
+
       ps.on('data', (data) => {
-        // TODO: Could store data here or in some kind of HOC?
-        this.emit('data', data);
+        console.log(`Received data from ${socket.id}:\n`, data);
+      });
+
+      ps.on('REQUEST_SERVER_STATUS', () => {
+        console.log('SERVER REQUESTED');
+        ps.socket.emit('SERVER_STATUS', JSON.stringify(this.status()));
       });
     });
   }
