@@ -1,14 +1,14 @@
 /* eslint-disable class-methods-use-this */
-
+const cote = require('cote');
 const Emitter = require('events').EventEmitter;
-// const WebSocket = require('ws');
+const _ = require('lodash');
+const os = require('os');
+const PrivateSocket = require('private-socket');
 const io = require('socket.io')({
   serveClient: false,
   origins: '*:*'
 });
-const PrivateSocket = require('private-socket');
-const os = require('os');
-const cote = require('cote');
+
 const DiscoveryService = require('./discoveryService');
 
 const events = ['data'];
@@ -61,10 +61,21 @@ class Server extends Emitter {
   status() {
     return {
       uptime: new Date().getTime() - this.started,
-      ip: os.networkInterfaces(),
+      ip: this.publicIP(),
       clients: this.socketServer.engine.clientsCount,
       publicKey: this.options.keys.publicKey,
     };
+  }
+
+  publicIP() {
+    const ip = _.chain(os.networkInterfaces())
+    .values()
+    .flatten()
+    .filter(val => val.family === 'IPv4' && val.internal === false)
+    .head()
+    .value();
+
+    return ip;
   }
 
   on(name, cb, ...rest) {
