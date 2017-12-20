@@ -50,7 +50,7 @@ class Server {
     const req = {
       deviceName: 'device-name',
       protocol: 'protocol-name',
-      reqDate: new Date(),
+      reqDate: Date.now(),
     };
 
     this.deviceSocket.emit('deviceDiscoveryRequest', req, (data) => {
@@ -63,7 +63,7 @@ class Server {
     const req = {
       deviceName: 'device-name',
       protocol: 'protocol-name',
-      reqDate: new Date(),
+      reqDate: Date.now(),
     };
 
     this.deviceSocket.emit('pairingRequest', req, (data) => {

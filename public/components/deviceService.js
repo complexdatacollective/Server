@@ -16,6 +16,8 @@ const deviceResponder = new cote.Responder({
 
 class DeviceService {
   constructor(serverOptions) {
+    this.devicePublisher = devicePublisher;
+    this.deviceResponder = deviceResponder;
     // setInterval(() => {
     //   const val = {
     //     unpairedDeviceCount: Math.floor(Math.random() * 2)

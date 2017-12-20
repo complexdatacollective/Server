@@ -26,9 +26,10 @@ class Server extends Emitter {
     this.options = options;
     this.started = new Date().getTime();
     this.socketServer = io;
+    // these service create a high-level API that is exposed to the front-end
     this.sockend = new cote.Sockend(io, { name: 'sockend' });
-
     this.deviceService = new DeviceService(options);
+
     this.listen();
   }
 
@@ -40,6 +41,7 @@ class Server extends Emitter {
     io.on('connect', (socket) => {
       console.log('connected');
       // When a server connects generate a private socket
+      // the private socket is a means of private communication between end user and server
       const socketOptions = Object.assign({}, this.options);
       const ps = new PrivateSocket(socket, socketOptions);
 
