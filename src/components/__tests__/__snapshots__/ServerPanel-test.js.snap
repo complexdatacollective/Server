@@ -12,7 +12,7 @@ ShallowWrapper {
     className="server-panel"
 >
     <PanelItem
-        label="IP"
+        label="Server Public IP"
         value="\\"x.x.x.x\\""
     />
     <PanelItem
@@ -24,7 +24,7 @@ ShallowWrapper {
         value={0}
     />
     <PanelItem
-        label="Public Key"
+        label="Server Public Key"
         value=""
     />
 </div>,
@@ -33,7 +33,7 @@ ShallowWrapper {
       className="server-panel"
 >
       <PanelItem
-            label="IP"
+            label="Server Public IP"
             value="\\"x.x.x.x\\""
       />
       <PanelItem
@@ -45,7 +45,7 @@ ShallowWrapper {
             value={0}
       />
       <PanelItem
-            label="Public Key"
+            label="Server Public Key"
             value=""
       />
 </div>,
@@ -81,32 +81,6 @@ ShallowWrapper {
           },
         },
         "refs": Object {},
-        "server": Server {
-          "events": Object {},
-          "requestServerStatus": [Function],
-          "socket": WebSocket {
-            "binaryType": "blob",
-            "listeners": Object {
-              "message": Array [
-                [Function],
-              ],
-              "open": Array [
-                [Function],
-              ],
-            },
-            "onclose": undefined,
-            "onerror": undefined,
-            "onmessage": Array [
-              [Function],
-            ],
-            "onopen": Array [
-              [Function],
-            ],
-            "protocol": "",
-            "readyState": 0,
-            "url": "ws://localhost:8080/",
-          },
-        },
         "state": Object {
           "notes": "",
           "version": "0.0.0",
@@ -133,7 +107,7 @@ ShallowWrapper {
           className="server-panel"
 >
           <PanelItem
-                    label="IP"
+                    label="Server Public IP"
                     value="\\"x.x.x.x\\""
           />
           <PanelItem
@@ -145,7 +119,7 @@ ShallowWrapper {
                     value={0}
           />
           <PanelItem
-                    label="Public Key"
+                    label="Server Public Key"
                     value=""
           />
 </div>,
@@ -154,7 +128,7 @@ ShallowWrapper {
           className="server-panel"
 >
           <PanelItem
-                    label="IP"
+                    label="Server Public IP"
                     value="\\"x.x.x.x\\""
           />
           <PanelItem
@@ -166,7 +140,7 @@ ShallowWrapper {
                     value={0}
           />
           <PanelItem
-                    label="Public Key"
+                    label="Server Public Key"
                     value=""
           />
 </div>,

@@ -2,10 +2,7 @@
 
 import React from 'react';
 import { shallow } from 'enzyme';
-import { WebSocket } from 'mock-socket';
 import ServerPanel from '../ServerPanel';
-
-global.WebSocket = WebSocket;
 
 const mockServerOverview = {
   ip: 'x.x.x.x',
@@ -13,13 +10,15 @@ const mockServerOverview = {
   uptime: 0,
   publicKey: '',
 };
+// setting Date.now so that it is consistent for snapshot
+Date.now = jest.fn(() => 1482363367071);
 
 describe('<ServerPanel />', () => {
   it('should render', () => {
-    const subject = shallow((
+    const serverPanel = shallow((
       <ServerPanel serverOverview={mockServerOverview} />
     ));
 
-    expect(subject).toMatchSnapshot();
+    expect(serverPanel).toMatchSnapshot();
   });
 });
