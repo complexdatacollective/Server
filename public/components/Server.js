@@ -1,9 +1,15 @@
 /* eslint-disable class-methods-use-this */
-
+const cote = require('cote');
 const Emitter = require('events').EventEmitter;
-const WebSocket = require('ws');
-const PrivateSocket = require('private-socket');
+const _ = require('lodash');
 const os = require('os');
+const PrivateSocket = require('private-socket');
+const io = require('socket.io')({
+  serveClient: false,
+  origins: '*:*'
+});
+
+const DeviceService = require('./deviceService');
 
 const events = ['data'];
 
@@ -11,10 +17,18 @@ class Server extends Emitter {
   constructor(port, options) {
     super();
     if (!port) return;
+    io.attach(port, {
+      pingInterval: 10000,
+      pingTimeout: 5000,
+      cookie: false
+    });
 
     this.options = options;
     this.started = new Date().getTime();
-    this.socketServer = new WebSocket.Server({ port });
+    this.socketServer = io;
+    // these service create a high-level API that is exposed to the front-end
+    this.sockend = new cote.Sockend(io, { name: 'sockend' });
+    this.deviceService = new DeviceService(options);
 
     this.listen();
   }
@@ -24,16 +38,24 @@ class Server extends Emitter {
   }
 
   listen() {
-    this.on('connect', (socket) => {
+    io.on('connect', (socket) => {
+      console.log('connected');
       // When a server connects generate a private socket
+      // the private socket is a means of private communication between end user and server
       const socketOptions = Object.assign({}, this.options);
       const ps = new PrivateSocket(socket, socketOptions);
 
-      // When we get data from the privatesocket delegate to self:
-      // i.e. Server.on('data', ...);
+      ps.on('ready', () => {
+        console.log('Private connection ready.');
+      });
+
       ps.on('data', (data) => {
-        // TODO: Could store data here or in some kind of HOC?
-        this.emit('data', data);
+        console.log(`Received data from ${socket.id}:\n`, data);
+      });
+
+      ps.on('REQUEST_SERVER_STATUS', () => {
+        console.log('SERVER REQUESTED');
+        ps.socket.emit('SERVER_STATUS', JSON.stringify(this.status()));
       });
     });
   }
@@ -41,26 +63,27 @@ class Server extends Emitter {
   status() {
     return {
       uptime: new Date().getTime() - this.started,
-      ip: os.networkInterfaces(),
-      clients: this.socketServer.clients.size,
+      ip: this.publicIP(),
+      clients: this.socketServer.engine.clientsCount,
       publicKey: this.options.keys.publicKey,
     };
+  }
+
+  publicIP() {
+    const ip = _.chain(os.networkInterfaces())
+    .values()
+    .flatten()
+    .filter(val => val.family === 'IPv4' && val.internal === false)
+    .head()
+    .value();
+
+    return ip;
   }
 
   on(name, cb, ...rest) {
     if (events.indexOf(name) !== -1) {
       return Emitter.prototype.on.apply(this, [name, cb, ...rest]);
     }
-
-    this.socketServer.on('connection', (ws) => {
-      ws.on('message', (message) => {
-        console.log('received: %s', message);
-        if (message == 'REQUEST_SERVER_STATUS') {
-          ws.send(JSON.stringify(this.status()));
-        }
-        return ws.on(message, cb);
-      });
-    });
   }
 }
 
