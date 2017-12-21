@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-expressions */
 
-
 import EventEmitter from 'event-emitter';
 import io from 'socket.io-client';
 import PrivateSocket from 'private-socket';

@@ -58,6 +58,10 @@ class Server extends Emitter {
         ps.socket.emit('SERVER_STATUS', JSON.stringify(this.status()));
       });
     });
+
+    this.on('STOP_SERVER', () => {
+      this.close();
+    });
   }
 
   status() {

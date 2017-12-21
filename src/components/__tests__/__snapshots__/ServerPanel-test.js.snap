@@ -2,160 +2,9 @@
 
 exports[`<ServerPanel /> should render 1`] = `
 ShallowWrapper {
-  "complexSelector": ComplexSelector {
-    "buildPredicate": [Function],
-    "childrenOfNode": [Function],
-    "findWhereUnwrapped": [Function],
-  },
   "length": 1,
-  "node": <div
-    className="server-panel"
->
-    <PanelItem
-        label="Server Public IP"
-        value="\\"x.x.x.x\\""
-    />
-    <PanelItem
-        label="Clients"
-        value={0}
-    />
-    <PanelItem
-        label="Uptime"
-        value={0}
-    />
-    <PanelItem
-        label="Server Public Key"
-        value=""
-    />
-</div>,
-  "nodes": Array [
-    <div
-      className="server-panel"
->
-      <PanelItem
-            label="Server Public IP"
-            value="\\"x.x.x.x\\""
-      />
-      <PanelItem
-            label="Clients"
-            value={0}
-      />
-      <PanelItem
-            label="Uptime"
-            value={0}
-      />
-      <PanelItem
-            label="Server Public Key"
-            value=""
-      />
-</div>,
-  ],
-  "options": Object {},
-  "renderer": ReactShallowRenderer {
-    "_instance": ShallowComponentWrapper {
-      "_calledComponentWillUnmount": false,
-      "_compositeType": 0,
-      "_context": Object {},
-      "_currentElement": <ServerPanel
-        serverOverview={
-                Object {
-                        "clients": 0,
-                        "ip": "x.x.x.x",
-                        "publicKey": "",
-                        "uptime": 0,
-                      }
-        }
-/>,
-      "_debugID": 1,
-      "_hostContainerInfo": null,
-      "_hostParent": null,
-      "_instance": ServerPanel {
-        "_reactInternalInstance": [Circular],
-        "context": Object {},
-        "props": Object {
-          "serverOverview": Object {
-            "clients": 0,
-            "ip": "x.x.x.x",
-            "publicKey": "",
-            "uptime": 0,
-          },
-        },
-        "refs": Object {},
-        "state": Object {
-          "notes": "",
-          "version": "0.0.0",
-        },
-        "updater": Object {
-          "enqueueCallback": [Function],
-          "enqueueCallbackInternal": [Function],
-          "enqueueElementInternal": [Function],
-          "enqueueForceUpdate": [Function],
-          "enqueueReplaceState": [Function],
-          "enqueueSetState": [Function],
-          "isMounted": [Function],
-          "validateCallback": [Function],
-        },
-      },
-      "_mountOrder": 1,
-      "_pendingCallbacks": null,
-      "_pendingElement": null,
-      "_pendingForceUpdate": false,
-      "_pendingReplaceState": false,
-      "_pendingStateQueue": null,
-      "_renderedComponent": NoopInternalComponent {
-        "_currentElement": <div
-          className="server-panel"
->
-          <PanelItem
-                    label="Server Public IP"
-                    value="\\"x.x.x.x\\""
-          />
-          <PanelItem
-                    label="Clients"
-                    value={0}
-          />
-          <PanelItem
-                    label="Uptime"
-                    value={0}
-          />
-          <PanelItem
-                    label="Server Public Key"
-                    value=""
-          />
-</div>,
-        "_debugID": 2,
-        "_renderedOutput": <div
-          className="server-panel"
->
-          <PanelItem
-                    label="Server Public IP"
-                    value="\\"x.x.x.x\\""
-          />
-          <PanelItem
-                    label="Clients"
-                    value={0}
-          />
-          <PanelItem
-                    label="Uptime"
-                    value={0}
-          />
-          <PanelItem
-                    label="Server Public Key"
-                    value=""
-          />
-</div>,
-      },
-      "_renderedNodeType": 0,
-      "_rootNodeID": 0,
-      "_topLevelWrapper": null,
-      "_updateBatchNumber": null,
-      "_warnedAboutRefsInRender": false,
-    },
-    "getRenderOutput": [Function],
-    "render": [Function],
-  },
-  "root": [Circular],
-  "unrendered": <ServerPanel
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__unrendered__): <ServerPanel
     serverOverview={
         Object {
             "clients": 0,
@@ -165,5 +14,177 @@ ShallowWrapper {
           }
     }
 />,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "host",
+    "props": Object {
+      "children": Array [
+        <PanelItem
+          label="Server Public IP"
+          value="\\"x.x.x.x\\""
+/>,
+        <PanelItem
+          label="Clients"
+          value={0}
+/>,
+        <PanelItem
+          label="Uptime"
+          value={0}
+/>,
+        <PanelItem
+          label="Server Public Key"
+          value=""
+/>,
+      ],
+      "className": "server-panel",
+    },
+    "ref": null,
+    "rendered": Array [
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "function",
+        "props": Object {
+          "label": "Server Public IP",
+          "value": "\\"x.x.x.x\\"",
+        },
+        "ref": null,
+        "rendered": null,
+        "type": [Function],
+      },
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "function",
+        "props": Object {
+          "label": "Clients",
+          "value": 0,
+        },
+        "ref": null,
+        "rendered": null,
+        "type": [Function],
+      },
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "function",
+        "props": Object {
+          "label": "Uptime",
+          "value": 0,
+        },
+        "ref": null,
+        "rendered": null,
+        "type": [Function],
+      },
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "function",
+        "props": Object {
+          "label": "Server Public Key",
+          "value": "",
+        },
+        "ref": null,
+        "rendered": null,
+        "type": [Function],
+      },
+    ],
+    "type": "div",
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "host",
+      "props": Object {
+        "children": Array [
+          <PanelItem
+            label="Server Public IP"
+            value="\\"x.x.x.x\\""
+/>,
+          <PanelItem
+            label="Clients"
+            value={0}
+/>,
+          <PanelItem
+            label="Uptime"
+            value={0}
+/>,
+          <PanelItem
+            label="Server Public Key"
+            value=""
+/>,
+        ],
+        "className": "server-panel",
+      },
+      "ref": null,
+      "rendered": Array [
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "function",
+          "props": Object {
+            "label": "Server Public IP",
+            "value": "\\"x.x.x.x\\"",
+          },
+          "ref": null,
+          "rendered": null,
+          "type": [Function],
+        },
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "function",
+          "props": Object {
+            "label": "Clients",
+            "value": 0,
+          },
+          "ref": null,
+          "rendered": null,
+          "type": [Function],
+        },
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "function",
+          "props": Object {
+            "label": "Uptime",
+            "value": 0,
+          },
+          "ref": null,
+          "rendered": null,
+          "type": [Function],
+        },
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "function",
+          "props": Object {
+            "label": "Server Public Key",
+            "value": "",
+          },
+          "ref": null,
+          "rendered": null,
+          "type": [Function],
+        },
+      ],
+      "type": "div",
+    },
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+      },
+    },
+  },
 }
 `;
