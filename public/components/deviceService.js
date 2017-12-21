@@ -50,7 +50,7 @@ class DeviceService {
   }
 
   generatePairingPin() {
-    return Math.floor(1000 + Math.random() * 9999);
+    return Math.floor(1000 + Math.random() * 9990);
   }
 }
 
