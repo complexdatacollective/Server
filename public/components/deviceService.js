@@ -52,6 +52,11 @@ class DeviceService {
   generatePairingPin() {
     return Math.floor(1000 + Math.random() * 9000);
   }
+
+  stop() {
+    this.devicePublisher.close();
+    this.deviceResponder.close();
+  }
 }
 
 module.exports = DeviceService;

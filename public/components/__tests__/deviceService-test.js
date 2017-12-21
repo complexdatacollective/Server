@@ -39,4 +39,9 @@ describe('Device Service', () => {
     expect(numDigits).toEqual(4);
     done();
   });
+
+  afterAll(() => {
+    deviceRequester.close();
+    deviceService.stop();
+  });
 });
