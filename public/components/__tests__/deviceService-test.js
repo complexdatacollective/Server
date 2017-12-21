@@ -28,6 +28,7 @@ describe('Device Service', () => {
         'reqDate'
       ]);
     });
+
     done();
   });
 

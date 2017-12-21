@@ -58,6 +58,7 @@
     "electron-updater": "^2.9.3",
     "electron-winstaller": "^2.5.2",
     "enzyme": "^2.8.2",
+    "enzyme-adapter-react-16": "^1.1.1",
     "es6-promise-plugin": "^4.1.0",
     "eslint": "^3.18.0",
     "eslint-config-airbnb": "^15.0.1",
