@@ -28,6 +28,7 @@ describe('Device Service', () => {
         'reqDate'
       ]);
     });
+
     done();
   });
 
@@ -37,5 +38,10 @@ describe('Device Service', () => {
     expect(pin).toBeGreaterThan(0);
     expect(numDigits).toEqual(4);
     done();
+  });
+
+  afterAll(() => {
+    deviceRequester.close();
+    deviceService.stop();
   });
 });

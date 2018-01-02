@@ -2,200 +2,334 @@
 
 exports[`<ExportScreen /> should render 1`] = `
 ShallowWrapper {
-  "complexSelector": ComplexSelector {
-    "buildPredicate": [Function],
-    "childrenOfNode": [Function],
-    "findWhereUnwrapped": [Function],
-  },
   "length": 1,
-  "node": <div
-    className="screen"
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__unrendered__): <ExportScreen />,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "host",
+    "props": Object {
+      "children": Array [
+        <div
+          className="screen__heading"
 >
-    <div
-        className="screen__heading"
-    >
-        <h1
-            className="screen__heading-title"
-        >
-            Network Canvas
-        </h1>
-        <h2
-            className="screen__heading-subtitle"
-        >
-            Exporter
-        </h2>
-    </div>
-    <div
-        className="screen__main"
-    >
-        <NarrativePanel
-            title="Presets"
-        >
-            Some options go here...
-        </NarrativePanel>
-        <NarrativePanel
-            title="Advanced options"
-        >
-            Some options go here...
-        </NarrativePanel>
-        <button>
-            Export
-        </button>
-    </div>
+          <h1
+                    className="screen__heading-title"
+          >
+                    Network Canvas
+          </h1>
+          <h2
+                    className="screen__heading-subtitle"
+          >
+                    Exporter
+          </h2>
 </div>,
-  "nodes": Array [
-    <div
-      className="screen"
+        <div
+          className="screen__main"
 >
-      <div
-            className="screen__heading"
-      >
+          <NarrativePanel
+                    title="Presets"
+          >
+                    Some options go here...
+          </NarrativePanel>
+          <NarrativePanel
+                    title="Advanced options"
+          >
+                    Some options go here...
+          </NarrativePanel>
+          <button>
+                    Export
+          </button>
+</div>,
+      ],
+      "className": "screen",
+    },
+    "ref": null,
+    "rendered": Array [
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "host",
+        "props": Object {
+          "children": Array [
             <h1
-                  className="screen__heading-title"
+              className="screen__heading-title"
+>
+              Network Canvas
+</h1>,
+            <h2
+              className="screen__heading-subtitle"
+>
+              Exporter
+</h2>,
+          ],
+          "className": "screen__heading",
+        },
+        "ref": null,
+        "rendered": Array [
+          Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "host",
+            "props": Object {
+              "children": "Network Canvas",
+              "className": "screen__heading-title",
+            },
+            "ref": null,
+            "rendered": "Network Canvas",
+            "type": "h1",
+          },
+          Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "host",
+            "props": Object {
+              "children": "Exporter",
+              "className": "screen__heading-subtitle",
+            },
+            "ref": null,
+            "rendered": "Exporter",
+            "type": "h2",
+          },
+        ],
+        "type": "div",
+      },
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "host",
+        "props": Object {
+          "children": Array [
+            <NarrativePanel
+              title="Presets"
+>
+              Some options go here...
+</NarrativePanel>,
+            <NarrativePanel
+              title="Advanced options"
+>
+              Some options go here...
+</NarrativePanel>,
+            <button>
+              Export
+</button>,
+          ],
+          "className": "screen__main",
+        },
+        "ref": null,
+        "rendered": Array [
+          Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "class",
+            "props": Object {
+              "children": "Some options go here...",
+              "title": "Presets",
+            },
+            "ref": null,
+            "rendered": "Some options go here...",
+            "type": [Function],
+          },
+          Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "class",
+            "props": Object {
+              "children": "Some options go here...",
+              "title": "Advanced options",
+            },
+            "ref": null,
+            "rendered": "Some options go here...",
+            "type": [Function],
+          },
+          Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "host",
+            "props": Object {
+              "children": "Export",
+            },
+            "ref": null,
+            "rendered": "Export",
+            "type": "button",
+          },
+        ],
+        "type": "div",
+      },
+    ],
+    "type": "div",
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "host",
+      "props": Object {
+        "children": Array [
+          <div
+            className="screen__heading"
+>
+            <h1
+                        className="screen__heading-title"
             >
-                  Network Canvas
+                        Network Canvas
             </h1>
             <h2
-                  className="screen__heading-subtitle"
+                        className="screen__heading-subtitle"
             >
-                  Exporter
+                        Exporter
             </h2>
-      </div>
-      <div
+</div>,
+          <div
             className="screen__main"
-      >
+>
             <NarrativePanel
-                  title="Presets"
+                        title="Presets"
             >
-                  Some options go here...
+                        Some options go here...
             </NarrativePanel>
             <NarrativePanel
-                  title="Advanced options"
+                        title="Advanced options"
             >
-                  Some options go here...
+                        Some options go here...
             </NarrativePanel>
             <button>
-                  Export
+                        Export
             </button>
-      </div>
 </div>,
-  ],
-  "options": Object {},
-  "renderer": ReactShallowRenderer {
-    "_instance": ShallowComponentWrapper {
-      "_calledComponentWillUnmount": false,
-      "_compositeType": 2,
-      "_context": Object {},
-      "_currentElement": <ExportScreen />,
-      "_debugID": 1,
-      "_hostContainerInfo": null,
-      "_hostParent": null,
-      "_instance": StatelessComponent {
-        "_reactInternalInstance": [Circular],
-        "context": Object {},
-        "props": Object {},
-        "refs": Object {},
-        "state": null,
-        "updater": Object {
-          "enqueueCallback": [Function],
-          "enqueueCallbackInternal": [Function],
-          "enqueueElementInternal": [Function],
-          "enqueueForceUpdate": [Function],
-          "enqueueReplaceState": [Function],
-          "enqueueSetState": [Function],
-          "isMounted": [Function],
-          "validateCallback": [Function],
+        ],
+        "className": "screen",
+      },
+      "ref": null,
+      "rendered": Array [
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "host",
+          "props": Object {
+            "children": Array [
+              <h1
+                className="screen__heading-title"
+>
+                Network Canvas
+</h1>,
+              <h2
+                className="screen__heading-subtitle"
+>
+                Exporter
+</h2>,
+            ],
+            "className": "screen__heading",
+          },
+          "ref": null,
+          "rendered": Array [
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "host",
+              "props": Object {
+                "children": "Network Canvas",
+                "className": "screen__heading-title",
+              },
+              "ref": null,
+              "rendered": "Network Canvas",
+              "type": "h1",
+            },
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "host",
+              "props": Object {
+                "children": "Exporter",
+                "className": "screen__heading-subtitle",
+              },
+              "ref": null,
+              "rendered": "Exporter",
+              "type": "h2",
+            },
+          ],
+          "type": "div",
         },
-      },
-      "_mountOrder": 1,
-      "_pendingCallbacks": null,
-      "_pendingElement": null,
-      "_pendingForceUpdate": false,
-      "_pendingReplaceState": false,
-      "_pendingStateQueue": null,
-      "_renderedComponent": NoopInternalComponent {
-        "_currentElement": <div
-          className="screen"
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "host",
+          "props": Object {
+            "children": Array [
+              <NarrativePanel
+                title="Presets"
 >
-          <div
-                    className="screen__heading"
-          >
-                    <h1
-                              className="screen__heading-title"
-                    >
-                              Network Canvas
-                    </h1>
-                    <h2
-                              className="screen__heading-subtitle"
-                    >
-                              Exporter
-                    </h2>
-          </div>
-          <div
-                    className="screen__main"
-          >
-                    <NarrativePanel
-                              title="Presets"
-                    >
-                              Some options go here...
-                    </NarrativePanel>
-                    <NarrativePanel
-                              title="Advanced options"
-                    >
-                              Some options go here...
-                    </NarrativePanel>
-                    <button>
-                              Export
-                    </button>
-          </div>
-</div>,
-        "_debugID": 2,
-        "_renderedOutput": <div
-          className="screen"
+                Some options go here...
+</NarrativePanel>,
+              <NarrativePanel
+                title="Advanced options"
 >
-          <div
-                    className="screen__heading"
-          >
-                    <h1
-                              className="screen__heading-title"
-                    >
-                              Network Canvas
-                    </h1>
-                    <h2
-                              className="screen__heading-subtitle"
-                    >
-                              Exporter
-                    </h2>
-          </div>
-          <div
-                    className="screen__main"
-          >
-                    <NarrativePanel
-                              title="Presets"
-                    >
-                              Some options go here...
-                    </NarrativePanel>
-                    <NarrativePanel
-                              title="Advanced options"
-                    >
-                              Some options go here...
-                    </NarrativePanel>
-                    <button>
-                              Export
-                    </button>
-          </div>
-</div>,
-      },
-      "_renderedNodeType": 0,
-      "_rootNodeID": 0,
-      "_topLevelWrapper": null,
-      "_updateBatchNumber": null,
-      "_warnedAboutRefsInRender": false,
+                Some options go here...
+</NarrativePanel>,
+              <button>
+                Export
+</button>,
+            ],
+            "className": "screen__main",
+          },
+          "ref": null,
+          "rendered": Array [
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "class",
+              "props": Object {
+                "children": "Some options go here...",
+                "title": "Presets",
+              },
+              "ref": null,
+              "rendered": "Some options go here...",
+              "type": [Function],
+            },
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "class",
+              "props": Object {
+                "children": "Some options go here...",
+                "title": "Advanced options",
+              },
+              "ref": null,
+              "rendered": "Some options go here...",
+              "type": [Function],
+            },
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "host",
+              "props": Object {
+                "children": "Export",
+              },
+              "ref": null,
+              "rendered": "Export",
+              "type": "button",
+            },
+          ],
+          "type": "div",
+        },
+      ],
+      "type": "div",
     },
-    "getRenderOutput": [Function],
-    "render": [Function],
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+      },
+    },
   },
-  "root": [Circular],
-  "unrendered": <ExportScreen />,
 }
 `;

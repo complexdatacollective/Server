@@ -26,15 +26,19 @@ class Server extends Emitter {
     this.options = options;
     this.started = new Date().getTime();
     this.socketServer = io;
-    // these service create a high-level API that is exposed to the front-end
-    this.sockend = new cote.Sockend(io, { name: 'sockend' });
-    this.deviceService = new DeviceService(options);
+
+    if (options.startServices) {
+      // these service create a high-level API that is exposed to the front-end
+      this.sockend = new cote.Sockend(io, { name: 'sockend' });
+      this.deviceService = new DeviceService(options);
+    }
 
     this.listen();
   }
 
   close() {
     this.socketServer.close();
+    this.socketServer.destroy();
   }
 
   listen() {
@@ -57,6 +61,10 @@ class Server extends Emitter {
         console.log('SERVER REQUESTED');
         ps.socket.emit('SERVER_STATUS', JSON.stringify(this.status()));
       });
+    });
+
+    this.on('STOP_SERVER', () => {
+      this.close();
     });
   }
 

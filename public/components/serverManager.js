@@ -49,6 +49,9 @@ const startServer = (port, settingsDb) => {
 
   return appSettings.get()
   .then(ensurePemKeyPair)
+  .then(serverOptions => Object.assign({}, serverOptions, {
+    startServices: process.env.NODE_ENV !== 'test'
+  }))
   .then(appSettings.set)
   .then(currentAppSettings => new Server(port, currentAppSettings));
 };
@@ -104,7 +107,7 @@ const createServer = (port, db) => {
   if (!db) { throw new Error('You must specify a settings database'); }
 
   return new Promise((resolve) => {
-    const env = { PORT: port, APP_SETTINGS_DB: db };
+    const env = Object.assign({}, process.env, { PORT: port, APP_SETTINGS_DB: db });
     const ps = fork(`${__filename}`, [], { env });
     ps.on('message', ({ action }) => {
       if (action === SERVER_READY) {

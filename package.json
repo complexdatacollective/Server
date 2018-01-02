@@ -15,7 +15,7 @@
     "server:dev": "node ./public/server-starter",
     "server": "node ./www/server-starter",
     "lint": "eslint src",
-    "test": "node scripts/test.js --env=jsdom",
+    "test": "NODE_ENV=test node scripts/test.js --env=jsdom",
     "test-update-snapshots": "node scripts/test.js --env=jsdom --updateSnapshot",
     "build-docs": "jsdoc src -r -d docs-build -c ./jsdoc.conf.json --verbose",
     "electron": "electron ./www",
@@ -50,14 +50,15 @@
     "detect-port": "1.1.0",
     "dotenv": "4.0.0",
     "electron": "^1.8.0",
-    "electron-builder": "^19.28.4",
+    "electron-builder": "^19.49.2",
     "electron-installer-dmg": "^0.2.0",
     "electron-log": "^2.2.7",
     "electron-packager": "^8.5.2",
     "electron-to-chromium": "^1.3.21",
     "electron-updater": "^2.9.3",
     "electron-winstaller": "^2.5.2",
-    "enzyme": "^2.8.2",
+    "enzyme": "^3.2.0",
+    "enzyme-adapter-react-16": "^1.1.1",
     "es6-promise-plugin": "^4.1.0",
     "eslint": "^3.18.0",
     "eslint-config-airbnb": "^15.0.1",
@@ -110,8 +111,8 @@
     "nedb": "^1.8.0",
     "private-socket": "git+https://github.com/codaco/PrivateSocket.git",
     "prop-types": "^15.5.8",
-    "react": "^15.3.2",
-    "react-dom": "^15.3.2",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
     "react-icons": "^2.2.3",
     "react-redux": "^4.4.5",
     "react-router-dom": "^4.1.1",
@@ -129,8 +130,7 @@
     "rxjs": "^5.4.0",
     "socket.io": "^2.0.3",
     "socket.io-client": "^2.0.4",
-    "upgrade": "^1.1.0",
-    "ws": "^3.2.0"
+    "upgrade": "^1.1.0"
   },
   "build": {
     "extends": null,
@@ -154,7 +154,8 @@
       "src/**/*.{js,jsx}"
     ],
     "setupFiles": [
-      "<rootDir>/config/polyfills.js"
+      "<rootDir>/config/polyfills.js",
+      "<rootDir>/src/setupTests.js"
     ],
     "testPathIgnorePatterns": [
       "<rootDir>[/\\\\](build|docs|node_modules|scripts|release-builds)[/\\\\]"
