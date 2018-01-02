@@ -12,7 +12,7 @@ class Server {
 
     this.privateSocket.on('ready', () => {
       const publicKey = this.privateSocket.getKeys().publicKey;
-      console.log(publicKey);
+      console.log(publicKey)  // eslint-disable-line
       this.requestServerStatus();
     });
 
@@ -23,7 +23,7 @@ class Server {
 
   listen = () => {
     this.deviceSocket.on('unpairedDevice', (data) => {
-      console.log('unpaired device', data);
+      console.log('unpaired device', data);  // eslint-disable-line
     });
 
     this.privateSocket.on('SERVER_STATUS', (data) => {
@@ -37,7 +37,7 @@ class Server {
     });
 
     this.privateSocket.on('data', (data) => {
-      console.log(data);
+      console.log(data);  // eslint-disable-line
     });
   }
 
@@ -53,8 +53,7 @@ class Server {
     };
 
     this.deviceSocket.emit('deviceDiscoveryRequest', req, (data) => {
-      console.log(req);
-      console.log('normal', data);
+      console.log(data); // eslint-disable-line
     });
   }
 
@@ -66,8 +65,7 @@ class Server {
     };
 
     this.deviceSocket.emit('pairingRequest', req, (data) => {
-      console.log(req);
-      console.log('normal', data);
+      console.log(data);  // eslint-disable-line
     });
   }
 
