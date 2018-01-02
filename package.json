@@ -115,7 +115,7 @@
     "react-dom": "^16.2.0",
     "react-icons": "^2.2.3",
     "react-redux": "^4.4.5",
-    "react-router-dom": "^4.1.1",
+    "react-router-dom": "^4.2.2",
     "react-test-renderer": "^15.5.4",
     "react-transform-hmr": "^1.0.4",
     "react-transition-group": "^1.1.3",
