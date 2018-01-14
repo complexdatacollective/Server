@@ -6,6 +6,7 @@ import PrivateSocket from 'private-socket';
 
 class Server {
   constructor() {
+    console.log(process);
     this.privateSocket = new PrivateSocket(io('http://localhost:8080'));
     this.deviceSocket = io('http://localhost:8080/device');
     this.events = new EventEmitter();
@@ -16,8 +17,8 @@ class Server {
       this.requestServerStatus();
     });
 
-    this.discoveryRequest();
-    this.pairingRequest();
+    // this.discoveryRequest();
+    // this.pairingRequest();
     this.listen();
   }
 

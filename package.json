@@ -104,6 +104,7 @@
     "classnames": "^2.2.5",
     "cote": "^0.15.1",
     "create-react-class": "^15.5.3",
+    "diont": "^0.9.7",
     "history": "^4.5.1",
     "ip": "^1.1.5",
     "lodash": "^4.17.4",

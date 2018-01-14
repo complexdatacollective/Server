@@ -16,25 +16,15 @@ class DeviceService {
       // can respond to.
     });
 
-    // setInterval(() => {
-    //   const val = {
-    //     unpairedDeviceCount: Math.floor(Math.random() * 2)
-    //   };
-
-    //   console.log('emitting', val);
-    //   if (val.unpairedDeviceCount > 0) {
-    //     discoveryPublisher.publish('unpairedDevice', val);
-    //   }
-    // }, 3000);
-
     // Device -> Server Discovery Service
-    this.deviceResponder.on('discoveryRequest', (req, cb) => {
+    this.deviceResponder.on('deviceDiscoveryRequest', (req, cb) => {
       console.log(req);
       const resp = {
-        randNum: Math.random() * 10,
         publicKey: serverOptions.keys.publicKey,
       };
+
       console.log('request', req.deviceName, 'answering with', resp);
+      this.devicePublisher.publish('unpairedDevice', 1);
       cb(resp);
     });
 

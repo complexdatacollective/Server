@@ -3,6 +3,9 @@ const cote = require('cote');
 const Emitter = require('events').EventEmitter;
 const _ = require('lodash');
 const os = require('os');
+const diont = require('diont')({
+  broadcast: true
+});
 const PrivateSocket = require('private-socket');
 const io = require('socket.io')({
   serveClient: false,
@@ -12,6 +15,7 @@ const io = require('socket.io')({
 const DeviceService = require('./deviceService');
 
 const events = ['data'];
+
 
 class Server extends Emitter {
   constructor(port, options) {
@@ -27,10 +31,16 @@ class Server extends Emitter {
     this.started = new Date().getTime();
     this.socketServer = io;
 
+    const serverAdvertisement = {
+      name: 'NetworkCanvasServer 1',
+      port
+    };
+
     if (options.startServices) {
       // these service create a high-level API that is exposed to the front-end
       this.sockend = new cote.Sockend(io, { name: 'sockend' });
       this.deviceService = new DeviceService(options);
+      diont.announceService(serverAdvertisement);
     }
 
     this.listen();

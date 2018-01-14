@@ -7,7 +7,7 @@ const GetStartedScreen = () => (
       <h1 className="screen__heading-title">Welcome to Server</h1>
       <h2 className="screen__heading-subtitle">This app is designed to help you deploy and gather data using your Network Canvas interview protocol.</h2>
     </div>
-    <div className="screen__main">
+    <div className="grid__container grid--x-center">
       <Button
         content="Get Started"
         size="small"
