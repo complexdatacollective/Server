@@ -1,7 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import { Button } from 'network-canvas-ui';
 import { FormWizard } from '../components';
 import { ProtocolSelectScreen, ServerIPScreen } from '.';
+import { actionCreators as serverSetupActions } from '../ducks/modules/serverSetup';
 
 const prevButton = prevPage => (
   <Button
@@ -23,7 +27,7 @@ const nextButton = nextPage => (
   />
 );
 
-const ServerSetupScreen = () => (
+const ServerSetupScreen = props => (
   <div className="screen">
     <div className="screen__heading">
       <h1 className="screen__heading-title">Network Canvas</h1>
@@ -32,6 +36,7 @@ const ServerSetupScreen = () => (
       <FormWizard
         prevButton={prevButton}
         nextButton={nextButton}
+        onSubmit={props.completeSetup}
       >
         <ProtocolSelectScreen />
         <ServerIPScreen />
@@ -40,4 +45,14 @@ const ServerSetupScreen = () => (
   </div>
 );
 
-export default ServerSetupScreen;
+ServerSetupScreen.propTypes = {
+  completeSetup: PropTypes.func.isRequired,
+};
+
+function mapDispatchToProps(dispatch) {
+  return {
+    completeSetup: bindActionCreators(serverSetupActions.completeSetup, dispatch),
+  };
+}
+
+export default connect(null, mapDispatchToProps)(ServerSetupScreen);

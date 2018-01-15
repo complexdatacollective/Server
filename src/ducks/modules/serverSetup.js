@@ -1,3 +1,5 @@
+import { persistor } from '../store';
+
 const initialState = {
   setupComplete: false,
 };
@@ -13,12 +15,12 @@ export default function reducer(state = initialState, action = {}) {
         setupComplete: true,
       };
     }
-    case RESET_SETUP: {
+    case RESET_SETUP:
+      persistor.purge(['serverSetup']);
       return {
         ...state,
         setupComplete: false,
       };
-    }
     default:
       return state;
   }

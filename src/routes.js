@@ -7,6 +7,7 @@ import {
   Redirect,
   Switch,
 } from 'react-router-dom';
+import { connect } from 'react-redux';
 import {
   ExportScreen,
   ServerSetupScreen,
@@ -16,7 +17,7 @@ import {
 
 const setupComplete = false;
 
-export default () => (
+export default (store) => (
   <Router>
     <Switch>
       <Route path="/setup" component={ServerSetupScreen} />
