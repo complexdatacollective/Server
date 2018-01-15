@@ -9,14 +9,14 @@ import {
 } from 'react-router-dom';
 import {
   ExportScreen,
-  GetStartedScreen,
+  ServerSetupScreen,
   OverviewScreen
 } from './containers';
 
 export default () => (
   <Router>
     <Switch>
-      <Route path="/setup" component={GetStartedScreen} />
+      <Route path="/setup" component={ServerSetupScreen} />
       <Route path="/export" component={ExportScreen} />
       <Route path="/" component={OverviewScreen} />
     </Switch>
