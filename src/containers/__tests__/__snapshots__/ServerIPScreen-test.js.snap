@@ -1,0 +1,211 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<ServerIPScreen /> should render 1`] = `
+ShallowWrapper {
+  "length": 1,
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__unrendered__): <ServerIPScreen />,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "host",
+    "props": Object {
+      "children": Array [
+        <div
+          className="screen__heading"
+>
+          <h1
+                    className="screen__heading-title"
+          >
+                    How can your Server be reached?
+          </h1>
+          <h2
+                    className="screen__heading-subtitle"
+          >
+                    In order to contact this copy of Server when they are not on the same Local Area Network (LAN), your clients need to know which public IP address and port this computer can be reacted at.
+          </h2>
+</div>,
+        <div
+          className="grid__container grid--x-center"
+>
+          Public IP Address
+</div>,
+      ],
+      "className": "screen",
+    },
+    "ref": null,
+    "rendered": Array [
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "host",
+        "props": Object {
+          "children": Array [
+            <h1
+              className="screen__heading-title"
+>
+              How can your Server be reached?
+</h1>,
+            <h2
+              className="screen__heading-subtitle"
+>
+              In order to contact this copy of Server when they are not on the same Local Area Network (LAN), your clients need to know which public IP address and port this computer can be reacted at.
+</h2>,
+          ],
+          "className": "screen__heading",
+        },
+        "ref": null,
+        "rendered": Array [
+          Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "host",
+            "props": Object {
+              "children": "How can your Server be reached?",
+              "className": "screen__heading-title",
+            },
+            "ref": null,
+            "rendered": "How can your Server be reached?",
+            "type": "h1",
+          },
+          Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "host",
+            "props": Object {
+              "children": "In order to contact this copy of Server when they are not on the same Local Area Network (LAN), your clients need to know which public IP address and port this computer can be reacted at.",
+              "className": "screen__heading-subtitle",
+            },
+            "ref": null,
+            "rendered": "In order to contact this copy of Server when they are not on the same Local Area Network (LAN), your clients need to know which public IP address and port this computer can be reacted at.",
+            "type": "h2",
+          },
+        ],
+        "type": "div",
+      },
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "host",
+        "props": Object {
+          "children": "Public IP Address",
+          "className": "grid__container grid--x-center",
+        },
+        "ref": null,
+        "rendered": "Public IP Address",
+        "type": "div",
+      },
+    ],
+    "type": "div",
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "host",
+      "props": Object {
+        "children": Array [
+          <div
+            className="screen__heading"
+>
+            <h1
+                        className="screen__heading-title"
+            >
+                        How can your Server be reached?
+            </h1>
+            <h2
+                        className="screen__heading-subtitle"
+            >
+                        In order to contact this copy of Server when they are not on the same Local Area Network (LAN), your clients need to know which public IP address and port this computer can be reacted at.
+            </h2>
+</div>,
+          <div
+            className="grid__container grid--x-center"
+>
+            Public IP Address
+</div>,
+        ],
+        "className": "screen",
+      },
+      "ref": null,
+      "rendered": Array [
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "host",
+          "props": Object {
+            "children": Array [
+              <h1
+                className="screen__heading-title"
+>
+                How can your Server be reached?
+</h1>,
+              <h2
+                className="screen__heading-subtitle"
+>
+                In order to contact this copy of Server when they are not on the same Local Area Network (LAN), your clients need to know which public IP address and port this computer can be reacted at.
+</h2>,
+            ],
+            "className": "screen__heading",
+          },
+          "ref": null,
+          "rendered": Array [
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "host",
+              "props": Object {
+                "children": "How can your Server be reached?",
+                "className": "screen__heading-title",
+              },
+              "ref": null,
+              "rendered": "How can your Server be reached?",
+              "type": "h1",
+            },
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "host",
+              "props": Object {
+                "children": "In order to contact this copy of Server when they are not on the same Local Area Network (LAN), your clients need to know which public IP address and port this computer can be reacted at.",
+                "className": "screen__heading-subtitle",
+              },
+              "ref": null,
+              "rendered": "In order to contact this copy of Server when they are not on the same Local Area Network (LAN), your clients need to know which public IP address and port this computer can be reacted at.",
+              "type": "h2",
+            },
+          ],
+          "type": "div",
+        },
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "host",
+          "props": Object {
+            "children": "Public IP Address",
+            "className": "grid__container grid--x-center",
+          },
+          "ref": null,
+          "rendered": "Public IP Address",
+          "type": "div",
+        },
+      ],
+      "type": "div",
+    },
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+      },
+    },
+  },
+}
+`;
