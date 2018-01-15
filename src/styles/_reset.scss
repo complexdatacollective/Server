@@ -2,6 +2,8 @@ body {
   margin: 0;
   padding: 0;
   height: 100vh;
+  color: palette('text-dark');
+  background-color: color('platinum');
 }
 
 #root {
