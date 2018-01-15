@@ -10,15 +10,18 @@ import {
 import {
   ExportScreen,
   ServerSetupScreen,
+  GetStartedScreen,
   OverviewScreen
 } from './containers';
+
+const setupComplete = false;
 
 export default () => (
   <Router>
     <Switch>
       <Route path="/setup" component={ServerSetupScreen} />
       <Route path="/export" component={ExportScreen} />
-      <Route path="/" component={OverviewScreen} />
+      <Route path="/" component={setupComplete ? OverviewScreen : GetStartedScreen} />
     </Switch>
   </Router>
 );

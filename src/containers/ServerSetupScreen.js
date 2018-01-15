@@ -1,6 +1,27 @@
 import React from 'react';
+import { Button } from 'network-canvas-ui';
 import { FormWizard } from '../components';
-import { GetStartedScreen, ProtocolSelectScreen } from '.';
+import { ProtocolSelectScreen, ServerIPScreen } from '.';
+
+const prevButton = prevPage => (
+  <Button
+    key="prev"
+    content="Back"
+    size="small"
+    color="neon-coral"
+    onClick={prevPage}
+  />
+);
+
+const nextButton = nextPage => (
+  <Button
+    key="next"
+    content="Continue"
+    size="small"
+    color="mustard"
+    onClick={nextPage}
+  />
+);
 
 const ServerSetupScreen = () => (
   <div className="screen">
@@ -8,9 +29,12 @@ const ServerSetupScreen = () => (
       <h1 className="screen__heading-title">Network Canvas</h1>
     </div>
     <div className="screen__main">
-      <FormWizard>
-        <GetStartedScreen />
+      <FormWizard
+        prevButton={prevButton}
+        nextButton={nextButton}
+      >
         <ProtocolSelectScreen />
+        <ServerIPScreen />
       </FormWizard>
     </div>
   </div>

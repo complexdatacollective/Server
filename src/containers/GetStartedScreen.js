@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from 'network-canvas-ui';
 
 const GetStartedScreen = () => (
@@ -8,11 +9,13 @@ const GetStartedScreen = () => (
       <h2 className="screen__heading-subtitle">This app is designed to help you deploy and gather data using your Network Canvas interview protocol.</h2>
     </div>
     <div className="grid__container grid--x-center">
-      <Button
-        content="Get Started"
-        size="small"
-        color="mustard"
-      />
+      <Link to="setup">
+        <Button
+          content="Get Started"
+          size="small"
+          color="mustard"
+        />
+      </Link>
     </div>
   </div>
 );
