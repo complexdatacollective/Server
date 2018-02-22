@@ -8,6 +8,11 @@ const testDb = path.join('db', 'test');
 
 describe('serverManager', () => {
   describe('createServer', () => {
+    // Allow extra time for server startup tests
+    let defaultTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+    beforeAll(() => { jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000; });
+    afterAll(() => { jasmine.DEFAULT_TIMEOUT_INTERVAL = defaultTimeout; });
+
     it('starts/stops', (done) => {
       createServer(testPort, testDb).then((sp) => {
         sp.process.on('exit', (code) => {
