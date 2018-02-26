@@ -16,8 +16,8 @@ class Server {
       this.requestServerStatus();
     });
 
-    this.discoveryRequest();
-    this.pairingRequest();
+    // this.discoveryRequest();
+    // this.pairingRequest();
     this.listen();
   }
 

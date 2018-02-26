@@ -1,11 +1,11 @@
 import { combineReducers } from 'redux';
 import { reducer as formReducer } from 'redux-form';
 
-// import example from './example';
+import serverSetup from './serverSetup';
 
 const appReducer = combineReducers({
   form: formReducer,
-  // example,
+  serverSetup,
 });
 
 const rootReducer = (state, action) => {

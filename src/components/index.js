@@ -6,3 +6,4 @@ export { default as MenuItem } from './MenuItem';
 export { default as PanelItem } from './PanelItem';
 export { default as PieChart } from './PieChart';
 export { default as ServerPanel } from './ServerPanel';
+export { default as FormWizard } from './FormWizard';

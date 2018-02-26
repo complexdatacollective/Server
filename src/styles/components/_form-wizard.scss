@@ -1,0 +1,18 @@
+.form-wizard {
+  &__controls {
+    @include grid-container;
+    @include flex-align($x: 'bookend');
+  }
+
+  &__next,
+  &__previous {
+    min-width: 30%;
+    text-align: center;
+  }
+
+  &__progress {
+    text-align: center;
+    @include grid-item-base;
+    @include flex-align($y: 'middle');
+  }
+}

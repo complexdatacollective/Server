@@ -1,0 +1,271 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<ProtocolSelectScreen /> should render 1`] = `
+ShallowWrapper {
+  "length": 1,
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__unrendered__): <ProtocolSelectScreen />,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "host",
+    "props": Object {
+      "children": Array [
+        <div
+          className="screen__heading"
+>
+          <h1
+                    className="screen__heading-title"
+          >
+                    Where is your protocol file?
+          </h1>
+          <h2
+                    className="screen__heading-subtitle"
+          >
+                    Click the browser button below, and navigate to where the protocol you want to use is stored on your computer.
+          </h2>
+</div>,
+        <div
+          className="grid__container grid--x-center"
+>
+          <Button
+                    color=""
+                    content="Browse"
+                    icon=""
+                    iconPosition="right"
+                    onClick={[Function]}
+                    size="small"
+          />
+</div>,
+      ],
+      "className": "screen",
+    },
+    "ref": null,
+    "rendered": Array [
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "host",
+        "props": Object {
+          "children": Array [
+            <h1
+              className="screen__heading-title"
+>
+              Where is your protocol file?
+</h1>,
+            <h2
+              className="screen__heading-subtitle"
+>
+              Click the browser button below, and navigate to where the protocol you want to use is stored on your computer.
+</h2>,
+          ],
+          "className": "screen__heading",
+        },
+        "ref": null,
+        "rendered": Array [
+          Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "host",
+            "props": Object {
+              "children": "Where is your protocol file?",
+              "className": "screen__heading-title",
+            },
+            "ref": null,
+            "rendered": "Where is your protocol file?",
+            "type": "h1",
+          },
+          Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "host",
+            "props": Object {
+              "children": "Click the browser button below, and navigate to where the protocol you want to use is stored on your computer.",
+              "className": "screen__heading-subtitle",
+            },
+            "ref": null,
+            "rendered": "Click the browser button below, and navigate to where the protocol you want to use is stored on your computer.",
+            "type": "h2",
+          },
+        ],
+        "type": "div",
+      },
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "host",
+        "props": Object {
+          "children": <Button
+            color=""
+            content="Browse"
+            icon=""
+            iconPosition="right"
+            onClick={[Function]}
+            size="small"
+/>,
+          "className": "grid__container grid--x-center",
+        },
+        "ref": null,
+        "rendered": Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "class",
+          "props": Object {
+            "children": null,
+            "color": "",
+            "content": "Browse",
+            "icon": "",
+            "iconPosition": "right",
+            "onClick": [Function],
+            "size": "small",
+          },
+          "ref": null,
+          "rendered": null,
+          "type": [Function],
+        },
+        "type": "div",
+      },
+    ],
+    "type": "div",
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "host",
+      "props": Object {
+        "children": Array [
+          <div
+            className="screen__heading"
+>
+            <h1
+                        className="screen__heading-title"
+            >
+                        Where is your protocol file?
+            </h1>
+            <h2
+                        className="screen__heading-subtitle"
+            >
+                        Click the browser button below, and navigate to where the protocol you want to use is stored on your computer.
+            </h2>
+</div>,
+          <div
+            className="grid__container grid--x-center"
+>
+            <Button
+                        color=""
+                        content="Browse"
+                        icon=""
+                        iconPosition="right"
+                        onClick={[Function]}
+                        size="small"
+            />
+</div>,
+        ],
+        "className": "screen",
+      },
+      "ref": null,
+      "rendered": Array [
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "host",
+          "props": Object {
+            "children": Array [
+              <h1
+                className="screen__heading-title"
+>
+                Where is your protocol file?
+</h1>,
+              <h2
+                className="screen__heading-subtitle"
+>
+                Click the browser button below, and navigate to where the protocol you want to use is stored on your computer.
+</h2>,
+            ],
+            "className": "screen__heading",
+          },
+          "ref": null,
+          "rendered": Array [
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "host",
+              "props": Object {
+                "children": "Where is your protocol file?",
+                "className": "screen__heading-title",
+              },
+              "ref": null,
+              "rendered": "Where is your protocol file?",
+              "type": "h1",
+            },
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "host",
+              "props": Object {
+                "children": "Click the browser button below, and navigate to where the protocol you want to use is stored on your computer.",
+                "className": "screen__heading-subtitle",
+              },
+              "ref": null,
+              "rendered": "Click the browser button below, and navigate to where the protocol you want to use is stored on your computer.",
+              "type": "h2",
+            },
+          ],
+          "type": "div",
+        },
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "host",
+          "props": Object {
+            "children": <Button
+              color=""
+              content="Browse"
+              icon=""
+              iconPosition="right"
+              onClick={[Function]}
+              size="small"
+/>,
+            "className": "grid__container grid--x-center",
+          },
+          "ref": null,
+          "rendered": Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "class",
+            "props": Object {
+              "children": null,
+              "color": "",
+              "content": "Browse",
+              "icon": "",
+              "iconPosition": "right",
+              "onClick": [Function],
+              "size": "small",
+            },
+            "ref": null,
+            "rendered": null,
+            "type": [Function],
+          },
+          "type": "div",
+        },
+      ],
+      "type": "div",
+    },
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+      },
+    },
+  },
+}
+`;

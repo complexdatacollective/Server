@@ -7,13 +7,22 @@ import {
   Redirect,
   Switch,
 } from 'react-router-dom';
-import { ExportScreen, OverviewScreen } from './containers';
+import { connect } from 'react-redux';
+import {
+  ExportScreen,
+  ServerSetupScreen,
+  GetStartedScreen,
+  OverviewScreen
+} from './containers';
 
-export default () => (
+const setupComplete = false;
+
+export default (store) => (
   <Router>
     <Switch>
+      <Route path="/setup" component={ServerSetupScreen} />
       <Route path="/export" component={ExportScreen} />
-      <Route path="/" component={OverviewScreen} />
+      <Route path="/" component={setupComplete ? OverviewScreen : GetStartedScreen} />
     </Switch>
   </Router>
 );
