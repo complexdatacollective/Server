@@ -3,6 +3,9 @@ const { Requester } = require('cote');
 const DeviceService = require('../deviceService');
 
 describe('Device Service', () => {
+  // Disable console logs for this suite
+  console.log = jest.fn();
+
   const serverOptions = {
     keys: {
       publicKey: 'test-public-key'
@@ -14,22 +17,19 @@ describe('Device Service', () => {
     protocol: 'protocol-name',
     reqDate: new Date(),
   };
-  const deviceRequester = new Requester({ name: 'deviceRequester' });
+  const deviceRequester = new Requester({ name: 'deviceRequester', namespace: 'device' });
   const deviceService = new DeviceService(serverOptions);
 
   it('It publishes unpaired devices');
   it('responds to pairing requests', (done) => {
+
     deviceRequester.send(devicePairingReq);
-
     deviceService.deviceResponder.on('pairingRequest', (req) => {
-      expect(req).toHaveProperty([
-        'deviceName',
-        'protocol',
-        'reqDate'
-      ]);
+      expect(req).toHaveProperty('deviceName');
+      expect(req).toHaveProperty('protocol');
+      expect(req).toHaveProperty('reqDate');
+      done();
     });
-
-    done();
   });
 
   it('generates a random 4-digit pin', (done) => {

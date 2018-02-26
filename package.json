@@ -155,6 +155,7 @@
     ],
     "setupFiles": [
       "<rootDir>/config/polyfills.js",
+      "<rootDir>/config/jest/polyfills.js",
       "<rootDir>/src/setupTests.js"
     ],
     "testPathIgnorePatterns": [
