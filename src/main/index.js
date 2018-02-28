@@ -3,7 +3,7 @@ const { createMainWindow } = require('./components/mainWindow');
 const { createTray } = require('./components/tray');
 
 // start the server
-require('./server-starter');
+const serverControl = require('./server-starter');
 
 const mainWindow = createMainWindow();
 
@@ -26,6 +26,10 @@ const trayMenu = [
 app.on('ready', () => {
   app.dock.hide();
   tray = createTray(trayMenu);
+});
+
+app.on('quit', () => {
+  serverControl.stop();
 });
 
 // Don't quit when all windows are closed.
