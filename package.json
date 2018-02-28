@@ -12,7 +12,7 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
-    "server:dev": "node ./public/server-starter",
+    "server:dev": "node ./src/main/server-starter",
     "server": "node ./www/server-starter",
     "lint": "eslint src",
     "test": "NODE_ENV=test node scripts/test.js --env=jsdom",
@@ -148,7 +148,6 @@
     }
   },
   "homepage": ".",
-  "main": "www/electron-starter.js",
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{js,jsx}"
