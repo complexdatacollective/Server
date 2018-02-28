@@ -38,7 +38,6 @@ class Server extends Emitter {
 
   close() {
     this.socketServer.close();
-    this.socketServer.destroy();
   }
 
   listen() {
