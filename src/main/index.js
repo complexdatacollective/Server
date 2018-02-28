@@ -7,6 +7,7 @@ require('./server-starter');
 
 const mainWindow = createMainWindow();
 
+let tray; // Keep reference; if tray is GCed, it disappears
 const trayMenu = [
   {
     label: 'Overview',
@@ -24,7 +25,7 @@ const trayMenu = [
 
 app.on('ready', () => {
   app.dock.hide();
-  createTray(trayMenu);
+  tray = createTray(trayMenu);
 });
 
 // Don't quit when all windows are closed.
