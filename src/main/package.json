@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "change-case": "^3.0.1",
+    "cote": "^0.15.1",
     "bluebird": "^3.5.0",
     "ip": "^1.1.5",
     "lodash": "^4.17.4",
@@ -21,5 +22,5 @@
   "devDependencies": {
     "electron": "^1.4.15"
   },
-  "main": "./electron-starter.js"
+  "main": "./index.js"
 }
