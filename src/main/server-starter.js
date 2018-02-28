@@ -1,7 +1,7 @@
 const { app } = require('electron');
 const path = require('path');
 
-const { createServer } = require('./components/serverManager');
+const { createServer } = require('./worker/serverManager');
 
 let server = null;
 let dbSettings = path.join(path.dirname(require.main.filename), 'db', 'settings.json');

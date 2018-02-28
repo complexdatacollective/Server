@@ -10,9 +10,9 @@ A tool for storing, analyzing, and exporting Network Canvas interview data.
 
 This application runs on Electron and consists of two parts (and a third spawned), which correlate to Electron's main/rendering processes:
 
-1. The UI, which contains the configuration/export screens.
-1. The main process, manages the tray and spawns a server process
-1. The Server process which receives data and adds it to a store [storage is not yet implemented]
+1. `src/renderer`: The UI, which contains the configuration/export screens.
+1. `src/main`: The main process, manages the tray and spawns a server process
+1. `src/main/worker`: The background Server process which receives data and adds it to a store [storage is not yet implemented]
 
 ### 1. The UI
 
@@ -58,17 +58,20 @@ $ npm run build
 $ npm run electron
 ```
 
-The electron app (and server components) are served out of the /www folder. Changes can be made in the /public folder but won't reflect in the app until another build is completed (`npm run build && npm run electron`).
+The electron app (and server components) are served out of the /www folder. Changes can be made in the /src folder but won't reflect in the app until another build is completed (`npm run build && npm run electron`).
 
-To speed up development, the server can be run headlessly out of /public using the command `npm run server:dev` and the UI can be viewed at `localhost:3000` once started with `npm run start`. Any changes made in /src will be automatically compiled, but any changes made in /public will have to restart the server in order for changes to be reflected.
+To speed up development, the server can be run headlessly out of /src/worker using the command `npm run server:dev` and the UI can be viewed at `localhost:3000` once started with `npm run start`. Any changes made in the UI will be automatically compiled, but any changes made to the background server require it to be restarted in order for changes to be reflected.
 
 ## Application Structure
 
 ```
 .
-├── config                   # Project and build configurations (webpack, env config)
-├── public                   # Static public assets & main process source (inc. server)
-├── src                      # UI application source code
+├── config             # Project and build configurations (webpack, env config)
+├── public             # Static public assets to be bundled
+└── src                # Application source code
+    └── main           # Main Electron process
+        └── worker     # Background process (node server)
+    └── renderer       # GUI (react app)
 ```
 
 
