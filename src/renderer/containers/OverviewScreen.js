@@ -1,18 +1,13 @@
 import React from 'react';
 import { OverviewDashboard } from '.';
-import { ServerPanel } from '../components';
+import { Header } from '../components';
 
 const OverviewScreen = () => (
   <div className="screen">
-    <div className="screen__heading">
-      <h1 className="screen__heading-title">Network Canvas</h1>
-      <h2 className="screen__heading-subtitle">Overview</h2>
-    </div>
-    <div className="screen__main">
-      Various stats and info go here.
-      <ServerPanel />
+    <Header />
+    <main className="screen__main">
       <OverviewDashboard />
-    </div>
+    </main>
   </div>
 );
 

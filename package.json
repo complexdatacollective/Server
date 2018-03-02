@@ -119,7 +119,7 @@
     "react-test-renderer": "^15.5.4",
     "react-transform-hmr": "^1.0.4",
     "react-transition-group": "^1.1.3",
-    "recharts": "^1.0.0-alpha.2",
+    "recharts": "^1.0.0-beta.10",
     "redux": "^3.6.0",
     "redux-form": "^6.4.3",
     "redux-logger": "^2.7.4",

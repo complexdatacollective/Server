@@ -1,20 +1,16 @@
 .screen {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  padding: spacing(3);
+  height: 100%;
+  width: 100%;
 
-  &__heading {
-    &-title {
-      @include typography(title-1);
-      text-align: left;
-    }
-    &-subtitle {
-      @include typography(title-2, medium);
-      text-align: left;
-    }
+  @include element(header) {
+    flex: none;
   }
 
-  &__main {
+  @include element(main) {
+    background-color: var(--base-background-color);
+    flex: auto;
+    padding: spacing(3);
   }
 }

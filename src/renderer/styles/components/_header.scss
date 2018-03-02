@@ -1,0 +1,36 @@
+.header {
+  align-items: center;
+  background-color: color(cyber-grape);
+  border-bottom: 0.25rem solid color(mustard);
+  color: color(white);
+  display: flex;
+  flex-direction: row;
+  flex-shrink: 0;
+  padding: spacing(small);
+
+  @include element(title) {
+    @include typography(title-1);
+    margin: 0;
+  }
+
+  @include element(nav) {
+    flex-shrink: 0;
+    height: 2rem;
+  }
+
+  @include element(link) {
+    color: color(white);
+    display: inline-block;
+    height: 100%;
+    margin-right: $spacer;
+
+    &:last-of-type {
+      margin-right: 0;
+    }
+
+    .icon {
+      height: 100%;
+      width: auto;
+    }
+  }
+}

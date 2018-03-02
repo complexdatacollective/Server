@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { PanelItem } from '../components';
 import Server from '../utils/Server';
 
@@ -26,10 +27,11 @@ class ServerPanel extends Component {
 
   render() {
     const { serverOverview } = this.state;
+    const { className } = this.props;
 
     const overview = { ...defaultServerOverview, ...serverOverview };
     return (
-      <div className="server-panel">
+      <div className={`server-panel ${className}`}>
         <PanelItem label="Server Public IP" value={JSON.stringify(overview.ip)} />
         <PanelItem label="Clients" value={overview.clients} />
         <PanelItem label="Uptime" value={overview.uptime} />
@@ -38,5 +40,13 @@ class ServerPanel extends Component {
     );
   }
 }
+
+ServerPanel.defaultProps = {
+  className: '',
+};
+
+ServerPanel.propTypes = {
+  className: PropTypes.string,
+};
 
 export default ServerPanel;

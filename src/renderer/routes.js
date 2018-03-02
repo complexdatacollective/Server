@@ -7,11 +7,12 @@ import {
   Redirect,
   Switch,
 } from 'react-router-dom';
-import { ExportScreen, OverviewScreen } from './containers';
+import { ExportScreen, OverviewScreen, SettingsScreen } from './containers';
 
 export default () => (
   <Router>
     <Switch>
+      <Route path="/settings" component={SettingsScreen} />
       <Route path="/export" component={ExportScreen} />
       <Route path="/" component={OverviewScreen} />
     </Switch>
