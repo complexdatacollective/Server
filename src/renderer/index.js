@@ -8,7 +8,6 @@ import { Provider } from 'react-redux';
 import { store } from './ducks/store';
 import App from './containers/App';
 import AppRouter from './routes';
-import { isCordova } from './utils/Environment';
 
 const startApp = () => {
   ReactDOM.render(
@@ -21,8 +20,4 @@ const startApp = () => {
   );
 };
 
-if (isCordova()) {
-  document.addEventListener('deviceready', startApp, false);
-} else {
-  startApp();
-}
+startApp();

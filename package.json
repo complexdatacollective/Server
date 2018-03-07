@@ -6,13 +6,13 @@
   "private": true,
   "author": "Complex Data Collective",
   "engines": {
-    "node": "8.5.0",
+    "node": "8.2.1",
     "npm": "5.3.0"
   },
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
-    "server:dev": "node ./public/server-starter",
+    "server:dev": "node ./src/main/server-starter",
     "server": "node ./www/server-starter",
     "lint": "eslint src",
     "test": "NODE_ENV=test node scripts/test.js --env=jsdom",
@@ -50,7 +50,7 @@
     "detect-port": "1.1.0",
     "dotenv": "4.0.0",
     "electron": "^1.8.0",
-    "electron-builder": "^19.49.2",
+    "electron-builder": "^19.56.2",
     "electron-installer-dmg": "^0.2.0",
     "electron-log": "^2.2.7",
     "electron-packager": "^8.5.2",
@@ -136,7 +136,7 @@
     "extends": null,
     "appId": "NetworkCanvasServer",
     "directories": {
-      "app": "./build",
+      "app": "./www",
       "buildResources": "build-resources",
       "output": "release-builds"
     },
@@ -148,7 +148,6 @@
     }
   },
   "homepage": ".",
-  "main": "www/electron-starter.js",
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{js,jsx}"
