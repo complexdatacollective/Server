@@ -5,11 +5,11 @@ import { shallow } from 'enzyme';
 import OverviewScreen from '../OverviewScreen';
 
 describe('<OverviewScreen />', () => {
-  it('should render', () => {
+  it('should render a chart', () => {
     const subject = shallow((
       <OverviewScreen />
     ));
 
-    expect(subject).toMatchSnapshot();
+    expect(subject.find('BarChart').length).toBeGreaterThanOrEqual(1);
   });
 });

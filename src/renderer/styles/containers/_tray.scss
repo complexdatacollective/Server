@@ -9,9 +9,7 @@
     flex-direction: column;
 
     &-item {
-      @include menu-item((
-        hover: palette('settings')
-      ));
+      @include menu-item((hover: palette('settings')));
     }
   }
 }

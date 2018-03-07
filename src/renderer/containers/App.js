@@ -1,24 +1,27 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import AppRoutes from './AppRoutes';
+import { Header, TabBar } from '../components';
 
 require('../styles/main.scss');
 
 /**
+ * @class App
   * Main app container.
   * @param props {object} - children
   */
-const App = props => (
+const App = () => (
   <div className="app">
-    { props.children }
+    <Header className="app__header" />
+    <div className="app__content">
+      <nav className="app__sidebar" />
+      <div className="app__screen">
+        <TabBar />
+        <main className="app__main">
+          <AppRoutes />
+        </main>
+      </div>
+    </div>
   </div>
 );
-
-App.propTypes = {
-  children: PropTypes.any,
-};
-
-App.defaultProps = {
-  children: null,
-};
 
 export default App;

@@ -1,11 +1,11 @@
 .overview-dashboard {
-  --min-grid-row: 18rem;
-  --top-grid-row: 1rem;
+  $min-grid-row: 18rem;
+  $top-grid-row: 1rem;
 
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: minmax(var(--top-grid-row), auto) auto;
-  grid-auto-rows: minmax(var(--min-grid-row), auto);
+  grid-template-rows: minmax($top-grid-row, auto) auto;
+  grid-auto-rows: minmax($min-grid-row, auto);
   grid-gap: spacing(small);
 
   @include element(panel) {

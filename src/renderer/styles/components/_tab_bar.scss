@@ -1,0 +1,18 @@
+.tab-bar {
+  background-color: var(--recessed-background-color);
+
+  @include element(link) {
+    border-right: 1px solid var(--base-border-color);
+    color: palette(text-dark);
+    display: inline-block;
+    padding-bottom: spacing(medium);
+    padding-left: spacing(huge);
+    padding-right: spacing(huge);
+    padding-top: spacing(medium);
+    text-decoration: none;
+
+    @include modifier(active) {
+      background-color: var(--base-background-color);
+    }
+  }
+}

@@ -5,11 +5,12 @@ import { shallow } from 'enzyme';
 import ExportScreen from '../ExportScreen';
 
 describe('<ExportScreen />', () => {
-  it('should render', () => {
+  it('should render an export button', () => {
     const subject = shallow((
       <ExportScreen />
     ));
 
-    expect(subject).toMatchSnapshot();
+    expect(subject.find('button')).toHaveLength(1);
+    expect(subject.find('button').text()).toMatch(/export/i);
   });
 });

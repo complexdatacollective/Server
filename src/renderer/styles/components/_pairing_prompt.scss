@@ -1,0 +1,27 @@
+.pairing-prompt {
+  background-color: color(cyber-grape);
+  border-left: .5rem solid color(mustard);
+  color: color('white');
+  display: flex;
+  padding: spacing(medium);
+  position: relative;
+
+  @include element(icon) {
+    margin: spacing(large);
+  }
+
+  @include element(content) {
+    flex: auto;
+  }
+
+  @include element(buttonGroup) {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  @include element(close) {
+    position: absolute;
+    right: spacing(small);
+    top: spacing(small);
+  }
+}

@@ -20,7 +20,7 @@ class Server extends Emitter {
     io.attach(port, {
       pingInterval: 10000,
       pingTimeout: 5000,
-      cookie: false
+      cookie: false,
     });
 
     this.options = options;

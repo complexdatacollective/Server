@@ -1,11 +1,10 @@
 .header {
   align-items: center;
   background-color: color(cyber-grape);
-  border-bottom: 0.25rem solid color(mustard);
-  color: color(white);
+  border-bottom: .25rem solid color(mustard);
+  color: color('white');
   display: flex;
   flex-direction: row;
-  flex-shrink: 0;
   padding: spacing(small);
 
   @include element(title) {
@@ -19,7 +18,7 @@
   }
 
   @include element(link) {
-    color: color(white);
+    color: color('white');
     display: inline-block;
     height: 100%;
     margin-right: $spacer;

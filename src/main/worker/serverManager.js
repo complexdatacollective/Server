@@ -17,6 +17,9 @@ const actions = {
 };
 
 /**
+ * @function serverManager
+ *
+ * @description
  * This files runs in two modes:
  * 1. As a main process, in which case it automatically initialises a Server
  *    based on environment variables PORT and APP_SETTINGS_DB

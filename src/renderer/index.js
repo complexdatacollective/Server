@@ -2,19 +2,19 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { HashRouter } from 'react-router-dom';
 
 import { Provider } from 'react-redux';
 
 import { store } from './ducks/store';
 import App from './containers/App';
-import AppRouter from './routes';
 
 const startApp = () => {
   ReactDOM.render(
     <Provider store={store}>
-      <App>
-        <AppRouter />
-      </App>
+      <HashRouter>
+        <App />
+      </HashRouter>
     </Provider>,
     document.getElementById('root'),
   );
