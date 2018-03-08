@@ -1,10 +1,16 @@
+const path = require('path');
 const { app } = require('electron');
+
 const { createMainWindow } = require('./components/mainWindow');
 const { createTray } = require('./components/tray');
+const { createServer } = require('./worker/serverManager');
 
-// start the server
-const serverControl = require('./server-starter');
+// Background server
+let server = null;
+const settingsDb = path.join(app.getPath('userData'), 'db', 'settings');
+createServer(8080, settingsDb).then(serverProcess => server = serverProcess);
 
+// GUI
 const mainWindow = createMainWindow();
 
 let tray; // Keep reference; if tray is GCed, it disappears
@@ -28,8 +34,8 @@ app.on('ready', () => {
   tray = createTray(trayMenu);
 });
 
-app.on('quit', () => {
-  serverControl.stop();
+app.on('before-quit', () => {
+  server.stop();
 });
 
 // Don't quit when all windows are closed.

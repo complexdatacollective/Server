@@ -28,11 +28,3 @@ createServer(port, dbSettings)
 });
 
 console.log(`Server running on port ${port}`);
-
-const ServerControl = {
-  stop: () => {
-    if (server) { server.stop(); }
-  }
-};
-
-module.exports = ServerControl;
