@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { CountsWidget } from '.';
+import CountsWidget from './CountsWidget';
 
 const InterviewWidget = ({ className, data }) => (
   <div className={`interview-widget ${className}`}>
