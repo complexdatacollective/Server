@@ -1,6 +1,6 @@
 :root {
   --base-background-color: color(platinum);
-  --recessed-background-color: darken(color(platinum), 10%);
-  --base-border-color: darken(color(platinum), 20%);
+  --recessed-background-color: color(platinum--dark);
+  --base-border-color: color(platinum--dark);
   --code-font: monospace;
 }

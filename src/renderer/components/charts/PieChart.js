@@ -1,17 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { PieChart as RechartPieChart, Pie, Cell, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { colorDictionary } from 'network-canvas-ui';
 
-const COLORS = [
-  colorDictionary['graph-data-1'],
-  colorDictionary['graph-data-2'],
-  colorDictionary['graph-data-3'],
-  colorDictionary['graph-data-4'],
-];
+import { getCSSVariables } from '../../utils/css-variables';
+
+const colors = getCSSVariables(
+  '--graph-data-1',
+  '--graph-data-2',
+  '--graph-data-3',
+  '--graph-data-4',
+);
 
 // 99% width to work around recharts problem with resizing
-
 const PieChart = ({ className, data }) => (
   <ResponsiveContainer height="100%" width="99%">
     <RechartPieChart
@@ -26,7 +26,7 @@ const PieChart = ({ className, data }) => (
         nameKey="name"
         outerRadius={100}
       >
-        {data.map((entry, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
+        {data.map((entry, index) => <Cell key={index} fill={colors[index % colors.length]} />)}
       </Pie>
     </RechartPieChart>
   </ResponsiveContainer>
