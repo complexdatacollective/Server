@@ -3,12 +3,19 @@ const { app } = require('electron');
 
 const { createMainWindow } = require('./components/mainWindow');
 const { createTray } = require('./components/tray');
-const { createServer } = require('./worker/serverManager');
+const { createServer, actions } = require('./worker/serverManager');
 
+// start the server
+// require('./server-starter');
 // Background server
 let server = null;
 const settingsDb = path.join(app.getPath('userData'), 'db', 'settings');
-createServer(8080, settingsDb).then(serverProcess => server = serverProcess);
+createServer(8080, settingsDb).then(serverProcess => {
+  server = serverProcess;
+  server.on(actions.PAIRING_CODE_AVAILABLE, function ({ data }) {
+    mainWindow.deliverNotification(data);
+  });
+});
 
 // GUI
 const mainWindow = createMainWindow();
@@ -44,3 +51,9 @@ app.on('before-quit', () => {
 
 // Don't quit when all windows are closed.
 app.on('window-all-closed', () => { });  // no op
+
+app.on('before-quit', () => {
+  if (server) {
+    server.stop();
+  }
+});

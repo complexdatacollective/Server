@@ -1,8 +1,13 @@
 const path = require('path');
 const url = require('url');
-const { BrowserWindow } = require('electron');
+const logger = require('electron-log');
+const { BrowserWindow, ipcMain } = require('electron');
 
 class MainWindow {
+  constructor() {
+    this.notificationObservers = [];
+  }
+
   create() {
     if (this.window) { return; }
 
@@ -24,6 +29,11 @@ class MainWindow {
       // in an array if your app supports multi windows, this is the time
       // when you should delete the corresponding element.
       this.window = null;
+    });
+
+    ipcMain.on('notification-registration', (event, arg) => {
+      logger.debug('MainWindow:notification-registration', arg);
+      this.notificationObservers.push(event.sender);
     });
   }
 
@@ -55,6 +65,15 @@ class MainWindow {
     }
   }
 
+  deliverNotification(data) {
+    if (this.notificationObservers.length == 0) {
+      // TODO: store in a buffer, probably?
+      logger.warn("Notification not sent: no observers");
+    }
+    this.notificationObservers.forEach(observer => {
+      observer.send('notification', data);
+    });
+  }
 }
 
 const createMainWindow = () =>

@@ -7,6 +7,10 @@ const ipcRenderer = {
   send: jest.fn(),
 };
 
+const ipcMain = {
+  on: jest.fn(),
+};
+
 class BrowserWindow {
   constructor() {
     return {
@@ -23,6 +27,7 @@ class BrowserWindow {
 }
 
 module.exports = {
+  ipcMain,
   ipcRenderer,
   BrowserWindow,
 };

@@ -33,7 +33,6 @@ describe('serverManager', () => {
         sp.on(actions.SERVER_STATUS, ({ data }) => {
           expect(Object.hasOwnProperty.call(data, 'ip')).toEqual(true);
           expect(Object.hasOwnProperty.call(data, 'uptime')).toEqual(true);
-          expect(Object.hasOwnProperty.call(data, 'clients')).toEqual(true);
           expect(Object.hasOwnProperty.call(data, 'publicKey')).toEqual(true);
           sp.stop();
         });
