@@ -29,14 +29,7 @@ class MainWindow {
 
   open(route = '/') {
     this.create();
-
-    const loadUrl = url.format({
-      pathname: path.join(__dirname, '../', 'index.html'),
-      hash: `#${route}`,
-      protocol: 'file:',
-    });
-
-    this.window.loadURL(loadUrl);
+    this.window.loadURL(this.getAppUrl(route));
     this.window.show();
   }
 
@@ -45,6 +38,23 @@ class MainWindow {
 
     this.window.webContents.send(...args);
   }
+
+  getAppUrl(route) {
+    if (process.env.NODE_ENV === 'development' && process.env.WEBPACK_DEV_SERVER_PORT) {
+      return url.format({
+        hash: `#${route}`,
+        host: `localhost:${process.env.WEBPACK_DEV_SERVER_PORT}`,
+        protocol: 'http',
+      });
+    } else {
+      return url.format({
+        pathname: path.join(__dirname, '../', 'index.html'),
+        hash: `#${route}`,
+        protocol: 'file:',
+      });
+    }
+  }
+
 }
 
 const createMainWindow = () =>

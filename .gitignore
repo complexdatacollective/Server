@@ -6,6 +6,7 @@
 /release-builds
 **/db
 /www
+/electron-dev
 
 docs-build/
 
