@@ -10,8 +10,6 @@
     "npm": "5.3.0"
   },
   "dependencies": {
-    "change-case": "^3.0.1",
-    "bluebird": "^3.5.0",
     "ip": "^1.1.5",
     "libsodium-wrappers": "^0.7.3",
     "lodash": "^4.17.4",

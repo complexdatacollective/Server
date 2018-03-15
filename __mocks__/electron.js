@@ -11,6 +11,10 @@ const ipcMain = {
   on: jest.fn(),
 };
 
+const app = {
+  getName: () => 'test',
+};
+
 class BrowserWindow {
   constructor() {
     return {
@@ -27,9 +31,10 @@ class BrowserWindow {
 }
 
 module.exports = {
+  app,
+  BrowserWindow,
   ipcMain,
   ipcRenderer,
-  BrowserWindow,
 };
 
 exports.BrowserWindow = BrowserWindow;
