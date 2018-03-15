@@ -1,10 +1,11 @@
 const restify = require('restify');
-const logger = require('electron-log');
+// const logger = require('electron-log');
 
 const ApiName = 'AdminAPI';
 const ApiVersion = '0.0.1';
 
 // Admin API should listen *only* on loopback
+// TODO: IPC socket supported?
 const Host = '127.0.0.1';
 
 /**
@@ -21,7 +22,7 @@ class AdminService {
 
   start() {
     this.api.listen(this.port, Host, () => {
-      logger.info(`${this.api.name} listening at ${this.api.url}`);
+      // logger.info(`${this.api.name} listening at ${this.api.url}`);
     });
   }
 

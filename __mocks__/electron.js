@@ -25,10 +25,12 @@ class BrowserWindow {
       webContents: {
         openDevTools: jest.fn(),
         send: jest.fn(),
-      },
+      }
     };
   }
 }
+
+BrowserWindow.getAllWindows = jest.fn().mockReturnValue([]);
 
 module.exports = {
   app,

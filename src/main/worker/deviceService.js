@@ -22,13 +22,16 @@ const actions = {
  */
 class DeviceService {
   constructor(/* { dataDir } */) {
-    const reqSvc = new DeviceRequestService();
-    this.api = this.createApi(reqSvc);
+    this.reqSvc = new DeviceRequestService();
+    this.api = this.createApi();
   }
 
-  start() {
-    this.api.listen(DefaultPort, () => {
-      logger.info(`${this.api.name} listening at ${this.api.url}`);
+  start(port = DefaultPort) {
+    return new Promise((resolve, reject) => {
+      this.api.listen(port, () => {
+        logger.info(`${this.api.name} listening at ${this.api.url}`);
+        resolve(this);
+      });
     });
   }
 
@@ -36,7 +39,7 @@ class DeviceService {
     this.api.close();
   }
 
-  createApi(reqSvc) {
+  createApi() {
     const api = restify.createServer({
       name: ApiName,
       version: ApiVersion,
@@ -46,52 +49,74 @@ class DeviceService {
 
     // Pairing Step 1. Generate a new pairing request.
     // Send request ID in response; present pairing passcode to user (out of band).
-    api.get('/devices/new', (req, res, next) => {
-      reqSvc.createRequest()
-        .then((pairRequest) => {
-          // Send code up to UI
-          process.send({
-            action: actions.PAIRING_CODE_AVAILABLE,
-            data: { code: pairRequest.pairingCode }
-          });
-          // Respond to client
-          res.send({
-            status: 'ok',
-            pairRequest: {
-              reqId: pairRequest._id,
-              salt: pairRequest.salt,
-            }
-          });
-        })
-        .catch((err) => {
-          logger.error(err);
-          res.send(503, { status: 'error' });
-        })
-        .then(next);
-    });
+    api.get('/devices/new', this.handlers.onPairingRequest);
 
     // Pairing Step 2.
     // User has entered pairing code
-    api.post('/devices', (req, res, next) => {
-      const pendingRequestId = req.body.request_id;
-      const pairingCode = req.body.pairing_code;
-      // TODO: payload will actually be encrypted.
-      reqSvc.verifyRequest(pendingRequestId, pairingCode)
-        .then(() => {
-          // TODO: Create/save device.
-          // TODO: delete request once verified (or mark as 'used' internally)?
-          // ... prevent retries/replays?
-          res.send({ status: 'ok' });
-        })
-        .catch((err) => {
-          logger.error(err);
-          res.send(503, { status: 'error' });
-        })
-        .then(next);
-    });
+    api.post('/devices', this.handlers.onPairingConfirm);
 
     return api;
   }
+
+  messageParent (data) {
+    if (process.send) {
+      process.send(data);
+    } else {
+      logger.error('No parent available for IPC');
+    }
+  }
+
+  get handlers () {
+    return {
+      onPairingRequest: (req, res, next) => {
+        this.reqSvc.createRequest()
+          .then((pairingRequest) => {
+            // Send code up to UI
+            this.messageParent({
+              action: actions.PAIRING_CODE_AVAILABLE,
+              data: { pairingCode: pairingRequest.pairingCode }
+            });
+            // Respond to client
+            res.send({
+              status: 'ok',
+              pairingRequest: {
+                reqId: pairingRequest._id,
+                salt: pairingRequest.salt,
+              }
+            });
+          })
+          .catch((err) => {
+            logger.error(err);
+            res.send(503, { status: 'error' });
+          })
+          .then(next)
+      },
+
+      onPairingConfirm: (req, res, next) => {
+        const pendingRequestId = req.body && req.body.requestId;
+        const pairingCode = req.body && req.body.pairingCode;
+        if (!pendingRequestId || !pairingCode) {
+          res.send(400, { status: 'error' });
+          return next();
+        }
+
+        // TODO: payload will actually be encrypted.
+        this.reqSvc.verifyRequest(pendingRequestId, pairingCode)
+          .then(() => {
+            // TODO: Create/save device.
+            // TODO: delete request once verified (or mark as 'used' internally)?
+            // ... prevent retries/replays?
+            res.send({ status: 'ok' });
+          })
+          .catch((err) => {
+            logger.error(err);
+            res.send(400, { status: 'error' });
+          })
+          .then(next);
+      }
+    }
+  };
+
 }
 
 module.exports = {

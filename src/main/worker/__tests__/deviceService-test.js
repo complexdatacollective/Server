@@ -1,47 +1,99 @@
 /* eslint-env jest */
-// const { Requester } = require('cote');
-const DeviceService = require('../deviceService');
+const libsodium = require('libsodium-wrappers');
+jest.mock('libsodium-wrappers');
+jest.mock('electron-log');
+
+const { DeviceService } = require('../deviceService');
+const { jsonClient } = require('../../../setupTests');
+
+const testPortNumber = 52000;
+const PairingCodeProperty = 'pairingCode';
 
 describe('Device Service', () => {
-  // Disable console logs for this suite
-  // console.log = jest.fn();
+  let deviceService;
 
-  // const serverOptions = {
-  //   keys: {
-  //     publicKey: 'test-public-key'
-  //   }
-  // };
-  // const devicePairingReq = {
-  //   type: 'pairingRequest',
-  //   deviceName: 'device-name',
-  //   protocol: 'protocol-name',
-  //   reqDate: new Date(),
-  // };
-  // const deviceRequester = new Requester({ name: 'deviceRequester', namespace: 'device' });
-  // const deviceService = new DeviceService(serverOptions);
+  beforeEach(() => {
+    deviceService = new DeviceService();
+    // We mock this method regardless of assertions:
+    // when run concurrently, parent is a testRunner worker
+    deviceService.messageParent = jest.fn();
+  });
 
-  it('It publishes unpaired devices');
-  // it('responds to pairing requests', (done) => {
+  it('responds to a client pairing request', (done) => {
+    deviceService.handlers.onPairingRequest(undefined, {
+      send: (resp) => {
+        expect(resp.status).toBe('ok');
+        expect(resp).toHaveProperty('pairingRequest');
+        expect(resp.pairingRequest).toHaveProperty('salt');
+        done();
+      }
+    });
+  });
 
-  //   deviceRequester.send(devicePairingReq);
-  //   deviceService.deviceResponder.on('pairingRequest', (req) => {
-  //     expect(req).toHaveProperty('deviceName');
-  //     expect(req).toHaveProperty('protocol');
-  //     expect(req).toHaveProperty('reqDate');
-  //     done();
-  //   });
-  // });
+  it('does not send the pairing code in-band', (done) => {
+    deviceService.handlers.onPairingRequest(undefined, {
+      send: (resp) => {
+        expect(resp).not.toHaveProperty(PairingCodeProperty);
+        done();
+      }
+    });
+  });
 
-  // it('generates a random 4-digit pin', (done) => {
-  //   const pin = deviceService.generatePairingPin();
-  //   const numDigits = pin.toString().length;
-  //   expect(pin).toBeGreaterThan(0);
-  //   expect(numDigits).toEqual(4);
-  //   done();
-  // });
+  it('notifies the main process when a new PIN is created (for out-of-band transfer)', (done) => {
+    deviceService.messageParent = jest.fn(msg => {
+      expect(msg.data).toEqual(expect.objectContaining({
+        [PairingCodeProperty]: expect.any(String)
+      }));
+      done();
+    });
 
-  // afterAll(() => {
-  //   deviceRequester.close();
-  //   deviceService.stop();
-  // });
+    deviceService.handlers.onPairingRequest();
+  });
+
+  describe('API', () => {
+    beforeEach((done) => {
+      deviceService.start(testPortNumber).then(done);
+    });
+
+    afterEach(() => {
+      deviceService.stop();
+    });
+
+    it('responds to pairing requests', (done) => {
+      jsonClient.get(new URL('/devices/new', deviceService.api.url))
+        .then(res => {
+          expect(res.statusCode).toBe(200);
+          expect(res.json).toHaveProperty('pairingRequest');
+        })
+        .catch(console.error)
+        .then(done);
+    });
+
+    describe('pairing confirmation endpoint', () => {
+      it('rejects invalid requests', async () => {
+        await expect(
+          jsonClient.post(new URL('/devices', deviceService.api.url), {})
+        ).rejects.toHaveProperty('statusCode', 400);
+      });
+
+      it('fails when request data not found or expired', async () => {
+        const reqData = { requestId: 1, pairing_code: 1 };
+        await expect(
+          jsonClient.post(new URL('/devices', deviceService.api.url), reqData)
+        ).rejects.toHaveProperty('statusCode', 400);
+      });
+
+      // TODO: mock reqSvc
+      it('completes a valid pairing request', (done) => {
+        const reqSvc = deviceService.reqSvc;
+        reqSvc.createRequest()
+          .then(req => jsonClient.post(new URL('/devices', deviceService.api.url), {
+            requestId: req._id,
+            [PairingCodeProperty]: req.pairingCode,
+          }))
+          .then((resp) => expect(resp.statusCode).toBe(200))
+          .then(done);
+      });
+    });
+  });
 });

@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { HashRouter } from 'react-router-dom';
-import logger from 'electron-log';
 
 import { Provider } from 'react-redux';
 import { ipcRenderer } from 'electron';
@@ -23,7 +22,7 @@ const startApp = () => {
 startApp();
 
 ipcRenderer.on('notification', (event, arg) => {
-  logger.info(event, arg);
+  console.info(event, arg);
 });
 
 const checkForNotifications = () => {

@@ -3,34 +3,38 @@ const uuidv4 = require('uuid/v4');
 const libsodium = require('libsodium-wrappers');
 const logger = require('electron-log');
 
-const DeviceRequestTTLSeconds = 10;
+const DeviceRequestTTLSeconds = 5 * 60;
 
 const newPairingCode = () => '12345abc'; // TODO: random alphanum... specs (length? excluded chars?)
+
+const dbConfig = {
+  // TODO: review in-mem/on-disk and document.
+  // Notes on persistence:
+  //    0. We want to store the pairing passcode, which is sensitive.
+  //    1. Auto-expiration is only triggered by a query
+  //    2. nedb uses an append-only format; until compaction happens, data is still on disk.
+  //    3. Therefore, if sensitive data is on disk, we must periodically expire & compact.
+  //       setAutocompactionInterval() is insufficient
+  // With in-memory, closing the app will cancel the pairing process.
+  inMemoryOnly: true,
+  // filename: path.join(dataDir, DeviceRequestDbName),
+  autoload: true,
+  timestampData: true,
+}
 
 /**
  * @memberOf BackgroundServices
  */
 class PairingRequestService {
   constructor() {
-    this.db = new nedb({
-      // TODO: review in-mem/on-disk and document.
-      // Notes on persistence:
-      //    0. We want to store the pairing passcode, which is sensitive.
-      //    1. Auto-expiration is only triggered by a query
-      //    2. nedb uses an append-only format; until compaction happens, data is still on disk.
-      //    3. Therefore, if sensitive data is on disk, we must periodically expire & compact.
-      //       setAutocompactionInterval() is insufficient
-      // With in-memory, closing the app will cancel the pairing process.
-      inMemoryOnly: true,
-      // filename: path.join(dataDir, DeviceRequestDbName),
-      autoload: true,
-      timestampData: true,
-    });
+    this.db = new nedb(dbConfig);
 
     this.db.ensureIndex({
       fieldName: 'createdAt',
       expireAfterSeconds: DeviceRequestTTLSeconds,
-    }, logger.error);
+    }, (err) => {
+      if (err) { logger.error(err); }
+    });
   }
 
   // Pairing code is the shared secret.
@@ -62,9 +66,9 @@ class PairingRequestService {
 
   verifyRequest(requestId, pairingCode) {
     return new Promise((resolve, reject) => {
-      this.db.findOne({ _id: requestId }, (err, doc) => {
+      this.db.findOne({ _id: requestId, pairingCode: pairingCode }, (err, doc) => {
         if (err || !doc) {
-          reject(err);
+          reject(err || new Error("Not found"));
         } else {
           resolve(true);
         }
