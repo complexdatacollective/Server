@@ -5,3 +5,5 @@ global.requestAnimationFrame = (callback) => {
 global.cancelAnimationFrame = () => {};
 
 global.SVGElement = global.Element;
+
+global.fetch = require('jest-fetch-mock');

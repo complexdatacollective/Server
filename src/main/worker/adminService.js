@@ -1,5 +1,5 @@
 const restify = require('restify');
-// const logger = require('electron-log');
+const logger = require('electron-log');
 
 const ApiName = 'AdminAPI';
 const ApiVersion = '0.0.1';
@@ -14,15 +14,18 @@ const Host = '127.0.0.1';
  * Provides a RESTful API for electron renderer clients on the same machine.
  */
 class AdminService {
-  constructor({ port, statusDelegate }) {
-    this.port = port;
+  constructor({ statusDelegate }) {
     this.api = this.createApi();
     this.statusDelegate = statusDelegate;
   }
 
-  start() {
-    this.api.listen(this.port, Host, () => {
-      // logger.info(`${this.api.name} listening at ${this.api.url}`);
+  start(port) {
+    return new Promise((resolve, reject) => {
+      if (!port) { reject(new Error('Missing port')); }
+      this.api.listen(port, Host, () => {
+        logger.info(`${this.api.name} listening at ${this.api.url}`);
+        resolve(this);
+      });
     });
   }
 

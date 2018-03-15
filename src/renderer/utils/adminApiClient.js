@@ -5,7 +5,6 @@ const adminApiUrl = 'http://localhost:8080'; // FIXME
 class AdminApiClient {
   constructor() {
     this.events = new EventEmitter();
-    this.requestServerStatus();
   }
 
   on(...args) {
@@ -13,7 +12,7 @@ class AdminApiClient {
   }
 
   requestServerStatus() {
-    fetch(`${adminApiUrl}/health`)
+    return fetch(`${adminApiUrl}/health`)
       .then(resp => resp.json())
       .then(({ serverStatus }) => {
         if (serverStatus) {

@@ -17,8 +17,8 @@ class Server extends Emitter {
       // these service create a high-level API that is exposed to the front-end
       this.deviceService = new DeviceService(options);
       this.deviceService.start();
-      this.adminService = new AdminService({ port, statusDelegate: this });
-      this.adminService.start();
+      this.adminService = new AdminService({ statusDelegate: this });
+      this.adminService.start(port);
     }
   }
 

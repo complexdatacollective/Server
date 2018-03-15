@@ -1,3 +1,5 @@
+/* eslint-env jest */
+
 const PairingRequestSvc = require('../pairingRequestService');
 const { jsonClient } = require('../../../setupTests');
 

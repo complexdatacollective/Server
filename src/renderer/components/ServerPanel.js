@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { PanelItem } from '../components';
-import AdminApiClient from '../utils/admin-api-client';
+import AdminApiClient from '../utils/adminApiClient';
 
 const server = new AdminApiClient();
 
@@ -23,6 +23,10 @@ class ServerPanel extends Component {
     server.on('SERVER_STATUS', (data) => {
       this.setState({ serverOverview: data });
     });
+  }
+
+  componentWillMount() {
+    server.requestServerStatus();
   }
 
   render() {
