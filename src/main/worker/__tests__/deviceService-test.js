@@ -48,7 +48,7 @@ describe('Device Service', () => {
       done();
     });
 
-    deviceService.handlers.onPairingRequest();
+    deviceService.handlers.onPairingRequest(undefined, { send: jest.fn() });
   });
 
   describe('API', () => {
