@@ -27,6 +27,7 @@ class DeviceService {
   }
 
   start(port = DefaultPort) {
+    this.port = port;
     return new Promise((resolve, reject) => {
       this.api.listen(port, () => {
         logger.info(`${this.api.name} listening at ${this.api.url}`);
@@ -37,6 +38,7 @@ class DeviceService {
 
   stop() {
     this.api.close();
+    this.port = null;
   }
 
   createApi() {

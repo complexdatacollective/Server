@@ -104,6 +104,7 @@
     "classnames": "^2.2.5",
     "history": "^4.5.1",
     "libsodium-wrappers": "^0.7.3",
+    "mdns": "^2.3.4",
     "nedb": "^1.8.0",
     "private-socket": "git+https://github.com/codaco/PrivateSocket.git",
     "prop-types": "^15.5.8",

@@ -1,6 +1,8 @@
 /* eslint-disable class-methods-use-this */
 const Emitter = require('events').EventEmitter;
 const os = require('os');
+const mdns = require('mdns');
+const logger = require('electron-log');
 
 const { DeviceService } = require('./deviceService');
 const { AdminService } = require('./adminService');
@@ -12,11 +14,14 @@ class Server extends Emitter {
     super();
     this.options = options;
     this.started = new Date().getTime();
+    this.advertiseDeviceService = this.advertiseDeviceService.bind(this);
 
     if (options.startServices) {
       // these service create a high-level API that is exposed to the front-end
       this.deviceService = new DeviceService(options);
-      this.deviceService.start();
+      this.deviceService.start()
+        .then(this.advertiseDeviceService)
+        .catch(console.error);
       this.adminService = new AdminService({ statusDelegate: this });
       this.adminService.start(port);
     }
@@ -25,6 +30,21 @@ class Server extends Emitter {
   close() {
     this.deviceService.stop();
     this.adminService.stop();
+    this.deviceAdvertisement.stop();
+  }
+
+  advertiseDeviceService(deviceService) {
+    if (this.deviceAdvertisement) {
+      this.deviceAdvertisement.stop();
+    }
+    const serviceType = { name: 'network-canvas', protocol: 'tcp' };
+    this.deviceAdvertisement = mdns.createAdvertisement(
+      serviceType,
+      deviceService.port,
+      { name: 'network-canvas' }
+    );
+    this.deviceAdvertisement.start();
+    logger.info(`MDNS: advertising ${JSON.stringify(serviceType)} on ${deviceService.port}`);
   }
 
   status() {
