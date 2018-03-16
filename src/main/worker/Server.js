@@ -36,11 +36,6 @@ class Server extends Emitter {
     this.listen();
   }
 
-  close() {
-    this.socketServer.close();
-    this.socketServer.destroy();
-  }
-
   listen() {
     io.on('connect', (socket) => {
       console.log('connected');
@@ -61,10 +56,6 @@ class Server extends Emitter {
         console.log('SERVER REQUESTED');
         ps.socket.emit('SERVER_STATUS', JSON.stringify(this.status()));
       });
-    });
-
-    this.on('STOP_SERVER', () => {
-      this.close();
     });
   }
 
