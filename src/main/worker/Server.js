@@ -18,7 +18,7 @@ class Server extends Emitter {
   }
 
   startServices(port) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       this.adminService = new AdminService({ statusDelegate: this });
       this.adminService.start(port);
       this.deviceService = new DeviceService();
@@ -42,7 +42,7 @@ class Server extends Emitter {
     this.deviceAdvertisement = mdns.createAdvertisement(
       serviceType,
       deviceService.port,
-      { name: 'network-canvas' }
+      { name: 'network-canvas' },
     );
     this.deviceAdvertisement.start();
     logger.info(`MDNS: advertising ${JSON.stringify(serviceType)} on ${deviceService.port}`);
@@ -65,13 +65,14 @@ class Server extends Emitter {
   publicIP() {
     const addrs = Object.values(os.networkInterfaces());
     return [].concat(...addrs)
-      .find(val => val.family === 'IPv4' && val.internal === false)
+      .find(val => val.family === 'IPv4' && val.internal === false);
   }
 
   on(name, cb, ...rest) {
     if (events.indexOf(name) !== -1) {
       return Emitter.prototype.on.apply(this, [name, cb, ...rest]);
     }
+    return null;
   }
 }
 

@@ -1,3 +1,6 @@
+/* eslint new-cap: ["error", { "newIsCapExceptions": ["nedb"] }] */
+/* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
+
 const nedb = require('nedb');
 const uuidv4 = require('uuid/v4');
 const libsodium = require('libsodium-wrappers');
@@ -20,6 +23,22 @@ const dbConfig = {
   // filename: path.join(dataDir, DeviceRequestDbName),
   autoload: true,
   timestampData: true,
+};
+
+// TODO: Move nacl-related code
+function deriveSecret(pairingCode, salt) {
+  // FIXME: Find a reasonable mem limit that doesn't error (16777216 errors locally)
+  // libsodium.crypto_pwhash_MEMLIMIT_MIN == 8192
+  // libsodium.crypto_pwhash_MEMLIMIT_INTERACTIVE == 67108864
+  // With the latter (recommended), getting error; may need custom compilation step:
+  //    Cannot enlarge memory arrays. ...
+  const memlimit = 16777216 / 2;
+  // TODO: default is argon 2. Don't use "DEFAULT"; will break if it changes...
+  const algo = libsodium.crypto_pwhash_ALG_DEFAULT;
+  const keyLen = libsodium.crypto_box_SEEDBYTES;
+  const secretKey = libsodium.crypto_pwhash(keyLen,
+    pairingCode, salt, libsodium.crypto_pwhash_OPSLIMIT_INTERACTIVE, memlimit, algo);
+  return secretKey;
 }
 
 /**
@@ -27,7 +46,7 @@ const dbConfig = {
  */
 class PairingRequestService {
   constructor() {
-    this.db = new nedb(dbConfig);
+    this.db = new nedb(dbConfig); // eslint-disable-lint new-cap
 
     this.db.ensureIndex({
       fieldName: 'createdAt',
@@ -66,9 +85,9 @@ class PairingRequestService {
 
   verifyRequest(requestId, pairingCode) {
     return new Promise((resolve, reject) => {
-      this.db.findOne({ _id: requestId, pairingCode: pairingCode }, (err, doc) => {
+      this.db.findOne({ _id: requestId, pairingCode }, (err, doc) => {
         if (err || !doc) {
-          reject(err || new Error("Not found"));
+          reject(err || new Error('Not found'));
         } else {
           resolve(true);
         }
@@ -77,46 +96,31 @@ class PairingRequestService {
   }
 }
 
-// TODO: Move nacl-related code
-function deriveSecret(pairingCode, salt) {
-  // FIXME: Find a reasonable mem limit that doesn't error (16777216 errors locally)
-  // libsodium.crypto_pwhash_MEMLIMIT_MIN == 8192
-  // libsodium.crypto_pwhash_MEMLIMIT_INTERACTIVE == 67108864
-  // With the latter (recommended), getting error; may need custom compilation step:
-  //    Cannot enlarge memory arrays. ...
-  const memlimit = 16777216 >> 1;
-  // TODO: default is argon 2. Don't use "DEFAULT"; will break if it changes...
-  const algo = libsodium.crypto_pwhash_ALG_DEFAULT;
-  const keyLen = libsodium.crypto_box_SEEDBYTES;
-  const secretKey = libsodium.crypto_pwhash(keyLen,
-    pairingCode, salt, libsodium.crypto_pwhash_OPSLIMIT_INTERACTIVE, memlimit, algo);
-  return secretKey;
-}
+// function __exampleSymmetricCrypt__(secret) {
+//   // example encryption...
+//   const message = 'Network Canvas Server';
+//   const nonce = libsodium.randombytes_buf(libsodium.crypto_secretbox_NONCEBYTES);
+//   const cipher = libsodium.crypto_secretbox_easy(message, nonce, secret);
 
-function __exampleSymmetricCrypt__(secret) {
-  // example encryption...
-  const message = 'Network Canvas Server';
-  const nonce = libsodium.randombytes_buf(libsodium.crypto_secretbox_NONCEBYTES);
-  const cipher = libsodium.crypto_secretbox_easy(message, nonce, secret);
+//   // nonce can be sent in the clear, so here's the entire message:
+//   const noncePlusCipher = new Uint8Array(nonce.length + cipher.length);
+//   noncePlusCipher.set(nonce);
+//   noncePlusCipher.set(cipher, nonce.length);
 
-  // nonce can be sent in the clear, so here's the entire message:
-  const noncePlusCipher = new Uint8Array(nonce.length + cipher.length);
-  noncePlusCipher.set(nonce);
-  noncePlusCipher.set(cipher, nonce.length);
+//   // see API docs: https://github.com/jedisct1/libsodium.js
+//   const minLength = libsodium.crypto_secretbox_NONCEBYTES + libsodium.crypto_secretbox_MACBYTES;
+//   if (noncePlusCipher.length < minLength) {
+//     throw new Error('Message too short');
+//   }
 
-  // see API docs: https://github.com/jedisct1/libsodium.js
-  const minLength = libsodium.crypto_secretbox_NONCEBYTES + libsodium.crypto_secretbox_MACBYTES;
-  if (noncePlusCipher.length < minLength) {
-    throw new Error('Message too short');
-  }
+//   // example decryption...
+//   const receivedNonce = noncePlusCipher.slice(0, libsodium.crypto_secretbox_NONCEBYTES);
+//   const receivedCipher = noncePlusCipher.slice(libsodium.crypto_secretbox_NONCEBYTES);
+//   const retrievedBytes = libsodium.crypto_secretbox_open_easy(receivedCipher,
+//     receivedNonce, secret);
+//   const retrievedMessage = libsodium.to_string(retrievedBytes);
 
-  // example decryption...
-  const receivedNonce = noncePlusCipher.slice(0, libsodium.crypto_secretbox_NONCEBYTES);
-  const receivedCipher = noncePlusCipher.slice(libsodium.crypto_secretbox_NONCEBYTES);
-  const retrievedBytes = libsodium.crypto_secretbox_open_easy(receivedCipher, receivedNonce, secret);
-  const retrievedMessage = libsodium.to_string(retrievedBytes);
-
-  return retrievedMessage === message;
-}
+//   return retrievedMessage === message;
+// }
 
 module.exports = PairingRequestService;

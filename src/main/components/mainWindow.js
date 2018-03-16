@@ -3,6 +3,21 @@ const url = require('url');
 const logger = require('electron-log');
 const { BrowserWindow, ipcMain } = require('electron');
 
+const getAppUrl = (route) => {
+  if (process.env.NODE_ENV === 'development' && process.env.WEBPACK_DEV_SERVER_PORT) {
+    return url.format({
+      hash: `#${route}`,
+      host: `localhost:${process.env.WEBPACK_DEV_SERVER_PORT}`,
+      protocol: 'http',
+    });
+  }
+  return url.format({
+    pathname: path.join(__dirname, '../', 'index.html'),
+    hash: `#${route}`,
+    protocol: 'file:',
+  });
+};
+
 class MainWindow {
   constructor() {
     this.notificationObservers = [];
@@ -39,7 +54,7 @@ class MainWindow {
 
   open(route = '/') {
     this.create();
-    this.window.loadURL(this.getAppUrl(route));
+    this.window.loadURL(getAppUrl(route));
     this.window.show();
   }
 
@@ -49,28 +64,12 @@ class MainWindow {
     this.window.webContents.send(...args);
   }
 
-  getAppUrl(route) {
-    if (process.env.NODE_ENV === 'development' && process.env.WEBPACK_DEV_SERVER_PORT) {
-      return url.format({
-        hash: `#${route}`,
-        host: `localhost:${process.env.WEBPACK_DEV_SERVER_PORT}`,
-        protocol: 'http',
-      });
-    } else {
-      return url.format({
-        pathname: path.join(__dirname, '../', 'index.html'),
-        hash: `#${route}`,
-        protocol: 'file:',
-      });
-    }
-  }
-
   deliverNotification(data) {
-    if (this.notificationObservers.length == 0) {
+    if (this.notificationObservers.length === 0) {
       // TODO: store in a buffer, probably?
-      logger.warn("Notification not sent: no observers");
+      logger.warn('Notification not sent: no observers');
     }
-    this.notificationObservers.forEach(observer => {
+    this.notificationObservers.forEach((observer) => {
       observer.send('notification', data);
     });
   }

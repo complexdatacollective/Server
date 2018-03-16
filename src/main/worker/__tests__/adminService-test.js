@@ -8,12 +8,12 @@ const testPortNumber = 52001;
 
 describe('the AdminService', () => {
   let adminService;
-  let mockStatusDelegate = {
-    status: () => {}
+  const mockStatusDelegate = {
+    status: () => {},
   };
 
   beforeEach(() => {
-    adminService = new AdminService({ statusDelegate: mockStatusDelegate })
+    adminService = new AdminService({ statusDelegate: mockStatusDelegate });
   });
 
   afterEach(() => {
@@ -27,7 +27,7 @@ describe('the AdminService', () => {
   describe('API', () => {
     it('listens on a port', async () => {
       await expect(
-        adminService.start(testPortNumber)
+        adminService.start(testPortNumber),
       ).resolves.toBe(adminService);
     });
 
@@ -35,17 +35,15 @@ describe('the AdminService', () => {
       const mockStatus = { uptime: 100 };
       adminService.start(testPortNumber)
         .then(() => {
-          adminService.statusDelegate = { status: () => mockStatus }
+          adminService.statusDelegate = { status: () => mockStatus };
           jsonClient.get(new URL('/health', `http://localhost:${testPortNumber}`))
-            .then(res => {
+            .then((res) => {
               expect(res.json).toMatchObject({
-                serverStatus: expect.any(Object)
+                serverStatus: expect.any(Object),
               });
             })
             .then(done);
-        })
+        });
     });
-
   });
-
 });

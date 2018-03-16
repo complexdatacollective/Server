@@ -1,7 +1,7 @@
 /* eslint-env jest */
+/* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
 
 const PairingRequestSvc = require('../pairingRequestService');
-const { jsonClient } = require('../../../setupTests');
 
 jest.mock('electron-log');
 
@@ -16,11 +16,11 @@ describe('PairingRequest Service', () => {
     reqSvc.db.count({}, (err, initialCount) => {
       reqSvc.createRequest()
         .then(() => {
-          reqSvc.db.count({}, (err, count) => {
+          reqSvc.db.count({}, (err2, count) => {
             expect(count).toBe(initialCount + 1);
             done();
-          })
-        })
+          });
+        });
     });
   });
 
@@ -28,19 +28,18 @@ describe('PairingRequest Service', () => {
     reqSvc.createRequest()
       .then(req => reqSvc.verifyRequest(req._id, req.pairingCode))
       .then(resp => expect(resp))
-      .then(done)
+      .then(done);
   });
 
   it('rejects a missing or expired request', async () => {
     await expect(
-        reqSvc.verifyRequest('bad-id', 'wrong-code')
+        reqSvc.verifyRequest('bad-id', 'wrong-code'),
     ).rejects.toBeInstanceOf(Error);
   });
 
   it('rejects a malformed request', async () => {
     await expect(
-      reqSvc.verifyRequest()
+      reqSvc.verifyRequest(),
     ).rejects.toBeInstanceOf(Error);
   });
-
 });

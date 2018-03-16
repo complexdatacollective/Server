@@ -69,7 +69,7 @@ const startServer = (port, settingsDb) => {
   }))
   .then(appSettings.set)
   .then(currentAppSettings => new Server(currentAppSettings))
-  .then(server => {
+  .then((server) => {
     if (process.env.NODE_ENV !== 'test') {
       return server.startServices(port);
     }
@@ -97,8 +97,7 @@ if (require.main === module) {
     .then((server) => {
       process.on('message', serverTaskHandler(server));
       process.send({ action: SERVER_READY });
-    })
-    .catch(console.error);
+    });
 }
 
 // 1. Running as a module:

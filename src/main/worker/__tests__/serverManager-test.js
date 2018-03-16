@@ -1,4 +1,4 @@
-/* eslint-env jest */
+/* eslint-env jest, jasmine */
 
 const path = require('path');
 const { createServer, actions } = require('../serverManager');
@@ -9,7 +9,7 @@ const testDb = path.join('db', 'test');
 describe('serverManager', () => {
   describe('createServer', () => {
     // Allow extra time for server startup tests
-    let defaultTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+    const defaultTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
     beforeAll(() => { jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000; });
     afterAll(() => { jasmine.DEFAULT_TIMEOUT_INTERVAL = defaultTimeout; });
 

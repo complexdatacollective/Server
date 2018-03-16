@@ -1,6 +1,4 @@
 /* eslint-env jest */
-
-const net = require('net');
 const mdns = require('mdns');
 
 const Server = require('../Server');
@@ -19,9 +17,9 @@ describe('Server', () => {
     mockAdvert = {
       start: jest.fn(),
       stop: jest.fn(),
-    }
+    };
     mdns.createAdvertisement.mockReturnValue(mockAdvert);
-  })
+  });
 
   it('starts services', (done) => {
     server = new Server();
@@ -40,7 +38,7 @@ describe('Server', () => {
       server = new Server();
       deviceService = new DeviceService();
       deviceService.start()
-        .then(done)
+        .then(done);
     });
 
     afterEach(() => deviceService.stop());
@@ -50,6 +48,5 @@ describe('Server', () => {
       server.advertiseDeviceService(deviceService);
       expect(mockAdvert.start.mock.calls.length).toBe(1);
     });
-  })
-
+  });
 });

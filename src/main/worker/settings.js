@@ -23,7 +23,7 @@ module.exports = (db) => {
         (err) => {
           if (err) { reject(err); return; }
           resolve(settings);
-        }
+        },
       );
     });
 

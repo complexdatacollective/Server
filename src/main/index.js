@@ -5,30 +5,31 @@ const { createMainWindow } = require('./components/mainWindow');
 const { createTray } = require('./components/tray');
 const { createServer, actions } = require('./worker/serverManager');
 
+const mainWindow = createMainWindow();
+
 // start the server
 // require('./server-starter');
 // Background server
 let server = null;
 const settingsDb = path.join(app.getPath('userData'), 'db', 'settings');
-createServer(8080, settingsDb).then(serverProcess => {
+createServer(8080, settingsDb).then((serverProcess) => {
   server = serverProcess;
-  server.on(actions.PAIRING_CODE_AVAILABLE, function ({ data }) {
+  server.on(actions.PAIRING_CODE_AVAILABLE, ({ data }) => {
     mainWindow.deliverNotification(data);
   });
 });
 
-// GUI
-const mainWindow = createMainWindow();
+// Keep reference; if tray is GCed, it disappears
+let tray; // eslint-disable-line no-unused-vars
 
-let tray; // Keep reference; if tray is GCed, it disappears
 const trayMenu = [
   {
     label: 'Overview',
-    click: () => { mainWindow.open('/overview'); }
+    click: () => { mainWindow.open('/overview'); },
   },
   {
     label: 'Export data',
-    click: () => { mainWindow.open('/export'); }
+    click: () => { mainWindow.open('/export'); },
   },
   {
     label: 'Settings',
@@ -36,7 +37,7 @@ const trayMenu = [
   },
   {
     label: 'Quit',
-    click: () => { app.quit(); }
+    click: () => { app.quit(); },
   },
 ];
 

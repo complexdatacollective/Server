@@ -66,5 +66,5 @@ class AdminService {
 }
 
 module.exports = {
- AdminService,
+  AdminService,
 };

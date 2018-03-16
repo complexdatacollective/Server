@@ -1,4 +1,6 @@
 /* eslint-env jest */
+/* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
+
 jest.mock('libsodium-wrappers');
 jest.mock('electron-log');
 
@@ -25,7 +27,7 @@ describe('Device Service', () => {
         expect(resp).toHaveProperty('pairingRequest');
         expect(resp.pairingRequest).toHaveProperty('salt');
         done();
-      }
+      },
     });
   });
 
@@ -34,14 +36,14 @@ describe('Device Service', () => {
       send: (resp) => {
         expect(resp).not.toHaveProperty(PairingCodeProperty);
         done();
-      }
+      },
     });
   });
 
   it('notifies the main process when a new PIN is created (for out-of-band transfer)', (done) => {
-    deviceService.messageParent = jest.fn(msg => {
+    deviceService.messageParent = jest.fn((msg) => {
       expect(msg.data).toEqual(expect.objectContaining({
-        [PairingCodeProperty]: expect.any(String)
+        [PairingCodeProperty]: expect.any(String),
       }));
       done();
     });
@@ -60,25 +62,24 @@ describe('Device Service', () => {
 
     it('responds to pairing requests', (done) => {
       jsonClient.get(new URL('/devices/new', deviceService.api.url))
-        .then(res => {
+        .then((res) => {
           expect(res.statusCode).toBe(200);
           expect(res.json).toHaveProperty('pairingRequest');
         })
-        .catch(console.error)
         .then(done);
     });
 
     describe('pairing confirmation endpoint', () => {
       it('rejects invalid requests', async () => {
         await expect(
-          jsonClient.post(new URL('/devices', deviceService.api.url), {})
+          jsonClient.post(new URL('/devices', deviceService.api.url), {}),
         ).rejects.toHaveProperty('statusCode', 400);
       });
 
       it('fails when request data not found or expired', async () => {
         const reqData = { requestId: 1, pairing_code: 1 };
         await expect(
-          jsonClient.post(new URL('/devices', deviceService.api.url), reqData)
+          jsonClient.post(new URL('/devices', deviceService.api.url), reqData),
         ).rejects.toHaveProperty('statusCode', 400);
       });
 
@@ -90,7 +91,7 @@ describe('Device Service', () => {
             requestId: req._id,
             [PairingCodeProperty]: req.pairingCode,
           }))
-          .then((resp) => expect(resp.statusCode).toBe(200))
+          .then(resp => expect(resp.statusCode).toBe(200))
           .then(done);
       });
     });

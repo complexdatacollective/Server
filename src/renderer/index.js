@@ -22,7 +22,8 @@ const startApp = () => {
 startApp();
 
 ipcRenderer.on('notification', (event, arg) => {
-  console.info(event, arg);
+  // TODO
+  console.info(event, arg); // eslint-disable-line
 });
 
 const checkForNotifications = () => {

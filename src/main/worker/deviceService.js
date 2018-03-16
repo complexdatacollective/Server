@@ -1,3 +1,5 @@
+/* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
+
 const restify = require('restify');
 const logger = require('electron-log');
 
@@ -28,7 +30,7 @@ class DeviceService {
 
   start(port = DefaultPort) {
     this.port = port;
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       this.api.listen(port, () => {
         logger.info(`${this.api.name} listening at ${this.api.url}`);
         resolve(this);
@@ -45,7 +47,7 @@ class DeviceService {
     const api = restify.createServer({
       name: ApiName,
       version: ApiVersion,
-    });;
+    });
 
     api.use(restify.plugins.bodyParser());
 
@@ -60,7 +62,8 @@ class DeviceService {
     return api;
   }
 
-  messageParent (data) {
+  // eslint-disable-next-line class-methods-use-this
+  messageParent(data) {
     if (process.send) {
       process.send(data);
     } else {
@@ -68,7 +71,7 @@ class DeviceService {
     }
   }
 
-  get handlers () {
+  get handlers() {
     return {
       onPairingRequest: (req, res, next) => {
         this.reqSvc.createRequest()
@@ -76,7 +79,7 @@ class DeviceService {
             // Send code up to UI
             this.messageParent({
               action: actions.PAIRING_CODE_AVAILABLE,
-              data: { pairingCode: pairingRequest.pairingCode }
+              data: { pairingCode: pairingRequest.pairingCode },
             });
             // Respond to client
             res.send({
@@ -84,14 +87,14 @@ class DeviceService {
               pairingRequest: {
                 reqId: pairingRequest._id,
                 salt: pairingRequest.salt,
-              }
+              },
             });
           })
           .catch((err) => {
             logger.error(err);
             res.send(503, { status: 'error' });
           })
-          .then(next)
+          .then(next);
       },
 
       onPairingConfirm: (req, res, next) => {
@@ -99,7 +102,8 @@ class DeviceService {
         const pairingCode = req.body && req.body.pairingCode;
         if (!pendingRequestId || !pairingCode) {
           res.send(400, { status: 'error' });
-          return next();
+          next();
+          return;
         }
 
         // TODO: payload will actually be encrypted.
@@ -115,9 +119,9 @@ class DeviceService {
             res.send(400, { status: 'error' });
           })
           .then(next);
-      }
-    }
-  };
+      },
+    };
+  }
 
 }
 
