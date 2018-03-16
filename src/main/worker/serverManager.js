@@ -65,11 +65,16 @@ const startServer = (port, settingsDb) => {
   return libsodium.ready.then(() => appSettings.get())
   .then(ensurePemKeyPair)
   .then(serverOptions => Object.assign({}, serverOptions, {
-    startServices: process.env.NODE_ENV !== 'test',
     dataDir,
   }))
   .then(appSettings.set)
-  .then(currentAppSettings => new Server(port, currentAppSettings));
+  .then(currentAppSettings => new Server(currentAppSettings))
+  .then(server => {
+    if (process.env.NODE_ENV !== 'test') {
+      return server.startServices(port);
+    }
+    return server;
+  });
 };
 
 const serverTaskHandler = server =>

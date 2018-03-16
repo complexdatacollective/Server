@@ -10,27 +10,28 @@ const { AdminService } = require('./adminService');
 const events = ['data'];
 
 class Server extends Emitter {
-  constructor(port, options) {
+  constructor(options = {}) {
     super();
     this.options = options;
     this.started = new Date().getTime();
     this.advertiseDeviceService = this.advertiseDeviceService.bind(this);
+  }
 
-    if (options.startServices) {
-      // these service create a high-level API that is exposed to the front-end
-      this.deviceService = new DeviceService(options);
-      this.deviceService.start()
-        .then(this.advertiseDeviceService)
-        .catch(console.error);
+  startServices(port) {
+    return new Promise((resolve, reject) => {
       this.adminService = new AdminService({ statusDelegate: this });
       this.adminService.start(port);
-    }
+      this.deviceService = new DeviceService();
+      this.deviceService.start()
+        .then(this.advertiseDeviceService)
+        .then(() => resolve(this));
+    });
   }
 
   close() {
     this.deviceService.stop();
     this.adminService.stop();
-    this.deviceAdvertisement.stop();
+    this.stopAdvertisements();
   }
 
   advertiseDeviceService(deviceService) {
@@ -47,12 +48,17 @@ class Server extends Emitter {
     logger.info(`MDNS: advertising ${JSON.stringify(serviceType)} on ${deviceService.port}`);
   }
 
+  stopAdvertisements() {
+    if (this.deviceAdvertisement) {
+      this.deviceAdvertisement.stop();
+    }
+  }
+
   status() {
     return {
       uptime: new Date().getTime() - this.started,
       ip: this.publicIP(),
-      // clients: this.socketServer.engine.clientsCount,
-      publicKey: this.options.keys.publicKey,
+      publicKey: this.options.keys && this.options.keys.publicKey,
     };
   }
 

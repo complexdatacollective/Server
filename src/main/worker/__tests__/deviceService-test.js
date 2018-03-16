@@ -1,5 +1,4 @@
 /* eslint-env jest */
-const libsodium = require('libsodium-wrappers');
 jest.mock('libsodium-wrappers');
 jest.mock('electron-log');
 
