@@ -6,9 +6,10 @@ const uuidv4 = require('uuid/v4');
 const libsodium = require('libsodium-wrappers');
 const logger = require('electron-log');
 
+const PairingCodeFactory = require('./pairingCodeFactory');
+
 const DeviceRequestTTLSeconds = 5 * 60;
 
-const newPairingCode = () => '12345abc'; // TODO: random alphanum... specs (length? excluded chars?)
 
 const dbConfig = {
   // TODO: review in-mem/on-disk and document.
@@ -59,27 +60,32 @@ class PairingRequestService {
   // Pairing code is the shared secret.
   createRequest() {
     return new Promise((resolve, reject) => {
-      const pairingCode = newPairingCode();
-      // TODO: evaluate. I was using the request ID as something like a salt.
-      // ...Probably use this instead; don't need both?
-      const salt = libsodium.randombytes_buf(libsodium.crypto_pwhash_SALTBYTES);
-      const secretKey = deriveSecret(pairingCode, salt);
+      PairingCodeFactory.generatePairingCodeAsync()
+        .then(pairingCode => {
+          // const pairingCode = newPairingCode();
+          // TODO: evaluate. I was using the request ID as something like a salt.
+          // ...Probably use this instead; don't need both?
+          const salt = libsodium.randombytes_buf(libsodium.crypto_pwhash_SALTBYTES);
+          const secretKey = deriveSecret(pairingCode, salt);
 
-      // TODO: avoiding serialization is preferable; how is that handled with db?
-      this.db.insert({
-        salt: libsodium.to_hex(salt),
-        secretKey: libsodium.to_hex(secretKey),
-        pairingCode,
-        _id: uuidv4(),
-      }, (err, newRequest) => {
-        if (err) {
-          // TODO: retry?
-          reject(err);
-        } else {
-          logger.info('New pairing request saved', newRequest._id, newRequest.secretKey);
-          resolve(newRequest);
-        }
-      });
+          // TODO: avoiding serialization is preferable; how is that handled with db?
+          // TODO: promisify nedb...
+          this.db.insert({
+            salt: libsodium.to_hex(salt),
+            secretKey: libsodium.to_hex(secretKey),
+            pairingCode,
+            _id: uuidv4(),
+          }, (err, newRequest) => {
+            if (err) {
+              // TODO: retry?
+              reject(err);
+            } else {
+              logger.info('New pairing request saved', newRequest._id);
+              resolve(newRequest);
+            }
+          });
+        })
+        .catch(err => reject(err));
     });
   }
 

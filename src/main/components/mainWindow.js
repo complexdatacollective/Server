@@ -19,10 +19,6 @@ const getAppUrl = (route) => {
 };
 
 class MainWindow {
-  constructor() {
-    this.notificationObservers = [];
-  }
-
   create() {
     if (this.window) { return; }
 
@@ -46,10 +42,6 @@ class MainWindow {
       this.window = null;
     });
 
-    ipcMain.on('notification-registration', (event, arg) => {
-      logger.debug('MainWindow:notification-registration', arg);
-      this.notificationObservers.push(event.sender);
-    });
   }
 
   open(route = '/') {
@@ -59,19 +51,10 @@ class MainWindow {
   }
 
   send(...args) {
+    // TODO: store in a buffer, probably?
     if (!this.window) { return; }
 
     this.window.webContents.send(...args);
-  }
-
-  deliverNotification(data) {
-    if (this.notificationObservers.length === 0) {
-      // TODO: store in a buffer, probably?
-      logger.warn('Notification not sent: no observers');
-    }
-    this.notificationObservers.forEach((observer) => {
-      observer.send('notification', data);
-    });
   }
 }
 

@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import { HashRouter } from 'react-router-dom';
 
 import { Provider } from 'react-redux';
-import { ipcRenderer } from 'electron';
 
 import { store } from './ducks/store';
 import App from './containers/App';
@@ -20,14 +19,3 @@ const startApp = () => {
 };
 
 startApp();
-
-ipcRenderer.on('notification', (event, arg) => {
-  // TODO
-  console.info(event, arg); // eslint-disable-line
-});
-
-const checkForNotifications = () => {
-  ipcRenderer.send('notification-registration');
-};
-
-checkForNotifications();

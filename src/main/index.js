@@ -15,7 +15,7 @@ const settingsDb = path.join(app.getPath('userData'), 'db', 'settings');
 createServer(8080, settingsDb).then((serverProcess) => {
   server = serverProcess;
   server.on(actions.PAIRING_CODE_AVAILABLE, ({ data }) => {
-    mainWindow.deliverNotification(data);
+    mainWindow.send(actions.PAIRING_CODE_AVAILABLE, data);
   });
 });
 
@@ -33,7 +33,7 @@ const trayMenu = [
   },
   {
     label: 'Settings',
-    click: () => { mainWindow.open('/settings'); }
+    click: () => { mainWindow.open('/settings'); },
   },
   {
     label: 'Quit',

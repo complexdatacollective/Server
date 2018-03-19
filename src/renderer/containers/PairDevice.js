@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
 import { Modal, PairPin } from '../components';
 
@@ -9,18 +11,29 @@ class PairDevice extends Component {
     this.state = { open: true };
   }
 
-  onClose(history, location, match) {
+  onClose() {
     this.setState({open: false});
   };
 
   render () {
-    const {history, location, match} = this.props;
-    return (
-      <Modal show={this.state.open} title="Pair a Device" close={() => this.onClose(history, location, match)}>
-        <PairPin code="xxxx" />
+    const { pairingCode } = this.props;
+    return pairingCode && (
+      <Modal show={this.state.open} title="Pair a Device" close={() => this.onClose()}>
+        <PairPin code={pairingCode} />
       </Modal>
     );
   }
 }
 
-export default PairDevice;
+PairDevice.propTypes = {
+  pairingCode: PropTypes.string.isRequired,
+};
+
+const mapStateToProps = state => ({
+  pairingCode: state.pairing && state.pairing.pairingCode,
+});
+
+export default connect(mapStateToProps)(PairDevice);
+export {
+  PairDevice,
+};
