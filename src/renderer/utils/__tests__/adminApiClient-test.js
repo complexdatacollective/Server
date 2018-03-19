@@ -14,14 +14,14 @@ describe('an AdminApiClient', () => {
     fetch.mockResponse(JSON.stringify({ "serverStatus": mockStatus }));
 
     client.on('SERVER_STATUS', (data) => {
-      expect(data).toEqual(mockStatus);
+      expect(data).toEqual(expect.objectContaining(mockStatus));
       done()
     });
 
     client.requestServerStatus();
   });
 
-  it('can get the server status', (done) => {
+  it('ignores server status on error', (done) => {
     let eventsEmitted = 0;
     fetch.mockResponse(JSON.stringify({ status: "error" }), { status: 503 });
 

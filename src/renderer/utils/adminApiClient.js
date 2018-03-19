@@ -2,6 +2,8 @@ import EventEmitter from 'event-emitter';
 
 const adminApiUrl = 'http://localhost:8080'; // FIXME
 
+const getKeySnippet = key => key && key.slice(400, 416);
+
 class AdminApiClient {
   constructor() {
     this.events = new EventEmitter();
@@ -16,7 +18,12 @@ class AdminApiClient {
       .then(resp => resp.json())
       .then(({ serverStatus }) => {
         if (serverStatus) {
-          this.events.emit('SERVER_STATUS', serverStatus);
+          const { uptime, ip, publicKey } = serverStatus;
+          this.events.emit('SERVER_STATUS', {
+            ip: ip && ip.address,
+            publicKey: getKeySnippet(publicKey),
+            uptime,
+          });
         }
       });
   }
