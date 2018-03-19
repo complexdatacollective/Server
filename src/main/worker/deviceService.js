@@ -7,7 +7,7 @@ const DeviceRequestService = require('./pairingRequestService');
 
 const ApiName = 'DevciceAPI';
 const ApiVersion = '0.0.1';
-const DefaultPort = 51001;
+const DefaultPort = process.env.DEVICE_SERVICE_PORT || 51001;
 
 const actions = {
   PAIRING_CODE_AVAILABLE: 'PAIRING_CODE_AVAILABLE',
