@@ -24,6 +24,10 @@ const trayMenu = [
     click: () => { mainWindow.open('/export'); }
   },
   {
+    label: 'Settings',
+    click: () => { mainWindow.open('/settings'); }
+  },
+  {
     label: 'Quit',
     click: () => { app.quit(); }
   },

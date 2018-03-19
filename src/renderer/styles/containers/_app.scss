@@ -1,4 +1,33 @@
 .app {
-  flex: 1;
   display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  // everything below the header
+  @include element(content) {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    width: 100%;
+  }
+
+  @include element(sidebar) {
+    background-color: color(navy-taupe);
+    flex: none;
+    height: 100%;
+    width: 4rem;
+  }
+
+  @include element(screen) {
+    flex: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  @include element(main) {
+    background-color: var(--base-background-color);
+    flex: auto;
+    overflow: auto;
+    padding: spacing(3);
+  }
 }

@@ -1,9 +1,19 @@
 .overview-dashboard {
-  display: flex;
-  flex-wrap: wrap;
+  $min-grid-row: 18rem;
+  $top-grid-row: 1rem;
 
-  > div {
-    background-color: palette('light-background');
-    margin: 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: minmax($top-grid-row, auto) auto;
+  grid-auto-rows: minmax($min-grid-row, auto);
+  grid-gap: spacing(small);
+
+  @include element(panel) {
+    background-color: color('white');
+    padding: spacing(small);
+
+    @include modifier(server-stats) {
+      grid-area: 1 / span 2;
+    }
   }
 }

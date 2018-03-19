@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const CountsWidget = ({ data }) => (
-  <div className="counts-widget">
+const CountsWidget = ({ className, data }) => (
+  <div className={`counts-widget ${className}`}>
     {data.map((entry, index) => (
       <div key={index} className="counts-widget__content">
         <h4>{entry.name}: </h4>
@@ -11,7 +11,12 @@ const CountsWidget = ({ data }) => (
   </div>
 );
 
+CountsWidget.defaultProps = {
+  className: '',
+};
+
 CountsWidget.propTypes = {
+  className: PropTypes.string,
   data: PropTypes.array.isRequired,
 };
 

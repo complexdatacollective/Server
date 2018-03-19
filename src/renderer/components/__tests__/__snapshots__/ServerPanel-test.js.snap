@@ -5,6 +5,7 @@ ShallowWrapper {
   "length": 1,
   Symbol(enzyme.__root__): [Circular],
   Symbol(enzyme.__unrendered__): <ServerPanel
+    className=""
     serverOverview={
         Object {
             "clients": 0,
@@ -44,7 +45,7 @@ ShallowWrapper {
           value=""
 />,
       ],
-      "className": "server-panel",
+      "className": "server-panel ",
     },
     "ref": null,
     "rendered": Array [
@@ -123,7 +124,7 @@ ShallowWrapper {
             value=""
 />,
         ],
-        "className": "server-panel",
+        "className": "server-panel ",
       },
       "ref": null,
       "rendered": Array [

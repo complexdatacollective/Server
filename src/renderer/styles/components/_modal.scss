@@ -1,0 +1,44 @@
+.modal {
+  position: fixed;
+  z-index: 2000;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  @include element(background) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--drop-shadow-color);
+  }
+
+  @include element(window) {
+    background-color: var(--base-background-color);
+    padding: spacing(large);
+    position: relative;
+  }
+
+  @include element(layout) {
+    align-self: flex-start;
+    display: flex;
+    flex-direction: column;
+    height: inherit;
+    width: 100%;
+
+    &-content {
+      height: inherit;
+      max-height: 80vh;
+    }
+  }
+
+  @include element(close) {
+    float: right;
+  }
+
+}
