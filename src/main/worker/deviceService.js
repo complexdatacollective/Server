@@ -11,6 +11,7 @@ const DefaultPort = process.env.DEVICE_SERVICE_PORT || 51001;
 
 const actions = {
   PAIRING_CODE_AVAILABLE: 'PAIRING_CODE_AVAILABLE',
+  PAIRING_COMPLETE: 'PAIRING_COMPLETE',
 };
 
 /**
@@ -107,7 +108,13 @@ class DeviceService {
         // ... prevent retries/replays?
         this.reqSvc.verifyRequest(pendingRequestId, pairingCode)
           .then(pair => this.deviceMgr.createDeviceDocument(pair.salt, pair.secretKey))
-          .then(device => res.send({ status: 'ok', device }))
+          .then(device => {
+            this.messageParent({
+              action: actions.PAIRING_COMPLETE,
+              data: { pairingCode },
+            });
+            res.send({ status: 'ok', device });
+          })
           .catch((err) => {
             logger.error(err);
             const status = (err instanceof PairingVerificationError) ? 400 : 503;

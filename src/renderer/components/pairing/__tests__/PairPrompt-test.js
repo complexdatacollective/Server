@@ -1,20 +1,29 @@
 /* eslint-env jest */
 import React from 'react';
-import { render } from 'enzyme';
-import { StaticRouter } from 'react-router-dom';
+import { mount, shallow } from 'enzyme';
+import { Button } from 'network-canvas-ui/lib/components';
 
 import PairPrompt from '../PairPrompt';
 
 const mockProps = {
   location: {},
+  onAcknowledge: () => {},
   onDismiss: () => {},
 };
 
-const renderRouted = component => render(<StaticRouter context={{}}>{ component }</StaticRouter>);
-
 describe('<PairPrompt />', () => {
+  const isPairButton = node => (node.type() === Button) && (node.html().match(/Pair With Device/));
+
   it('should render a confirm button', () => {
-    const subject = renderRouted(<PairPrompt {...mockProps} />);
-    expect(subject.find('[href$="/modal/pair"]').length).toBe(1);
+    const subject = shallow(<PairPrompt {...mockProps} />);
+    expect(subject.findWhere(isPairButton).length).toBe(1);
+  });
+
+  it('should be confirmable', () => {
+    const confirm = jest.fn();
+    const props = { ...mockProps, onAcknowledge: confirm };
+    const subject = mount(<PairPrompt {...props} />);
+    subject.findWhere(isPairButton).simulate('click');
+    expect(confirm.mock.calls.length).toBe(1);
   });
 });

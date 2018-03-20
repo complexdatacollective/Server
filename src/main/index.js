@@ -17,6 +17,9 @@ createServer(8080, settingsDb).then((serverProcess) => {
   server.on(actions.PAIRING_CODE_AVAILABLE, ({ data }) => {
     mainWindow.send(actions.PAIRING_CODE_AVAILABLE, data);
   });
+  server.on(actions.PAIRING_COMPLETE, ({ data }) => {
+    mainWindow.send(actions.PAIRING_COMPLETE, data);
+  });
 });
 
 // Keep reference; if tray is GCed, it disappears

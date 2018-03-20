@@ -1,9 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Icon } from 'network-canvas-ui/lib/components';
-import { withRouter, Link } from 'react-router-dom';
 
-const PairPrompt = ({ location, onDismiss }) => (
+const PairPrompt = ({ onDismiss, onAcknowledge }) => (
   <div className="pairing-prompt">
     <Icon name="info" className="pairing-prompt__icon" />
     <div className="pairing-prompt__content">
@@ -17,22 +16,17 @@ const PairPrompt = ({ location, onDismiss }) => (
           Dismiss
         </Button>
         &nbsp;
-        {
-          <Link to={`${location.pathname}/modal/pair`} className="pairing-prompt__button button button--small">
-            <span className="button__content">Pair With Device</span>
-          </Link>
-        }
+        <Button size="small" onClick={onAcknowledge}>
+          Pair With Device
+        </Button>
       </div>
-    </div>
-    <div className="pairing-prompt__close">
-      <Icon name="close" onClick={onDismiss} />
     </div>
   </div>
 );
 
 PairPrompt.propTypes = {
-  location: PropTypes.object.isRequired,
+  onAcknowledge: PropTypes.func.isRequired,
   onDismiss: PropTypes.func.isRequired,
 };
 
-export default withRouter(PairPrompt);
+export default PairPrompt;

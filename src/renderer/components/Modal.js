@@ -2,7 +2,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'network-canvas-ui/lib/components';
-import { withRouter } from 'react-router-dom';
 
 import { Modal as ModalTransition } from '../components/transitions';
 
@@ -14,20 +13,20 @@ function Modal(props) {
   const {
     children,
     className,
-    close,
-    history,
-    match,
+    onCancel,
+    onComplete,
     show,
     title,
   } = props;
 
-  const restorePath = () => {
-    history.replace(`/${match.params.basePath || ''}`);
-  };
+  // TODO: remove this if we won't need URL-based addressing of modals. (See AppRoutes.)
+  // const restorePath = () => {
+  //   history.replace(`/${match.params.basePath || ''}`);
+  // };
 
   return (
-    <ModalTransition in={show} onExited={restorePath}>
-      <div key="modal" className={`modal ${className}`} onClick={() => close()}>
+    <ModalTransition in={show}>
+      <div key="modal" className={`modal ${className}`} onClick={onCancel || onComplete}>
         <div className="modal__background" transition-role="background" />
         <div className="modal__window" transition-role="window" onClick={e => e.stopPropagation()}>
           <div className="modal__layout">
@@ -39,9 +38,18 @@ function Modal(props) {
             </div>
           </div>
           <div className="modal__close">
-            <Button color="tomato" size="small" onClick={() => close()}>
-              Cancel
-            </Button>
+            {
+              onCancel &&
+              <Button color="tomato" size="small" onClick={() => onCancel()}>
+                Cancel
+              </Button>
+            }
+            {
+              onComplete &&
+              <Button size="small" onClick={() => onComplete()}>
+                Finished
+              </Button>
+            }
           </div>
         </div>
       </div>
@@ -51,9 +59,8 @@ function Modal(props) {
 
 Modal.propTypes = {
   className: PropTypes.string,
-  close: PropTypes.func.isRequired,
-  history: PropTypes.object.isRequired,
-  match: PropTypes.object.isRequired,
+  onCancel: PropTypes.func,
+  onComplete: PropTypes.func,
   title: PropTypes.string.isRequired,
   show: PropTypes.bool,
   children: PropTypes.any,
@@ -61,8 +68,10 @@ Modal.propTypes = {
 
 Modal.defaultProps = {
   className: '',
+  onCancel: null,
+  onComplete: null,
   show: false,
   children: null,
 };
 
-export default withRouter(Modal);
+export default Modal;

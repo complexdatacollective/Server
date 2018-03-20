@@ -1,11 +1,11 @@
 import { combineReducers } from 'redux';
 import { reducer as formReducer } from 'redux-form';
 
-import pairingReducer from './pairing';
+import pairingReducer from './pairingRequest';
 
 const appReducer = combineReducers({
   form: formReducer,
-  pairing: pairingReducer,
+  pairingRequest: pairingReducer,
 });
 
 const rootReducer = (state, action) => {

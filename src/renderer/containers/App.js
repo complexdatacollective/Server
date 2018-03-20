@@ -9,7 +9,7 @@ import PairPrompt from '../components/pairing/PairPrompt';
 
 import AppRoutes from './AppRoutes';
 import { Header, TabBar } from '../components';
-import { actionCreators } from '../ducks/modules/pairing';
+import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
 
 require('../styles/main.scss');
 
@@ -26,23 +26,21 @@ class App extends Component {
 
     ipcRenderer.on('PAIRING_CODE_AVAILABLE', (event, data) => {
       props.newPairingRequest(data.pairingCode);
-      this.setState({ pairingAvailable: !!data.pairingCode });
     });
 
-    this.onDismissPairing = this.onDismissPairing.bind(this);
-  }
-
-  onDismissPairing() {
-    this.setState({ pairingAvailable: false });
+    ipcRenderer.on('PAIRING_COMPLETE', (event, data) => {
+      props.completedPairingRequest(data.pairingCode);
+    });
   }
 
   render() {
+    const { ackPairingRequest, dismissPairingRequest, pairingRequest } = this.props;
     return (
       <div className="app">
         <Header pairingCode={this.state.pairingCode} className="app__header" />
         {
-          this.state.pairingAvailable &&
-          <PairPrompt onDismiss={this.onDismissPairing} />
+          pairingRequest.status === PairingStatus.Pending &&
+          <PairPrompt onAcknowledge={ackPairingRequest} onDismiss={dismissPairingRequest} />
         }
         <div className="app__content">
           <nav className="app__sidebar" />
@@ -59,13 +57,30 @@ class App extends Component {
 }
 
 App.propTypes = {
+  ackPairingRequest: PropTypes.func.isRequired,
   newPairingRequest: PropTypes.func.isRequired,
+  completedPairingRequest: PropTypes.func.isRequired,
+  dismissPairingRequest: PropTypes.func.isRequired,
+  pairingRequest: PropTypes.shape({
+    status: PropTypes.string,
+  }),
 };
+
+App.defaultProps = {
+  pairingRequest: {},
+};
+
+const mapStateToProps = ({ pairingRequest }) => ({
+  pairingRequest,
+});
 
 function mapDispatchToProps(dispatch) {
   return {
+    ackPairingRequest: bindActionCreators(actionCreators.acknowledgePairingRequest, dispatch),
+    completedPairingRequest: bindActionCreators(actionCreators.completedPairingRequest, dispatch),
     newPairingRequest: bindActionCreators(actionCreators.newPairingRequest, dispatch),
+    dismissPairingRequest: bindActionCreators(actionCreators.dismissPairingRequest, dispatch),
   };
 }
 
-export default withRouter(connect(null, mapDispatchToProps)(App));
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(App));

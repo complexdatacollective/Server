@@ -1,39 +1,51 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
+import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
 import { Modal, PairPin } from '../components';
 
-/* eslint-disable */
-class PairDevice extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { open: true };
-  }
-
-  onClose() {
-    this.setState({open: false});
-  };
-
-  render () {
-    const { pairingCode } = this.props;
-    return pairingCode && (
-      <Modal show={this.state.open} title="Pair a Device" close={() => this.onClose()}>
-        <PairPin code={pairingCode} />
+const PairDevice = ({ pairingRequest, dismissPairingRequest }) => {
+  if (pairingRequest.status === PairingStatus.Complete) {
+    return (
+      <Modal show title="All Set!" onComplete={dismissPairingRequest}>
+        <p>
+          Your device is now paired with this installation of Server.
+          You can now access interview protocols stored on Server and upload data from the field.
+        </p>
       </Modal>
     );
   }
-}
 
-PairDevice.propTypes = {
-  pairingCode: PropTypes.string.isRequired,
+  if (pairingRequest.status === PairingStatus.Acknowledged) {
+    return (
+      <Modal show title="Pair a Device" onCancel={dismissPairingRequest}>
+        <PairPin code={pairingRequest.pairingCode} />
+      </Modal>
+    );
+  }
+
+  return null;
 };
 
-const mapStateToProps = state => ({
-  pairingCode: state.pairing && state.pairing.pairingCode,
+PairDevice.propTypes = {
+  dismissPairingRequest: PropTypes.func.isRequired,
+  pairingRequest: PropTypes.shape({
+    pairingCode: PropTypes.string,
+    status: PropTypes.string,
+  }).isRequired,
+};
+
+const mapDispatchToProps = dispatch => ({
+  dismissPairingRequest: bindActionCreators(actionCreators.dismissPairingRequest, dispatch),
 });
 
-export default connect(mapStateToProps)(PairDevice);
+const mapStateToProps = ({ pairingRequest }) => ({
+  pairingRequest,
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(PairDevice);
 export {
   PairDevice,
 };

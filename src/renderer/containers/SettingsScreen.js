@@ -6,7 +6,7 @@ import AdminApiClient from '../utils/adminApiClient';
 
 const DeviceList = ({ devices }) => (
   <ol>
-    {devices.map(d => <li>ID: {d._id}</li>)}
+    {devices.map(d => <li key={d._id}>ID: {d._id}</li>)}
   </ol>
 );
 

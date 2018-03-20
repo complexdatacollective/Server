@@ -27,10 +27,4 @@
     text-decoration: none;
   }
 
-  @include element(close) {
-    position: absolute;
-    right: spacing(small);
-    top: spacing(small);
-  }
-
 }
