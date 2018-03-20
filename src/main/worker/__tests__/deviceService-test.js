@@ -3,6 +3,7 @@
 
 jest.mock('libsodium-wrappers');
 jest.mock('electron-log');
+jest.mock('../deviceManager');
 
 const { DeviceService } = require('../deviceService');
 const { jsonClient } = require('../../../setupTests');
@@ -14,7 +15,7 @@ describe('Device Service', () => {
   let deviceService;
 
   beforeEach(() => {
-    deviceService = new DeviceService();
+    deviceService = new DeviceService({});
     // We mock this method regardless of assertions:
     // when run concurrently, parent is a testRunner worker
     deviceService.messageParent = jest.fn();

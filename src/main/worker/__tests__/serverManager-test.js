@@ -48,7 +48,8 @@ describe('serverManager', () => {
           sp.stop();
 
           createServer(testPort, testDb).then((sp2) => {
-            sp2.process.on('exit', () => {
+            sp2.process.on('exit', (code) => {
+              expect(code).toBe(0);
               done();
             });
 

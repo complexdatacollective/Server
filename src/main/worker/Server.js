@@ -13,18 +13,23 @@ class Server extends Emitter {
   constructor(options = {}) {
     super();
     this.options = options;
+
     this.started = new Date().getTime();
     this.advertiseDeviceService = this.advertiseDeviceService.bind(this);
   }
 
   startServices(port) {
-    return new Promise((resolve) => {
-      this.adminService = new AdminService({ statusDelegate: this });
+    return new Promise((resolve, reject) => {
+      const dataDir = this.options.dataDir;
+
+      this.adminService = new AdminService({ statusDelegate: this, dataDir });
       this.adminService.start(port);
-      this.deviceService = new DeviceService();
+
+      this.deviceService = new DeviceService({ dataDir });
       this.deviceService.start()
         .then(this.advertiseDeviceService)
-        .then(() => resolve(this));
+        .then(() => resolve(this))
+        .catch(err => reject(err));
     });
   }
 

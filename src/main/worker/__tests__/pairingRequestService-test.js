@@ -1,7 +1,7 @@
 /* eslint-env jest */
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
 
-const PairingRequestSvc = require('../pairingRequestService');
+const { PairingRequestService } = require('../pairingRequestService');
 
 jest.mock('electron-log');
 
@@ -9,7 +9,7 @@ describe('PairingRequest Service', () => {
   let reqSvc;
 
   beforeEach(() => {
-    reqSvc = new PairingRequestSvc();
+    reqSvc = new PairingRequestService();
   });
 
   it('creates a new request', (done) => {

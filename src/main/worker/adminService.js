@@ -1,6 +1,8 @@
 const restify = require('restify');
 const logger = require('electron-log');
 
+const DeviceManager = require('./deviceManager');
+
 const ApiName = 'AdminAPI';
 const ApiVersion = '0.0.1';
 
@@ -14,9 +16,10 @@ const Host = '127.0.0.1';
  * Provides a RESTful API for electron renderer clients on the same machine.
  */
 class AdminService {
-  constructor({ statusDelegate }) {
+  constructor({ statusDelegate, dataDir }) {
     this.api = this.createApi();
     this.statusDelegate = statusDelegate;
+    this.deviceMgr = new DeviceManager(dataDir);
   }
 
   start(port) {
@@ -59,6 +62,16 @@ class AdminService {
         res.send(503, { status: 'error' });
       }
       return next();
+    });
+
+    api.get('/devices', (req, res, next) => {
+      this.deviceMgr.fetchDeviceList()
+        .then(devices => res.send({ status: 'ok', devices }))
+        .catch(err => {
+          logger.error(err);
+          res.send(500, { status: 'error' });
+        })
+        .then(next);
     });
 
     return api;

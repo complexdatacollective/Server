@@ -13,6 +13,12 @@ class AdminApiClient {
     this.events.on(...args);
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  get(route) {
+    return fetch(`${adminApiUrl}/${route}`)
+      .then(resp => resp.json());
+  }
+
   requestServerStatus() {
     return fetch(`${adminApiUrl}/health`)
       .then(resp => resp.json())

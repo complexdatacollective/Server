@@ -5,9 +5,11 @@ const Server = require('../Server');
 const { DeviceService } = require('../deviceService');
 
 const testPortNumber = 51999;
+const serverOpts = { dataDir: 'db' };
 
 jest.mock('electron-log');
 jest.mock('mdns');
+jest.mock('../deviceManager');
 
 describe('Server', () => {
   let mockAdvert;
@@ -22,7 +24,7 @@ describe('Server', () => {
   });
 
   it('starts services', (done) => {
-    server = new Server();
+    server = new Server(serverOpts);
     server.startServices(testPortNumber).then(() => {
       expect(server.deviceService).toBeDefined();
       expect(server.adminService).toBeDefined();
@@ -36,7 +38,7 @@ describe('Server', () => {
 
     beforeEach((done) => {
       server = new Server();
-      deviceService = new DeviceService();
+      deviceService = new DeviceService({});
       deviceService.start()
         .then(done);
     });

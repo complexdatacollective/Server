@@ -10,7 +10,6 @@ const PairingCodeFactory = require('./pairingCodeFactory');
 
 const DeviceRequestTTLSeconds = 5 * 60;
 
-
 const dbConfig = {
   // TODO: review in-mem/on-disk and document.
   // Notes on persistence:
@@ -22,7 +21,7 @@ const dbConfig = {
   // With in-memory, closing the app will cancel the pairing process.
   inMemoryOnly: true,
   // filename: path.join(dataDir, DeviceRequestDbName),
-  autoload: true,
+  // autoload: true,
   timestampData: true,
 };
 
@@ -34,12 +33,20 @@ function deriveSecret(pairingCode, salt) {
   // With the latter (recommended), getting error; may need custom compilation step:
   //    Cannot enlarge memory arrays. ...
   const memlimit = 16777216 / 2;
-  // TODO: default is argon 2. Don't use "DEFAULT"; will break if it changes...
-  const algo = libsodium.crypto_pwhash_ALG_DEFAULT;
-  const keyLen = libsodium.crypto_box_SEEDBYTES;
+  // crypto_pwhash_ALG_ARGON2ID13 is the default as of libsodium 0.7.3;
+  // for algo upgrades, we'll need a pairing upgrade process.
+  const algo = libsodium.crypto_pwhash_ALG_ARGON2ID13;
+  const keyLen = libsodium.crypto_box_SECRETKEYBYTES;
   const secretKey = libsodium.crypto_pwhash(keyLen,
     pairingCode, salt, libsodium.crypto_pwhash_OPSLIMIT_INTERACTIVE, memlimit, algo);
   return secretKey;
+}
+
+class PairingVerificationError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'PairingVerificationError';
+  }
 }
 
 /**
@@ -47,7 +54,7 @@ function deriveSecret(pairingCode, salt) {
  */
 class PairingRequestService {
   constructor() {
-    this.db = new nedb(dbConfig); // eslint-disable-lint new-cap
+    this.db = new nedb(dbConfig); // eslint-disable-line new-cap
 
     this.db.ensureIndex({
       fieldName: 'createdAt',
@@ -90,12 +97,18 @@ class PairingRequestService {
   }
 
   verifyRequest(requestId, pairingCode) {
+    const errMsg = 'Request verification failed';
     return new Promise((resolve, reject) => {
+      if (!requestId || !pairingCode) {
+        reject(new PairingVerificationError(errMsg));
+        return;
+      }
+
       this.db.findOne({ _id: requestId, pairingCode }, (err, doc) => {
         if (err || !doc) {
-          reject(err || new Error('Not found'));
+          reject(new PairingVerificationError(errMsg));
         } else {
-          resolve(true);
+          resolve(doc);
         }
       });
     });
@@ -129,4 +142,7 @@ class PairingRequestService {
 //   return retrievedMessage === message;
 // }
 
-module.exports = PairingRequestService;
+module.exports = {
+  PairingRequestService,
+  PairingVerificationError,
+};

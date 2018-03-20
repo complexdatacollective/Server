@@ -1,9 +1,9 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
-
 const restify = require('restify');
 const logger = require('electron-log');
 
-const DeviceRequestService = require('./pairingRequestService');
+const DeviceManager = require('./deviceManager');
+const { PairingRequestService, PairingVerificationError } = require('./pairingRequestService');
 
 const ApiName = 'DevciceAPI';
 const ApiVersion = '0.0.1';
@@ -23,9 +23,10 @@ const actions = {
  * - Device Pairing
  */
 class DeviceService {
-  constructor(/* { dataDir } */) {
-    this.reqSvc = new DeviceRequestService();
+  constructor({ dataDir }) {
+    this.reqSvc = new PairingRequestService();
     this.api = this.createApi();
+    this.deviceMgr = new DeviceManager(dataDir);
   }
 
   start(port = DefaultPort) {
@@ -100,29 +101,22 @@ class DeviceService {
       onPairingConfirm: (req, res, next) => {
         const pendingRequestId = req.body && req.body.requestId;
         const pairingCode = req.body && req.body.pairingCode;
-        if (!pendingRequestId || !pairingCode) {
-          res.send(400, { status: 'error' });
-          next();
-          return;
-        }
 
         // TODO: payload will actually be encrypted.
+        // TODO: delete request once verified (or mark as 'used' internally)?
+        // ... prevent retries/replays?
         this.reqSvc.verifyRequest(pendingRequestId, pairingCode)
-          .then(() => {
-            // TODO: Create/save device.
-            // TODO: delete request once verified (or mark as 'used' internally)?
-            // ... prevent retries/replays?
-            res.send({ status: 'ok' });
-          })
+          .then(pair => this.deviceMgr.createDeviceDocument(pair.salt, pair.secretKey))
+          .then(device => res.send({ status: 'ok', device }))
           .catch((err) => {
             logger.error(err);
-            res.send(400, { status: 'error' });
+            const status = (err instanceof PairingVerificationError) ? 400 : 503;
+            res.send(status, { status: 'error' });
           })
           .then(next);
       },
     };
   }
-
 }
 
 module.exports = {

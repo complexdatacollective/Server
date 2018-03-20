@@ -8,6 +8,7 @@ const { fork } = require('child_process');
 const PrivateSocket = require('private-socket');
 const Datastore = require('nedb');
 const libsodium = require('libsodium-wrappers');
+const logger = require('electron-log');
 
 const Server = require('./Server');
 const settings = require('./settings');
@@ -74,7 +75,8 @@ const startServer = (port, settingsDb) => {
       return server.startServices(port);
     }
     return server;
-  });
+  })
+  .catch(logger.error);
 };
 
 const serverTaskHandler = server =>
