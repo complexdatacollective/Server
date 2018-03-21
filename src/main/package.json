@@ -6,7 +6,7 @@
   "private": true,
   "author": "Complex Data Collective",
   "engines": {
-    "node": "8.2.1",
+    "node": "8.9.3",
     "npm": "5.3.0"
   },
   "dependencies": {
