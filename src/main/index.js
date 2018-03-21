@@ -1,15 +1,17 @@
 const path = require('path');
-const { app } = require('electron');
+const { app, Menu } = require('electron');
 
+const FileImporter = require('./utils/ProtocolImporter');
 const { isWindows } = require('./utils/environment');
 const { createMainWindow } = require('./components/mainWindow');
 const { createTray } = require('./components/tray');
 const { createServer, actions } = require('./worker/serverManager');
 
+const userDataDir = app.getPath('userData');
+const fileImporter = new FileImporter(userDataDir);
+
 const mainWindow = createMainWindow();
 
-// start the server
-// require('./server-starter');
 // Background server
 let server = null;
 const settingsDb = path.join(app.getPath('userData'), 'db', 'settings');
@@ -25,7 +27,6 @@ createServer(8080, settingsDb).then((serverProcess) => {
 
 // Keep reference; if tray is GCed, it disappears
 let tray; // eslint-disable-line no-unused-vars
-
 const trayMenu = [
   {
     label: 'Overview',
@@ -45,6 +46,23 @@ const trayMenu = [
   },
 ];
 
+const appMenu = Menu.buildFromTemplate([
+  {
+    submenu: [
+      { role: 'quit' },
+    ],
+  },
+  {
+    label: 'File',
+    submenu: [
+      {
+        label: 'Import...',
+        click: fileImporter.presentDialog,
+      },
+    ],
+  },
+]);
+
 app.on('ready', () => {
   mainWindow.open('/overview');
   tray = createTray(trayMenu);
@@ -62,6 +80,7 @@ app.on('browser-window-created', () => {
   if (app.dock) {
     app.dock.show();
   }
+  Menu.setApplicationMenu(appMenu);
 });
 
 // Don't quit when all windows are closed.

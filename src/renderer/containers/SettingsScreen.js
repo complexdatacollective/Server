@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
+import FileDropTarget from './FileDropTarget';
 import AdminApiClient from '../utils/adminApiClient';
 
 const DeviceList = ({ devices }) => (
@@ -42,6 +43,8 @@ class SettingsScreen extends Component {
         <h1>Settings</h1>
         <h2>Paired Devices</h2>
         <DeviceList devices={devices} />
+        <h2>Saved Protocols</h2>
+        <FileDropTarget />
       </div>
     );
   }

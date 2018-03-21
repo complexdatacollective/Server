@@ -1,7 +1,11 @@
 const restify = require('restify');
 const logger = require('electron-log');
+const path = require('path');
 
 const DeviceManager = require('./deviceManager');
+const ProtocolImporter = require('../utils/ProtocolImporter');
+
+const corsMiddleware = require('restify-cors-middleware');
 
 const ApiName = 'AdminAPI';
 const ApiVersion = '0.0.1';
@@ -20,6 +24,8 @@ class AdminService {
     this.api = this.createApi();
     this.statusDelegate = statusDelegate;
     this.deviceMgr = new DeviceManager(dataDir);
+    // FIXME: dataDir is db/, which we don't really want. For now, ..
+    this.protocolImporter = new ProtocolImporter(path.join(dataDir, '..'));
   }
 
   start(port) {
@@ -44,14 +50,15 @@ class AdminService {
 
     api.use(restify.plugins.bodyParser());
 
-    if (process.env.NODE_ENV === 'development' && process.env.WEBPACK_DEV_SERVER_PORT) {
+    if (process.env.NODE_ENV === 'development') {
       // Allow origin access from the live-reload server.
       // Production accesses from file:, so nothing needed there.
-      api.pre((req, res, next) => {
-        res.header('Access-Control-Allow-Origin',
-          `http://localhost:${process.env.WEBPACK_DEV_SERVER_PORT}`);
-        return next();
+      const devServerMatch = /^https?:\/\/localhost:[\d]+$/;
+      const cors = corsMiddleware({
+        origins: [devServerMatch],
       });
+      api.pre(cors.preflight);
+      api.use(cors.actual);
     }
 
     api.get('/health', (req, res, next) => {
@@ -67,6 +74,17 @@ class AdminService {
     api.get('/devices', (req, res, next) => {
       this.deviceMgr.fetchDeviceList()
         .then(devices => res.send({ status: 'ok', devices }))
+        .catch((err) => {
+          logger.error(err);
+          res.send(500, { status: 'error' });
+        })
+        .then(next);
+    });
+
+    api.post('/protocols', (req, res, next) => {
+      const files = req.body.files;
+      this.protocolImporter.validateAndImport(files)
+        .then(saved => res.send({ status: 'ok', data: saved }))
         .catch((err) => {
           logger.error(err);
           res.send(500, { status: 'error' });

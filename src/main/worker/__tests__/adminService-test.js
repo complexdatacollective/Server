@@ -14,7 +14,10 @@ describe('the AdminService', () => {
   };
 
   beforeEach(() => {
-    adminService = new AdminService({ statusDelegate: mockStatusDelegate });
+    adminService = new AdminService({
+      statusDelegate: mockStatusDelegate,
+      dataDir: '',
+    });
   });
 
   afterEach(() => {
