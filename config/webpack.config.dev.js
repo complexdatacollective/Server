@@ -23,11 +23,18 @@ const publicUrl = '';
 // Get environment variables to inject into our app.
 const env = getClientEnvironment(publicUrl);
 
+let resolverAlias = {};
+if (process.env.BUILD_TARGET === 'web') {
+  // To open the dev app in a browser, electron needs to be polyfilled.
+  // The trailing $ tells webpack to match 'electron' exactly.
+  resolverAlias.electron$ = path.join(paths.appSrc, 'shim', 'electron.js');
+}
+
 // This is the development configuration.
 // It is focused on developer experience and fast rebuilds.
 // The production configuration is different and lives in a separate file.
 module.exports = {
-  target: 'electron-renderer',
+  target: process.env.BUILD_TARGET || 'electron-renderer',
   // You may want 'eval' instead if you prefer to see the compiled output in DevTools.
   // See the discussion in https://github.com/facebookincubator/create-react-app/issues/343.
   devtool: 'cheap-module-source-map',
@@ -87,12 +94,7 @@ module.exports = {
     // `web` extension prefixes have been added for better support
     // for React Native Web.
     extensions: ['.web.js', '.js', '.json', '.web.jsx', '.jsx'],
-    alias: {
-
-      // Support React Native Web
-      // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
-      'react-native': 'react-native-web',
-    },
+    alias: resolverAlias,
     plugins: [
       // Prevents users from importing files from outside of src/ (or node_modules/).
       // This often causes confusion because we only process files within src/ with babel.
