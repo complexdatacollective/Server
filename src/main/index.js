@@ -49,10 +49,6 @@ app.on('ready', () => {
   tray = createTray(trayMenu);
 });
 
-app.on('before-quit', () => {
-  server.stop();
-});
-
 // Don't quit when all windows are closed.
 app.on('window-all-closed', () => { });  // no op
 
