@@ -8,6 +8,8 @@ cache:
   directories:
     - node_modules # NPM packages
 install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y libavahi-compat-libdnssd-dev
   - npm install
 # before_install:
 #   - if [[ $TRAVIS_OS_NAME == osx ]] && [[ $DIST == true ]]; then HOMEBREW_NO_AUTO_UPDATE=1 brew install gnu-tar dpkg libicns graphicsmagick git-lfs lzip; fi

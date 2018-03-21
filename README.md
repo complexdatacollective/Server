@@ -41,6 +41,12 @@ This repository assumes that `npm` is installed. If you don't have it installed,
 |`build-docs`|Builds HTML API docs into the docs-build directory.|
 |`electron`|Runs the current code in electron, for testing.|
 
+## Dependencies
+
+### [MDNS](https://www.npmjs.com/package/mdns)
+
+MDNS is used to advertise services to Network Canvas clients. On Windows and Linux, you'll need to install some dependencies first — see the [mdns installation instructions](https://www.npmjs.com/package/mdns#installation).
+
 ## Running
 
 To run the UI:
