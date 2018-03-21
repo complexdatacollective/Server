@@ -1,7 +1,6 @@
 const path = require('path');
 const url = require('url');
-const logger = require('electron-log');
-const { BrowserWindow, ipcMain } = require('electron');
+const { BrowserWindow } = require('electron');
 
 const getAppUrl = (route) => {
   if (process.env.NODE_ENV === 'development' && process.env.WEBPACK_DEV_SERVER_PORT) {
@@ -41,7 +40,6 @@ class MainWindow {
       // when you should delete the corresponding element.
       this.window = null;
     });
-
   }
 
   open(route = '/') {

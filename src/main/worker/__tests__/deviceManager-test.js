@@ -1,6 +1,4 @@
 /* eslint-env jest */
-const libsodium = require('libsodium-wrappers');
-
 const DeviceManager = require('../deviceManager');
 
 const mockSaltHex = 'daaa785631a9481b53b7d9d8434ea673';
@@ -36,11 +34,10 @@ describe('the DeviceManager', () => {
   it('loads all devices', (done) => {
     deviceManager.createDeviceDocument(mockSaltHex, mockSecretHex)
       .then(() => deviceManager.fetchDeviceList())
-      .then(devices => {
+      .then((devices) => {
         expect(devices).toBeInstanceOf(Array);
         expect(devices.length).toBe(1);
       })
       .then(done);
   });
-
 });

@@ -18,7 +18,7 @@ class DeviceManager {
       // eslint-disable-next-line new-cap
       DeviceManager.dbClients[filename] = new nedb({
         inMemoryOnly: false,
-        filename: filename,
+        filename,
         autoload: true,
         timestampData: true,
       });
@@ -27,7 +27,7 @@ class DeviceManager {
   }
 
   constructor(dataDir, dbName = DeviceDbName) {
-    const dbFile = path.join(dataDir, DeviceDbName);
+    const dbFile = path.join(dataDir, dbName);
     this.db = DeviceManager.dbClient(dbFile);
   }
 
@@ -41,7 +41,7 @@ class DeviceManager {
       this.db.insert({
         salt: saltHex,
         secretKey: secretHex,
-        _id: uuidv4()
+        _id: uuidv4(),
       }, (err, doc) => {
         if (err || !doc) {
           reject(err || new Error('Insert failed'));

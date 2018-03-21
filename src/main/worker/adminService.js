@@ -67,7 +67,7 @@ class AdminService {
     api.get('/devices', (req, res, next) => {
       this.deviceMgr.fetchDeviceList()
         .then(devices => res.send({ status: 'ok', devices }))
-        .catch(err => {
+        .catch((err) => {
           logger.error(err);
           res.send(500, { status: 'error' });
         })

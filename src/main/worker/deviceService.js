@@ -108,7 +108,7 @@ class DeviceService {
         // ... prevent retries/replays?
         this.reqSvc.verifyRequest(pendingRequestId, pairingCode)
           .then(pair => this.deviceMgr.createDeviceDocument(pair.salt, pair.secretKey))
-          .then(device => {
+          .then((device) => {
             this.messageParent({
               action: actions.PAIRING_COMPLETE,
               data: { pairingCode },

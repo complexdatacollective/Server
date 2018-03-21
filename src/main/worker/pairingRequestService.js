@@ -68,8 +68,7 @@ class PairingRequestService {
   createRequest() {
     return new Promise((resolve, reject) => {
       PairingCodeFactory.generatePairingCodeAsync()
-        .then(pairingCode => {
-          // const pairingCode = newPairingCode();
+        .then((pairingCode) => {
           // TODO: evaluate. I was using the request ID as something like a salt.
           // ...Probably use this instead; don't need both?
           const salt = libsodium.randombytes_buf(libsodium.crypto_pwhash_SALTBYTES);

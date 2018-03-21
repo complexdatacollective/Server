@@ -46,7 +46,6 @@ describe('the AdminService', () => {
           })
           .then(done);
       });
-
     });
   });
 });

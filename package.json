@@ -17,7 +17,7 @@
     "build": "node scripts/build.js",
     "server:dev": "node ./src/main/server-starter",
     "server": "node ./www/server-starter",
-    "lint": "eslint src/renderer",
+    "lint": "eslint src",
     "lint-sass": "sass-lint -vc .sass-lint.yml",
     "test": "node scripts/test.js --env=jsdom",
     "test-update-snapshots": "node scripts/test.js --env=jsdom --updateSnapshot",
