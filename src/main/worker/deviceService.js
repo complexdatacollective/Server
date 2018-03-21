@@ -33,7 +33,7 @@ class DeviceService {
   start(port = DefaultPort) {
     this.port = port;
     return new Promise((resolve) => {
-      this.api.listen(port, () => {
+      this.api.listen(port, '0.0.0.0', () => {
         logger.info(`${this.api.name} listening at ${this.api.url}`);
         resolve(this);
       });
