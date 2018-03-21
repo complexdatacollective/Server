@@ -8,7 +8,7 @@ jest.mock('../deviceManager');
 const { DeviceService } = require('../deviceService');
 const { jsonClient } = require('../../../setupTests');
 
-const testPortNumber = 52000;
+const testPortNumber = 5200;
 const PairingCodeProperty = 'pairingCode';
 
 describe('Device Service', () => {
