@@ -49,10 +49,18 @@ app.on('ready', () => {
   mainWindow.open('/overview');
 });
 
-app.on('browser-window-created', app.dock.show);
+app.on('browser-window-created', () => {
+  if (app.dock) {
+    app.dock.show();
+  }
+});
 
 // Don't quit when all windows are closed.
-app.on('window-all-closed', app.dock.hide);
+app.on('window-all-closed', () => {
+  if (app.dock) {
+    app.dock.hide();
+  }
+});
 
 app.on('before-quit', () => {
   if (server) {

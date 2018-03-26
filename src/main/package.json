@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "ip": "^1.1.5",
+    "electron-log": "^2.2.7",
     "libsodium-wrappers": "^0.7.3",
     "lodash": "^4.17.4",
+    "mdns": "^2.3.4",
     "nedb": "^1.8.0",
     "private-socket": "https://github.com/codaco/PrivateSocket.git",
     "restify": "^6.3.4",
