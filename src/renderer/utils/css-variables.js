@@ -1,26 +1,31 @@
-const getCSSVariable = (prop, element = document.documentElement) => (
+const getCSSValue = (prop, element = document.documentElement) => (
   window.getComputedStyle(element).getPropertyValue(prop).trim()
+);
+
+const getCSSNumber = (prop, element = document.documentElement) => (
+  Number(getCSSValue(prop, element))
 );
 
 /**
  * @param  {...string} props property names (example: '--color-1')
  * @return {array} CSS custom property values
  */
-const getCSSVariables = (...props) => props.map(prop => getCSSVariable(prop));
+const getCSSValues = (...props) => props.map(prop => getCSSValue(prop));
 
 /**
  * @param  {...string} props property names (example: '--color-1')
  * @return {object} CSS custom properties, keyed by property name
  */
-const getCSSVariableDict = (...props) => (
+const getCSSValueDict = (...props) => (
   props.reduce((acc, prop) => {
-    acc[prop] = getCSSVariable(prop);
+    acc[prop] = getCSSValue(prop);
     return acc;
   }, {})
 );
 
 export {
-  getCSSVariable,
-  getCSSVariables,
-  getCSSVariableDict,
+  getCSSValue,
+  getCSSNumber,
+  getCSSValues,
+  getCSSValueDict,
 };

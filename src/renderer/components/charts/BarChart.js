@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { BarChart as RechartBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-import { getCSSVariableDict } from '../../utils/css-variables';
+import { getCSSValueDict } from '../../utils/css-variables';
 
-const colorDict = getCSSVariableDict('--graph-data-1', '--graph-tooltip');
+const colorDict = getCSSValueDict('--graph-data-1', '--graph-tooltip');
 
 // 99% width to work around recharts problem with resizing
 const BarChart = ({ className, data }) => (
