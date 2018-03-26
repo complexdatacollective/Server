@@ -31,7 +31,7 @@ class MainWindow {
     this.window.maximize();
 
     // Open the DevTools.
-    this.window.webContents.openDevTools({ mode: 'detach' });
+    this.window.webContents.openDevTools();
 
     // Emitted when the window is closed.
     this.window.on('closed', () => {

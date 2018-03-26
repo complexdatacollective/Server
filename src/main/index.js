@@ -45,12 +45,14 @@ const trayMenu = [
 ];
 
 app.on('ready', () => {
-  app.dock.hide();
   tray = createTray(trayMenu);
+  mainWindow.open('/overview');
 });
 
+app.on('browser-window-created', app.dock.show);
+
 // Don't quit when all windows are closed.
-app.on('window-all-closed', () => { });  // no op
+app.on('window-all-closed', app.dock.hide);
 
 app.on('before-quit', () => {
   if (server) {
