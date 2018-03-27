@@ -1,6 +1,7 @@
 const path = require('path');
 const { app } = require('electron');
 
+const { isWindows } = require('./utils/environment');
 const { createMainWindow } = require('./components/mainWindow');
 const { createTray } = require('./components/tray');
 const { createServer, actions } = require('./worker/serverManager');
@@ -45,8 +46,16 @@ const trayMenu = [
 ];
 
 app.on('ready', () => {
-  tray = createTray(trayMenu);
   mainWindow.open('/overview');
+  tray = createTray(trayMenu);
+  if (isWindows) {
+    // On Windows, right-click shows the menu.
+    // For now, make left-click open the main window.
+    // Desired UX TBD; if menu is only a collection of links to pages
+    // visible with in-app nav, then this may make sense on all platforms.
+    // ...or we could instead trigger tray.popUpContextMenu() here.
+    tray.on('click', () => mainWindow.open('/overview'));
+  }
 });
 
 app.on('browser-window-created', () => {
