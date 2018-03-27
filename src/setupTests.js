@@ -39,8 +39,13 @@ const jsonClient = {
   })),
 };
 
+const makeUrl = (pathInput, base) => (
+  new URL(pathInput, base.replace('0.0.0.0', 'localhost'))
+);
+
 const Helpers = {
   jsonClient,
+  makeUrl,
 };
 
 module.exports = Helpers;

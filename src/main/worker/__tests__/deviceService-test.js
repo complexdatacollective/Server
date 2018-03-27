@@ -6,7 +6,7 @@ jest.mock('electron-log');
 jest.mock('../deviceManager');
 
 const { DeviceService } = require('../deviceService');
-const { jsonClient } = require('../../../setupTests');
+const { jsonClient, makeUrl } = require('../../../setupTests');
 
 const testPortNumber = 5200;
 const PairingCodeProperty = 'pairingCode';
@@ -57,12 +57,12 @@ describe('Device Service', () => {
       deviceService.start(testPortNumber).then(done);
     });
 
-    afterEach(() => {
-      deviceService.stop();
+    afterEach((done) => {
+      deviceService.stop().then(done);
     });
 
     it('responds to pairing requests', (done) => {
-      jsonClient.get(new URL('/devices/new', deviceService.api.url))
+      jsonClient.get(makeUrl('/devices/new', deviceService.api.url))
         .then((res) => {
           expect(res.statusCode).toBe(200);
           expect(res.json).toHaveProperty('pairingRequest');
@@ -73,14 +73,14 @@ describe('Device Service', () => {
     describe('pairing confirmation endpoint', () => {
       it('rejects invalid requests', async () => {
         await expect(
-          jsonClient.post(new URL('/devices', deviceService.api.url), {}),
+          jsonClient.post(makeUrl('/devices', deviceService.api.url), {}),
         ).rejects.toHaveProperty('statusCode', 400);
       });
 
       it('fails when request data not found or expired', async () => {
         const reqData = { requestId: 1, pairing_code: 1 };
         await expect(
-          jsonClient.post(new URL('/devices', deviceService.api.url), reqData),
+          jsonClient.post(makeUrl('/devices', deviceService.api.url), reqData),
         ).rejects.toHaveProperty('statusCode', 400);
       });
 
@@ -88,7 +88,7 @@ describe('Device Service', () => {
       it('completes a valid pairing request', (done) => {
         const reqSvc = deviceService.reqSvc;
         reqSvc.createRequest()
-          .then(req => jsonClient.post(new URL('/devices', deviceService.api.url), {
+          .then(req => jsonClient.post(makeUrl('/devices', deviceService.api.url), {
             requestId: req._id,
             [PairingCodeProperty]: req.pairingCode,
           }))

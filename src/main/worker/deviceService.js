@@ -41,8 +41,12 @@ class DeviceService {
   }
 
   stop() {
-    this.api.close();
-    this.port = null;
+    return new Promise((resolve) => {
+      this.api.close(() => {
+        this.port = null;
+        resolve();
+      });
+    });
   }
 
   createApi() {
