@@ -47,6 +47,8 @@ This repository assumes that `npm` is installed. If you don't have it installed,
 
 MDNS is used to advertise services to Network Canvas clients. On Windows and Linux, you'll need to install some dependencies first — see the [mdns installation instructions](https://www.npmjs.com/package/mdns#installation).
 
+The [Network Canvas Readme](https://github.com/codaco/Network-Canvas#windows-environment) has detailed instructions for getting MDNS running on Windows.
+
 ## Running
 
 To run the UI:
