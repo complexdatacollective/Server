@@ -12,6 +12,20 @@ import { actionCreators as messageActionCreators } from '../ducks/modules/appMes
 
 require('../styles/main.scss');
 
+// This prevents user from being able to drop a file anywhere on the app
+// (which by default triggers a 'save' dialog). If we want to support this,
+// we'll need to take action & handle errors based on file types.
+const preventGlobalDragDrop = () => {
+  document.addEventListener('drop', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  });
+  document.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  });
+};
+
 /**
  * @class App
  * Main app container.
@@ -22,6 +36,8 @@ class App extends Component {
     super(props);
 
     this.state = {};
+
+    preventGlobalDragDrop();
 
     ipcRenderer.on('PAIRING_CODE_AVAILABLE', (event, data) => {
       props.newPairingRequest(data.pairingCode);

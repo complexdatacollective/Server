@@ -79,4 +79,12 @@ describe('ProtocolImporter', () => {
     fs.copyFile = jest.fn((src, dest, cb) => { cb(err); });
     await expect(importer.importFile('foo.netcanvas')).rejects.toEqual(err);
   });
+
+  it('uses fs to find existing files', (done) => {
+    const mockFiles = ['a.netcanvas'];
+    fs.readdir = jest.fn((dir, cb) => { cb(null, mockFiles); });
+    importer.savedFiles()
+      .then(files => expect(files).toEqual(mockFiles))
+      .then(done);
+  });
 });

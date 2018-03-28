@@ -6,7 +6,6 @@ const ProtocolImporter = require('../../utils/ProtocolImporter');
 
 jest.mock('electron-log');
 jest.mock('../deviceManager');
-jest.mock('../DeviceManager');
 jest.mock('../../utils/ProtocolImporter');
 
 const testPortNumber = 52001;
@@ -68,14 +67,28 @@ describe('the AdminService', () => {
         const endpoint = makeUrl('/devices', apiBase);
         const mockDevices = [{ _id: 1 }];
 
-        DeviceManager.mockImplementation(() => ({
-          fetchDeviceList: () => Promise.resolve(mockDevices),
-        }));
+        beforeAll(() => {
+          DeviceManager.mockImplementation(() => ({
+            fetchDeviceList: () => Promise.resolve(mockDevices),
+          }));
+        });
 
         it('returns a device list', (done) => {
           jsonClient.get(endpoint)
             .then(resp => expect(resp.json.devices).toEqual(mockDevices))
             .then(done);
+        });
+
+        describe('when manager fails', () => {
+          beforeAll(() => {
+            DeviceManager.mockImplementation(() => ({
+              fetchDeviceList: () => Promise.reject({ error: 'mock' }),
+            }));
+          });
+
+          it('sends an error', async () => {
+            await expect(jsonClient.get(endpoint)).rejects.toMatchObject({ statusCode: 500 });
+          });
         });
       });
 
@@ -83,10 +96,12 @@ describe('the AdminService', () => {
         const endpoint = makeUrl('/protocols', apiBase);
         const mockFiles = ['a.netcanvas'];
 
-        ProtocolImporter.mockImplementation(() => ({
-          validateAndImport: files => Promise.resolve(files),
-          savedFiles: () => Promise.resolve(mockFiles),
-        }));
+        beforeAll(() => {
+          ProtocolImporter.mockImplementation(() => ({
+            validateAndImport: files => Promise.resolve(files),
+            savedFiles: () => Promise.resolve(mockFiles),
+          }));
+        });
 
         it('returns a list', (done) => {
           jsonClient.get(endpoint)
@@ -98,6 +113,24 @@ describe('the AdminService', () => {
           jsonClient.post(endpoint, { files: mockFiles })
             .then(res => expect(res.json.protocols).toEqual(mockFiles))
             .then(done);
+        });
+
+        describe('when importer fails', () => {
+          beforeAll(() => {
+            const mockError = { error: 'mock' };
+            ProtocolImporter.mockImplementation(() => ({
+              validateAndImport: () => Promise.reject(mockError),
+              savedFiles: () => Promise.reject(mockError),
+            }));
+          });
+
+          it('sends an error for get', async () => {
+            await expect(jsonClient.get(endpoint)).rejects.toMatchObject({ statusCode: 500 });
+          });
+
+          it('sends an error for post', async () => {
+            await expect(jsonClient.post(endpoint, {})).rejects.toMatchObject({ statusCode: 500 });
+          });
         });
       });
     });

@@ -4,7 +4,7 @@ const path = require('path');
 const { createServer, actions } = require('../serverManager');
 
 const testPort = 9001; // Auto find port
-const testDataDir = path.join(__dirname, 'db', 'test');
+const testDataDir = path.join('.');
 
 describe('serverManager', () => {
   describe('createServer', () => {
