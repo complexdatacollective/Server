@@ -10,6 +10,11 @@ const validate = filepath => new Promise((resolve) => {
   resolve(filepath);
 });
 
+const ErrorMessages = {
+  EmptyFilelist: 'Empty filelist',
+  InvalidFile: 'Invalid File',
+};
+
 class ProtocolImporter {
   constructor(dataDir) {
     this.protocolDir = path.join(dataDir, protocolDirName);
@@ -32,10 +37,15 @@ class ProtocolImporter {
     dialog.showOpenDialog(opts, this.validateAndImport);
   }
 
+  /**
+   * Primary interface for render-side API
+   * @param  {FileList} fileList [description]
+   * @return {Promise} rejects if there is a problem saving, or on invalid input
+   */
   validateAndImport(fileList) {
     if (!fileList) {
       // User may have cancelled
-      return Promise.reject();
+      return Promise.reject(new Error(ErrorMessages.EmptyFilelist));
     }
 
     const workQueue = [];
@@ -69,7 +79,7 @@ class ProtocolImporter {
     return new Promise((resolve, reject) => {
       const filename = path.parse(filepath).base;
       if (!filename) {
-        reject(new Error('Invalid file'));
+        reject(new Error(ErrorMessages.InvalidFile));
         return;
       }
 
@@ -83,5 +93,8 @@ class ProtocolImporter {
     });
   }
 }
+
+Object.freeze(ErrorMessages);
+ProtocolImporter.ErrorMessages = ErrorMessages;
 
 module.exports = ProtocolImporter;

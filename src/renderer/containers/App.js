@@ -84,3 +84,7 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(App));
+
+export {
+  App as UnconnectedApp,
+};

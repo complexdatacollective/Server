@@ -47,5 +47,5 @@ const mapStateToProps = ({ pairingRequest }) => ({
 
 export default connect(mapStateToProps, mapDispatchToProps)(PairDevice);
 export {
-  PairDevice,
+  PairDevice as UnconnectedPairDevice,
 };
