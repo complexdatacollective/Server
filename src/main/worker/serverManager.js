@@ -46,10 +46,10 @@ const actions = {
 const ensurePemKeyPair = (currentAppSettings) => {
   if (!currentAppSettings || !currentAppSettings.keys) {
     return PrivateSocket.generatePemKeyPair()
-    .then(
+      .then(
         keypair =>
-        Object.assign({}, currentAppSettings, { keys: keypair }),
-    );
+          Object.assign({}, currentAppSettings, { keys: keypair }),
+      );
   }
 
   return currentAppSettings;
@@ -64,19 +64,19 @@ const startServer = (port, settingsDb) => {
 
   // Guarantee libsodium is ready before other services start up
   return libsodium.ready.then(() => appSettings.get())
-  .then(ensurePemKeyPair)
-  .then(serverOptions => Object.assign({}, serverOptions, {
-    dataDir,
-  }))
-  .then(appSettings.set)
-  .then(currentAppSettings => new Server(currentAppSettings))
-  .then((server) => {
-    if (process.env.NODE_ENV !== 'test') {
-      return server.startServices(port);
-    }
-    return server;
-  })
-  .catch(logger.error);
+    .then(ensurePemKeyPair)
+    .then(serverOptions => Object.assign({}, serverOptions, {
+      dataDir,
+    }))
+    .then(appSettings.set)
+    .then(currentAppSettings => new Server(currentAppSettings))
+    .then((server) => {
+      if (process.env.NODE_ENV !== 'test') {
+        return server.startServices(port);
+      }
+      return server;
+    })
+    .catch(logger.error);
 };
 
 const serverTaskHandler = server =>
