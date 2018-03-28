@@ -33,10 +33,6 @@ ShallowWrapper {
           value="\\"x.x.x.x\\""
 />,
         <PanelItem
-          label="Clients"
-          value={0}
-/>,
-        <PanelItem
           label="Uptime"
           value={0}
 />,
@@ -56,18 +52,6 @@ ShallowWrapper {
         "props": Object {
           "label": "Server Public IP",
           "value": "\\"x.x.x.x\\"",
-        },
-        "ref": null,
-        "rendered": null,
-        "type": [Function],
-      },
-      Object {
-        "instance": null,
-        "key": undefined,
-        "nodeType": "function",
-        "props": Object {
-          "label": "Clients",
-          "value": 0,
         },
         "ref": null,
         "rendered": null,
@@ -112,10 +96,6 @@ ShallowWrapper {
             value="\\"x.x.x.x\\""
 />,
           <PanelItem
-            label="Clients"
-            value={0}
-/>,
-          <PanelItem
             label="Uptime"
             value={0}
 />,
@@ -135,18 +115,6 @@ ShallowWrapper {
           "props": Object {
             "label": "Server Public IP",
             "value": "\\"x.x.x.x\\"",
-          },
-          "ref": null,
-          "rendered": null,
-          "type": [Function],
-        },
-        Object {
-          "instance": null,
-          "key": undefined,
-          "nodeType": "function",
-          "props": Object {
-            "label": "Clients",
-            "value": 0,
           },
           "ref": null,
           "rendered": null,

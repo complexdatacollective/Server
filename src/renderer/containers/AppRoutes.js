@@ -8,9 +8,10 @@ import {
 
 import { ExportScreen, PairDevice, OverviewScreen, SettingsScreen } from './';
 
-const ModalRoute = ({path, component}) => (
-  <Route path={`/:basePath*/modal/${path.replace(/^\//, '')}`} component={component} />
-);
+// TODO: remove this if we won't need URL-based addressing of modals. (Now including PairDevice directly.)
+// const ModalRoute = ({path, component}) => (
+//   <Route path={`/:basePath*/modal/${path.replace(/^\//, '')}`} component={component} />
+// );
 
 export default () => (
   <React.Fragment>
@@ -20,7 +21,7 @@ export default () => (
       <Route path="/export" component={ExportScreen} />
       <Route render={() => <Redirect to="/dashboard" />} />
     </Switch>
-    
-    <ModalRoute path="/pair" component={PairDevice} />
+
+    <PairDevice />
   </React.Fragment>
 );

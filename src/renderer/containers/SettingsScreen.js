@@ -1,7 +1,50 @@
-import React from 'react';
+/* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
-export default () => (
-  <div>
-    <h1>Settings</h1>
-  </div>
+import AdminApiClient from '../utils/adminApiClient';
+
+const DeviceList = ({ devices }) => (
+  <ol>
+    {devices.map(d => <li key={d._id}>ID: {d._id}</li>)}
+  </ol>
 );
+
+DeviceList.propTypes = {
+  devices: PropTypes.array.isRequired,
+};
+
+class SettingsScreen extends Component {
+  constructor(props) {
+    super(props);
+    this.apiClient = new AdminApiClient();
+    this.state = { devices: [] };
+  }
+
+  componentWillMount() {
+    this.getDevices();
+  }
+
+  componentWillReceiveProps() {
+    this.getDevices();
+  }
+
+  getDevices() {
+    this.apiClient.get('/devices')
+      .then(resp => resp.devices)
+      .then(devices => this.setState(devices ? { devices } : {}));
+  }
+
+  render() {
+    const devices = this.state.devices;
+    return (
+      <div>
+        <h1>Settings</h1>
+        <h2>Paired Devices</h2>
+        <DeviceList devices={devices} />
+      </div>
+    );
+  }
+}
+
+export default SettingsScreen;

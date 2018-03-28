@@ -1,63 +1,137 @@
-/* eslint-disable class-methods-use-this */
-const cote = require('cote');
+/* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
+const restify = require('restify');
+const logger = require('electron-log');
 
+const DeviceManager = require('./deviceManager');
+const { PairingRequestService, PairingVerificationError } = require('./pairingRequestService');
+
+const ApiName = 'DevciceAPI';
+const ApiVersion = '0.0.1';
+const DefaultPort = process.env.DEVICE_SERVICE_PORT || 51001;
+
+const actions = {
+  PAIRING_CODE_AVAILABLE: 'PAIRING_CODE_AVAILABLE',
+  PAIRING_COMPLETE: 'PAIRING_COMPLETE',
+};
+
+/**
+ * @memberof BackgroundServices
+ * @class DeviceService
+ * Provides APIs for external client devices running
+ * [Network Canvas]{@link https://github.com/codaco/Network-Canvas}.
+ *
+ * Services:
+ * - Device Pairing
+ */
 class DeviceService {
-  constructor(serverOptions) {
-    this.devicePublisher = new cote.Publisher({
-      name: 'devicePub',
-      namespace: 'device',
-      broadcasts: ['unpairedDevice']
-    });
-
-    this.deviceResponder = new cote.Responder({
-      name: 'deviceResp',
-      namespace: 'device',
-      respondsTo: ['deviceDiscoveryRequest', 'pairingRequest'], // types of requests this responder
-      // can respond to.
-    });
-
-    // setInterval(() => {
-    //   const val = {
-    //     unpairedDeviceCount: Math.floor(Math.random() * 2)
-    //   };
-
-    //   console.log('emitting', val);
-    //   if (val.unpairedDeviceCount > 0) {
-    //     discoveryPublisher.publish('unpairedDevice', val);
-    //   }
-    // }, 3000);
-
-    // Device -> Server Discovery Service
-    this.deviceResponder.on('discoveryRequest', (req, cb) => {
-      console.log(req);
-      const resp = {
-        randNum: Math.random() * 10,
-        publicKey: serverOptions.keys.publicKey,
-      };
-      console.log('request', req.deviceName, 'answering with', resp);
-      cb(resp);
-    });
-
-    // Device -> Server Pairing Service
-    this.deviceResponder.on('pairingRequest', (req, cb) => {
-      console.log(req);
-      const resp = {
-        pairingPin: this.generatePairingPin()
-      };
-      console.log('request', req.deviceName, 'answering with', resp);
-      cb(resp);
-    });
+  constructor({ dataDir }) {
+    this.reqSvc = new PairingRequestService();
+    this.api = this.createApi();
+    this.deviceMgr = new DeviceManager(dataDir);
   }
 
-  generatePairingPin() {
-    return Math.floor(1000 + Math.random() * 9000);
+  start(port = DefaultPort) {
+    this.port = port;
+    return new Promise((resolve) => {
+      this.api.listen(port, '0.0.0.0', () => {
+        logger.info(`${this.api.name} listening at ${this.api.url}`);
+        resolve(this);
+      });
+    });
   }
 
   stop() {
-    this.devicePublisher.close();
-    this.deviceResponder.close();
+    return new Promise((resolve) => {
+      this.api.close(() => {
+        this.port = null;
+        resolve();
+      });
+    });
+  }
+
+  createApi() {
+    const api = restify.createServer({
+      name: ApiName,
+      version: ApiVersion,
+    });
+
+    api.use(restify.plugins.bodyParser());
+
+    // Pairing Step 1. Generate a new pairing request.
+    // Send request ID in response; present pairing passcode to user (out of band).
+    api.get('/devices/new', this.handlers.onPairingRequest);
+
+    // Pairing Step 2.
+    // User has entered pairing code
+    api.post('/devices', this.handlers.onPairingConfirm);
+
+    return api;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  messageParent(data) {
+    if (process.send) {
+      process.send(data);
+    } else {
+      logger.error('No parent available for IPC');
+    }
+  }
+
+  get handlers() {
+    return {
+      onPairingRequest: (req, res, next) => {
+        this.reqSvc.createRequest()
+          .then((pairingRequest) => {
+            // Send code up to UI
+            this.messageParent({
+              action: actions.PAIRING_CODE_AVAILABLE,
+              data: { pairingCode: pairingRequest.pairingCode },
+            });
+            // Respond to client
+            res.send({
+              status: 'ok',
+              pairingRequest: {
+                reqId: pairingRequest._id,
+                salt: pairingRequest.salt,
+              },
+            });
+          })
+          .catch((err) => {
+            logger.error(err);
+            res.send(503, { status: 'error' });
+          })
+          .then(next);
+      },
+
+      onPairingConfirm: (req, res, next) => {
+        const pendingRequestId = req.body && req.body.requestId;
+        const pairingCode = req.body && req.body.pairingCode;
+
+        // TODO: payload will actually be encrypted.
+        // TODO: delete request once verified (or mark as 'used' internally)?
+        // ... prevent retries/replays?
+        this.reqSvc.verifyRequest(pendingRequestId, pairingCode)
+          .then(pair => this.deviceMgr.createDeviceDocument(pair.salt, pair.secretKey))
+          .then((device) => {
+            this.messageParent({
+              action: actions.PAIRING_COMPLETE,
+              data: { pairingCode },
+            });
+            res.send({ status: 'ok', device });
+          })
+          .catch((err) => {
+            logger.error(err);
+            const status = (err instanceof PairingVerificationError) ? 400 : 503;
+            res.send(status, { status: 'error' });
+          })
+          .then(next);
+      },
+    };
   }
 }
 
-module.exports = DeviceService;
+module.exports = {
+  DeviceService,
+  deviceServiceActions: actions,
+};
 

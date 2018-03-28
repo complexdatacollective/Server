@@ -2,6 +2,21 @@ const path = require('path');
 const url = require('url');
 const { BrowserWindow } = require('electron');
 
+const getAppUrl = (route) => {
+  if (process.env.NODE_ENV === 'development' && process.env.WEBPACK_DEV_SERVER_PORT) {
+    return url.format({
+      hash: `#${route}`,
+      host: `localhost:${process.env.WEBPACK_DEV_SERVER_PORT}`,
+      protocol: 'http',
+    });
+  }
+  return url.format({
+    pathname: path.join(__dirname, '../', 'index.html'),
+    hash: `#${route}`,
+    protocol: 'file:',
+  });
+};
+
 class MainWindow {
   create() {
     if (this.window) { return; }
@@ -16,7 +31,7 @@ class MainWindow {
     this.window.maximize();
 
     // Open the DevTools.
-    this.window.webContents.openDevTools({ mode: 'detach' });
+    this.window.webContents.openDevTools();
 
     // Emitted when the window is closed.
     this.window.on('closed', () => {
@@ -29,18 +44,12 @@ class MainWindow {
 
   open(route = '/') {
     this.create();
-
-    const loadUrl = url.format({
-      pathname: path.join(__dirname, '../', 'index.html'),
-      hash: `#${route}`,
-      protocol: 'file:',
-    });
-
-    this.window.loadURL(loadUrl);
+    this.window.loadURL(getAppUrl(route));
     this.window.show();
   }
 
   send(...args) {
+    // TODO: store in a buffer, probably?
     if (!this.window) { return; }
 
     this.window.webContents.send(...args);

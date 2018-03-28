@@ -1,6 +1,7 @@
 {
   "source": {
-    "includePattern": ".+\\.js$"
+    "includePattern": ".+\\.js$",
+    "excludePattern": "__tests__"
   },
   "plugins": ["node_modules/jsdoc-babel"],
   "babel": {

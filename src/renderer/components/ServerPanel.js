@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { PanelItem } from '../components';
-import Server from '../utils/Server';
+import AdminApiClient from '../utils/adminApiClient';
 
-const server = new Server();
+const server = new AdminApiClient();
 
 const defaultServerOverview = {
   ip: 'x.x.x.x',
@@ -25,6 +25,10 @@ class ServerPanel extends Component {
     });
   }
 
+  componentWillMount() {
+    server.requestServerStatus();
+  }
+
   render() {
     const { serverOverview } = this.state;
     const { className } = this.props;
@@ -33,7 +37,6 @@ class ServerPanel extends Component {
     return (
       <div className={`server-panel ${className}`}>
         <PanelItem label="Server Public IP" value={JSON.stringify(overview.ip)} />
-        <PanelItem label="Clients" value={overview.clients} />
         <PanelItem label="Uptime" value={overview.uptime} />
         <PanelItem label="Server Public Key" value={overview.publicKey} />
       </div>

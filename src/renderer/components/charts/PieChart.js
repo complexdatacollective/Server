@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { PieChart as RechartPieChart, Pie, Cell, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-import { getCSSVariables } from '../../utils/css-variables';
+import { getCSSValues } from '../../utils/css-variables';
 
-const colors = getCSSVariables(
+const colors = getCSSValues(
   '--graph-data-1',
   '--graph-data-2',
   '--graph-data-3',

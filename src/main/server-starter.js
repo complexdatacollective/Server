@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+// This script is for development (see Readme)
 const { app } = require('electron');
 const path = require('path');
 
@@ -20,7 +22,7 @@ createServer(port, dbSettings)
       ({ data }) => {
         console.log(data);
         event.sender.send('SERVER_STATUS', data);
-      }
+      },
     );
 
     serverProcess.send({ action: 'REQUEST_SERVER_STATUS' });

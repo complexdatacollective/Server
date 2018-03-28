@@ -10,14 +10,16 @@
     "npm": "5.3.0"
   },
   "dependencies": {
-    "change-case": "^3.0.1",
-    "cote": "^0.15.1",
-    "bluebird": "^3.5.0",
     "ip": "^1.1.5",
+    "electron-log": "^2.2.7",
+    "libsodium-wrappers": "^0.7.3",
     "lodash": "^4.17.4",
+    "mdns": "^2.3.4",
     "nedb": "^1.8.0",
     "private-socket": "https://github.com/codaco/PrivateSocket.git",
-    "socket.io": "^2.0.3"
+    "restify": "^6.3.4",
+    "socket.io": "^2.0.3",
+    "uuid": "^3.2.1"
   },
   "main": "./index.js"
 }

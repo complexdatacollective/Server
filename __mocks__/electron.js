@@ -7,6 +7,14 @@ const ipcRenderer = {
   send: jest.fn(),
 };
 
+const ipcMain = {
+  on: jest.fn(),
+};
+
+const app = {
+  getName: () => 'test',
+};
+
 class BrowserWindow {
   constructor() {
     return {
@@ -17,14 +25,18 @@ class BrowserWindow {
       webContents: {
         openDevTools: jest.fn(),
         send: jest.fn(),
-      },
+      }
     };
   }
 }
 
+BrowserWindow.getAllWindows = jest.fn().mockReturnValue([]);
+
 module.exports = {
-  ipcRenderer,
+  app,
   BrowserWindow,
+  ipcMain,
+  ipcRenderer,
 };
 
 exports.BrowserWindow = BrowserWindow;

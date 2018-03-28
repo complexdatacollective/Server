@@ -41,6 +41,14 @@ This repository assumes that `npm` is installed. If you don't have it installed,
 |`build-docs`|Builds HTML API docs into the docs-build directory.|
 |`electron`|Runs the current code in electron, for testing.|
 
+## Dependencies
+
+### [MDNS](https://www.npmjs.com/package/mdns)
+
+MDNS is used to advertise services to Network Canvas clients. On Windows and Linux, you'll need to install some dependencies first — see the [mdns installation instructions](https://www.npmjs.com/package/mdns#installation).
+
+The [Network Canvas Readme](https://github.com/codaco/Network-Canvas#windows-environment) has detailed instructions for getting MDNS running on Windows.
+
 ## Running
 
 To run the UI:
@@ -59,6 +67,18 @@ $ npm run electron
 ```
 
 The electron app (and server components) are served out of the /www folder. Changes can be made in the /src folder but won't reflect in the app until another build is completed (`npm run build && npm run electron`).
+
+### Development workflow
+
+New approach (work-in-progress):
+
+1. `npm run start:electron-renderer`: to start the webpack dev server
+  - Note: must be running on port 3000.
+2. `npm run start:electron` (in another terminal session)
+  1. Copies the electron source to `./electron-dev`
+  2. Runs the electron app from there, including background services.
+
+Original/browser approach (does not support electron):
 
 To speed up development, the server can be run headlessly out of /src/worker using the command `npm run server:dev` and the UI can be viewed at `localhost:3000` once started with `npm run start`. Any changes made in the UI will be automatically compiled, but any changes made to the background server require it to be restarted in order for changes to be reflected.
 

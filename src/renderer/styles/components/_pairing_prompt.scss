@@ -4,7 +4,11 @@
   color: color('white');
   display: flex;
   padding: spacing(medium);
-  position: relative;
+  position: fixed;
+  right: spacing(large);
+  top: spacing(large);
+  max-width: 80vw;
+  z-index: 1;
 
   @include element(icon) {
     margin: spacing(large);
@@ -19,9 +23,8 @@
     justify-content: flex-end;
   }
 
-  @include element(close) {
-    position: absolute;
-    right: spacing(small);
-    top: spacing(small);
+  @include element(button) {
+    text-decoration: none;
   }
+
 }

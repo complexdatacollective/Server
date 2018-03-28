@@ -2,7 +2,6 @@
 
 const path = require('path');
 const url = require('url');
-// const { BrowserWindow } = require('electron');
 const { createMainWindow } = require('../mainWindow');
 
 jest.mock('electron');

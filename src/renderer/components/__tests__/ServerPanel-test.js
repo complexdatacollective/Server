@@ -4,6 +4,8 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import ServerPanel from '../ServerPanel';
 
+jest.mock('../../utils/adminApiClient');
+
 const mockServerOverview = {
   ip: 'x.x.x.x',
   clients: 0,

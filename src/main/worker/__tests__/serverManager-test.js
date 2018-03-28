@@ -1,4 +1,4 @@
-/* eslint-env jest */
+/* eslint-env jest, jasmine */
 
 const path = require('path');
 const { createServer, actions } = require('../serverManager');
@@ -9,7 +9,7 @@ const testDb = path.join('db', 'test');
 describe('serverManager', () => {
   describe('createServer', () => {
     // Allow extra time for server startup tests
-    let defaultTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+    const defaultTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
     beforeAll(() => { jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000; });
     afterAll(() => { jasmine.DEFAULT_TIMEOUT_INTERVAL = defaultTimeout; });
 
@@ -33,7 +33,6 @@ describe('serverManager', () => {
         sp.on(actions.SERVER_STATUS, ({ data }) => {
           expect(Object.hasOwnProperty.call(data, 'ip')).toEqual(true);
           expect(Object.hasOwnProperty.call(data, 'uptime')).toEqual(true);
-          expect(Object.hasOwnProperty.call(data, 'clients')).toEqual(true);
           expect(Object.hasOwnProperty.call(data, 'publicKey')).toEqual(true);
           sp.stop();
         });
@@ -49,7 +48,8 @@ describe('serverManager', () => {
           sp.stop();
 
           createServer(testPort, testDb).then((sp2) => {
-            sp2.process.on('exit', () => {
+            sp2.process.on('exit', (code) => {
+              expect(code).toBe(0);
               done();
             });
 

@@ -1,7 +1,8 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Button, Icon } from 'network-canvas-ui/lib/components';
 
-export default () => (
+const PairPrompt = ({ onDismiss, onAcknowledge }) => (
   <div className="pairing-prompt">
     <Icon name="info" className="pairing-prompt__icon" />
     <div className="pairing-prompt__content">
@@ -11,17 +12,21 @@ export default () => (
         This will give it access to your interview protocols and allow it to upload data.
       </p>
       <div className="pairing-prompt__buttonGroup">
-        <Button color="platinum" size="small">
+        <Button color="platinum" size="small" onClick={onDismiss}>
           Dismiss
         </Button>
         &nbsp;
-        <Button size="small">
+        <Button size="small" onClick={onAcknowledge}>
           Pair With Device
         </Button>
       </div>
     </div>
-    <div className="pairing-prompt__close">
-      <Icon name="close" />
-    </div>
   </div>
 );
+
+PairPrompt.propTypes = {
+  onAcknowledge: PropTypes.func.isRequired,
+  onDismiss: PropTypes.func.isRequired,
+};
+
+export default PairPrompt;
