@@ -1,4 +1,3 @@
-const path = require('path');
 const { app, Menu } = require('electron');
 
 const FileImporter = require('./utils/ProtocolImporter');
@@ -14,8 +13,8 @@ const mainWindow = createMainWindow();
 
 // Background server
 let server = null;
-const settingsDb = path.join(app.getPath('userData'), 'db', 'settings');
-createServer(8080, settingsDb).then((serverProcess) => {
+const dataDir = app.getPath('userData');
+createServer(8080, dataDir).then((serverProcess) => {
   server = serverProcess;
   server.on(actions.PAIRING_CODE_AVAILABLE, ({ data }) => {
     mainWindow.send(actions.PAIRING_CODE_AVAILABLE, data);

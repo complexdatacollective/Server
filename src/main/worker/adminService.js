@@ -1,6 +1,5 @@
 const restify = require('restify');
 const logger = require('electron-log');
-const path = require('path');
 
 const DeviceManager = require('./deviceManager');
 const ProtocolImporter = require('../utils/ProtocolImporter');
@@ -24,8 +23,7 @@ class AdminService {
     this.api = this.createApi();
     this.statusDelegate = statusDelegate;
     this.deviceMgr = new DeviceManager(dataDir);
-    // FIXME: dataDir is db/, which we don't really want. For now, ..
-    this.protocolImporter = new ProtocolImporter(path.join(dataDir, '..'));
+    this.protocolImporter = new ProtocolImporter(dataDir);
   }
 
   start(port) {
@@ -39,7 +37,11 @@ class AdminService {
   }
 
   stop() {
-    this.api.close();
+    return new Promise((resolve) => {
+      this.api.close(() => {
+        resolve();
+      });
+    });
   }
 
   createApi() {
@@ -84,7 +86,17 @@ class AdminService {
     api.post('/protocols', (req, res, next) => {
       const files = req.body.files;
       this.protocolImporter.validateAndImport(files)
-        .then(saved => res.send({ status: 'ok', data: saved }))
+        .then(saved => res.send({ status: 'ok', protocols: saved }))
+        .catch((err) => {
+          logger.error(err);
+          res.send(500, { status: 'error', message: err.message });
+        })
+        .then(next);
+    });
+
+    api.get('/protocols', (req, res, next) => {
+      this.protocolImporter.savedFiles()
+        .then(files => res.send({ status: 'ok', protocols: files }))
         .catch((err) => {
           logger.error(err);
           res.send(500, { status: 'error' });

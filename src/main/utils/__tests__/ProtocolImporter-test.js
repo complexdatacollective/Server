@@ -29,7 +29,7 @@ describe('ProtocolImporter', () => {
     });
 
     it('makes a directory if needed', () => {
-      importer.validateAndImport(['foo']);
+      importer.validateAndImport(['foo.netcanvas']);
       expect(fs.mkdir).toHaveBeenCalled();
     });
 
@@ -38,22 +38,28 @@ describe('ProtocolImporter', () => {
         importer.ensureDataDir = jest.fn(() => Promise.resolve());
       });
 
+      it('requires a valid file extension', async () => {
+        const invalidFileErr = expect.objectContaining({ message: errorMessages.InvalidFile });
+        await expect(importer.validateAndImport(['file.unknownextension'])).rejects.toEqual(invalidFileErr);
+      });
+
       it('imports & promises each file', (done) => {
-        importer.importFile = jest.fn();
-        importer.validateAndImport(['a', 'b', 'c'])
+        importer.importFile = jest.fn(infile => `copy-${infile}`);
+        importer.validateAndImport(['a.netcanvas', 'b.netcanvas', 'c.netcanvas'])
           .then(results => expect(results).toHaveLength(3))
           .then(() => expect(importer.importFile).toHaveBeenCalledTimes(3))
           .then(done);
       });
 
+      // TBD what we want to do here...
       it('overwrites existing files');
     });
   });
 
   it('uses fs to copy a file', () => {
-    importer.importFile('foo');
+    importer.importFile('foo.netcanvas');
     expect(fs.copyFile)
-      .toHaveBeenCalledWith('foo', expect.stringMatching(/foo/), expect.any(Function));
+      .toHaveBeenCalledWith('foo.netcanvas', expect.stringMatching(/foo\.netcanvas/), expect.any(Function));
   });
 
   it('requires a filename', async () => {
@@ -63,7 +69,7 @@ describe('ProtocolImporter', () => {
 
   it('resolves with the destination filename', (done) => {
     fs.copyFile = jest.fn((src, dest, cb) => { cb(); });
-    importer.importFile('foo')
+    importer.importFile('foo.netcanvas')
       .then(file => expect(file).toMatch(/foo/))
       .then(done);
   });
@@ -71,6 +77,6 @@ describe('ProtocolImporter', () => {
   it('rejects on failure', async () => {
     const err = new Error('Mock error');
     fs.copyFile = jest.fn((src, dest, cb) => { cb(err); });
-    await expect(importer.importFile('foo')).rejects.toEqual(err);
+    await expect(importer.importFile('foo.netcanvas')).rejects.toEqual(err);
   });
 });

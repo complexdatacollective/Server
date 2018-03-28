@@ -1,9 +1,11 @@
 import { combineReducers } from 'redux';
 
-import pairingReducer from './pairingRequest';
+import pairingRequest from './pairingRequest';
+import appMessages from './appMessages';
 
 const appReducer = combineReducers({
-  pairingRequest: pairingReducer,
+  appMessages,
+  pairingRequest,
 });
 
 const rootReducer = (state, action) => {

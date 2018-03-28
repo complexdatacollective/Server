@@ -1,0 +1,19 @@
+.app-message {
+  background-color: var(--message-background-color);
+  color: var(--message-color);
+  cursor: pointer;
+  padding: spacing(small);
+  position: fixed;
+  text-align: center;
+  width: 100%;
+
+  @include element(close) {
+    color: var(--message-color);
+
+    float: right;
+
+    &[name='close'] { // Specificity needed to match UI lib
+      height: 1rem;
+    }
+  }
+}

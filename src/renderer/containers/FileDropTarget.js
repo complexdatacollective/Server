@@ -1,14 +1,43 @@
+/* eslint
+no-param-reassign: ["error", { "props": true, "ignorePropertyModificationsFor": ["evt"] }] */
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 
 import AdminApiClient from '../utils/adminApiClient';
+import { actionCreators } from '../ducks/modules/appMessages';
 
-const onDragOver = evt => evt.preventDefault();
+const onDragOver = (evt) => {
+  evt.preventDefault();
+  evt.dataTransfer.dropEffect = 'copy';
+};
 
 class FileDropTarget extends Component {
   constructor(props) {
     super(props);
     this.state = {};
+    this.apiClient = new AdminApiClient();
     this.onDrop = this.onDrop.bind(this);
+    this.onDragEnter = this.onDragEnter.bind(this);
+    this.onDragLeave = this.onDragLeave.bind(this);
+    this.getSavedFiles = this.getSavedFiles.bind(this);
+  }
+
+  componentWillMount() {
+    this.getSavedFiles();
+  }
+
+  componentWillReceiveProps() {
+    this.getSavedFiles();
+  }
+
+  onDragEnter() {
+    this.setState({ draggingOver: true });
+  }
+
+  onDragLeave() {
+    this.setState({ draggingOver: false });
   }
 
   onDrop(evt) {
@@ -21,27 +50,44 @@ class FileDropTarget extends Component {
       files.push(fileList[i].path);
     }
 
-    const adminApiClient = new AdminApiClient();
-    adminApiClient
+    this.setState({ draggingOver: false });
+    this.apiClient
       .post('/protocols', { files })
-      .then(resp => resp.data)
-      .then(savedFilenames => this.setState({ savedFilenames }));
+      .then(resp => resp.protocols)
+      .then(this.getSavedFiles)
+      .catch(err => this.props.showMessage(err.message || 'Could not save file'));
+  }
+
+  getSavedFiles() {
+    this.apiClient.get('/protocols')
+      .then(resp => resp.protocols)
+      .then(protocols => this.setState({ protocols }));
   }
 
   render() {
-    const { savedFilenames } = this.state;
+    const { draggingOver, protocols = [] } = this.state;
+    const containerProps = {
+      className: 'file-drop-target',
+      onDragEnter: this.onDragEnter,
+      onDragLeave: this.onDragLeave,
+      onDragOver,
+      onDrop: this.onDrop,
+    };
+    if (draggingOver) {
+      containerProps.className += ' file-drop-target--active';
+    }
+
     return (
-      <div className="file-drop-target" onDrop={this.onDrop} onDragOver={onDragOver}>
+      <div {...containerProps}>
         <ul>
           {
-            /* demo only */
-            savedFilenames &&
-            savedFilenames.map(f => <li key={f}>{f}</li>)
+            protocols.length > 0 &&
+            protocols.map(f => <li key={f}>{f}</li>)
           }
         </ul>
         <p>
           {
-            !savedFilenames &&
+            !protocols.length &&
             'Drop protocol files here to import'
           }
         </p>
@@ -50,4 +96,16 @@ class FileDropTarget extends Component {
   }
 }
 
-export default FileDropTarget;
+FileDropTarget.propTypes = {
+  showMessage: PropTypes.func.isRequired,
+};
+
+const mapDispatchToProps = dispatch => ({
+  showMessage: bindActionCreators(actionCreators.showMessage, dispatch),
+});
+
+export default connect(null, mapDispatchToProps)(FileDropTarget);
+
+export {
+  FileDropTarget as UnconnectedFileDropTarget,
+};

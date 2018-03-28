@@ -1,6 +1,15 @@
 .file-drop-target {
   background-color: var(--base-background-color);
-  border: 1px solid red;
+  border: 1px solid var(--base-border-color);
   min-height: 400px;
   min-width: 400px;
+  padding: spacing(large);
+
+  & > * {
+    pointer-events: none;
+  }
+
+  @include modifier(active) {
+    background-color: var(--recessed-background-color);
+  }
 }

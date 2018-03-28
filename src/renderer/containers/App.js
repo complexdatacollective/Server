@@ -5,19 +5,18 @@ import { connect } from 'react-redux';
 import { ipcRenderer } from 'electron';
 import { withRouter } from 'react-router-dom';
 
-import PairPrompt from '../components/pairing/PairPrompt';
-
 import AppRoutes from './AppRoutes';
-import { Header, TabBar } from '../components';
+import { AppMessage, Header, PairPrompt, TabBar } from '../components';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
+import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
 
 require('../styles/main.scss');
 
 /**
  * @class App
-  * Main app container.
-  * @param props {object} - children
-  */
+ * Main app container.
+ * @param props {object} - children
+ */
 class App extends Component {
   constructor(props) {
     super(props);
@@ -31,12 +30,24 @@ class App extends Component {
     ipcRenderer.on('PAIRING_COMPLETE', (event, data) => {
       props.completedPairingRequest(data.pairingCode);
     });
+
+    this.props.dismissAppMessages();
   }
 
   render() {
-    const { ackPairingRequest, dismissPairingRequest, pairingRequest } = this.props;
+    const {
+      ackPairingRequest,
+      dismissAppMessages,
+      dismissPairingRequest,
+      appMessages,
+      pairingRequest,
+    } = this.props;
+
     return (
       <div className="app">
+        <div role="Button" tabIndex="0" className="app__flash" onClick={dismissAppMessages}>
+          { appMessages.map(msg => <AppMessage key={msg.timestamp} {...msg} />) }
+        </div>
         <Header pairingCode={this.state.pairingCode} className="app__header" />
         {
           pairingRequest.status === PairingStatus.Pending &&
@@ -60,18 +71,22 @@ App.propTypes = {
   ackPairingRequest: PropTypes.func.isRequired,
   newPairingRequest: PropTypes.func.isRequired,
   completedPairingRequest: PropTypes.func.isRequired,
+  dismissAppMessages: PropTypes.func.isRequired,
   dismissPairingRequest: PropTypes.func.isRequired,
+  appMessages: PropTypes.array,
   pairingRequest: PropTypes.shape({
     status: PropTypes.string,
   }),
 };
 
 App.defaultProps = {
+  appMessages: [],
   pairingRequest: {},
 };
 
-const mapStateToProps = ({ pairingRequest }) => ({
+const mapStateToProps = ({ pairingRequest, appMessages }) => ({
   pairingRequest,
+  appMessages,
 });
 
 function mapDispatchToProps(dispatch) {
@@ -80,6 +95,7 @@ function mapDispatchToProps(dispatch) {
     completedPairingRequest: bindActionCreators(actionCreators.completedPairingRequest, dispatch),
     newPairingRequest: bindActionCreators(actionCreators.newPairingRequest, dispatch),
     dismissPairingRequest: bindActionCreators(actionCreators.dismissPairingRequest, dispatch),
+    dismissAppMessages: bindActionCreators(messageActionCreators.dismissAppMessages, dispatch),
   };
 }
 

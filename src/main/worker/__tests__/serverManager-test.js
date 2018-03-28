@@ -4,7 +4,7 @@ const path = require('path');
 const { createServer, actions } = require('../serverManager');
 
 const testPort = 9001; // Auto find port
-const testDb = path.join('db', 'test');
+const testDataDir = path.join(__dirname, 'db', 'test');
 
 describe('serverManager', () => {
   describe('createServer', () => {
@@ -14,7 +14,7 @@ describe('serverManager', () => {
     afterAll(() => { jasmine.DEFAULT_TIMEOUT_INTERVAL = defaultTimeout; });
 
     it('starts/stops', (done) => {
-      createServer(testPort, testDb).then((sp) => {
+      createServer(testPort, testDataDir).then((sp) => {
         sp.process.on('exit', (code) => {
           expect(code).toBe(0);
           done();
@@ -25,7 +25,7 @@ describe('serverManager', () => {
     });
 
     it('returns status', (done) => {
-      createServer(testPort, testDb).then((sp) => {
+      createServer(testPort, testDataDir).then((sp) => {
         sp.process.on('exit', () => {
           done();
         });
@@ -42,12 +42,12 @@ describe('serverManager', () => {
     });
 
     it('can persist settings', (done) => {
-      createServer(testPort, testDb).then((sp) => {
+      createServer(testPort, testDataDir).then((sp) => {
         sp.on(actions.SERVER_STATUS, ({ data }) => {
           const publicKey = data.publicKey;
           sp.stop();
 
-          createServer(testPort, testDb).then((sp2) => {
+          createServer(testPort, testDataDir).then((sp2) => {
             sp2.process.on('exit', (code) => {
               expect(code).toBe(0);
               done();

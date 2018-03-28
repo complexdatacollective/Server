@@ -27,7 +27,7 @@ class DeviceManager {
   }
 
   constructor(dataDir, dbName = DeviceDbName) {
-    const dbFile = path.join(dataDir, dbName);
+    const dbFile = path.join(dataDir, 'db', dbName);
     this.db = DeviceManager.dbClient(dbFile);
   }
 
