@@ -1,13 +1,13 @@
 const { app, Menu } = require('electron');
 
-const FileImporter = require('./utils/ProtocolImporter');
+const ProtocolImporter = require('./utils/ProtocolImporter');
 const { isWindows } = require('./utils/environment');
 const { createMainWindow } = require('./components/mainWindow');
 const { createTray } = require('./components/tray');
 const { createServer, actions } = require('./worker/serverManager');
 
 const userDataDir = app.getPath('userData');
-const fileImporter = new FileImporter(userDataDir);
+const protocolImporter = new ProtocolImporter(userDataDir);
 
 const mainWindow = createMainWindow();
 
@@ -55,8 +55,8 @@ const appMenu = Menu.buildFromTemplate([
     label: 'File',
     submenu: [
       {
-        label: 'Import...',
-        click: fileImporter.presentDialog,
+        label: 'Import Protocol...',
+        click: protocolImporter.presentDialog,
       },
     ],
   },

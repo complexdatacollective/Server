@@ -41,7 +41,11 @@ class ProtocolImporter {
         { name: 'Protocols', extensions: validFileExts },
       ],
     };
-    dialog.showOpenDialog(opts, this.validateAndImport);
+    dialog.showOpenDialog(opts, (filePaths) => {
+      if (filePaths) {
+        this.validateAndImport(filePaths).catch(logger.error);
+      }
+    });
   }
 
   /**
