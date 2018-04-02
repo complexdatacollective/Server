@@ -28,7 +28,10 @@ class AdminService {
 
   start(port) {
     return new Promise((resolve, reject) => {
-      if (!port) { reject(new Error('Missing port')); }
+      if (!port) {
+        reject(new Error('Missing port'));
+        return;
+      }
       this.api.listen(port, Host, () => {
         logger.info(`${this.api.name} listening at ${this.api.url}`);
         resolve(this);

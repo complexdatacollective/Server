@@ -34,8 +34,16 @@ describe('the AdminService', () => {
   describe('API', () => {
     const apiBase = `http://localhost:${testPortNumber}`;
 
-    it('requires a port', async () => {
-      await expect(adminService.start()).rejects.toMatchObject({ message: 'Missing port' });
+    it('requires a port (and will not start server without)', (done) => {
+      expect.assertions(2);
+      adminService.start()
+        .catch(err => expect(err).toMatchObject({ message: 'Missing port' }))
+        .then(() => {
+          setImmediate(() => {
+            expect(adminService.api.address()).toBeNull();
+            done();
+          });
+        });
     });
 
     it('listens on a port', async () => {
