@@ -5,8 +5,8 @@ import { isLinux, isMacOS, isWindows } from '../environment';
 describe('environment util', () => {
   it('provides booleans', () => {
     expect(isLinux === true || isLinux === false).toBe(true);
-    expect(isMacOS === true || isLinux === false).toBe(true);
-    expect(isWindows === true || isLinux === false).toBe(true);
+    expect(isMacOS === true || isMacOS === false).toBe(true);
+    expect(isWindows === true || isWindows === false).toBe(true);
   });
 
   it('reports true for exactly one platform', () => {
