@@ -22,6 +22,9 @@ const validate = filepath => new Promise((resolve, reject) => {
   resolve(filepath);
 });
 
+/**
+ * @class ProtocolImporter
+ */
 class ProtocolImporter {
   constructor(dataDir) {
     this.protocolDir = path.join(dataDir, protocolDirName);
@@ -30,8 +33,12 @@ class ProtocolImporter {
   }
 
   /**
-   * Primary entry for native UI
-   * @return {undefined} See the validateAndImport() callback.
+   * @return {Promise} Rejects if there was an error.
+   *                   Resolves with the saved file names if successful.
+   *                   Resolves with undefined if no files were chosen by the user.
+   * @description
+   * Primary entry for native UI. Display an Open dialog for the user to select
+   * importable files.
    */
   presentDialog() {
     const opts = {
@@ -41,10 +48,19 @@ class ProtocolImporter {
         { name: 'Protocols', extensions: validFileExts },
       ],
     };
-    dialog.showOpenDialog(opts, (filePaths) => {
-      if (filePaths) {
-        this.validateAndImport(filePaths).catch(logger.error);
-      }
+    return new Promise((resolve, reject) => {
+      dialog.showOpenDialog(opts, (filePaths) => {
+        if (!filePaths) {
+          resolve();
+          return;
+        }
+        this.validateAndImport(filePaths)
+          .then(savedFiles => resolve(savedFiles))
+          .catch((err) => {
+            logger.error(err);
+            reject(err);
+          });
+      });
     });
   }
 

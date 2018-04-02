@@ -1,4 +1,4 @@
-const { app, Menu } = require('electron');
+const { app, dialog, Menu } = require('electron');
 
 const ProtocolImporter = require('./utils/ProtocolImporter');
 const { isWindows } = require('./utils/environment');
@@ -56,7 +56,21 @@ const appMenu = Menu.buildFromTemplate([
     submenu: [
       {
         label: 'Import Protocol...',
-        click: protocolImporter.presentDialog,
+        click: () => {
+          protocolImporter.presentDialog()
+            .then((savedFiles) => {
+              if (savedFiles) {
+                dialog.showMessageBox(mainWindow.window, {
+                  title: 'Success',
+                  message: 'Successfully Imported:',
+                  detail: savedFiles.join('\r\n'),
+                });
+              }
+            })
+            .catch((err) => {
+              dialog.showErrorBox('Import Error', err && err.message);
+            });
+        },
       },
     ],
   },
