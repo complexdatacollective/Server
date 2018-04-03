@@ -13,22 +13,16 @@ describe('an AdminApiClient', () => {
 
     fetch.mockResponse(JSON.stringify({ serverStatus: mockStatus }));
 
-    client.on('SERVER_STATUS', (data) => {
-      expect(data).toEqual(expect.objectContaining(mockStatus));
-      done();
-    });
-
-    client.requestServerStatus();
+    client.get('/health')
+      .then((data) => {
+        expect(data).toHaveProperty('serverStatus');
+        expect(data.serverStatus).toMatchObject(mockStatus);
+      })
+      .then(done);
   });
 
-  it('ignores server status on error', (done) => {
-    let eventsEmitted = 0;
+  it('rejects on server error', async () => {
     fetch.mockResponse(JSON.stringify({ status: 'error' }), { status: 503 });
-
-    client.on('SERVER_STATUS', () => { eventsEmitted += 1; });
-
-    client.requestServerStatus()
-      .then(() => expect(eventsEmitted).toBe(0))
-      .then(done);
+    await expect(client.get('/health')).rejects.toMatchObject({ status: 'error' });
   });
 });

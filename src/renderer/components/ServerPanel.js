@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { PanelItem } from '../components';
 import AdminApiClient from '../utils/adminApiClient';
 
-const server = new AdminApiClient();
+const getKeySnippet = key => key && key.slice(400, 416);
 
 const defaultServerOverview = {
   ip: 'x.x.x.x',
@@ -11,22 +11,38 @@ const defaultServerOverview = {
   uptime: 0,
   publicKey: '',
 };
+
 class ServerPanel extends Component {
   constructor() {
     super();
-
     this.state = {
       version: '0.0.0',
       notes: '',
     };
-
-    server.on('SERVER_STATUS', (data) => {
-      this.setState({ serverOverview: data });
-    });
+    this.api = new AdminApiClient();
   }
 
-  componentWillMount() {
-    server.requestServerStatus();
+  componentDidMount() {
+    this.getServerHealth();
+  }
+
+  getServerHealth() {
+    this.api.get('/health')
+      .then((resp) => {
+        const { uptime, ip, publicKey } = resp.serverStatus;
+        this.setState({
+          serverOverview: {
+            ip: ip && ip.address,
+            publicKey: getKeySnippet(publicKey),
+            uptime,
+          },
+        });
+      })
+      .catch(() => {
+        this.setState({
+          serverOverview: {},
+        });
+      });
   }
 
   render() {
