@@ -50,5 +50,9 @@ describe('Server', () => {
       server.advertiseDeviceService(deviceService);
       expect(mockAdvert.start.mock.calls.length).toBe(1);
     });
+
+    it('returns connection info', () => {
+      expect(server.connectionInfo).toMatchObject({ deviceService: expect.any(Object) });
+    });
   });
 });
