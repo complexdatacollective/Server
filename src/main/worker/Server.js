@@ -19,18 +19,26 @@ class Server extends Emitter {
   }
 
   startServices(port) {
-    return new Promise((resolve, reject) => {
-      const dataDir = this.options.dataDir;
+    const dataDir = this.options.dataDir;
+    this.adminService = new AdminService({ statusDelegate: this, dataDir });
+    this.deviceService = new DeviceService({ dataDir });
 
-      this.adminService = new AdminService({ statusDelegate: this, dataDir });
-      this.adminService.start(port);
+    return Promise.all([
+      // TODO: use port param for device Service
+      this.adminService.start(port),
+      this.deviceService.start().then(this.advertiseDeviceService),
+    ]).then(() => this);
+  }
 
-      this.deviceService = new DeviceService({ dataDir });
-      this.deviceService.start()
-        .then(this.advertiseDeviceService)
-        .then(() => resolve(this))
-        .catch(err => reject(err));
-    });
+  get connectionInfo() {
+    return {
+      adminService: {
+        port: this.adminService && this.adminService.port,
+      },
+      deviceService: {
+        port: this.deviceService && this.deviceService.port,
+      },
+    };
   }
 
   close() {

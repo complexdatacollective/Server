@@ -33,6 +33,7 @@ class AdminService {
         return;
       }
       this.api.listen(port, Host, () => {
+        this.port = port;
         logger.info(`${this.api.name} listening at ${this.api.url}`);
         resolve(this);
       });
@@ -42,6 +43,7 @@ class AdminService {
   stop() {
     return new Promise((resolve) => {
       this.api.close(() => {
+        this.port = null;
         resolve();
       });
     });

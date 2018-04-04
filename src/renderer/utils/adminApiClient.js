@@ -1,7 +1,3 @@
-const adminApiUrl = 'http://localhost:8080'; // FIXME
-
-const resolveRoute = route => `${adminApiUrl}/${route.replace(/^\//, '')}`;
-
 const consumeResponse = resp => (
   resp.json()
     .then((respJson) => {
@@ -13,37 +9,6 @@ const consumeResponse = resp => (
       throw errJson;
     })
 );
-
-/**
- * @memberof AdminApiClient.prototype
- * @param  {string} route
- * @param  {Object} data will be JSON.stringified into the request body
- * @return {Promise}
- */
-const post = (route, data) => {
-  let json;
-  try {
-    json = JSON.stringify(data);
-  } catch (err) {
-    return Promise.reject(err);
-  }
-
-  return fetch(resolveRoute(route),
-    {
-      method: 'POST',
-      body: json,
-      headers: new Headers({ 'Content-Type': 'application/json' }),
-    })
-    .then(consumeResponse);
-};
-
-/**
- * @memberof AdminApiClient.prototype
- * @param  {string} route
- * @return {Promise}
- */
-const get = route => fetch(resolveRoute(route))
-  .then(consumeResponse);
 
 /**
  * @class AdminApiClient
@@ -60,9 +25,44 @@ const get = route => fetch(resolveRoute(route))
  * the value will contain a `message` property, with a short description of the problem.
  */
 class AdminApiClient {
-  constructor() {
-    this.get = get;
-    this.post = post;
+  constructor(listeningPort = 8080) {
+    this.port = listeningPort;
+  }
+
+  /**
+   * @param  {string} route
+   * @return {Promise}
+   */
+  get(route) {
+    return fetch(this.resolveRoute(route)).then(consumeResponse);
+  }
+
+  /**
+   * @param  {string} route
+   * @param  {Object} data will be JSON.stringified into the request body
+   * @return {Promise}
+   */
+  post(route, data) {
+    let json;
+    try {
+      json = JSON.stringify(data);
+    } catch (err) {
+      return Promise.reject(err);
+    }
+
+    return fetch(this.resolveRoute(route),
+      {
+        method: 'POST',
+        body: json,
+        headers: new Headers({ 'Content-Type': 'application/json' }),
+      })
+      .then(consumeResponse);
+  }
+
+  resolveRoute(route) {
+    // TODO: https
+    const protocol = 'http';
+    return `${protocol}://localhost:${this.port}/${route.replace(/^\//, '')}`;
   }
 }
 
