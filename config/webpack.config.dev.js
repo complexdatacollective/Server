@@ -268,7 +268,7 @@ module.exports = {
       {},
       env.raw,
       // Whitelist inlined content for the Content-Security-Policy header
-      { SCRIPT_SRC_CSP: `'sha256-${inlineCSP.hash256('react-error-overlay')}'` }
+      { REACT_APP_SCRIPT_SRC_CSP: `'sha256-${inlineCSP.hash256('react-error-overlay')}'` }
     )),
     // Generates an `index.html` file with the <script> injected.
     new HtmlWebpackPlugin({
