@@ -3,6 +3,8 @@ const logger = require('electron-log');
 const fs = require('fs');
 const path = require('path');
 
+const RequestError = require('../errors/RequestError');
+
 const validFileExts = ['netcanvas'];
 const validExtPattern = new RegExp(`\\.(${validFileExts.join('|')})$`);
 const protocolDirName = 'protocols';
@@ -16,7 +18,7 @@ const validate = filepath => new Promise((resolve, reject) => {
   // TODO: validate & extract [#60]
   const parsed = path.parse(filepath);
   if (!validFileExts.includes(parsed.ext.replace(/^\./, ''))) {
-    reject(new Error(ErrorMessages.InvalidFile));
+    reject(new RequestError(ErrorMessages.InvalidFile));
     return;
   }
   resolve(filepath);
@@ -72,7 +74,7 @@ class ProtocolManager {
   validateAndImport(fileList) {
     if (!fileList) {
       // User may have cancelled
-      return Promise.reject(new Error(ErrorMessages.EmptyFilelist));
+      return Promise.reject(new RequestError(ErrorMessages.EmptyFilelist));
     }
 
     const workQueue = [];
@@ -104,7 +106,7 @@ class ProtocolManager {
     return new Promise((resolve, reject) => {
       const filename = path.parse(filepath).base;
       if (!filename) {
-        reject(new Error(ErrorMessages.InvalidFile));
+        reject(new RequestError(ErrorMessages.InvalidFile));
         return;
       }
 
@@ -126,6 +128,28 @@ class ProtocolManager {
           return;
         }
         resolve(files.filter(f => validExtPattern.test(f)));
+      });
+    });
+  }
+
+  fileContents(savedFileName) {
+    return new Promise((resolve, reject) => {
+      if (typeof savedFileName !== 'string') {
+        reject(new RequestError(ErrorMessages.InvalidFile));
+        return;
+      }
+      const filePath = path.join(this.protocolDir, savedFileName);
+      // Prevent escaping protocol directory
+      if (filePath.indexOf(this.protocolDir) !== 0) {
+        reject(new RequestError(ErrorMessages.InvalidFile));
+        return;
+      }
+      fs.readFile(filePath, (err, dataBuffer) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        resolve(dataBuffer);
       });
     });
   }

@@ -10,6 +10,7 @@ const serverOpts = { dataDir: 'db' };
 jest.mock('electron-log');
 jest.mock('mdns');
 jest.mock('../../data-managers/DeviceManager');
+jest.mock('../../data-managers/ProtocolManager');
 
 describe('Server', () => {
   let mockAdvert;

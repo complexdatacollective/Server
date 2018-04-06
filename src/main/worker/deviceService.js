@@ -3,10 +3,12 @@ const restify = require('restify');
 const logger = require('electron-log');
 
 const DeviceManager = require('../data-managers/DeviceManager');
-const { PairingRequestService, PairingVerificationError } = require('./pairingRequestService');
+const ProtocolManager = require('../data-managers/ProtocolManager');
+const RequestError = require('../errors/RequestError');
+const { PairingRequestService } = require('./pairingRequestService');
 
 const ApiName = 'DevciceAPI';
-const ApiVersion = '0.0.1';
+const ApiVersion = '0.0.2';
 const DefaultPort = process.env.DEVICE_SERVICE_PORT || 51001;
 
 const actions = {
@@ -27,7 +29,8 @@ class DeviceService {
   constructor({ dataDir }) {
     this.reqSvc = new PairingRequestService();
     this.api = this.createApi();
-    this.deviceMgr = new DeviceManager(dataDir);
+    this.deviceManager = new DeviceManager(dataDir);
+    this.protocolManager = new ProtocolManager(dataDir);
   }
 
   start(port = DefaultPort) {
@@ -65,6 +68,10 @@ class DeviceService {
     // User has entered pairing code
     api.post('/devices', this.handlers.onPairingConfirm);
 
+    api.get('/protocols', this.handlers.protocolList);
+
+    api.get('/protocols/:filename', this.handlers.protocolFile);
+
     return api;
   }
 
@@ -79,6 +86,16 @@ class DeviceService {
 
   get handlers() {
     return {
+      // Secondary handler for error cases in req/res chain
+      onError: (err, res) => {
+        if (err instanceof RequestError) {
+          res.json(400, { status: 'error', message: err.message });
+        } else {
+          logger.error(err);
+          res.json(500, { status: 'error', message: 'Unknown Server Error' });
+        }
+      },
+
       onPairingRequest: (req, res, next) => {
         this.reqSvc.createRequest()
           .then((pairingRequest) => {
@@ -88,18 +105,15 @@ class DeviceService {
               data: { pairingCode: pairingRequest.pairingCode },
             });
             // Respond to client
-            res.send({
+            res.json({
               status: 'ok',
-              pairingRequest: {
-                reqId: pairingRequest._id,
+              data: {
+                pairingRequestId: pairingRequest._id,
                 salt: pairingRequest.salt,
               },
             });
           })
-          .catch((err) => {
-            logger.error(err);
-            res.send(503, { status: 'error' });
-          })
+          .catch(err => this.handlers.onError(err, res))
           .then(next);
       },
 
@@ -111,21 +125,39 @@ class DeviceService {
         // TODO: delete request once verified (or mark as 'used' internally)?
         // ... prevent retries/replays?
         this.reqSvc.verifyRequest(pendingRequestId, pairingCode)
-          .then(pair => this.deviceMgr.createDeviceDocument(pair.salt, pair.secretKey))
+          .then(pair => this.deviceManager.createDeviceDocument(pair.salt, pair.secretKey))
           .then((device) => {
             this.messageParent({
               action: actions.PAIRING_COMPLETE,
               data: { pairingCode },
             });
-            res.send({ status: 'ok', device });
+            res.json({ status: 'ok', device });
           })
-          .catch((err) => {
-            logger.error(err);
-            const status = (err instanceof PairingVerificationError) ? 400 : 503;
-            res.send(status, { status: 'error' });
-          })
+          .catch(err => this.handlers.onError(err, res))
           .then(next);
       },
+
+      protocolList: (req, res, next) => {
+        // TODO: return metadata (see #60) incl. checksums (protocolFile returns
+        // raw contents to match existing client behavior)
+        this.protocolManager.savedFiles()
+          .then(files => files.map(f => ({ filename: f })))
+          .then(files => res.json({ status: 'ok', data: files }))
+          .catch(err => this.handlers.onError(err, res))
+          .then(next);
+      },
+
+      protocolFile: (req, res, next) => {
+        this.protocolManager.fileContents(req.params.filename)
+          .then((fileBuf) => {
+            // TODO: more appropriate mime-type?
+            res.header('content-type', 'application/octet-stream');
+            res.send(fileBuf);
+          })
+          .catch(err => this.handlers.onError(err, res))
+          .then(next);
+      },
+
     };
   }
 }

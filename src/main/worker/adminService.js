@@ -23,7 +23,7 @@ class AdminService {
   constructor({ statusDelegate, dataDir }) {
     this.api = this.createApi();
     this.statusDelegate = statusDelegate;
-    this.deviceMgr = new DeviceManager(dataDir);
+    this.deviceManager = new DeviceManager(dataDir);
     this.protocolManager = new ProtocolManager(dataDir);
   }
 
@@ -91,7 +91,7 @@ class AdminService {
     });
 
     api.get('/devices', (req, res, next) => {
-      this.deviceMgr.fetchDeviceList()
+      this.deviceManager.fetchDeviceList()
         .then(devices => res.send({ status: 'ok', devices }))
         .catch((err) => {
           logger.error(err);

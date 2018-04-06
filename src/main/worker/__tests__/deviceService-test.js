@@ -4,6 +4,7 @@
 jest.mock('libsodium-wrappers');
 jest.mock('electron-log');
 jest.mock('../../data-managers/DeviceManager');
+jest.mock('../../data-managers/ProtocolManager');
 
 const { DeviceService } = require('../deviceService');
 const { jsonClient, makeUrl } = require('../../../setupTests');
@@ -13,6 +14,7 @@ const PairingCodeProperty = 'pairingCode';
 
 describe('Device Service', () => {
   let deviceService;
+  const send = 'json'; // the send method used in restify response handlers
 
   beforeEach(() => {
     deviceService = new DeviceService({});
@@ -22,23 +24,39 @@ describe('Device Service', () => {
   });
 
   it('responds to a client pairing request', (done) => {
-    deviceService.handlers.onPairingRequest(undefined, {
-      send: (resp) => {
-        expect(resp.status).toBe('ok');
-        expect(resp).toHaveProperty('pairingRequest');
-        expect(resp.pairingRequest).toHaveProperty('salt');
-        done();
+    expect.assertions(3);
+    const expectedRespHandler = {
+      [send]: (resp) => {
+        try {
+          expect(resp.status).toBe('ok');
+          expect(resp.data).toHaveProperty('pairingRequestId');
+          expect(resp.data).toHaveProperty('salt');
+        } catch (e) {
+          // res.json() should never throw; rejecting here would trigger the error response
+        } finally {
+          done();
+        }
       },
-    });
+    };
+
+    deviceService.handlers.onPairingRequest(undefined, expectedRespHandler);
   });
 
   it('does not send the pairing code in-band', (done) => {
-    deviceService.handlers.onPairingRequest(undefined, {
-      send: (resp) => {
-        expect(resp).not.toHaveProperty(PairingCodeProperty);
-        done();
+    expect.assertions(1);
+    const expectedRespHandler = {
+      [send]: (resp) => {
+        try {
+          expect(resp).not.toHaveProperty(PairingCodeProperty);
+        } catch (e) {
+          // res.json() should never throw; rejecting here would trigger the error response
+        } finally {
+          done();
+        }
       },
-    });
+    };
+
+    deviceService.handlers.onPairingRequest(undefined, expectedRespHandler);
   });
 
   it('notifies the main process when a new PIN is created (for out-of-band transfer)', (done) => {
@@ -49,7 +67,7 @@ describe('Device Service', () => {
       done();
     });
 
-    deviceService.handlers.onPairingRequest(undefined, { send: jest.fn() });
+    deviceService.handlers.onPairingRequest(undefined, { [send]: jest.fn() });
   });
 
   describe('API', () => {
@@ -65,7 +83,7 @@ describe('Device Service', () => {
       jsonClient.get(makeUrl('/devices/new', deviceService.api.url))
         .then((res) => {
           expect(res.statusCode).toBe(200);
-          expect(res.json).toHaveProperty('pairingRequest');
+          expect(res.json.data).toHaveProperty('pairingRequestId');
         })
         .then(done);
     });

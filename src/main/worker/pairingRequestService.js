@@ -7,6 +7,7 @@ const libsodium = require('libsodium-wrappers');
 const logger = require('electron-log');
 
 const PairingCodeFactory = require('./pairingCodeFactory');
+const RequestError = require('../errors/RequestError');
 
 const DeviceRequestTTLSeconds = 5 * 60;
 
@@ -40,13 +41,6 @@ function deriveSecret(pairingCode, salt) {
   const secretKey = libsodium.crypto_pwhash(keyLen,
     pairingCode, salt, libsodium.crypto_pwhash_OPSLIMIT_INTERACTIVE, memlimit, algo);
   return secretKey;
-}
-
-class PairingVerificationError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = 'PairingVerificationError';
-  }
 }
 
 /**
@@ -99,13 +93,17 @@ class PairingRequestService {
     const errMsg = 'Request verification failed';
     return new Promise((resolve, reject) => {
       if (!requestId || !pairingCode) {
-        reject(new PairingVerificationError(errMsg));
+        reject(new RequestError(errMsg));
         return;
       }
 
       this.db.findOne({ _id: requestId, pairingCode }, (err, doc) => {
-        if (err || !doc) {
-          reject(new PairingVerificationError(errMsg));
+        if (err) {
+          // Assume error on our side
+          reject(err);
+        } else if (!doc) {
+          // Pairing request was invalid or expired
+          reject(new RequestError(errMsg));
         } else {
           resolve(doc);
         }
@@ -143,5 +141,4 @@ class PairingRequestService {
 
 module.exports = {
   PairingRequestService,
-  PairingVerificationError,
 };
