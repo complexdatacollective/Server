@@ -23,12 +23,12 @@ const validate = filepath => new Promise((resolve, reject) => {
 });
 
 /**
- * @class ProtocolImporter
+ * @class ProtocolManager
  */
-class ProtocolImporter {
+class ProtocolManager {
   constructor(dataDir) {
     this.protocolDir = path.join(dataDir, protocolDirName);
-    this.presentDialog = this.presentDialog.bind(this);
+    this.presentImportDialog = this.presentImportDialog.bind(this);
     this.validateAndImport = this.validateAndImport.bind(this);
   }
 
@@ -40,7 +40,7 @@ class ProtocolImporter {
    * Primary entry for native UI. Display an Open dialog for the user to select
    * importable files.
    */
-  presentDialog() {
+  presentImportDialog() {
     const opts = {
       title: 'Import Protocol',
       properties: ['openFile'],
@@ -132,6 +132,6 @@ class ProtocolImporter {
 }
 
 Object.freeze(ErrorMessages);
-ProtocolImporter.ErrorMessages = ErrorMessages;
+ProtocolManager.ErrorMessages = ErrorMessages;
 
-module.exports = ProtocolImporter;
+module.exports = ProtocolManager;

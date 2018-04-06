@@ -2,7 +2,7 @@
 const restify = require('restify');
 const logger = require('electron-log');
 
-const DeviceManager = require('./deviceManager');
+const DeviceManager = require('../data-managers/DeviceManager');
 const { PairingRequestService, PairingVerificationError } = require('./pairingRequestService');
 
 const ApiName = 'DevciceAPI';

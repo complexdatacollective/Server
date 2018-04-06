@@ -1,23 +1,23 @@
 /* eslint-env jest */
 import fs from 'fs';
 import { dialog } from 'electron';
-import ProtocolImporter from '../ProtocolImporter';
+import ProtocolManager from '../ProtocolManager';
 
 jest.mock('fs');
 jest.mock('electron');
 jest.mock('electron-log');
 
-describe('ProtocolImporter', () => {
-  const errorMessages = ProtocolImporter.ErrorMessages;
+describe('ProtocolManager', () => {
+  const errorMessages = ProtocolManager.ErrorMessages;
   let importer;
 
   beforeEach(() => {
-    importer = new ProtocolImporter('.');
+    importer = new ProtocolManager('.');
   });
 
   describe('UI hook', () => {
     it('presents a dialog', () => {
-      importer.presentDialog();
+      importer.presentImportDialog();
       expect(dialog.showOpenDialog).toHaveBeenCalled();
     });
   });

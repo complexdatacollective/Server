@@ -3,7 +3,7 @@
 
 jest.mock('libsodium-wrappers');
 jest.mock('electron-log');
-jest.mock('../deviceManager');
+jest.mock('../../data-managers/DeviceManager');
 
 const { DeviceService } = require('../deviceService');
 const { jsonClient, makeUrl } = require('../../../setupTests');

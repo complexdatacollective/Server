@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const DeviceManager = require('../deviceManager');
+const DeviceManager = require('../DeviceManager');
 
 const mockSaltHex = 'daaa785631a9481b53b7d9d8434ea673';
 const mockSecretHex = 'd7ff85d1ce04a59d848a87945f341c06323f7f9a356b5ac982c15481e0117fdc';

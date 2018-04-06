@@ -3,12 +3,12 @@ const net = require('net');
 
 const { AdminService } = require('../adminService');
 const { jsonClient, makeUrl } = require('../../../setupTests');
-const DeviceManager = require('../deviceManager');
-const ProtocolImporter = require('../../utils/ProtocolImporter');
+const DeviceManager = require('../../data-managers/DeviceManager');
+const ProtocolManager = require('../../data-managers/ProtocolManager');
 
 jest.mock('electron-log');
-jest.mock('../deviceManager');
-jest.mock('../../utils/ProtocolImporter');
+jest.mock('../../data-managers/DeviceManager');
+jest.mock('../../data-managers/ProtocolManager');
 
 const testPortNumber = 52001;
 
@@ -123,7 +123,7 @@ describe('the AdminService', () => {
         const mockFiles = ['a.netcanvas'];
 
         beforeAll(() => {
-          ProtocolImporter.mockImplementation(() => ({
+          ProtocolManager.mockImplementation(() => ({
             validateAndImport: files => Promise.resolve(files),
             savedFiles: () => Promise.resolve(mockFiles),
           }));
@@ -144,7 +144,7 @@ describe('the AdminService', () => {
         describe('when importer fails', () => {
           beforeAll(() => {
             const mockError = { error: 'mock' };
-            ProtocolImporter.mockImplementation(() => ({
+            ProtocolManager.mockImplementation(() => ({
               validateAndImport: () => Promise.reject(mockError),
               savedFiles: () => Promise.reject(mockError),
             }));

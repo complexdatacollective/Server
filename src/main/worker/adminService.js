@@ -3,8 +3,8 @@ const logger = require('electron-log');
 const corsMiddleware = require('restify-cors-middleware');
 const detectPort = require('detect-port');
 
-const DeviceManager = require('./deviceManager');
-const ProtocolImporter = require('../utils/ProtocolImporter');
+const DeviceManager = require('../data-managers/DeviceManager');
+const ProtocolManager = require('../data-managers/ProtocolManager');
 
 const DefaultPort = 8080;
 
@@ -24,7 +24,7 @@ class AdminService {
     this.api = this.createApi();
     this.statusDelegate = statusDelegate;
     this.deviceMgr = new DeviceManager(dataDir);
-    this.protocolImporter = new ProtocolImporter(dataDir);
+    this.protocolManager = new ProtocolManager(dataDir);
   }
 
   /**
@@ -102,7 +102,7 @@ class AdminService {
 
     api.post('/protocols', (req, res, next) => {
       const files = req.body.files;
-      this.protocolImporter.validateAndImport(files)
+      this.protocolManager.validateAndImport(files)
         .then(saved => res.send({ status: 'ok', protocols: saved }))
         .catch((err) => {
           logger.error(err);
@@ -112,7 +112,7 @@ class AdminService {
     });
 
     api.get('/protocols', (req, res, next) => {
-      this.protocolImporter.savedFiles()
+      this.protocolManager.savedFiles()
         .then(files => res.send({ status: 'ok', protocols: files }))
         .catch((err) => {
           logger.error(err);
