@@ -4,6 +4,7 @@
 
 const ipcRenderer = {
   on: jest.fn(),
+  once: jest.fn(),
   send: jest.fn(),
 };
 

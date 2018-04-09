@@ -69,7 +69,8 @@ class ProtocolManager {
   /**
    * Primary interface for render-side API
    * @param  {FileList} fileList [description]
-   * @return {Promise} rejects if there is a problem saving, or on invalid input
+   * @return {Promise} rejects if there is a problem saving, or on invalid input;
+   *                   resolves with an array of file names.
    */
   validateAndImport(fileList) {
     if (!fileList) {

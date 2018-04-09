@@ -1,13 +1,14 @@
 /* eslint-env jest */
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
 
+const ProtocolManager = require('../../data-managers/ProtocolManager');
+const { DeviceService } = require('../deviceService');
+const { jsonClient, makeUrl } = require('../../../setupTests');
+
 jest.mock('libsodium-wrappers');
 jest.mock('electron-log');
 jest.mock('../../data-managers/DeviceManager');
 jest.mock('../../data-managers/ProtocolManager');
-
-const { DeviceService } = require('../deviceService');
-const { jsonClient, makeUrl } = require('../../../setupTests');
 
 const testPortNumber = 5200;
 const PairingCodeProperty = 'pairingCode';
@@ -111,6 +112,25 @@ describe('Device Service', () => {
             [PairingCodeProperty]: req.pairingCode,
           }))
           .then(resp => expect(resp.statusCode).toBe(200))
+          .then(done);
+      });
+    });
+
+    describe('/protocols', () => {
+      const mockSavedFiles = ['a.netcanvas'];
+
+      beforeAll(() => {
+        ProtocolManager.mockImplementation(() => ({
+          savedFiles: () => Promise.resolve(mockSavedFiles),
+        }));
+      });
+
+      it('lists available protocols', (done) => {
+        jsonClient.get(makeUrl('/protocols', deviceService.api.url))
+          .then((res) => {
+            expect(res.statusCode).toBe(200);
+            expect(res.json.data).toContainEqual({ filename: mockSavedFiles[0] });
+          })
           .then(done);
       });
     });

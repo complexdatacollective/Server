@@ -31,3 +31,12 @@ function withApiClient(WrappedComponent) {
 }
 
 export default withApiClient;
+
+const IPC = {
+  ApiConnectionInfoChannel,
+  RequestApiConnectionInfoChannel,
+};
+
+export {
+  IPC,
+};
