@@ -1,7 +1,6 @@
-/* eslint new-cap: ["error", { "newIsCapExceptions": ["nedb"] }] */
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
 
-const nedb = require('nedb');
+const NeDB = require('nedb');
 const uuidv4 = require('uuid/v4');
 const libsodium = require('libsodium-wrappers');
 const logger = require('electron-log');
@@ -48,7 +47,7 @@ function deriveSecret(pairingCode, salt) {
  */
 class PairingRequestService {
   constructor() {
-    this.db = new nedb(dbConfig); // eslint-disable-line new-cap
+    this.db = new NeDB(dbConfig); // eslint-disable-line new-cap
 
     this.db.ensureIndex({
       fieldName: 'createdAt',
@@ -69,7 +68,6 @@ class PairingRequestService {
           const secretKey = deriveSecret(pairingCode, salt);
 
           // TODO: avoiding serialization is preferable; how is that handled with db?
-          // TODO: promisify nedb...
           this.db.insert({
             salt: libsodium.to_hex(salt),
             secretKey: libsodium.to_hex(secretKey),

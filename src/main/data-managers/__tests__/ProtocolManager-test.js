@@ -6,6 +6,7 @@ import ProtocolManager from '../ProtocolManager';
 jest.mock('fs');
 jest.mock('electron');
 jest.mock('electron-log');
+jest.mock('nedb');
 
 describe('ProtocolManager', () => {
   const errorMessages = ProtocolManager.ErrorMessages;
@@ -15,6 +16,7 @@ describe('ProtocolManager', () => {
   beforeEach(() => {
     importer = new ProtocolManager('.');
     invalidFileErr = expect.objectContaining({ message: errorMessages.InvalidFile });
+    importer.postProcessFile = jest.fn(filename => Promise.resolve(filename));
   });
 
   describe('UI hook', () => {
@@ -103,20 +105,21 @@ describe('ProtocolManager', () => {
   });
 
   it('resolves with the destination filename', async () => {
-    fs.copyFile = jest.fn((src, dest, cb) => { cb(); });
+    fs.copyFile.mockImplementation((src, dest, cb) => { cb(); });
     await expect(importer.importFile('foo.netcanvas')).resolves.toMatch(/foo/);
   });
 
   it('rejects on failure', async () => {
     const err = new Error('Mock error');
-    fs.copyFile = jest.fn((src, dest, cb) => { cb(err); });
+    fs.copyFile.mockImplementation((src, dest, cb) => { cb(err); });
     await expect(importer.importFile('foo.netcanvas')).rejects.toEqual(err);
   });
 
   it('uses fs to find existing files', async () => {
-    const mockFiles = ['a.netcanvas'];
-    fs.readdir = jest.fn((dir, cb) => { cb(null, mockFiles); });
-    await expect(importer.savedFiles()).resolves.toEqual(mockFiles);
+    const mockFiles = [{ filename: 'a.netcanvas' }];
+    importer.db.find.mockImplementation((q, cb) => cb(null, mockFiles));
+    await expect(importer.savedFiles())
+      .resolves.toContainEqual(expect.objectContaining(mockFiles[0]));
   });
 
   describe('fileContents', () => {

@@ -1,6 +1,7 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
 const restify = require('restify');
 const logger = require('electron-log');
+const { URL } = require('url');
 
 const DeviceManager = require('../data-managers/DeviceManager');
 const ProtocolManager = require('../data-managers/ProtocolManager');
@@ -141,7 +142,10 @@ class DeviceService {
         // TODO: return metadata (see #60) incl. checksums (protocolFile returns
         // raw contents to match existing client behavior)
         this.protocolManager.savedFiles()
-          .then(files => files.map(f => ({ filename: f })))
+          .then(files => files.map(f => ({
+            ...f,
+            downloadUrl: new URL(`/protocols/${f.filename}`, this.api.url),
+          })))
           .then(files => res.json({ status: 'ok', data: files }))
           .catch(err => this.handlers.onError(err, res))
           .then(next);

@@ -117,7 +117,7 @@ describe('Device Service', () => {
     });
 
     describe('/protocols', () => {
-      const mockSavedFiles = ['a.netcanvas'];
+      const mockSavedFiles = [{ filename: 'a.netcanvas' }];
 
       beforeAll(() => {
         ProtocolManager.mockImplementation(() => ({
@@ -125,13 +125,10 @@ describe('Device Service', () => {
         }));
       });
 
-      it('lists available protocols', (done) => {
-        jsonClient.get(makeUrl('/protocols', deviceService.api.url))
-          .then((res) => {
-            expect(res.statusCode).toBe(200);
-            expect(res.json.data).toContainEqual({ filename: mockSavedFiles[0] });
-          })
-          .then(done);
+      it('lists available protocols', async () => {
+        const res = await jsonClient.get(makeUrl('/protocols', deviceService.api.url));
+        expect(res.statusCode).toBe(200);
+        expect(res.json.data).toContainEqual(expect.objectContaining(mockSavedFiles[0]));
       });
     });
   });

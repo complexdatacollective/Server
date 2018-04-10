@@ -1,12 +1,12 @@
 const path = require('path');
-const nedb = require('nedb');
+const NeDB = require('nedb');
 const uuidv4 = require('uuid/v4');
 
 const DeviceDbName = 'devices.db';
 
 class DeviceManager {
-  // TODO: nedb doesn't (yet?) support multiple 'concurrent' clients
-  // Even though existing app code is serial, autoloading happens async,
+  // TODO: [#58] nedb doesn't support multiple 'concurrent' clients.
+  // Even though existing app code is serial, autoloading happens async
   // and nedb errors when renaming an expected temp file.
   // Temporary workaround, since we're running worker services in the same process:
   // cache client per name.
@@ -16,7 +16,7 @@ class DeviceManager {
     }
     if (!DeviceManager.dbClients[filename]) {
       // eslint-disable-next-line new-cap
-      DeviceManager.dbClients[filename] = new nedb({
+      DeviceManager.dbClients[filename] = new NeDB({
         inMemoryOnly: false,
         filename,
         autoload: true,
