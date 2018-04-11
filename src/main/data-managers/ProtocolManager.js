@@ -59,12 +59,12 @@ class ProtocolManager {
   }
 
   /**
-   * @return {Promise} Rejects if there was an error.
-   *                   Resolves with the saved file names if successful.
-   *                   Resolves with undefined if no files were chosen by the user.
-   * @description
-   * Primary entry for native UI. Display an Open dialog for the user to select
-   * importable files.
+   * Primary entry for native UI (e.g., File -> Import).
+   * Display an Open dialog for the user to select importable files.
+   * @async
+   * @return {Array<string>|undefined} saved file names, or `undefined`
+   *                                   if no files were selected
+   * @throws If importing of any input file failed
    */
   presentImportDialog() {
     const opts = {
@@ -92,10 +92,10 @@ class ProtocolManager {
 
   /**
    * Primary interface for render-side API
-   * @param  {FileList} fileList [description]
-   * @return {Promise<Object|Error>}
-   *         - resolves with an array of protocol metadata (each containing .filename)
-   *         - rejects if there is a problem saving, or on invalid input;
+   * @async
+   * @param  {FileList} fileList
+   * @return {Array<Object>} an array of protocol metadata (each containing .filename)
+   * @throws {RequestError|Error} If there is a problem saving, or on invalid input
    */
   validateAndImport(fileList) {
     if (!fileList) {
@@ -132,8 +132,10 @@ class ProtocolManager {
 
   /**
    * Import a file into the working app directory
+   * @async
    * @param  {string} filepath of existing file on local disk
-   * @return {Promise<string|Error>} Resolves with saved filepath.
+   * @return {string} The saved filepath.
+   * @throws {RequestError|Error} if the file to import isn't found: ErrorMessages.InvalidFile
    */
   importFile(localFilepath = '') {
     return new Promise((resolve, reject) => {
@@ -154,10 +156,11 @@ class ProtocolManager {
   }
 
   /**
-   * Parse protocol.json and persist metadata to DB
+   * Parse protocol.json and persist metadata to DB.
+   * @async
    * @param  {string} savedFilepath
-   * @return {Promise<string|Error>} Resolves with the (same) savedFilepath for chaining;
-   *                   Rejects if the file is not saved or protocol is invalid
+   * @return {string} Resolves with the (same) savedFilepath for chaining
+   * @throws Rejects if the file is not saved or protocol is invalid
    */
   // TODO: any further validation before saving?
   // TODO: delete file if post-process fails?
@@ -211,6 +214,12 @@ class ProtocolManager {
     });
   }
 
+  /**
+   * Get a list of all protocol metadata
+   * @async
+   * @return {Array<Object>} all persisted protocol data
+   * @throws {Error}
+   */
   allProtocols() {
     return new Promise((resolve, reject) => {
       this.db.find({}, (err, docs) => {
@@ -223,6 +232,14 @@ class ProtocolManager {
     });
   }
 
+  /**
+   * Get the raw contents of saved protocol as a Buffer
+   * @async
+   * @param {string} savedFilename base filename
+   * @return {Buffer} raw file contents
+   * @throws {RequestError|Error} If file doesn't exit (ErrorMessages.InvalidFile),
+   *         or there is an error reading
+   */
   fileContents(savedFileName) {
     return new Promise((resolve, reject) => {
       if (typeof savedFileName !== 'string') {

@@ -29,7 +29,7 @@ class AdminService {
 
   /**
    * Start API listening on an open port.
-   * @param  {[type]} port [description]
+   * @param  {string|number} port number in valid range [1024,65535]
    * @return {Promise}
    */
   start(port = DefaultPort) {
