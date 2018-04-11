@@ -4,17 +4,21 @@
 const ProtocolManager = require('../../data-managers/ProtocolManager');
 const { DeviceService } = require('../deviceService');
 const { jsonClient, makeUrl } = require('../../../setupTests');
+const { RequestError } = require('../../errors/RequestError');
+
 
 jest.mock('libsodium-wrappers');
 jest.mock('electron-log');
 jest.mock('../../data-managers/DeviceManager');
 jest.mock('../../data-managers/ProtocolManager');
+jest.mock('../pairingRequestService');
 
 const testPortNumber = 5200;
 const PairingCodeProperty = 'pairingCode';
 
 describe('Device Service', () => {
   let deviceService;
+  let mockPairingDbRecord;
   const send = 'json'; // the send method used in restify response handlers
 
   beforeEach(() => {
@@ -22,6 +26,9 @@ describe('Device Service', () => {
     // We mock this method regardless of assertions:
     // when run concurrently, parent is a testRunner worker
     deviceService.messageParent = jest.fn();
+
+    mockPairingDbRecord = { _id: '1', salt: 'a', pairingCode: '123' };
+    deviceService.reqSvc.createRequest.mockReturnValue(Promise.resolve(mockPairingDbRecord));
   });
 
   it('responds to a client pairing request', (done) => {
@@ -80,16 +87,17 @@ describe('Device Service', () => {
       deviceService.stop().then(done);
     });
 
-    it('responds to pairing requests', (done) => {
-      jsonClient.get(makeUrl('/devices/new', deviceService.api.url))
-        .then((res) => {
-          expect(res.statusCode).toBe(200);
-          expect(res.json.data).toHaveProperty('pairingRequestId');
-        })
-        .then(done);
+    it('responds to pairing requests', async () => {
+      const res = await jsonClient.get(makeUrl('/devices/new', deviceService.api.url));
+      expect(res.statusCode).toBe(200);
+      expect(res.json.data).toHaveProperty('pairingRequestId');
     });
 
     describe('pairing confirmation endpoint', () => {
+      beforeEach(() => {
+        deviceService.reqSvc.verifyRequest.mockReturnValue(Promise.reject(new RequestError()));
+      });
+
       it('rejects invalid requests', async () => {
         await expect(
           jsonClient.post(makeUrl('/devices', deviceService.api.url), {}),
@@ -103,16 +111,22 @@ describe('Device Service', () => {
         ).rejects.toHaveProperty('statusCode', 400);
       });
 
-      // TODO: mock reqSvc
-      it('completes a valid pairing request', (done) => {
-        const reqSvc = deviceService.reqSvc;
-        reqSvc.createRequest()
-          .then(req => jsonClient.post(makeUrl('/devices', deviceService.api.url), {
-            requestId: req._id,
-            [PairingCodeProperty]: req.pairingCode,
-          }))
-          .then(resp => expect(resp.statusCode).toBe(200))
-          .then(done);
+      describe('with a valid request', () => {
+        beforeEach(() => {
+          // Mock that the pairing request was found & valid:
+          deviceService.reqSvc.verifyRequest.mockReturnValue(Promise.resolve({}));
+          // Mock that the new device was successfully saved:
+          deviceService.deviceManager.createDeviceDocument.mockReturnValue(Promise.resolve({}));
+        });
+
+        it('completes a valid pairing request', async () => {
+          const resp = await jsonClient.post(makeUrl('/devices', deviceService.api.url), {
+            pairingRequestId: '1',
+            [PairingCodeProperty]: '12345',
+          });
+          expect(resp.statusCode).toBe(200);
+          expect(resp.json.data).toHaveProperty('device');
+        });
       });
     });
 

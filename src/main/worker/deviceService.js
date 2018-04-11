@@ -18,6 +18,26 @@ const actions = {
 };
 
 /**
+ * @swagger
+ * definitions:
+ *   Device:
+ *     type: object
+ *     properties:
+ *       id:
+ *         type: string
+ *         description: UUIDv4
+ *         example: a692d57c-ab0f-4aa4-8e52-565a585990da
+ *       salt:
+ *         type: string
+ *         example: a866b6e85b17caa294093ef3454da1b0
+ *         description: 32-byte hex
+ */
+const deviceOutputSchema = device => ({
+  id: device._id,
+  salt: device.salt,
+});
+
+/**
  * @memberof BackgroundServices
  * @class DeviceService
  * Provides APIs for external client devices running
@@ -61,16 +81,128 @@ class DeviceService {
 
     api.use(restify.plugins.bodyParser());
 
-    // Pairing Step 1. Generate a new pairing request.
-    // Send request ID in response; present pairing passcode to user (out of band).
+    /**
+     * @swagger
+     * /devices/new:
+     *   get:
+     *     summary: Pairing Request
+     *     description: Pairing Step 1.
+     *         Generate a new pairing request.
+     *         Responds with the request ID, and presents a pairing passcode to user (out of band).
+     *         This information can be used to complete the pairing (create a device)
+     *     responses:
+     *       200:
+     *         description: Information needed to complete the pairing request
+     *         schema:
+     *           type: object
+     *           properties:
+     *             status:
+     *               type: string
+     *               example: ok
+     *             data:
+     *               type: object
+     *               properties:
+     *                 pairingRequestId:
+     *                   type: string
+     *                   description: UUIDv4
+     *                   example: b0a17a58-dc13-4270-998f-ec46a7d8edb2
+     *                 salt:
+     *                   type: string
+     *                   example: a866b6e85b17caa294093ef3454da1b0
+     *                   description: 32-byte hex
+     *       400:
+     *         description: request error
+     *         schema:
+     *           $ref: '#/definitions/Error'
+     */
     api.get('/devices/new', this.handlers.onPairingRequest);
 
-    // Pairing Step 2.
-    // User has entered pairing code
+    /**
+     * @swagger
+     * /devices:
+     *   post:
+     *     summary: Pairing Confirmation
+     *     description: Pairing Step 2.
+     *         User has entered pairing code.
+     *     parameters:
+     *       - in: body
+     *         schema:
+     *           type: object
+     *           properties:
+     *             pairingRequestId:
+     *               required: true
+     *               type: string
+     *               description: available from the 'Pairing Request' response
+     *               example: b0a17a58-dc13-4270-998f-ec46a7d8edb2
+     *             pairingCode:
+     *               required: true
+     *               type: string
+     *               description: alphanumeric code entered by the user
+     *               example: u8jz1M85JRAB
+     *     responses:
+     *       200:
+     *         description: a new Device
+     *         schema:
+     *           type: object
+     *           properties:
+     *             status:
+     *               type: string
+     *               example: ok
+     *             data:
+     *               $ref: '#/definitions/Device'
+     *       400:
+     *         description: request error
+     *         schema:
+     *           $ref: '#/definitions/Error'
+     */
     api.post('/devices', this.handlers.onPairingConfirm);
 
+    /**
+     * @swagger
+     * /protocols:
+     *   get:
+     *     summary: Protocol list
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       200:
+     *         description: all protocols available
+     *         schema:
+     *           type: object
+     *           properties:
+     *             status:
+     *               type: string
+     *               example: ok
+     *             data:
+     *               $ref: '#/definitions/Protocol'
+     *       400:
+     *         description: request error
+     *         schema:
+     *           $ref: '#/definitions/Error'
+     */
     api.get('/protocols', this.handlers.protocolList);
 
+    /**
+     * @swagger
+     * /protocols/{filename}:
+     *   get:
+     *     summary: Protocol download
+     *     description: Direct download of a zipped protocol package
+     *     produces:
+     *       - application/zip
+     *       - application/json
+     *     responses:
+     *       200:
+     *         description: zipped protocol (binary data).
+     *                      Checksum available from /protocols endpoint
+     *         schema:
+     *           type: file
+     *           example: "[raw data buffer]"
+     *       400:
+     *         description: request error
+     *         schema:
+     *           $ref: '#/definitions/Error'
+     */
     api.get('/protocols/:filename', this.handlers.protocolFile);
 
     return api;
@@ -87,6 +219,19 @@ class DeviceService {
 
   get handlers() {
     return {
+      /**
+       * @swagger
+       * definitions:
+       *   Error:
+       *     type: object
+       *     properties:
+       *       message:
+       *         type: 'string'
+       *         example: 'error'
+       *       status:
+       *         type: 'string'
+       *         example: 'Human-readable description of error'
+       */
       // Secondary handler for error cases in req/res chain
       onError: (err, res) => {
         if (err instanceof RequestError) {
@@ -119,7 +264,7 @@ class DeviceService {
       },
 
       onPairingConfirm: (req, res, next) => {
-        const pendingRequestId = req.body && req.body.requestId;
+        const pendingRequestId = req.body && req.body.pairingRequestId;
         const pairingCode = req.body && req.body.pairingCode;
 
         // TODO: payload will actually be encrypted.
@@ -132,15 +277,13 @@ class DeviceService {
               action: actions.PAIRING_COMPLETE,
               data: { pairingCode },
             });
-            res.json({ status: 'ok', device });
+            res.json({ status: 'ok', data: { device: deviceOutputSchema(device) } });
           })
           .catch(err => this.handlers.onError(err, res))
           .then(next);
       },
 
       protocolList: (req, res, next) => {
-        // TODO: return metadata (see #60) incl. checksums (protocolFile returns
-        // raw contents to match existing client behavior)
         this.protocolManager.allProtocols()
           .then(protocols => protocols.map(p => this.protocolOutputSchema(p)))
           .then(schemas => res.json({ status: 'ok', data: schemas }))
@@ -160,6 +303,23 @@ class DeviceService {
     };
   }
 
+  /**
+   * @swagger
+   * definitions:
+   *   Protocol:
+   *     type: object
+   *     properties:
+   *       name:
+   *         type: string
+   *       version:
+   *         type: string
+   *       networkCanvasVersion:
+   *         type: string
+   *       downloadUrl:
+   *         type: string
+   *       sha256:
+   *         type: string
+   */
   protocolOutputSchema(protocol) {
     return {
       name: protocol.name,

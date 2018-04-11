@@ -9,6 +9,7 @@
 /electron-dev
 /docs
 
+config/api/api-spec-*.json
 .eslintcache
 
 npm-debug.log*
