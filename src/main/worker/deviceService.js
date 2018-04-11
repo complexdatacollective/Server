@@ -5,7 +5,7 @@ const { URL } = require('url');
 
 const DeviceManager = require('../data-managers/DeviceManager');
 const ProtocolManager = require('../data-managers/ProtocolManager');
-const RequestError = require('../errors/RequestError');
+const { RequestError } = require('../errors/RequestError');
 const { PairingRequestService } = require('./pairingRequestService');
 
 const ApiName = 'DevciceAPI';

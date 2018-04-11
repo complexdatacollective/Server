@@ -6,7 +6,7 @@ const libsodium = require('libsodium-wrappers');
 const logger = require('electron-log');
 
 const PairingCodeFactory = require('./pairingCodeFactory');
-const RequestError = require('../errors/RequestError');
+const { RequestError } = require('../errors/RequestError');
 
 const DeviceRequestTTLSeconds = 5 * 60;
 

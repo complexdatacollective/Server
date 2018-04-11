@@ -15,4 +15,13 @@ class RequestError extends Error {
   }
 }
 
-module.exports = RequestError;
+const ErrorMessages = {
+  EmptyFilelist: 'Empty filelist',
+  InvalidFile: 'Invalid File',
+};
+
+module.exports = {
+  default: RequestError,
+  RequestError,
+  ErrorMessages,
+};

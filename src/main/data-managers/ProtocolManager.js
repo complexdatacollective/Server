@@ -3,26 +3,14 @@ const logger = require('electron-log');
 const fs = require('fs');
 const path = require('path');
 const jszip = require('jszip');
-const NeDB = require('nedb');
-const crypto = require('crypto');
 
-const RequestError = require('../errors/RequestError');
+const ProtocolDB = require('./ProtocolDB');
+const { ErrorMessages, RequestError } = require('../errors/RequestError');
 
 const validFileExts = ['netcanvas'];
 const protocolDirName = 'protocols';
 
-const ErrorMessages = {
-  EmptyFilelist: 'Empty filelist',
-  InvalidFile: 'Invalid File',
-};
-
 const ProtocolDataFile = 'protocol.json';
-
-const DbConfig = {
-  inMemoryOnly: false,
-  autoload: true,
-  timestampData: true,
-};
 
 const validateExt = filepath => new Promise((resolve, reject) => {
   // TODO: validate & extract [#60]
@@ -38,24 +26,13 @@ const validateExt = filepath => new Promise((resolve, reject) => {
  * @class ProtocolManager
  */
 class ProtocolManager {
-  // TODO: See comments at DeviceManager.dbClient
-  static dbClient(filename) {
-    if (!this.dbClients) {
-      this.dbClients = {};
-    }
-    if (!this.dbClients[filename]) {
-      this.dbClients[filename] = new NeDB({ ...DbConfig, filename });
-    }
-    return this.dbClients[filename];
-  }
-
   constructor(dataDir) {
     this.protocolDir = path.join(dataDir, protocolDirName);
     this.presentImportDialog = this.presentImportDialog.bind(this);
     this.validateAndImport = this.validateAndImport.bind(this);
 
     const dbFile = path.join(dataDir, 'db', 'protocols.db');
-    this.db = ProtocolManager.dbClient(dbFile);
+    this.db = new ProtocolDB(dbFile);
   }
 
   /**
@@ -179,37 +156,13 @@ class ProtocolManager {
           .then((parsedProtocol) => {
             // TODO: Move .base (and correspoinding escape check) to fn
             const filename = path.parse(savedFilepath).base;
-            resolve(this.persistProtocolMetadata(filename, dataBuffer, parsedProtocol));
+            this.db.save(filename, dataBuffer, parsedProtocol);
+            resolve(filename);
           })
           .catch(() => {
             // Assume that any error indicates invalid protocol zip
             reject(new RequestError(ErrorMessages.InvalidFile));
           });
-      });
-    });
-  }
-
-  // For now, we're overwriting files, so filenames are unique. Upsert based on filename.
-  persistProtocolMetadata(baseFilename, rawFileData, { name, version, networkCanvasVersion }) {
-    return new Promise((resolve, reject) => {
-      this.db.update({
-        filename: baseFilename,
-      }, {
-        filename: baseFilename,
-        name,
-        version,
-        networkCanvasVersion,
-        sha256: crypto.createHash('sha256').update(rawFileData).digest('hex'),
-      }, {
-        multi: false,
-        upsert: true,
-      }, (dbErr, count, insertedDoc) => {
-        if (dbErr || !count) {
-          reject(new RequestError(ErrorMessages.InvalidFile));
-        } else {
-          logger.debug(insertedDoc ? 'Inserted' : 'Updated', 'metadata for', baseFilename);
-          resolve(baseFilename);
-        }
       });
     });
   }
@@ -221,15 +174,7 @@ class ProtocolManager {
    * @throws {Error}
    */
   allProtocols() {
-    return new Promise((resolve, reject) => {
-      this.db.find({}, (err, docs) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(docs);
-        }
-      });
-    });
+    return this.db.all();
   }
 
   /**

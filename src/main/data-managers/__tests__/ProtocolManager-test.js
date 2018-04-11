@@ -1,12 +1,15 @@
 /* eslint-env jest */
 import fs from 'fs';
 import { dialog } from 'electron';
+import JSZip from 'jszip';
+
 import ProtocolManager from '../ProtocolManager';
 
 jest.mock('fs');
 jest.mock('electron');
 jest.mock('electron-log');
-jest.mock('nedb');
+jest.mock('jszip');
+jest.mock('../ProtocolDB');
 
 describe('ProtocolManager', () => {
   const errorMessages = ProtocolManager.ErrorMessages;
@@ -16,7 +19,6 @@ describe('ProtocolManager', () => {
   beforeEach(() => {
     importer = new ProtocolManager('.');
     invalidFileErr = expect.objectContaining({ message: errorMessages.InvalidFile });
-    importer.postProcessFile = jest.fn(filename => Promise.resolve(filename));
   });
 
   describe('UI hook', () => {
@@ -48,6 +50,7 @@ describe('ProtocolManager', () => {
 
       it('imports & promises each file', async () => {
         importer.importFile = jest.fn(infile => `copy-${infile}`);
+        importer.postProcessFile = jest.fn(filename => Promise.resolve(filename));
         const mockFiles = ['a.netcanvas', 'b.netcanvas', 'c.netcanvas'];
         const results = await importer.validateAndImport(mockFiles);
         expect(results).toHaveLength(3);
@@ -95,32 +98,34 @@ describe('ProtocolManager', () => {
     });
   });
 
-  it('uses fs to copy a file', () => {
-    importer.importFile('foo.netcanvas');
-    expect(fs.copyFile)
-      .toHaveBeenCalledWith('foo.netcanvas', expect.stringMatching(/foo\.netcanvas/), expect.any(Function));
-  });
+  describe('file handling', () => {
+    it('uses fs to copy a file', () => {
+      importer.importFile('foo.netcanvas');
+      expect(fs.copyFile)
+        .toHaveBeenCalledWith('foo.netcanvas', expect.stringMatching(/foo\.netcanvas/), expect.any(Function));
+    });
 
-  it('requires a filename', async () => {
-    await expect(importer.importFile()).rejects.toEqual(invalidFileErr);
-  });
+    it('requires a filename', async () => {
+      await expect(importer.importFile()).rejects.toEqual(invalidFileErr);
+    });
 
-  it('resolves with the destination filename', async () => {
-    fs.copyFile.mockImplementation((src, dest, cb) => { cb(); });
-    await expect(importer.importFile('foo.netcanvas')).resolves.toMatch(/foo/);
-  });
+    it('resolves with the destination filename', async () => {
+      fs.copyFile.mockImplementation((src, dest, cb) => { cb(); });
+      await expect(importer.importFile('foo.netcanvas')).resolves.toMatch(/foo/);
+    });
 
-  it('rejects on failure', async () => {
-    const err = new Error('Mock error');
-    fs.copyFile.mockImplementation((src, dest, cb) => { cb(err); });
-    await expect(importer.importFile('foo.netcanvas')).rejects.toEqual(err);
-  });
+    it('rejects on failure', async () => {
+      const err = new Error('Mock error');
+      fs.copyFile.mockImplementation((src, dest, cb) => { cb(err); });
+      await expect(importer.importFile('foo.netcanvas')).rejects.toEqual(err);
+    });
 
-  it('uses fs to find existing files', async () => {
-    const mockFiles = [{ filename: 'a.netcanvas' }];
-    importer.db.find.mockImplementation((q, cb) => cb(null, mockFiles));
-    await expect(importer.allProtocols())
-      .resolves.toContainEqual(expect.objectContaining(mockFiles[0]));
+    it('uses fs to find existing files', async () => {
+      const mockFiles = [{ filename: 'a.netcanvas' }];
+      importer.db.all.mockReturnValue(Promise.resolve(mockFiles));
+      await expect(importer.allProtocols())
+        .resolves.toContainEqual(expect.objectContaining(mockFiles[0]));
+    });
   });
 
   describe('fileContents', () => {
@@ -155,6 +160,29 @@ describe('ProtocolManager', () => {
       it('rejects when file is missing', async () => {
         await expect(importer.fileContents('missingfile')).rejects.toMatchObject(invalidFileErr);
       });
+    });
+  });
+
+  describe('post-processing', () => {
+    let mockFileContents;
+    beforeAll(() => {
+      mockFileContents = new Buffer([]);
+      fs.readFile.mockImplementation((file, cb) => cb(null, mockFileContents));
+      const mockProtocolZipObj = {
+        async: () => JSON.stringify({ name: 'myProtocol' }),
+      };
+      const mockZipContents = { files: { 'protocol.json': mockProtocolZipObj } };
+      JSZip.loadAsync.mockReturnValue(Promise.resolve(mockZipContents));
+    });
+
+    it('parses file to get metadata', async () => {
+      await importer.postProcessFile('');
+      expect(JSZip.loadAsync).toHaveBeenCalled();
+    });
+
+    it('saves metadata to DB', async () => {
+      await importer.postProcessFile('');
+      expect(importer.db.save).toHaveBeenCalled();
     });
   });
 });
