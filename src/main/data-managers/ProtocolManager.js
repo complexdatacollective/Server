@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const jszip = require('jszip');
 const NeDB = require('nedb');
+const crypto = require('crypto');
 
 const RequestError = require('../errors/RequestError');
 
@@ -158,6 +159,8 @@ class ProtocolManager {
    * @return {Promise<string|Error>} Resolves with the (same) savedFilepath for chaining;
    *                   Rejects if the file is not saved or protocol is invalid
    */
+  // TODO: any further validation before saving?
+  // TODO: delete file if post-process fails?
   postProcessFile(savedFilepath) {
     return new Promise((resolve, reject) => {
       fs.readFile(savedFilepath, (err, dataBuffer) => {
@@ -173,7 +176,7 @@ class ProtocolManager {
           .then((parsedProtocol) => {
             // TODO: Move .base (and correspoinding escape check) to fn
             const filename = path.parse(savedFilepath).base;
-            resolve(this.persistProtocolMetadata(filename, parsedProtocol));
+            resolve(this.persistProtocolMetadata(filename, dataBuffer, parsedProtocol));
           })
           .catch(() => {
             // Assume that any error indicates invalid protocol zip
@@ -184,9 +187,7 @@ class ProtocolManager {
   }
 
   // For now, we're overwriting files, so filenames are unique. Upsert based on filename.
-  // TODO: any further validation before saving?
-  // TODO: delete file if post-process fails?
-  persistProtocolMetadata(baseFilename, { name, version, networkCanvasVersion }) {
+  persistProtocolMetadata(baseFilename, rawFileData, { name, version, networkCanvasVersion }) {
     return new Promise((resolve, reject) => {
       this.db.update({
         filename: baseFilename,
@@ -195,14 +196,15 @@ class ProtocolManager {
         name,
         version,
         networkCanvasVersion,
+        sha256: crypto.createHash('sha256').update(rawFileData).digest('hex'),
       }, {
         multi: false,
         upsert: true,
-      }, (dbErr, count) => {
+      }, (dbErr, count, insertedDoc) => {
         if (dbErr || !count) {
           reject(new RequestError(ErrorMessages.InvalidFile));
         } else {
-          logger.debug('Saved protocol for', baseFilename);
+          logger.debug(insertedDoc ? 'Inserted' : 'Updated', 'metadata for', baseFilename);
           resolve(baseFilename);
         }
       });

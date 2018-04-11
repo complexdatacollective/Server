@@ -166,6 +166,7 @@ class DeviceService {
       version: protocol.version,
       networkCanvasVersion: protocol.networkCanvasVersion,
       downloadUrl: new URL(`/protocols/${protocol.filename}`, this.api.url),
+      sha256: protocol.sha256,
     };
   }
 }
