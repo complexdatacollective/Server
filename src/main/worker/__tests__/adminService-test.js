@@ -59,14 +59,11 @@ describe('the AdminService', () => {
         otherService.close();
       });
 
-      it('discovers a new port if attempted port is in use', (done) => {
+      it('discovers a new port if attempted port is in use', async () => {
         expect(testPortNumber).toBeLessThan(65535 - 1);
-        adminService.start(testPortNumber)
-          .then((svc) => {
-            expect(svc).toBe(adminService);
-            expect(svc.port).toEqual(testPortNumber + 1);
-          })
-          .then(done);
+        const svc = await adminService.start(testPortNumber);
+        expect(svc).toBe(adminService);
+        expect(svc.port).toEqual(testPortNumber + 1);
       });
     });
 
@@ -76,16 +73,13 @@ describe('the AdminService', () => {
       describe('/health', () => {
         const endpoint = makeUrl('/health', apiBase);
 
-        it('reports health status', (done) => {
+        it('reports health status', async () => {
           const mockStatus = { uptime: 100 };
           adminService.statusDelegate = { status: () => mockStatus };
-          jsonClient.get(endpoint)
-            .then((res) => {
-              expect(res.json).toMatchObject({
-                serverStatus: expect.any(Object),
-              });
-            })
-            .then(done);
+          const res = await jsonClient.get(endpoint);
+          expect(res.json).toMatchObject({
+            serverStatus: expect.any(Object),
+          });
         });
       });
 
@@ -99,10 +93,9 @@ describe('the AdminService', () => {
           }));
         });
 
-        it('returns a device list', (done) => {
-          jsonClient.get(endpoint)
-            .then(resp => expect(resp.json.devices).toEqual(mockDevices))
-            .then(done);
+        it('returns a device list', async () => {
+          const resp = await jsonClient.get(endpoint);
+          expect(resp.json.devices).toEqual(mockDevices);
         });
 
         describe('when manager fails', () => {
@@ -125,20 +118,18 @@ describe('the AdminService', () => {
         beforeAll(() => {
           ProtocolManager.mockImplementation(() => ({
             validateAndImport: files => Promise.resolve(files),
-            savedFiles: () => Promise.resolve(mockFiles),
+            allProtocols: () => Promise.resolve(mockFiles.map(f => ({ filename: f }))),
           }));
         });
 
-        it('returns a list', (done) => {
-          jsonClient.get(endpoint)
-            .then(res => expect(res.json.protocols).toEqual(mockFiles))
-            .then(done);
+        it('returns a list', async () => {
+          const res = await jsonClient.get(endpoint);
+          expect(res.json.protocols).toContainEqual({ filename: mockFiles[0] });
         });
 
-        it('accepts posted filenames', (done) => {
-          jsonClient.post(endpoint, { files: mockFiles })
-            .then(res => expect(res.json.protocols).toEqual(mockFiles))
-            .then(done);
+        it('accepts posted filenames', async () => {
+          const res = await jsonClient.post(endpoint, { files: mockFiles });
+          expect(res.json.protocols).toEqual(mockFiles);
         });
 
         describe('when importer fails', () => {
@@ -146,7 +137,7 @@ describe('the AdminService', () => {
             const mockError = { error: 'mock' };
             ProtocolManager.mockImplementation(() => ({
               validateAndImport: () => Promise.reject(mockError),
-              savedFiles: () => Promise.reject(mockError),
+              allProtocols: () => Promise.reject(mockError),
             }));
           });
 

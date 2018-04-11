@@ -121,7 +121,7 @@ describe('Device Service', () => {
 
       beforeAll(() => {
         ProtocolManager.mockImplementation(() => ({
-          savedFiles: () => Promise.resolve([{ filename: mockFilename }]),
+          allProtocols: () => Promise.resolve([{ filename: mockFilename }]),
         }));
       });
 

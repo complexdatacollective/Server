@@ -80,9 +80,7 @@ class ProtocolManager {
           return;
         }
         this.validateAndImport(filePaths)
-          .then((savedFiles) => {
-            resolve(savedFiles.map(f => f.filename));
-          })
+          .then(protocolData => resolve(protocolData.map(f => f.filename)))
           .catch((err) => {
             logger.error(err);
             reject(err);
@@ -94,8 +92,9 @@ class ProtocolManager {
   /**
    * Primary interface for render-side API
    * @param  {FileList} fileList [description]
-   * @return {Promise} rejects if there is a problem saving, or on invalid input;
-   *                   resolves with an array of file names.
+   * @return {Promise<Object|Error>}
+   *         - resolves with an array of protocol metadata (each containing .filename)
+   *         - rejects if there is a problem saving, or on invalid input;
    */
   validateAndImport(fileList) {
     if (!fileList) {
@@ -210,7 +209,7 @@ class ProtocolManager {
     });
   }
 
-  savedFiles() {
+  allProtocols() {
     return new Promise((resolve, reject) => {
       this.db.find({}, (err, docs) => {
         if (err) {

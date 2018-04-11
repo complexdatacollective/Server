@@ -119,7 +119,7 @@ describe('ProtocolManager', () => {
   it('uses fs to find existing files', async () => {
     const mockFiles = [{ filename: 'a.netcanvas' }];
     importer.db.find.mockImplementation((q, cb) => cb(null, mockFiles));
-    await expect(importer.savedFiles())
+    await expect(importer.allProtocols())
       .resolves.toContainEqual(expect.objectContaining(mockFiles[0]));
   });
 

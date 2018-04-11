@@ -141,7 +141,7 @@ class DeviceService {
       protocolList: (req, res, next) => {
         // TODO: return metadata (see #60) incl. checksums (protocolFile returns
         // raw contents to match existing client behavior)
-        this.protocolManager.savedFiles()
+        this.protocolManager.allProtocols()
           .then(protocols => protocols.map(p => this.protocolOutputSchema(p)))
           .then(schemas => res.json({ status: 'ok', data: schemas }))
           .catch(err => this.handlers.onError(err, res))

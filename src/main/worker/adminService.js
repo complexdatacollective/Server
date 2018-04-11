@@ -112,8 +112,8 @@ class AdminService {
     });
 
     api.get('/protocols', (req, res, next) => {
-      this.protocolManager.savedFiles()
-        .then(files => res.send({ status: 'ok', protocols: files }))
+      this.protocolManager.allProtocols()
+        .then(protocols => res.send({ status: 'ok', protocols }))
         .catch((err) => {
           logger.error(err);
           res.send(500, { status: 'error' });
