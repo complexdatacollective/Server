@@ -24,15 +24,24 @@ describe('Server', () => {
     mdns.createAdvertisement.mockReturnValue(mockAdvert);
   });
 
-  it('starts services', (done) => {
-    server = new Server(serverOpts);
-    server.startServices(testPortNumber).then(() => {
+  describe('running services', () => {
+    beforeEach(() => {
+      server = new Server(serverOpts);
+    });
+    afterEach(() => server.close());
+
+    it('starts services', async () => {
+      await server.startServices(testPortNumber);
       expect(server.deviceService).toBeDefined();
       expect(server.adminService).toBeDefined();
-      server.close();
-      done();
     });
   });
+
+  it('starts services', () => {
+    server = new Server(serverOpts);
+    expect(server.status()).toMatchObject({});
+  });
+
 
   describe('with a device service', () => {
     let deviceService;
