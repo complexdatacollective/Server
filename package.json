@@ -94,6 +94,7 @@
   "dependencies": {
     "classnames": "^2.2.5",
     "detect-port": "^1.2.2",
+    "jszip": "^3.1.5",
     "libsodium-wrappers": "^0.7.3",
     "mdns": "^2.3.4",
     "nedb": "^1.8.0",

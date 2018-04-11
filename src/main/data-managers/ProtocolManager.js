@@ -2,6 +2,7 @@ const { dialog } = require('electron');
 const logger = require('electron-log');
 const fs = require('fs');
 const path = require('path');
+const jszip = require('jszip');
 
 const RequestError = require('../errors/RequestError');
 
@@ -13,6 +14,8 @@ const ErrorMessages = {
   EmptyFilelist: 'Empty filelist',
   InvalidFile: 'Invalid File',
 };
+
+const ProtocolDataFile = 'protocol.json';
 
 const validate = filepath => new Promise((resolve, reject) => {
   // TODO: validate & extract [#60]
@@ -121,6 +124,31 @@ class ProtocolManager {
     });
   }
 
+  postProcessFile(savedFilename) {
+    logger.debug(this);
+    return new Promise((resolve, reject) => {
+      fs.readFile(savedFilename, (err, dataBuffer) => {
+        if (err) {
+          logger.error(err);
+          reject(err);
+          return;
+        }
+        jszip.loadAsync(dataBuffer)
+          .then(zip => zip.files[ProtocolDataFile])
+          .then(zipObject => zipObject.async('string'))
+          .then(contents => JSON.parse(contents))
+          .then((jsonData) => {
+            console.log(jsonData);
+            resolve(jsonData);
+          })
+          .catch(() => {
+            // Assume that any error indicates invalid protocol zip
+            reject(new RequestError(ErrorMessages.InvalidFile));
+          });
+      });
+    });
+  }
+
   savedFiles() {
     return new Promise((resolve, reject) => {
       fs.readdir(this.protocolDir, (err, files) => {
@@ -140,11 +168,15 @@ class ProtocolManager {
         return;
       }
       const filePath = path.join(this.protocolDir, savedFileName);
+
       // Prevent escaping protocol directory
       if (filePath.indexOf(this.protocolDir) !== 0) {
         reject(new RequestError(ErrorMessages.InvalidFile));
         return;
       }
+
+      this.postProcessFile(filePath);
+
       fs.readFile(filePath, (err, dataBuffer) => {
         if (err) {
           reject(err);
