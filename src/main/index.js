@@ -87,7 +87,9 @@ const appMenu = Menu.buildFromTemplate([
 ]);
 
 app.on('ready', () => {
-  mainWindow.open('/overview');
+  if (!process.env.DEV_SUPPRESS_WINDOW_DEFAULT_OPEN) {
+    mainWindow.open('/overview');
+  }
   tray = createTray(trayMenu);
   Menu.setApplicationMenu(appMenu);
   if (isWindows) {
