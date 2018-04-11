@@ -23,7 +23,7 @@ const DbConfig = {
   timestampData: true,
 };
 
-const validate = filepath => new Promise((resolve, reject) => {
+const validateExt = filepath => new Promise((resolve, reject) => {
   // TODO: validate & extract [#60]
   const parsed = path.parse(filepath);
   if (!validFileExts.includes(parsed.ext.replace(/^\./, ''))) {
@@ -80,7 +80,9 @@ class ProtocolManager {
           return;
         }
         this.validateAndImport(filePaths)
-          .then(savedFiles => resolve(savedFiles))
+          .then((savedFiles) => {
+            resolve(savedFiles.map(f => f.filename));
+          })
           .catch((err) => {
             logger.error(err);
             reject(err);
@@ -105,11 +107,11 @@ class ProtocolManager {
     const workQueue = [];
     for (let i = 0; i < fileList.length; i += 1) {
       workQueue.push(this.ensureDataDir()
-        .then(() => validate(fileList[i]))
+        .then(() => validateExt(fileList[i]))
         .then(file => this.importFile(file))
-        .then((savedFile) => {
-          logger.debug(`Imported ${savedFile}`);
-          return savedFile;
+        .then((savedFilepath) => {
+          logger.debug(`Imported ${savedFilepath}`);
+          return savedFilepath;
         })
         .then(file => this.postProcessFile(file))
         .then(file => path.parse(file).base));
@@ -128,16 +130,21 @@ class ProtocolManager {
     });
   }
 
-  importFile(filepath = '') {
+  /**
+   * Import a file into the working app directory
+   * @param  {string} filepath of existing file on local disk
+   * @return {Promise<string|Error>} Resolves with saved filepath.
+   */
+  importFile(localFilepath = '') {
     return new Promise((resolve, reject) => {
-      const filename = path.parse(filepath).base;
+      const filename = path.parse(localFilepath).base;
       if (!filename) {
         reject(new RequestError(ErrorMessages.InvalidFile));
         return;
       }
 
       const destPath = path.join(this.protocolDir, filename);
-      fs.copyFile(filepath, destPath, (err) => {
+      fs.copyFile(localFilepath, destPath, (err) => {
         if (err) {
           reject(err);
         }
@@ -148,13 +155,13 @@ class ProtocolManager {
 
   /**
    * Parse protocol.json and persist metadata to DB
-   * @param  {string} savedFilename
-   * @return {promise} Resolves with the (same) savedFilename for chaining;
+   * @param  {string} savedFilepath
+   * @return {Promise<string|Error>} Resolves with the (same) savedFilepath for chaining;
    *                   Rejects if the file is not saved or protocol is invalid
    */
-  postProcessFile(savedFilename) {
+  postProcessFile(savedFilepath) {
     return new Promise((resolve, reject) => {
-      fs.readFile(savedFilename, (err, dataBuffer) => {
+      fs.readFile(savedFilepath, (err, dataBuffer) => {
         if (err) {
           logger.error(err);
           reject(err);
@@ -164,34 +171,41 @@ class ProtocolManager {
           .then(zip => zip.files[ProtocolDataFile])
           .then(zipObject => zipObject.async('string'))
           .then(contents => JSON.parse(contents))
-          .then((protocol) => {
-            // For now, we're overwriting files... upsert based on filename.
-            // TODO: any further validation before saving?
-            // TODO: delete file if post-process fails?
-            this.db.update({
-              internalFilepath: savedFilename,
-            }, {
-              internalFilepath: savedFilename,
-              filename: path.parse(savedFilename).base,
-              name: protocol.name,
-              version: protocol.version,
-              networkCanvasVersion: protocol.version,
-            }, {
-              multi: false,
-              upsert: true,
-            }, (dbErr, count, doc) => {
-              if (dbErr) {
-                reject(new RequestError(ErrorMessages.InvalidFile));
-              } else {
-                logger.debug('Saved protocol', JSON.stringify(doc));
-                resolve(savedFilename);
-              }
-            });
+          .then((parsedProtocol) => {
+            // TODO: Move .base (and correspoinding escape check) to fn
+            const filename = path.parse(savedFilepath).base;
+            resolve(this.persistProtocolMetadata(filename, parsedProtocol));
           })
           .catch(() => {
             // Assume that any error indicates invalid protocol zip
             reject(new RequestError(ErrorMessages.InvalidFile));
           });
+      });
+    });
+  }
+
+  // For now, we're overwriting files, so filenames are unique. Upsert based on filename.
+  // TODO: any further validation before saving?
+  // TODO: delete file if post-process fails?
+  persistProtocolMetadata(baseFilename, { name, version, networkCanvasVersion }) {
+    return new Promise((resolve, reject) => {
+      this.db.update({
+        filename: baseFilename,
+      }, {
+        filename: baseFilename,
+        name,
+        version,
+        networkCanvasVersion,
+      }, {
+        multi: false,
+        upsert: true,
+      }, (dbErr, count) => {
+        if (dbErr || !count) {
+          reject(new RequestError(ErrorMessages.InvalidFile));
+        } else {
+          logger.debug('Saved protocol for', baseFilename);
+          resolve(baseFilename);
+        }
       });
     });
   }
@@ -202,8 +216,7 @@ class ProtocolManager {
         if (err) {
           reject(err);
         } else {
-          // Never expose internal filename
-          resolve(docs.map(d => ({ ...d, internalFilepath: undefined })));
+          resolve(docs);
         }
       });
     });

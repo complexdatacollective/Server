@@ -46,12 +46,13 @@ describe('ProtocolManager', () => {
         await expect(importer.validateAndImport(['file.unknownextension'])).rejects.toEqual(invalidFileErr);
       });
 
-      it('imports & promises each file', (done) => {
+      it('imports & promises each file', async () => {
         importer.importFile = jest.fn(infile => `copy-${infile}`);
-        importer.validateAndImport(['a.netcanvas', 'b.netcanvas', 'c.netcanvas'])
-          .then(results => expect(results).toHaveLength(3))
-          .then(() => expect(importer.importFile).toHaveBeenCalledTimes(3))
-          .then(done);
+        const mockFiles = ['a.netcanvas', 'b.netcanvas', 'c.netcanvas'];
+        const results = await importer.validateAndImport(mockFiles);
+        expect(results).toHaveLength(3);
+        expect(results[0]).toMatch(mockFiles[0]);
+        expect(importer.importFile).toHaveBeenCalledTimes(3);
       });
 
       // TBD what we want to do here...

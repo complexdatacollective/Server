@@ -117,18 +117,19 @@ describe('Device Service', () => {
     });
 
     describe('/protocols', () => {
-      const mockSavedFiles = [{ filename: 'a.netcanvas' }];
+      const mockFilename = 'a.netcanvas';
 
       beforeAll(() => {
         ProtocolManager.mockImplementation(() => ({
-          savedFiles: () => Promise.resolve(mockSavedFiles),
+          savedFiles: () => Promise.resolve([{ filename: mockFilename }]),
         }));
       });
 
-      it('lists available protocols', async () => {
+      it('lists available protocols via downloadUrl', async () => {
         const res = await jsonClient.get(makeUrl('/protocols', deviceService.api.url));
+        const expectedUrl = expect.stringContaining(mockFilename);
         expect(res.statusCode).toBe(200);
-        expect(res.json.data).toContainEqual(expect.objectContaining(mockSavedFiles[0]));
+        expect(res.json.data).toContainEqual({ downloadUrl: expectedUrl });
       });
     });
   });

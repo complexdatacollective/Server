@@ -142,11 +142,8 @@ class DeviceService {
         // TODO: return metadata (see #60) incl. checksums (protocolFile returns
         // raw contents to match existing client behavior)
         this.protocolManager.savedFiles()
-          .then(files => files.map(f => ({
-            ...f,
-            downloadUrl: new URL(`/protocols/${f.filename}`, this.api.url),
-          })))
-          .then(files => res.json({ status: 'ok', data: files }))
+          .then(protocols => protocols.map(p => this.protocolOutputSchema(p)))
+          .then(schemas => res.json({ status: 'ok', data: schemas }))
           .catch(err => this.handlers.onError(err, res))
           .then(next);
       },
@@ -154,14 +151,21 @@ class DeviceService {
       protocolFile: (req, res, next) => {
         this.protocolManager.fileContents(req.params.filename)
           .then((fileBuf) => {
-            // TODO: more appropriate mime-type?
-            res.header('content-type', 'application/octet-stream');
+            res.header('content-type', 'application/zip');
             res.send(fileBuf);
           })
           .catch(err => this.handlers.onError(err, res))
           .then(next);
       },
+    };
+  }
 
+  protocolOutputSchema(protocol) {
+    return {
+      name: protocol.name,
+      version: protocol.version,
+      networkCanvasVersion: protocol.networkCanvasVersion,
+      downloadUrl: new URL(`/protocols/${protocol.filename}`, this.api.url),
     };
   }
 }
