@@ -12,6 +12,7 @@ jest.mock('jszip');
 jest.mock('../ProtocolDB');
 
 describe('ProtocolManager', () => {
+  const mockFileContents = new Buffer([]);
   const errorMessages = ProtocolManager.ErrorMessages;
   let importer;
   let invalidFileErr;
@@ -22,9 +23,34 @@ describe('ProtocolManager', () => {
   });
 
   describe('UI hook', () => {
+    const mockFileList = ['a.netcanvas'];
+
     it('presents a dialog', () => {
       importer.presentImportDialog();
       expect(dialog.showOpenDialog).toHaveBeenCalled();
+    });
+
+    it('allows an import via the open dialog', (done) => {
+      const simulateChooseFile = (opts, callback) => {
+        callback(mockFileList);
+        expect(importer.validateAndImport).toHaveBeenCalled();
+        done();
+      };
+      importer.validateAndImport = jest.fn().mockReturnValue(Promise.resolve(mockFileList));
+      dialog.showOpenDialog.mockImplementation(simulateChooseFile);
+      importer.presentImportDialog();
+    });
+
+    it('allows dialog to be cancelled', (done) => {
+      expect.assertions(1);
+      const simulateChooseNothing = (opts, callback) => {
+        callback();
+        expect(importer.validateAndImport).not.toHaveBeenCalled();
+        done();
+      };
+      importer.validateAndImport = jest.fn();
+      dialog.showOpenDialog.mockImplementation(simulateChooseNothing);
+      importer.presentImportDialog();
     });
   });
 
@@ -140,7 +166,6 @@ describe('ProtocolManager', () => {
 
     it('returns raw content buffer', async () => {
       expect.assertions(2);
-      const mockFileContents = new Buffer([]);
       fs.readFile.mockImplementation((file, opts, cb) => {
         const fn = typeof cb === 'undefined' ? opts : cb;
         expect(opts.encoding).toBeUndefined();
@@ -164,9 +189,7 @@ describe('ProtocolManager', () => {
   });
 
   describe('post-processing', () => {
-    let mockFileContents;
     beforeAll(() => {
-      mockFileContents = new Buffer([]);
       fs.readFile.mockImplementation((file, cb) => cb(null, mockFileContents));
       const mockProtocolZipObj = {
         async: () => JSON.stringify({ name: 'myProtocol' }),
@@ -183,6 +206,17 @@ describe('ProtocolManager', () => {
     it('saves metadata to DB', async () => {
       await importer.postProcessFile('');
       expect(importer.db.save).toHaveBeenCalled();
+    });
+  });
+
+  describe('post-processing failures', () => {
+    beforeAll(() => {
+      fs.readFile.mockImplementation((file, cb) => cb(null, mockFileContents));
+      JSZip.loadAsync.mockImplementation(() => Promise.reject({}));
+    });
+
+    it('rejects if protocol cannot be read', async () => {
+      await expect(importer.postProcessFile('')).rejects.toMatchObject(invalidFileErr);
     });
   });
 });

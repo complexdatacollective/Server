@@ -122,5 +122,23 @@ describe('the DeviceAPI', () => {
         expect(res.json.data).toContainEqual({ downloadUrl: expectedUrl });
       });
     });
+
+    describe('GET /protocols/:filename', () => {
+      const mockFilename = 'a.netcanvas';
+      const mockFileContents = new Buffer(['a'.charCodeAt()]);
+      beforeAll(() => {
+        ProtocolManager.mockImplementation(() => ({
+          fileContents: () => Promise.resolve(mockFileContents),
+        }));
+      });
+
+      it('returns file data', async () => {
+        const res = await jsonClient.get(makeUrl(`/protocols/${mockFilename}`, deviceApi.server.url));
+        expect(res.statusCode).toBe(200);
+        // For the purposes of testing, compare string
+        expect(res.json).toBeUndefined();
+        expect(res.data).toEqual(mockFileContents.toString());
+      });
+    });
   });
 });

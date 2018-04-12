@@ -5,6 +5,23 @@ const url = require('url');
 
 enzyme.configure({ adapter: new Adapter() });
 
+/**
+ * HTTP Client for asserting response body formats.
+ *
+ * Response contains a (parsed) json prop, for example:
+ *
+ * {
+ *   statusCode: 200,
+ *   json: {
+ *     "status": "ok",
+ *     "data": {
+ *       "item": "data from server"
+ *     }
+ *   }
+ * }
+ *
+ * Also contains the raw (string) response body; not typically needed.
+ */
 const jsonClient = {
   post: (uri, data) => jsonClient.request(uri, data),
 
@@ -20,13 +37,17 @@ const jsonClient = {
       },
     };
     const req = http.request(options, (res) => {
-      let rawData = '';
-      res.on('data', (chunk) => { rawData += chunk; });
+      const isJson = res.headers['content-type'] === 'application/json';
+      let stringData = '';
+      res.on('data', (chunk) => { stringData += chunk.toString(); });
       res.on('end', () => {
         const respBody = {
           statusCode: res.statusCode,
-          json: JSON.parse(rawData),
+          data: stringData,
         };
+        if (isJson) {
+          respBody.json = JSON.parse(stringData);
+        }
         if (res.statusCode === 200) {
           resolve(respBody);
         } else {
