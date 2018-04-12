@@ -78,7 +78,7 @@ class PairingRequestService {
               // TODO: retry?
               reject(err);
             } else {
-              logger.info('New pairing request saved', newRequest._id);
+              logger.info('New pairing request saved', newRequest._id, pairingCode);
               resolve(newRequest);
             }
           });
