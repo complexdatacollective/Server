@@ -20,21 +20,25 @@ const jsonClient = {
       },
     };
     const req = http.request(options, (res) => {
-      if (res.statusCode !== 200) {
-        reject({ statusCode: res.statusCode });
-        return;
-      }
       let rawData = '';
       res.on('data', (chunk) => { rawData += chunk; });
       res.on('end', () => {
-        resolve({
+        const respBody = {
           statusCode: res.statusCode,
           json: JSON.parse(rawData),
-        });
+        };
+        if (res.statusCode === 200) {
+          resolve(respBody);
+        } else {
+          reject(respBody);
+        }
       });
     });
     if (reqData) { req.write(JSON.stringify(reqData)); }
-    req.on('error', reject);
+    req.on('error', (err) => {
+      console.warn('testClient error', err);
+      reject(err);
+    });
     req.end();
   })),
 };

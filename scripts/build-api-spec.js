@@ -19,7 +19,7 @@ const options = {
     },
   },
   // Path to the API docs
-  apis: [path.join(__dirname, '..', 'src', 'main', 'worker', 'deviceService.js')],
+  apis: [path.join(__dirname, '..', 'src', 'main', 'worker', 'DeviceAPI.js')],
 };
 
 const destDir = path.join(paths.config, 'api');
