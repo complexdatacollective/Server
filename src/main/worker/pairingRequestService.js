@@ -11,6 +11,7 @@ const { RequestError } = require('../errors/RequestError');
 const DeviceRequestTTLSeconds = 5 * 60;
 
 const dbConfig = {
+  corruptAlertThreshold: 0,
   // TODO: review in-mem/on-disk and document.
   // Notes on persistence:
   //    0. We want to store the pairing passcode, which is sensitive.

@@ -5,6 +5,7 @@ const logger = require('electron-log');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
 
 const DbConfig = {
+  corruptAlertThreshold: 0,
   inMemoryOnly: false,
   autoload: true,
   timestampData: true,

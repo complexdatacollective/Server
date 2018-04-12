@@ -17,6 +17,7 @@ class DeviceManager {
     if (!DeviceManager.dbClients[filename]) {
       // eslint-disable-next-line new-cap
       DeviceManager.dbClients[filename] = new NeDB({
+        corruptAlertThreshold: 0,
         inMemoryOnly: false,
         filename,
         autoload: true,
