@@ -12,15 +12,12 @@ describe('an AdminApiClient', () => {
     fetch.resetMocks();
   });
 
-  it('can get the server status', (done) => {
+  it('can get the server status', async () => {
     const mockStatus = { uptime: 100 };
     fetch.mockResponse(JSON.stringify({ serverStatus: mockStatus }));
-    client.get('/health')
-      .then((data) => {
-        expect(data).toHaveProperty('serverStatus');
-        expect(data.serverStatus).toMatchObject(mockStatus);
-      })
-      .then(done);
+    const data = await client.get('/health');
+    expect(data).toHaveProperty('serverStatus');
+    expect(data.serverStatus).toMatchObject(mockStatus);
   });
 
   it('can post data', async () => {

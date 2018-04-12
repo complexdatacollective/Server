@@ -7,7 +7,7 @@ ShallowWrapper {
   Symbol(enzyme.__unrendered__): <PanelItem
     label="foo"
     value="bar"
-/>,
+  />,
   Symbol(enzyme.__renderer__): Object {
     "batchedUpdates": [Function],
     "getNode": [Function],
@@ -23,14 +23,14 @@ ShallowWrapper {
       "children": Array [
         <div
           className="panel-item__label"
->
+        >
           foo
-</div>,
+        </div>,
         <div
           className="panel-item__value"
->
+        >
           bar
-</div>,
+        </div>,
       ],
       "className": "panel-item",
     },
@@ -72,14 +72,14 @@ ShallowWrapper {
         "children": Array [
           <div
             className="panel-item__label"
->
+          >
             foo
-</div>,
+          </div>,
           <div
             className="panel-item__value"
->
+          >
             bar
-</div>,
+          </div>,
         ],
         "className": "panel-item",
       },

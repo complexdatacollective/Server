@@ -26,7 +26,7 @@ describe('the AdminService', () => {
   });
 
   afterEach((done) => {
-    adminService.stop().then(done);
+    adminService.stop().then(() => done());
   });
 
   it('defines an API', () => {
@@ -52,7 +52,7 @@ describe('the AdminService', () => {
       let otherService;
 
       beforeEach((done) => {
-        otherService = new net.Server().listen(testPortNumber, 'localhost', done);
+        otherService = new net.Server().listen(testPortNumber, 'localhost', () => done());
       });
 
       afterEach(() => {
@@ -68,7 +68,7 @@ describe('the AdminService', () => {
     });
 
     describe('running', () => {
-      beforeEach(done => adminService.start(testPortNumber).then(done));
+      beforeEach(done => adminService.start(testPortNumber).then(() => done()));
 
       describe('/health', () => {
         const endpoint = makeUrl('/health', apiBase);

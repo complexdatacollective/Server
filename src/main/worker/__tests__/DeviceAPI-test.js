@@ -13,8 +13,6 @@ jest.mock('../pairingRequestService');
 
 describe('the DeviceAPI', () => {
   const dataDir = '';
-  // let mockPairingDbRecord;
-  // const send = 'json'; // the send method used in restify response handlers
 
   describe('out-of-band IPC delegate', () => {
     let consoleError;
@@ -45,11 +43,11 @@ describe('the DeviceAPI', () => {
 
     beforeEach((done) => {
       deviceApi = new DeviceAPI(dataDir, mockDelegate);
-      deviceApi.listen(testPortNumber).then(done);
+      deviceApi.listen(testPortNumber).then(() => done());
     });
 
     afterEach((done) => {
-      deviceApi.close().then(done);
+      deviceApi.close().then(() => done());
     });
 
     describe('GET /devices/new', () => {
@@ -68,7 +66,7 @@ describe('the DeviceAPI', () => {
 
     describe('POST /devices', () => {
       beforeEach(() => {
-        // Note: mockReturnValue(Promise.reject(...))  triggers UnhandledPromiseRejectionWarning
+        // Note: mockRejectedValue() triggers UnhandledPromiseRejectionWarning
         deviceApi.requestService.verifyRequest.mockImplementation(() => (
           Promise.reject(new RequestError())
         ));

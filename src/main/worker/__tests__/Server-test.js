@@ -49,8 +49,7 @@ describe('Server', () => {
     beforeEach((done) => {
       server = new Server();
       deviceService = new DeviceService({});
-      deviceService.start()
-        .then(done);
+      deviceService.start().then(() => done());
     });
 
     afterEach(() => deviceService.stop());
