@@ -5,10 +5,11 @@ const swaggerJSDoc = require('swagger-jsdoc');
 const paths = require('../config/paths');
 
 const ApiVersion = '0.0.0';
+const ApiPort = process.env.DEVICE_SERVICE_PORT || 51001; // See DeviceService
 
 const options = {
   swaggerDefinition: {
-    host: 'localhost',
+    host: `localhost:${ApiPort}`,
     basePath: '/',
     schemes: ['http'],
     info: {
