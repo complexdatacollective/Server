@@ -33,7 +33,7 @@ const actions = {
  * @description
  * This files runs in two modes:
  * 1. As a main process, in which case it automatically initialises a Server
- *    based on environment variables PORT and APP_SETTINGS_DB
+ *    based on environment variables PORT and APP_SETTINGS_DATA_DIR
  * 2. As a module, in which case it exports the createServer() method, which
  *    will spawn this file as a new process (see 1. above), and return the
  *    process wrapped in a ServerProcess instance.
@@ -46,37 +46,37 @@ const actions = {
 const ensurePemKeyPair = (currentAppSettings) => {
   if (!currentAppSettings || !currentAppSettings.keys) {
     return PrivateSocket.generatePemKeyPair()
-    .then(
+      .then(
         keypair =>
-        Object.assign({}, currentAppSettings, { keys: keypair }),
-    );
+          Object.assign({}, currentAppSettings, { keys: keypair }),
+      );
   }
 
   return currentAppSettings;
 };
 
-const startServer = (port, settingsDb) => {
+const startServer = (port, dataDir) => {
   if (!port) { throw new Error('You must specify a server port'); }
-  if (!settingsDb) { throw new Error('You must specify a settings database'); }
+  if (!dataDir) { throw new Error('You must specify a user data dir'); }
 
-  const dataDir = path.dirname(settingsDb); // TODO: set properly
+  const settingsDb = path.join(dataDir, 'db', 'settings');
   const appSettings = settings(new Datastore({ filename: settingsDb, autoload: true }));
 
   // Guarantee libsodium is ready before other services start up
   return libsodium.ready.then(() => appSettings.get())
-  .then(ensurePemKeyPair)
-  .then(serverOptions => Object.assign({}, serverOptions, {
-    dataDir,
-  }))
-  .then(appSettings.set)
-  .then(currentAppSettings => new Server(currentAppSettings))
-  .then((server) => {
-    if (process.env.NODE_ENV !== 'test') {
-      return server.startServices(port);
-    }
-    return server;
-  })
-  .catch(logger.error);
+    .then(ensurePemKeyPair)
+    .then(serverOptions => Object.assign({}, serverOptions, {
+      dataDir,
+    }))
+    .then(appSettings.set)
+    .then(currentAppSettings => new Server(currentAppSettings))
+    .then((server) => {
+      if (process.env.NODE_ENV !== 'test') {
+        return server.startServices(port);
+      }
+      return server;
+    })
+    .catch(logger.error);
 };
 
 const serverTaskHandler = server =>
@@ -95,7 +95,7 @@ const serverTaskHandler = server =>
   };
 
 if (require.main === module) {
-  startServer(process.env.PORT, process.env.APP_SETTINGS_DB)
+  startServer(process.env.PORT, process.env.APP_SETTINGS_DATA_DIR)
     .then((server) => {
       process.on('message', serverTaskHandler(server));
       process.send({ action: SERVER_READY });
@@ -128,12 +128,12 @@ class ServerProcess {
   }
 }
 
-const createServer = (port, db) => {
+const createServer = (port, dataDir) => {
   if (!port) { throw new Error('You must specify a server port'); }
-  if (!db) { throw new Error('You must specify a settings database'); }
+  if (!dataDir) { throw new Error('You must specify a user data directory'); }
 
   return new Promise((resolve) => {
-    const env = Object.assign({}, process.env, { PORT: port, APP_SETTINGS_DB: db });
+    const env = Object.assign({}, process.env, { PORT: port, APP_SETTINGS_DATA_DIR: dataDir });
     const ps = fork(`${__filename}`, [], { env });
     ps.once('message', ({ action }) => {
       if (action === SERVER_READY) {

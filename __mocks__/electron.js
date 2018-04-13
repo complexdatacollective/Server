@@ -15,6 +15,10 @@ const app = {
   getName: () => 'test',
 };
 
+const dialog = {
+  showOpenDialog: jest.fn(),
+};
+
 class BrowserWindow {
   constructor() {
     return {
@@ -25,7 +29,7 @@ class BrowserWindow {
       webContents: {
         openDevTools: jest.fn(),
         send: jest.fn(),
-      }
+      },
     };
   }
 }
@@ -35,6 +39,7 @@ BrowserWindow.getAllWindows = jest.fn().mockReturnValue([]);
 module.exports = {
   app,
   BrowserWindow,
+  dialog,
   ipcMain,
   ipcRenderer,
 };

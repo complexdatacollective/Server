@@ -5,7 +5,7 @@ import { Icon } from 'network-canvas-ui/lib/components';
 
 const Header = ({ title }) => (
   <header className="header">
-    <h1 className="header__title">{title || 'Network Canvas Server'}</h1>
+    <h1 className="header__title">{title}</h1>
 
     <nav className="header__nav">
       <NavLink to="/settings" className="header__link">

@@ -33,7 +33,7 @@ describe('PairingRequest Service', () => {
 
   it('rejects a missing or expired request', async () => {
     await expect(
-        reqSvc.verifyRequest('bad-id', 'wrong-code'),
+      reqSvc.verifyRequest('bad-id', 'wrong-code'),
     ).rejects.toBeInstanceOf(Error);
   });
 

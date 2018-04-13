@@ -1,19 +1,20 @@
-const path = require('path');
-const { app } = require('electron');
+const { app, dialog, Menu } = require('electron');
 
+const ProtocolImporter = require('./utils/ProtocolImporter');
 const { isWindows } = require('./utils/environment');
 const { createMainWindow } = require('./components/mainWindow');
 const { createTray } = require('./components/tray');
 const { createServer, actions } = require('./worker/serverManager');
 
+const userDataDir = app.getPath('userData');
+const protocolImporter = new ProtocolImporter(userDataDir);
+
 const mainWindow = createMainWindow();
 
-// start the server
-// require('./server-starter');
 // Background server
 let server = null;
-const settingsDb = path.join(app.getPath('userData'), 'db', 'settings');
-createServer(8080, settingsDb).then((serverProcess) => {
+const dataDir = app.getPath('userData');
+createServer(8080, dataDir).then((serverProcess) => {
   server = serverProcess;
   server.on(actions.PAIRING_CODE_AVAILABLE, ({ data }) => {
     mainWindow.send(actions.PAIRING_CODE_AVAILABLE, data);
@@ -25,7 +26,6 @@ createServer(8080, settingsDb).then((serverProcess) => {
 
 // Keep reference; if tray is GCed, it disappears
 let tray; // eslint-disable-line no-unused-vars
-
 const trayMenu = [
   {
     label: 'Overview',
@@ -45,9 +45,41 @@ const trayMenu = [
   },
 ];
 
+const appMenu = Menu.buildFromTemplate([
+  {
+    submenu: [
+      { role: 'quit' },
+    ],
+  },
+  {
+    label: 'File',
+    submenu: [
+      {
+        label: 'Import Protocol...',
+        click: () => {
+          protocolImporter.presentDialog()
+            .then((savedFiles) => {
+              if (savedFiles) {
+                dialog.showMessageBox(mainWindow.window, {
+                  title: 'Success',
+                  message: 'Successfully Imported:',
+                  detail: savedFiles.join('\r\n'),
+                });
+              }
+            })
+            .catch((err) => {
+              dialog.showErrorBox('Import Error', err && err.message);
+            });
+        },
+      },
+    ],
+  },
+]);
+
 app.on('ready', () => {
   mainWindow.open('/overview');
   tray = createTray(trayMenu);
+  Menu.setApplicationMenu(appMenu);
   if (isWindows) {
     // On Windows, right-click shows the menu.
     // For now, make left-click open the main window.

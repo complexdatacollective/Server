@@ -13,15 +13,19 @@ import { ExportScreen, PairDevice, OverviewScreen, SettingsScreen } from './';
 //   <Route path={`/:basePath*/modal/${path.replace(/^\//, '')}`} component={component} />
 // );
 
-export default () => (
+const AppRoutes = () => (
   <React.Fragment>
     <Switch>
       <Route path="/dashboard" component={OverviewScreen} />
       <Route path="/settings" component={SettingsScreen} />
       <Route path="/export" component={ExportScreen} />
-      <Route render={() => <Redirect to="/dashboard" />} />
+      <Route>
+        <Redirect to="/dashboard" />
+      </Route>
     </Switch>
 
     <PairDevice />
   </React.Fragment>
 );
+
+export default AppRoutes;

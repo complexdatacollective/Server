@@ -8,3 +8,10 @@ body {
   width: 100%;
   height: 100%;
 }
+
+// Override Network-Canvas-UI, which hardcodes colors that don't really work here
+.icon {
+  .cls-1, .cls-2, .cls-3 {
+    fill: currentColor;
+  }
+}

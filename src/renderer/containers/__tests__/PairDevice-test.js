@@ -3,7 +3,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import { PairDevice } from '../PairDevice';
+import { UnconnectedPairDevice as PairDevice } from '../PairDevice';
 import { PairingStatus } from '../../ducks/modules/pairingRequest';
 
 const makeProps = status => ({

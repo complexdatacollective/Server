@@ -8,7 +8,7 @@ describe('the DeviceManager', () => {
   let deviceManager;
 
   beforeEach((done) => {
-    deviceManager = new DeviceManager('db');
+    deviceManager = new DeviceManager('.');
     deviceManager.db.remove({}, { multi: true }, done);
   });
 

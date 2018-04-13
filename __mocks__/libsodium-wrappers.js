@@ -1,3 +1,4 @@
+/* eslint-env jest */
 module.exports = {
   ready: Promise.resolve(true),
   randombytes_buf: jest.fn(),
