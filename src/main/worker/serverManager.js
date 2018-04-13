@@ -98,15 +98,17 @@ if (require.main === module) {
   startServer(process.env.PORT, process.env.APP_SETTINGS_DATA_DIR)
     .then((server) => {
       process.on('message', serverTaskHandler(server));
-      process.send({ action: SERVER_READY });
-    });
+      process.send({ action: SERVER_READY, connectionInfo: server.connectionInfo });
+    })
+    .catch(logger.error);
 }
 
 // 1. Running as a module:
 
 class ServerProcess {
-  constructor({ ps }) {
+  constructor({ ps, connectionInfo }) {
     this.process = ps;
+    this.connectionInfo = connectionInfo;
   }
 
   stop() {
@@ -135,10 +137,11 @@ const createServer = (port, dataDir) => {
   return new Promise((resolve) => {
     const env = Object.assign({}, process.env, { PORT: port, APP_SETTINGS_DATA_DIR: dataDir });
     const ps = fork(`${__filename}`, [], { env });
-    ps.once('message', ({ action }) => {
+    ps.once('message', ({ action, connectionInfo }) => {
       if (action === SERVER_READY) {
         resolve(new ServerProcess({
           ps,
+          connectionInfo,
         }));
       }
     });

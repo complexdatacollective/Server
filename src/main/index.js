@@ -1,4 +1,4 @@
-const { app, dialog, Menu } = require('electron');
+const { app, dialog, ipcMain, Menu } = require('electron');
 
 const ProtocolImporter = require('./utils/ProtocolImporter');
 const { isWindows } = require('./utils/environment');
@@ -6,9 +6,11 @@ const { createMainWindow } = require('./components/mainWindow');
 const { createTray } = require('./components/tray');
 const { createServer, actions } = require('./worker/serverManager');
 
+const ApiConnectionInfoChannel = 'API_INFO';
+const RequestApiConnectionInfoChannel = 'REQUEST_API_INFO';
+
 const userDataDir = app.getPath('userData');
 const protocolImporter = new ProtocolImporter(userDataDir);
-
 const mainWindow = createMainWindow();
 
 // Background server
@@ -16,6 +18,14 @@ let server = null;
 const dataDir = app.getPath('userData');
 createServer(8080, dataDir).then((serverProcess) => {
   server = serverProcess;
+
+  // Renderer may be ready before server, in which case send:
+  mainWindow.send(ApiConnectionInfoChannel, server.connectionInfo.adminService);
+
+  ipcMain.on(RequestApiConnectionInfoChannel, () => {
+    mainWindow.send(ApiConnectionInfoChannel, server.connectionInfo.adminService);
+  });
+
   server.on(actions.PAIRING_CODE_AVAILABLE, ({ data }) => {
     mainWindow.send(actions.PAIRING_CODE_AVAILABLE, data);
   });

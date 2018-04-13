@@ -22,7 +22,6 @@ class MainWindow {
     if (this.window) { return; }
 
     this.window = new BrowserWindow({
-      nodeIntegration: false,
       width: 800,
       height: 600,
       center: true,

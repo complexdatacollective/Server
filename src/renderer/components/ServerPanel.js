@@ -1,33 +1,41 @@
+/* eslint-disable */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { PanelItem } from '../components';
-import AdminApiClient from '../utils/adminApiClient';
+import withApiClient from './withApiClient';
 
 const getKeySnippet = key => key && key.slice(400, 416);
 
 const defaultServerOverview = {
   ip: 'x.x.x.x',
-  clients: 0,
   uptime: 0,
   publicKey: '',
 };
 
 class ServerPanel extends Component {
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.apiClient != prevState.apiClient) {
+      return { apiClient: nextProps.apiClient };
+    }
+    return null;
+  }
+
   constructor() {
     super();
     this.state = {
       version: '0.0.0',
-      notes: '',
     };
-    this.api = new AdminApiClient();
   }
 
-  componentDidMount() {
-    this.getServerHealth();
+  componentDidUpdate() {
+    this.getServerHealth(this.state.apiClient);
   }
 
   getServerHealth() {
-    this.api.get('/health')
+    if (!this.state.apiClient || this.state.serverOverview) {
+      return;
+    }
+    this.state.apiClient.get('/health')
       .then((resp) => {
         const { uptime, ip, publicKey } = resp.serverStatus;
         this.setState({
@@ -68,4 +76,8 @@ ServerPanel.propTypes = {
   className: PropTypes.string,
 };
 
-export default ServerPanel;
+export default withApiClient(ServerPanel);
+
+export {
+  ServerPanel as UnwrappedServerPanel,
+};

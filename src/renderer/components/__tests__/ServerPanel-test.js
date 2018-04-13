@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { shallow } from 'enzyme';
-import ServerPanel from '../ServerPanel';
+import { UnwrappedServerPanel as ServerPanel } from '../ServerPanel';
 
 jest.mock('../../utils/adminApiClient');
 

@@ -1,4 +1,6 @@
 /* eslint-env jest */
+const net = require('net');
+
 const { AdminService } = require('../adminService');
 const { jsonClient, makeUrl } = require('../../../setupTests');
 const DeviceManager = require('../deviceManager');
@@ -34,22 +36,38 @@ describe('the AdminService', () => {
   describe('API', () => {
     const apiBase = `http://localhost:${testPortNumber}`;
 
-    it('requires a port (and will not start server without)', (done) => {
-      expect.assertions(2);
-      adminService.start()
-        .catch(err => expect(err).toMatchObject({ message: 'Missing port' }))
-        .then(() => {
-          setImmediate(() => {
-            expect(adminService.api.address()).toBeNull();
-            done();
-          });
-        });
-    });
-
     it('listens on a port', async () => {
       await expect(
         adminService.start(testPortNumber),
       ).resolves.toBe(adminService);
+    });
+
+    it('defaults to a port if not supplied', async () => {
+      await expect(
+        adminService.start(),
+      ).resolves.toBe(adminService);
+    });
+
+    describe('when another service running on requested port', () => {
+      let otherService;
+
+      beforeEach((done) => {
+        otherService = new net.Server().listen(testPortNumber, 'localhost', done);
+      });
+
+      afterEach(() => {
+        otherService.close();
+      });
+
+      it('discovers a new port if attempted port is in use', (done) => {
+        expect(testPortNumber).toBeLessThan(65535 - 1);
+        adminService.start(testPortNumber)
+          .then((svc) => {
+            expect(svc).toBe(adminService);
+            expect(svc.port).toEqual(testPortNumber + 1);
+          })
+          .then(done);
+      });
     });
 
     describe('running', () => {

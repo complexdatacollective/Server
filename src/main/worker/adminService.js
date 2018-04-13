@@ -1,16 +1,17 @@
 const restify = require('restify');
 const logger = require('electron-log');
+const corsMiddleware = require('restify-cors-middleware');
+const detectPort = require('detect-port');
 
 const DeviceManager = require('./deviceManager');
 const ProtocolImporter = require('../utils/ProtocolImporter');
 
-const corsMiddleware = require('restify-cors-middleware');
+const DefaultPort = 8080;
 
 const ApiName = 'AdminAPI';
 const ApiVersion = '0.0.1';
 
 // Admin API should listen *only* on loopback
-// TODO: IPC socket supported?
 const Host = '127.0.0.1';
 
 /**
@@ -26,22 +27,35 @@ class AdminService {
     this.protocolImporter = new ProtocolImporter(dataDir);
   }
 
-  start(port) {
-    return new Promise((resolve, reject) => {
-      if (!port) {
-        reject(new Error('Missing port'));
-        return;
+  /**
+   * Start API listening on an open port.
+   * @param  {[type]} port [description]
+   * @return {Promise}
+   */
+  start(port = DefaultPort) {
+    const portNum = parseInt(port, 10);
+    return detectPort(portNum).then((availablePort) => {
+      if (portNum !== availablePort) {
+        logger.info(`Port ${portNum} taken. Trying ${availablePort}...`);
       }
-      this.api.listen(port, Host, () => {
-        logger.info(`${this.api.name} listening at ${this.api.url}`);
-        resolve(this);
+      return new Promise((resolve) => {
+        // Technically the port may no longer be available;
+        // Node sets SO_REUSEADDR so port # is reused.
+        // TODO: determine if we need something more resilient.
+        this.api.listen(availablePort, Host, () => {
+          this.port = availablePort;
+          logger.info(`${this.api.name} listening at ${this.api.url}`);
+          resolve(this);
+        });
       });
     });
+    // TODO: decide on service failure case/messaging. Crash for now.
   }
 
   stop() {
     return new Promise((resolve) => {
       this.api.close(() => {
+        this.port = null;
         resolve();
       });
     });
