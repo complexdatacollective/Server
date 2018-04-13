@@ -22,11 +22,7 @@ class SettingsScreen extends Component {
     this.state = { devices: [] };
   }
 
-  componentWillMount() {
-    this.getDevices();
-  }
-
-  componentWillReceiveProps() {
+  componentDidMount() {
     this.getDevices();
   }
 

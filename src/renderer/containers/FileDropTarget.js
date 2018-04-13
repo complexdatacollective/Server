@@ -24,11 +24,7 @@ class FileDropTarget extends Component {
     this.getSavedFiles = this.getSavedFiles.bind(this);
   }
 
-  componentWillMount() {
-    this.getSavedFiles();
-  }
-
-  componentWillReceiveProps() {
+  componentDidMount() {
     this.getSavedFiles();
   }
 
