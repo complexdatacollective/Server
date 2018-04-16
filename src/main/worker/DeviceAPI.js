@@ -276,10 +276,6 @@ class DeviceAPI {
           .then((pairingRequest) => {
             // Send code up to UI
             this.outOfBandDelegate.pairingDidBeginWithCode(pairingRequest.pairingCode);
-            // this.messageParent({
-            //   action: actions.PAIRING_CODE_AVAILABLE,
-            //   data: { pairingCode: pairingRequest.pairingCode },
-            // });
             // Respond to client
             res.json({
               status: 'ok',

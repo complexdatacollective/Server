@@ -1,27 +1,30 @@
+const { EventEmitter } = require('events');
+
 const logger = require('electron-log');
 
 const { DeviceAPI } = require('./DeviceAPI');
 
 const DefaultApiPort = process.env.DEVICE_SERVICE_PORT || 51001;
 
-const ipcActions = {
+const emittedEvents = {
   PAIRING_CODE_AVAILABLE: 'PAIRING_CODE_AVAILABLE',
   PAIRING_COMPLETE: 'PAIRING_COMPLETE',
 };
 
 /**
- * @memberof BackgroundServices
- * @class DeviceService
  * Provides APIs for external client devices running
  * [Network Canvas]{@link https://github.com/codaco/Network-Canvas}.
  *
  * Services:
  * - Device Pairing
  */
-class DeviceService {
+class DeviceService extends EventEmitter {
   constructor({ dataDir }) {
+    super();
     this.api = this.createApi(dataDir);
   }
+
+  get port() { return this.api.port; }
 
   createApi(dataDir) {
     return new DeviceAPI(dataDir, this.outOfBandDelegate);
@@ -38,36 +41,26 @@ class DeviceService {
     return this.api.close();
   }
 
+  // TODO: review having Delegate + Emitter. Tight coupling to API makes sense, but feels heavy.
   get outOfBandDelegate() {
     return {
       pairingDidBeginWithCode: (pairingCode) => {
-        this.messageParent({
-          action: ipcActions.PAIRING_CODE_AVAILABLE,
-          data: { pairingCode },
-        });
+        this.emit(
+          emittedEvents.PAIRING_CODE_AVAILABLE,
+          { pairingCode },
+        );
       },
       pairingDidCompleteWithCode: (pairingCode) => {
-        this.messageParent({
-          action: ipcActions.PAIRING_COMPLETE,
-          data: { pairingCode },
-        });
+        this.emit(
+          emittedEvents.PAIRING_COMPLETE,
+          { pairingCode },
+        );
       },
     };
-  }
-
-  // TODO: move, and stub the delegate in tests
-  // eslint-disable-next-line class-methods-use-this
-  messageParent(data) {
-    if (process.send) {
-      process.send(data);
-    } else {
-      logger.error('No parent available for IPC');
-    }
   }
 }
 
 module.exports = {
   DeviceService,
-  deviceServiceActions: ipcActions,
+  deviceServiceEvents: emittedEvents,
 };
-

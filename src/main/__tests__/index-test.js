@@ -5,8 +5,8 @@ const { Menu } = require('electron');
 
 // Don't start the server for these tests
 jest.mock('../worker/serverManager', () => ({
-  actions: {},
-  createServer: jest.fn().mockResolvedValue({}),
+  serverEvents: {},
+  createServer: jest.fn().mockResolvedValue({ connectionInfo: {}, on: jest.fn() }),
 }));
 
 jest.mock('electron');

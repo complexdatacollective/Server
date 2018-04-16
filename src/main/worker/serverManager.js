@@ -1,47 +1,12 @@
-/**
- * Background services (device, admin, GUI)
- * @namespace BackgroundServices
- */
-
 const path = require('path');
-const { fork } = require('child_process');
 const PrivateSocket = require('private-socket');
 const Datastore = require('nedb');
 const libsodium = require('libsodium-wrappers');
-const logger = require('electron-log');
 
 const Server = require('./Server');
 const settings = require('./settings');
 
-const { deviceServiceActions } = require('./deviceService');
-
-const SERVER_READY = 'SERVER_READY';
-const STOP_SERVER = 'STOP_SERVER';
-const SERVER_STATUS = 'SERVER_STATUS';
-const REQUEST_SERVER_STATUS = 'REQUEST_SERVER_STATUS';
-
-const actions = {
-  SERVER_READY,
-  STOP_SERVER,
-  SERVER_STATUS,
-  REQUEST_SERVER_STATUS,
-};
-
-/**
- * @function serverManager
- *
- * @description
- * This files runs in two modes:
- * 1. As a main process, in which case it automatically initialises a Server
- *    based on environment variables PORT and APP_SETTINGS_DATA_DIR
- * 2. As a module, in which case it exports the createServer() method, which
- *    will spawn this file as a new process (see 1. above), and return the
- *    process wrapped in a ServerProcess instance.
- *
- * It mignt make sense to break it down into separate files/modules.
- */
-
-// 1. Running as a main process:
+const { deviceServiceEvents } = require('./deviceService');
 
 const ensurePemKeyPair = (currentAppSettings) => {
   if (!currentAppSettings || !currentAppSettings.keys) {
@@ -56,9 +21,6 @@ const ensurePemKeyPair = (currentAppSettings) => {
 };
 
 const startServer = (port, dataDir) => {
-  if (!port) { throw new Error('You must specify a server port'); }
-  if (!dataDir) { throw new Error('You must specify a user data dir'); }
-
   const settingsDb = path.join(dataDir, 'db', 'settings');
   const appSettings = settings(new Datastore({ filename: settingsDb, autoload: true }));
 
@@ -70,86 +32,23 @@ const startServer = (port, dataDir) => {
     }))
     .then(appSettings.set)
     .then(currentAppSettings => new Server(currentAppSettings))
-    .then((server) => {
-      if (process.env.NODE_ENV !== 'test') {
-        return server.startServices(port);
-      }
-      return server;
-    })
-    .catch(logger.error);
+    .then(server => server.startServices(port))
+    .then(server => server);
 };
 
-const serverTaskHandler = server =>
-  ({ action }) => {
-    switch (action) {
-      case STOP_SERVER:
-        return process.exit();
-      case REQUEST_SERVER_STATUS:
-        return process.send({
-          action: SERVER_STATUS,
-          data: server.status(),
-        });
-      default:
-        return false;
-    }
-  };
-
-if (require.main === module) {
-  startServer(process.env.PORT, process.env.APP_SETTINGS_DATA_DIR)
-    .then((server) => {
-      process.on('message', serverTaskHandler(server));
-      process.send({ action: SERVER_READY, connectionInfo: server.connectionInfo });
-    })
-    .catch(logger.error);
-}
-
-// 1. Running as a module:
-
-class ServerProcess {
-  constructor({ ps, connectionInfo }) {
-    this.process = ps;
-    this.connectionInfo = connectionInfo;
-  }
-
-  stop() {
-    if (this.process.connected) {
-      this.process.send({ action: STOP_SERVER });
-    }
-  }
-
-  send(data) {
-    this.process.send(data);
-  }
-
-  on(action, cb) {
-    this.process.on('message', (message) => {
-      if (action === message.action) {
-        cb(message);
-      }
-    });
-  }
-}
-
+/**
+ * Creates the worker services. For Electron, must run in the main process.
+ * @async
+ * @return {Server} the high-level Server instance which manages all services
+ * @throws {Error} If port or dataDir are not supplied
+ */
 const createServer = (port, dataDir) => {
-  if (!port) { throw new Error('You must specify a server port'); }
-  if (!dataDir) { throw new Error('You must specify a user data directory'); }
-
-  return new Promise((resolve) => {
-    const env = Object.assign({}, process.env, { PORT: port, APP_SETTINGS_DATA_DIR: dataDir });
-    const ps = fork(`${__filename}`, [], { env });
-    ps.once('message', ({ action, connectionInfo }) => {
-      if (action === SERVER_READY) {
-        resolve(new ServerProcess({
-          ps,
-          connectionInfo,
-        }));
-      }
-    });
-  });
+  if (!port) { return Promise.reject(new Error('You must specify a server port')); }
+  if (!dataDir) { return Promise.reject(new Error('You must specify a user data directory')); }
+  return startServer(port, dataDir);
 };
 
 module.exports = {
   createServer,
-  ServerProcess,
-  actions: Object.assign({}, deviceServiceActions, actions),
+  serverEvents: Object.assign({}, deviceServiceEvents),
 };

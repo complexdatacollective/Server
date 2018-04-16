@@ -43,9 +43,6 @@ function deriveSecret(pairingCode, salt) {
   return secretKey;
 }
 
-/**
- * @memberOf BackgroundServices
- */
 class PairingRequestService {
   constructor() {
     this.db = new NeDB(dbConfig); // eslint-disable-line new-cap

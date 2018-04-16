@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const { DeviceService } = require('../deviceService');
+const { DeviceService, deviceServiceEvents } = require('../deviceService');
 
 jest.mock('../pairingRequestService');
 jest.mock('../DeviceAPI');
@@ -11,20 +11,22 @@ describe('Device Service', () => {
 
   beforeEach(() => {
     deviceService = new DeviceService({});
-    deviceService.messageParent = jest.fn();
+    deviceService.emit = jest.fn();
   });
 
-  it('notifies the main process when a new PIN is created (for out-of-band transfer)', (done) => {
-    deviceService.messageParent.mockImplementation((msg) => {
-      expect(msg).toMatchObject({ data: { pairingCode: mockPairingCode } });
+  it('emits an event when a new PIN is created (for out-of-band transfer)', (done) => {
+    deviceService.emit.mockImplementation((msg, data) => {
+      expect(msg).toMatch(deviceServiceEvents.PAIRING_CODE_AVAILABLE);
+      expect(data).toMatchObject({ pairingCode: mockPairingCode });
       done();
     });
     deviceService.outOfBandDelegate.pairingDidBeginWithCode('123');
   });
 
-  it('notifies the main process when pairing is complete', (done) => {
-    deviceService.messageParent.mockImplementation((msg) => {
-      expect(msg).toMatchObject({ data: { pairingCode: mockPairingCode } });
+  it('emits an event when pairing is complete', (done) => {
+    deviceService.emit.mockImplementation((msg, data) => {
+      expect(msg).toMatch(deviceServiceEvents.PAIRING_COMPLETE);
+      expect(data).toMatchObject({ pairingCode: mockPairingCode });
       done();
     });
     deviceService.outOfBandDelegate.pairingDidCompleteWithCode(mockPairingCode);

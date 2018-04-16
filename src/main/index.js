@@ -5,7 +5,7 @@ const ProtocolManager = require('./data-managers/ProtocolManager');
 const { isWindows } = require('./utils/environment');
 const { createMainWindow } = require('./components/mainWindow');
 const { createTray } = require('./components/tray');
-const { createServer, actions } = require('./worker/serverManager');
+const { createServer, serverEvents } = require('./worker/serverManager');
 
 const ApiConnectionInfoChannel = 'API_INFO';
 const RequestApiConnectionInfoChannel = 'REQUEST_API_INFO';
@@ -14,24 +14,24 @@ const userDataDir = app.getPath('userData');
 const protocolManager = new ProtocolManager(userDataDir);
 const mainWindow = createMainWindow();
 
-// Background server
 let server = null;
 const dataDir = app.getPath('userData');
-createServer(8080, dataDir).then((serverProcess) => {
-  server = serverProcess;
+createServer(8080, dataDir).then((runningServer) => {
+  server = runningServer;
 
   // Renderer may be ready before server, in which case send:
   mainWindow.send(ApiConnectionInfoChannel, server.connectionInfo.adminService);
 
-  ipcMain.on(RequestApiConnectionInfoChannel, () => {
-    mainWindow.send(ApiConnectionInfoChannel, server.connectionInfo.adminService);
+  ipcMain.on(RequestApiConnectionInfoChannel, (evt) => {
+    evt.sender.send(ApiConnectionInfoChannel, server.connectionInfo.adminService);
   });
 
-  server.on(actions.PAIRING_CODE_AVAILABLE, ({ data }) => {
-    mainWindow.send(actions.PAIRING_CODE_AVAILABLE, data);
+  server.on(serverEvents.PAIRING_CODE_AVAILABLE, (data) => {
+    mainWindow.send(serverEvents.PAIRING_CODE_AVAILABLE, data);
   });
-  server.on(actions.PAIRING_COMPLETE, ({ data }) => {
-    mainWindow.send(actions.PAIRING_COMPLETE, data);
+
+  server.on(serverEvents.PAIRING_COMPLETE, (data) => {
+    mainWindow.send(serverEvents.PAIRING_COMPLETE, data);
   });
 }).catch((err) => {
   logger.error(err);
@@ -121,6 +121,6 @@ app.on('window-all-closed', () => {
 
 app.on('before-quit', () => {
   if (server) {
-    server.stop();
+    server.close();
   }
 });

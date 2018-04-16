@@ -5,7 +5,6 @@ const path = require('path');
 
 const { createServer } = require('./worker/serverManager');
 
-let server = null;
 let dbSettings = path.join(path.dirname(require.main.filename), 'db', 'settings.json');
 const port = process.env.port || 8080;
 if (app) {
@@ -13,20 +12,6 @@ if (app) {
 }
 
 createServer(port, dbSettings)
-  .then((serverProcess) => {
-    server = serverProcess;
-    server.on('REQUEST_SERVER_STATUS', (event) => {
-      console.log('request received', event);
-      serverProcess.on(
-        'SERVER_STATUS',
-        ({ data }) => {
-          console.log(data);
-          event.sender.send('SERVER_STATUS', data);
-        },
-      );
-
-      serverProcess.send({ action: 'REQUEST_SERVER_STATUS' });
-    });
+  .then((server) => {
+    console.log('Server running', server.connectionInfo);
   });
-
-console.log(`Server running on port ${port}`);
