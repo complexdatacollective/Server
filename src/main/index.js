@@ -1,4 +1,5 @@
 const { app, dialog, ipcMain, Menu } = require('electron');
+const logger = require('electron-log');
 
 const ProtocolManager = require('./data-managers/ProtocolManager');
 const { isWindows } = require('./utils/environment');
@@ -32,6 +33,9 @@ createServer(8080, dataDir).then((serverProcess) => {
   server.on(actions.PAIRING_COMPLETE, ({ data }) => {
     mainWindow.send(actions.PAIRING_COMPLETE, data);
   });
+}).catch((err) => {
+  logger.error(err);
+  throw err;
 });
 
 // Keep reference; if tray is GCed, it disappears
