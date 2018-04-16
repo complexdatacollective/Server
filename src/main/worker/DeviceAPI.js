@@ -89,6 +89,9 @@ class DeviceAPI {
     this.outOfBandDelegate = outOfBandDelegate;
   }
 
+  get name() { return this.server.name; }
+  get url() { return this.server.url; }
+
   // TODO: prevent multiple?
   listen(port) {
     this.port = port;
