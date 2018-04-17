@@ -56,7 +56,4 @@ class MainWindow {
   }
 }
 
-const createMainWindow = () =>
-  new MainWindow();
-
-exports.createMainWindow = createMainWindow;
+module.exports = MainWindow;

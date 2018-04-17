@@ -13,17 +13,24 @@ const ipcMain = {
 };
 
 const app = {
-  on: jest.fn(),
+  dock: {
+    hide: jest.fn(),
+    show: jest.fn(),
+  },
   getName: jest.fn(() => 'test'),
   getPath: jest.fn(() => '.'),
+  on: jest.fn(),
+  quit: jest.fn(),
 };
 
 const dialog = {
   showOpenDialog: jest.fn(),
 };
 
+
 const Menu = {
   buildFromTemplate: jest.fn(),
+  setApplicationMenu: jest.fn(),
 };
 
 class BrowserWindow {

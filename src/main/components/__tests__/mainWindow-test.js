@@ -2,14 +2,19 @@
 
 const path = require('path');
 const url = require('url');
-const { createMainWindow } = require('../mainWindow');
+const MainWindow = require('../mainWindow');
 
 jest.mock('electron');
 
 describe('createMainWindow', () => {
   describe('.open()', () => {
+    let mainWindow;
+
+    beforeEach(() => {
+      mainWindow = new MainWindow();
+    });
+
     it('It calls window.loadURL with the correct attributes', () => {
-      const mainWindow = createMainWindow();
       const route = '/foobarbazbuzz';
 
       mainWindow.open(route);
@@ -26,8 +31,6 @@ describe('createMainWindow', () => {
     });
 
     it('It focuses the window', () => {
-      const mainWindow = createMainWindow();
-
       mainWindow.open('/');
 
       expect(mainWindow.window.show.mock.calls.length).toEqual(1);
