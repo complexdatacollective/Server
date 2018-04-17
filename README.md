@@ -80,7 +80,7 @@ New approach (work-in-progress):
 
 Original/browser approach (does not support electron):
 
-To speed up development, the server can be run headlessly out of /src/worker using the command `npm run server:dev` and the UI can be viewed at `localhost:3000` once started with `npm run start`. Any changes made in the UI will be automatically compiled, but any changes made to the background server require it to be restarted in order for changes to be reflected.
+To speed up development, the server can be run headlessly out of /src/worker using the command `npm run server:dev` and the UI can be viewed at `localhost:3000` once started with `npm run start`. Communication between the two is not currently supported without the mechanisms of Electron IPC. Any changes made in the UI will be automatically compiled, but any changes made to the background server require it to be restarted in order for changes to be reflected.
 
 ### macOS Firewall during development
 
