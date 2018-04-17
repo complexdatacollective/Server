@@ -41,7 +41,8 @@ class DeviceService extends EventEmitter {
     return this.api.close();
   }
 
-  // TODO: review having Delegate + Emitter. Tight coupling to API makes sense, but feels heavy.
+  // TODO: May return boolean to indicate nothing registered as listener;
+  // may want to adjust client response (error code) in that case. (TBD.)
   get outOfBandDelegate() {
     return {
       pairingDidBeginWithCode: (pairingCode) => {

@@ -1,15 +1,15 @@
 /* eslint-env jest */
 const { DeviceAPI, OutOfBandDelegate } = require('../DeviceAPI');
 
-const ProtocolManager = require('../../data-managers/ProtocolManager');
-const { jsonClient, makeUrl } = require('../../../setupTests');
-const { RequestError } = require('../../errors/RequestError');
+const ProtocolManager = require('../../../data-managers/ProtocolManager');
+const { jsonClient, makeUrl } = require('../../../../setupTests');
+const { RequestError } = require('../../../errors/RequestError');
 
 const testPortNumber = 5200;
 
-jest.mock('../../data-managers/DeviceManager');
-jest.mock('../../data-managers/ProtocolManager');
-jest.mock('../pairingRequestService');
+jest.mock('../../../data-managers/DeviceManager');
+jest.mock('../../../data-managers/ProtocolManager');
+jest.mock('../PairingRequestService');
 
 describe('the DeviceAPI', () => {
   const dataDir = '';

@@ -107,7 +107,7 @@ codesign --force --sign "$SIGNING_IDENTITY"  --timestamp=none Electron.app
 ├── public             # Static public assets to be bundled
 └── src                # Application source code
     └── main           # Main Electron process
-        └── worker     # Background process (node server)
+        └── server     # Services & APIs
     └── renderer       # GUI (react app)
 ```
 

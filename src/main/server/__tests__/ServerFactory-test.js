@@ -1,7 +1,7 @@
 /* eslint-env jest, jasmine */
 
 const path = require('path');
-const { createServer } = require('../serverManager');
+const { createServer } = require('../ServerFactory');
 
 const mockServerMethods = {
   close: jest.fn(),

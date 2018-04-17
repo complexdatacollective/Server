@@ -5,7 +5,7 @@ const ProtocolManager = require('./data-managers/ProtocolManager');
 const { isWindows } = require('./utils/environment');
 const { createMainWindow } = require('./components/mainWindow');
 const { createTray } = require('./components/tray');
-const { createServer, serverEvents } = require('./worker/serverManager');
+const { createServer, serverEvents } = require('./server/ServerFactory');
 
 const ApiConnectionInfoChannel = 'API_INFO';
 const RequestApiConnectionInfoChannel = 'REQUEST_API_INFO';

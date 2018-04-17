@@ -1,7 +1,7 @@
 /* eslint-env jest */
-const { DeviceService, deviceServiceEvents } = require('../deviceService');
+const { DeviceService, deviceServiceEvents } = require('../DeviceService');
 
-jest.mock('../pairingRequestService');
+jest.mock('../PairingRequestService');
 jest.mock('../DeviceAPI');
 
 const mockPairingCode = '123';

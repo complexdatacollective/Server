@@ -4,9 +4,9 @@ const Datastore = require('nedb');
 const libsodium = require('libsodium-wrappers');
 
 const Server = require('./Server');
-const settings = require('./settings');
+const settings = require('../settings');
 
-const { deviceServiceEvents } = require('./deviceService');
+const { deviceServiceEvents } = require('./devices/DeviceService');
 
 const ensurePemKeyPair = (currentAppSettings) => {
   if (!currentAppSettings || !currentAppSettings.keys) {

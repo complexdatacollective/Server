@@ -2,7 +2,7 @@
 const mdns = require('mdns');
 
 const Server = require('../Server');
-const { DeviceService } = require('../deviceService');
+const { DeviceService } = require('../devices/DeviceService');
 
 const testPortNumber = 51999;
 const serverOpts = { dataDir: 'db' };

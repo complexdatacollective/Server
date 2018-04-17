@@ -4,10 +4,10 @@ const logger = require('electron-log');
 const PropTypes = require('prop-types');
 const { URL } = require('url');
 
-const DeviceManager = require('../data-managers/DeviceManager');
-const ProtocolManager = require('../data-managers/ProtocolManager');
-const { PairingRequestService } = require('./pairingRequestService');
-const { RequestError } = require('../errors/RequestError');
+const DeviceManager = require('../../data-managers/DeviceManager');
+const ProtocolManager = require('../../data-managers/ProtocolManager');
+const { PairingRequestService } = require('./PairingRequestService');
+const { RequestError } = require('../../errors/RequestError');
 
 const ApiName = 'DevciceAPI';
 const ApiVersion = '0.0.2';

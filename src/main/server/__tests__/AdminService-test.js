@@ -1,7 +1,7 @@
 /* eslint-env jest */
 const net = require('net');
 
-const { AdminService } = require('../adminService');
+const { AdminService } = require('../AdminService');
 const { jsonClient, makeUrl } = require('../../../setupTests');
 const DeviceManager = require('../../data-managers/DeviceManager');
 const ProtocolManager = require('../../data-managers/ProtocolManager');

@@ -3,8 +3,8 @@ const os = require('os');
 const mdns = require('mdns');
 const logger = require('electron-log');
 
-const { DeviceService, deviceServiceEvents } = require('./deviceService');
-const { AdminService } = require('./adminService');
+const { DeviceService, deviceServiceEvents } = require('./devices/DeviceService');
+const { AdminService } = require('./AdminService');
 
 class Server extends EventEmitter {
   constructor(options = {}) {
