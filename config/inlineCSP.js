@@ -1,6 +1,8 @@
+/* eslint-disable no-console */
 const fs = require('fs');
 const vm = require('vm');
 const crypto = require('crypto');
+const chalk = require('chalk');
 
 /**
  * Hash the final export (assumed to be an inline script) of the given module.
@@ -21,7 +23,15 @@ const crypto = require('crypto');
  * @throws {error} If module is not found
  */
 function hash256(libName) {
-  const index = require.resolve(libName);
+  let index;
+  try {
+    index = require.resolve(libName);
+  } catch (err) {
+    console.error(chalk.red(`Could not resolve module ${libName}, which was expected to provide inline content to the bundle.`));
+    console.error(chalk.red('If the module is still included, check that `npm install` is up to date.'));
+    console.error(chalk.red('Otherwise, remove the call to `inlineCSP.hash256()`.'));
+    throw err;
+  }
 
   const source = fs.readFileSync(index, 'utf-8');
   const newline = /\n|\r\n|\r/g;
