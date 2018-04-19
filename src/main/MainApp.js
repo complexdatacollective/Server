@@ -34,18 +34,19 @@ const createApp = () => {
       click: () => { mainWindow.open('/overview'); },
     },
     {
-      label: 'Settings',
-      click: () => { mainWindow.open('/settings'); },
-    },
-    {
       label: 'Quit',
       click: () => { app.quit(); },
     },
   ];
 
-  const appMenu = Menu.buildFromTemplate([
+  const MenuTemplate = [
     {
       submenu: [
+        {
+          label: 'Settings',
+          click: () => mainWindow.open('/settings'),
+        },
+        { type: 'separator' },
         { role: 'quit' },
       ],
     },
@@ -89,7 +90,22 @@ const createApp = () => {
         { role: 'close' },
       ],
     },
-  ]);
+  ];
+
+  if (process.platform !== 'darwin') {
+    // Get rid of the macOS primary menu
+    MenuTemplate.shift();
+    // Add those items elsewhere as appropriate
+    MenuTemplate[0].submenu.push({ type: 'separator' });
+    MenuTemplate[0].submenu.push({
+      label: 'Settings',
+      click: () => mainWindow.open('/settings'),
+    });
+    MenuTemplate[0].submenu.push({ type: 'separator' });
+    MenuTemplate[0].submenu.push({ role: 'quit' });
+  }
+
+  const appMenu = Menu.buildFromTemplate(MenuTemplate);
 
   app.on('ready', () => {
     if (!process.env.DEV_SUPPRESS_WINDOW_DEFAULT_OPEN) {
