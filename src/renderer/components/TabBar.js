@@ -9,7 +9,6 @@ const navLinkProps = {
 export default () => (
   <nav className="tab-bar">
     <NavLink {...navLinkProps} to="/dashboard">Dashboard</NavLink>
-    <NavLink {...navLinkProps} to="/export">Export Data</NavLink>
     <NavLink {...navLinkProps} to="/settings">Settings</NavLink>
   </nav>
 );

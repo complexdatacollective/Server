@@ -23,9 +23,10 @@ describe('<AppRoutes />', () => {
     expect(routesMatching(wrapper.find('Route'), /settings/)).toHaveLength(1);
   });
 
-  it('should contain data export', () => {
-    expect(routesMatching(wrapper.find('Route'), /export/)).toHaveLength(1);
-  });
+  // Not for Alpha.1
+  // it('should contain data export', () => {
+  //   expect(routesMatching(wrapper.find('Route'), /export/)).toHaveLength(1);
+  // });
 
   it('should redirect to dashboard by default', () => {
     const defaultRedirect = wrapper.find(Redirect);

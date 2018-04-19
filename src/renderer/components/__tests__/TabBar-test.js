@@ -7,11 +7,10 @@ describe('<TabBar />', () => {
   it('renders links to main pages', () => {
     const wrapper = shallow(<TabBar />);
     const links = wrapper.find('NavLink');
-    expect(links).toHaveLength(3);
+    expect(links).toHaveLength(2);
 
     const labels = links.map(l => l.children().text());
     expect(labels).toContain('Dashboard');
     expect(labels).toContain('Settings');
-    expect(labels).toContain('Export Data');
   });
 });

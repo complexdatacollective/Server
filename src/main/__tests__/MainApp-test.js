@@ -52,9 +52,8 @@ describe('the created app', () => {
         readyCallback();
         expect(trayMenu).toBeDefined();
         expect(trayMenu[0].label).toEqual('Overview');
-        expect(trayMenu[1].label).toMatch(/Export/);
-        expect(trayMenu[2].label).toEqual('Settings');
-        expect(trayMenu[3].label).toEqual('Quit');
+        expect(trayMenu[1].label).toEqual('Settings');
+        expect(trayMenu[2].label).toEqual('Quit');
       });
 
       it('lets a user opens pages', () => {
@@ -63,14 +62,13 @@ describe('the created app', () => {
         mainWindow.open.mockReset(); // clear the initial open call
         trayMenu[0].click();
         trayMenu[1].click();
-        trayMenu[2].click();
-        expect(mainWindow.open).toHaveBeenCalledTimes(3);
+        expect(mainWindow.open).toHaveBeenCalledTimes(2);
       });
 
       it('lets a user quit', () => {
         mainWindow.open = jest.fn();
         readyCallback();
-        trayMenu[3].click();
+        trayMenu[2].click();
         expect(app.quit).toHaveBeenCalledTimes(1);
         app.quit.mockReset();
       });

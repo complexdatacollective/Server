@@ -11,16 +11,11 @@ const protocolManager = new ProtocolManager(userDataDir);
 const createApp = () => {
   const mainWindow = new MainWindow();
 
-  // Keep reference; if tray is GCed, it disappears
-  let tray; // eslint-disable-line no-unused-vars
+  let tray; // Always keep reference; if tray is GCed, it disappears
   const trayMenu = [
     {
       label: 'Overview',
       click: () => { mainWindow.open('/overview'); },
-    },
-    {
-      label: 'Export data',
-      click: () => { mainWindow.open('/export'); },
     },
     {
       label: 'Settings',
