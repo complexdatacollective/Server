@@ -1,10 +1,7 @@
 /* eslint-env jest */
-
 import React from 'react';
 import { shallow } from 'enzyme';
 import { UnwrappedServerPanel as ServerPanel } from '../ServerPanel';
-
-jest.mock('../../utils/adminApiClient');
 
 const mockServerOverview = {
   ip: 'x.x.x.x',

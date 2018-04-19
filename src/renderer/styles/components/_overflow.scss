@@ -1,0 +1,10 @@
+.overflow {
+  --base-max-height: 8rem;
+  overflow: auto;
+
+  @each $name, $val in $spacing-intervals {
+    @include modifier($name) {
+      max-height: calc(#{$val} * var(--base-max-height));
+    }
+  }
+}

@@ -2,7 +2,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import AdminApiClient from '../../utils/adminApiClient';
+import AdminApiClient from '../../utils/adminApiClient'; // see __mocks__
 import { UnconnectedFileDropTarget as FileDropTarget } from '../FileDropTarget';
 
 jest.mock('../../utils/adminApiClient');
@@ -14,14 +14,6 @@ mockProps.showMessage.bftest = 'bcf';
 
 describe('<FileDropTarget />', () => {
   let wrapper;
-  const mockClient = {
-    post: jest.fn(() => Promise.resolve({})),
-    get: jest.fn(() => Promise.resolve({})),
-  };
-
-  beforeAll(() => {
-    AdminApiClient.mockImplementation(() => mockClient);
-  });
 
   beforeEach(() => {
     wrapper = mount(<FileDropTarget {...mockProps} />);
@@ -35,7 +27,7 @@ describe('<FileDropTarget />', () => {
 
   it('should accept dropped files', () => {
     wrapper.simulate('drop', { dataTransfer: { files: {} } });
-    expect(mockClient.post).toHaveBeenCalled();
+    expect(AdminApiClient().post).toHaveBeenCalled();
   });
 
   it('sets an active state when entered', () => {
@@ -66,8 +58,8 @@ describe('<FileDropTarget />', () => {
 
   describe('when upload fails', () => {
     const mockErrorClient = {
-      post: jest.fn(() => Promise.reject({})),
-      get: jest.fn(() => Promise.resolve({})),
+      post: jest.fn().mockRejectedValue({}),
+      get: jest.fn().mockResolvedValue({}),
     };
 
     beforeAll(() => {
