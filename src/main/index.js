@@ -6,8 +6,9 @@ const { createServer, serverEvents } = require('./server/ServerFactory');
 
 const ApiConnectionInfoChannel = 'API_INFO';
 const RequestApiConnectionInfoChannel = 'REQUEST_API_INFO';
+const RequestFileImportDialog = 'REQUEST_FILE_IMPORT_DIALOG';
 
-const { app, mainWindow } = createApp();
+const { app, mainWindow, showImportProtocolDialog } = createApp();
 
 let server = null;
 createServer(8080, userDataDir).then((runningServer) => {
@@ -17,6 +18,8 @@ createServer(8080, userDataDir).then((runningServer) => {
 
   // Renderer may be ready before server, in which case send:
   mainWindow.send(ApiConnectionInfoChannel, server.connectionInfo.adminService);
+
+  ipcMain.on(RequestFileImportDialog, showImportProtocolDialog);
 
   ipcMain.on(RequestApiConnectionInfoChannel, (evt) => {
     evt.sender.send(ApiConnectionInfoChannel, server.connectionInfo.adminService);

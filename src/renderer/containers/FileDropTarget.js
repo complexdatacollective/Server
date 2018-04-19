@@ -82,7 +82,7 @@ FileDropTarget.defaultProps = {
 };
 
 FileDropTarget.propTypes = {
-  children: PropTypes.object,
+  children: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   loadProtocols: PropTypes.func,
   showMessage: PropTypes.func.isRequired,
 };

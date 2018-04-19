@@ -11,6 +11,22 @@ const protocolManager = new ProtocolManager(userDataDir);
 const createApp = () => {
   const mainWindow = new MainWindow();
 
+  const showImportProtocolDialog = () => {
+    protocolManager.presentImportDialog()
+      .then((savedFiles) => {
+        if (savedFiles) {
+          dialog.showMessageBox(mainWindow.window, {
+            title: 'Success',
+            message: 'Successfully Imported:',
+            detail: savedFiles.join('\r\n'),
+          });
+        }
+      })
+      .catch((err) => {
+        dialog.showErrorBox('Import Error', err && err.message);
+      });
+  };
+
   let tray; // Always keep reference; if tray is GCed, it disappears
   const trayMenu = [
     {
@@ -38,21 +54,7 @@ const createApp = () => {
       submenu: [
         {
           label: 'Import Protocol...',
-          click: () => {
-            protocolManager.presentImportDialog()
-              .then((savedFiles) => {
-                if (savedFiles) {
-                  dialog.showMessageBox(mainWindow.window, {
-                    title: 'Success',
-                    message: 'Successfully Imported:',
-                    detail: savedFiles.join('\r\n'),
-                  });
-                }
-              })
-              .catch((err) => {
-                dialog.showErrorBox('Import Error', err && err.message);
-              });
-          },
+          click: showImportProtocolDialog,
         },
       ],
     },
@@ -90,6 +92,7 @@ const createApp = () => {
   return {
     app,
     mainWindow,
+    showImportProtocolDialog,
   };
 };
 

@@ -58,7 +58,9 @@ class ProtocolManager {
           return;
         }
         this.validateAndImport(filePaths)
-          .then(protocolData => resolve(protocolData.map(f => f.filename)))
+          .then((savedFilenames) => {
+            resolve(savedFilenames);
+          })
           .catch((err) => {
             logger.error(err);
             reject(err);
@@ -71,7 +73,7 @@ class ProtocolManager {
    * Primary interface for render-side API
    * @async
    * @param  {FileList} fileList
-   * @return {Array<Object>} an array of protocol metadata (each containing .filename)
+   * @return {Array<string>} an array of filenames
    * @throws {RequestError|Error} If there is a problem saving, or on invalid input
    */
   validateAndImport(fileList) {
