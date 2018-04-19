@@ -1,32 +1,31 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 
+import Types from '../types';
+import { actionCreators } from '../ducks/modules/protocols';
+import FileDropTarget from './FileDropTarget';
 import ProtocolThumbnails from '../components/ProtocolThumbnails';
 import AdminApiClient from '../utils/adminApiClient';
-import viewModelMapper from '../utils/baseViewModelMapper';
 
 class ProtocolNav extends Component {
   constructor(props) {
     super(props);
     this.apiClient = new AdminApiClient();
-    this.state = { protocols: [] };
   }
 
   componentDidMount() {
-    this.getProtocols();
-  }
-
-  getProtocols() {
-    this.apiClient.get('/protocols')
-      .then(resp => resp.protocols)
-      .then((protocols = []) => protocols.map(viewModelMapper))
-      .then(protocols => this.setState({ protocols }));
+    this.props.loadProtocols();
   }
 
   render() {
+    const { className, protocols } = this.props;
     return (
-      <nav className={this.props.className}>
-        <ProtocolThumbnails className={this.props.className} protocols={this.state.protocols} />
+      <nav className={className}>
+        <FileDropTarget>
+          <ProtocolThumbnails protocols={protocols} />
+        </FileDropTarget>
       </nav>
     );
   }
@@ -34,10 +33,25 @@ class ProtocolNav extends Component {
 
 ProtocolNav.defaultProps = {
   className: '',
+  protocols: [],
 };
 
 ProtocolNav.propTypes = {
   className: PropTypes.string,
+  loadProtocols: PropTypes.func.isRequired,
+  protocols: Types.protocols,
 };
 
-export default ProtocolNav;
+const mapStateToProps = reduxState => ({
+  protocols: reduxState.protocols,
+});
+
+const mapDispatchToProps = dispatch => ({
+  loadProtocols: bindActionCreators(actionCreators.loadProtocols, dispatch),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(ProtocolNav);
+
+export {
+  ProtocolNav as UnconnectedProtocolNav,
+};

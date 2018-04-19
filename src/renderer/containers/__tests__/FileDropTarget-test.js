@@ -19,12 +19,6 @@ describe('<FileDropTarget />', () => {
     wrapper = mount(<FileDropTarget {...mockProps} />);
   });
 
-  it('should render filenames', () => {
-    const mockFilename = 'a.netcanvas';
-    wrapper.setState({ protocols: [{ filename: mockFilename }] });
-    expect(wrapper.find('li').text()).toMatch(mockFilename);
-  });
-
   it('should accept dropped files', () => {
     wrapper.simulate('drop', { dataTransfer: { files: {} } });
     expect(AdminApiClient().post).toHaveBeenCalled();

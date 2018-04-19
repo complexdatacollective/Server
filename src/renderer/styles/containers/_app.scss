@@ -17,6 +17,12 @@
     flex: none;
     height: 100%;
     width: var(--app-sidebar-width);
+
+    // Ensure contained content fills entire height
+    & > * {
+      height: 100%;
+      overflow: hidden;
+    }
   }
 
   @include element(screen) {

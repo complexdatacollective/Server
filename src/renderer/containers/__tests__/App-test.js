@@ -7,6 +7,8 @@ import { Provider } from 'react-redux';
 
 import { UnconnectedApp as App } from '../App';
 
+jest.mock('../ProtocolNav');
+
 const mockDispatched = {
   ackPairingRequest: jest.fn(),
   completedPairingRequest: jest.fn(),

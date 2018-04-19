@@ -16,4 +16,4 @@ export const store = createStore(
   ),
 );
 
-export const persistor = persistStore(store, { blacklist: ['appMessages'] });
+export const persistor = persistStore(store, { blacklist: ['appMessages', 'protocols'] });
