@@ -10,7 +10,7 @@ const DeviceDetails = ({ device }) => (
 
 DeviceDetails.propTypes = {
   device: PropTypes.shape({
-    _id: PropTypes.string.isRequired,
+    id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     createdAt: PropTypes.instanceOf(Date).isRequired,
   }).isRequired,

@@ -6,6 +6,7 @@ import { ipcRenderer } from 'electron';
 import { withRouter } from 'react-router-dom';
 
 import AppRoutes from './AppRoutes';
+import ProtocolNav from './ProtocolNav';
 import { AppMessage, Header, PairPrompt, TabBar } from '../components';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
 import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
@@ -68,7 +69,7 @@ class App extends Component {
           <PairPrompt onAcknowledge={ackPairingRequest} onDismiss={dismissPairingRequest} />
         }
         <div className="app__content">
-          <nav className="app__sidebar" />
+          <ProtocolNav className="app__sidebar" />
           <div className="app__screen">
             <TabBar />
             <main className="app__main">

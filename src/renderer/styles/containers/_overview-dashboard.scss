@@ -6,7 +6,7 @@
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: minmax($top-grid-row, auto) auto;
   grid-auto-rows: minmax($min-grid-row, auto);
-  grid-gap: spacing(small);
+  grid-gap: spacing(medium);
 
   @include element(panel) {
     background-color: color('white');

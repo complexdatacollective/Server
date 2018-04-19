@@ -1,4 +1,3 @@
-/* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -9,11 +8,11 @@ const EmptyDeviceList = () => (
 );
 
 const DeviceList = ({ devices }) => {
-  if (!devices) {
+  if (!devices || !devices.length) {
     return <EmptyDeviceList />;
   }
   return devices.map(device => (
-    <DeviceDetails key={device._id} device={device} />
+    <DeviceDetails key={device.id} device={device} />
   ));
 };
 

@@ -12,10 +12,11 @@
   }
 
   @include element(sidebar) {
-    background-color: color(navy-taupe);
+    background-color: var(--inverse-background-color);
+    color: var(--inverse-text-color);
     flex: none;
     height: 100%;
-    width: 4rem;
+    width: var(--app-sidebar-width);
   }
 
   @include element(screen) {

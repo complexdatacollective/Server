@@ -3,14 +3,9 @@ import React, { Component } from 'react';
 import AdminApiClient from '../utils/adminApiClient';
 import DeviceList from '../components/DeviceList';
 import Overflow from '../components/Overflow';
+import viewModelMapper from '../utils/baseViewModelMapper';
 import { BarChart, CountsWidget, InterviewWidget, LineChart, PieChart, ServerPanel } from '../components';
 import { countsData, interviewData, barData, pieData, lineData } from './dummy_data';
-
-const viewModelMapper = deviceJson => ({
-  ...deviceJson,
-  createdAt: new Date(deviceJson.createdAt),
-  updatedAt: new Date(deviceJson.updatedAt),
-});
 
 class OverviewScreen extends Component {
   constructor(props) {
@@ -26,8 +21,8 @@ class OverviewScreen extends Component {
   getDevices() {
     this.apiClient.get('/devices')
       .then(resp => resp.devices)
-      .then(devices => devices.map(viewModelMapper))
-      .then(devices => this.setState(devices ? { devices } : {}));
+      .then((devices = []) => devices.map(viewModelMapper))
+      .then(devices => this.setState({ devices }));
   }
 
   render() {
