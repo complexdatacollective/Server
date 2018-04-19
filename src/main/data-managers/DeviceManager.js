@@ -1,11 +1,20 @@
+/* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
+
 const path = require('path');
 const NeDB = require('nedb');
 const uuidv4 = require('uuid/v4');
 
 const DeviceDbName = 'devices.db';
 
+const publicMapper = dbDevice => ({
+  ...dbDevice,
+  name: `Device ${dbDevice._id.substr(0, 6)}`,
+  salt: undefined, // Never expose
+  secretKey: undefined, // Never expose
+});
+
 class DeviceManager {
-  // TODO: [#58] nedb doesn't support multiple 'concurrent' clients.
+  // nedb doesn't support multiple 'concurrent' clients.
   // Even though existing app code is serial, autoloading happens async
   // and nedb errors when renaming an expected temp file.
   // Temporary workaround, since we're running worker services in the same process:
@@ -59,7 +68,7 @@ class DeviceManager {
         if (err) {
           reject(err);
         } else {
-          resolve(docs);
+          resolve(docs.map(publicMapper));
         }
       });
     });
