@@ -10,8 +10,6 @@ import { AppMessage, Header, PairPrompt, TabBar } from '../components';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
 import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
 
-require('../styles/main.scss');
-
 // This prevents user from being able to drop a file anywhere on the app
 // (which by default triggers a 'save' dialog). If we want to support this,
 // we'll need to take action & handle errors based on file types.
