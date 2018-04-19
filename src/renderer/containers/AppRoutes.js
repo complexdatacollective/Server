@@ -16,11 +16,11 @@ import { PairDevice, OverviewScreen, SettingsScreen } from './';
 const AppRoutes = () => (
   <React.Fragment>
     <Switch>
-      <Route path="/dashboard" component={OverviewScreen} />
+      <Route path="/overview" component={OverviewScreen} />
       <Route path="/settings" component={SettingsScreen} />
       {/* <Route path="/export" component={ExportScreen} /> */}
       <Route>
-        <Redirect to="/dashboard" />
+        <Redirect to="/overview" />
       </Route>
     </Switch>
 

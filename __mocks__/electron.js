@@ -41,6 +41,7 @@ class BrowserWindow {
       show: jest.fn(),
       on: jest.fn(),
       webContents: {
+        getURL: jest.fn(),
         openDevTools: jest.fn(),
         send: jest.fn(),
       },
