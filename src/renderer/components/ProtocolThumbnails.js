@@ -1,18 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import Types from '../types';
 
-const { ipcRenderer } = require('electron');
-// TODO: centralize ipc or events
-const RequestFileImportDialog = 'REQUEST_FILE_IMPORT_DIALOG';
-
 const nickname = (name = '') => name.substr(0, 2);
 
-const promptFileImport = () => {
-  ipcRenderer.send(RequestFileImportDialog);
-};
-
-const ProtocolThumbnails = ({ protocols }) => (
+const ProtocolThumbnails = ({ protocols, onClickAddProtocol }) => (
   <div className="protocol-thumbnails">
     {
       protocols.map(protocol => (
@@ -23,7 +16,7 @@ const ProtocolThumbnails = ({ protocols }) => (
     }
     <button
       className="protocol-thumbnails__thumbnail protocol-thumbnails__thumbnail--add"
-      onClick={promptFileImport}
+      onClick={onClickAddProtocol}
     />
   </div>
 );
@@ -33,6 +26,7 @@ ProtocolThumbnails.defaultProps = {
 };
 
 ProtocolThumbnails.propTypes = {
+  onClickAddProtocol: PropTypes.func.isRequired,
   protocols: Types.protocols,
 };
 

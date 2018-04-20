@@ -5,6 +5,9 @@ const MainWindow = require('./components/mainWindow');
 const { isWindows } = require('./utils/environment');
 const { createTray } = require('./components/tray');
 
+// TODO: move/centralize
+const FileImportUpdated = 'FILE_IMPORT_UPDATED';
+
 const userDataDir = app.getPath('userData');
 const protocolManager = new ProtocolManager(userDataDir);
 
@@ -22,6 +25,7 @@ const createApp = () => {
           });
         }
       })
+      .then(() => mainWindow.send(FileImportUpdated))
       .catch((err) => {
         dialog.showErrorBox('Import Error', err && err.message);
       });

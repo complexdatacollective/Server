@@ -2,12 +2,21 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { ipcRenderer } from 'electron';
 
 import Types from '../types';
 import { actionCreators } from '../ducks/modules/protocols';
 import FileDropTarget from './FileDropTarget';
 import ProtocolThumbnails from '../components/ProtocolThumbnails';
 import AdminApiClient from '../utils/adminApiClient';
+
+// TODO: centralize ipc or events
+const RequestFileImportDialog = 'REQUEST_FILE_IMPORT_DIALOG';
+const FileImportUpdated = 'FILE_IMPORT_UPDATED';
+
+const promptFileImport = () => {
+  ipcRenderer.send(RequestFileImportDialog);
+};
 
 class ProtocolNav extends Component {
   constructor(props) {
@@ -17,6 +26,11 @@ class ProtocolNav extends Component {
 
   componentDidMount() {
     this.props.loadProtocols();
+    ipcRenderer.on(FileImportUpdated, this.props.loadProtocols);
+  }
+
+  componentWillUnmount() {
+    ipcRenderer.removeListener(FileImportUpdated, this.props.loadProtocols);
   }
 
   render() {
@@ -24,7 +38,10 @@ class ProtocolNav extends Component {
     return (
       <nav className={className}>
         <FileDropTarget>
-          <ProtocolThumbnails protocols={protocols} />
+          <ProtocolThumbnails
+            protocols={protocols}
+            onClickAddProtocol={promptFileImport}
+          />
         </FileDropTarget>
       </nav>
     );
