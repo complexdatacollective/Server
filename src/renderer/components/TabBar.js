@@ -1,6 +1,8 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 
+import DeviceStatus from '../containers/DeviceStatus';
+
 const navLinkProps = {
   activeClassName: 'tab-bar__link--active',
   className: 'tab-bar__link',
@@ -12,13 +14,7 @@ export default () => (
     <NavLink {...navLinkProps} to="/settings">Settings</NavLink>
 
     <div className="tab-bar__secondary">
-      <button className="tab-bar__device-icon">
-        {/*
-        <span className="tab-bar__device-icon__badge">
-          1
-        </span>
-        */}
-      </button>
+      <DeviceStatus />
     </div>
   </nav>
 );
