@@ -8,6 +8,6 @@
   }
 
   @include element(id) {
-     @include typography('copy-small');
+    @include typography('copy-small');
   }
 }

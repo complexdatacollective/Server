@@ -10,5 +10,15 @@ export default () => (
   <nav className="tab-bar">
     <NavLink {...navLinkProps} to="/overview">Dashboard</NavLink>
     <NavLink {...navLinkProps} to="/settings">Settings</NavLink>
+
+    <div className="tab-bar__secondary">
+      <button className="tab-bar__device-icon">
+        {/*
+        <span className="tab-bar__device-icon__badge">
+          1
+        </span>
+        */}
+      </button>
+    </div>
   </nav>
 );

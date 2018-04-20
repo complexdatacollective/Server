@@ -1,5 +1,5 @@
 .protocol-thumbnails {
-  --thumbnail-size: calc(var(--app-sidebar-width) * 0.6);
+  --thumbnail-size: calc(var(--app-sidebar-width) * .6);
 
   @include element(active) {
     background-color: color('sea-green');
@@ -7,7 +7,7 @@
 
   @include element(thumbnail) {
     background-color: color('cyber-grape');
-    border-radius: 0.5rem;
+    border-radius: .5rem;
     display: block;
     font-size: 2rem;
     height: var(--thumbnail-size);
@@ -21,6 +21,10 @@
       background: transparent center / 50% no-repeat url('../images/plus.png');
       border: 6px solid color('cyber-grape');
       cursor: pointer;
+
+      &:hover {
+        background-color: color('cyber-grape');
+      }
     }
   }
 }

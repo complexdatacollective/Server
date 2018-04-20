@@ -6,6 +6,7 @@
   position: fixed;
   text-align: center;
   width: 100%;
+  z-index: var(--z-index-app-messages);
 
   @include element(close) {
     color: var(--message-color);
