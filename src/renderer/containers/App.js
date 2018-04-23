@@ -7,7 +7,8 @@ import { withRouter } from 'react-router-dom';
 
 import AppRoutes from './AppRoutes';
 import ProtocolNav from './ProtocolNav';
-import { AppMessage, PairPrompt, TabBar } from '../components';
+import { AppMessage, TabBar } from '../components';
+import { AnimatedPairPrompt } from '../components/pairing/PairPrompt';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
 import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
 
@@ -64,8 +65,11 @@ class App extends Component {
           { appMessages.map(msg => <AppMessage key={msg.timestamp} {...msg} />) }
         </div>
         {
-          pairingRequest.status === PairingStatus.Pending &&
-          <PairPrompt onAcknowledge={ackPairingRequest} onDismiss={dismissPairingRequest} />
+          <AnimatedPairPrompt
+            showWhen={pairingRequest.status === PairingStatus.Pending}
+            onAcknowledge={ackPairingRequest}
+            onDismiss={dismissPairingRequest}
+          />
         }
         <div className="app__content">
           <ProtocolNav className="app__sidebar" />

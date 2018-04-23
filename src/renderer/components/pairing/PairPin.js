@@ -11,7 +11,7 @@ const PairPin = ({ code }) => {
   const chars = code.split('');
   return (
     <div className="pairing-pin">
-      <p>
+      <p className="pairing-pin__description">
         To pair your Network Canvas client with this installation of Server,
         type the code shown below into the prompt on the device running Network Canvas.
       </p>

@@ -1,5 +1,21 @@
 .pairing-pin {
+  border: 1px solid transparent; // force container top for description
+  position: relative;
+
+  @include element(description) {
+    // Layout of window: dynamic width driven by code length. A long ¶ here
+    // should not expand the modal window.
+    // Remove from flow and rely on sibling margin for render space.
+    position: absolute;
+
+    + * {
+      margin-top: 3rem;
+    }
+  }
+
   @include element(code) {
+    // Note: margin-top set by description sibling selector above
+    padding: spacing(huge) 0;
     text-align: center;
   }
 
@@ -17,5 +33,29 @@
   @include element(buttonGroup) {
     display: flex;
     justify-content: flex-end;
+  }
+
+  @include breakpoint('medium') {
+    @include element(char) {
+      font-size: 2rem;
+    }
+  }
+
+  @include breakpoint('narrow') {
+    @include element(description) {
+      position: static;
+    }
+
+    @include element(code) {
+      margin: 0;
+      padding: spacing(medium) 0;
+    }
+
+    @include element(char) {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin: spacing(none);
+      padding: spacing(tiny);
+    }
   }
 }

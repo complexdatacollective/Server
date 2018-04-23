@@ -20,6 +20,7 @@ rules:
         - block
         - element
         - modifier
+        - breakpoint
 
   # Line Spacing
   one-declaration-per-line: 1

@@ -1,14 +1,17 @@
 :root {
+  // Colors
   --base-background-color: color('platinum');
-  --recessed-background-color: color('platinum--dark');
+  --base-border-color: color('platinum--dark');
   --inverse-background-color: color('navy-taupe');
   --inverse-text-color: color('white');
-  --base-border-color: color('platinum--dark');
-
-  --code-font: monospace;
-
-  --app-sidebar-width: 6rem;
-
   --message-background-color: color('tomato--dark');
   --message-color: color('white');
+  --recessed-background-color: color('platinum--dark');
+
+  // Type
+  --code-font: monospace;
+
+  // Layout
+  --app-sidebar-width: 6rem;
+  --modal-window-padding: spacing(huge);
 }

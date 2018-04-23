@@ -2,9 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Icon } from 'network-canvas-ui/lib/components';
 
+import SlideDown from '../transitions/SlideDown';
+
 const PairPrompt = ({ onDismiss, onAcknowledge }) => (
   <div className="pairing-prompt">
-    <Icon name="info" className="pairing-prompt__icon" />
+    <div className="pairing-prompt__icon-wrapper">
+      <Icon name="info" className="pairing-prompt__icon" />
+    </div>
     <div className="pairing-prompt__content">
       <h1>Pair Device?</h1>
       <p>
@@ -29,4 +33,26 @@ PairPrompt.propTypes = {
   onDismiss: PropTypes.func.isRequired,
 };
 
+const AnimatedPairPrompt = ({ showWhen, onAcknowledge, onDismiss }) => (
+  <SlideDown
+    in={showWhen}
+    appear
+    unmountOnExit
+  >
+    <PairPrompt
+      onAcknowledge={onAcknowledge}
+      onDismiss={onDismiss}
+    />
+  </SlideDown>
+);
+
+AnimatedPairPrompt.propTypes = {
+  ...PairPrompt.promptTypes,
+  showWhen: PropTypes.bool.isRequired,
+};
+
 export default PairPrompt;
+
+export {
+  AnimatedPairPrompt,
+};
