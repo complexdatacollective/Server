@@ -294,9 +294,7 @@ class DeviceAPI {
         const pairingCode = req.body && req.body.pairingCode;
 
         // TODO: payload will actually be encrypted.
-        // TODO: delete request once verified (or mark as 'used' internally)?
-        // ... prevent retries/replays?
-        this.requestService.verifyRequest(pendingRequestId, pairingCode)
+        this.requestService.verifyAndExpireRequest(pendingRequestId, pairingCode)
           .then(pair => this.deviceManager.createDeviceDocument(pair.salt, pair.secretKey))
           .then((device) => {
             this.outOfBandDelegate.pairingDidCompleteWithCode(pairingCode);

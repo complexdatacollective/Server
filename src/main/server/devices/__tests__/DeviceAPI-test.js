@@ -67,7 +67,7 @@ describe('the DeviceAPI', () => {
     describe('POST /devices', () => {
       beforeEach(() => {
         // Note: mockRejectedValue() triggers UnhandledPromiseRejectionWarning
-        deviceApi.requestService.verifyRequest.mockImplementation(() => (
+        deviceApi.requestService.verifyAndExpireRequest.mockImplementation(() => (
           Promise.reject(new RequestError())
         ));
       });
@@ -88,7 +88,7 @@ describe('the DeviceAPI', () => {
       describe('with a valid request', () => {
         beforeEach(() => {
           // Mock that the pairing request was found & valid:
-          deviceApi.requestService.verifyRequest.mockReturnValue(Promise.resolve({}));
+          deviceApi.requestService.verifyAndExpireRequest.mockReturnValue(Promise.resolve({}));
           // Mock that the new device was successfully saved:
           deviceApi.deviceManager.createDeviceDocument.mockReturnValue(Promise.resolve({}));
         });
