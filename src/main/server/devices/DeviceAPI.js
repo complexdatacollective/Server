@@ -60,6 +60,18 @@ const Schema = {
   }),
 };
 
+// Throttle the pairing endpoints. Legitimate requests will not succeed
+// at a high rate because of OOB pairing; anything else could be a timing attack.
+const PairingThrottleSettings = {
+  burst: 1, // concurrent requests
+  rate: 0.5, // per sec, avg
+  ip: true,
+  overrides: {
+    // Allow unlimited local requests (e.g., for testing) if needed
+    '127.0.0.1': { burst: 0, rate: 0 },
+  },
+};
+
 /**
  * Channel for out-of-band communications
  */
@@ -153,7 +165,7 @@ class DeviceAPI {
      *         schema:
      *           $ref: '#/definitions/Error'
      */
-    server.get('/devices/new', this.handlers.onPairingRequest);
+    server.get('/devices/new', restify.plugins.throttle(PairingThrottleSettings), this.handlers.onPairingRequest);
 
     /**
      * @swagger
@@ -193,7 +205,7 @@ class DeviceAPI {
      *         schema:
      *           $ref: '#/definitions/Error'
      */
-    server.post('/devices', this.handlers.onPairingConfirm);
+    server.post('/devices', restify.plugins.throttle(PairingThrottleSettings), this.handlers.onPairingConfirm);
 
     /**
      * @swagger
