@@ -1,21 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import ProtocolThumbnail from './ProtocolThumbnail';
 import Types from '../types';
 
-const nickname = (name = '') => name.substr(0, 2);
-
 const ProtocolThumbnails = ({ protocols, onClickAddProtocol }) => (
-  <div className="protocol-thumbnails">
+  <div>
     {
-      protocols.map(protocol => (
-        <div key={protocol.id} className="protocol-thumbnails__thumbnail" title={protocol.filename}>
-          {nickname(protocol.name)}
-        </div>
-      ))
+      protocols.map(protocol => <ProtocolThumbnail protocol={protocol} key={protocol.id} />)
     }
     <button
-      className="protocol-thumbnails__thumbnail protocol-thumbnails__thumbnail--add"
+      className="protocol-thumbnail protocol-thumbnail--add"
       onClick={onClickAddProtocol}
     />
   </div>

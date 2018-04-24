@@ -19,15 +19,15 @@
     width: var(--app-sidebar-width);
 
     // Ensure contained content fills entire height
-    & > * {
+    > * {
+      border: 1px solid transparent; // force to top
       height: 100%;
-      overflow: hidden;
     }
   }
 
   @include element(screen) {
-    flex: auto;
     display: flex;
+    flex: auto;
     flex-direction: column;
   }
 
