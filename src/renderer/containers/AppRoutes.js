@@ -7,12 +7,6 @@ import {
 
 import { PairDevice, OverviewScreen, SettingsScreen } from './';
 
-// TODO: remove this if we won't need URL-based addressing of modals.
-// (Now including PairDevice directly.)
-// const ModalRoute = ({path, component}) => (
-//   <Route path={`/:basePath*/modal/${path.replace(/^\//, '')}`} component={component} />
-// );
-
 const AppRoutes = () => (
   <React.Fragment>
     <Switch>

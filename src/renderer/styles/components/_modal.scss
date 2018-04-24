@@ -41,4 +41,8 @@
     float: right;
   }
 
+  @include modifier(pairing-confirmation) {
+    // Force a narrower window
+    padding: 0 30%;
+  }
 }

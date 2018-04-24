@@ -3,6 +3,9 @@ import PropTypes from 'prop-types';
 
 const PinChar = ({ char }) => (<div className="pairing-pin__char">{char}</div>);
 
+// Placeholder to display when code is unavailable (e.g., during transitions)
+const placeholder = '------------';
+
 PinChar.propTypes = {
   char: PropTypes.string.isRequired,
 };
@@ -22,8 +25,12 @@ const PairPin = ({ code }) => {
   );
 };
 
+PairPin.defaultProps = {
+  code: placeholder,
+};
+
 PairPin.propTypes = {
-  code: PropTypes.string.isRequired,
+  code: PropTypes.string,
 };
 
 export default PairPin;
