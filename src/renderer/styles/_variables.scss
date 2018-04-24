@@ -1,13 +1,13 @@
 :root {
   // Colors
-  --base-background-color: color('platinum');
-  --base-border-color: color('platinum--dark');
-  --inverse-background-color: color('navy-taupe');
-  --inverse-text-color: color('white');
-  --message-background-color: color('tomato--dark');
-  --message-color: color('white');
-  --recessed-background-color: color('platinum--dark');
-  --recessed-border-color: color('platinum');
+  --base-background-color: var(--color-platinum);
+  --base-border-color: var(--color-platinum--dark);
+  --inverse-background-color: var(--color-navy-taupe);
+  --inverse-text-color: var(--color-white);
+  --message-background-color: var(--color-tomato--dark);
+  --message-color: var(--color-white);
+  --recessed-background-color: var(--color-platinum--dark);
+  --recessed-border-color: var(--color-platinum);
 
   // Type
   --code-font: monospace;

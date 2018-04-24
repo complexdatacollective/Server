@@ -20,7 +20,7 @@
   }
 
   @include element(char) {
-    background-color: color('white');
+    background-color: var(--color-white);
     border: 1px solid var(--base-border-color);
     border-radius: .25rem;
     display: inline-block;

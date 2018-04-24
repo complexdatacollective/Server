@@ -3,13 +3,13 @@
   $top-grid-row: 1rem;
 
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: minmax($top-grid-row, auto) auto;
   grid-auto-rows: minmax($min-grid-row, auto);
   grid-gap: spacing(medium);
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: minmax($top-grid-row, auto) auto;
 
   @include element(panel) {
-    background-color: color('white');
+    background-color: var(--color-white);
     padding: spacing(small);
 
     @include modifier(server-stats) {

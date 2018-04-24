@@ -10,12 +10,12 @@
   @include element(badge) {
     --badge-size: 1.4rem;
     --badge-offset: -.4rem;
-    background-color: color('sea-green');
-    border: 2px solid color('white');
+    background-color: var(--color-sea-green);
+    border: 2px solid var(--color-white);
     border-radius: calc(var(--badge-size) * .5);
     bottom: var(--badge-offset);
     display: block;
-    color: color('white');
+    color: var(--color-white);
     font-size: .9rem;
     height: var(--badge-size);
     line-height: 1.2;

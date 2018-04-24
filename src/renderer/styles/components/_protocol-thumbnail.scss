@@ -5,7 +5,7 @@
   --tooltip-callout-width: 1.2rem;
   --tooltip-color: var(--text-dark);
 
-  background-color: color('cyber-grape');
+  background-color: var(--color-cyber-grape);
   border-radius: .5rem;
   cursor: help;
   display: block;
@@ -20,16 +20,16 @@
   width: var(--thumbnail-size);
 
   @include modifier(active) {
-    background-color: color('sea-green');
+    background-color: var(--color-sea-green);
   }
 
   @include modifier(add) {
     background: transparent center / 50% no-repeat url('../images/plus.png');
-    border: 6px solid color('cyber-grape');
+    border: 6px solid var(--color-cyber-grape);
     cursor: pointer;
 
     &:hover {
-      background-color: color('cyber-grape');
+      background-color: var(--color-cyber-grape);
     }
   }
 

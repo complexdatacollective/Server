@@ -1,7 +1,7 @@
 .file-drop-target {
 
   @include modifier(active) {
-    background-color: color('slate-blue--dark');
+    background-color: var(--color-slate-blue--dark);
 
     & > * {
       pointer-events: none;

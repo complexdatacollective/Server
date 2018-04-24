@@ -4,9 +4,9 @@
 
   @include slide-down-transition($estimated-height);
 
-  background-color: color(cyber-grape);
-  border-bottom: .5rem solid color(mustard);
-  color: color('white');
+  background-color: var(--color-cyber-grape);
+  border-bottom: .5rem solid var(--color-mustard);
+  color: var(--color-white);
   display: flex;
   left: calc(50% - #{$width / 2});
   min-height: $estimated-height;
