@@ -66,7 +66,7 @@ class App extends Component {
         </div>
         {
           <AnimatedPairPrompt
-            showWhen={pairingRequest.status === PairingStatus.Pending}
+            show={pairingRequest.status === PairingStatus.Pending}
             onAcknowledge={ackPairingRequest}
             onDismiss={dismissPairingRequest}
           />

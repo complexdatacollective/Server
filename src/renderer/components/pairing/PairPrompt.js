@@ -33,9 +33,9 @@ PairPrompt.propTypes = {
   onDismiss: PropTypes.func.isRequired,
 };
 
-const AnimatedPairPrompt = ({ showWhen, onAcknowledge, onDismiss }) => (
+const AnimatedPairPrompt = ({ show, onAcknowledge, onDismiss }) => (
   <SlideDown
-    in={showWhen}
+    in={show}
     appear
     unmountOnExit
   >
@@ -48,7 +48,7 @@ const AnimatedPairPrompt = ({ showWhen, onAcknowledge, onDismiss }) => (
 
 AnimatedPairPrompt.propTypes = {
   ...PairPrompt.promptTypes,
-  showWhen: PropTypes.bool.isRequired,
+  show: PropTypes.bool.isRequired,
 };
 
 export default PairPrompt;
