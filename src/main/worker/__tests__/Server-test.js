@@ -9,7 +9,8 @@ const serverOpts = { dataDir: 'db' };
 
 jest.mock('electron-log');
 jest.mock('mdns');
-jest.mock('../deviceManager');
+jest.mock('../../data-managers/DeviceManager');
+jest.mock('../../data-managers/ProtocolManager');
 
 describe('Server', () => {
   let mockAdvert;
@@ -23,15 +24,24 @@ describe('Server', () => {
     mdns.createAdvertisement.mockReturnValue(mockAdvert);
   });
 
-  it('starts services', (done) => {
-    server = new Server(serverOpts);
-    server.startServices(testPortNumber).then(() => {
+  describe('running services', () => {
+    beforeEach(() => {
+      server = new Server(serverOpts);
+    });
+    afterEach(() => server.close());
+
+    it('starts services', async () => {
+      await server.startServices(testPortNumber);
       expect(server.deviceService).toBeDefined();
       expect(server.adminService).toBeDefined();
-      server.close();
-      done();
     });
   });
+
+  it('starts services', () => {
+    server = new Server(serverOpts);
+    expect(server.status()).toMatchObject({});
+  });
+
 
   describe('with a device service', () => {
     let deviceService;
@@ -39,8 +49,7 @@ describe('Server', () => {
     beforeEach((done) => {
       server = new Server();
       deviceService = new DeviceService({});
-      deviceService.start()
-        .then(done);
+      deviceService.start().then(() => done());
     });
 
     afterEach(() => deviceService.stop());

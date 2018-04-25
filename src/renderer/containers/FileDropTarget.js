@@ -78,7 +78,7 @@ class FileDropTarget extends Component {
         <ul>
           {
             protocols.length > 0 &&
-            protocols.map(f => <li key={f}>{f}</li>)
+            protocols.map(f => <li key={f.filename}>{f.filename}</li>)
           }
         </ul>
         <p>

@@ -1,15 +1,10 @@
-/* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
-const restify = require('restify');
 const logger = require('electron-log');
 
-const DeviceManager = require('./deviceManager');
-const { PairingRequestService, PairingVerificationError } = require('./pairingRequestService');
+const { DeviceAPI } = require('./DeviceAPI');
 
-const ApiName = 'DevciceAPI';
-const ApiVersion = '0.0.1';
-const DefaultPort = process.env.DEVICE_SERVICE_PORT || 51001;
+const DefaultApiPort = process.env.DEVICE_SERVICE_PORT || 51001;
 
-const actions = {
+const ipcActions = {
   PAIRING_CODE_AVAILABLE: 'PAIRING_CODE_AVAILABLE',
   PAIRING_COMPLETE: 'PAIRING_COMPLETE',
 };
@@ -25,49 +20,42 @@ const actions = {
  */
 class DeviceService {
   constructor({ dataDir }) {
-    this.reqSvc = new PairingRequestService();
-    this.api = this.createApi();
-    this.deviceMgr = new DeviceManager(dataDir);
+    this.api = this.createApi(dataDir);
   }
 
-  start(port = DefaultPort) {
-    this.port = port;
-    return new Promise((resolve) => {
-      this.api.listen(port, '0.0.0.0', () => {
-        logger.info(`${this.api.name} listening at ${this.api.url}`);
-        resolve(this);
-      });
+  createApi(dataDir) {
+    return new DeviceAPI(dataDir, this.outOfBandDelegate);
+  }
+
+  start(port = DefaultApiPort) {
+    return this.api.listen(port).then((api) => {
+      logger.info(`${api.name} listening at ${api.url}`);
+      return api;
     });
   }
 
   stop() {
-    return new Promise((resolve) => {
-      this.api.close(() => {
-        this.port = null;
-        resolve();
-      });
-    });
+    return this.api.close();
   }
 
-  createApi() {
-    const api = restify.createServer({
-      name: ApiName,
-      version: ApiVersion,
-    });
-
-    api.use(restify.plugins.bodyParser());
-
-    // Pairing Step 1. Generate a new pairing request.
-    // Send request ID in response; present pairing passcode to user (out of band).
-    api.get('/devices/new', this.handlers.onPairingRequest);
-
-    // Pairing Step 2.
-    // User has entered pairing code
-    api.post('/devices', this.handlers.onPairingConfirm);
-
-    return api;
+  get outOfBandDelegate() {
+    return {
+      pairingDidBeginWithCode: (pairingCode) => {
+        this.messageParent({
+          action: ipcActions.PAIRING_CODE_AVAILABLE,
+          data: { pairingCode },
+        });
+      },
+      pairingDidCompleteWithCode: (pairingCode) => {
+        this.messageParent({
+          action: ipcActions.PAIRING_COMPLETE,
+          data: { pairingCode },
+        });
+      },
+    };
   }
 
+  // TODO: move, and stub the delegate in tests
   // eslint-disable-next-line class-methods-use-this
   messageParent(data) {
     if (process.send) {
@@ -76,62 +64,10 @@ class DeviceService {
       logger.error('No parent available for IPC');
     }
   }
-
-  get handlers() {
-    return {
-      onPairingRequest: (req, res, next) => {
-        this.reqSvc.createRequest()
-          .then((pairingRequest) => {
-            // Send code up to UI
-            this.messageParent({
-              action: actions.PAIRING_CODE_AVAILABLE,
-              data: { pairingCode: pairingRequest.pairingCode },
-            });
-            // Respond to client
-            res.send({
-              status: 'ok',
-              pairingRequest: {
-                reqId: pairingRequest._id,
-                salt: pairingRequest.salt,
-              },
-            });
-          })
-          .catch((err) => {
-            logger.error(err);
-            res.send(503, { status: 'error' });
-          })
-          .then(next);
-      },
-
-      onPairingConfirm: (req, res, next) => {
-        const pendingRequestId = req.body && req.body.requestId;
-        const pairingCode = req.body && req.body.pairingCode;
-
-        // TODO: payload will actually be encrypted.
-        // TODO: delete request once verified (or mark as 'used' internally)?
-        // ... prevent retries/replays?
-        this.reqSvc.verifyRequest(pendingRequestId, pairingCode)
-          .then(pair => this.deviceMgr.createDeviceDocument(pair.salt, pair.secretKey))
-          .then((device) => {
-            this.messageParent({
-              action: actions.PAIRING_COMPLETE,
-              data: { pairingCode },
-            });
-            res.send({ status: 'ok', device });
-          })
-          .catch((err) => {
-            logger.error(err);
-            const status = (err instanceof PairingVerificationError) ? 400 : 503;
-            res.send(status, { status: 'error' });
-          })
-          .then(next);
-      },
-    };
-  }
 }
 
 module.exports = {
   DeviceService,
-  deviceServiceActions: actions,
+  deviceServiceActions: ipcActions,
 };
 

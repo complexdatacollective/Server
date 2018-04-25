@@ -7,14 +7,14 @@ ShallowWrapper {
   Symbol(enzyme.__unrendered__): <ServerPanel
     className=""
     serverOverview={
-        Object {
-            "clients": 0,
-            "ip": "x.x.x.x",
-            "publicKey": "",
-            "uptime": 0,
-          }
+      Object {
+        "clients": 0,
+        "ip": "x.x.x.x",
+        "publicKey": "",
+        "uptime": 0,
+      }
     }
-/>,
+  />,
   Symbol(enzyme.__renderer__): Object {
     "batchedUpdates": [Function],
     "getNode": [Function],
@@ -31,15 +31,15 @@ ShallowWrapper {
         <PanelItem
           label="Server Public IP"
           value="\\"x.x.x.x\\""
-/>,
+        />,
         <PanelItem
           label="Uptime"
           value={0}
-/>,
+        />,
         <PanelItem
           label="Server Public Key"
           value=""
-/>,
+        />,
       ],
       "className": "server-panel ",
     },
@@ -94,15 +94,15 @@ ShallowWrapper {
           <PanelItem
             label="Server Public IP"
             value="\\"x.x.x.x\\""
-/>,
+          />,
           <PanelItem
             label="Uptime"
             value={0}
-/>,
+          />,
           <PanelItem
             label="Server Public Key"
             value=""
-/>,
+          />,
         ],
         "className": "server-panel ",
       },

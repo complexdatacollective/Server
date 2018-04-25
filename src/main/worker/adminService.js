@@ -3,8 +3,8 @@ const logger = require('electron-log');
 const corsMiddleware = require('restify-cors-middleware');
 const detectPort = require('detect-port');
 
-const DeviceManager = require('./deviceManager');
-const ProtocolImporter = require('../utils/ProtocolImporter');
+const DeviceManager = require('../data-managers/DeviceManager');
+const ProtocolManager = require('../data-managers/ProtocolManager');
 
 const DefaultPort = 8080;
 
@@ -23,13 +23,13 @@ class AdminService {
   constructor({ statusDelegate, dataDir }) {
     this.api = this.createApi();
     this.statusDelegate = statusDelegate;
-    this.deviceMgr = new DeviceManager(dataDir);
-    this.protocolImporter = new ProtocolImporter(dataDir);
+    this.deviceManager = new DeviceManager(dataDir);
+    this.protocolManager = new ProtocolManager(dataDir);
   }
 
   /**
    * Start API listening on an open port.
-   * @param  {[type]} port [description]
+   * @param  {string|number} port number in valid range [1024,65535]
    * @return {Promise}
    */
   start(port = DefaultPort) {
@@ -91,7 +91,7 @@ class AdminService {
     });
 
     api.get('/devices', (req, res, next) => {
-      this.deviceMgr.fetchDeviceList()
+      this.deviceManager.fetchDeviceList()
         .then(devices => res.send({ status: 'ok', devices }))
         .catch((err) => {
           logger.error(err);
@@ -102,7 +102,7 @@ class AdminService {
 
     api.post('/protocols', (req, res, next) => {
       const files = req.body.files;
-      this.protocolImporter.validateAndImport(files)
+      this.protocolManager.validateAndImport(files)
         .then(saved => res.send({ status: 'ok', protocols: saved }))
         .catch((err) => {
           logger.error(err);
@@ -112,8 +112,8 @@ class AdminService {
     });
 
     api.get('/protocols', (req, res, next) => {
-      this.protocolImporter.savedFiles()
-        .then(files => res.send({ status: 'ok', protocols: files }))
+      this.protocolManager.allProtocols()
+        .then(protocols => res.send({ status: 'ok', protocols }))
         .catch((err) => {
           logger.error(err);
           res.send(500, { status: 'error' });

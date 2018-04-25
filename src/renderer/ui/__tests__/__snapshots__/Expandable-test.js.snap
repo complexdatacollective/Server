@@ -7,9 +7,9 @@ ShallowWrapper {
   Symbol(enzyme.__unrendered__): <Expandable
     className="foo"
     open={false}
->
+  >
     Bar
-</Expandable>,
+  </Expandable>,
   Symbol(enzyme.__renderer__): Object {
     "batchedUpdates": [Function],
     "getNode": [Function],

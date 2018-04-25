@@ -24,11 +24,10 @@ describe('PairingRequest Service', () => {
     });
   });
 
-  it('verifies an existing request', (done) => {
-    reqSvc.createRequest()
-      .then(req => reqSvc.verifyRequest(req._id, req.pairingCode))
-      .then(resp => expect(resp))
-      .then(done);
+  it('verifies an existing request', async () => {
+    const req = await reqSvc.createRequest();
+    expect(reqSvc.verifyRequest(req._id, req.pairingCode)).resolves
+      .toMatchObject({ pairingCode: expect.any(String) });
   });
 
   it('rejects a missing or expired request', async () => {

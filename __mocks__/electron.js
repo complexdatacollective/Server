@@ -4,6 +4,7 @@
 
 const ipcRenderer = {
   on: jest.fn(),
+  once: jest.fn(),
   send: jest.fn(),
 };
 
@@ -12,11 +13,17 @@ const ipcMain = {
 };
 
 const app = {
-  getName: () => 'test',
+  on: jest.fn(),
+  getName: jest.fn(() => 'test'),
+  getPath: jest.fn(() => '.'),
 };
 
 const dialog = {
   showOpenDialog: jest.fn(),
+};
+
+const Menu = {
+  buildFromTemplate: jest.fn(),
 };
 
 class BrowserWindow {
@@ -39,6 +46,7 @@ BrowserWindow.getAllWindows = jest.fn().mockReturnValue([]);
 module.exports = {
   app,
   BrowserWindow,
+  Menu,
   dialog,
   ipcMain,
   ipcRenderer,

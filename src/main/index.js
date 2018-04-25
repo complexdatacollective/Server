@@ -1,6 +1,6 @@
 const { app, dialog, ipcMain, Menu } = require('electron');
 
-const ProtocolImporter = require('./utils/ProtocolImporter');
+const ProtocolManager = require('./data-managers/ProtocolManager');
 const { isWindows } = require('./utils/environment');
 const { createMainWindow } = require('./components/mainWindow');
 const { createTray } = require('./components/tray');
@@ -10,7 +10,7 @@ const ApiConnectionInfoChannel = 'API_INFO';
 const RequestApiConnectionInfoChannel = 'REQUEST_API_INFO';
 
 const userDataDir = app.getPath('userData');
-const protocolImporter = new ProtocolImporter(userDataDir);
+const protocolManager = new ProtocolManager(userDataDir);
 const mainWindow = createMainWindow();
 
 // Background server
@@ -67,7 +67,7 @@ const appMenu = Menu.buildFromTemplate([
       {
         label: 'Import Protocol...',
         click: () => {
-          protocolImporter.presentDialog()
+          protocolManager.presentImportDialog()
             .then((savedFiles) => {
               if (savedFiles) {
                 dialog.showMessageBox(mainWindow.window, {
@@ -87,7 +87,9 @@ const appMenu = Menu.buildFromTemplate([
 ]);
 
 app.on('ready', () => {
-  mainWindow.open('/overview');
+  if (!process.env.DEV_SUPPRESS_WINDOW_DEFAULT_OPEN) {
+    mainWindow.open('/overview');
+  }
   tray = createTray(trayMenu);
   Menu.setApplicationMenu(appMenu);
   if (isWindows) {

@@ -1,16 +1,17 @@
-/* eslint new-cap: ["error", { "newIsCapExceptions": ["nedb"] }] */
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
 
-const nedb = require('nedb');
+const NeDB = require('nedb');
 const uuidv4 = require('uuid/v4');
 const libsodium = require('libsodium-wrappers');
 const logger = require('electron-log');
 
 const PairingCodeFactory = require('./pairingCodeFactory');
+const { RequestError } = require('../errors/RequestError');
 
 const DeviceRequestTTLSeconds = 5 * 60;
 
 const dbConfig = {
+  corruptAlertThreshold: 0,
   // TODO: review in-mem/on-disk and document.
   // Notes on persistence:
   //    0. We want to store the pairing passcode, which is sensitive.
@@ -42,19 +43,12 @@ function deriveSecret(pairingCode, salt) {
   return secretKey;
 }
 
-class PairingVerificationError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = 'PairingVerificationError';
-  }
-}
-
 /**
  * @memberOf BackgroundServices
  */
 class PairingRequestService {
   constructor() {
-    this.db = new nedb(dbConfig); // eslint-disable-line new-cap
+    this.db = new NeDB(dbConfig); // eslint-disable-line new-cap
 
     this.db.ensureIndex({
       fieldName: 'createdAt',
@@ -75,7 +69,6 @@ class PairingRequestService {
           const secretKey = deriveSecret(pairingCode, salt);
 
           // TODO: avoiding serialization is preferable; how is that handled with db?
-          // TODO: promisify nedb...
           this.db.insert({
             salt: libsodium.to_hex(salt),
             secretKey: libsodium.to_hex(secretKey),
@@ -86,7 +79,7 @@ class PairingRequestService {
               // TODO: retry?
               reject(err);
             } else {
-              logger.info('New pairing request saved', newRequest._id);
+              logger.info('New pairing request saved', newRequest._id, pairingCode);
               resolve(newRequest);
             }
           });
@@ -99,13 +92,17 @@ class PairingRequestService {
     const errMsg = 'Request verification failed';
     return new Promise((resolve, reject) => {
       if (!requestId || !pairingCode) {
-        reject(new PairingVerificationError(errMsg));
+        reject(new RequestError(errMsg));
         return;
       }
 
       this.db.findOne({ _id: requestId, pairingCode }, (err, doc) => {
-        if (err || !doc) {
-          reject(new PairingVerificationError(errMsg));
+        if (err) {
+          // Assume error on our side
+          reject(err);
+        } else if (!doc) {
+          // Pairing request was invalid or expired
+          reject(new RequestError(errMsg));
         } else {
           resolve(doc);
         }
@@ -143,5 +140,4 @@ class PairingRequestService {
 
 module.exports = {
   PairingRequestService,
-  PairingVerificationError,
 };

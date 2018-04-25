@@ -94,6 +94,21 @@ To speed up development, the server can be run headlessly out of /src/worker usi
     └── renderer       # GUI (react app)
 ```
 
+## API docs for clients
+
+The device API (for Network Canvas tablet & desktop clients) is currently being documented with [the OpenAPI spec](https://github.com/OAI/OpenAPI-Specification), a.k.a. Swagger. The spec is generated when the electron-dev target is built. To generate manually, run `node scripts/build-api-spec.js`.
+
+For now, you'll have to generate API-specific documentation based on the spec. One way is to use [spectacle](https://github.com/sourcey/spectacle):
+
+```sh
+# install
+npm install -g spectacle-docs
+
+# publish to ./docs/api and start a server
+spectacle --target-dir docs/api --development-mode --port 4400 config/api/api-spec-0.0.0.json
+
+# ...Now view at http://localhost:4400
+```
 
 ## License
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fcodaco%2FServer.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fcodaco%2FServer?ref=badge_large)
