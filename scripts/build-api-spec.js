@@ -7,6 +7,12 @@ const paths = require('../config/paths');
 const ApiVersion = '0.0.0';
 const ApiPort = process.env.DEVICE_SERVICE_PORT || 51001; // See DeviceService
 
+const deviceApiSource = path.join(__dirname, '..', 'src', 'main', 'server', 'devices', 'DeviceAPI.js');
+
+if (!fs.existsSync(deviceApiSource)) {
+  throw new Error(`Device API source not found at ${deviceApiSource}`);
+}
+
 const options = {
   swaggerDefinition: {
     host: `localhost:${ApiPort}`,
@@ -19,7 +25,7 @@ const options = {
     },
   },
   // Path to the API docs
-  apis: [path.join(__dirname, '..', 'src', 'main', 'worker', 'DeviceAPI.js')],
+  apis: [deviceApiSource],
 };
 
 const destDir = path.join(paths.config, 'api');
