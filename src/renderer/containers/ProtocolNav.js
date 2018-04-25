@@ -14,6 +14,11 @@ import AdminApiClient from '../utils/adminApiClient';
 const RequestFileImportDialog = 'REQUEST_FILE_IMPORT_DIALOG';
 const FileImportUpdated = 'FILE_IMPORT_UPDATED';
 
+const ipcChannels = {
+  FileImportUpdated,
+  RequestFileImportDialog,
+};
+
 const promptFileImport = () => {
   ipcRenderer.send(RequestFileImportDialog);
 };
@@ -71,4 +76,5 @@ export default connect(mapStateToProps, mapDispatchToProps)(ProtocolNav);
 
 export {
   ProtocolNav as UnconnectedProtocolNav,
+  ipcChannels,
 };
