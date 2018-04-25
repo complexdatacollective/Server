@@ -1,5 +1,6 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
 const restify = require('restify');
+const corsMiddleware = require('restify-cors-middleware');
 const logger = require('electron-log');
 const PropTypes = require('prop-types');
 const { URL } = require('url');
@@ -130,6 +131,12 @@ class DeviceAPI {
     });
 
     server.use(restify.plugins.bodyParser());
+
+    // Whitelist everything for CORS: origins are arbitrary, and customizing client
+    // Access-Origins buys no security
+    const cors = corsMiddleware({ origins: ['*'] });
+    server.pre(cors.preflight);
+    server.use(cors.actual);
 
     /**
      * @swagger
