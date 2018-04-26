@@ -231,7 +231,9 @@ class DeviceAPI {
      *               type: string
      *               example: ok
      *             data:
-     *               $ref: '#/definitions/Protocol'
+     *               type: array
+     *               items:
+     *                 $ref: '#/definitions/Protocol'
      *       400:
      *         description: request error
      *         schema:
