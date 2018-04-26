@@ -1,4 +1,5 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
+const os = require('os');
 const restify = require('restify');
 const corsMiddleware = require('restify-cors-middleware');
 const logger = require('electron-log');
@@ -9,6 +10,14 @@ const DeviceManager = require('../../data-managers/DeviceManager');
 const ProtocolManager = require('../../data-managers/ProtocolManager');
 const { PairingRequestService } = require('./PairingRequestService');
 const { RequestError } = require('../../errors/RequestError');
+
+// TODO: remove dupe from Server
+const lanIP = () => {
+  const interfaces = Object.values(os.networkInterfaces());
+  const lanV4 = val => val.family === 'IPv4' && val.internal === false;
+  const iface = [].concat(...interfaces).find(lanV4);
+  return iface && iface.address;
+};
 
 const ApiName = 'DevciceAPI';
 const ApiVersion = '0.0.2';
@@ -103,6 +112,7 @@ class DeviceAPI {
   }
 
   get name() { return this.server.name; }
+  get publicUrl() { return this.url.replace(ApiHostName, lanIP()); }
   get url() { return this.server.url; }
 
   // TODO: prevent multiple?
@@ -327,7 +337,7 @@ class DeviceAPI {
 
       protocolList: (req, res, next) => {
         this.protocolManager.allProtocols()
-          .then(protocols => protocols.map(p => Schema.protocol(p, this.server.url)))
+          .then(protocols => protocols.map(p => Schema.protocol(p, this.publicUrl)))
           .then(schemas => res.json({ status: 'ok', data: schemas }))
           .catch(err => this.handlers.onError(err, res))
           .then(next);

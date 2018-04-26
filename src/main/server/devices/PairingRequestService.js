@@ -110,6 +110,7 @@ class PairingRequestService {
       this.db.update(query, updateClause, opts, (err, num, doc) => {
         if (err) {
           // Assume error on our side
+          logger.error(err);
           reject(err);
         } else if (!doc) {
           // Pairing request was invalid or expired

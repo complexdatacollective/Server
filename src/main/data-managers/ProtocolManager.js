@@ -161,7 +161,8 @@ class ProtocolManager {
             this.db.save(filename, dataBuffer, parsedProtocol);
             resolve(filename);
           })
-          .catch(() => {
+          .catch((parsingErr) => {
+            logger.debug('ZIP parsing error', parsingErr);
             // Assume that any error indicates invalid protocol zip
             reject(new RequestError(ErrorMessages.InvalidFile));
           });
