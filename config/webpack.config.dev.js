@@ -142,7 +142,10 @@ module.exports = {
             test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
             loader: require.resolve('url-loader'),
             options: {
-              limit: 10000,
+              // Set limit to 1, to effectively force all images to be read from disk.
+              // Otherwise, we could change CSP settings, but the cost of this is minimal.
+              // If there end up being many small images, we can revisit.
+              limit: 1,
               name: 'static/media/[name].[hash:8].[ext]',
             },
           },
