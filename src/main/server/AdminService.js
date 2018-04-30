@@ -15,8 +15,6 @@ const ApiVersion = '0.0.1';
 const Host = '127.0.0.1';
 
 /**
- * @memberof BackgroundServices
- * @class AdminService
  * Provides a RESTful API for electron renderer clients on the same machine.
  */
 class AdminService {

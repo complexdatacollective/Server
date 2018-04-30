@@ -5,8 +5,8 @@ const uuidv4 = require('uuid/v4');
 const libsodium = require('libsodium-wrappers');
 const logger = require('electron-log');
 
-const PairingCodeFactory = require('./pairingCodeFactory');
-const { RequestError } = require('../errors/RequestError');
+const PairingCodeFactory = require('./PairingCodeFactory');
+const { RequestError } = require('../../errors/RequestError');
 
 const DeviceRequestTTLSeconds = 5 * 60;
 
@@ -43,9 +43,6 @@ function deriveSecret(pairingCode, salt) {
   return secretKey;
 }
 
-/**
- * @memberOf BackgroundServices
- */
 class PairingRequestService {
   constructor() {
     this.db = new NeDB(dbConfig); // eslint-disable-line new-cap

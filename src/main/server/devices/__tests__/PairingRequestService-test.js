@@ -1,7 +1,7 @@
 /* eslint-env jest */
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
 
-const { PairingRequestService } = require('../pairingRequestService');
+const { PairingRequestService } = require('../PairingRequestService');
 
 jest.mock('electron-log');
 

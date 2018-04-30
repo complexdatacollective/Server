@@ -57,7 +57,7 @@ const jsonClient = {
     });
     if (reqData) { req.write(JSON.stringify(reqData)); }
     req.on('error', (err) => {
-      console.warn('testClient error', err);
+      console.warn('testClient error', err); // eslint-disable-line no-console
       reject(err);
     });
     req.end();

@@ -1,23 +1,23 @@
-/* eslint-disable class-methods-use-this */
-const Emitter = require('events').EventEmitter;
+const { EventEmitter } = require('events');
 const os = require('os');
 const mdns = require('mdns');
 const logger = require('electron-log');
 
-const { DeviceService } = require('./deviceService');
-const { AdminService } = require('./adminService');
+const { DeviceService, deviceServiceEvents } = require('./devices/DeviceService');
+const { AdminService } = require('./AdminService');
 
-const events = ['data'];
-
-class Server extends Emitter {
+class Server extends EventEmitter {
   constructor(options = {}) {
     super();
     this.options = options;
-
     this.started = new Date().getTime();
-    this.advertiseDeviceService = this.advertiseDeviceService.bind(this);
   }
 
+  /**
+   * Starts the Admin service (to serve GUI) and Device service (for external clients)
+   * @param  {number} port
+   * @return {Server} this
+   */
   startServices(port) {
     const dataDir = this.options.dataDir;
     this.adminService = new AdminService({ statusDelegate: this, dataDir });
@@ -26,7 +26,7 @@ class Server extends Emitter {
     return Promise.all([
       // TODO: use port param for device Service
       this.adminService.start(port),
-      this.deviceService.start().then(this.advertiseDeviceService),
+      this.deviceService.start().then(service => this.advertiseDeviceService(service)),
     ]).then(() => this);
   }
 
@@ -41,9 +41,14 @@ class Server extends Emitter {
     };
   }
 
+  // TODO: return promise of all
   close() {
-    this.deviceService.stop();
-    this.adminService.stop();
+    if (this.deviceService) {
+      this.deviceService.stop();
+    }
+    if (this.adminService) {
+      this.adminService.stop();
+    }
     this.stopAdvertisements();
   }
 
@@ -75,17 +80,25 @@ class Server extends Emitter {
     };
   }
 
+  // eslint-disable-next-line class-methods-use-this
   publicIP() {
     const addrs = Object.values(os.networkInterfaces());
     return [].concat(...addrs)
       .find(val => val.family === 'IPv4' && val.internal === false);
   }
 
-  on(name, cb, ...rest) {
-    if (events.indexOf(name) !== -1) {
-      return Emitter.prototype.on.apply(this, [name, cb, ...rest]);
+  on(name, cb) {
+    let emitter = null;
+    if (deviceServiceEvents && deviceServiceEvents[name]) {
+      emitter = this.deviceService;
     }
-    return null;
+
+    if (emitter) {
+      logger.debug('Registering event', name, 'with', emitter.constructor.name);
+      emitter.on(name, cb);
+    }
+
+    return this;
   }
 }
 

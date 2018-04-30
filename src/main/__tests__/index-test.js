@@ -1,18 +1,32 @@
 /* eslint-env jest */
-
 require('../index');
-const { Menu } = require('electron');
-
-// Don't start the server for these tests
-jest.mock('../worker/serverManager', () => ({
-  actions: {},
-  createServer: jest.fn().mockResolvedValue({}),
-}));
+const { createApp } = require('../MainApp');
 
 jest.mock('electron');
 
-describe('the electron app', () => {
-  it('populates the system menu', () => {
-    expect(Menu.buildFromTemplate).toHaveBeenCalled();
+jest.mock('../MainApp', () => ({
+  createApp: jest.fn().mockReturnValue({
+    app: {
+      on: jest.fn(),
+    },
+    mainWindow: {
+      send: jest.fn(),
+    },
+  }),
+}));
+
+jest.mock('../server/ServerFactory', () => ({
+  serverEvents: {},
+  createServer: jest.fn().mockResolvedValue({
+    connectionInfo: {
+      adminService: { port: 12345 },
+    },
+    on: jest.fn(),
+  }),
+}));
+
+describe('index', () => {
+  it('creates the app', () => {
+    expect(createApp).toHaveBeenCalled();
   });
 });

@@ -1,6 +1,6 @@
 /* eslint-env jest */
 
-const Factory = require('../pairingCodeFactory');
+const Factory = require('../PairingCodeFactory');
 
 describe('the PairingCodeFactory', () => {
   it('can generate a pairing code', async () => {

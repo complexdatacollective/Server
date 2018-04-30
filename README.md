@@ -80,7 +80,24 @@ New approach (work-in-progress):
 
 Original/browser approach (does not support electron):
 
-To speed up development, the server can be run headlessly out of /src/worker using the command `npm run server:dev` and the UI can be viewed at `localhost:3000` once started with `npm run start`. Any changes made in the UI will be automatically compiled, but any changes made to the background server require it to be restarted in order for changes to be reflected.
+To speed up development, the server can be run headlessly out of /src/worker using the command `npm run server:dev` and the UI can be viewed at `localhost:3000` once started with `npm run start`. Communication between the two is not currently supported without the mechanisms of Electron IPC. Any changes made in the UI will be automatically compiled, but any changes made to the background server require it to be restarted in order for changes to be reflected.
+
+### macOS Firewall during development
+
+Electron.app runs an http server for device clients directly in the main process. If you've enabled your system Firewall, macOS will present an "Allow or Deny" dialog [every time the app is opened](https://support.apple.com/en-us/HT201642). If you have a [free] Apple developer account, you can work around this by signing the (development) app in node_modules.
+
+```sh
+cd ./node_modules/electron/dist
+# This assumes you have an existing Mac Developer signing identity created by Xcode.
+# If not, let it create one by building a new macOS app in Xcode.
+# If the signing identity still isn't found, look in Xcode settings, or
+# in Keychain's "My Certificates" for the name of a development cert.
+export SIGNING_IDENTITY="Mac Developer"
+# Sign included frameworks, or Electron.app signing will fail
+find Electron.app/Contents/Frameworks -name *.framework -print0 | xargs -0 codesign --force --sign "$SIGNING_IDENTITY"  --timestamp=none
+codesign --force --sign "$SIGNING_IDENTITY"  --timestamp=none Electron.app
+```
+
 
 ## Application Structure
 
@@ -90,7 +107,7 @@ To speed up development, the server can be run headlessly out of /src/worker usi
 ├── public             # Static public assets to be bundled
 └── src                # Application source code
     └── main           # Main Electron process
-        └── worker     # Background process (node server)
+        └── server     # Services & APIs
     └── renderer       # GUI (react app)
 ```
 
