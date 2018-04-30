@@ -32,8 +32,7 @@ const startServer = (port, dataDir) => {
     }))
     .then(appSettings.set)
     .then(currentAppSettings => new Server(currentAppSettings))
-    .then(server => server.startServices(port))
-    .then(server => server);
+    .then(server => server.startServices(port)); // returns Server instance
 };
 
 /**
