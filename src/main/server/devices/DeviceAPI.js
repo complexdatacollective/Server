@@ -1,4 +1,5 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
+/* eslint max-len: ["error", { "code":100, "ignoreComments": true }] */
 const os = require('os');
 const restify = require('restify');
 const corsMiddleware = require('restify-cors-middleware');
@@ -10,6 +11,7 @@ const DeviceManager = require('../../data-managers/DeviceManager');
 const ProtocolManager = require('../../data-managers/ProtocolManager');
 const { PairingRequestService } = require('./PairingRequestService');
 const { RequestError } = require('../../errors/RequestError');
+const { encrypt } = require('../../utils/cipher');
 
 // TODO: remove dupe from Server
 const lanIP = () => {
@@ -20,7 +22,7 @@ const lanIP = () => {
 };
 
 const ApiName = 'DevciceAPI';
-const ApiVersion = '0.0.2';
+const ApiVersion = '0.0.3';
 const ApiHostName = '0.0.0.0'; // IPv4 for compatibility with Travis (& unknown installations)
 
 const Schema = {
@@ -68,6 +70,24 @@ const Schema = {
     downloadUrl: new URL(`/protocols/${protocol.filename}`, apiBase),
     sha256: protocol.sha256,
   }),
+
+  /**
+   * @swagger
+   * definitions:
+   *   DecryptedPairingConfirmationRequest:
+   *     type: object
+   *     properties:
+   *       pairingRequestId:
+   *         required: true
+   *         type: string
+   *         description: available from the 'Pairing Request' response
+   *         example: b0a17a58-dc13-4270-998f-ec46a7d8edb2
+   *       pairingCode:
+   *         required: true
+   *         type: string
+   *         description: alphanumeric code entered by the user
+   *         example: u8jz1M85JRAB
+   */
 };
 
 // Throttle the pairing endpoints. Legitimate requests will not succeed
@@ -103,7 +123,12 @@ class OutOfBandDelegate {
  */
 class DeviceAPI {
   constructor(dataDir, outOfBandDelegate) {
-    PropTypes.checkPropTypes(OutOfBandDelegate.propTypes, outOfBandDelegate, 'prop', 'OutOfBandDelegate');
+    PropTypes.checkPropTypes(
+      OutOfBandDelegate.propTypes,
+      outOfBandDelegate,
+      'prop',
+      'OutOfBandDelegate',
+    );
     this.requestService = new PairingRequestService();
     this.server = this.createServer();
     this.protocolManager = new ProtocolManager(dataDir);
@@ -171,10 +196,12 @@ class DeviceAPI {
      *               properties:
      *                 pairingRequestId:
      *                   type: string
+     *                   format: uuid
      *                   description: UUIDv4
      *                   example: b0a17a58-dc13-4270-998f-ec46a7d8edb2
      *                 salt:
      *                   type: string
+     *                   format: hexadecimal
      *                   example: a866b6e85b17caa294093ef3454da1b0
      *                   description: 32-byte hex
      *       400:
@@ -182,7 +209,8 @@ class DeviceAPI {
      *         schema:
      *           $ref: '#/definitions/Error'
      */
-    server.get('/devices/new', restify.plugins.throttle(PairingThrottleSettings), this.handlers.onPairingRequest);
+    server.get('/devices/new',
+      restify.plugins.throttle(PairingThrottleSettings), this.handlers.onPairingRequest);
 
     /**
      * @swagger
@@ -196,16 +224,28 @@ class DeviceAPI {
      *         schema:
      *           type: object
      *           properties:
-     *             pairingRequestId:
+     *             nonce:
      *               required: true
      *               type: string
-     *               description: available from the 'Pairing Request' response
-     *               example: b0a17a58-dc13-4270-998f-ec46a7d8edb2
-     *             pairingCode:
+     *               format: hexadecimal
+     *               description: 48-byte nonce (not re-used) chosen by the client
+     *             message:
      *               required: true
      *               type: string
-     *               description: alphanumeric code entered by the user
-     *               example: u8jz1M85JRAB
+     *               format: hexadecimal
+     *               description: |
+     *                 The nonce + message payload, encrypted with a client-generated secret.
+     *
+     *                 For the message format before encryption, see
+     *                 [DecryptedPairingConfirmationRequest](#/definitions/DecryptedPairingConfirmationRequest).
+     *
+     *                 To encrypt the JSON payload above, use [libsodium](https://download.libsodium.org/doc/):
+     *                 1. Derive a secret key from (1) the out-of-band pairing code, and (2) the salt returned from `/devices/new`
+     *                 2. Generate a nonce
+     *                 3. Use the [secretbox_easy API](https://download.libsodium.org/doc/secret-key_cryptography/authenticated_encryption.html) for authenticated encryption
+     *
+     *                 The nonce must be additionally sent in plaintext in order to decrypt the message. The server can reconstruct the secret from previous knowledge about the salt and pairing code.
+     *
      *     responses:
      *       200:
      *         description: a new Device
@@ -222,7 +262,8 @@ class DeviceAPI {
      *         schema:
      *           $ref: '#/definitions/Error'
      */
-    server.post('/devices', restify.plugins.throttle(PairingThrottleSettings), this.handlers.onPairingConfirm);
+    server.post('/devices',
+      restify.plugins.throttle(PairingThrottleSettings), this.handlers.onPairingConfirm);
 
     /**
      * @swagger
@@ -321,15 +362,15 @@ class DeviceAPI {
       },
 
       onPairingConfirm: (req, res, next) => {
-        const pendingRequestId = req.body && req.body.pairingRequestId;
-        const pairingCode = req.body && req.body.pairingCode;
-
-        // TODO: payload will actually be encrypted.
-        this.requestService.verifyAndExpireRequest(pendingRequestId, pairingCode)
-          .then(pair => this.deviceManager.createDeviceDocument(pair.salt, pair.secretKey))
+        const encryptedMsg = req.body && req.body.message;
+        this.requestService.verifyAndExpireEncryptedRequest(encryptedMsg)
+          .then(pairingRequest => this.deviceManager.createDeviceDocument(pairingRequest.secretKey))
           .then((device) => {
-            this.outOfBandDelegate.pairingDidCompleteWithCode(pairingCode);
-            res.json({ status: 'ok', data: { device: Schema.device(device) } });
+            // TODO: if responding with error, surface error instead of complete
+            // TODO: rename (no more code).
+            this.outOfBandDelegate.pairingDidCompleteWithCode(undefined);
+            const payload = JSON.stringify({ device: Schema.device(device) });
+            res.json({ status: 'ok', data: { message: encrypt(payload, device.secretKey) } });
           })
           .catch(err => this.handlers.onError(err, res))
           .then(next);

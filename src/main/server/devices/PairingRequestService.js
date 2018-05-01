@@ -2,11 +2,11 @@
 
 const NeDB = require('nedb');
 const uuidv4 = require('uuid/v4');
-const libsodium = require('libsodium-wrappers');
 const logger = require('electron-log');
 
 const PairingCodeFactory = require('./PairingCodeFactory');
 const { RequestError } = require('../../errors/RequestError');
+const { decrypt, deriveSecretKeyBytes, newSaltBytes, fromHex, toHex } = require('../../utils/cipher');
 
 const DeviceRequestTTLSeconds = 5 * 60;
 
@@ -26,23 +26,6 @@ const dbConfig = {
   timestampData: true,
 };
 
-// TODO: Move nacl-related code
-function deriveSecret(pairingCode, salt) {
-  // FIXME: Find a reasonable mem limit that doesn't error (16777216 errors locally)
-  // libsodium.crypto_pwhash_MEMLIMIT_MIN == 8192
-  // libsodium.crypto_pwhash_MEMLIMIT_INTERACTIVE == 67108864
-  // With the latter (recommended), getting error; may need custom compilation step:
-  //    Cannot enlarge memory arrays. ...
-  const memlimit = 16777216 / 2;
-  // crypto_pwhash_ALG_ARGON2ID13 is the default as of libsodium 0.7.3;
-  // for algo upgrades, we'll need a pairing upgrade process.
-  const algo = libsodium.crypto_pwhash_ALG_ARGON2ID13;
-  const keyLen = libsodium.crypto_box_SECRETKEYBYTES;
-  const secretKey = libsodium.crypto_pwhash(keyLen,
-    pairingCode, salt, libsodium.crypto_pwhash_OPSLIMIT_INTERACTIVE, memlimit, algo);
-  return secretKey;
-}
-
 class PairingRequestService {
   constructor() {
     this.db = new NeDB(dbConfig); // eslint-disable-line new-cap
@@ -55,20 +38,17 @@ class PairingRequestService {
     });
   }
 
-  // Pairing code is the shared secret.
+  // Pairing code is used to derive a shared secret.
   createRequest() {
     return new Promise((resolve, reject) => {
       PairingCodeFactory.generatePairingCodeAsync()
         .then((pairingCode) => {
-          // TODO: evaluate. I was using the request ID as something like a salt.
-          // ...Probably use this instead; don't need both?
-          const salt = libsodium.randombytes_buf(libsodium.crypto_pwhash_SALTBYTES);
-          const secretKey = deriveSecret(pairingCode, salt);
+          const saltBytes = newSaltBytes();
+          const secretKeyBytes = deriveSecretKeyBytes(pairingCode, saltBytes);
 
-          // TODO: avoiding serialization is preferable; how is that handled with db?
           this.db.insert({
-            salt: libsodium.to_hex(salt),
-            secretKey: libsodium.to_hex(secretKey),
+            salt: toHex(saltBytes),
+            secretKey: toHex(secretKeyBytes),
             pairingCode,
             used: false,
             _id: uuidv4(),
@@ -83,6 +63,37 @@ class PairingRequestService {
           });
         })
         .catch(err => reject(err));
+    });
+  }
+
+  verifyAndExpireEncryptedRequest(messageHex) {
+    return new Promise((resolve, reject) => {
+      this.db.findOne({ used: false }).sort({ createdAt: -1 }).exec((err, doc) => {
+        if (err || !doc) {
+          reject(new RequestError('Request verification failed'));
+        }
+        let plaintext;
+        let json;
+        try {
+          // FIXME: if decryption fails, should we expire request immediately?
+          const secretBytes = deriveSecretKeyBytes(doc.pairingCode, fromHex(doc.salt));
+          plaintext = decrypt(messageHex, toHex(secretBytes));
+        } catch (decipherErr) {
+          // This could be from either derivation or decryption
+          logger.debug(decipherErr);
+          reject(new RequestError('Decryption failed'));
+          return;
+        }
+        try {
+          json = JSON.parse(plaintext);
+        } catch (parseErr) {
+          reject(new RequestError('Payload parsing failed'));
+          return;
+        }
+        this.verifyAndExpireRequest(json.pairingRequestId, json.pairingCode)
+          .then(resolve)
+          .catch(reject);
+      });
     });
   }
 
@@ -122,33 +133,6 @@ class PairingRequestService {
     });
   }
 }
-
-// function __exampleSymmetricCrypt__(secret) {
-//   // example encryption...
-//   const message = 'Network Canvas Server';
-//   const nonce = libsodium.randombytes_buf(libsodium.crypto_secretbox_NONCEBYTES);
-//   const cipher = libsodium.crypto_secretbox_easy(message, nonce, secret);
-
-//   // nonce can be sent in the clear, so here's the entire message:
-//   const noncePlusCipher = new Uint8Array(nonce.length + cipher.length);
-//   noncePlusCipher.set(nonce);
-//   noncePlusCipher.set(cipher, nonce.length);
-
-//   // see API docs: https://github.com/jedisct1/libsodium.js
-//   const minLength = libsodium.crypto_secretbox_NONCEBYTES + libsodium.crypto_secretbox_MACBYTES;
-//   if (noncePlusCipher.length < minLength) {
-//     throw new Error('Message too short');
-//   }
-
-//   // example decryption...
-//   const receivedNonce = noncePlusCipher.slice(0, libsodium.crypto_secretbox_NONCEBYTES);
-//   const receivedCipher = noncePlusCipher.slice(libsodium.crypto_secretbox_NONCEBYTES);
-//   const retrievedBytes = libsodium.crypto_secretbox_open_easy(receivedCipher,
-//     receivedNonce, secret);
-//   const retrievedMessage = libsodium.to_string(retrievedBytes);
-
-//   return retrievedMessage === message;
-// }
 
 module.exports = {
   PairingRequestService,
