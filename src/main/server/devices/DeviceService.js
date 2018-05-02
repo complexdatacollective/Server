@@ -51,11 +51,8 @@ class DeviceService extends EventEmitter {
           { pairingCode },
         );
       },
-      pairingDidCompleteWithCode: (pairingCode) => {
-        this.emit(
-          emittedEvents.PAIRING_COMPLETE,
-          { pairingCode },
-        );
+      pairingDidComplete: () => {
+        this.emit(emittedEvents.PAIRING_COMPLETE);
       },
     };
   }

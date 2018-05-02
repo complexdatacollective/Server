@@ -13,23 +13,21 @@ describe('the pairing request module', () => {
       });
     });
 
-    it('exports a dismiss action with no code required', () => {
+    it('exports a dismiss action', () => {
       expect(actionCreators.dismissPairingRequest()).toEqual({
         type: actionTypes.DISMISS_PAIRING_REQUEST,
       });
     });
 
-    it('exports a dismiss action with a code', () => {
-      expect(actionCreators.completedPairingRequest(pairingCode)).toEqual({
+    it('exports a complete action', () => {
+      expect(actionCreators.completedPairingRequest()).toEqual({
         type: actionTypes.COMPLETED_PAIRING_REQUEST,
-        pairingCode,
       });
     });
 
-    it('exports an ack action with a code', () => {
-      expect(actionCreators.acknowledgePairingRequest(pairingCode)).toEqual({
+    it('exports an ack action', () => {
+      expect(actionCreators.acknowledgePairingRequest()).toEqual({
         type: actionTypes.ACKNOWLEDGE_PAIRING_REQUEST,
-        pairingCode,
       });
     });
   });
@@ -45,30 +43,16 @@ describe('the pairing request module', () => {
     });
 
     it('moves to the acknowledged state', () => {
-      const state = reducer(undefined, actionCreators.acknowledgePairingRequest(pairingCode));
+      const state = reducer(undefined, actionCreators.acknowledgePairingRequest());
       expect(state.status).toEqual(PairingStatus.Acknowledged);
     });
 
     it('moves to the completed state', () => {
-      const initialState = actionCreators.acknowledgePairingRequest(pairingCode);
+      const initialState = actionCreators.acknowledgePairingRequest();
       const state = reducer(initialState, actionCreators.completedPairingRequest(pairingCode));
       expect(state.status).toEqual(PairingStatus.Complete);
       expect(state.pairingCode).toBeUndefined();
     });
-
-    // TODO: verify OK this is no longer the case & clean up with above
-    it('will complete an empty request', () => {
-      const state = reducer(undefined, actionCreators.completedPairingRequest());
-      expect(state.pairingCode).toBeUndefined();
-    });
-
-    // TODO: verify OK this is no longer the case & remove.
-    it('will not complete an unmatched request');
-    // , () => {
-    //   const initialState = actionCreators.acknowledgePairingRequest('a');
-    //   const state = reducer(initialState, actionCreators.completedPairingRequest('b'));
-    //   expect(state).toEqual(initialState);
-    // });
 
     it('handles dissmissing', () => {
       const initialState = actionCreators.newPairingRequest(pairingCode);

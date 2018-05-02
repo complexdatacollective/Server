@@ -43,8 +43,8 @@ class App extends Component {
       props.newPairingRequest(data.pairingCode);
     });
 
-    ipcRenderer.on('PAIRING_COMPLETE', (event, data) => {
-      props.completedPairingRequest(data.pairingCode);
+    ipcRenderer.on('PAIRING_COMPLETE', () => {
+      props.completedPairingRequest();
     });
 
     this.props.dismissAppMessages();

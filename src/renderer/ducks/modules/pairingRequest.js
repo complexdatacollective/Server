@@ -40,19 +40,15 @@ const reducer = (state = initialState, action = {}) => {
   }
 };
 
-// TODO: confirm pairingCode no longer needed & remove
-const acknowledgePairingRequest = pairingCode => (
+const acknowledgePairingRequest = () => (
   {
     type: ACKNOWLEDGE_PAIRING_REQUEST,
-    pairingCode,
   }
 );
 
-// TODO: confirm pairingCode no longer needed & remove
-const completedPairingRequest = pairingCode => (
+const completedPairingRequest = () => (
   {
     type: COMPLETED_PAIRING_REQUEST,
-    pairingCode,
   }
 );
 

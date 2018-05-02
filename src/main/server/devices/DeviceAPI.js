@@ -109,12 +109,12 @@ class OutOfBandDelegate {
   static get propTypes() {
     return ({
       pairingDidBeginWithCode: PropTypes.func.isRequired,
-      pairingDidCompleteWithCode: PropTypes.func.isRequired,
+      pairingDidComplete: PropTypes.func.isRequired,
     });
   }
-  constructor({ pairingDidBeginWithCode, pairingDidCompleteWithCode }) {
+  constructor({ pairingDidBeginWithCode, pairingDidComplete }) {
     this.pairingDidBeginWithCode = pairingDidBeginWithCode;
-    this.pairingDidCompleteWithCode = pairingDidCompleteWithCode;
+    this.pairingDidComplete = pairingDidComplete;
   }
 }
 
@@ -367,8 +367,7 @@ class DeviceAPI {
           .then(pairingRequest => this.deviceManager.createDeviceDocument(pairingRequest.secretKey))
           .then((device) => {
             // TODO: if responding with error, surface error instead of complete
-            // TODO: rename (no more code).
-            this.outOfBandDelegate.pairingDidCompleteWithCode(undefined);
+            this.outOfBandDelegate.pairingDidComplete();
             const payload = JSON.stringify({ device: Schema.device(device) });
             res.json({ status: 'ok', data: { message: encrypt(payload, device.secretKey) } });
           })

@@ -32,7 +32,7 @@ describe('the DeviceAPI', () => {
       new DeviceAPI(dataDir, invalidDelegate); // eslint-disable-line no-new
       expect(global.console.error).toHaveBeenCalledTimes(2);
       expect(global.console.error).toHaveBeenCalledWith(expect.stringContaining('pairingDidBeginWithCode'));
-      expect(global.console.error).toHaveBeenCalledWith(expect.stringContaining('pairingDidCompleteWithCode'));
+      expect(global.console.error).toHaveBeenCalledWith(expect.stringContaining('pairingDidComplete'));
     });
   });
 
@@ -40,7 +40,7 @@ describe('the DeviceAPI', () => {
     let deviceApi;
     const mockDelegate = new OutOfBandDelegate({
       pairingDidBeginWithCode: jest.fn(),
-      pairingDidCompleteWithCode: jest.fn(),
+      pairingDidComplete: jest.fn(),
     });
 
     beforeEach((done) => {
