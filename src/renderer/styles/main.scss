@@ -1,10 +1,11 @@
-@import '~network-canvas-ui/lib/styles/all';
+$font-path: '../ui/assets/fonts'; // relative to here
+
+@import '../ui/styles/all';
 @import 'variables';
 @import 'z-indexes';
 @import 'breakpoints';
 @import 'helpers/all';
 @import 'transitions/all';
-@import 'ui/all';
 @import 'reset';
 
 @import 'containers/all';

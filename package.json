@@ -77,7 +77,6 @@
     "jsdoc": "^3.4.3",
     "jsdoc-babel": "^0.3.0",
     "json-loader": "^0.5.7",
-    "network-canvas-ui": "git+https://git@github.com/codaco/Network-Canvas-UI.git#1.13.3",
     "node-sass": "^4.5.2",
     "postcss-loader": "^2.1.1",
     "promise": "7.1.1",

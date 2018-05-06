@@ -25,7 +25,7 @@ const publicUrl = '';
 // Get environment variables to inject into our app.
 const env = getClientEnvironment(publicUrl);
 
-let resolverAlias = {};
+const resolverAlias = {};
 if (process.env.BUILD_TARGET === 'web') {
   // To open the dev app in a browser, electron needs to be polyfilled.
   // The trailing $ tells webpack to match 'electron' exactly.
@@ -179,9 +179,6 @@ module.exports = {
                 loader: require.resolve('css-loader'),
                 options: {
                   importLoaders: 1,
-                  alias: {
-                    '../../../assets/fonts': 'network-canvas-ui/lib/assets/fonts',
-                  },
                 },
               },
               {
