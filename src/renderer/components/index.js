@@ -6,7 +6,6 @@ export { default as DeviceList } from './DeviceList';
 export { default as Header } from './Header';
 export { default as InterviewWidget } from './charts/InterviewWidget';
 export { default as LineChart } from './charts/LineChart';
-export { default as MenuItem } from './MenuItem';
 export { default as Modal } from './Modal';
 export { default as Overflow } from './Overflow';
 export { default as PanelItem } from './PanelItem';
