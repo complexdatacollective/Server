@@ -60,7 +60,7 @@ class ServerPanel extends Component {
     const uptimeDisplay = overview.uptime && `${parseInt(overview.uptime / 1000 / 60, 10)}m`
     return (
       <div className={`server-panel ${className}`}>
-        <PanelItem label="Server Public IP" value={overview.ip} />
+        <PanelItem label="Server Public IP" value={overview.ip || 'Offline'} />
         <PanelItem label="Uptime" value={uptimeDisplay} />
         <PanelItem label="Server Public Key" value={overview.publicKey} />
       </div>
