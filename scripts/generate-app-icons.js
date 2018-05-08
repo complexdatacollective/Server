@@ -20,13 +20,31 @@ const jobList = [
   //   },
   // },
   {
-    name: 'Electron Tray Icon',
+    name: 'Electron Tray Icon (macOS)',
     runner: 'svg2png',
-    inputFile: 'assets/icons/Srv-Tray.svg',
+    inputFile: 'assets/icons/Srv-Tray-Template.svg',
     outputPath: 'public/icons/',
     sizes: [16, 32],
     fileName: 'trayTemplate',
     append: ['', '@2x'],
+  },
+  {
+    name: 'Electron Tray Icon (Windows)',
+    runner: 'svg2png',
+    inputFile: 'assets/icons/Srv-Tray-Default.svg',
+    outputPath: 'public/icons/',
+    sizes: [32],
+    fileName: 'trayWindows',
+    append: [''],
+  },
+  {
+    name: 'Electron Tray Icon (Default)',
+    runner: 'svg2png',
+    inputFile: 'assets/icons/Srv-Tray-Default.svg',
+    outputPath: 'public/icons/',
+    sizes: [128],
+    fileName: 'trayDefault',
+    append: [''],
   },
 ];
 
@@ -59,7 +77,7 @@ const svg2pngTask = (specification) => {
 
     svg2png(buffer, { width: size[1], height: size[1] }).then((output) => {
       fs.writeFile(dest, output, (err) => {
-        console.log(err);
+        if (err) console.log(err);
       });
     });
   });
