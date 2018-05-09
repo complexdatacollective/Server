@@ -1,17 +1,19 @@
 body {
+  height: 100vh;
   margin: 0;
   padding: 0;
-  height: 100vh;
 }
 
-#root {
-  width: 100%;
+.app-root {
   height: 100%;
+  width: 100%;
 }
 
 // Override Network-Canvas-UI, which hardcodes colors that don't really work here
 .icon {
-  .cls-1, .cls-2, .cls-3 {
+  .cls-1,
+  .cls-2,
+  .cls-3 {
     fill: currentColor;
   }
 }
