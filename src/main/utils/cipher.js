@@ -1,10 +1,11 @@
+// @flow
 const libsodium = require('libsodium-wrappers');
 
 /**
  * Create a new salt, to be used for secret derivation
  * @return {Uint8Array} byte array
  */
-const newSaltBytes = () => libsodium.randombytes_buf(libsodium.crypto_pwhash_SALTBYTES);
+const newSaltBytes = (): Uint8Array => libsodium.randombytes_buf(libsodium.crypto_pwhash_SALTBYTES);
 
 /**
  * Convert raw bytes -> hex.
@@ -13,7 +14,7 @@ const newSaltBytes = () => libsodium.randombytes_buf(libsodium.crypto_pwhash_SAL
  * @return {string}
  * @throws {TypeError} If input isn't a byte array
  */
-const toHex = (byteArray) => {
+const toHex = (byteArray: Uint8Array): string => {
   if (!(byteArray instanceof Uint8Array)) {
     throw new TypeError('toHex must called on a byteArray');
   }
@@ -27,7 +28,7 @@ const toHex = (byteArray) => {
  * @return {Uint8Array} byte array
  * @throws {Error} If input can't be converted
  */
-const fromHex = hex => libsodium.from_hex(hex);
+const fromHex = (hex: string): Uint8Array => libsodium.from_hex(hex);
 
 /**
  * Key derivation from the out-of-band passcode and server-generated salt.
@@ -36,7 +37,7 @@ const fromHex = hex => libsodium.from_hex(hex);
  * @return {Uint8Array} raw bytes of the secret key
  * @throws {RangeError|TypeError} If input invalid
  */
-const deriveSecretKeyBytes = (pairingCode, saltBytes) => {
+const deriveSecretKeyBytes = (pairingCode: string, saltBytes: Uint8Array): Uint8Array => {
   if (!pairingCode) {
     throw new TypeError('pairingCode is required');
   }
@@ -67,27 +68,27 @@ const deriveSecretKeyBytes = (pairingCode, saltBytes) => {
 };
 
 /**
- * The inverse of encryptedBytes. See {@link decipher} for common interface.
+ * The inverse of encryptedBytes. See {@link decrypt} for common interface.
  * @private
- * @param  {Uint8Array} messageBytes
- * @param  {Uint8Array} secretBytes
+ * @param  {Uint8Array} noncePlusCipher a nonce, prepended to the encrypted byte array
+ * @param  {Uint8Array} secretKey
  * @return {Uint8Array}
  * @throws {Error} If decryption fails for any reason
  */
-const decryptedBytes = (messageBytes, secretBytes) => {
+const decryptedBytes = (noncePlusCipher: Uint8Array, secretKey: Uint8Array): Uint8Array => {
   if (!libsodium.crypto_secretbox_open_easy) {
     throw new Error('decryptedBytes cannot be called before libsodium.ready');
   }
 
   // Message must contain nonce + MAC.
   const minLength = libsodium.crypto_secretbox_NONCEBYTES + libsodium.crypto_secretbox_MACBYTES;
-  if (messageBytes.length < minLength) {
+  if (noncePlusCipher.length < minLength) {
     throw new Error('Message too short');
   }
 
-  const receivedNonce = messageBytes.slice(0, libsodium.crypto_secretbox_NONCEBYTES);
-  const receivedCipher = messageBytes.slice(libsodium.crypto_secretbox_NONCEBYTES);
-  return libsodium.crypto_secretbox_open_easy(receivedCipher, receivedNonce, secretBytes);
+  const receivedNonce = noncePlusCipher.slice(0, libsodium.crypto_secretbox_NONCEBYTES);
+  const receivedCipher = noncePlusCipher.slice(libsodium.crypto_secretbox_NONCEBYTES);
+  return libsodium.crypto_secretbox_open_easy(receivedCipher, receivedNonce, secretKey);
 };
 
 /**
@@ -98,35 +99,35 @@ const decryptedBytes = (messageBytes, secretBytes) => {
  * @return {string} decrypted message
  * @throws {Error} If decryption fails for any reason
  */
-const decrypt = (messageHex, secretHex) => {
+const decrypt = (messageHex: string, secretHex: string): string => {
   const messageBytes = fromHex(messageHex);
   const secretBytes = fromHex(secretHex);
   return libsodium.to_string(decryptedBytes(messageBytes, secretBytes));
 };
 
 /**
- * Encrypt a plaintext message, suitable for authenticated encryption with secretbox.
+ * Encrypt a message, suitable for authenticated encryption with secretbox.
  * The returned byte array includes a fixed-length, plaintext nonce prepended to the cipher.
  * @{link decrypt} uses the nonce as part of the decryption step.
  *
- * @param  {string} plaintext   [description]
+ * @param  {Uint8Array} message
  * @param  {Uint8Array} secretBytes raw bytes comprising the shared secret key
  * @return {Uint8Array} Nonce (fixed-length) + Cipher data
  * @throws {Error} If inputs are invalid
  */
-const encryptedBytes = (plaintext, secretBytes) => {
+const encryptedBytes = (message: Uint8Array, secretBytes: Uint8Array): Uint8Array => {
   if (!libsodium.crypto_secretbox_easy) {
     throw new Error('encryptedBytes cannot be called before libsodium.ready');
   }
-  if (!plaintext || !secretBytes) {
-    throw new Error('plaintext and secret are required');
+  if (!message || !secretBytes) {
+    throw new Error('message and secret are required');
   }
   if (secretBytes.length !== libsodium.crypto_secretbox_KEYBYTES) {
     throw new RangeError(`secret must be ${libsodium.crypto_secretbox_KEYBYTES} bytes`);
   }
 
   const nonceBytes = libsodium.randombytes_buf(libsodium.crypto_secretbox_NONCEBYTES);
-  const cipherBytes = libsodium.crypto_secretbox_easy(plaintext, nonceBytes, secretBytes);
+  const cipherBytes = libsodium.crypto_secretbox_easy(message, nonceBytes, secretBytes);
   const noncePlusCipher = new Uint8Array(nonceBytes.length + cipherBytes.length);
   noncePlusCipher.set(nonceBytes);
   noncePlusCipher.set(cipherBytes, nonceBytes.length);
@@ -142,9 +143,10 @@ const encryptedBytes = (plaintext, secretBytes) => {
  * @return {string} hexadecimal-encoded encrypted message
  * @throws {Error} If inputs are invalid
  */
-const encrypt = (plaintext, secretHex) => {
+const encrypt = (plaintext: string, secretHex: string): string => {
   const secretBytes = fromHex(secretHex);
-  return toHex(encryptedBytes(plaintext, secretBytes));
+  const message = libsodium.from_string(plaintext);
+  return toHex(encryptedBytes(message, secretBytes));
 };
 
 module.exports = {
