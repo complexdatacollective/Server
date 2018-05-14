@@ -21,17 +21,19 @@ class MainWindow {
   create() {
     if (this.window) { return; }
 
-    this.window = new BrowserWindow({
-      width: 800,
-      height: 600,
+    const opts = {
+      width: 1440,
+      height: 900,
       center: true,
       title: 'Network Canvas Server',
-    });
+    };
 
-    this.window.maximize();
+    if (process.platform === 'darwin') {
+      opts.titleBarStyle = 'hidden';
+      opts.frame = false;
+    }
 
-    // Open the DevTools.
-    this.window.webContents.openDevTools();
+    this.window = new BrowserWindow(opts);
 
     // Emitted when the window is closed.
     this.window.on('closed', () => {

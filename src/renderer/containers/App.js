@@ -71,6 +71,7 @@ class App extends Component {
             onDismiss={dismissPairingRequest}
           />
         }
+        <div className="app__titlebar" />
         <div className="app__content">
           <ProtocolNav className="app__sidebar" />
           <div className="app__screen">

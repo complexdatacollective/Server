@@ -1,5 +1,6 @@
 .tab-bar {
   background-color: var(--recessed-background-color);
+  padding-top: var(--app-titlebar-height);
 
   @include element(link) {
     border-right: 1px solid var(--base-border-color);
