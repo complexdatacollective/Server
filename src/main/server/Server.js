@@ -74,9 +74,11 @@ class Server extends EventEmitter {
 
   status() {
     return {
-      uptime: new Date().getTime() - this.started,
+      hostname: os.hostname(),
       ip: this.publicIP(),
+      deviceApiPort: this.connectionInfo.deviceService.port,
       publicKey: this.options.keys && this.options.keys.publicKey,
+      uptime: new Date().getTime() - this.started,
     };
   }
 

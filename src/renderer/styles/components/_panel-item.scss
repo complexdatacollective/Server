@@ -1,0 +1,5 @@
+.panel-item {
+  @include element(value) {
+    font-weight: bold;
+  }
+}

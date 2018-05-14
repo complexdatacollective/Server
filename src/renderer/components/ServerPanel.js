@@ -37,10 +37,12 @@ class ServerPanel extends Component {
     }
     this.state.apiClient.get('/health')
       .then((resp) => {
-        const { uptime, ip, publicKey } = resp.serverStatus;
+        const { deviceApiPort, hostname, ip, publicKey, uptime } = resp.serverStatus;
         this.setState({
           serverOverview: {
+            hostname,
             ip: ip && ip.address,
+            deviceApiPort,
             publicKey: getKeySnippet(publicKey),
             uptime,
           },
@@ -60,9 +62,10 @@ class ServerPanel extends Component {
     const uptimeDisplay = overview.uptime && `${parseInt(overview.uptime / 1000 / 60, 10)}m`
     return (
       <div className={`server-panel ${className}`}>
-        <PanelItem label="Server Public IP" value={overview.ip || 'Offline'} />
+        <PanelItem label="Local Server IP" value={overview.ip || 'Offline'} />
+        <PanelItem label="Server Port" value={overview.deviceApiPort || '-'} />
         <PanelItem label="Uptime" value={uptimeDisplay} />
-        <PanelItem label="Server Public Key" value={overview.publicKey} />
+        <PanelItem label="Server Hostname" value={overview.hostname || '-'} />
       </div>
     );
   }

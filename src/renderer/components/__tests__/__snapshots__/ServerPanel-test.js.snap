@@ -29,16 +29,20 @@ ShallowWrapper {
     "props": Object {
       "children": Array [
         <PanelItem
-          label="Server Public IP"
+          label="Local Server IP"
           value="x.x.x.x"
+        />,
+        <PanelItem
+          label="Server Port"
+          value="-"
         />,
         <PanelItem
           label="Uptime"
           value={0}
         />,
         <PanelItem
-          label="Server Public Key"
-          value=""
+          label="Server Hostname"
+          value="-"
         />,
       ],
       "className": "server-panel ",
@@ -50,8 +54,20 @@ ShallowWrapper {
         "key": undefined,
         "nodeType": "function",
         "props": Object {
-          "label": "Server Public IP",
+          "label": "Local Server IP",
           "value": "x.x.x.x",
+        },
+        "ref": null,
+        "rendered": null,
+        "type": [Function],
+      },
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "function",
+        "props": Object {
+          "label": "Server Port",
+          "value": "-",
         },
         "ref": null,
         "rendered": null,
@@ -74,8 +90,8 @@ ShallowWrapper {
         "key": undefined,
         "nodeType": "function",
         "props": Object {
-          "label": "Server Public Key",
-          "value": "",
+          "label": "Server Hostname",
+          "value": "-",
         },
         "ref": null,
         "rendered": null,
@@ -92,16 +108,20 @@ ShallowWrapper {
       "props": Object {
         "children": Array [
           <PanelItem
-            label="Server Public IP"
+            label="Local Server IP"
             value="x.x.x.x"
+          />,
+          <PanelItem
+            label="Server Port"
+            value="-"
           />,
           <PanelItem
             label="Uptime"
             value={0}
           />,
           <PanelItem
-            label="Server Public Key"
-            value=""
+            label="Server Hostname"
+            value="-"
           />,
         ],
         "className": "server-panel ",
@@ -113,8 +133,20 @@ ShallowWrapper {
           "key": undefined,
           "nodeType": "function",
           "props": Object {
-            "label": "Server Public IP",
+            "label": "Local Server IP",
             "value": "x.x.x.x",
+          },
+          "ref": null,
+          "rendered": null,
+          "type": [Function],
+        },
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "function",
+          "props": Object {
+            "label": "Server Port",
+            "value": "-",
           },
           "ref": null,
           "rendered": null,
@@ -137,8 +169,8 @@ ShallowWrapper {
           "key": undefined,
           "nodeType": "function",
           "props": Object {
-            "label": "Server Public Key",
-            "value": "",
+            "label": "Server Hostname",
+            "value": "-",
           },
           "ref": null,
           "rendered": null,
