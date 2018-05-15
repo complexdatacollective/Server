@@ -3,7 +3,7 @@
     "includePattern": ".+\\.js$",
     "excludePattern": "__tests__"
   },
-  "plugins": ["node_modules/jsdoc-babel"],
+  "plugins": ["node_modules/jsdoc-babel", "plugins/markdown"],
   "babel": {
     "plugins": [
       "transform-class-properties",
