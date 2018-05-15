@@ -38,12 +38,17 @@ const Schema = {
    *         example: a692d57c-ab0f-4aa4-8e52-565a585990da
    *       salt:
    *         type: string
-   *         example: a866b6e85b17caa294093ef3454da1b0
    *         description: 32-byte hex
+   *         example: a866b6e85b17caa294093ef3454da1b0
+   *       name:
+   *         type: string
+   *         description: Name provided by the device during pairing confirmation
+   *         example: Nexus 7 Tablet
    */
   device: device => ({
     id: device._id,
     salt: device.salt,
+    name: device.name,
   }),
 
   /**
@@ -87,6 +92,11 @@ const Schema = {
    *         type: string
    *         description: alphanumeric code entered by the user
    *         example: u8jz1M85JRAB
+   *       deviceName:
+   *         required: false
+   *         type: string
+   *         description: A short, user-friendly description of the client device
+   *         example: Nexus 7 Tablet
    */
 };
 
@@ -224,17 +234,16 @@ class DeviceAPI {
      *         schema:
      *           type: object
      *           properties:
-     *             nonce:
-     *               required: true
-     *               type: string
-     *               format: hexadecimal
-     *               description: 48-byte nonce (not re-used) chosen by the client
      *             message:
      *               required: true
      *               type: string
      *               format: hexadecimal
      *               description: |
      *                 The nonce + message payload, encrypted with a client-generated secret.
+     *
+     *                 This message is a hex encoding of the concatenation of two byte arrays:
+     *                 1. Nonce: a 24-byte nonce (not re-used) chosen by the client
+     *                 2. Ciphertext: the message, encrypted with secret key and nonce.
      *
      *                 For the message format before encryption, see
      *                 [DecryptedPairingConfirmationRequest](#/definitions/DecryptedPairingConfirmationRequest).
@@ -248,15 +257,23 @@ class DeviceAPI {
      *
      *     responses:
      *       200:
-     *         description: a new Device
+     *         description: new Device information (encrypted)
      *         schema:
      *           type: object
      *           properties:
      *             status:
      *               type: string
      *               example: ok
-     *             data:
-     *               $ref: '#/definitions/Device'
+     *             message:
+     *               required: true
+     *               type: string
+     *               format: hexadecimal
+     *               description: |
+     *                 The nonce + message payload.
+     *
+     *                 As in the request, the message is a hex encoding of nonce + ciphertext.
+     *
+     *                 For the message format after decryption, see [Device](#/definitions/Device).
      *       400:
      *         description: request error
      *         schema:
@@ -364,7 +381,12 @@ class DeviceAPI {
       onPairingConfirm: (req, res, next) => {
         const encryptedMsg = req.body && req.body.message;
         this.requestService.verifyAndExpireEncryptedRequest(encryptedMsg)
-          .then(pairingRequest => this.deviceManager.createDeviceDocument(pairingRequest.secretKey))
+          .then(pairingRequest => (
+            this.deviceManager.createDeviceDocument(
+              pairingRequest.secretKey,
+              pairingRequest.deviceName,
+            )
+          ))
           .then((device) => {
             // TODO: if responding with error, surface error instead of complete
             this.outOfBandDelegate.pairingDidComplete();

@@ -90,7 +90,7 @@ class PairingRequestService {
           reject(new RequestError('Payload parsing failed'));
           return;
         }
-        this.verifyAndExpireRequest(json.pairingRequestId, json.pairingCode)
+        this.verifyAndExpireRequest(json.pairingRequestId, json.pairingCode, json.deviceName)
           .then(resolve)
           .catch(reject);
       });
@@ -106,7 +106,7 @@ class PairingRequestService {
    * @return {Object} the pairing request, containing a secret key, to be used for device creation
    * @throws {RequestError} If no matching request is found
    */
-  verifyAndExpireRequest(requestId, pairingCode) {
+  verifyAndExpireRequest(requestId, pairingCode, deviceName) {
     const errMsg = 'Request verification failed';
     return new Promise((resolve, reject) => {
       if (!requestId || !pairingCode) {
@@ -115,7 +115,7 @@ class PairingRequestService {
       }
 
       const query = { _id: requestId, pairingCode, used: false };
-      const updateClause = { $set: { used: true } };
+      const updateClause = { $set: { used: true, deviceName } };
       const opts = { multi: false, returnUpdatedDocs: true };
 
       this.db.update(query, updateClause, opts, (err, num, doc) => {
