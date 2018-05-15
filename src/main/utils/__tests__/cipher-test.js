@@ -23,7 +23,7 @@ describe('cipher functions', () => {
       expect(() => encrypt(null, mockSecretHex)).toThrow(/required/);
     });
     it('requires a secret', () => {
-      expect(() => encrypt('plain', '')).toThrow(RangeError);
+      expect(() => encrypt('plain', '')).toThrow(/required/);
     });
   });
 

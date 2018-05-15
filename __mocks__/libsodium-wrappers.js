@@ -6,6 +6,7 @@ module.exports = {
   crypto_secretbox_open_easy: jest.fn(),
   crypto_pwhash: jest.fn().mockImplementation(len => new Uint8Array(len)),
   from_hex: jest.fn().mockImplementation(s => new Uint8Array(s.length / 2)),
+  from_string: jest.fn().mockReturnValue(s => new Uint8Array(s.length)),
   to_hex: jest.fn().mockReturnValue('112233aabbcc'),
   to_string: jest.fn().mockReturnValue(''),
 
