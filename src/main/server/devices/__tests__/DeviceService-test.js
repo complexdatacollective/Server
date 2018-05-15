@@ -24,11 +24,10 @@ describe('Device Service', () => {
   });
 
   it('emits an event when pairing is complete', (done) => {
-    deviceService.emit.mockImplementation((msg, data) => {
+    deviceService.emit.mockImplementation((msg) => {
       expect(msg).toMatch(deviceServiceEvents.PAIRING_COMPLETE);
-      expect(data).toMatchObject({ pairingCode: mockPairingCode });
       done();
     });
-    deviceService.outOfBandDelegate.pairingDidCompleteWithCode(mockPairingCode);
+    deviceService.outOfBandDelegate.pairingDidComplete();
   });
 });

@@ -6,11 +6,10 @@ const uuidv4 = require('uuid/v4');
 
 const DeviceDbName = 'devices.db';
 
+// TODO: No longer needed except for demo: name is placeholder.
 const publicMapper = dbDevice => ({
   ...dbDevice,
   name: `Device ${dbDevice._id.substr(0, 6)}`,
-  salt: undefined, // Never expose
-  secretKey: undefined, // Never expose
 });
 
 class DeviceManager {
@@ -41,15 +40,15 @@ class DeviceManager {
     this.db = DeviceManager.dbClient(dbFile);
   }
 
+  // TODO: see notes in cipher.js; may want to persist derivation config per-device.
   // TODO: Validate format/lengths. Require arg names for clarity?
-  createDeviceDocument(saltHex, secretHex) {
+  createDeviceDocument(secretHex) {
     return new Promise((resolve, reject) => {
-      if (!saltHex || !secretHex) {
+      if (!secretHex) {
         reject(new Error('Invalid input'));
         return;
       }
       this.db.insert({
-        salt: saltHex,
         secretKey: secretHex,
         _id: uuidv4(),
       }, (err, doc) => {

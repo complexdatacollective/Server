@@ -6,10 +6,12 @@ const { jsonClient, makeUrl } = require('../../../../setupTests');
 const { RequestError } = require('../../../errors/RequestError');
 
 const testPortNumber = 5200;
+const mockSecretKey = '49b2f34ccbc425c941596fa492be0a382467538359de9ee09d42950056f0bc6a';
 
 jest.mock('../../../data-managers/DeviceManager');
 jest.mock('../../../data-managers/ProtocolManager');
 jest.mock('../PairingRequestService');
+jest.mock('libsodium-wrappers');
 
 describe('the DeviceAPI', () => {
   const dataDir = '';
@@ -30,7 +32,7 @@ describe('the DeviceAPI', () => {
       new DeviceAPI(dataDir, invalidDelegate); // eslint-disable-line no-new
       expect(global.console.error).toHaveBeenCalledTimes(2);
       expect(global.console.error).toHaveBeenCalledWith(expect.stringContaining('pairingDidBeginWithCode'));
-      expect(global.console.error).toHaveBeenCalledWith(expect.stringContaining('pairingDidCompleteWithCode'));
+      expect(global.console.error).toHaveBeenCalledWith(expect.stringContaining('pairingDidComplete'));
     });
   });
 
@@ -38,7 +40,7 @@ describe('the DeviceAPI', () => {
     let deviceApi;
     const mockDelegate = new OutOfBandDelegate({
       pairingDidBeginWithCode: jest.fn(),
-      pairingDidCompleteWithCode: jest.fn(),
+      pairingDidComplete: jest.fn(),
     });
 
     beforeEach((done) => {
@@ -67,7 +69,7 @@ describe('the DeviceAPI', () => {
     describe('POST /devices', () => {
       beforeEach(() => {
         // Note: mockRejectedValue() triggers UnhandledPromiseRejectionWarning
-        deviceApi.requestService.verifyAndExpireRequest.mockImplementation(() => (
+        deviceApi.requestService.verifyAndExpireEncryptedRequest.mockImplementation(() => (
           Promise.reject(new RequestError())
         ));
       });
@@ -88,18 +90,21 @@ describe('the DeviceAPI', () => {
       describe('with a valid request', () => {
         beforeEach(() => {
           // Mock that the pairing request was found & valid:
-          deviceApi.requestService.verifyAndExpireRequest.mockReturnValue(Promise.resolve({}));
+          deviceApi.requestService.verifyAndExpireEncryptedRequest.mockReturnValue((
+            Promise.resolve({})
+          ));
           // Mock that the new device was successfully saved:
-          deviceApi.deviceManager.createDeviceDocument.mockReturnValue(Promise.resolve({}));
+          deviceApi.deviceManager.createDeviceDocument.mockReturnValue((
+            Promise.resolve({ secretKey: mockSecretKey })
+          ));
         });
 
         it('completes a valid pairing request', async () => {
           const resp = await jsonClient.post(makeUrl('/devices', deviceApi.server.url), {
-            pairingRequestId: '1',
-            pairingCode: '12345',
+            message: 'encryptedHex',
           });
           expect(resp.statusCode).toBe(200);
-          expect(resp.json.data).toHaveProperty('device');
+          expect(resp.json.data).toHaveProperty('message');
         });
       });
     });

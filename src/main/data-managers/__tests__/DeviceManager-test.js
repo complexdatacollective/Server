@@ -13,23 +13,17 @@ describe('the DeviceManager', () => {
   });
 
   it('creates a new device', (done) => {
-    deviceManager.createDeviceDocument(mockSaltHex, mockSecretHex)
+    deviceManager.createDeviceDocument(mockSecretHex)
       .then(doc => expect(doc).toHaveProperty('_id'))
       .then(() => done());
   });
 
-  it('will not create without a valid salt', async () => {
-    await expect(deviceManager.createDeviceDocument(null, mockSecretHex))
-      .rejects.toBeInstanceOf(Error);
-  });
-
   it('will not create without a valid secret', async () => {
-    await expect(deviceManager.createDeviceDocument(mockSaltHex))
+    await expect(deviceManager.createDeviceDocument(null))
       .rejects.toBeInstanceOf(Error);
   });
 
   it('will not create with a short secret');
-  it('will not create with a short salt');
 
   it('loads all devices', async () => {
     await deviceManager.createDeviceDocument(mockSaltHex, mockSecretHex);

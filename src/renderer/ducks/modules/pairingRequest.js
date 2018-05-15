@@ -25,12 +25,10 @@ const reducer = (state = initialState, action = {}) => {
     case DISMISS_PAIRING_REQUEST:
       return initialState;
     case COMPLETED_PAIRING_REQUEST:
-      if (action.pairingCode && action.pairingCode === state.pairingCode) {
-        return {
-          status: PairingStatus.Complete,
-        };
-      }
-      return state;
+      // Any completion notice clears out the previous pairingCode
+      return {
+        status: PairingStatus.Complete,
+      };
     case NEW_PAIRING_REQUEST:
       return {
         ...state,
@@ -42,17 +40,15 @@ const reducer = (state = initialState, action = {}) => {
   }
 };
 
-const acknowledgePairingRequest = pairingCode => (
+const acknowledgePairingRequest = () => (
   {
     type: ACKNOWLEDGE_PAIRING_REQUEST,
-    pairingCode,
   }
 );
 
-const completedPairingRequest = pairingCode => (
+const completedPairingRequest = () => (
   {
     type: COMPLETED_PAIRING_REQUEST,
-    pairingCode,
   }
 );
 
