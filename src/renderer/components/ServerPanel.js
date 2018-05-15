@@ -56,12 +56,12 @@ class ServerPanel extends Component {
   render() {
     const { serverOverview } = this.state;
     const { className } = this.props;
-
     const overview = { ...defaultServerOverview, ...serverOverview };
+    const uptimeDisplay = overview.uptime && `${parseInt(overview.uptime / 1000 / 60, 10)}m`
     return (
       <div className={`server-panel ${className}`}>
-        <PanelItem label="Server Public IP" value={JSON.stringify(overview.ip)} />
-        <PanelItem label="Uptime" value={overview.uptime} />
+        <PanelItem label="Server Public IP" value={overview.ip} />
+        <PanelItem label="Uptime" value={uptimeDisplay} />
         <PanelItem label="Server Public Key" value={overview.publicKey} />
       </div>
     );

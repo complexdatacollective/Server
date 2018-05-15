@@ -12,15 +12,22 @@
   }
 
   @include element(sidebar) {
-    background-color: color(navy-taupe);
+    background-color: var(--inverse-background-color);
+    color: var(--inverse-text-color);
     flex: none;
     height: 100%;
-    width: 4rem;
+    width: var(--app-sidebar-width);
+
+    // Ensure contained content fills entire height
+    > * {
+      border: 1px solid transparent; // force to top
+      height: 100%;
+    }
   }
 
   @include element(screen) {
-    flex: auto;
     display: flex;
+    flex: auto;
     flex-direction: column;
   }
 

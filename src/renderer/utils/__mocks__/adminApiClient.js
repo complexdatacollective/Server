@@ -1,13 +1,11 @@
 /* eslint-env jest */
 
-const mockReturningPromise = jest.fn(() => Promise.resolve({}));
+const mockReturningPromise = jest.fn().mockResolvedValue({});
 
-const mockApiClient = jest.fn(() => (
-  {
-    get: mockReturningPromise,
-    on: mockReturningPromise,
-    requestServerStatus: mockReturningPromise,
-  }
-));
+const MockApiClient = jest.fn().mockImplementation(() => ({
+  get: mockReturningPromise,
+  post: mockReturningPromise,
+  requestServerStatus: mockReturningPromise,
+}));
 
-export default mockApiClient;
+export default MockApiClient;

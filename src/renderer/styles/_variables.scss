@@ -1,8 +1,18 @@
 :root {
-  --base-background-color: color(platinum);
-  --recessed-background-color: color(platinum--dark);
-  --base-border-color: color(platinum--dark);
+  // Colors
+  --base-background-color: var(--color-platinum);
+  --base-border-color: var(--color-platinum--dark);
+  --inverse-background-color: var(--color-navy-taupe);
+  --inverse-text-color: var(--color-white);
+  --message-background-color: var(--color-tomato--dark);
+  --message-color: var(--color-white);
+  --recessed-background-color: var(--color-platinum--dark);
+  --recessed-border-color: var(--color-platinum);
+
+  // Type
   --code-font: monospace;
-  --message-background-color: color('tomato--dark');
-  --message-color: color('white');
+
+  // Layout
+  --app-sidebar-width: 6rem;
+  --modal-window-padding: spacing(huge);
 }

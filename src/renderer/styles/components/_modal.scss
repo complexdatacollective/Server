@@ -1,6 +1,6 @@
 .modal {
   position: fixed;
-  z-index: 2000;
+  z-index: var(--z-index-modal);
   top: 0;
   left: 0;
   width: 100%;
@@ -20,7 +20,7 @@
 
   @include element(window) {
     background-color: var(--base-background-color);
-    padding: spacing(large);
+    padding: var(--modal-window-padding);
     position: relative;
   }
 
@@ -41,4 +41,8 @@
     float: right;
   }
 
+  @include modifier(pairing-confirmation) {
+    // Force a narrower window
+    padding: 0 30%;
+  }
 }

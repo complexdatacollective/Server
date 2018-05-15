@@ -6,7 +6,7 @@ const getAppUrl = (route) => {
   if (process.env.NODE_ENV === 'development' && process.env.WEBPACK_DEV_SERVER_PORT) {
     return url.format({
       hash: `#${route}`,
-      host: `localhost:${process.env.WEBPACK_DEV_SERVER_PORT}`,
+      host: `localhost:${process.env.WEBPACK_DEV_SERVER_PORT}/`,
       protocol: 'http',
     });
   }
@@ -44,7 +44,11 @@ class MainWindow {
 
   open(route = '/') {
     this.create();
-    this.window.loadURL(getAppUrl(route));
+    const currentUrl = this.window.webContents.getURL();
+    const newUrl = getAppUrl(route);
+    if (!currentUrl || currentUrl !== newUrl) {
+      this.window.loadURL(newUrl);
+    }
     this.window.show();
   }
 

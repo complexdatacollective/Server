@@ -5,26 +5,37 @@ const MainWindow = require('./components/mainWindow');
 const { isWindows } = require('./utils/environment');
 const { createTray } = require('./components/tray');
 
+// TODO: move/centralize
+const FileImportUpdated = 'FILE_IMPORT_UPDATED';
+
 const userDataDir = app.getPath('userData');
 const protocolManager = new ProtocolManager(userDataDir);
 
 const createApp = () => {
   const mainWindow = new MainWindow();
 
-  // Keep reference; if tray is GCed, it disappears
-  let tray; // eslint-disable-line no-unused-vars
+  const showImportProtocolDialog = () => {
+    protocolManager.presentImportDialog()
+      .then((savedFiles) => {
+        if (savedFiles) {
+          dialog.showMessageBox(mainWindow.window, {
+            title: 'Success',
+            message: 'Successfully Imported:',
+            detail: savedFiles.join('\r\n'),
+          });
+        }
+      })
+      .then(() => mainWindow.send(FileImportUpdated))
+      .catch((err) => {
+        dialog.showErrorBox('Import Error', err && err.message);
+      });
+  };
+
+  let tray; // Always keep reference; if tray is GCed, it disappears
   const trayMenu = [
     {
       label: 'Overview',
       click: () => { mainWindow.open('/overview'); },
-    },
-    {
-      label: 'Export data',
-      click: () => { mainWindow.open('/export'); },
-    },
-    {
-      label: 'Settings',
-      click: () => { mainWindow.open('/settings'); },
     },
     {
       label: 'Quit',
@@ -32,9 +43,14 @@ const createApp = () => {
     },
   ];
 
-  const appMenu = Menu.buildFromTemplate([
+  const MenuTemplate = [
     {
       submenu: [
+        {
+          label: 'Settings',
+          click: () => mainWindow.open('/settings'),
+        },
+        { type: 'separator' },
         { role: 'quit' },
       ],
     },
@@ -43,25 +59,57 @@ const createApp = () => {
       submenu: [
         {
           label: 'Import Protocol...',
-          click: () => {
-            protocolManager.presentImportDialog()
-              .then((savedFiles) => {
-                if (savedFiles) {
-                  dialog.showMessageBox(mainWindow.window, {
-                    title: 'Success',
-                    message: 'Successfully Imported:',
-                    detail: savedFiles.join('\r\n'),
-                  });
-                }
-              })
-              .catch((err) => {
-                dialog.showErrorBox('Import Error', err && err.message);
-              });
-          },
+          click: showImportProtocolDialog,
         },
       ],
     },
-  ]);
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { type: 'separator' },
+        { role: 'selectall' },
+      ],
+    },
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forcereload' },
+        { role: 'toggledevtools' },
+        { type: 'separator' },
+        { role: 'resetzoom' },
+        { role: 'zoomin' },
+        { role: 'zoomout' },
+        { type: 'separator' },
+        { role: 'togglefullscreen' },
+      ],
+    },
+    {
+      role: 'window',
+      submenu: [
+        { role: 'minimize' },
+        { role: 'close' },
+      ],
+    },
+  ];
+
+  if (process.platform !== 'darwin') {
+    // Get rid of the macOS primary menu
+    MenuTemplate.shift();
+    // Add those items elsewhere as appropriate
+    MenuTemplate[0].submenu.push({ type: 'separator' });
+    MenuTemplate[0].submenu.push({
+      label: 'Settings',
+      click: () => mainWindow.open('/settings'),
+    });
+    MenuTemplate[0].submenu.push({ type: 'separator' });
+    MenuTemplate[0].submenu.push({ role: 'quit' });
+  }
+
+  const appMenu = Menu.buildFromTemplate(MenuTemplate);
 
   app.on('ready', () => {
     if (!process.env.DEV_SUPPRESS_WINDOW_DEFAULT_OPEN) {
@@ -95,6 +143,7 @@ const createApp = () => {
   return {
     app,
     mainWindow,
+    showImportProtocolDialog,
   };
 };
 

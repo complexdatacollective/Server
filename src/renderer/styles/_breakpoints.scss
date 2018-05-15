@@ -1,0 +1,6 @@
+// Inherited from NC-UI are two aspect-based breakpoints:
+// - 'full': 'min-aspect-ratio: 1.6' (widescreen)
+// - 'small': 'max-aspect-ratio: 1.6'
+
+@include breakpoint-set('narrow', 'max-width: 50rem');
+@include breakpoint-set('medium', 'max-width: 80rem');

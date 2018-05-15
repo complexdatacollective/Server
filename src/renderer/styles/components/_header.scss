@@ -1,8 +1,8 @@
 .header {
   align-items: center;
-  background-color: color(cyber-grape);
-  border-bottom: .25rem solid color(mustard);
-  color: color('white');
+  background-color: var(--color-cyber-grape);
+  border-bottom: .25rem solid var(--color-mustard);
+  color: var(--color-white);
   display: flex;
   flex-direction: row;
   padding: spacing(small);
@@ -18,7 +18,7 @@
   }
 
   @include element(link) {
-    color: color('white');
+    color: var(--color-white);
     display: inline-block;
     height: 100%;
     margin-right: $spacer;

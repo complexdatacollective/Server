@@ -6,11 +6,11 @@ import { ipcRenderer } from 'electron';
 import { withRouter } from 'react-router-dom';
 
 import AppRoutes from './AppRoutes';
-import { AppMessage, Header, PairPrompt, TabBar } from '../components';
+import ProtocolNav from './ProtocolNav';
+import { AppMessage, TabBar } from '../components';
+import { AnimatedPairPrompt } from '../components/pairing/PairPrompt';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
 import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
-
-require('../styles/main.scss');
 
 // This prevents user from being able to drop a file anywhere on the app
 // (which by default triggers a 'save' dialog). If we want to support this,
@@ -64,13 +64,15 @@ class App extends Component {
         <div role="Button" tabIndex="0" className="app__flash" onClick={dismissAppMessages}>
           { appMessages.map(msg => <AppMessage key={msg.timestamp} {...msg} />) }
         </div>
-        <Header pairingCode={this.state.pairingCode} className="app__header" />
         {
-          pairingRequest.status === PairingStatus.Pending &&
-          <PairPrompt onAcknowledge={ackPairingRequest} onDismiss={dismissPairingRequest} />
+          <AnimatedPairPrompt
+            show={pairingRequest.status === PairingStatus.Pending}
+            onAcknowledge={ackPairingRequest}
+            onDismiss={dismissPairingRequest}
+          />
         }
         <div className="app__content">
-          <nav className="app__sidebar" />
+          <ProtocolNav className="app__sidebar" />
           <div className="app__screen">
             <TabBar />
             <main className="app__main">

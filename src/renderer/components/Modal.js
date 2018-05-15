@@ -19,11 +19,6 @@ function Modal(props) {
     title,
   } = props;
 
-  // TODO: remove this if we won't need URL-based addressing of modals. (See AppRoutes.)
-  // const restorePath = () => {
-  //   history.replace(`/${match.params.basePath || ''}`);
-  // };
-
   return (
     <ModalTransition in={show}>
       <div key="modal" className={`modal ${className}`} onClick={onCancel || onComplete}>

@@ -5,6 +5,7 @@
 const ipcRenderer = {
   on: jest.fn(),
   once: jest.fn(),
+  removeListener: jest.fn(),
   send: jest.fn(),
 };
 
@@ -28,6 +29,11 @@ const dialog = {
 };
 
 
+const Tray = jest.fn().mockImplementation(() => ({
+  setContextMenu: jest.fn(),
+  setToolTip: jest.fn(),
+}));
+
 const Menu = {
   buildFromTemplate: jest.fn(),
   setApplicationMenu: jest.fn(),
@@ -41,6 +47,7 @@ class BrowserWindow {
       show: jest.fn(),
       on: jest.fn(),
       webContents: {
+        getURL: jest.fn(),
         openDevTools: jest.fn(),
         send: jest.fn(),
       },
@@ -54,6 +61,7 @@ module.exports = {
   app,
   BrowserWindow,
   Menu,
+  Tray,
   dialog,
   ipcMain,
   ipcRenderer,

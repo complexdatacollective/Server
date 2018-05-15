@@ -70,6 +70,7 @@ class PairingRequestService {
             salt: libsodium.to_hex(salt),
             secretKey: libsodium.to_hex(secretKey),
             pairingCode,
+            used: false,
             _id: uuidv4(),
           }, (err, newRequest) => {
             if (err) {
@@ -85,7 +86,16 @@ class PairingRequestService {
     });
   }
 
-  verifyRequest(requestId, pairingCode) {
+  /**
+   * Checks for a valid (matching, unexpired) pairing request and, if found,
+   * mark it as used so that it can't be used again.
+   * @async
+   * @param {string} requestId ID of a pairing request from createRequest()
+   * @param {string} pairingCode alphanumeric code, entered by user
+   * @return {Object} the pairing request, containing a secret key, to be used for device creation
+   * @throws {RequestError} If no matching request is found
+   */
+  verifyAndExpireRequest(requestId, pairingCode) {
     const errMsg = 'Request verification failed';
     return new Promise((resolve, reject) => {
       if (!requestId || !pairingCode) {
@@ -93,9 +103,14 @@ class PairingRequestService {
         return;
       }
 
-      this.db.findOne({ _id: requestId, pairingCode }, (err, doc) => {
+      const query = { _id: requestId, pairingCode, used: false };
+      const updateClause = { $set: { used: true } };
+      const opts = { multi: false, returnUpdatedDocs: true };
+
+      this.db.update(query, updateClause, opts, (err, num, doc) => {
         if (err) {
           // Assume error on our side
+          logger.error(err);
           reject(err);
         } else if (!doc) {
           // Pairing request was invalid or expired

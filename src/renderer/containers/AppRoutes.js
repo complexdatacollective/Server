@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React from 'react';
 import {
   Route,
@@ -6,21 +5,16 @@ import {
   Switch,
 } from 'react-router-dom';
 
-import { ExportScreen, PairDevice, OverviewScreen, SettingsScreen } from './';
-
-// TODO: remove this if we won't need URL-based addressing of modals. (Now including PairDevice directly.)
-// const ModalRoute = ({path, component}) => (
-//   <Route path={`/:basePath*/modal/${path.replace(/^\//, '')}`} component={component} />
-// );
+import { PairDevice, OverviewScreen, SettingsScreen } from './';
 
 const AppRoutes = () => (
   <React.Fragment>
     <Switch>
-      <Route path="/dashboard" component={OverviewScreen} />
+      <Route path="/overview" component={OverviewScreen} />
       <Route path="/settings" component={SettingsScreen} />
-      <Route path="/export" component={ExportScreen} />
+      {/* <Route path="/export" component={ExportScreen} /> */}
       <Route>
-        <Redirect to="/dashboard" />
+        <Redirect to="/overview" />
       </Route>
     </Switch>
 

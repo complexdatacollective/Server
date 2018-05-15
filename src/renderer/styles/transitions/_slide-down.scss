@@ -1,0 +1,29 @@
+:root {
+  // JS reads this value. To customize, edit here rather than on active classes
+  --slide-down-enter-duration-ms: calc(var(--animation-duration-fast-ms) * 1ms);
+  --slide-down-exit-duration-ms: calc(var(--animation-duration-fast-ms) * 1ms);
+}
+
+@mixin slide-down-transition($height) {
+  &.slide-down-enter {
+    transform: translateY($height * -1);
+  }
+
+  &.slide-down-enter-active {
+    transform: translateY(0);
+    transition: transform var(--slide-down-enter-duration-ms) ease-out;
+  }
+
+  &.slide-down-enter-done {
+    transform: translateY(0);
+  }
+
+  &.slide-down-exit-active {
+    transform: translateY($height * -1);
+    transition: transform var(--slide-down-exit-duration-ms) ease-out;
+  }
+
+  &.slide-down-exit-done {
+    transform: translateY($height * -1);
+  }
+}

@@ -15,21 +15,22 @@ describe('<AppRoutes />', () => {
     wrapper = shallow(<AppRoutes />);
   });
 
-  it('should contain a dashboard', () => {
-    expect(routesMatching(wrapper.find('Route'), /dashboard/)).toHaveLength(1);
+  it('should contain a dashboard overview', () => {
+    expect(routesMatching(wrapper.find('Route'), /overview/)).toHaveLength(1);
   });
 
   it('should contain settings', () => {
     expect(routesMatching(wrapper.find('Route'), /settings/)).toHaveLength(1);
   });
 
-  it('should contain data export', () => {
-    expect(routesMatching(wrapper.find('Route'), /export/)).toHaveLength(1);
-  });
+  // Not for Alpha.1
+  // it('should contain data export', () => {
+  //   expect(routesMatching(wrapper.find('Route'), /export/)).toHaveLength(1);
+  // });
 
-  it('should redirect to dashboard by default', () => {
+  it('should redirect to overview by default', () => {
     const defaultRedirect = wrapper.find(Redirect);
     expect(defaultRedirect).toHaveLength(1);
-    expect(defaultRedirect.prop('to')).toMatch(/dashboard/);
+    expect(defaultRedirect.prop('to')).toMatch(/overview/);
   });
 });

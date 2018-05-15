@@ -4,6 +4,9 @@ import { HashRouter } from 'react-router-dom';
 
 import { Provider } from 'react-redux';
 
+// Styles must be imported before components to support css prop caching on import
+import './styles/main.scss';
+
 import { store } from './ducks/store';
 import App from './containers/App';
 

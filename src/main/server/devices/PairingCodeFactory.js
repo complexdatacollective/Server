@@ -1,11 +1,12 @@
 const crypto = require('crypto');
 
-// TODO: real code generation.
-// - Length? Range? Excluded chars (e.g. O/0)?
-// - library to handle this?
+// Character set with confusing chars removed (from https://www.grc.com/ppp.htm),
+// with two modifications:
+// - '=' is two taps away on Android keyboard; replace with '&'
+// - '!' is two away on iOS (if you don't know swipe-down-on-key); replace with '/'
 const generatePairingCodeAsync = () => new Promise((resolve, reject) => {
   const passcodeLength = 12;
-  const charSet = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789-+'.split('');
+  const charSet = '#%&+/23456789:?@ABCDEFGHJKLMNPRSTUVWXYZabcdefghijkmnopqrstuvwxyz'.split('');
   if (256 % charSet.length !== 0) {
     throw new Error('length will not provide normal distribution');
   }

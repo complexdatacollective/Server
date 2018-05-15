@@ -1,16 +1,22 @@
 .pairing-prompt {
-  background-color: color(cyber-grape);
-  border-left: .5rem solid color(mustard);
-  color: color('white');
+  $estimated-height: 15rem;
+  $width: 50vw;
+
+  @include slide-down-transition($estimated-height);
+
+  background-color: var(--color-cyber-grape);
+  border-bottom: .5rem solid var(--color-mustard);
+  color: var(--color-white);
   display: flex;
+  left: calc(50% - #{$width / 2});
+  min-height: $estimated-height;
   padding: spacing(medium);
   position: fixed;
-  right: spacing(large);
-  top: spacing(large);
-  max-width: 80vw;
+  top: 0;
+  width: $width;
   z-index: 1;
 
-  @include element(icon) {
+  @include element(icon-wrapper) {
     margin: spacing(large);
   }
 
@@ -21,10 +27,19 @@
   @include element(buttonGroup) {
     display: flex;
     justify-content: flex-end;
+    margin: 1rem 0;
   }
 
   @include element(button) {
     text-decoration: none;
   }
 
+  @include breakpoint('narrow') {
+    left: 0;
+    width: 100%;
+
+    @include element(icon-wrapper) {
+      display: none;
+    }
+  }
 }

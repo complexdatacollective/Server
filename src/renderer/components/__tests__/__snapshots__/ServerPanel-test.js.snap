@@ -30,7 +30,7 @@ ShallowWrapper {
       "children": Array [
         <PanelItem
           label="Server Public IP"
-          value="\\"x.x.x.x\\""
+          value="x.x.x.x"
         />,
         <PanelItem
           label="Uptime"
@@ -51,7 +51,7 @@ ShallowWrapper {
         "nodeType": "function",
         "props": Object {
           "label": "Server Public IP",
-          "value": "\\"x.x.x.x\\"",
+          "value": "x.x.x.x",
         },
         "ref": null,
         "rendered": null,
@@ -93,7 +93,7 @@ ShallowWrapper {
         "children": Array [
           <PanelItem
             label="Server Public IP"
-            value="\\"x.x.x.x\\""
+            value="x.x.x.x"
           />,
           <PanelItem
             label="Uptime"
@@ -114,7 +114,7 @@ ShallowWrapper {
           "nodeType": "function",
           "props": Object {
             "label": "Server Public IP",
-            "value": "\\"x.x.x.x\\"",
+            "value": "x.x.x.x",
           },
           "ref": null,
           "rendered": null,

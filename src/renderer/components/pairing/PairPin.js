@@ -3,6 +3,9 @@ import PropTypes from 'prop-types';
 
 const PinChar = ({ char }) => (<div className="pairing-pin__char">{char}</div>);
 
+// Placeholder to display when code is unavailable (e.g., during transitions)
+const placeholder = '------------';
+
 PinChar.propTypes = {
   char: PropTypes.string.isRequired,
 };
@@ -11,7 +14,7 @@ const PairPin = ({ code }) => {
   const chars = code.split('');
   return (
     <div className="pairing-pin">
-      <p>
+      <p className="pairing-pin__description">
         To pair your Network Canvas client with this installation of Server,
         type the code shown below into the prompt on the device running Network Canvas.
       </p>
@@ -22,8 +25,12 @@ const PairPin = ({ code }) => {
   );
 };
 
+PairPin.defaultProps = {
+  code: placeholder,
+};
+
 PairPin.propTypes = {
-  code: PropTypes.string.isRequired,
+  code: PropTypes.string,
 };
 
 export default PairPin;

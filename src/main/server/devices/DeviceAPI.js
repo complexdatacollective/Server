@@ -1,5 +1,7 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
+const os = require('os');
 const restify = require('restify');
+const corsMiddleware = require('restify-cors-middleware');
 const logger = require('electron-log');
 const PropTypes = require('prop-types');
 const { URL } = require('url');
@@ -8,6 +10,14 @@ const DeviceManager = require('../../data-managers/DeviceManager');
 const ProtocolManager = require('../../data-managers/ProtocolManager');
 const { PairingRequestService } = require('./PairingRequestService');
 const { RequestError } = require('../../errors/RequestError');
+
+// TODO: remove dupe from Server
+const lanIP = () => {
+  const interfaces = Object.values(os.networkInterfaces());
+  const lanV4 = val => val.family === 'IPv4' && val.internal === false;
+  const iface = [].concat(...interfaces).find(lanV4);
+  return iface && iface.address;
+};
 
 const ApiName = 'DevciceAPI';
 const ApiVersion = '0.0.2';
@@ -60,6 +70,18 @@ const Schema = {
   }),
 };
 
+// Throttle the pairing endpoints. Legitimate requests will not succeed
+// at a high rate because of OOB pairing; anything else could be a timing attack.
+const PairingThrottleSettings = {
+  burst: 1, // concurrent requests
+  rate: 0.5, // per sec, avg
+  ip: true,
+  overrides: {
+    // Allow unlimited local requests (e.g., for testing) if needed
+    '127.0.0.1': { burst: 0, rate: 0 },
+  },
+};
+
 /**
  * Channel for out-of-band communications
  */
@@ -90,6 +112,7 @@ class DeviceAPI {
   }
 
   get name() { return this.server.name; }
+  get publicUrl() { return this.url.replace(ApiHostName, lanIP()); }
   get url() { return this.server.url; }
 
   // TODO: prevent multiple?
@@ -118,6 +141,12 @@ class DeviceAPI {
     });
 
     server.use(restify.plugins.bodyParser());
+
+    // Whitelist everything for CORS: origins are arbitrary, and customizing client
+    // Access-Origins buys no security
+    const cors = corsMiddleware({ origins: ['*'] });
+    server.pre(cors.preflight);
+    server.use(cors.actual);
 
     /**
      * @swagger
@@ -153,7 +182,7 @@ class DeviceAPI {
      *         schema:
      *           $ref: '#/definitions/Error'
      */
-    server.get('/devices/new', this.handlers.onPairingRequest);
+    server.get('/devices/new', restify.plugins.throttle(PairingThrottleSettings), this.handlers.onPairingRequest);
 
     /**
      * @swagger
@@ -193,7 +222,7 @@ class DeviceAPI {
      *         schema:
      *           $ref: '#/definitions/Error'
      */
-    server.post('/devices', this.handlers.onPairingConfirm);
+    server.post('/devices', restify.plugins.throttle(PairingThrottleSettings), this.handlers.onPairingConfirm);
 
     /**
      * @swagger
@@ -212,7 +241,9 @@ class DeviceAPI {
      *               type: string
      *               example: ok
      *             data:
-     *               $ref: '#/definitions/Protocol'
+     *               type: array
+     *               items:
+     *                 $ref: '#/definitions/Protocol'
      *       400:
      *         description: request error
      *         schema:
@@ -294,9 +325,7 @@ class DeviceAPI {
         const pairingCode = req.body && req.body.pairingCode;
 
         // TODO: payload will actually be encrypted.
-        // TODO: delete request once verified (or mark as 'used' internally)?
-        // ... prevent retries/replays?
-        this.requestService.verifyRequest(pendingRequestId, pairingCode)
+        this.requestService.verifyAndExpireRequest(pendingRequestId, pairingCode)
           .then(pair => this.deviceManager.createDeviceDocument(pair.salt, pair.secretKey))
           .then((device) => {
             this.outOfBandDelegate.pairingDidCompleteWithCode(pairingCode);
@@ -308,7 +337,7 @@ class DeviceAPI {
 
       protocolList: (req, res, next) => {
         this.protocolManager.allProtocols()
-          .then(protocols => protocols.map(p => Schema.protocol(p, this.server.url)))
+          .then(protocols => protocols.map(p => Schema.protocol(p, this.publicUrl)))
           .then(schemas => res.json({ status: 'ok', data: schemas }))
           .catch(err => this.handlers.onError(err, res))
           .then(next);
