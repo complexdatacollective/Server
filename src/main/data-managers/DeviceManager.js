@@ -63,7 +63,7 @@ class DeviceManager {
 
   fetchDeviceList() {
     return new Promise((resolve, reject) => {
-      this.db.find({}, (err, docs) => {
+      this.db.find({}).sort({ createdAt: -1 }).exec((err, docs) => {
         if (err) {
           reject(err);
         } else {
