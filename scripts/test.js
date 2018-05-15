@@ -23,5 +23,9 @@ if (!process.env.CI && argv.indexOf('--coverage') < 0) {
   argv.push('--watch');
 }
 
+// Currently running on GCE VM with "~2, bursted" cores; see if serial run fixes timeouts:
+if (process.env.CI) {
+  argv.push('--runInBand');
+}
 
 jest.run(argv);
