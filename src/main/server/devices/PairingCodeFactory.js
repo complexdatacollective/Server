@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 
-const PasscodeLength = 16;
+const { PairingCodeLength, CharacterSet } = require('../../utils/shared-api/pairingCodeConfig');
 
 /**
  * Generate a random passcode that can be used for out-of-band pairing.
@@ -14,14 +14,14 @@ const PasscodeLength = 16;
  *   - bytes >= 234 are discarded, since they can't be mapped evenly (would favor early letters)
  *
  * You can estimate the entropy of a pairing code based on its character set and length:
- * `Math.log2(charSet.length ** PasscodeLength)`.
+ * `Math.log2(charSet.length ** PairingCodeLength)`.
  *
  * @async
  * @return {string} random pairing code
  * @throws {Error} Rejects if random code couldn't be created
  */
 const generatePairingCodeAsync = () => new Promise((resolve, reject) => {
-  const charSet = 'abcdefghijklmnopqrstuvwxyz'.split('');
+  const charSet = CharacterSet;
   const maxValidByte = 256 - (256 % charSet.length) - 1;
 
   let passcode = '';
@@ -40,7 +40,7 @@ const generatePairingCodeAsync = () => new Promise((resolve, reject) => {
           throw new Error('Invalid passcode generation');
         }
         passcode += char;
-        if (passcode.length === PasscodeLength) {
+        if (passcode.length === PairingCodeLength) {
           resolve(passcode);
           return;
         }

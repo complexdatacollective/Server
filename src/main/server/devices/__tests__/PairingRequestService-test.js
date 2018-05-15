@@ -5,7 +5,7 @@ const { PairingRequestService } = require('../PairingRequestService');
 const { RequestError } = require('../../../errors/RequestError');
 
 jest.mock('electron-log');
-jest.mock('../../../utils/cipher');
+jest.mock('../../../utils/shared-api/cipher');
 
 describe('PairingRequest Service', () => {
   let reqSvc;

@@ -11,7 +11,7 @@ const DeviceManager = require('../../data-managers/DeviceManager');
 const ProtocolManager = require('../../data-managers/ProtocolManager');
 const { PairingRequestService } = require('./PairingRequestService');
 const { RequestError } = require('../../errors/RequestError');
-const { encrypt } = require('../../utils/cipher');
+const { encrypt } = require('../../utils/shared-api/cipher');
 
 // TODO: remove dupe from Server
 const lanIP = () => {

@@ -6,7 +6,13 @@ const logger = require('electron-log');
 
 const PairingCodeFactory = require('./PairingCodeFactory');
 const { RequestError } = require('../../errors/RequestError');
-const { decrypt, deriveSecretKeyBytes, newSaltBytes, fromHex, toHex } = require('../../utils/cipher');
+const {
+  decrypt,
+  deriveSecretKeyBytes,
+  newSaltBytes,
+  fromHex,
+  toHex,
+} = require('../../utils/shared-api/cipher');
 
 const DeviceRequestTTLSeconds = 5 * 60;
 
