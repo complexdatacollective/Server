@@ -63,7 +63,10 @@ class PairingRequestService {
               // TODO: retry?
               reject(err);
             } else {
-              logger.info('New pairing request saved', newRequest._id, pairingCode);
+              logger.info('New pairing request saved', newRequest._id);
+              if (process.env.NODE_ENV === 'development') {
+                logger.debug('Pairing code', pairingCode);
+              }
               resolve(newRequest);
             }
           });
