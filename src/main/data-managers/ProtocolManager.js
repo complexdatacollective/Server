@@ -210,6 +210,17 @@ class ProtocolManager {
   }
 
   /**
+   * Get a protocol by id
+   * @async
+   * @param {string} filename base name of file
+   * @return {Object} persisted protocol data
+   * @throws {Error}
+   */
+  getProtocol(id) {
+    return this.db.get(id);
+  }
+
+  /**
    * Get the raw contents of saved protocol as a Buffer
    * @async
    * @param {string} savedFilename base filename
