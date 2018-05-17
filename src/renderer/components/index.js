@@ -11,6 +11,7 @@ export { default as Overflow } from './Overflow';
 export { default as PanelItem } from './PanelItem';
 export { default as PairPrompt } from './pairing/PairPrompt';
 export { default as PairPin } from './pairing/PairPin';
+export { default as PairedDeviceModal } from './PairedDeviceModal';
 export { default as PieChart } from './charts/PieChart';
 export { default as ServerPanel } from './ServerPanel';
 export { default as TabBar } from './TabBar';

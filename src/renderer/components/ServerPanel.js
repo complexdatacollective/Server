@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { PanelItem } from '../components';
@@ -14,7 +13,7 @@ const defaultServerOverview = {
 
 class ServerPanel extends Component {
   static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.apiClient != prevState.apiClient) {
+    if (nextProps.apiClient !== prevState.apiClient) {
       return { apiClient: nextProps.apiClient };
     }
     return null;
@@ -59,7 +58,8 @@ class ServerPanel extends Component {
     const { serverOverview } = this.state;
     const { className } = this.props;
     const overview = { ...defaultServerOverview, ...serverOverview };
-    const uptimeDisplay = overview.uptime && `${parseInt(overview.uptime / 1000 / 60, 10)}m`
+    const uptimeDisplay = overview.uptime &&
+      `${parseInt(overview.uptime / 1000 / 60, 10)}m`;
     return (
       <div className={`server-panel ${className}`}>
         <PanelItem label="Local Server IP" value={overview.ip || 'Offline'} />

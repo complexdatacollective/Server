@@ -11,8 +11,8 @@ const baseViewModelMapper = json => ({
   id: json._id,
   _id: undefined,
   // Date types
-  createdAt: new Date(json.createdAt),
-  updatedAt: new Date(json.updatedAt),
+  createdAt: json.createdAt && new Date(json.createdAt),
+  updatedAt: json.updatedAt && new Date(json.updatedAt),
 });
 
 export default baseViewModelMapper;

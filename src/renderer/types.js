@@ -21,3 +21,5 @@ const Types = {
 };
 
 export default Object.freeze(Types);
+
+export { PropTypes };

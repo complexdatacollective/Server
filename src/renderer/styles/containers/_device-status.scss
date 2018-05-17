@@ -2,20 +2,21 @@
   @include reset-button;
 
   background: center / contain no-repeat url('../images/devices.png');
+  cursor: pointer;
   height: #{spacing('medium') * 2}; // stay on par with link padding
   margin: .5rem spacing('medium');
   position: relative;
   width: #{spacing('medium') * 2}; // square with height
 
   @include element(badge) {
-    --badge-size: 1.4rem;
     --badge-offset: -.4rem;
+    --badge-size: 1.4rem;
     background-color: var(--color-sea-green);
     border: 2px solid var(--color-white);
     border-radius: calc(var(--badge-size) * .5);
     bottom: var(--badge-offset);
-    display: block;
     color: var(--color-white);
+    display: block;
     font-size: .9rem;
     height: var(--badge-size);
     line-height: 1.2;
