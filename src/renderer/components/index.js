@@ -15,3 +15,4 @@ export { default as PairedDeviceModal } from './PairedDeviceModal';
 export { default as PieChart } from './charts/PieChart';
 export { default as ServerPanel } from './ServerPanel';
 export { default as TabBar } from './TabBar';
+export { default as Workspace } from './Workspace';

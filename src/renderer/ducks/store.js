@@ -19,5 +19,5 @@ export const store = createStore(
 // TODO: solve hydration problem with viewModelMapper if keeping persistence
 export const persistor = persistStore(
   store,
-  { blacklist: ['appMessages', 'protocols', 'devices', 'pairingRequest'] },
+  { blacklist: ['appMessages', 'protocol', 'protocols', 'devices', 'pairingRequest'] },
 );

@@ -64,7 +64,6 @@ class App extends Component {
       appMessages,
       pairingRequest,
     } = this.props;
-
     return (
       <div className="app">
         <div role="Button" tabIndex="0" className="app__flash" onClick={dismissAppMessages}>

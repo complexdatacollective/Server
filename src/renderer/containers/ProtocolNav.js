@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { ipcRenderer } from 'electron';
+import { withRouter } from 'react-router-dom';
 
 import Types from '../types';
 import { actionCreators } from '../ducks/modules/protocols';
@@ -39,11 +40,12 @@ class ProtocolNav extends Component {
   }
 
   render() {
-    const { className, protocols } = this.props;
+    const { className, location, protocols } = this.props;
     return (
       <nav className={className}>
         <FileDropTarget>
           <ProtocolThumbnails
+            location={location}
             protocols={protocols}
             onClickAddProtocol={promptFileImport}
           />
@@ -61,6 +63,7 @@ ProtocolNav.defaultProps = {
 ProtocolNav.propTypes = {
   className: PropTypes.string,
   loadProtocols: PropTypes.func.isRequired,
+  location: PropTypes.object.isRequired,
   protocols: Types.protocols,
 };
 
@@ -72,7 +75,7 @@ const mapDispatchToProps = dispatch => ({
   loadProtocols: bindActionCreators(actionCreators.loadProtocols, dispatch),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProtocolNav);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(ProtocolNav));
 
 export {
   ProtocolNav as UnconnectedProtocolNav,

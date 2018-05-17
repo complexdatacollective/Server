@@ -1,0 +1,15 @@
+.workspace {
+  @include element(panel) {
+    background-color: var(--color-white);
+    padding: spacing(small);
+  }
+
+  @include modifier(loading) {
+    display: flex;
+    justify-content: center;
+  }
+
+  .panel-item {
+    margin: spacing(medium);
+  }
+}

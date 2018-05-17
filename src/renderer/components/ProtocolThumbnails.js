@@ -4,10 +4,12 @@ import PropTypes from 'prop-types';
 import ProtocolThumbnail from './ProtocolThumbnail';
 import Types from '../types';
 
-const ProtocolThumbnails = ({ protocols, onClickAddProtocol }) => (
+const ProtocolThumbnails = ({ location, protocols, onClickAddProtocol }) => (
   <div>
     {
-      protocols.map(protocol => <ProtocolThumbnail protocol={protocol} key={protocol.id} />)
+      protocols.map(protocol => (
+        <ProtocolThumbnail location={location} protocol={protocol} key={protocol.id} />
+      ))
     }
     <button
       className="protocol-thumbnail protocol-thumbnail--add"
@@ -17,10 +19,13 @@ const ProtocolThumbnails = ({ protocols, onClickAddProtocol }) => (
 );
 
 ProtocolThumbnails.defaultProps = {
+  location: {},
   protocols: [],
 };
 
 ProtocolThumbnails.propTypes = {
+  // location is needed for nav items to update active state during nav
+  location: PropTypes.object,
   onClickAddProtocol: PropTypes.func.isRequired,
   protocols: Types.protocols,
 };
