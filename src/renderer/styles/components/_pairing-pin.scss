@@ -26,8 +26,16 @@
     display: inline-block;
     font-family: var(--code-font);
     font-size: 4rem;
-    margin: spacing(tiny);
+    margin: spacing(tiny) .1rem;
     padding: spacing(small);
+
+    &:nth-of-type(4n) {
+      margin-right: 1rem;
+    }
+
+    &:last-of-type {
+      margin-right: 0;
+    }
   }
 
   @include element(buttonGroup) {
