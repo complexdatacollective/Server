@@ -72,6 +72,19 @@ class DeviceManager {
       });
     });
   }
+
+  // TODO: Probably remove after alpha testing
+  destroyAllDevices() {
+    return new Promise((resolve, reject) => {
+      this.db.remove({}, { multi: true }, (err, numRemoved) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(numRemoved);
+        }
+      });
+    });
+  }
 }
 
 module.exports = DeviceManager;

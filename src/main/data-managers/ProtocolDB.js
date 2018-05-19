@@ -1,3 +1,5 @@
+/* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
+
 const NeDB = require('nedb');
 const crypto = require('crypto');
 const logger = require('electron-log');
@@ -93,6 +95,26 @@ class ProtocolDB {
           reject(err);
         } else {
           resolve(docs);
+        }
+      });
+    });
+  }
+
+  /**
+   * Delete a protocol with the given ID
+   * @async
+   * @param {Object} protocol
+   * @return {number} 1 if successful; 0 if unsuccessful
+   * @throws {Error} If a DB error occurred
+   */
+  destroy(protocol) {
+    return new Promise((resolve, reject) => {
+      if (!protocol._id) { reject(new Error('Cannot delete protocol without an id')); }
+      this.db.remove({ _id: protocol._id }, { multi: false }, (err, numRemoved) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(numRemoved);
         }
       });
     });

@@ -2,6 +2,7 @@ const { app, dialog, Menu } = require('electron');
 
 const ProtocolManager = require('./data-managers/ProtocolManager');
 const MainWindow = require('./components/mainWindow');
+const { AdminService } = require('./server/AdminService');
 const { isWindows } = require('./utils/environment');
 const { createTray } = require('./components/tray');
 
@@ -9,10 +10,31 @@ const { createTray } = require('./components/tray');
 const FileImportUpdated = 'FILE_IMPORT_UPDATED';
 
 const userDataDir = app.getPath('userData');
+const adminService = new AdminService({ dataDir: userDataDir });
 const protocolManager = new ProtocolManager(userDataDir);
 
 const createApp = () => {
   const mainWindow = new MainWindow();
+
+  const resetAppData = () => {
+    const responseNum = dialog.showMessageBox(mainWindow.window, {
+      message: 'Destroy all application files and data?',
+      detail: 'This includes all imported protocols and paired devices',
+      buttons: ['Reset Data', 'Cancel'],
+      cancelId: 1,
+      defaultId: 0,
+    });
+    if (responseNum === 0) {
+      adminService.resetData()
+        .then(() => {
+          mainWindow.open('/');
+          // The following provides a full restart if needed
+          // (but is more jarring and loses pipe to stdout during dev):
+          // app.relaunch();
+          // app.quit();
+        });
+    }
+  };
 
   const showImportProtocolDialog = () => {
     protocolManager.presentImportDialog()
@@ -60,6 +82,11 @@ const createApp = () => {
         {
           label: 'Import Protocol...',
           click: showImportProtocolDialog,
+        },
+        { type: 'separator' },
+        {
+          label: 'Reset Data...',
+          click: resetAppData,
         },
       ],
     },

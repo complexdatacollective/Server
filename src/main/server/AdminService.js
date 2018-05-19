@@ -121,6 +121,14 @@ class AdminService {
 
     return api;
   }
+
+  // TODO: Probably remove after alpha testing
+  resetData() {
+    return Promise.all([
+      this.protocolManager.destroyAllProtocols(),
+      this.deviceManager.destroyAllDevices(),
+    ]);
+  }
 }
 
 module.exports = {
