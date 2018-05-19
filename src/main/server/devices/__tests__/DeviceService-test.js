@@ -20,7 +20,7 @@ describe('Device Service', () => {
       expect(data).toMatchObject({ pairingCode: mockPairingCode });
       done();
     });
-    deviceService.outOfBandDelegate.pairingDidBeginWithCode('123');
+    deviceService.outOfBandDelegate.pairingDidBeginWithRequest({ pairingCode: mockPairingCode });
   });
 
   it('emits an event when pairing is complete', (done) => {

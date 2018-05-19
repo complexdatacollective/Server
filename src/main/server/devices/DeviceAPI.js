@@ -11,6 +11,7 @@ const DeviceManager = require('../../data-managers/DeviceManager');
 const ProtocolManager = require('../../data-managers/ProtocolManager');
 const { PairingRequestService } = require('./PairingRequestService');
 const { RequestError } = require('../../errors/RequestError');
+const { IncompletePairingError } = require('../../errors/IncompletePairingError');
 const { encrypt } = require('../../utils/shared-api/cipher');
 
 // TODO: remove dupe from Server
@@ -22,7 +23,7 @@ const lanIP = () => {
 };
 
 const ApiName = 'DevciceAPI';
-const ApiVersion = '0.0.3';
+const ApiVersion = '0.0.4';
 const ApiHostName = '0.0.0.0'; // IPv4 for compatibility with Travis (& unknown installations)
 
 const Schema = {
@@ -118,12 +119,12 @@ const PairingThrottleSettings = {
 class OutOfBandDelegate {
   static get propTypes() {
     return ({
-      pairingDidBeginWithCode: PropTypes.func.isRequired,
+      pairingDidBeginWithRequest: PropTypes.func.isRequired,
       pairingDidComplete: PropTypes.func.isRequired,
     });
   }
-  constructor({ pairingDidBeginWithCode, pairingDidComplete }) {
-    this.pairingDidBeginWithCode = pairingDidBeginWithCode;
+  constructor({ pairingDidBeginWithRequest, pairingDidComplete }) {
+    this.pairingDidBeginWithRequest = pairingDidBeginWithRequest;
     this.pairingDidComplete = pairingDidComplete;
   }
 }
@@ -191,7 +192,10 @@ class DeviceAPI {
      *     description: Pairing Step 1.
      *         Generate a new pairing request.
      *         Responds with the request ID, and presents a pairing passcode to user (out of band).
-     *         This information can be used to complete the pairing (create a device)
+     *         This information can be used to complete the pairing (create a device).
+     *
+     *         A response is not sent until the user takes action (via the GUI), or the request
+     *         times out; the connection is intended to be open for an extended period of time.
      *     responses:
      *       200:
      *         description: Information needed to complete the pairing request
@@ -352,25 +356,41 @@ class DeviceAPI {
        */
       // Secondary handler for error cases in req/res chain
       onError: (err, res) => {
+        const body = { status: 'error', message: err.message || 'Unknown Server Error' };
+        let statusCode;
         if (err instanceof RequestError) {
-          res.json(400, { status: 'error', message: err.message });
+          statusCode = 400;
+        } else if (err instanceof IncompletePairingError) {
+          // TODO: review; 5xx is probably correct, but weird bc of user involvement
+          statusCode = 400;
         } else {
           logger.error(err);
-          res.json(500, { status: 'error', message: 'Unknown Server Error' });
+          statusCode = 500;
         }
+        res.json(err.statusCode || statusCode, body);
       },
 
       onPairingRequest: (req, res, next) => {
+        let abortRequest;
+        req.on('aborted', () => {
+          if (abortRequest) { abortRequest(); }
+        });
+
         this.requestService.createRequest()
           .then((pairingRequest) => {
-            // Send code up to UI
-            this.outOfBandDelegate.pairingDidBeginWithCode(pairingRequest.pairingCode);
+            // Send code up to UI, and wait for user response
+            const ack = this.outOfBandDelegate.pairingDidBeginWithRequest(pairingRequest);
+            // Provide hook to abort from client-side
+            abortRequest = ack.abort;
+            return ack.promise;
+          })
+          .then((ackedPairingRequest) => {
             // Respond to client
             res.json({
               status: 'ok',
               data: {
-                pairingRequestId: pairingRequest._id,
-                salt: pairingRequest.salt,
+                pairingRequestId: ackedPairingRequest._id,
+                salt: ackedPairingRequest.salt,
               },
             });
           })

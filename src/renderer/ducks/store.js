@@ -1,7 +1,7 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import { persistStore, autoRehydrate } from 'redux-persist';
 import thunk from 'redux-thunk';
-import logger from './middleware/logger';
+import { logger, pairingObserver } from './middleware';
 import rootReducer from './modules/rootReducer';
 
 export const store = createStore(
@@ -9,7 +9,7 @@ export const store = createStore(
   undefined,
   compose(
     autoRehydrate(),
-    applyMiddleware(thunk, logger),
+    applyMiddleware(thunk, logger, pairingObserver),
     typeof window === 'object' && typeof window.devToolsExtension !== 'undefined'
       ? window.devToolsExtension()
       : f => f,

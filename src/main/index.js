@@ -29,6 +29,10 @@ createServer(8080, userDataDir).then((runningServer) => {
     mainWindow.send(serverEvents.PAIRING_CODE_AVAILABLE, data);
   });
 
+  server.on(serverEvents.PAIRING_TIMED_OUT, () => {
+    mainWindow.send(serverEvents.PAIRING_TIMED_OUT);
+  });
+
   server.on(serverEvents.PAIRING_COMPLETE, (data) => {
     mainWindow.send(serverEvents.PAIRING_COMPLETE, data);
   });

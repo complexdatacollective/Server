@@ -26,6 +26,12 @@ describe('PairingRequest Service', () => {
     });
   });
 
+  it('creates requests with `_id` property', async () => {
+    // DeviceAPI relies on unique _id for mapping observers
+    const req = await reqSvc.createRequest();
+    expect(req._id.length).toBeGreaterThan(8);
+  });
+
   it('verifies an existing request', async () => {
     const req = await reqSvc.createRequest();
     expect(reqSvc.verifyAndExpireRequest(req._id, req.pairingCode)).resolves

@@ -44,6 +44,10 @@ class App extends Component {
       props.newPairingRequest(data.pairingCode);
     });
 
+    ipcRenderer.on('PAIRING_TIMED_OUT', () => {
+      props.dismissPairingRequest();
+    });
+
     ipcRenderer.on('PAIRING_COMPLETE', () => {
       props.completedPairingRequest();
       props.loadDevices();
