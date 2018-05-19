@@ -36,3 +36,7 @@ createServer(8080, userDataDir).then((runningServer) => {
   logger.error(err);
   throw err;
 });
+
+process.on('unhandledRejection', (err) => {
+  logger.error('unhandledRejection:', err);
+});
