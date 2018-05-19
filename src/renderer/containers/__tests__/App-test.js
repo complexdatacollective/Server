@@ -16,6 +16,7 @@ const mockDispatched = {
   newPairingRequest: jest.fn(),
   dismissPairingRequest: jest.fn(),
   dismissAppMessages: jest.fn(),
+  loadDevices: jest.fn(),
 };
 
 describe('<App />', () => {

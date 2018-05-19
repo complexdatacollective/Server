@@ -10,6 +10,7 @@ import ProtocolNav from './ProtocolNav';
 import { AppMessage, TabBar } from '../components';
 import { AnimatedPairPrompt } from '../components/pairing/PairPrompt';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
+import { actionCreators as deviceActionCreators } from '../ducks/modules/devices';
 import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
 
 // This prevents user from being able to drop a file anywhere on the app
@@ -45,6 +46,7 @@ class App extends Component {
 
     ipcRenderer.on('PAIRING_COMPLETE', () => {
       props.completedPairingRequest();
+      props.loadDevices();
     });
 
     this.props.dismissAppMessages();
@@ -88,11 +90,12 @@ class App extends Component {
 
 App.propTypes = {
   ackPairingRequest: PropTypes.func.isRequired,
-  newPairingRequest: PropTypes.func.isRequired,
+  appMessages: PropTypes.array,
   completedPairingRequest: PropTypes.func.isRequired,
   dismissAppMessages: PropTypes.func.isRequired,
   dismissPairingRequest: PropTypes.func.isRequired,
-  appMessages: PropTypes.array,
+  loadDevices: PropTypes.func.isRequired,
+  newPairingRequest: PropTypes.func.isRequired,
   pairingRequest: PropTypes.shape({
     status: PropTypes.string,
   }),
@@ -112,6 +115,7 @@ function mapDispatchToProps(dispatch) {
   return {
     ackPairingRequest: bindActionCreators(actionCreators.acknowledgePairingRequest, dispatch),
     completedPairingRequest: bindActionCreators(actionCreators.completedPairingRequest, dispatch),
+    loadDevices: bindActionCreators(deviceActionCreators.loadDevices, dispatch),
     newPairingRequest: bindActionCreators(actionCreators.newPairingRequest, dispatch),
     dismissPairingRequest: bindActionCreators(actionCreators.dismissPairingRequest, dispatch),
     dismissAppMessages: bindActionCreators(messageActionCreators.dismissAppMessages, dispatch),
