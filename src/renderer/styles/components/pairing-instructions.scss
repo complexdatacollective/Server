@@ -1,0 +1,35 @@
+.pairing-instructions {
+  --icon-height: 2rem;
+
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  line-height: var(--icon-height);
+
+  code {
+    white-space: nowrap;
+  }
+
+  &__section {
+    margin-top: 2rem;
+    width: 80%;
+  }
+
+  &__steps {
+    list-style-type: decimal;
+    text-align: middle;
+  }
+
+  &__step {
+    margin-bottom: 1rem;
+  }
+
+  &__add-icon {
+    &[name='add-a-screen'] {
+      height: var(--icon-height);
+      vertical-align: -11px;
+      width: var(--icon-height);
+    }
+  }
+
+}

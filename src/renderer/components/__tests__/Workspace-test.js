@@ -1,6 +1,6 @@
 /* eslint-env jest */
 import React from 'react';
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import Workspace from '../Workspace';
 
 const mockProtocol = {
@@ -14,9 +14,8 @@ const mockProtocol = {
 };
 
 describe('<Workspace />', () => {
-  it('renders some protocol info', () => {
-    const wrapper = mount(<Workspace protocol={mockProtocol} />);
+  it('renders a protocol name', () => {
+    const wrapper = shallow(<Workspace protocol={mockProtocol} />);
     expect(wrapper.text()).toContain(mockProtocol.name);
-    expect(wrapper.text()).toContain(mockProtocol.version);
   });
 });

@@ -1,17 +1,30 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 
-import { BarChart, CountsWidget, InterviewWidget, LineChart, PieChart, ServerPanel } from '../components';
-import { countsData, interviewData, barData, pieData, lineData } from './dummy_data';
+import { Instructions } from '../components';
+import Types from '../types';
 
-const OverviewScreen = () => (
-  <div className="overview-dashboard">
-    <ServerPanel className="overview-dashboard__panel overview-dashboard__panel--server-stats" />
-    <div className="overview-dashboard__panel"><CountsWidget data={countsData} /></div>
-    <div className="overview-dashboard__panel"><InterviewWidget data={interviewData} /></div>
-    <div className="overview-dashboard__panel"><BarChart data={barData} /></div>
-    <div className="overview-dashboard__panel"><PieChart data={pieData} /></div>
-    <div className="overview-dashboard__panel"><LineChart data={lineData} /></div>
-  </div>
-);
+const OverviewScreen = ({ protocols }) => {
+  if (protocols && protocols.length) {
+    return <Redirect to={`/workspaces/${protocols[0].id}`} />;
+  }
 
-export default OverviewScreen;
+  return <Instructions />;
+};
+
+OverviewScreen.defaultProps = {
+  protocols: null,
+};
+
+OverviewScreen.propTypes = {
+  protocols: Types.protocols,
+};
+
+const mapStateToProps = reduxState => ({
+  protocols: reduxState.protocols,
+});
+
+export default connect(mapStateToProps)(OverviewScreen);
+
+export { OverviewScreen as UnconnectedOverviewScreen };
