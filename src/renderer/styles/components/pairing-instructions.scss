@@ -10,6 +10,12 @@
     white-space: nowrap;
   }
 
+  &__device-status {
+    position: absolute;
+    right: spacing(medium);
+    top: spacing(medium);
+  }
+
   &__section {
     margin-top: 2rem;
     width: 80%;
