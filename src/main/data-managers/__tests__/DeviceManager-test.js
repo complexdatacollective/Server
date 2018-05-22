@@ -12,10 +12,9 @@ describe('the DeviceManager', () => {
     deviceManager.db.remove({}, { multi: true }, done);
   });
 
-  it('creates a new device', (done) => {
-    deviceManager.createDeviceDocument(mockSecretHex)
-      .then(doc => expect(doc).toHaveProperty('_id'))
-      .then(() => done());
+  it('creates a new device', async () => {
+    const doc = await deviceManager.createDeviceDocument(mockSecretHex);
+    expect(doc).toHaveProperty('_id');
   });
 
   it('will not create without a valid secret', async () => {
@@ -29,6 +28,13 @@ describe('the DeviceManager', () => {
     await deviceManager.createDeviceDocument(mockSaltHex, mockSecretHex);
     const devices = await deviceManager.fetchDeviceList();
     expect(devices).toBeInstanceOf(Array);
-    expect(devices.length).toBe(1);
+    expect(devices).toHaveLength(1);
+  });
+
+  it('removes all devices, and returns removed count', async () => {
+    await deviceManager.createDeviceDocument(mockSecretHex);
+    const numRemoved = await deviceManager.destroyAllDevices();
+    expect(numRemoved).toBe(1);
+    expect(await deviceManager.fetchDeviceList()).toHaveLength(0);
   });
 });
