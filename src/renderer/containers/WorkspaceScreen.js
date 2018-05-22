@@ -35,8 +35,8 @@ class WorkspaceScreen extends Component {
   }
 }
 
-const mapStateToProps = reduxState => ({
-  protocol: reduxState.protocol,
+const mapStateToProps = ({ protocol }) => ({
+  protocol,
 });
 
 const mapDispatchToProps = dispatch => ({
