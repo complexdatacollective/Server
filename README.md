@@ -47,6 +47,10 @@ Run `npm run` for a list of all available commands.
 
 ## Dependencies
 
+### Node.js Version
+
+This project currently requires Node.js `8.9.3` to match the version used by Electron.
+
 ### [MDNS](https://www.npmjs.com/package/mdns)
 
 MDNS is used to advertise services to Network Canvas clients. On Windows and Linux, you'll need to install some dependencies first — see the [mdns installation instructions](https://www.npmjs.com/package/mdns#installation).
