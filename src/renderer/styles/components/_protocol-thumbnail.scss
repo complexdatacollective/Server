@@ -1,21 +1,27 @@
 .protocol-thumbnail {
+  $protocol-border-highlight: rgba(255, 255, 255, .15);
+  $protocol-border-transparent: rgba(255, 255, 255, 0);
+
+  --border-highlight: $protocol-border-highlight;
+  --border-transparent: $protocol-border-transparent;
+  --border-width: 6px;
   --thumbnail-size: calc(var(--app-sidebar-width) * .6);
-  --tooltip-bg-color: var(--recessed-background-color);
-  --tooltip-border-color: var(--text-dark);
-  --tooltip-callout-width: 1.2rem;
-  --tooltip-color: var(--text-dark);
 
   background-color: var(--color-cyber-grape);
+  border: var(--border-width) solid var(--border-transparent);
   border-radius: .5rem;
-  cursor: help;
+  color: var(--color-white);
   display: block;
   font-size: 2rem;
   height: var(--thumbnail-size);
-  line-height: var(--thumbnail-size);
+  line-height: calc(var(--thumbnail-size) - var(--border-width));
   margin: spacing('medium') auto;
   overflow: visible;
   position: relative;
   text-align: center;
+  text-decoration: none;
+  transition-duration: var(--animation-duration-fast);
+  transition-property: border-color, background-color;
   vertical-align: middle;
   width: var(--thumbnail-size);
 
@@ -25,7 +31,7 @@
 
   @include modifier(add) {
     background: transparent center / 50% no-repeat url('../images/plus.png');
-    border: 6px solid var(--color-cyber-grape);
+    border: var(--border-width) solid var(--color-cyber-grape);
     cursor: pointer;
 
     &:hover {
@@ -33,46 +39,7 @@
     }
   }
 
-  @include element(details) {
-    background-color: var(--tooltip-bg-color);
-    border: 1px solid var(--tooltip-border-color);
-    color: var(--tooltip-color);
-    display: none;
-    font-size: .8rem;
-    font-weight: normal;
-    height: auto;
-    left: calc(1 * var(--thumbnail-size) + var(--tooltip-callout-width));
-    line-height: $base-line-height;
-    padding: spacing(medium);
-    position: absolute;
-    text-align: left;
-    top: calc(-.5 * var(--tooltip-callout-width));
-    width: 20rem;
-    z-index: var(--z-index-protocol-tooltip);
-
-    @include element(prop) {
-      clear: left;
-      float: left;
-    }
-
-    @include element(val) {
-      float: left;
-      margin-left: 1rem;
-    }
-
-    @include modifier(active) {
-      display: block;
-
-      &::before {
-        content: '';
-        width: 0;
-        height: 0;
-        border-bottom: var(--tooltip-callout-width) solid transparent;
-        border-right: var(--tooltip-callout-width) solid var(--tooltip-bg-color);
-        border-top: var(--tooltip-callout-width) solid transparent;
-        position: absolute;
-        left: calc(-1 * var(--tooltip-callout-width));
-      }
-    }
+  &:hover {
+    border-color: var(--border-highlight);
   }
 }

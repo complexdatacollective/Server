@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Icon } from 'network-canvas-ui/lib/components';
+import { Button, Icon } from '../../ui/components';
 
 import SlideDown from '../transitions/SlideDown';
 

@@ -17,7 +17,7 @@
     "build": "node scripts/build.js",
     "server:dev": "NODE_ENV=development node ./scripts/server-starter",
     "lint": "eslint src",
-    "lint-sass": "sass-lint -vc .sass-lint.yml",
+    "sass-lint": "sass-lint -vc .sass-lint.yml",
     "test": "node scripts/test.js --env=jsdom",
     "test-update-snapshots": "node scripts/test.js --env=jsdom --updateSnapshot",
     "build-docs": "jsdoc src -r -d docs -c ./jsdoc.conf.json --verbose --readme ./README.md",
@@ -77,7 +77,6 @@
     "jsdoc": "^3.4.3",
     "jsdoc-babel": "^0.3.0",
     "json-loader": "^0.5.7",
-    "network-canvas-ui": "git+https://git@github.com/codaco/Network-Canvas-UI.git#1.13.3",
     "node-sass": "^4.5.2",
     "postcss-loader": "^2.1.1",
     "promise": "7.1.1",
@@ -137,7 +136,9 @@
   "homepage": ".",
   "jest": {
     "collectCoverageFrom": [
-      "src/**/*.{js,jsx}"
+      "src/**/*.{js,jsx}",
+      "!**/src/renderer/ui/**",
+      "!**/dummy_data.js"
     ],
     "modulePathIgnorePatterns": [
       "electron-dev/"

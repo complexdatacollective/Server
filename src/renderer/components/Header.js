@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
-import { Icon } from 'network-canvas-ui/lib/components';
+import { Icon } from '../ui/components';
 
 const Header = ({ title }) => (
   <header className="header">

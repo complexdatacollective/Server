@@ -7,9 +7,10 @@ import { withRouter } from 'react-router-dom';
 
 import AppRoutes from './AppRoutes';
 import ProtocolNav from './ProtocolNav';
-import { AppMessage, TabBar } from '../components';
+import { AppMessage } from '../components';
 import { AnimatedPairPrompt } from '../components/pairing/PairPrompt';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
+import { actionCreators as deviceActionCreators } from '../ducks/modules/devices';
 import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
 
 // This prevents user from being able to drop a file anywhere on the app
@@ -43,8 +44,13 @@ class App extends Component {
       props.newPairingRequest(data.pairingCode);
     });
 
+    ipcRenderer.on('PAIRING_TIMED_OUT', () => {
+      props.dismissPairingRequest();
+    });
+
     ipcRenderer.on('PAIRING_COMPLETE', () => {
       props.completedPairingRequest();
+      props.loadDevices();
     });
 
     this.props.dismissAppMessages();
@@ -58,7 +64,6 @@ class App extends Component {
       appMessages,
       pairingRequest,
     } = this.props;
-
     return (
       <div className="app">
         <div role="Button" tabIndex="0" className="app__flash" onClick={dismissAppMessages}>
@@ -71,13 +76,11 @@ class App extends Component {
             onDismiss={dismissPairingRequest}
           />
         }
+        <div className="app__titlebar" />
         <div className="app__content">
           <ProtocolNav className="app__sidebar" />
           <div className="app__screen">
-            <TabBar />
-            <main className="app__main">
-              <AppRoutes />
-            </main>
+            <AppRoutes />
           </div>
         </div>
       </div>
@@ -87,11 +90,12 @@ class App extends Component {
 
 App.propTypes = {
   ackPairingRequest: PropTypes.func.isRequired,
-  newPairingRequest: PropTypes.func.isRequired,
+  appMessages: PropTypes.array,
   completedPairingRequest: PropTypes.func.isRequired,
   dismissAppMessages: PropTypes.func.isRequired,
   dismissPairingRequest: PropTypes.func.isRequired,
-  appMessages: PropTypes.array,
+  loadDevices: PropTypes.func.isRequired,
+  newPairingRequest: PropTypes.func.isRequired,
   pairingRequest: PropTypes.shape({
     status: PropTypes.string,
   }),
@@ -111,6 +115,7 @@ function mapDispatchToProps(dispatch) {
   return {
     ackPairingRequest: bindActionCreators(actionCreators.acknowledgePairingRequest, dispatch),
     completedPairingRequest: bindActionCreators(actionCreators.completedPairingRequest, dispatch),
+    loadDevices: bindActionCreators(deviceActionCreators.loadDevices, dispatch),
     newPairingRequest: bindActionCreators(actionCreators.newPairingRequest, dispatch),
     dismissPairingRequest: bindActionCreators(actionCreators.dismissPairingRequest, dispatch),
     dismissAppMessages: bindActionCreators(messageActionCreators.dismissAppMessages, dispatch),

@@ -31,15 +31,18 @@ describe('the DeviceAPI', () => {
       const invalidDelegate = {};
       new DeviceAPI(dataDir, invalidDelegate); // eslint-disable-line no-new
       expect(global.console.error).toHaveBeenCalledTimes(2);
-      expect(global.console.error).toHaveBeenCalledWith(expect.stringContaining('pairingDidBeginWithCode'));
+      expect(global.console.error).toHaveBeenCalledWith(expect.stringContaining('pairingDidBeginWithRequest'));
       expect(global.console.error).toHaveBeenCalledWith(expect.stringContaining('pairingDidComplete'));
     });
   });
 
   describe('interface', () => {
+    const mockRequestDbEntry = { _id: '123', salt: 'abc' };
     let deviceApi;
     const mockDelegate = new OutOfBandDelegate({
-      pairingDidBeginWithCode: jest.fn(),
+      pairingDidBeginWithRequest: jest.fn().mockReturnValue({
+        promise: Promise.resolve(mockRequestDbEntry),
+      }),
       pairingDidComplete: jest.fn(),
     });
 
@@ -53,9 +56,8 @@ describe('the DeviceAPI', () => {
     });
 
     describe('GET /devices/new', () => {
-      const mockRequestDbEntry = { _id: '123', salt: 'abc' };
       beforeEach(() => {
-        deviceApi.requestService.createRequest.mockReturnValue(Promise.resolve(mockRequestDbEntry));
+        deviceApi.requestService.createRequest.mockResolvedValue(mockRequestDbEntry);
       });
 
       it('responds to a client pairing request', async () => {

@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'network-canvas-ui/lib/components';
+import { Button } from '../ui/components';
 
 import { Modal as ModalTransition } from '../components/transitions';
 

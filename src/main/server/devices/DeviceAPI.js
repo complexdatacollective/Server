@@ -11,7 +11,8 @@ const DeviceManager = require('../../data-managers/DeviceManager');
 const ProtocolManager = require('../../data-managers/ProtocolManager');
 const { PairingRequestService } = require('./PairingRequestService');
 const { RequestError } = require('../../errors/RequestError');
-const { encrypt } = require('../../utils/cipher');
+const { IncompletePairingError } = require('../../errors/IncompletePairingError');
+const { encrypt } = require('../../utils/shared-api/cipher');
 
 // TODO: remove dupe from Server
 const lanIP = () => {
@@ -22,7 +23,7 @@ const lanIP = () => {
 };
 
 const ApiName = 'DevciceAPI';
-const ApiVersion = '0.0.3';
+const ApiVersion = '0.0.4';
 const ApiHostName = '0.0.0.0'; // IPv4 for compatibility with Travis (& unknown installations)
 
 const Schema = {
@@ -38,12 +39,17 @@ const Schema = {
    *         example: a692d57c-ab0f-4aa4-8e52-565a585990da
    *       salt:
    *         type: string
-   *         example: a866b6e85b17caa294093ef3454da1b0
    *         description: 32-byte hex
+   *         example: a866b6e85b17caa294093ef3454da1b0
+   *       name:
+   *         type: string
+   *         description: Name provided by the device during pairing confirmation
+   *         example: Nexus 7 Tablet
    */
   device: device => ({
     id: device._id,
     salt: device.salt,
+    name: device.name,
   }),
 
   /**
@@ -87,6 +93,11 @@ const Schema = {
    *         type: string
    *         description: alphanumeric code entered by the user
    *         example: u8jz1M85JRAB
+   *       deviceName:
+   *         required: false
+   *         type: string
+   *         description: A short, user-friendly description of the client device
+   *         example: Nexus 7 Tablet
    */
 };
 
@@ -108,12 +119,12 @@ const PairingThrottleSettings = {
 class OutOfBandDelegate {
   static get propTypes() {
     return ({
-      pairingDidBeginWithCode: PropTypes.func.isRequired,
+      pairingDidBeginWithRequest: PropTypes.func.isRequired,
       pairingDidComplete: PropTypes.func.isRequired,
     });
   }
-  constructor({ pairingDidBeginWithCode, pairingDidComplete }) {
-    this.pairingDidBeginWithCode = pairingDidBeginWithCode;
+  constructor({ pairingDidBeginWithRequest, pairingDidComplete }) {
+    this.pairingDidBeginWithRequest = pairingDidBeginWithRequest;
     this.pairingDidComplete = pairingDidComplete;
   }
 }
@@ -181,7 +192,10 @@ class DeviceAPI {
      *     description: Pairing Step 1.
      *         Generate a new pairing request.
      *         Responds with the request ID, and presents a pairing passcode to user (out of band).
-     *         This information can be used to complete the pairing (create a device)
+     *         This information can be used to complete the pairing (create a device).
+     *
+     *         A response is not sent until the user takes action (via the GUI), or the request
+     *         times out; the connection is intended to be open for an extended period of time.
      *     responses:
      *       200:
      *         description: Information needed to complete the pairing request
@@ -224,17 +238,16 @@ class DeviceAPI {
      *         schema:
      *           type: object
      *           properties:
-     *             nonce:
-     *               required: true
-     *               type: string
-     *               format: hexadecimal
-     *               description: 48-byte nonce (not re-used) chosen by the client
      *             message:
      *               required: true
      *               type: string
      *               format: hexadecimal
      *               description: |
      *                 The nonce + message payload, encrypted with a client-generated secret.
+     *
+     *                 This message is a hex encoding of the concatenation of two byte arrays:
+     *                 1. Nonce: a 24-byte nonce (not re-used) chosen by the client
+     *                 2. Ciphertext: the message, encrypted with secret key and nonce.
      *
      *                 For the message format before encryption, see
      *                 [DecryptedPairingConfirmationRequest](#/definitions/DecryptedPairingConfirmationRequest).
@@ -248,15 +261,23 @@ class DeviceAPI {
      *
      *     responses:
      *       200:
-     *         description: a new Device
+     *         description: new Device information (encrypted)
      *         schema:
      *           type: object
      *           properties:
      *             status:
      *               type: string
      *               example: ok
-     *             data:
-     *               $ref: '#/definitions/Device'
+     *             message:
+     *               required: true
+     *               type: string
+     *               format: hexadecimal
+     *               description: |
+     *                 The nonce + message payload.
+     *
+     *                 As in the request, the message is a hex encoding of nonce + ciphertext.
+     *
+     *                 For the message format after decryption, see [Device](#/definitions/Device).
      *       400:
      *         description: request error
      *         schema:
@@ -335,25 +356,41 @@ class DeviceAPI {
        */
       // Secondary handler for error cases in req/res chain
       onError: (err, res) => {
+        const body = { status: 'error', message: err.message || 'Unknown Server Error' };
+        let statusCode;
         if (err instanceof RequestError) {
-          res.json(400, { status: 'error', message: err.message });
+          statusCode = 400;
+        } else if (err instanceof IncompletePairingError) {
+          // TODO: review; 5xx is probably correct, but weird bc of user involvement
+          statusCode = 400;
         } else {
           logger.error(err);
-          res.json(500, { status: 'error', message: 'Unknown Server Error' });
+          statusCode = 500;
         }
+        res.json(err.statusCode || statusCode, body);
       },
 
       onPairingRequest: (req, res, next) => {
+        let abortRequest;
+        req.on('aborted', () => {
+          if (abortRequest) { abortRequest(); }
+        });
+
         this.requestService.createRequest()
           .then((pairingRequest) => {
-            // Send code up to UI
-            this.outOfBandDelegate.pairingDidBeginWithCode(pairingRequest.pairingCode);
+            // Send code up to UI, and wait for user response
+            const ack = this.outOfBandDelegate.pairingDidBeginWithRequest(pairingRequest);
+            // Provide hook to abort from client-side
+            abortRequest = ack.abort;
+            return ack.promise;
+          })
+          .then((ackedPairingRequest) => {
             // Respond to client
             res.json({
               status: 'ok',
               data: {
-                pairingRequestId: pairingRequest._id,
-                salt: pairingRequest.salt,
+                pairingRequestId: ackedPairingRequest._id,
+                salt: ackedPairingRequest.salt,
               },
             });
           })
@@ -364,7 +401,12 @@ class DeviceAPI {
       onPairingConfirm: (req, res, next) => {
         const encryptedMsg = req.body && req.body.message;
         this.requestService.verifyAndExpireEncryptedRequest(encryptedMsg)
-          .then(pairingRequest => this.deviceManager.createDeviceDocument(pairingRequest.secretKey))
+          .then(pairingRequest => (
+            this.deviceManager.createDeviceDocument(
+              pairingRequest.secretKey,
+              pairingRequest.deviceName,
+            )
+          ))
           .then((device) => {
             // TODO: if responding with error, surface error instead of complete
             this.outOfBandDelegate.pairingDidComplete();

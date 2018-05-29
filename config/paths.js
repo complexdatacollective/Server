@@ -48,6 +48,7 @@ module.exports = {
   appPackageJson: resolveApp('package.json'),
   appSrc: resolveApp('src'),
   config: resolveApp('config'),
+  lib: resolveApp('lib'),
   electronDev: resolveApp('electron-dev'),
   yarnLockFile: resolveApp('yarn.lock'),
   testsSetup: resolveApp('src/setupTests.js'),

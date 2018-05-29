@@ -7,7 +7,7 @@ import { Provider } from 'react-redux';
 
 import { UnconnectedApp as App } from '../App';
 
-jest.mock('../ProtocolNav');
+jest.mock('../ProtocolNav', () => 'mock-protocol-nav');
 jest.mock('../DeviceStatus');
 
 const mockDispatched = {
@@ -16,6 +16,7 @@ const mockDispatched = {
   newPairingRequest: jest.fn(),
   dismissPairingRequest: jest.fn(),
   dismissAppMessages: jest.fn(),
+  loadDevices: jest.fn(),
 };
 
 describe('<App />', () => {

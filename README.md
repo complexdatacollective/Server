@@ -27,10 +27,12 @@ The actual HTTP/Sockets server runs in a fork managed by the main process.
 The main process itself acts a go-between for the UI and the server process.
 
 ## Installation
+
 This repository assumes that `npm` is installed. If you don't have it installed, here are [installation instructions](https://docs.npmjs.com/getting-started/installing-node).
 
 1. Clone this repo.
 2. Go into the repo directory
+3. Initialize submodules: `git submodule update --init`
 
 |`npm run <script>`|Description|
 |------------------|-----------|
@@ -41,7 +43,13 @@ This repository assumes that `npm` is installed. If you don't have it installed,
 |`build-docs`|Builds HTML API docs into the docs-build directory.|
 |`electron`|Runs the current code in electron, for testing.|
 
+Run `npm run` for a list of all available commands.
+
 ## Dependencies
+
+### Node.js Version
+
+This project currently requires Node.js `8.9.3` to match the version used by Electron.
 
 ### [MDNS](https://www.npmjs.com/package/mdns)
 

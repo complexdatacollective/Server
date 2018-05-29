@@ -1,8 +1,4 @@
 .device {
-  background: left center / contain no-repeat url('../images/devices.png');
-  margin-bottom: spacing('medium');
-  padding-left: 5rem;
-
   @include element(name) {
     margin-bottom: spacing('tiny');
   }

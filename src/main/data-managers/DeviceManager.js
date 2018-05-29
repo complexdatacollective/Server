@@ -6,10 +6,9 @@ const uuidv4 = require('uuid/v4');
 
 const DeviceDbName = 'devices.db';
 
-// TODO: No longer needed except for demo: name is placeholder.
-const publicMapper = dbDevice => ({
-  ...dbDevice,
+const withDefaultName = dbDevice => ({
   name: `Device ${dbDevice._id.substr(0, 6)}`,
+  ...dbDevice,
 });
 
 class DeviceManager {
@@ -42,7 +41,7 @@ class DeviceManager {
 
   // TODO: see notes in cipher.js; may want to persist derivation config per-device.
   // TODO: Validate format/lengths. Require arg names for clarity?
-  createDeviceDocument(secretHex) {
+  createDeviceDocument(secretHex, deviceName) {
     return new Promise((resolve, reject) => {
       if (!secretHex) {
         reject(new Error('Invalid input'));
@@ -50,6 +49,7 @@ class DeviceManager {
       }
       this.db.insert({
         secretKey: secretHex,
+        name: deviceName,
         _id: uuidv4(),
       }, (err, doc) => {
         if (err || !doc) {
@@ -63,11 +63,24 @@ class DeviceManager {
 
   fetchDeviceList() {
     return new Promise((resolve, reject) => {
-      this.db.find({}, (err, docs) => {
+      this.db.find({}).sort({ createdAt: -1 }).exec((err, docs) => {
         if (err) {
           reject(err);
         } else {
-          resolve(docs.map(publicMapper));
+          resolve(docs.map(withDefaultName));
+        }
+      });
+    });
+  }
+
+  // TODO: Probably remove after alpha testing
+  destroyAllDevices() {
+    return new Promise((resolve, reject) => {
+      this.db.remove({}, { multi: true }, (err, numRemoved) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(numRemoved);
         }
       });
     });

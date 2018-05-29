@@ -180,6 +180,46 @@ class ProtocolManager {
     return this.db.all();
   }
 
+  // TODO: Probably remove after alpha testing
+  destroyAllProtocols() {
+    return new Promise((resolve, reject) => {
+      this.allProtocols()
+        .then(protocols => protocols.map(p => this.destroyProtocol(p)))
+        .then(promises => resolve(Promise.all(promises)))
+        .catch((err) => {
+          logger.error(err);
+          reject(err);
+        });
+    });
+  }
+
+  destroyProtocol(protocol, ensureFileDeleted = false) {
+    logger.debug('destroying protocol', protocol);
+    return new Promise((resolve, reject) => {
+      const filePath = path.join(this.protocolDir, protocol.filename);
+      fs.unlink(filePath, (fileErr) => {
+        if (fileErr && ensureFileDeleted) { reject(fileErr); }
+        this.db.destroy(protocol)
+          .then(() => resolve(true))
+          .catch((dbErr) => {
+            logger.error(dbErr);
+            reject(dbErr);
+          });
+      });
+    });
+  }
+
+  /**
+   * Get a protocol by id
+   * @async
+   * @param {string} filename base name of file
+   * @return {Object} persisted protocol data
+   * @throws {Error}
+   */
+  getProtocol(id) {
+    return this.db.get(id);
+  }
+
   /**
    * Get the raw contents of saved protocol as a Buffer
    * @async

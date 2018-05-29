@@ -3,6 +3,18 @@
   flex-direction: column;
   height: 100%;
 
+  @include element(titlebar) {
+    -webkit-app-region: drag; // sass-lint:disable-line no-vendor-prefixes
+    display: block;
+    height: var(--app-titlebar-height);
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    visibility: visible;
+    width: 100%;
+  }
+
   // everything below the header
   @include element(content) {
     display: flex;

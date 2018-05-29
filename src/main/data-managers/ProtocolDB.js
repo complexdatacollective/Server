@@ -1,3 +1,5 @@
+/* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
+
 const NeDB = require('nedb');
 const crypto = require('crypto');
 const logger = require('electron-log');
@@ -88,7 +90,7 @@ class ProtocolDB {
    */
   all() {
     return new Promise((resolve, reject) => {
-      this.db.find({}, (err, docs) => {
+      this.db.find({}).sort({ createdAt: -1 }).exec((err, docs) => {
         if (err) {
           reject(err);
         } else {
@@ -96,6 +98,56 @@ class ProtocolDB {
         }
       });
     });
+  }
+
+  /**
+   * Delete a protocol with the given ID
+   * @async
+   * @param {Object} protocol
+   * @return {number} 1 if successful; 0 if unsuccessful
+   * @throws {Error} If a DB error occurred
+   */
+  destroy(protocol) {
+    return new Promise((resolve, reject) => {
+      if (!protocol._id) { reject(new Error('Cannot delete protocol without an id')); }
+      this.db.remove({ _id: protocol._id }, { multi: false }, (err, numRemoved) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(numRemoved);
+        }
+      });
+    });
+  }
+
+  /**
+   * Get the first protocol matching the query
+   * @async
+   * @param {Object} query
+   * @return {Object} a persisted protocol
+   * @throws {Error}
+   */
+  first(query) {
+    return new Promise((resolve, reject) => {
+      this.db.findOne(query, (err, doc) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(doc);
+        }
+      });
+    });
+  }
+
+  /**
+   * Get the protocol matching ID
+   * @async
+   * @param {Object} id
+   * @return {Object} a persisted protocol
+   * @throws {Error}
+   */
+  get(id) {
+    return this.first({ _id: id });
   }
 }
 

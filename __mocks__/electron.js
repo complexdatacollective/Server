@@ -11,6 +11,7 @@ const ipcRenderer = {
 
 const ipcMain = {
   on: jest.fn(),
+  once: jest.fn(),
 };
 
 const app = {

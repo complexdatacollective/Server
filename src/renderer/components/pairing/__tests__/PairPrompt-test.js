@@ -1,7 +1,7 @@
 /* eslint-env jest */
 import React from 'react';
 import { mount, shallow } from 'enzyme';
-import { Button } from 'network-canvas-ui/lib/components';
+import { Button } from '../../../ui/components';
 
 import PairPrompt from '../PairPrompt';
 

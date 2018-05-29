@@ -5,7 +5,7 @@ const { PairingRequestService } = require('../PairingRequestService');
 const { RequestError } = require('../../../errors/RequestError');
 
 jest.mock('electron-log');
-jest.mock('../../../utils/cipher');
+jest.mock('../../../utils/shared-api/cipher');
 
 describe('PairingRequest Service', () => {
   let reqSvc;
@@ -24,6 +24,12 @@ describe('PairingRequest Service', () => {
           });
         });
     });
+  });
+
+  it('creates requests with `_id` property', async () => {
+    // DeviceAPI relies on unique _id for mapping observers
+    const req = await reqSvc.createRequest();
+    expect(req._id.length).toBeGreaterThan(8);
   });
 
   it('verifies an existing request', async () => {

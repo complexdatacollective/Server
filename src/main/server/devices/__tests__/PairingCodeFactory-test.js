@@ -2,9 +2,11 @@
 
 const Factory = require('../PairingCodeFactory');
 
+const { PairingCodeLength } = require('../../../utils/shared-api/pairingCodeConfig');
+
 describe('the PairingCodeFactory', () => {
   it('can generate a pairing code', async () => {
     const code = await Factory.generatePairingCodeAsync();
-    expect(code).toEqual(expect.any(String));
+    expect(code).toMatch(new RegExp(`[a-z]{${PairingCodeLength}}`));
   });
 });
