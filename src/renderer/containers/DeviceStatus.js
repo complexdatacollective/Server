@@ -22,10 +22,14 @@ class DeviceStatus extends Component {
   }
 
   render() {
-    const { devices } = this.props;
+    const { dark, devices } = this.props;
+    let buttonClass = 'device-icon';
+    if (dark) {
+      buttonClass += ` ${buttonClass}--dark`;
+    }
     return (
       <React.Fragment>
-        <button className="device-icon" onClick={this.toggleShow}>
+        <button className={buttonClass} onClick={this.toggleShow}>
           <span className="device-icon__badge">
             {devices.length}
           </span>
@@ -41,11 +45,13 @@ class DeviceStatus extends Component {
 }
 
 DeviceStatus.defaultProps = {
+  dark: false,
   devices: [],
   loadDevices: () => {},
 };
 
 DeviceStatus.propTypes = {
+  dark: PropTypes.bool,
   devices: Types.devices,
   loadDevices: PropTypes.func,
 };

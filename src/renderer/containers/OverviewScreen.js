@@ -1,17 +1,47 @@
-import React from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 
-import { BarChart, CountsWidget, InterviewWidget, LineChart, PieChart, ServerPanel } from '../components';
-import { countsData, interviewData, barData, pieData, lineData } from './dummy_data';
+import Types from '../types';
+import { Instructions } from '../components';
+import { actionCreators } from '../ducks/modules/devices';
 
-const OverviewScreen = () => (
-  <div className="overview-dashboard">
-    <ServerPanel className="overview-dashboard__panel overview-dashboard__panel--server-stats" />
-    <div className="overview-dashboard__panel"><CountsWidget data={countsData} /></div>
-    <div className="overview-dashboard__panel"><InterviewWidget data={interviewData} /></div>
-    <div className="overview-dashboard__panel"><BarChart data={barData} /></div>
-    <div className="overview-dashboard__panel"><PieChart data={pieData} /></div>
-    <div className="overview-dashboard__panel"><LineChart data={lineData} /></div>
-  </div>
-);
+class OverviewScreen extends Component {
+  componentDidMount() {
+    this.props.loadDevices();
+  }
 
-export default OverviewScreen;
+  render() {
+    const { devices, protocols } = this.props;
+    if (protocols && protocols.length) {
+      return <Redirect to={`/workspaces/${protocols[0].id}`} />;
+    }
+    return <Instructions devices={devices} />;
+  }
+}
+
+OverviewScreen.defaultProps = {
+  devices: null,
+  protocols: null,
+};
+
+OverviewScreen.propTypes = {
+  devices: Types.devices,
+  loadDevices: PropTypes.func.isRequired,
+  protocols: Types.protocols,
+};
+
+const mapStateToProps = ({ devices, protocols }) => ({
+  devices,
+  protocols,
+});
+
+const mapDispatchToProps = dispatch => ({
+  loadDevices: bindActionCreators(actionCreators.loadDevices, dispatch),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(OverviewScreen);
+
+export { OverviewScreen as UnconnectedOverviewScreen };

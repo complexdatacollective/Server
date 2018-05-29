@@ -7,7 +7,7 @@ import { withRouter } from 'react-router-dom';
 
 import AppRoutes from './AppRoutes';
 import ProtocolNav from './ProtocolNav';
-import { AppMessage, TabBar } from '../components';
+import { AppMessage } from '../components';
 import { AnimatedPairPrompt } from '../components/pairing/PairPrompt';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
 import { actionCreators as deviceActionCreators } from '../ducks/modules/devices';
@@ -64,7 +64,6 @@ class App extends Component {
       appMessages,
       pairingRequest,
     } = this.props;
-
     return (
       <div className="app">
         <div role="Button" tabIndex="0" className="app__flash" onClick={dismissAppMessages}>
@@ -81,10 +80,7 @@ class App extends Component {
         <div className="app__content">
           <ProtocolNav className="app__sidebar" />
           <div className="app__screen">
-            <TabBar />
-            <main className="app__main">
-              <AppRoutes />
-            </main>
+            <AppRoutes />
           </div>
         </div>
       </div>

@@ -1,11 +1,12 @@
 /* eslint-env jest */
 import React from 'react';
 import { shallow } from 'enzyme';
-import TabBar from '../TabBar';
+import { UnconnectedTabBar as TabBar } from '../TabBar';
 
 describe('<TabBar />', () => {
   it('renders links to main pages', () => {
-    const wrapper = shallow(<TabBar />);
+    const mockMatch = { params: { id: '1' } };
+    const wrapper = shallow(<TabBar match={mockMatch} />);
     const links = wrapper.find('NavLink');
     expect(links).toHaveLength(2);
 

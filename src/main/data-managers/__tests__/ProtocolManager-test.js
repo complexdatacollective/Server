@@ -14,11 +14,11 @@ jest.mock('../ProtocolDB');
 describe('ProtocolManager', () => {
   const mockFileContents = new Buffer([]);
   const errorMessages = ProtocolManager.ErrorMessages;
-  let importer;
+  let manager;
   let invalidFileErr;
 
   beforeEach(() => {
-    importer = new ProtocolManager('.');
+    manager = new ProtocolManager('.');
     invalidFileErr = expect.objectContaining({ message: errorMessages.InvalidFile });
   });
 
@@ -26,62 +26,62 @@ describe('ProtocolManager', () => {
     const mockFileList = ['a.netcanvas'];
 
     it('presents a dialog', () => {
-      importer.presentImportDialog();
+      manager.presentImportDialog();
       expect(dialog.showOpenDialog).toHaveBeenCalled();
     });
 
     it('allows an import via the open dialog', (done) => {
       const simulateChooseFile = (opts, callback) => {
         callback(mockFileList);
-        expect(importer.validateAndImport).toHaveBeenCalled();
+        expect(manager.validateAndImport).toHaveBeenCalled();
         done();
       };
-      importer.validateAndImport = jest.fn().mockReturnValue(Promise.resolve(mockFileList));
+      manager.validateAndImport = jest.fn().mockReturnValue(Promise.resolve(mockFileList));
       dialog.showOpenDialog.mockImplementation(simulateChooseFile);
-      importer.presentImportDialog();
+      manager.presentImportDialog();
     });
 
     it('allows dialog to be cancelled', (done) => {
       expect.assertions(1);
       const simulateChooseNothing = (opts, callback) => {
         callback();
-        expect(importer.validateAndImport).not.toHaveBeenCalled();
+        expect(manager.validateAndImport).not.toHaveBeenCalled();
         done();
       };
-      importer.validateAndImport = jest.fn();
+      manager.validateAndImport = jest.fn();
       dialog.showOpenDialog.mockImplementation(simulateChooseNothing);
-      importer.presentImportDialog();
+      manager.presentImportDialog();
     });
   });
 
   describe('import interface', () => {
     it('requires files to import', async () => {
       const emptyErr = expect.objectContaining({ message: errorMessages.EmptyFilelist });
-      await expect(importer.validateAndImport()).rejects.toEqual(emptyErr);
+      await expect(manager.validateAndImport()).rejects.toEqual(emptyErr);
     });
 
     it('makes a directory if needed', () => {
-      importer.validateAndImport(['foo.netcanvas']);
-      expect(fs.mkdir).toHaveBeenCalledWith(importer.protocolDir, expect.any(Function));
+      manager.validateAndImport(['foo.netcanvas']);
+      expect(fs.mkdir).toHaveBeenCalledWith(manager.protocolDir, expect.any(Function));
     });
 
     describe('with a valid directory', () => {
       beforeEach(() => {
-        importer.ensureDataDir = jest.fn(() => Promise.resolve());
+        manager.ensureDataDir = jest.fn(() => Promise.resolve());
       });
 
       it('requires a valid file extension', async () => {
-        await expect(importer.validateAndImport(['file.unknownextension'])).rejects.toEqual(invalidFileErr);
+        await expect(manager.validateAndImport(['file.unknownextension'])).rejects.toEqual(invalidFileErr);
       });
 
       it('imports & promises each file', async () => {
-        importer.importFile = jest.fn(infile => `copy-${infile}`);
-        importer.postProcessFile = jest.fn(filename => Promise.resolve(filename));
+        manager.importFile = jest.fn(infile => `copy-${infile}`);
+        manager.postProcessFile = jest.fn(filename => Promise.resolve(filename));
         const mockFiles = ['a.netcanvas', 'b.netcanvas', 'c.netcanvas'];
-        const results = await importer.validateAndImport(mockFiles);
+        const results = await manager.validateAndImport(mockFiles);
         expect(results).toHaveLength(3);
         expect(results[0]).toMatch(mockFiles[0]);
-        expect(importer.importFile).toHaveBeenCalledTimes(3);
+        expect(manager.importFile).toHaveBeenCalledTimes(3);
       });
 
       // TBD what we want to do here...
@@ -108,7 +108,7 @@ describe('ProtocolManager', () => {
         });
 
         it('resolves with the directory', async () => {
-          await expect(importer.ensureDataDir()).resolves.toMatch(importer.protocolDir);
+          await expect(manager.ensureDataDir()).resolves.toMatch(manager.protocolDir);
         });
       });
 
@@ -118,7 +118,7 @@ describe('ProtocolManager', () => {
         });
 
         it('rejects', async () => {
-          await expect(importer.ensureDataDir()).rejects.toMatchObject(existErr);
+          await expect(manager.ensureDataDir()).rejects.toMatchObject(existErr);
         });
       });
     });
@@ -126,42 +126,42 @@ describe('ProtocolManager', () => {
 
   describe('file handling', () => {
     it('uses fs to copy a file', () => {
-      importer.importFile('foo.netcanvas');
+      manager.importFile('foo.netcanvas');
       expect(fs.copyFile)
         .toHaveBeenCalledWith('foo.netcanvas', expect.stringMatching(/foo\.netcanvas/), expect.any(Function));
     });
 
     it('requires a filename', async () => {
-      await expect(importer.importFile()).rejects.toEqual(invalidFileErr);
+      await expect(manager.importFile()).rejects.toEqual(invalidFileErr);
     });
 
     it('resolves with the destination filename', async () => {
       fs.copyFile.mockImplementation((src, dest, cb) => { cb(); });
-      await expect(importer.importFile('foo.netcanvas')).resolves.toMatch(/foo/);
+      await expect(manager.importFile('foo.netcanvas')).resolves.toMatch(/foo/);
     });
 
     it('rejects on failure', async () => {
       const err = new Error('Mock error');
       fs.copyFile.mockImplementation((src, dest, cb) => { cb(err); });
-      await expect(importer.importFile('foo.netcanvas')).rejects.toEqual(err);
+      await expect(manager.importFile('foo.netcanvas')).rejects.toEqual(err);
     });
 
     it('uses fs to find existing files', async () => {
       const mockFiles = [{ filename: 'a.netcanvas' }];
-      importer.db.all.mockReturnValue(Promise.resolve(mockFiles));
-      await expect(importer.allProtocols())
+      manager.db.all.mockReturnValue(Promise.resolve(mockFiles));
+      await expect(manager.allProtocols())
         .resolves.toContainEqual(expect.objectContaining(mockFiles[0]));
     });
   });
 
   describe('fileContents', () => {
     it('rejects on missing input', async () => {
-      await expect(importer.fileContents()).rejects.toMatchObject(invalidFileErr);
+      await expect(manager.fileContents()).rejects.toMatchObject(invalidFileErr);
     });
 
     it('will not try to read file outside directory', async () => {
       expect(fs.readFile).not.toHaveBeenCalled();
-      await expect(importer.fileContents('../insecureaccess')).rejects.toMatchObject(invalidFileErr);
+      await expect(manager.fileContents('../insecureaccess')).rejects.toMatchObject(invalidFileErr);
     });
 
     it('returns raw content buffer', async () => {
@@ -171,7 +171,7 @@ describe('ProtocolManager', () => {
         expect(opts.encoding).toBeUndefined();
         fn(null, mockFileContents);
       });
-      await expect(importer.fileContents('a.netcanvas')).resolves.toEqual(mockFileContents);
+      await expect(manager.fileContents('a.netcanvas')).resolves.toEqual(mockFileContents);
     });
 
     describe('when file does not exist', () => {
@@ -183,7 +183,7 @@ describe('ProtocolManager', () => {
       });
 
       it('rejects when file is missing', async () => {
-        await expect(importer.fileContents('missingfile')).rejects.toMatchObject(invalidFileErr);
+        await expect(manager.fileContents('missingfile')).rejects.toMatchObject(invalidFileErr);
       });
     });
   });
@@ -199,13 +199,13 @@ describe('ProtocolManager', () => {
     });
 
     it('parses file to get metadata', async () => {
-      await importer.postProcessFile('');
+      await manager.postProcessFile('');
       expect(JSZip.loadAsync).toHaveBeenCalled();
     });
 
     it('saves metadata to DB', async () => {
-      await importer.postProcessFile('');
-      expect(importer.db.save).toHaveBeenCalled();
+      await manager.postProcessFile('');
+      expect(manager.db.save).toHaveBeenCalled();
     });
   });
 
@@ -216,7 +216,42 @@ describe('ProtocolManager', () => {
     });
 
     it('rejects if protocol cannot be read', async () => {
-      await expect(importer.postProcessFile('')).rejects.toMatchObject(invalidFileErr);
+      await expect(manager.postProcessFile('')).rejects.toMatchObject(invalidFileErr);
+    });
+  });
+
+  describe('deletion', () => {
+    it('removes the file', () => {
+      const mockProtocol = { filename: 'a.netcanvas' };
+      manager.destroyProtocol(mockProtocol);
+      expect(fs.unlink).toHaveBeenCalled();
+      const call = fs.unlink.mock.calls[0];
+      expect(call[0]).toMatch(mockProtocol.filename);
+    });
+
+    it('removes a protocol from DB', async () => {
+      const mockProtocol = { filename: 'a.netcanvas' };
+      fs.unlink.mockImplementation((path, cb) => { cb(); });
+      manager.db.destroy.mockResolvedValue({});
+      await manager.destroyProtocol(mockProtocol);
+      expect(manager.db.destroy).toHaveBeenCalledWith(mockProtocol);
+    });
+
+    it('removes all protocols', async () => {
+      const mockProtocols = [{ filename: 'a' }, { filename: 'b' }];
+      manager.db.all.mockResolvedValue(mockProtocols);
+      manager.db.destroy.mockResolvedValue(1);
+      manager.destroyProtocol = jest.fn();
+      await manager.destroyAllProtocols();
+      expect(manager.destroyProtocol).toHaveBeenCalledTimes(mockProtocols.length);
+    });
+  });
+
+  describe('get', () => {
+    it('returns from DB based on ID', () => {
+      const id = 'a';
+      manager.getProtocol(id);
+      expect(manager.db.get).toHaveBeenCalledWith(id);
     });
   });
 });

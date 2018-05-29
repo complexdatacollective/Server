@@ -68,11 +68,11 @@ const createApp = () => {
   const MenuTemplate = [
     {
       submenu: [
-        {
-          label: 'Settings',
-          click: () => mainWindow.open('/settings'),
-        },
-        { type: 'separator' },
+        // {
+        //   label: 'Settings',
+        //   click: () => mainWindow.open('/settings'),
+        // },
+        // { type: 'separator' },
         { role: 'quit' },
       ],
     },
@@ -127,11 +127,11 @@ const createApp = () => {
     // Get rid of the macOS primary menu
     MenuTemplate.shift();
     // Add those items elsewhere as appropriate
-    MenuTemplate[0].submenu.push({ type: 'separator' });
-    MenuTemplate[0].submenu.push({
-      label: 'Settings',
-      click: () => mainWindow.open('/settings'),
-    });
+    // MenuTemplate[0].submenu.push({ type: 'separator' });
+    // MenuTemplate[0].submenu.push({
+    //   label: 'Settings',
+    //   click: () => mainWindow.open('/settings'),
+    // });
     MenuTemplate[0].submenu.push({ type: 'separator' });
     MenuTemplate[0].submenu.push({ role: 'quit' });
   }

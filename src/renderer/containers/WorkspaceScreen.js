@@ -4,10 +4,11 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import Types from '../types';
+import Workspace from '../components/Workspace';
 import { actionCreators } from '../ducks/modules/protocol';
 import { Spinner } from '../ui';
 
-class SettingsScreen extends Component {
+class WorkspaceScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {};
@@ -18,20 +19,19 @@ class SettingsScreen extends Component {
     this.props.loadProtocol(id);
   }
 
-  shouldComponentUpdate(nextProps) {
-    return nextProps.protocol.id !== (this.props.protocol && this.props.protocol.id);
+  componentDidUpdate(prevProps) {
+    const id = this.props.match.params.id;
+    if (id !== prevProps.match.params.id) {
+      this.props.loadProtocol(id);
+    }
   }
 
   render() {
     const { protocol } = this.props;
     if (!protocol) {
-      return <div className="settings--loading"><Spinner /></div>;
+      return <div className="workspace--loading"><Spinner /></div>;
     }
-    return (
-      <div>
-        <h1>{protocol.name}</h1>
-      </div>
-    );
+    return <Workspace protocol={protocol} />;
   }
 }
 
@@ -43,18 +43,16 @@ const mapDispatchToProps = dispatch => ({
   loadProtocol: bindActionCreators(actionCreators.loadProtocol, dispatch),
 });
 
-SettingsScreen.defaultProps = {
+WorkspaceScreen.defaultProps = {
   protocol: null,
 };
 
-SettingsScreen.propTypes = {
+WorkspaceScreen.propTypes = {
   loadProtocol: PropTypes.func.isRequired,
   match: PropTypes.object.isRequired,
   protocol: Types.protocol,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(SettingsScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(WorkspaceScreen);
 
-export {
-  SettingsScreen as UnconnectedSettingsScreen,
-};
+export { WorkspaceScreen as UnconnectedWorkspaceScreen };

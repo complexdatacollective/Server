@@ -8,6 +8,10 @@
   position: relative;
   width: #{spacing('medium') * 2}; // square with height
 
+  @include modifier(dark) {
+    background-image: url('../images/devices-dark.png');
+  }
+
   @include element(badge) {
     --badge-offset: -.4rem;
     --badge-size: 1.4rem;

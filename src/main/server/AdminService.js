@@ -119,6 +119,16 @@ class AdminService {
         .then(next);
     });
 
+    api.get('/protocols/:id', (req, res, next) => {
+      this.protocolManager.getProtocol(req.params.id)
+        .then(protocol => res.send({ status: 'ok', protocol }))
+        .catch((err) => {
+          logger.error(err);
+          res.send(500, { status: 'error' });
+        })
+        .then(next);
+    });
+
     return api;
   }
 

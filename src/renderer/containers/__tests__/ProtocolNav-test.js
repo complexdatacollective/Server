@@ -9,6 +9,7 @@ jest.mock('electron');
 
 const mockProps = {
   loadProtocols: jest.fn(),
+  location: {},
 };
 
 describe('<ProtocolNav />', () => {

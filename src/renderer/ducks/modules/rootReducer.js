@@ -1,14 +1,16 @@
 import { combineReducers } from 'redux';
 
-import pairingRequest from './pairingRequest';
 import appMessages from './appMessages';
 import devices from './devices';
+import pairingRequest from './pairingRequest';
+import protocol from './protocol';
 import protocols from './protocols';
 
 const appReducer = combineReducers({
   appMessages,
   devices,
   pairingRequest,
+  protocol,
   protocols,
 });
 
