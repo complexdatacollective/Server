@@ -7,7 +7,7 @@ import DeviceStatus from '../../containers/DeviceStatus';
 const Instructions = ({ devices }) => (
   <div className="pairing-instructions">
     {
-      devices.length &&
+      devices.length > 0 &&
       <div className="pairing-instructions__device-status">
         <DeviceStatus dark />
       </div>
@@ -26,7 +26,7 @@ const Instructions = ({ devices }) => (
     </section>
 
     {
-      devices.length &&
+      devices.length > 0 &&
       <section className="pairing-instructions__section">
         <h2>Devices:</h2>
         <p>View your paired devices from the button in the upper-right corner.</p>
