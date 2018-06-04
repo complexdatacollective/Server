@@ -1,5 +1,6 @@
 /* eslint-env jest */
 const mdns = require('mdns');
+const os = require('os');
 
 const Server = require('../Server');
 const { DeviceService } = require('../devices/DeviceService');
@@ -58,6 +59,13 @@ describe('Server', () => {
       expect(mockAdvert.start.mock.calls.length).toBe(0);
       server.advertiseDeviceService(deviceService);
       expect(mockAdvert.start.mock.calls.length).toBe(1);
+    });
+
+    it('advertises hostname as instance name', () => {
+      server.advertiseDeviceService(deviceService);
+      const call = mdns.createAdvertisement.mock.calls[0];
+      const optsArg = call[2];
+      expect(optsArg).toMatchObject({ name: os.hostname() });
     });
 
     it('returns connection info', () => {

@@ -60,7 +60,7 @@ class Server extends EventEmitter {
     this.deviceAdvertisement = mdns.createAdvertisement(
       serviceType,
       deviceService.port,
-      { name: 'network-canvas' },
+      { name: os.hostname() },
     );
     this.deviceAdvertisement.start();
     logger.info(`MDNS: advertising ${JSON.stringify(serviceType)} on ${deviceService.port}`);
