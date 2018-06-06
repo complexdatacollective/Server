@@ -47,9 +47,11 @@ Run `npm run` for a list of all available commands.
 
 ## Dependencies
 
-### Node.js Version
+### Node.js/NPM Versions
 
-This project currently requires Node.js `8.9.3` to match the version used by Electron.
+This project currently requires Node.js `8.9.3` to match the version used by Electron, and version `6.1.0` of npm.
+
+** NOTE: ** npm 6.1.0 is not installed by default with Node 8.9.3. You will need to use `npm install -g npm@6.1.0` to do this. Test which version of npm you are using by typing `npm --version`.
 
 ### [MDNS](https://www.npmjs.com/package/mdns)
 
