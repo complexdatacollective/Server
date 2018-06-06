@@ -102,10 +102,7 @@ cd ./node_modules/electron/dist
 # If not, let it create one by building a new macOS app in Xcode.
 # If the signing identity still isn't found, look in Xcode settings, or
 # in Keychain's "My Certificates" for the name of a development cert.
-export SIGNING_IDENTITY="Mac Developer"
-# Sign included frameworks, or Electron.app signing will fail
-find Electron.app/Contents/Frameworks -name *.framework -print0 | xargs -0 codesign --force --sign "$SIGNING_IDENTITY"  --timestamp=none
-codesign --force --sign "$SIGNING_IDENTITY"  --timestamp=none Electron.app
+codesign --force --sign "Mac Developer" --timestamp=none Electron.app --deep
 ```
 
 
