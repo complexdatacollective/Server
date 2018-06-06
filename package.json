@@ -72,7 +72,7 @@
     "i": "^0.3.6",
     "icon-gen": "^1.2.1",
     "istanbul-lib-coverage": "^1.2.0",
-    "jest": "^22.4.3",
+    "jest": "^23.1.0",
     "jest-fetch-mock": "^1.4.2",
     "jsdoc": "^3.4.3",
     "jsdoc-babel": "^0.3.0",
@@ -141,7 +141,9 @@
       "!**/dummy_data.js"
     ],
     "modulePathIgnorePatterns": [
-      "electron-dev/"
+      "electron-dev/",
+      "src/main/package.json",
+      "www/"
     ],
     "setupFiles": [
       "<rootDir>/config/polyfills.js",

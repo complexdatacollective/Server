@@ -22,7 +22,7 @@ describe('the DeviceManager', () => {
       .rejects.toBeInstanceOf(Error);
   });
 
-  it('will not create with a short secret');
+  it.skip('will not create with a short secret', () => {});
 
   it('loads all devices', async () => {
     await deviceManager.createDeviceDocument(mockSaltHex, mockSecretHex);
