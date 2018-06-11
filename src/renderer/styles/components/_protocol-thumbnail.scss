@@ -2,8 +2,8 @@
   $protocol-border-highlight: rgba(255, 255, 255, .15);
   $protocol-border-transparent: rgba(255, 255, 255, 0);
 
-  --border-highlight: $protocol-border-highlight;
-  --border-transparent: $protocol-border-transparent;
+  --border-highlight: #{$protocol-border-highlight};
+  --border-transparent: #{$protocol-border-transparent};
   --border-width: 6px;
   --thumbnail-size: calc(var(--app-sidebar-width) * .6);
 
