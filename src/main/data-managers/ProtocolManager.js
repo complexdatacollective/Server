@@ -5,6 +5,7 @@ const path = require('path');
 const jszip = require('jszip');
 
 const ProtocolDB = require('./ProtocolDB');
+const SessionDB = require('./SessionDB');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
 
 const validFileExts = ['netcanvas'];
@@ -33,6 +34,10 @@ class ProtocolManager {
 
     const dbFile = path.join(dataDir, 'db', 'protocols.db');
     this.db = new ProtocolDB(dbFile);
+
+    // TODO: move?
+    const sessionDbFile = path.join(dataDir, 'db', 'sessions.db');
+    this.sessionDb = new SessionDB(sessionDbFile);
   }
 
   /**
@@ -250,6 +255,25 @@ class ProtocolManager {
         resolve(dataBuffer);
       });
     });
+  }
+
+  addSessionData(id, sessionOrSessions) {
+    return this.getProtocol(id)
+      .then((protocol) => {
+        if (!protocol) {
+          throw new RequestError('Invalid Protocol');
+        }
+        this.sessionDb.insertAllForProtocol(sessionOrSessions, protocol);
+      })
+      // TODO:
+      // - move to array if not one
+      // - uniq! on UUID field (add errors if dupes? or keep track of failed UUIDs?)
+      // - Promise.all[] insert sessions
+      // - how to handle partial success?
+      .catch((dbErr) => {
+        logger.error(dbErr);
+        throw dbErr;
+      });
   }
 }
 

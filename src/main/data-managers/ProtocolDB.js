@@ -1,43 +1,12 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
 
-const NeDB = require('nedb');
 const crypto = require('crypto');
 const logger = require('electron-log');
 
+const DatabaseAdapter = require('./DatabaseAdapter');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
 
-const DbConfig = {
-  corruptAlertThreshold: 0,
-  inMemoryOnly: false,
-  autoload: true,
-  timestampData: true,
-};
-
-class ProtocolDB {
-  // TODO: See comments at DeviceManager.dbClient
-  static dbClient(filename) {
-    if (!this.dbClients) {
-      this.dbClients = {};
-    }
-    if (!this.dbClients[filename]) {
-      this.dbClients[filename] = new NeDB({ ...DbConfig, filename });
-    }
-    return this.dbClients[filename];
-  }
-
-  /**
-   * @constructor
-   * @param  {string} dbFile name of file (e.g., 'protocols.db')
-   * @param  {Boolean} [inMemoryOnly=false] useful for testing
-   */
-  constructor(dbFile, inMemoryOnly = false) {
-    if (inMemoryOnly) {
-      this.db = new NeDB({ ...DbConfig, inMemoryOnly });
-    } else {
-      this.db = ProtocolDB.dbClient(dbFile);
-    }
-  }
-
+class ProtocolDB extends DatabaseAdapter {
   /**
    * Insert or update protocol metadata.
    * For now, we're overwriting files, so filenames are unique. Upsert based on filename.

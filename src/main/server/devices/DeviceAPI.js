@@ -2,6 +2,7 @@
 /* eslint max-len: ["error", { "code":100, "ignoreComments": true }] */
 const os = require('os');
 const restify = require('restify');
+const { NotAcceptableError } = require('restify-errors');
 const corsMiddleware = require('restify-cors-middleware');
 const logger = require('electron-log');
 const PropTypes = require('prop-types');
@@ -128,6 +129,44 @@ class OutOfBandDelegate {
     this.pairingDidComplete = pairingDidComplete;
   }
 }
+
+/**
+ * @swagger
+ * definitions:
+ *   Error:
+ *     type: object
+ *     properties:
+ *       message:
+ *         type: 'string'
+ *         example: 'error'
+ *       status:
+ *         type: 'string'
+ *         example: 'Human-readable description of error'
+ */
+const buildErrorRespone = (err, res) => {
+  const body = { status: 'error', message: err.message || 'Unknown Server Error' };
+  let statusCode;
+  if (err instanceof RequestError) {
+    statusCode = 400;
+  } else if (err instanceof IncompletePairingError) {
+    // TODO: review; 5xx is probably correct, but weird bc of user involvement
+    statusCode = 400;
+  } else {
+    logger.error(err);
+    statusCode = 500;
+  }
+  res.json(err.statusCode || statusCode, body);
+};
+
+const requireJsonRequest = (req, res, next) => {
+  if (req.header('content-type') !== 'application/json') {
+    buildErrorRespone(new NotAcceptableError('content-type must be "application/json"'), res);
+    next(false);
+    return false;
+  }
+  return true;
+};
+
 
 /**
  * API Server for device endpoints
@@ -336,39 +375,35 @@ class DeviceAPI {
      */
     server.get('/protocols/:filename', this.handlers.protocolFile);
 
+    /**
+     * @swagger
+     * /protocols/{id}/sessions:
+     *   post:
+     *     summary: Upload session (interview) data
+     *     produces: application/json
+     *     responses:
+     *       201:
+     *         description: Upload confirmation
+     *       400:
+     *         description: request error
+     *         schema:
+     *           $ref: '#/definitions/Error'
+     *       409:
+     *         description: A session with the requested ID has already been created for this protocol (Conflict)
+     *         schema:
+     *           $ref: '#/definitions/Error'
+     *
+     */
+    // TODO: slug?
+    server.post('/protocols/:id/sessions', this.handlers.uploadSessions);
+
     return server;
   }
 
   get handlers() {
     return {
-      /**
-       * @swagger
-       * definitions:
-       *   Error:
-       *     type: object
-       *     properties:
-       *       message:
-       *         type: 'string'
-       *         example: 'error'
-       *       status:
-       *         type: 'string'
-       *         example: 'Human-readable description of error'
-       */
       // Secondary handler for error cases in req/res chain
-      onError: (err, res) => {
-        const body = { status: 'error', message: err.message || 'Unknown Server Error' };
-        let statusCode;
-        if (err instanceof RequestError) {
-          statusCode = 400;
-        } else if (err instanceof IncompletePairingError) {
-          // TODO: review; 5xx is probably correct, but weird bc of user involvement
-          statusCode = 400;
-        } else {
-          logger.error(err);
-          statusCode = 500;
-        }
-        res.json(err.statusCode || statusCode, body);
-      },
+      onError: buildErrorRespone,
 
       onPairingRequest: (req, res, next) => {
         let abortRequest;
@@ -431,6 +466,19 @@ class DeviceAPI {
             res.header('content-type', 'application/zip');
             res.send(fileBuf);
           })
+          .catch(err => this.handlers.onError(err, res))
+          .then(next);
+      },
+
+      uploadSessions: (req, res, next) => {
+        if (!requireJsonRequest(req, res, next)) {
+          return;
+        }
+
+        const sessionData = req.body;
+        const protocolId = req.params.id;
+        this.protocolManager.addSessionData(protocolId, sessionData)
+          .then(() => res.send(201))
           .catch(err => this.handlers.onError(err, res))
           .then(next);
       },
