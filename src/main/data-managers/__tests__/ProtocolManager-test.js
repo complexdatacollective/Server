@@ -10,6 +10,7 @@ jest.mock('electron');
 jest.mock('electron-log');
 jest.mock('jszip');
 jest.mock('../ProtocolDB');
+jest.mock('../SessionDB');
 
 describe('ProtocolManager', () => {
   const mockFileContents = new Buffer([]);

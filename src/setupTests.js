@@ -27,6 +27,8 @@ const jsonClient = {
 
   get: uri => jsonClient.request(uri),
 
+  delete: uri => jsonClient.request(uri, null, 'DELETE'),
+
   request: (uri, reqData, method) => (new Promise((resolve, reject) => {
     const reqMethod = method || (reqData ? 'POST' : 'GET');
     const options = {

@@ -27,7 +27,7 @@ class ServerPanel extends Component {
   }
 
   componentDidUpdate() {
-    this.getServerHealth(this.state.apiClient);
+    this.getServerHealth();
   }
 
   getServerHealth() {

@@ -59,6 +59,12 @@ class AdminApiClient {
       .then(consumeResponse);
   }
 
+  delete(route) {
+    return fetch(this.resolveRoute(route), {
+      method: 'DELETE',
+    });
+  }
+
   resolveRoute(route) {
     // TODO: https
     const protocol = 'http';

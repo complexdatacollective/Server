@@ -257,6 +257,14 @@ class ProtocolManager {
     });
   }
 
+  getProtocolSessions(protocolId) {
+    return this.sessionDb.findAll(protocolId);
+  }
+
+  deleteProtocolSessions(protocolId) {
+    return this.sessionDb.deleteAll(protocolId);
+  }
+
   addSessionData(id, sessionOrSessions) {
     return this.getProtocol(id)
       .then((protocol) => {
