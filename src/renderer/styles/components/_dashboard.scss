@@ -1,11 +1,12 @@
 .dashboard {
   $min-grid-row: 18rem;
   $top-grid-row: 1rem;
+  $column-count: 3;
 
   display: grid;
   grid-auto-rows: minmax($min-grid-row, auto);
   grid-gap: spacing(medium);
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat($column-count, 1fr);
   grid-template-rows: minmax($top-grid-row, auto) auto;
 
   @include element(panel) {
@@ -13,7 +14,7 @@
     padding: spacing(small);
 
     @include modifier(server-stats) {
-      grid-area: 1 / span 2;
+      grid-area: 1 / span $column-count;
     }
   }
 }
