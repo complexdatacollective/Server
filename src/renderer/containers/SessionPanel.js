@@ -14,7 +14,9 @@ class SessionPanel extends Component {
     super(props);
     this.state = {
       isLoading: false,
+      stale: false,
       sessions: [],
+      totalCount: 0,
     };
   }
 
@@ -25,7 +27,7 @@ class SessionPanel extends Component {
   componentDidUpdate(prevProps) {
     const newProtocol = this.props.protocolId && this.props.protocolId !== prevProps.protocolId;
     const newClient = this.props.apiClient && this.props.apiClient !== prevProps.apiClient;
-    if (newProtocol || newClient) {
+    if (newProtocol || newClient || this.state.stale) {
       this.loadSessions();
     }
   }
@@ -36,11 +38,18 @@ class SessionPanel extends Component {
   }
 
   get header() {
+    const { sessions, totalCount } = this.state;
+    const countText = (totalCount && sessions.length < totalCount) ? `(${sessions.length} of ${totalCount})` : '';
     return (
       <div className="session-panel__header">
-        <h4 className="session-panel__header-text">Imported Sessions</h4>
+        <h4 className="session-panel__header-text">
+          Imported Sessions
+          <small className="session-panel__header-count">
+            {countText}
+          </small>
+        </h4>
         {
-          this.state.sessions.length > 0 &&
+          sessions.length > 0 &&
           <DismissButton small inline onClick={() => this.deleteAllSessions()}>
             Delete all
           </DismissButton>
@@ -49,8 +58,9 @@ class SessionPanel extends Component {
     );
   }
 
-  setSessions(sessions = []) {
-    this.setState({ isLoading: false, sessions: sessions.map(viewModelMapper) });
+  sessionEndpoint(sessionId) {
+    const base = this.sessionsEndpoint;
+    return base && `${base}/${sessionId}`;
   }
 
   loadSessions() {
@@ -58,10 +68,12 @@ class SessionPanel extends Component {
     if (!protocolId || !apiClient) {
       return;
     }
-    this.setState({ isLoading: true });
+    this.setState({ isLoading: true, stale: false });
     apiClient.get(this.sessionsEndpoint)
-      .then(resp => resp.sessions)
-      .then(sessions => this.setSessions(sessions))
+      .then((resp) => {
+        const sessions = resp.sessions.map(viewModelMapper);
+        this.setState({ isLoading: false, sessions, totalCount: resp.totalSessions });
+      })
       .catch((err) => {
         logger.error(err);
         this.setState({ sessions: [] });
@@ -75,19 +87,38 @@ class SessionPanel extends Component {
     }
     if (confirm('Delete all sessions for this protocol?')) { // eslint-disable-line no-alert
       apiClient.delete(this.sessionsEndpoint)
-        .then(() => this.setSessions([]))
-        .catch(console.error);
+        .then(() => this.setState({ stale: true }));
+      // TODO: catch / error msg
+    }
+  }
+
+  deleteSession(sessionId) {
+    const { apiClient, protocolId } = this.props;
+    if (!sessionId || !protocolId || !apiClient) {
+      return;
+    }
+    if (confirm('Delete this session?')) { // eslint-disable-line no-alert
+      apiClient.delete(this.sessionEndpoint(sessionId))
+        .then(() => this.setState({ stale: true }));
+      // TODO: catch / error msg
     }
   }
 
   render() {
-    const { sessions } = this.state;
+    const { isLoading, sessions } = this.state;
 
     return (
       <ScrollingPanelItem header={this.header}>
-        { (this.state.sessions.length === 0) && !this.state.isLoading && emptyContent }
-        <ul>
-          {sessions.map(s => <li key={s.id}>{s.id}</li>)}
+        { (sessions.length === 0) && !isLoading && emptyContent }
+        <ul className="session-panel__list">
+          {!isLoading && sessions.map(s => (
+            <li key={s.id}>
+              <p>
+                <DismissButton small inline onClick={() => this.deleteSession(s.id)} />
+                {s.id}
+              </p>
+            </li>
+          ))}
         </ul>
       </ScrollingPanelItem>
     );
@@ -107,5 +138,5 @@ SessionPanel.propTypes = {
 export default withApiClient(SessionPanel);
 
 export {
-  SessionPanel as UnconnectedSessionPanel,
+  SessionPanel as UnwrappedSessionPanel,
 };

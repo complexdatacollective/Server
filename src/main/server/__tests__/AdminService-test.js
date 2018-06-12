@@ -186,6 +186,11 @@ describe('the AdminService', () => {
           expect(res.json).toEqual({ status: 'ok' });
         });
 
+        it('deletes one session', async () => {
+          const res = await jsonClient.delete(`${sessEndpoint}/1`);
+          expect(res.json).toEqual({ status: 'ok' });
+        });
+
         describe('when manager fails', () => {
           const mockResp = { statusCode: 500 };
           beforeAll(() => {

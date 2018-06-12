@@ -3,7 +3,12 @@
     display: flex;
     justify-content: space-between;
   }
+
   @include element(header-text) {
     margin-bottom: 0;
+  }
+
+  @include element(header-count) {
+    margin-left: .5rem;
   }
 }

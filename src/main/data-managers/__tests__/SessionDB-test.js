@@ -59,15 +59,22 @@ describe('SessionDB', () => {
 
   it('deletes all by protocol ID', async () => {
     await sessions.insertAllForProtocol([{ uid: '1' }, { uid: '2' }], mockProtocol);
-    sessions.deleteAll(mockProtocol._id);
+    sessions.delete(mockProtocol._id);
     const found = await sessions.findAll(mockProtocol._id);
     expect(found).toHaveLength(0);
   });
 
   it('only deletes for protocol ID', async () => {
     await sessions.insertAllForProtocol([{ uid: '1' }, { uid: '2' }], mockProtocol);
-    sessions.deleteAll(null);
+    sessions.delete(null);
     const found = await sessions.findAll(mockProtocol._id);
     expect(found).toHaveLength(2);
+  });
+
+  it('deletes one by protocol & session IDs', async () => {
+    await sessions.insertAllForProtocol([{ uid: '1' }, { uid: '2' }], mockProtocol);
+    sessions.delete(mockProtocol._id, '1');
+    const found = await sessions.findAll(mockProtocol._id);
+    expect(found).toHaveLength(1);
   });
 });

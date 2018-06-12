@@ -39,10 +39,13 @@ class SessionDB extends DatabaseAdapter {
     });
   }
 
-  // TODO: review use cases: using projections can speed up dramatically
-  findAll(protocolId) {
+  findAll(protocolId, limit = null) {
+    // For now, return only limited data to speed query
+    const projection = { updatedAt: 1 };
     return new Promise((resolve, reject) => {
-      this.db.find({ protocolId }).sort(mostRecent).exec((err, docs) => {
+      let cursor = this.db.find({ protocolId }, projection).sort(mostRecent);
+      if (limit) { cursor = cursor.limit(limit); }
+      cursor.exec((err, docs) => {
         if (err) {
           reject(err);
         } else {
@@ -52,9 +55,15 @@ class SessionDB extends DatabaseAdapter {
     });
   }
 
-  deleteAll(protocolId) {
+  delete(protocolId, sessionId = null) {
+    const query = { protocolId };
+    const opts = { multi: true };
+    if (sessionId) {
+      query._id = sessionId;
+      opts.multi = false;
+    }
     return new Promise((resolve, reject) => {
-      this.db.remove({ protocolId }, { multi: true }, resolveOrReject(resolve, reject));
+      this.db.remove(query, opts, resolveOrReject(resolve, reject));
     });
   }
 }

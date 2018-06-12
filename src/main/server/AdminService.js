@@ -132,11 +132,14 @@ class AdminService {
     });
 
     api.get('/protocols/:id/sessions', (req, res, next) => {
+      // For now, hardcode response limit & offset
+      // TODO: paginated API if needed
+      const limit = 100;
       this.protocolManager.getProtocolSessions(req.params.id)
         .then(sessions => res.send({
           status: 'ok',
           totalSessions: sessions.length,
-          sessions: [...sessions],
+          sessions: sessions.slice(0, limit),
         }))
         .catch((err) => {
           logger.error(err);
@@ -145,8 +148,18 @@ class AdminService {
         .then(next);
     });
 
-    api.del('/protocols/:id/sessions', (req, res, next) => {
-      this.protocolManager.deleteProtocolSessions(req.params.id)
+    api.del('/protocols/:protocolId/sessions', (req, res, next) => {
+      this.protocolManager.deleteProtocolSessions(req.params.protocolId)
+        .then(() => res.send({ status: 'ok' }))
+        .catch((err) => {
+          logger.error(err);
+          res.send(500, { status: 'error' });
+        })
+        .then(next);
+    });
+
+    api.del('/protocols/:protocolId/sessions/:id', (req, res, next) => {
+      this.protocolManager.deleteProtocolSessions(req.params.protocolId, req.params.id)
         .then(() => res.send({ status: 'ok' }))
         .catch((err) => {
           logger.error(err);

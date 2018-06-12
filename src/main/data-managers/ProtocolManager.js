@@ -257,12 +257,12 @@ class ProtocolManager {
     });
   }
 
-  getProtocolSessions(protocolId) {
-    return this.sessionDb.findAll(protocolId);
+  getProtocolSessions(protocolId, limit) {
+    return this.sessionDb.findAll(protocolId, limit);
   }
 
-  deleteProtocolSessions(protocolId) {
-    return this.sessionDb.deleteAll(protocolId);
+  deleteProtocolSessions(protocolId, sessionId) {
+    return this.sessionDb.delete(protocolId, sessionId);
   }
 
   addSessionData(id, sessionOrSessions) {
