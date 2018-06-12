@@ -1,0 +1,9 @@
+.session-panel {
+  @include element(header) {
+    display: flex;
+    justify-content: space-between;
+  }
+  @include element(header-text) {
+    margin-bottom: 0;
+  }
+}

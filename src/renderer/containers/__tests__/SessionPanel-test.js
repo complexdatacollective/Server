@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { mount, shallow } from 'enzyme';
-import { UnconnectedSessionList as SessionList } from '../SessionList';
+import { UnconnectedSessionPanel as SessionPanel } from '../SessionPanel';
 
 const mockSessions = [];
 const protocolId = '1';
@@ -11,9 +11,9 @@ const mockApiClient = {
   get: jest.fn().mockResolvedValue({ sessions: mockSessions }),
 };
 
-describe('<SessionList />', () => {
+describe('<SessionPanel />', () => {
   it('renders', () => {
-    const subject = mount(<SessionList protocolId={protocolId} />);
+    const subject = mount(<SessionPanel protocolId={protocolId} />);
     expect(subject.text()).toMatch('Sessions');
   });
 
@@ -27,13 +27,13 @@ describe('<SessionList />', () => {
     });
 
     it('loads on mount', () => {
-      shallow(<SessionList protocolId={'1'} apiClient={mockApiClient} />);
+      shallow(<SessionPanel protocolId={'1'} apiClient={mockApiClient} />);
       expect(apiClient.get).toHaveBeenCalledTimes(1);
       expect(apiClient.get).toHaveBeenCalledWith(`/protocols/${protocolId}/sessions`);
     });
 
     it('loads again on update', () => {
-      const subject = shallow(<SessionList protocolId={'1'} apiClient={mockApiClient} />);
+      const subject = shallow(<SessionPanel protocolId={'1'} apiClient={mockApiClient} />);
       subject.setProps({ protocolId: '2' });
       expect(apiClient.get).toHaveBeenCalledTimes(2);
     });
