@@ -5,7 +5,6 @@ export { default as DeviceDetails } from './DeviceDetails';
 export { default as DeviceList } from './DeviceList';
 export { default as DismissButton } from './DismissButton';
 export { default as DummyDashboardFragment } from './DummyDashboardFragment';
-export { default as Header } from './Header';
 export { default as Instructions } from './pairing/Instructions';
 export { default as InterviewWidget } from './charts/InterviewWidget';
 export { default as LineChart } from './charts/LineChart';

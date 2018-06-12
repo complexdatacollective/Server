@@ -12,13 +12,6 @@ const defaultServerOverview = {
 };
 
 class ServerPanel extends Component {
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.apiClient !== prevState.apiClient) {
-      return { apiClient: nextProps.apiClient };
-    }
-    return null;
-  }
-
   constructor() {
     super();
     this.state = {
@@ -31,10 +24,11 @@ class ServerPanel extends Component {
   }
 
   getServerHealth() {
-    if (!this.state.apiClient || this.state.serverOverview) {
+    const { apiClient } = this.props;
+    if (!apiClient || this.state.serverOverview) {
       return;
     }
-    this.state.apiClient.get('/health')
+    apiClient.get('/health')
       .then((resp) => {
         const { deviceApiPort, hostname, ip, publicKey, uptime } = resp.serverStatus;
         this.setState({
@@ -72,10 +66,12 @@ class ServerPanel extends Component {
 }
 
 ServerPanel.defaultProps = {
+  apiClient: null,
   className: '',
 };
 
 ServerPanel.propTypes = {
+  apiClient: PropTypes.object,
   className: PropTypes.string,
 };
 
