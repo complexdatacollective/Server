@@ -3,6 +3,7 @@ const url = require('url');
 const { BrowserWindow } = require('electron');
 
 const getAppUrl = (route) => {
+  /* istanbul ignore if  */
   if (process.env.NODE_ENV === 'development' && process.env.WEBPACK_DEV_SERVER_PORT) {
     return url.format({
       hash: `#${route}`,
@@ -34,7 +35,11 @@ class MainWindow {
     }
 
     this.window = new BrowserWindow(opts);
+    this.addWindowCloseListener();
+  }
 
+  addWindowCloseListener() {
+    if (!this.window) { return; }
     // Emitted when the window is closed.
     this.window.on('closed', () => {
       // Dereference the window object, usually you would store windows
@@ -55,10 +60,10 @@ class MainWindow {
   }
 
   send(...args) {
-    // TODO: store in a buffer, probably?
-    if (!this.window) { return; }
+    if (!this.window) { return false; }
 
     this.window.webContents.send(...args);
+    return true;
   }
 }
 

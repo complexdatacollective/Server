@@ -25,6 +25,7 @@ createServer(8080, userDataDir).then((runningServer) => {
     evt.sender.send(ApiConnectionInfoChannel, server.connectionInfo.adminService);
   });
 
+  // TODO: if send() returns false, let server know so client request can be dropped?
   server.on(serverEvents.PAIRING_CODE_AVAILABLE, (data) => {
     mainWindow.send(serverEvents.PAIRING_CODE_AVAILABLE, data);
   });
