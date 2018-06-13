@@ -34,6 +34,7 @@ class SessionDB extends DatabaseAdapter {
       // to import data without caring about uniqueness.
       if (sessions.some(s => s[sessionUidField] === undefined)) {
         reject(new RequestError(`'${sessionUidField}' property is required on session`));
+        return;
       }
       sessions = sessions.map(s => (
         // Use client-provided uid for PK; nedb drops field if undefined.

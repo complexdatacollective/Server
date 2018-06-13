@@ -72,8 +72,10 @@ describe('SessionDB', () => {
   });
 
   it('Requires IDs on sessions', async () => {
+    jest.spyOn(sessions.db, 'insert');
     const promise = sessions.insertAllForProtocol([{}], mockProtocol);
     await expect(promise).rejects.toBeInstanceOf(RequestError);
+    expect(sessions.db.insert).not.toHaveBeenCalled();
   });
 
   it('Requires unique sessions IDs', async () => {
