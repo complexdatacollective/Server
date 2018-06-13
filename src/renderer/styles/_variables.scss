@@ -15,5 +15,5 @@
   // Layout
   --app-sidebar-width: 6rem;
   --app-titlebar-height: 22px;
-  --modal-window-padding: spacing(huge);
+  --modal-window-padding: #{spacing(huge)};
 }

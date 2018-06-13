@@ -11,9 +11,8 @@ install:
   - sudo apt-get -qq update
   - sudo apt-get install -y libavahi-compat-libdnssd-dev
   - npm install
-# before_install:
-#   - if [[ $TRAVIS_OS_NAME == osx ]] && [[ $DIST == true ]]; then HOMEBREW_NO_AUTO_UPDATE=1 brew install gnu-tar dpkg libicns graphicsmagick git-lfs lzip; fi
-#   - if [[ $TRAVIS_OS_NAME == osx ]] && [[ $DIST == true ]]; then git lfs pull; fi
+before_install:
+  - npm install -g npm@6.1.0
 jobs:
   include:
     - stage: test

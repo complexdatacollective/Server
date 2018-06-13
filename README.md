@@ -47,9 +47,11 @@ Run `npm run` for a list of all available commands.
 
 ## Dependencies
 
-### Node.js Version
+### Node.js/NPM Versions
 
-This project currently requires Node.js `8.9.3` to match the version used by Electron.
+This project currently requires Node.js `8.9.3` to match the version used by Electron, and version `6.1.0` of npm.
+
+** NOTE: ** npm 6.1.0 is not installed by default with Node 8.9.3. You will need to use `npm install -g npm@6.1.0` to do this. Test which version of npm you are using by typing `npm --version`.
 
 ### [MDNS](https://www.npmjs.com/package/mdns)
 
@@ -100,10 +102,7 @@ cd ./node_modules/electron/dist
 # If not, let it create one by building a new macOS app in Xcode.
 # If the signing identity still isn't found, look in Xcode settings, or
 # in Keychain's "My Certificates" for the name of a development cert.
-export SIGNING_IDENTITY="Mac Developer"
-# Sign included frameworks, or Electron.app signing will fail
-find Electron.app/Contents/Frameworks -name *.framework -print0 | xargs -0 codesign --force --sign "$SIGNING_IDENTITY"  --timestamp=none
-codesign --force --sign "$SIGNING_IDENTITY"  --timestamp=none Electron.app
+codesign --force --sign "Mac Developer" --timestamp=none Electron.app --deep
 ```
 
 

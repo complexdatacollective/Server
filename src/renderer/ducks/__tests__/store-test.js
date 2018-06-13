@@ -4,10 +4,7 @@ const rootReducer = require('../modules/rootReducer');
 
 jest.mock('electron-log');
 jest.mock('../modules/rootReducer');
-
-// silence redux logger
-jest.spyOn(console, 'log').mockImplementation(() => {});
-jest.spyOn(console, 'info').mockImplementation(() => {});
+jest.mock('../middleware/logger', () => (/* store */) => (/* next */) => jest.fn());
 
 describe('App Store', () => {
   it('includes the root reducer', () => {
