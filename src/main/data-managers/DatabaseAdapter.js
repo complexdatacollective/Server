@@ -1,4 +1,5 @@
 const NeDB = require('nedb');
+const { mostRecent, resolveOrReject } = require('../utils/db');
 
 const DbConfig = {
   corruptAlertThreshold: 0,
@@ -30,6 +31,18 @@ class DatabaseAdapter {
     } else {
       this.db = this.constructor.dbClient(dbFile, additionalConfig);
     }
+  }
+
+  /**
+   * Get a list of all documents
+   * @async
+   * @return {Array<Object>} all persisted data
+   * @throws {Error}
+   */
+  all() {
+    return new Promise((resolve, reject) => {
+      this.db.find({}).sort(mostRecent).exec(resolveOrReject(resolve, reject));
+    });
   }
 }
 
