@@ -5,7 +5,7 @@ const { ErrorMessages, RequestError } = require('../errors/RequestError');
 const { mostRecent, resolveOrReject } = require('../utils/db');
 
 // The property name used as a UUID by the client
-const sessionUidField = 'uid';
+const sessionUidField = 'uuid';
 
 /**
  * @class

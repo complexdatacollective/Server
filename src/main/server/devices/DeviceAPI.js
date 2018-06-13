@@ -387,7 +387,7 @@ class DeviceAPI {
      *       Import session (interview) data.
      *
      *       - You may upload one or more session objects at a time.
-     *       - Each session object must include a `uid` property that uniquely identifies the session
+     *       - Each session object must include a `uuid` property that uniquely identifies the session
      *       - Inserts are all-or-nothing:
      *           + If any session fails to save (e.g., because of duplicate IDs), then no insert succeeds.
      *           + Likewise, a successful response means that all sessions have been saved
@@ -404,10 +404,11 @@ class DeviceAPI {
      *         schema:
      *           type: object
      *           properties:
-     *             uid:
+     *             uuid:
      *               required: true
      *               type: string
-     *               description: globally unique identifier (required)
+     *               format: uuid
+     *               description: a cryptographically-strong, globally unique identifier (required)
      *               example: 2a02fccc-10ec-4bf9-9a7a-d156e3858fb6
      *             nodes:
      *               required: false
