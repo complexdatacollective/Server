@@ -2,6 +2,7 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
 
 import SessionDB from '../SessionDB';
+import { RequestError } from '../../errors/RequestError';
 
 describe('SessionDB', () => {
   const mockProtocol = { name: 'a', _id: 'protocol1' };
@@ -37,14 +38,6 @@ describe('SessionDB', () => {
     expect(result[0]).toMatchObject({ _id: mockSession.uid });
   });
 
-  // TODO: Review failure; I don't think in-mem DBs share this property with persisted DBs
-  it.skip('does not store ID in duplicate', () => {});
-  // async () => {
-  //   const result = await sessions.insertAllForProtocol(mockSession, mockProtocol);
-  //   sessions.db.persistence.compactDatafile();
-  //   expect(result[0]).not.toHaveProperty('uid');
-  // });
-
   it('finds all by protocol ID', async () => {
     await sessions.insertAllForProtocol([{ uid: '1' }, { uid: '2' }], mockProtocol);
     const found = await sessions.findAll(mockProtocol._id);
@@ -76,5 +69,16 @@ describe('SessionDB', () => {
     sessions.delete(mockProtocol._id, '1');
     const found = await sessions.findAll(mockProtocol._id);
     expect(found).toHaveLength(1);
+  });
+
+  it('Requires IDs on sessions', async () => {
+    const promise = sessions.insertAllForProtocol([{}], mockProtocol);
+    await expect(promise).rejects.toBeInstanceOf(RequestError);
+  });
+
+  it('Requires unique sessions IDs', async () => {
+    const promise = sessions.insertAllForProtocol([{ uid: '1' }, { uid: '1' }], mockProtocol);
+    await expect(promise).rejects.toBeInstanceOf(Error);
+    await expect(promise).rejects.toMatchObject({ errorType: 'uniqueViolated' });
   });
 });

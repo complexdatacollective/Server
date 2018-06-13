@@ -2,7 +2,7 @@
 /* eslint max-len: ["error", { "code":100, "ignoreComments": true }] */
 const os = require('os');
 const restify = require('restify');
-const { NotAcceptableError } = require('restify-errors');
+const { ConflictError, NotAcceptableError } = require('restify-errors');
 const corsMiddleware = require('restify-cors-middleware');
 const logger = require('electron-log');
 const PropTypes = require('prop-types');
@@ -24,7 +24,7 @@ const lanIP = () => {
 };
 
 const ApiName = 'DevciceAPI';
-const ApiVersion = '0.0.4';
+const ApiVersion = '0.0.5';
 const ApiHostName = '0.0.0.0'; // IPv4 for compatibility with Travis (& unknown installations)
 
 const Schema = {
@@ -71,6 +71,7 @@ const Schema = {
    *         type: string
    */
   protocol: (protocol, apiBase) => ({
+    id: protocol._id,
     name: protocol.name,
     version: protocol.version,
     networkCanvasVersion: protocol.networkCanvasVersion,
@@ -143,7 +144,7 @@ class OutOfBandDelegate {
  *         type: 'string'
  *         example: 'Human-readable description of error'
  */
-const buildErrorRespone = (err, res) => {
+const buildErrorResponse = (err, res) => {
   const body = { status: 'error', message: err.message || 'Unknown Server Error' };
   let statusCode;
   if (err instanceof RequestError) {
@@ -151,7 +152,7 @@ const buildErrorRespone = (err, res) => {
   } else if (err instanceof IncompletePairingError) {
     // TODO: review; 5xx is probably correct, but weird bc of user involvement
     statusCode = 400;
-  } else {
+  } else if (!err.statusCode) {
     logger.error(err);
     statusCode = 500;
   }
@@ -160,7 +161,7 @@ const buildErrorRespone = (err, res) => {
 
 const requireJsonRequest = (req, res, next) => {
   if (req.header('content-type') !== 'application/json') {
-    buildErrorRespone(new NotAcceptableError('content-type must be "application/json"'), res);
+    buildErrorResponse(new NotAcceptableError('content-type must be "application/json"'), res);
     next(false);
     return false;
   }
@@ -272,6 +273,8 @@ class DeviceAPI {
      *     summary: Pairing Confirmation
      *     description: Pairing Step 2.
      *         User has entered pairing code.
+     *     consumes:
+     *       - application/json
      *     parameters:
      *       - in: body
      *         schema:
@@ -377,24 +380,77 @@ class DeviceAPI {
 
     /**
      * @swagger
-     * /protocols/{id}/sessions:
+     * /protocols/{protocolId}/sessions:
      *   post:
-     *     summary: Upload session (interview) data
-     *     produces: application/json
+     *     summary: Upload session
+     *     description: |
+     *       Import session (interview) data.
+     *
+     *       - You may upload one or more session objects at a time.
+     *       - Each session object must include a `uid` property that uniquely identifies the session
+     *       - Inserts are all-or-nothing:
+     *           + If any session fails to save (e.g., because of duplicate IDs), then no insert succeeds.
+     *           + Likewise, a successful response means that all sessions have been saved
+     *     consumes:
+     *       - application/json
+     *     parameters:
+     *       - name: protocolId
+     *         in: path
+     *         type: string
+     *         required: true
+     *         description: This unique ID must point to a protocol that already exists in server.
+     *           This ID can be obtained from the response to `/protocols`.
+     *       - in: body
+     *         schema:
+     *           type: object
+     *           properties:
+     *             uid:
+     *               required: true
+     *               type: string
+     *               description: globally unique identifier (required)
+     *               example: 2a02fccc-10ec-4bf9-9a7a-d156e3858fb6
+     *             nodes:
+     *               required: false
+     *               type: array
+     *               description: An optional field that may be used for reporting if present
+     *               example: []
+     *             edges:
+     *               required: false
+     *               type: array
+     *               description: An optional field that may be used for reporting if present
+     *               example: []
+     *     produces:
+     *       - application/json
      *     responses:
      *       201:
      *         description: Upload confirmation
+     *         schema:
+     *           type: object
+     *           properties:
+     *             status:
+     *               type: string
+     *               example: ok
+     *             data:
+     *               type: object
+     *               properties:
+     *                 totalCount:
+     *                   type: number
+     *                   description: The count of uploaded sessions
+     *                   example: 10
      *       400:
-     *         description: request error
+     *         description: Generic request error
+     *         schema:
+     *           $ref: '#/definitions/Error'
+     *       406:
+     *         description: Request did not not contain valid JSON
      *         schema:
      *           $ref: '#/definitions/Error'
      *       409:
-     *         description: A session with the requested ID has already been created for this protocol (Conflict)
+     *         description: A session with the requested ID has already been created (Conflict)
      *         schema:
      *           $ref: '#/definitions/Error'
      *
      */
-    // TODO: slug?
     server.post('/protocols/:id/sessions', this.handlers.uploadSessions);
 
     return server;
@@ -403,7 +459,7 @@ class DeviceAPI {
   get handlers() {
     return {
       // Secondary handler for error cases in req/res chain
-      onError: buildErrorRespone,
+      onError: buildErrorResponse,
 
       onPairingRequest: (req, res, next) => {
         let abortRequest;
@@ -478,8 +534,14 @@ class DeviceAPI {
         const sessionData = req.body;
         const protocolId = req.params.id;
         this.protocolManager.addSessionData(protocolId, sessionData)
-          .then(() => res.send(201))
-          .catch(err => this.handlers.onError(err, res))
+          .then(docs => res.json(201, { status: 'ok', data: { insertedCount: docs.length } }))
+          .catch((err) => {
+            if (err.errorType === 'uniqueViolated') { // from nedb
+              this.handlers.onError(new ConflictError(err.message), res);
+            } else {
+              this.handlers.onError(err, res);
+            }
+          })
           .then(next);
       },
     };
@@ -488,6 +550,7 @@ class DeviceAPI {
 
 module.exports = {
   default: DeviceAPI,
+  ApiVersion,
   DeviceAPI,
   OutOfBandDelegate,
 };

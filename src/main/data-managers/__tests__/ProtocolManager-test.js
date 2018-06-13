@@ -255,4 +255,54 @@ describe('ProtocolManager', () => {
       expect(manager.db.get).toHaveBeenCalledWith(id);
     });
   });
+
+  describe('session manager', () => {
+    const protocolId = 'protocol1';
+
+    it('finds all sessions for a protocol via DB', () => {
+      manager.getProtocolSessions(protocolId);
+      expect(manager.sessionDb.findAll).toHaveBeenCalled();
+      expect(manager.sessionDb.findAll.mock.calls[0][0]).toEqual(protocolId);
+    });
+
+    it('accepts a limit', () => {
+      manager.getProtocolSessions(protocolId, 100);
+      expect(manager.sessionDb.findAll).toHaveBeenCalledWith(protocolId, 100);
+    });
+
+    it('deletes a session via DB', () => {
+      manager.deleteProtocolSessions(protocolId, 'session1');
+      expect(manager.sessionDb.delete).toHaveBeenCalledWith(protocolId, 'session1');
+    });
+
+    it('allows omitting ID (to delete multiple)', () => {
+      manager.deleteProtocolSessions('protocol1');
+      expect(manager.sessionDb.delete).toHaveBeenCalledWith(protocolId, undefined);
+    });
+
+    describe('insertion', () => {
+      const mockProtocol = { _id: protocolId };
+      beforeEach(() => {
+        manager.db.get = jest.fn().mockResolvedValue(mockProtocol);
+      });
+
+      it('adds a session', async () => {
+        const mockSession = { uid: '1' };
+        await manager.addSessionData(protocolId, mockSession);
+        expect(manager.sessionDb.insertAllForProtocol)
+          .toHaveBeenCalledWith(mockSession, mockProtocol);
+      });
+
+      it('resolves with the documents', async () => {
+        manager.sessionDb.insertAllForProtocol.mockResolvedValue([]);
+        await expect(manager.addSessionData(protocolId, [])).resolves.toEqual(expect.any(Array));
+      });
+
+      it('rejects if adding to an unknown protocol', async () => {
+        const missingError = { message: errorMessages.MissingProtocol };
+        manager.db.get = jest.fn().mockResolvedValue(null);
+        await expect(manager.addSessionData(null, [])).rejects.toMatchObject(missingError);
+      });
+    });
+  });
 });

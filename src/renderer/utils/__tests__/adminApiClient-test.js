@@ -26,6 +26,16 @@ describe('an AdminApiClient', () => {
     await expect(client.post('/foo', payload)).resolves.toMatchObject({ status: 'ok' });
   });
 
+  it('rejects string payloads', () => {
+    expect(client.post('/foo', 'not-json')).rejects.toMatchObject({ message: expect.stringMatching(/JSON/) });
+  });
+
+  it('rejects invalid JSON', () => {
+    const obj = {};
+    obj.circular = obj;
+    expect(client.post('/foo', obj)).rejects.toMatchObject({ message: expect.stringMatching(/JSON/) });
+  });
+
   it('rejects on fetch error', async () => {
     const notFoundErr = new Error('Not Found');
     fetch.mockReject(notFoundErr);
@@ -35,5 +45,10 @@ describe('an AdminApiClient', () => {
   it('rejects on server error', async () => {
     fetch.mockResponse(JSON.stringify({ status: 'error' }), { status: 503 });
     await expect(client.get('/health')).rejects.toMatchObject({ status: 'error' });
+  });
+
+  it('can make a delete request', async () => {
+    await client.delete('/foo');
+    expect(fetch).toHaveBeenCalledWith(expect.any(String), { method: 'DELETE' });
   });
 });

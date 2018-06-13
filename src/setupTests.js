@@ -50,14 +50,23 @@ const jsonClient = {
         if (isJson) {
           respBody.json = JSON.parse(stringData);
         }
-        if (res.statusCode === 200) {
+        if ((/^2/).test(res.statusCode)) {
           resolve(respBody);
         } else {
           reject(respBody);
         }
       });
     });
-    if (reqData) { req.write(JSON.stringify(reqData)); }
+    if (reqData) {
+      if (typeof reqData === 'string') {
+        // For testing: use raw string requests to assert failures for non-JSON payloads
+        req.setHeader('Content-Type', 'text/plain');
+      } else {
+        req.setHeader('Content-Type', 'application/json');
+        reqData = JSON.stringify(reqData); // eslint-disable-line no-param-reassign
+      }
+      req.write(reqData);
+    }
     req.on('error', (err) => {
       console.warn('testClient error', err); // eslint-disable-line no-console
       reject(err);

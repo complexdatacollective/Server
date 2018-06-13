@@ -118,6 +118,10 @@ codesign --force --sign "Mac Developer" --timestamp=none Electron.app --deep
     └── renderer       # GUI (react app)
 ```
 
+## JSDoc
+
+By convention, all functions tagged with `@async` return a promise. The corresponding `@returns` and `@throws` tags document the corresponding resolved or rejected type.
+
 ## API docs for clients
 
 The device API (for Network Canvas tablet & desktop clients) is currently being documented with [the OpenAPI spec](https://github.com/OAI/OpenAPI-Specification), a.k.a. Swagger. The spec is generated when the electron-dev target is built. To generate manually, run `node scripts/build-api-spec.js`.

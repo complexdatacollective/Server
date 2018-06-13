@@ -257,30 +257,46 @@ class ProtocolManager {
     });
   }
 
+  /**
+   * Get all sessions, up to an optional limit, for a protocol
+   * @param {string} protocolId
+   * @param {number?} limit
+   * @async
+   * @return {array}
+   */
   getProtocolSessions(protocolId, limit) {
     return this.sessionDb.findAll(protocolId, limit);
   }
 
+  /**
+   * Delete one or more sessions from a protocol
+   * @param {string} protocolId ID of an existing protocol
+   * @param {string?} sessionId if provided, delete only the specific ID.
+   *                            If omitted, delete all sessions for the protocol.
+   * @async
+   * @return {number} removed count
+   */
   deleteProtocolSessions(protocolId, sessionId) {
     return this.sessionDb.delete(protocolId, sessionId);
   }
 
-  addSessionData(id, sessionOrSessions) {
-    return this.getProtocol(id)
+  /**
+   * Import data associated with a protocol
+   * @param {string} protocolId ID of an existing protocol
+   * @param {object|array} sessionOrSessions one or more sessions of arbitrary shape
+   * @async
+   */
+  addSessionData(protocolId, sessionOrSessions) {
+    return this.getProtocol(protocolId)
       .then((protocol) => {
         if (!protocol) {
-          throw new RequestError('Invalid Protocol');
+          throw new RequestError(ErrorMessages.MissingProtocol);
         }
-        this.sessionDb.insertAllForProtocol(sessionOrSessions, protocol);
+        return this.sessionDb.insertAllForProtocol(sessionOrSessions, protocol);
       })
-      // TODO:
-      // - move to array if not one
-      // - uniq! on UUID field (add errors if dupes? or keep track of failed UUIDs?)
-      // - Promise.all[] insert sessions
-      // - how to handle partial success?
-      .catch((dbErr) => {
-        logger.error(dbErr);
-        throw dbErr;
+      .catch((insertErr) => {
+        logger.error(insertErr);
+        throw insertErr;
       });
   }
 }

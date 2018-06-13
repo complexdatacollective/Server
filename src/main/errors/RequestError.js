@@ -18,6 +18,7 @@ class RequestError extends Error {
 const ErrorMessages = {
   EmptyFilelist: 'Empty filelist',
   InvalidFile: 'Invalid File',
+  MissingProtocol: 'Missing protocol',
 };
 
 module.exports = {

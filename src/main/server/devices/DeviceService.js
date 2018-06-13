@@ -135,5 +135,6 @@ class DeviceService extends EventEmitter {
 
 module.exports = {
   DeviceService,
+  DefaultApiPort,
   deviceServiceEvents: emittedEvents,
 };
