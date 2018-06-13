@@ -5,7 +5,7 @@ const uuidv4 = require('uuid/v4');
 const logger = require('electron-log');
 
 const PairingCodeFactory = require('./PairingCodeFactory');
-const { RequestError } = require('../../errors/RequestError');
+const { ErrorMessages, RequestError } = require('../../errors/RequestError');
 const {
   decrypt,
   deriveSecretKeyBytes,
@@ -64,9 +64,6 @@ class PairingRequestService {
               reject(err);
             } else {
               logger.info('New pairing request saved', newRequest._id);
-              if (process.env.NODE_ENV === 'development') {
-                logger.debug('Pairing code', pairingCode);
-              }
               resolve(newRequest);
             }
           });
@@ -79,7 +76,7 @@ class PairingRequestService {
     return new Promise((resolve, reject) => {
       this.db.findOne({ used: false }).sort({ createdAt: -1 }).exec((err, doc) => {
         if (err || !doc) {
-          reject(new RequestError('Request verification failed'));
+          reject(new RequestError(ErrorMessages.VerificationFailed));
         }
         let plaintext;
         let json;
@@ -90,13 +87,14 @@ class PairingRequestService {
         } catch (decipherErr) {
           // This could be from either derivation or decryption
           logger.debug(decipherErr);
-          reject(new RequestError('Decryption failed'));
+          reject(new RequestError(ErrorMessages.DecryptionFailed));
           return;
         }
         try {
           json = JSON.parse(plaintext);
         } catch (parseErr) {
-          reject(new RequestError('Payload parsing failed'));
+          // console.log("INININ", parseErr);
+          reject(new RequestError(ErrorMessages.InvalidPayload));
           return;
         }
         this.verifyAndExpireRequest(json.pairingRequestId, json.pairingCode, json.deviceName)

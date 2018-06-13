@@ -16,9 +16,12 @@ class RequestError extends Error {
 }
 
 const ErrorMessages = {
+  DecryptionFailed: 'Decryption failed',
   EmptyFilelist: 'Empty filelist',
   InvalidFile: 'Invalid File',
+  InvalidPayload: 'Payload parsing failed',
   MissingProtocol: 'Missing protocol',
+  VerificationFailed: 'Request verification failed',
 };
 
 module.exports = {
