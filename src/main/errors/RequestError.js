@@ -19,6 +19,7 @@ const ErrorMessages = {
   DecryptionFailed: 'Decryption failed',
   EmptyFilelist: 'Empty filelist',
   InvalidFile: 'Invalid File',
+  InvalidProtocolFormat: 'Invalid Protocol Format',
   InvalidPayload: 'Payload parsing failed',
   MissingProtocol: 'Missing protocol',
   VerificationFailed: 'Request verification failed',

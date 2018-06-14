@@ -18,6 +18,37 @@ describe('ProtocolDB', () => {
     expect(result).toMatchObject(mockProtocol);
   });
 
+  it('inserts metadata with new name', async () => {
+    await db.save('a.netcanvas', new Buffer([]), { name: 'a' });
+    await db.save('a.netcanvas', new Buffer([]), { name: 'b' });
+    const results = await db.all();
+    expect(results.length).toBe(2);
+  });
+
+  it('requires file data', async () => {
+    expect(db.save('a.netcanvas', null, { name: 'a' })).rejects.toMatchObject({ message: ErrorMessages.InvalidFile });
+  });
+
+  it('updates metadata with same name', async () => {
+    await db.save('a.netcanvas', new Buffer([]), { name: 'a', version: '1' });
+    await db.save('b.netcanvas', new Buffer([0xbf]), { name: 'a', version: '2' });
+    const results = await db.all();
+    expect(results.length).toBe(1);
+  });
+
+  it('updates version for a protocol', async () => {
+    await db.save('a.netcanvas', new Buffer([]), mockProtocol);
+    const updated = { ...mockProtocol, version: `${mockProtocol}.1` };
+    const result = await db.save('a.netcanvas', new Buffer([]), updated);
+    expect(result).toMatchObject(updated);
+  });
+
+  it('updates file digest for a protocol', async () => {
+    const result1 = await db.save('a.netcanvas', new Buffer([]), mockProtocol);
+    const result2 = await db.save('a.netcanvas', new Buffer([0xbf]), mockProtocol);
+    expect(result1.sha256).not.toEqual(result2.sha256);
+  });
+
   it('requires a file', async () => {
     await expect(db.save(null))
       .rejects.toMatchObject({ message: ErrorMessages.InvalidFile });
@@ -30,12 +61,14 @@ describe('ProtocolDB', () => {
 
   it('requires metadata to be defined', async () => {
     await expect(db.save('a.netcanvas', new Buffer([]), null))
-      .rejects.toMatchObject({ message: ErrorMessages.InvalidFile });
+      .rejects.toMatchObject({ message: ErrorMessages.InvalidProtocolFormat });
   });
 
-  it('requires no specific metadata', async () => {
-    const result = await db.save('a.netcanvas', new Buffer([]), {});
-    expect(result).toMatchObject({});
+  it('requires only a "name" prop in metadata', async () => {
+    const nameless = db.save('a.netcanvas', new Buffer([]), {});
+    await expect(nameless).rejects.toMatchObject({ message: ErrorMessages.InvalidProtocolFormat });
+    const named = db.save('a.netcanvas', new Buffer([]), { name: 'a' });
+    await expect(named).resolves.toMatchObject({ name: 'a' });
   });
 
   it('calcualtes a checksum', async () => {
@@ -43,10 +76,17 @@ describe('ProtocolDB', () => {
     expect(result).toHaveProperty('sha256');
   });
 
+  it('normalizes canonical unicode codes in names', async () => {
+    await db.save('a.netcanvas', new Buffer([]), { name: '\u006E\u0303' });
+    await db.save('b.netcanvas', new Buffer([]), { name: '\u00f1' });
+    const results = await db.all();
+    expect(results).toHaveLength(1);
+  });
+
   describe('with saved records', () => {
     beforeEach(async () => {
       await db.save('a.netcanvas', new Buffer([]), mockProtocol);
-      await db.save('b.netcanvas', new Buffer([]), mockProtocol);
+      await db.save('b.netcanvas', new Buffer([]), { ...mockProtocol, name: `${mockProtocol.name}-1` });
     });
 
     it('fetches records from db', async () => {

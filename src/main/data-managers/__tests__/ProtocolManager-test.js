@@ -84,9 +84,6 @@ describe('ProtocolManager', () => {
         expect(results[0]).toMatch(mockFiles[0]);
         expect(manager.importFile).toHaveBeenCalledTimes(3);
       });
-
-      // TBD what we want to do here...
-      it.skip('overwrites existing files', () => {});
     });
   });
 
@@ -126,10 +123,31 @@ describe('ProtocolManager', () => {
   });
 
   describe('file handling', () => {
+    beforeEach(() => {
+      fs.copyFile.mockClear();
+    });
+
     it('uses fs to copy a file', () => {
       manager.importFile('foo.netcanvas');
       expect(fs.copyFile)
-        .toHaveBeenCalledWith('foo.netcanvas', expect.stringMatching(/foo\.netcanvas/), expect.any(Function));
+        .toHaveBeenCalledWith('foo.netcanvas', expect.stringMatching(/\.netcanvas/), expect.any(Function));
+    });
+
+    it('renames the file base', () => {
+      manager.importFile('foo.netcanvas');
+      expect(fs.copyFile)
+        .toHaveBeenCalledWith('foo.netcanvas', expect.not.stringMatching(/foo\.netcanvas/), expect.any(Function));
+    });
+
+    it('does not overwrite a file', () => {
+      manager.importFile('foo.netcanvas');
+      manager.importFile('foo.netcanvas');
+      const mockCalls = fs.copyFile.mock.calls;
+      expect(mockCalls).toHaveLength(2);
+      const srcArgs = [mockCalls[0][0], mockCalls[1][0]];
+      const destArgs = [mockCalls[0][1], mockCalls[1][1]];
+      expect(srcArgs[0]).toEqual(srcArgs[1]); // copies from same source
+      expect(destArgs[0]).not.toEqual(destArgs[1]); // ...to a new location
     });
 
     it('requires a filename', async () => {
@@ -138,7 +156,7 @@ describe('ProtocolManager', () => {
 
     it('resolves with the destination filename', async () => {
       fs.copyFile.mockImplementation((src, dest, cb) => { cb(); });
-      await expect(manager.importFile('foo.netcanvas')).resolves.toMatch(/foo/);
+      await expect(manager.importFile('foo.netcanvas')).resolves.toMatch(/\.netcanvas/);
     });
 
     it('rejects on failure', async () => {
@@ -207,6 +225,11 @@ describe('ProtocolManager', () => {
     it('saves metadata to DB', async () => {
       await manager.postProcessFile('');
       expect(manager.db.save).toHaveBeenCalled();
+    });
+
+    it('returns base filename (without path)', async () => {
+      const promise = manager.postProcessFile('foo/bar.netcanvas');
+      await expect(promise).resolves.toEqual(expect.not.stringContaining('foo/'));
     });
   });
 

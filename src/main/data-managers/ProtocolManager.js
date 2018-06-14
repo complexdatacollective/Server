@@ -3,6 +3,7 @@ const logger = require('electron-log');
 const fs = require('fs');
 const path = require('path');
 const jszip = require('jszip');
+const uuid = require('uuid/v4');
 
 const ProtocolDB = require('./ProtocolDB');
 const SessionDB = require('./SessionDB');
@@ -14,9 +15,7 @@ const protocolDirName = 'protocols';
 const ProtocolDataFile = 'protocol.json';
 
 const validateExt = filepath => new Promise((resolve, reject) => {
-  // TODO: validate & extract [#60]
-  const parsed = path.parse(filepath);
-  if (!validFileExts.includes(parsed.ext.replace(/^\./, ''))) {
+  if (!validFileExts.includes(path.extname(filepath).replace(/^\./, ''))) {
     reject(new RequestError(ErrorMessages.InvalidFile));
     return;
   }
@@ -35,7 +34,6 @@ class ProtocolManager {
     const dbFile = path.join(dataDir, 'db', 'protocols.db');
     this.db = new ProtocolDB(dbFile);
 
-    // TODO: move?
     const sessionDbFile = path.join(dataDir, 'db', 'sessions.db');
     this.sessionDb = new SessionDB(sessionDbFile);
   }
@@ -92,13 +90,14 @@ class ProtocolManager {
     for (let i = 0; i < fileList.length; i += 1) {
       workQueue.push(this.ensureDataDir()
         .then(() => validateExt(fileList[i]))
-        .then(file => this.importFile(file))
+        // TODO: skip if digest same as old?
+        .then(filepath => this.importFile(filepath))
         .then((savedFilepath) => {
           logger.debug(`Imported ${savedFilepath}`);
           return savedFilepath;
         })
-        .then(file => this.postProcessFile(file))
-        .then(file => path.parse(file).base));
+        .then(filepath => this.postProcessFile(filepath)));
+      // .then(file => path.parse(file).base));
     }
     return Promise.all(workQueue);
   }
@@ -115,7 +114,9 @@ class ProtocolManager {
   }
 
   /**
-   * Import a file into the working app directory
+   * Import a file into the working app directory.
+   * The file is saved with a random, unique name; until metadata is parsed,
+   * we don't know whether this is a new or updated protocol.
    * @async
    * @param  {string} filepath of existing file on local disk
    * @return {string} The saved filepath.
@@ -123,13 +124,14 @@ class ProtocolManager {
    */
   importFile(localFilepath = '') {
     return new Promise((resolve, reject) => {
-      const filename = path.parse(localFilepath).base;
-      if (!filename) {
+      const parsedPath = path.parse(localFilepath);
+      if (!parsedPath.base) {
         reject(new RequestError(ErrorMessages.InvalidFile));
         return;
       }
 
-      const destPath = path.join(this.protocolDir, filename);
+      const destName = `${uuid()}${parsedPath.ext}`;
+      const destPath = path.join(this.protocolDir, destName);
       fs.copyFile(localFilepath, destPath, (err) => {
         if (err) {
           reject(err);
@@ -143,11 +145,12 @@ class ProtocolManager {
    * Parse protocol.json and persist metadata to DB.
    * @async
    * @param  {string} savedFilepath
-   * @return {string} Resolves with the (same) savedFilepath for chaining
+   * @return {string} Resolves with the base filename
    * @throws Rejects if the file is not saved or protocol is invalid
    */
   // TODO: any further validation before saving?
   // TODO: delete file if post-process fails?
+  // TODO: delete old file for update?
   postProcessFile(savedFilepath) {
     return new Promise((resolve, reject) => {
       fs.readFile(savedFilepath, (err, dataBuffer) => {
@@ -161,8 +164,7 @@ class ProtocolManager {
           .then(zipObject => zipObject.async('string'))
           .then(contents => JSON.parse(contents))
           .then((parsedProtocol) => {
-            // TODO: Move .base (and correspoinding escape check) to fn
-            const filename = path.parse(savedFilepath).base;
+            const filename = path.basename(savedFilepath);
             this.db.save(filename, dataBuffer, parsedProtocol);
             resolve(filename);
           })
@@ -230,7 +232,7 @@ class ProtocolManager {
    * @async
    * @param {string} savedFilename base filename
    * @return {Buffer} raw file contents
-   * @throws {RequestError|Error} If file doesn't exit (ErrorMessages.InvalidFile),
+   * @throws {RequestError|Error} If file doesn't exist (ErrorMessages.InvalidFile),
    *         or there is an error reading
    */
   fileContents(savedFileName) {
