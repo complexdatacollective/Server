@@ -13,7 +13,7 @@ jest.mock('../ProtocolDB');
 jest.mock('../SessionDB');
 
 describe('ProtocolManager', () => {
-  const mockFileContents = new Buffer([]);
+  const mockFileContents = Buffer.from([]);
   const errorMessages = ProtocolManager.ErrorMessages;
   let manager;
   let invalidFileErr;

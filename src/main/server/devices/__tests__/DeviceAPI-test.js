@@ -130,7 +130,7 @@ describe('the DeviceAPI', () => {
 
     describe('GET /protocols/:filename', () => {
       const mockFilename = 'a.netcanvas';
-      const mockFileContents = new Buffer(['a'.charCodeAt()]);
+      const mockFileContents = Buffer.from(['a'.charCodeAt()]);
       beforeAll(() => {
         ProtocolManager.mockImplementation(() => ({
           fileContents: () => Promise.resolve(mockFileContents),
