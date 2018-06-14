@@ -1,18 +1,26 @@
 .app {
+  background-color: var(--recessed-background-color);
   display: flex;
   flex-direction: column;
   height: 100%;
 
-  @include element(titlebar) {
-    -webkit-app-region: drag; // sass-lint:disable-line no-vendor-prefixes
-    display: block;
-    height: var(--app-titlebar-height);
-    left: 0;
-    position: absolute;
-    right: 0;
-    top: 0;
-    visibility: visible;
-    width: 100%;
+  @include modifier(frameless) {
+    .app__titlebar {
+      -webkit-app-region: drag; // sass-lint:disable-line no-vendor-prefixes
+      display: block;
+      height: var(--app-titlebar-height);
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+      visibility: visible;
+      width: 100%;
+    }
+
+    .app__sidebar,
+    .app__screen {
+      padding-top: var(--app-titlebar-height);
+    }
   }
 
   // everything below the header
@@ -28,6 +36,7 @@
     color: var(--inverse-text-color);
     flex: none;
     height: 100%;
+    padding-top: var(--app-titlebar-height);
     width: var(--app-sidebar-width);
 
     // Ensure contained content fills entire height

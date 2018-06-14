@@ -29,6 +29,11 @@ const dialog = {
   showOpenDialog: jest.fn(),
 };
 
+const remote = {
+  process: {
+    platform: '',
+  },
+};
 
 const Tray = jest.fn().mockImplementation(() => ({
   setContextMenu: jest.fn(),
@@ -66,6 +71,7 @@ module.exports = {
   dialog,
   ipcMain,
   ipcRenderer,
+  remote,
 };
 
 exports.BrowserWindow = BrowserWindow;

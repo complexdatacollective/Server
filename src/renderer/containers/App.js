@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { ipcRenderer } from 'electron';
+import { ipcRenderer, remote } from 'electron';
 import { withRouter } from 'react-router-dom';
 
 import AppRoutes from './AppRoutes';
@@ -12,6 +12,8 @@ import { AnimatedPairPrompt } from '../components/pairing/PairPrompt';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
 import { actionCreators as deviceActionCreators } from '../ducks/modules/devices';
 import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
+
+const isFrameless = remote.process.platform === 'darwin';
 
 // This prevents user from being able to drop a file anywhere on the app
 // (which by default triggers a 'save' dialog). If we want to support this,
@@ -64,8 +66,11 @@ class App extends Component {
       appMessages,
       pairingRequest,
     } = this.props;
+
+    const appClass = isFrameless ? 'app app--frameless' : 'app';
+
     return (
-      <div className="app">
+      <div className={appClass}>
         <div role="Button" tabIndex="0" className="app__flash" onClick={dismissAppMessages}>
           { appMessages.map(msg => <AppMessage key={msg.timestamp} {...msg} />) }
         </div>

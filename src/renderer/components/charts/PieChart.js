@@ -24,7 +24,6 @@ const PieChart = ({ className, data }) => (
         data={data}
         dataKey="value"
         nameKey="name"
-        outerRadius={100}
       >
         {data.map((entry, index) => <Cell key={index} fill={colors[index % colors.length]} />)}
       </Pie>

@@ -14,7 +14,7 @@
   display: block;
   font-size: 2rem;
   height: var(--thumbnail-size);
-  line-height: calc(var(--thumbnail-size) - var(--border-width));
+  line-height: calc(var(--thumbnail-size) - 2 * var(--border-width));
   margin: spacing('medium') auto;
   overflow: visible;
   position: relative;
