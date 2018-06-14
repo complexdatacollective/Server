@@ -18,9 +18,11 @@ class RequestError extends Error {
 const ErrorMessages = {
   DecryptionFailed: 'Decryption failed',
   EmptyFilelist: 'Empty filelist',
+  FilelistNotSingular: 'Multiple files must be uploaded separately',
   InvalidFile: 'Invalid File',
   InvalidProtocolFormat: 'Invalid Protocol Format',
   InvalidPayload: 'Payload parsing failed',
+  InvalidZip: 'Invalid ZIP File',
   MissingProtocol: 'Missing protocol',
   VerificationFailed: 'Request verification failed',
 };

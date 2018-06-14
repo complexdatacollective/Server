@@ -46,7 +46,7 @@ describe('ProtocolDB', () => {
   it('updates file digest for a protocol', async () => {
     const result1 = await db.save('a.netcanvas', Buffer.from([]), mockProtocol);
     const result2 = await db.save('a.netcanvas', Buffer.from([0xbf]), mockProtocol);
-    expect(result1.sha256).not.toEqual(result2.sha256);
+    expect(result1.sha256Digest).not.toEqual(result2.sha256Digest);
   });
 
   it('requires a file', async () => {
@@ -73,7 +73,7 @@ describe('ProtocolDB', () => {
 
   it('calcualtes a checksum', async () => {
     const result = await db.save('a.netcanvas', Buffer.from([]), mockProtocol);
-    expect(result).toHaveProperty('sha256');
+    expect(result).toHaveProperty('sha256Digest');
   });
 
   it('normalizes canonical unicode codes in names', async () => {

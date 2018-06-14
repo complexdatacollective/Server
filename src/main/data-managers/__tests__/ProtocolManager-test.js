@@ -4,19 +4,25 @@ import { dialog } from 'electron';
 import JSZip from 'jszip';
 
 import ProtocolManager from '../ProtocolManager';
+import promisedFs from '../../utils/promised-fs';
 
 jest.mock('fs');
 jest.mock('electron');
 jest.mock('electron-log');
 jest.mock('jszip');
+jest.mock('../../utils/promised-fs');
 jest.mock('../ProtocolDB');
 jest.mock('../SessionDB');
 
 describe('ProtocolManager', () => {
-  const mockFileContents = Buffer.from([]);
+  const mockFileContents = Buffer.from([0x01]);
   const errorMessages = ProtocolManager.ErrorMessages;
   let manager;
   let invalidFileErr;
+
+  beforeAll(() => {
+    promisedFs.tryUnlink.mockResolvedValue(undefined);
+  });
 
   beforeEach(() => {
     manager = new ProtocolManager('.');
@@ -75,14 +81,20 @@ describe('ProtocolManager', () => {
         await expect(manager.validateAndImport(['file.unknownextension'])).rejects.toEqual(invalidFileErr);
       });
 
+      it('limits to one file', async () => {
+        const mockFiles = ['a.netcanvas', 'b.netcanvas', 'c.netcanvas'];
+        await expect(manager.validateAndImport(mockFiles))
+          .rejects.toMatchObject({ message: errorMessages.FilelistNotSingular });
+      });
+
+
       it('imports & promises each file', async () => {
         manager.importFile = jest.fn(infile => `copy-${infile}`);
-        manager.postProcessFile = jest.fn(filename => Promise.resolve(filename));
-        const mockFiles = ['a.netcanvas', 'b.netcanvas', 'c.netcanvas'];
-        const results = await manager.validateAndImport(mockFiles);
-        expect(results).toHaveLength(3);
-        expect(results[0]).toMatch(mockFiles[0]);
-        expect(manager.importFile).toHaveBeenCalledTimes(3);
+        manager.processFile = jest.fn(filename => Promise.resolve(filename));
+        const mockFilename = 'a.netcanvas';
+        const result = await manager.validateAndImport([mockFilename]);
+        expect(result).toEqual(mockFilename);
+        expect(manager.importFile).toHaveBeenCalledTimes(1);
       });
     });
   });
@@ -209,7 +221,7 @@ describe('ProtocolManager', () => {
 
   describe('post-processing', () => {
     beforeAll(() => {
-      fs.readFile.mockImplementation((file, cb) => cb(null, mockFileContents));
+      promisedFs.readFile.mockResolvedValue(mockFileContents);
       const mockProtocolZipObj = {
         async: () => JSON.stringify({ name: 'myProtocol' }),
       };
@@ -218,29 +230,29 @@ describe('ProtocolManager', () => {
     });
 
     it('parses file to get metadata', async () => {
-      await manager.postProcessFile('');
+      await manager.processFile('');
       expect(JSZip.loadAsync).toHaveBeenCalled();
     });
 
     it('saves metadata to DB', async () => {
-      await manager.postProcessFile('');
+      await manager.processFile('');
       expect(manager.db.save).toHaveBeenCalled();
     });
 
     it('returns base filename (without path)', async () => {
-      const promise = manager.postProcessFile('foo/bar.netcanvas');
+      const promise = manager.processFile('foo/bar.netcanvas');
       await expect(promise).resolves.toEqual(expect.not.stringContaining('foo/'));
     });
   });
 
   describe('post-processing failures', () => {
     beforeAll(() => {
-      fs.readFile.mockImplementation((file, cb) => cb(null, mockFileContents));
+      promisedFs.readFile.mockResolvedValue(mockFileContents);
       JSZip.loadAsync.mockImplementation(() => Promise.reject({}));
     });
 
     it('rejects if protocol cannot be read', async () => {
-      await expect(manager.postProcessFile('')).rejects.toMatchObject(invalidFileErr);
+      await expect(manager.processFile('')).rejects.toMatchObject({ message: errorMessages.InvalidZip });
     });
   });
 

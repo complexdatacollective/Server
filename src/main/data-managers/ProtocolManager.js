@@ -1,26 +1,27 @@
-const { dialog } = require('electron');
-const logger = require('electron-log');
+const crypto = require('crypto');
 const fs = require('fs');
-const path = require('path');
 const jszip = require('jszip');
+const logger = require('electron-log');
+const path = require('path');
 const uuid = require('uuid/v4');
+const { dialog } = require('electron');
 
 const ProtocolDB = require('./ProtocolDB');
 const SessionDB = require('./SessionDB');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
+const { readFile, rename, tryUnlink } = require('../utils/promised-fs');
 
 const validFileExts = ['netcanvas'];
 const protocolDirName = 'protocols';
 
 const ProtocolDataFile = 'protocol.json';
 
-const validateExt = filepath => new Promise((resolve, reject) => {
+const validateExt = (filepath) => {
   if (!validFileExts.includes(path.extname(filepath).replace(/^\./, ''))) {
-    reject(new RequestError(ErrorMessages.InvalidFile));
-    return;
+    throw new RequestError(ErrorMessages.InvalidFile);
   }
-  resolve(filepath);
-});
+  return filepath;
+};
 
 /**
  * @class ProtocolManager
@@ -42,9 +43,9 @@ class ProtocolManager {
    * Primary entry for native UI (e.g., File -> Import).
    * Display an Open dialog for the user to select importable files.
    * @async
-   * @return {Array<string>|undefined} saved file names, or `undefined`
-   *                                   if no files were selected
-   * @throws If importing of any input file failed
+   * @return {string|undefined} Resolves with the original requested filename, or
+   *                                     `undefined` if no files were selected
+   * @throws {Error} If importing of any input file failed
    */
   presentImportDialog() {
     const opts = {
@@ -57,49 +58,49 @@ class ProtocolManager {
     return new Promise((resolve, reject) => {
       dialog.showOpenDialog(opts, (filePaths) => {
         if (!filePaths) {
+          // User cancelled
           resolve();
           return;
         }
         this.validateAndImport(filePaths)
-          .then((savedFilenames) => {
-            resolve(savedFilenames);
-          })
-          .catch((err) => {
-            logger.error(err);
-            reject(err);
-          });
+          .then(savedFilename => resolve(savedFilename))
+          .catch(err => reject(err));
       });
     });
   }
 
   /**
-   * Primary interface for render-side API
+   * Import a file from a user-specified location to the working app directory.
+   * Primary interface for render-side API.
    * @async
    * @param  {FileList} fileList
-   * @return {Array<string>} an array of filenames
-   * @throws {RequestError|Error} If there is a problem saving, or on invalid input
+   * @return {string} Resolves with the original requested filename
+   * @throws {RequestError|Error} Rejects if there is a problem saving, or on invalid input
    */
   validateAndImport(fileList) {
     if (!fileList) {
-      // User may have cancelled
       return Promise.reject(new RequestError(ErrorMessages.EmptyFilelist));
     }
 
-    // TODO: determine failure mode for single error out of batch (if we even need batch)
-    const workQueue = [];
-    for (let i = 0; i < fileList.length; i += 1) {
-      workQueue.push(this.ensureDataDir()
-        .then(() => validateExt(fileList[i]))
-        // TODO: skip if digest same as old?
-        .then(filepath => this.importFile(filepath))
-        .then((savedFilepath) => {
-          logger.debug(`Imported ${savedFilepath}`);
-          return savedFilepath;
-        })
-        .then(filepath => this.postProcessFile(filepath)));
-      // .then(file => path.parse(file).base));
+    if (fileList.length > 1) {
+      return Promise.reject(new RequestError(ErrorMessages.FilelistNotSingular));
     }
-    return Promise.all(workQueue);
+
+    const userFilepath = fileList[0]; // User's file; treat as read-only
+    let tmpFilepath;
+    return this.ensureDataDir()
+      .then(() => validateExt(userFilepath))
+      .then(() => this.importFile(userFilepath))
+      .then((filepath) => {
+        tmpFilepath = filepath;
+        return this.processFile(filepath);
+      })
+      .then(() => path.basename(userFilepath))
+      .catch((err) => {
+        // Clean up tmp file if it's still around.
+        tryUnlink(tmpFilepath);
+        throw err;
+      });
   }
 
   ensureDataDir() {
@@ -114,8 +115,8 @@ class ProtocolManager {
   }
 
   /**
-   * Import a file into the working app directory.
-   * The file is saved with a random, unique name; until metadata is parsed,
+   * Import a file from a user-specified location to the working app directory.
+   * The file is saved with a random, unique name; until parsed,
    * we don't know whether this is a new or updated protocol.
    * @async
    * @param  {string} filepath of existing file on local disk
@@ -142,39 +143,81 @@ class ProtocolManager {
   }
 
   /**
-   * Parse protocol.json and persist metadata to DB.
+   * Process the imported (tmp) file:
+   * 1. Read file contents
+   * 2. Calculate a sha-256 digest of contents
+   * 3. Extract & parse protocol.json
+   * 4. Move (rename) tmpfile to final file location
+   * 5. Persist metadata to DB
+   *
    * @async
    * @param  {string} savedFilepath
-   * @return {string} Resolves with the base filename
+   * @return {string} Resolves with the base name of the persisted file
    * @throws Rejects if the file is not saved or protocol is invalid
    */
-  // TODO: any further validation before saving?
-  // TODO: delete file if post-process fails?
-  // TODO: delete old file for update?
-  postProcessFile(savedFilepath) {
-    return new Promise((resolve, reject) => {
-      fs.readFile(savedFilepath, (err, dataBuffer) => {
-        if (err) {
-          logger.error(err);
-          reject(err);
-          return;
-        }
-        jszip.loadAsync(dataBuffer)
-          .then(zip => zip.files[ProtocolDataFile])
-          .then(zipObject => zipObject.async('string'))
-          .then(contents => JSON.parse(contents))
-          .then((parsedProtocol) => {
-            const filename = path.basename(savedFilepath);
-            this.db.save(filename, dataBuffer, parsedProtocol);
-            resolve(filename);
-          })
-          .catch((parsingErr) => {
-            logger.debug('ZIP parsing error', parsingErr);
-            // Assume that any error indicates invalid protocol zip
-            reject(new RequestError(ErrorMessages.InvalidFile));
-          });
-      });
-    });
+  async processFile(tmpFilepath) {
+    let fileContents;
+    let destFilepath;
+    const cleanUpAndThrow = err => tryUnlink(destFilepath).then(() => { throw err; });
+
+    try {
+      fileContents = await readFile(tmpFilepath);
+    } catch (unexpectedErr) {
+      logger.error(unexpectedErr);
+      return cleanUpAndThrow(new Error('Unknown Error'));
+    }
+
+    if (!fileContents) {
+      return cleanUpAndThrow(new RequestError('Empty file'));
+    }
+
+    const digest = crypto.createHash('sha256').update(fileContents).digest('hex');
+    destFilepath = path.join(this.protocolDir, `${digest}${path.extname(tmpFilepath)}`);
+    const destFilename = path.basename(destFilepath);
+
+    try {
+      if (fs.existsSync(destFilepath)) {
+        logger.info('already exists...');
+        // FIXME: UI is not updating in this case
+        return Promise.resolve(destFilename);
+      }
+    } catch (fsErr) {
+      logger.debug('existsSync error; continuing.', fsErr);
+    }
+
+    let protocolContents;
+    try {
+      const zip = await jszip.loadAsync(fileContents);
+      const zipFile = zip.files[ProtocolDataFile];
+      protocolContents = await zipFile.async('string');
+    } catch (zipErr) {
+      return cleanUpAndThrow(new RequestError(ErrorMessages.InvalidZip));
+    }
+
+    let json;
+    try {
+      json = JSON.parse(protocolContents);
+    } catch (parseErr) {
+      return cleanUpAndThrow(new Error('Invalid protocol.json...'));
+    }
+
+    // By basing name on contents, we can short-circuit later updates that didn't change the file.
+    // This must happen after validating JSON contents.
+    // If rename fails for some reason, just continue.
+    try {
+      await rename(tmpFilepath, destFilepath);
+    } catch (fsErr) {
+      logger.debug('rename error; continuing.', fsErr);
+    }
+
+    try {
+      // TODO: If an update, then we should delete old file
+      await this.db.save(destFilename, digest, json);
+    } catch (dbErr) {
+      return cleanUpAndThrow(dbErr);
+    }
+
+    return destFilename;
   }
 
   /**
@@ -189,17 +232,16 @@ class ProtocolManager {
 
   // TODO: Probably remove after alpha testing
   destroyAllProtocols() {
-    return new Promise((resolve, reject) => {
-      this.allProtocols()
-        .then(protocols => protocols.map(p => this.destroyProtocol(p)))
-        .then(promises => resolve(Promise.all(promises)))
-        .catch((err) => {
-          logger.error(err);
-          reject(err);
-        });
-    });
+    return this.allProtocols()
+      .then(protocols => protocols.map(p => this.destroyProtocol(p)))
+      .then(promises => Promise.all(promises))
+      .catch((err) => {
+        logger.error(err);
+        throw err;
+      });
   }
 
+  // Destroy both metadata from DB and saved file
   destroyProtocol(protocol, ensureFileDeleted = false) {
     logger.debug('destroying protocol', protocol);
     return new Promise((resolve, reject) => {

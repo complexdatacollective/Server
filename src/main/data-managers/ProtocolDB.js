@@ -1,6 +1,4 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
-
-const crypto = require('crypto');
 const logger = require('electron-log');
 
 const DatabaseAdapter = require('./DatabaseAdapter');
@@ -15,8 +13,8 @@ class ProtocolDB extends DatabaseAdapter {
   /**
    * Insert or update protocol metadata.
    * The value of the "name" property in the JSON metadata is used to uniquely identify a protocol.
-   * @param  {string} baseFilename filename of the protocol container (e.g., example.netcavas)
-   * @param  {Buffer} rawFileData used to calculate a checksum
+   * @param  {string} filename base name of the protocol container (e.g., example.netcavas)
+   * @param  {Buffer} sha256Digest checksum for file contents
    * @param  {Object} metadata parsed properties form the protocol JSON file
    * @param  {string} metadata.name required and used as a unique key
    * @param  {string?} metadata.version
@@ -24,9 +22,9 @@ class ProtocolDB extends DatabaseAdapter {
    * @return {Object} Resolve with the persisted metadata
    * @throws If DB save fails
    */
-  save(baseFilename, rawFileData, metadata) {
+  save(filename, sha256Digest, metadata) {
     return new Promise((resolve, reject) => {
-      if (!baseFilename || !rawFileData) {
+      if (!filename || !sha256Digest) {
         reject(new RequestError(ErrorMessages.InvalidFile));
         return;
       }
@@ -39,6 +37,7 @@ class ProtocolDB extends DatabaseAdapter {
       const { version, networkCanvasVersion = '' } = metadata;
       const name = normalizedName(metadata);
       if (!name) {
+        logger.debug('(no name: reject from DB)');
         reject(new RequestError(ErrorMessages.InvalidProtocolFormat));
         return;
       }
@@ -47,10 +46,10 @@ class ProtocolDB extends DatabaseAdapter {
         name,
       }, {
         name,
-        filename: baseFilename,
+        filename,
         version,
         networkCanvasVersion,
-        sha256: crypto.createHash('sha256').update(rawFileData).digest('hex'),
+        sha256Digest,
       }, {
         multi: false,
         upsert: true,
@@ -59,7 +58,7 @@ class ProtocolDB extends DatabaseAdapter {
         if (dbErr || !count) {
           reject(new RequestError(ErrorMessages.InvalidProtocolFormat));
         } else {
-          logger.debug('Saved metadata for', baseFilename);
+          logger.debug('Saved metadata for', filename);
           resolve(doc);
         }
       });
