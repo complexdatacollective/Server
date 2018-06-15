@@ -16,12 +16,7 @@ const protocolDirName = 'protocols';
 
 const ProtocolDataFile = 'protocol.json';
 
-const validateExt = (filepath) => {
-  if (!validFileExts.includes(path.extname(filepath).replace(/^\./, ''))) {
-    throw new RequestError(ErrorMessages.InvalidFile);
-  }
-  return filepath;
-};
+const hasValidExtension = filepath => validFileExts.includes(path.extname(filepath).replace(/^\./, ''));
 
 /**
  * @class ProtocolManager
@@ -37,6 +32,10 @@ class ProtocolManager {
 
     const sessionDbFile = path.join(dataDir, 'db', 'sessions.db');
     this.sessionDb = new SessionDB(sessionDbFile);
+  }
+
+  pathToProtocolFile(filename) {
+    return path.join(this.protocolDir, filename);
   }
 
   /**
@@ -87,20 +86,28 @@ class ProtocolManager {
     }
 
     const userFilepath = fileList[0]; // User's file; treat as read-only
+
+    if (!hasValidExtension(userFilepath)) {
+      return Promise.reject(new RequestError(ErrorMessages.InvalidFile));
+    }
+
     let tmpFilepath;
     return this.ensureDataDir()
-      .then(() => validateExt(userFilepath))
       .then(() => this.importFile(userFilepath))
       .then((filepath) => {
         tmpFilepath = filepath;
         return this.processFile(filepath);
       })
-      .then(() => path.basename(userFilepath))
       .catch((err) => {
-        // Clean up tmp file if it's still around.
+        // Clean up tmp file on error
         tryUnlink(tmpFilepath);
         throw err;
-      });
+      })
+      .then(() => {
+        // Clean up tmp file if update was a no-op
+        tryUnlink(tmpFilepath);
+      })
+      .then(() => path.basename(userFilepath));
   }
 
   ensureDataDir() {
@@ -131,13 +138,13 @@ class ProtocolManager {
         return;
       }
 
-      const destName = `${uuid()}${parsedPath.ext}`;
-      const destPath = path.join(this.protocolDir, destName);
-      fs.copyFile(localFilepath, destPath, (err) => {
+      const tmpName = `${uuid()}${parsedPath.ext}`;
+      const tmpPath = this.pathToProtocolFile(tmpName);
+      fs.copyFile(localFilepath, tmpPath, (err) => {
         if (err) {
           reject(err);
         }
-        resolve(destPath);
+        resolve(tmpPath);
       });
     });
   }
@@ -164,7 +171,7 @@ class ProtocolManager {
       fileContents = await readFile(tmpFilepath);
     } catch (unexpectedErr) {
       logger.error(unexpectedErr);
-      return cleanUpAndThrow(new Error('Unknown Error'));
+      return cleanUpAndThrow(unexpectedErr);
     }
 
     if (!fileContents) {
@@ -172,7 +179,7 @@ class ProtocolManager {
     }
 
     const digest = crypto.createHash('sha256').update(fileContents).digest('hex');
-    destFilepath = path.join(this.protocolDir, `${digest}${path.extname(tmpFilepath)}`);
+    destFilepath = this.pathToProtocolFile(`${digest}${path.extname(tmpFilepath)}`);
     const destFilename = path.basename(destFilepath);
 
     try {
@@ -209,11 +216,18 @@ class ProtocolManager {
       logger.debug('rename error; continuing.', fsErr);
     }
 
+    // Persist metadata.
+    let prev;
+    let curr;
     try {
-      // TODO: If an update, then we should delete old file
-      await this.db.save(destFilename, digest, json);
+      ({ prev, curr } = await this.db.save(destFilename, digest, json, { returnOldDoc: true }));
     } catch (dbErr) {
       return cleanUpAndThrow(dbErr);
+    }
+
+    // If this was an update, then delete the previously saved file (best-effort)
+    if (prev && prev.filename && prev.filename !== curr.filename) {
+      tryUnlink(this.pathToProtocolFile(prev.filename));
     }
 
     return destFilename;
@@ -244,7 +258,7 @@ class ProtocolManager {
   destroyProtocol(protocol, ensureFileDeleted = false) {
     logger.debug('destroying protocol', protocol);
     return new Promise((resolve, reject) => {
-      const filePath = path.join(this.protocolDir, protocol.filename);
+      const filePath = this.pathToProtocolFile(protocol.filename);
       fs.unlink(filePath, (fileErr) => {
         if (fileErr && ensureFileDeleted) { reject(fileErr); }
         this.db.destroy(protocol)
@@ -282,7 +296,7 @@ class ProtocolManager {
         reject(new RequestError(ErrorMessages.InvalidFile));
         return;
       }
-      const filePath = path.join(this.protocolDir, savedFileName);
+      const filePath = this.pathToProtocolFile(savedFileName);
 
       // Prevent escaping protocol directory
       if (filePath.indexOf(this.protocolDir) !== 0) {

@@ -83,4 +83,33 @@ describe('SessionDB', () => {
     await expect(promise).rejects.toBeInstanceOf(Error);
     await expect(promise).rejects.toMatchObject({ errorType: 'uniqueViolated' });
   });
+
+  describe('with mocked DB cursor', () => {
+    const mockCursor = {
+      exec: (...args) => args[args.length - 1](null),
+    };
+    mockCursor.limit = jest.fn().mockReturnValue(mockCursor);
+    mockCursor.skip = jest.fn().mockReturnValue(mockCursor);
+    mockCursor.sort = jest.fn().mockReturnValue(mockCursor);
+
+    beforeEach(() => {
+      sessions.db.find = jest.fn(() => (mockCursor));
+    });
+
+    it('accepts a limit on the query', async () => {
+      await sessions.findAll(mockProtocol._id, 123);
+      expect(mockCursor.limit).toHaveBeenCalledWith(123);
+    });
+
+    describe('when underlying db fails', () => {
+      const mockError = new Error('database error');
+      beforeEach(() => {
+        mockCursor.exec = (...args) => args[args.length - 1](mockError);
+      });
+
+      it('rejects a query', async () => {
+        await expect(sessions.findAll(mockProtocol._id)).rejects.toThrow(mockError);
+      });
+    });
+  });
 });

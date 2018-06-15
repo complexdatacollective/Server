@@ -19,6 +19,9 @@ const validatedModifyTime = (protocol) => {
   return datetime;
 };
 
+/**
+ * @class
+ */
 class ProtocolDB extends DatabaseAdapter {
   /**
    * Insert or update protocol metadata.
@@ -29,11 +32,15 @@ class ProtocolDB extends DatabaseAdapter {
    * @param  {string} metadata.name required and used as a unique key
    * @param  {string?} metadata.description
    * @param  {string?} metadata.networkCanvasVersion
-   * @return {Object} Resolve with the persisted metadata
+   * @param  {Object?} opts
+   * @param  {boolean} [opts.returnOldDoc=false] if true, returns both the old doc and new doc.
+   * @async
+   * @return {Object} Resolve with the persisted metadata. If opts.returnOldDoc was true, this is
+   *                          an object of the shape { prev: {}, curr: {} }.
    * @throws If DB save fails
    */
-  save(filename, sha256Digest, metadata) {
-    return new Promise((resolve, reject) => {
+  save(filename, sha256Digest, metadata, { returnOldDoc = false } = {}) {
+    return new Promise(async (resolve, reject) => {
       if (!filename || !sha256Digest) {
         reject(new RequestError(ErrorMessages.InvalidFile));
         return;
@@ -54,6 +61,11 @@ class ProtocolDB extends DatabaseAdapter {
       const { description, networkCanvasVersion = '' } = metadata;
       const lastModified = validatedModifyTime(metadata);
 
+      let oldDoc;
+      if (returnOldDoc) {
+        oldDoc = await this.first({ name });
+      }
+
       this.db.update({
         name,
       }, {
@@ -69,10 +81,17 @@ class ProtocolDB extends DatabaseAdapter {
         returnUpdatedDocs: true,
       }, (dbErr, count, doc) => {
         if (dbErr || !count) {
-          reject(new RequestError(ErrorMessages.InvalidProtocolFormat));
+          reject(dbErr || new Error('Save failed'));
         } else {
           logger.debug('Saved metadata for', filename);
-          resolve(doc);
+          if (returnOldDoc) {
+            resolve({
+              prev: oldDoc,
+              curr: doc,
+            });
+          } else {
+            resolve(doc);
+          }
         }
       });
     });

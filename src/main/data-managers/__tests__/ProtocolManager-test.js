@@ -26,6 +26,7 @@ describe('ProtocolManager', () => {
 
   beforeEach(() => {
     manager = new ProtocolManager('.');
+    manager.db.save = jest.fn().mockResolvedValue({});
     invalidFileErr = expect.objectContaining({ message: errorMessages.InvalidFile });
   });
 
@@ -87,8 +88,7 @@ describe('ProtocolManager', () => {
           .rejects.toMatchObject({ message: errorMessages.FilelistNotSingular });
       });
 
-
-      it('imports & promises each file', async () => {
+      it('imports & promises one file', async () => {
         manager.importFile = jest.fn(infile => `copy-${infile}`);
         manager.processFile = jest.fn(filename => Promise.resolve(filename));
         const mockFilename = 'a.netcanvas';

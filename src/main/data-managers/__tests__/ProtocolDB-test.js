@@ -49,6 +49,13 @@ describe('ProtocolDB', () => {
     expect(result1.sha256Digest).not.toEqual(result2.sha256Digest);
   });
 
+  it('returns new & old docs if requested', async () => {
+    const result1 = await db.save('a.netcanvas', Buffer.from([]), mockProtocol);
+    const result2 = await db.save('a.netcanvas', Buffer.from([0xbf]), mockProtocol, { returnOldDoc: true });
+    expect(result2).toHaveProperty('curr');
+    expect(result2.prev).toEqual(result1);
+  });
+
   it('requires a file', async () => {
     await expect(db.save(null))
       .rejects.toMatchObject({ message: ErrorMessages.InvalidFile });
@@ -135,6 +142,27 @@ describe('ProtocolDB', () => {
 
     it('requires an ID for removal', async () => {
       expect(db.destroy({})).rejects.toMatchObject({ message: 'Cannot delete protocol without an id' });
+    });
+  });
+
+  describe('when underlying db fails', () => {
+    const mockError = new Error('database error');
+    beforeEach(() => {
+      db.db.update = jest.fn((...args) => args[args.length - 1](mockError));
+      db.db.remove = jest.fn((...args) => args[args.length - 1](mockError));
+      db.db.findOne = jest.fn((...args) => args[args.length - 1](mockError));
+    });
+
+    it('rejects a save', async () => {
+      await expect(db.save('a.netcanvas', Buffer.from([]), mockProtocol)).rejects.toThrow(mockError);
+    });
+
+    it('rejects a query', async () => {
+      await expect(db.first()).rejects.toThrow(mockError);
+    });
+
+    it('rejects a destroy', async () => {
+      await expect(db.destroy({ _id: 'a' })).rejects.toThrow(mockError);
     });
   });
 });

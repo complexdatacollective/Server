@@ -29,4 +29,20 @@ describe('the DeviceManager', () => {
     expect(numRemoved).toBe(1);
     expect(await dbClient.all()).toHaveLength(0);
   });
+
+  describe('when underlying db fails', () => {
+    const mockError = new Error('database error');
+    beforeEach(() => {
+      dbClient.db.insert = jest.fn((...args) => args[args.length - 1](mockError));
+      dbClient.db.remove = jest.fn((...args) => args[args.length - 1](mockError));
+    });
+
+    it('rejects a create', async () => {
+      await expect(dbClient.create(mockSecretHex)).rejects.toThrow(mockError);
+    });
+
+    it('rejects a destroy', async () => {
+      await expect(dbClient.destroyAll()).rejects.toThrow(mockError);
+    });
+  });
 });

@@ -163,7 +163,7 @@ class OutOfBandDelegate {
  *         example: 'Human-readable description of error'
  */
 const buildErrorResponse = (err, res) => {
-  const body = { status: 'error', message: err.message || 'Unknown Server Error' };
+  const body = { status: 'error', message: err.message || 'Unknown Error' };
   let statusCode;
   if (err instanceof RequestError) {
     statusCode = 400;
@@ -172,6 +172,7 @@ const buildErrorResponse = (err, res) => {
     statusCode = 400;
   } else if (!err.statusCode) {
     logger.error(err);
+    body.message = 'Unknown Server Error';
     statusCode = 500;
   }
   res.json(err.statusCode || statusCode, body);
