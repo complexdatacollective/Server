@@ -12,8 +12,8 @@ describe('SessionDB', () => {
     sessions = new SessionDB(null, true);
   });
 
-  it('won’t persist without a session', () => {
-    expect(sessions.insertAllForProtocol(mockSession, {}))
+  it('won’t persist without a session', async () => {
+    await expect(sessions.insertAllForProtocol(mockSession, {}))
       .rejects.toMatchObject({ message: 'Missing protocol' });
   });
 

@@ -59,21 +59,39 @@ const Schema = {
    *   Protocol:
    *     type: object
    *     properties:
+   *       id:
+   *         type: string
+   *         example: vV7HGFBCoRSQ53zh
    *       name:
    *         type: string
+   *         description: Unique protocol name as defined in protocol.json
+   *         example: Example Protocol
    *       description:
    *         type: string
+   *         required: false
+   *         example: Version 2 - internal
+   *       lastModified:
+   *         required: false
+   *         type: datetime
+   *         description: Modification date of the protocol, as defined in protocol.json
+   *         example: 2018-01-01T12:00:00.000Z
    *       networkCanvasVersion:
    *         type: string
+   *         description: Version as defined in protocol.json
+   *         example: "~4.0.0"
    *       downloadUrl:
    *         type: string
+   *         description: URL for direct download of the .netcanvas file
+   *         example: http://x.x.x.x:51001/protocols/foo.netcanvas
    *       sha256Digest:
    *         type: string
+   *         example: 8f99051c91044bd8159a8cc0fa2aaa831961c4428ce1859b82612743c9720eef
    */
   protocol: (protocol, apiBase) => ({
     id: protocol._id,
     name: protocol.name,
     description: protocol.description,
+    lastModified: protocol.lastModified,
     networkCanvasVersion: protocol.networkCanvasVersion,
     downloadUrl: new URL(`/protocols/${protocol.filename}`, apiBase),
     sha256Digest: protocol.sha256Digest,

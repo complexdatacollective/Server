@@ -9,6 +9,16 @@ const { ErrorMessages, RequestError } = require('../errors/RequestError');
 // (any characters, including unprintable, are valid).
 const normalizedName = protocol => protocol.name && protocol.name.normalize();
 
+// lastModified is optional, but if supplied must be a valid date string after 1970
+const validatedModifyTime = (protocol) => {
+  const datetime = protocol.lastModified;
+  const timestamp = Date.parse(datetime);
+  if (isNaN(timestamp) || timestamp < 0) {
+    return undefined;
+  }
+  return datetime;
+};
+
 class ProtocolDB extends DatabaseAdapter {
   /**
    * Insert or update protocol metadata.
@@ -34,7 +44,6 @@ class ProtocolDB extends DatabaseAdapter {
         return;
       }
 
-      const { description, networkCanvasVersion = '' } = metadata;
       const name = normalizedName(metadata);
       if (!name) {
         logger.debug('(no name: reject from DB)');
@@ -42,12 +51,16 @@ class ProtocolDB extends DatabaseAdapter {
         return;
       }
 
+      const { description, networkCanvasVersion = '' } = metadata;
+      const lastModified = validatedModifyTime(metadata);
+
       this.db.update({
         name,
       }, {
         name,
         filename,
         description,
+        lastModified,
         networkCanvasVersion,
         sha256Digest,
       }, {

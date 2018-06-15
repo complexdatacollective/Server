@@ -36,7 +36,7 @@ describe('PairingRequest Service', () => {
 
   it('verifies an existing request', async () => {
     const req = await reqSvc.createRequest();
-    expect(reqSvc.verifyAndExpireRequest(req._id, req.pairingCode)).resolves
+    await expect(reqSvc.verifyAndExpireRequest(req._id, req.pairingCode)).resolves
       .toMatchObject({ pairingCode: expect.any(String) });
   });
 

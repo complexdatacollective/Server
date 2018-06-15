@@ -26,7 +26,7 @@ describe('ProtocolDB', () => {
   });
 
   it('requires file data', async () => {
-    expect(db.save('a.netcanvas', null, { name: 'a' })).rejects.toMatchObject({ message: ErrorMessages.InvalidFile });
+    await expect(db.save('a.netcanvas', null, { name: 'a' })).rejects.toMatchObject({ message: ErrorMessages.InvalidFile });
   });
 
   it('updates metadata with same name', async () => {
@@ -69,6 +69,23 @@ describe('ProtocolDB', () => {
     await expect(nameless).rejects.toMatchObject({ message: ErrorMessages.InvalidProtocolFormat });
     const named = db.save('a.netcanvas', Buffer.from([]), { name: 'a' });
     await expect(named).resolves.toMatchObject({ name: 'a' });
+  });
+
+  it('allows a "lastModified" time', async () => {
+    const datetime = new Date().toJSON();
+    await expect(db.save('a.netcanvas', Buffer.from([]), { name: 'a', lastModified: datetime }))
+      .resolves.toMatchObject({ lastModified: datetime });
+  });
+
+  it('ignores invalid "lastModified" times', async () => {
+    // Note: when persisted on disk, nedb skips undefined props (but can't test for that in-mem)
+    await expect(db.save('a.netcanvas', Buffer.from([]), { name: 'a', lastModified: '2016-00-99' }))
+      .resolves.toMatchObject({ lastModified: undefined });
+  });
+
+  it('ignores modified times older than epoch', async () => {
+    await expect(db.save('a.netcanvas', Buffer.from([]), { name: 'a', lastModified: new Date(1969, 11, 31).toJSON() }))
+      .resolves.toMatchObject({ lastModified: undefined });
   });
 
   it('calcualtes a checksum', async () => {
