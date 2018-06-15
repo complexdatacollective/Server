@@ -121,6 +121,7 @@ class AdminService {
         .then(next);
     });
 
+    // Deprecated; will remove if not needed.
     api.get('/protocols/:id', (req, res, next) => {
       this.protocolManager.getProtocol(req.params.id)
         .then(protocol => res.send({ status: 'ok', protocol }))

@@ -176,9 +176,8 @@ class ProtocolManager {
     const destFilename = path.basename(destFilepath);
 
     try {
+      // If an identical, valid protocol file already exists, no need to update
       if (fs.existsSync(destFilepath)) {
-        logger.info('already exists...');
-        // FIXME: UI is not updating in this case
         return Promise.resolve(destFilename);
       }
     } catch (fsErr) {
