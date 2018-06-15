@@ -174,8 +174,8 @@ class ProtocolManager {
       return cleanUpAndThrow(unexpectedErr);
     }
 
-    if (!fileContents) {
-      return cleanUpAndThrow(new RequestError('Empty file'));
+    if (!fileContents || !fileContents.length) {
+      return cleanUpAndThrow(new RequestError(ErrorMessages.InvalidFile));
     }
 
     const digest = crypto.createHash('sha256').update(fileContents).digest('hex');
@@ -204,7 +204,7 @@ class ProtocolManager {
     try {
       json = JSON.parse(protocolContents);
     } catch (parseErr) {
-      return cleanUpAndThrow(new Error('Invalid protocol.json...'));
+      return cleanUpAndThrow(new Error(ErrorMessages.InvalidPayload));
     }
 
     // By basing name on contents, we can short-circuit later updates that didn't change the file.
