@@ -24,7 +24,7 @@ const lanIP = () => {
 };
 
 const ApiName = 'DevciceAPI';
-const ApiVersion = '0.0.6';
+const ApiVersion = '0.0.7';
 const ApiHostName = '0.0.0.0'; // IPv4 for compatibility with Travis (& unknown installations)
 
 const Schema = {
@@ -61,7 +61,7 @@ const Schema = {
    *     properties:
    *       name:
    *         type: string
-   *       version:
+   *       description:
    *         type: string
    *       networkCanvasVersion:
    *         type: string
@@ -73,7 +73,7 @@ const Schema = {
   protocol: (protocol, apiBase) => ({
     id: protocol._id,
     name: protocol.name,
-    version: protocol.version,
+    description: protocol.description,
     networkCanvasVersion: protocol.networkCanvasVersion,
     downloadUrl: new URL(`/protocols/${protocol.filename}`, apiBase),
     sha256Digest: protocol.sha256Digest,

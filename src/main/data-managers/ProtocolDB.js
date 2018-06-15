@@ -17,7 +17,7 @@ class ProtocolDB extends DatabaseAdapter {
    * @param  {Buffer} sha256Digest checksum for file contents
    * @param  {Object} metadata parsed properties form the protocol JSON file
    * @param  {string} metadata.name required and used as a unique key
-   * @param  {string?} metadata.version
+   * @param  {string?} metadata.description
    * @param  {string?} metadata.networkCanvasVersion
    * @return {Object} Resolve with the persisted metadata
    * @throws If DB save fails
@@ -34,7 +34,7 @@ class ProtocolDB extends DatabaseAdapter {
         return;
       }
 
-      const { version, networkCanvasVersion = '' } = metadata;
+      const { description, networkCanvasVersion = '' } = metadata;
       const name = normalizedName(metadata);
       if (!name) {
         logger.debug('(no name: reject from DB)');
@@ -47,7 +47,7 @@ class ProtocolDB extends DatabaseAdapter {
       }, {
         name,
         filename,
-        version,
+        description,
         networkCanvasVersion,
         sha256Digest,
       }, {

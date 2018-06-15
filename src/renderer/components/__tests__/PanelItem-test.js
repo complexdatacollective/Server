@@ -5,16 +5,26 @@ import { shallow } from 'enzyme';
 import PanelItem from '../PanelItem';
 
 const mockProps = {
-  label: 'foo',
-  value: 'bar',
+  label: 'almond',
+  placeholder: 'n/a',
+  value: 'marzipan',
 };
 
 describe('<PanelItem />', () => {
-  it('should render', () => {
-    const subject = shallow((
-      <PanelItem {...mockProps} />
-    ));
+  it('should render label', () => {
+    const subject = shallow(<PanelItem {...mockProps} />);
+    expect(subject.text()).toContain(mockProps.label);
+  });
 
-    expect(subject).toMatchSnapshot();
+  it('should render value', () => {
+    const subject = shallow(<PanelItem {...mockProps} />);
+    expect(subject.text()).toContain(mockProps.value);
+    expect(subject.text()).not.toContain(mockProps.placeholder);
+  });
+
+  it('should render placeholder if value unavailable', () => {
+    const placeholderProps = { ...mockProps, value: undefined };
+    const subject = shallow(<PanelItem {...placeholderProps} />);
+    expect(subject.text()).toContain(placeholderProps.placeholder);
   });
 });

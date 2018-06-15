@@ -7,7 +7,7 @@ import { ErrorMessages } from '../../errors/RequestError';
 jest.mock('electron-log');
 
 describe('ProtocolDB', () => {
-  const mockProtocol = { name: 'a', version: '1' };
+  const mockProtocol = { name: 'a', description: 'v1' };
   let db;
   beforeEach(() => {
     db = new ProtocolDB(null, true);
@@ -30,15 +30,15 @@ describe('ProtocolDB', () => {
   });
 
   it('updates metadata with same name', async () => {
-    await db.save('a.netcanvas', Buffer.from([]), { name: 'a', version: '1' });
-    await db.save('b.netcanvas', Buffer.from([0xbf]), { name: 'a', version: '2' });
+    await db.save('a.netcanvas', Buffer.from([]), { name: 'a', description: 'v1' });
+    await db.save('b.netcanvas', Buffer.from([0xbf]), { name: 'a', description: 'v2' });
     const results = await db.all();
     expect(results.length).toBe(1);
   });
 
-  it('updates version for a protocol', async () => {
+  it('updates description for a protocol', async () => {
     await db.save('a.netcanvas', Buffer.from([]), mockProtocol);
-    const updated = { ...mockProtocol, version: `${mockProtocol}.1` };
+    const updated = { ...mockProtocol, description: `${mockProtocol.description}.1` };
     const result = await db.save('a.netcanvas', Buffer.from([]), updated);
     expect(result).toMatchObject(updated);
   });
