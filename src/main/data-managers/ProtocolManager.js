@@ -88,7 +88,7 @@ class ProtocolManager {
     const userFilepath = fileList[0]; // User's file; treat as read-only
 
     if (!hasValidExtension(userFilepath)) {
-      return Promise.reject(new RequestError(ErrorMessages.InvalidFile));
+      return Promise.reject(new RequestError(ErrorMessages.InvalidContainerFileExtension));
     }
 
     let tmpFilepath;
@@ -128,13 +128,13 @@ class ProtocolManager {
    * @async
    * @param  {string} filepath of existing file on local disk
    * @return {string} The saved filepath.
-   * @throws {RequestError|Error} if the file to import isn't found: ErrorMessages.InvalidFile
+   * @throws {RequestError|Error} if the file to import isn't found
    */
   importFile(localFilepath = '') {
     return new Promise((resolve, reject) => {
       const parsedPath = path.parse(localFilepath);
       if (!parsedPath.base) {
-        reject(new RequestError(ErrorMessages.InvalidFile));
+        reject(new RequestError(ErrorMessages.InvalidContainerFile));
         return;
       }
 
@@ -175,7 +175,7 @@ class ProtocolManager {
     }
 
     if (!fileContents || !fileContents.length) {
-      return cleanUpAndThrow(new RequestError(ErrorMessages.InvalidFile));
+      return cleanUpAndThrow(new RequestError(ErrorMessages.InvalidContainerFile));
     }
 
     const digest = crypto.createHash('sha256').update(fileContents).digest('hex');
@@ -192,10 +192,20 @@ class ProtocolManager {
     }
 
     let protocolContents;
+    let zip;
     try {
-      const zip = await jszip.loadAsync(fileContents);
-      const zipFile = zip.files[ProtocolDataFile];
-      protocolContents = await zipFile.async('string');
+      zip = await jszip.loadAsync(fileContents);
+    } catch (zipErr) {
+      return cleanUpAndThrow(new RequestError(ErrorMessages.InvalidZip));
+    }
+
+    const zippedProtocol = zip.files[ProtocolDataFile];
+    if (!zippedProtocol) {
+      return cleanUpAndThrow(new RequestError(ErrorMessages.MissingProtocol));
+    }
+
+    try {
+      protocolContents = await zippedProtocol.async('string');
     } catch (zipErr) {
       return cleanUpAndThrow(new RequestError(ErrorMessages.InvalidZip));
     }
@@ -204,7 +214,7 @@ class ProtocolManager {
     try {
       json = JSON.parse(protocolContents);
     } catch (parseErr) {
-      return cleanUpAndThrow(new Error(ErrorMessages.InvalidPayload));
+      return cleanUpAndThrow(new Error(`${ErrorMessages.InvalidProtocolFormat}: could not parse JSON`));
     }
 
     // By basing name on contents, we can short-circuit later updates that didn't change the file.
@@ -287,20 +297,20 @@ class ProtocolManager {
    * @async
    * @param {string} savedFilename base filename
    * @return {Buffer} raw file contents
-   * @throws {RequestError|Error} If file doesn't exist (ErrorMessages.InvalidFile),
+   * @throws {RequestError|Error} If file doesn't exist (ErrorMessages.InvalidContainerFile),
    *         or there is an error reading
    */
   fileContents(savedFileName) {
     return new Promise((resolve, reject) => {
       if (typeof savedFileName !== 'string') {
-        reject(new RequestError(ErrorMessages.InvalidFile));
+        reject(new RequestError(ErrorMessages.InvalidContainerFile));
         return;
       }
       const filePath = this.pathToProtocolFile(savedFileName);
 
       // Prevent escaping protocol directory
       if (filePath.indexOf(this.protocolDir) !== 0) {
-        reject(new RequestError(ErrorMessages.InvalidFile));
+        reject(new RequestError(ErrorMessages.InvalidContainerFile));
         return;
       }
 

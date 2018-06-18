@@ -2,7 +2,7 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
 
 import SessionDB from '../SessionDB';
-import { RequestError } from '../../errors/RequestError';
+import { ErrorMessages, RequestError } from '../../errors/RequestError';
 
 describe('SessionDB', () => {
   const mockProtocol = { name: 'a', _id: 'protocol1' };
@@ -14,7 +14,7 @@ describe('SessionDB', () => {
 
   it('won’t persist without a session', async () => {
     await expect(sessions.insertAllForProtocol(mockSession, {}))
-      .rejects.toMatchObject({ message: 'Missing protocol' });
+      .rejects.toMatchObject({ message: ErrorMessages.MissingProtocol });
   });
 
   it('persists a session', async () => {

@@ -93,8 +93,7 @@ class PairingRequestService {
         try {
           json = JSON.parse(plaintext);
         } catch (parseErr) {
-          // console.log("INININ", parseErr);
-          reject(new RequestError(ErrorMessages.InvalidPayload));
+          reject(new RequestError(ErrorMessages.InvalidRequestBody));
           return;
         }
         this.verifyAndExpireRequest(json.pairingRequestId, json.pairingCode, json.deviceName)

@@ -19,11 +19,12 @@ const ErrorMessages = {
   DecryptionFailed: 'Decryption failed',
   EmptyFilelist: 'Empty filelist',
   FilelistNotSingular: 'Multiple files must be uploaded separately',
-  InvalidFile: 'Invalid File',
+  InvalidContainerFile: 'Invalid File',
+  InvalidContainerFileExtension: 'File must have a ".netcanvas" extension',
   InvalidProtocolFormat: 'Invalid Protocol Format',
-  InvalidPayload: 'Payload parsing failed',
+  InvalidRequestBody: 'Could not parse request data',
   InvalidZip: 'Invalid ZIP File',
-  MissingProtocol: 'Missing protocol',
+  MissingProtocol: 'Missing protocol file',
   VerificationFailed: 'Request verification failed',
 };
 

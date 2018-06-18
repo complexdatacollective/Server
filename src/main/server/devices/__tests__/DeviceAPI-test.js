@@ -2,7 +2,7 @@
 const { DeviceAPI, OutOfBandDelegate } = require('../DeviceAPI');
 
 const ProtocolManager = require('../../../data-managers/ProtocolManager');
-const { jsonClient, makeUrl } = require('../../../../setupTests');
+const { jsonClient, makeUrl } = require('../../../../../config/jest/setupTestEnv');
 const { RequestError } = require('../../../errors/RequestError');
 
 const testPortNumber = 5200;

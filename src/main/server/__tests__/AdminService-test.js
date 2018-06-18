@@ -2,7 +2,7 @@
 const net = require('net');
 
 const { AdminService } = require('../AdminService');
-const { jsonClient, makeUrl } = require('../../../setupTests');
+const { jsonClient, makeUrl } = require('../../../../config/jest/setupTestEnv');
 const DeviceManager = require('../../data-managers/DeviceManager');
 const ProtocolManager = require('../../data-managers/ProtocolManager');
 

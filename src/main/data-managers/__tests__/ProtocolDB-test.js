@@ -26,7 +26,7 @@ describe('ProtocolDB', () => {
   });
 
   it('requires file data', async () => {
-    await expect(db.save('a.netcanvas', null, { name: 'a' })).rejects.toMatchObject({ message: ErrorMessages.InvalidFile });
+    await expect(db.save('a.netcanvas', null, { name: 'a' })).rejects.toMatchErrorMessage(ErrorMessages.InvalidContainerFile);
   });
 
   it('updates metadata with same name', async () => {
@@ -57,23 +57,20 @@ describe('ProtocolDB', () => {
   });
 
   it('requires a file', async () => {
-    await expect(db.save(null))
-      .rejects.toMatchObject({ message: ErrorMessages.InvalidFile });
+    await expect(db.save(null)).rejects.toMatchErrorMessage(ErrorMessages.InvalidContainerFile);
   });
 
   it('requires a buffer', async () => {
-    await expect(db.save('a.netcanvas', null))
-      .rejects.toMatchObject({ message: ErrorMessages.InvalidFile });
+    await expect(db.save('a.netcanvas', null)).rejects.toMatchErrorMessage(ErrorMessages.InvalidContainerFile);
   });
 
   it('requires metadata to be defined', async () => {
-    await expect(db.save('a.netcanvas', Buffer.from([]), null))
-      .rejects.toMatchObject({ message: ErrorMessages.InvalidProtocolFormat });
+    await expect(db.save('a.netcanvas', Buffer.from([]), null)).rejects.toMatchErrorMessage(ErrorMessages.InvalidProtocolFormat);
   });
 
   it('requires only a "name" prop in metadata', async () => {
     const nameless = db.save('a.netcanvas', Buffer.from([]), {});
-    await expect(nameless).rejects.toMatchObject({ message: ErrorMessages.InvalidProtocolFormat });
+    await expect(nameless).rejects.toMatchErrorMessage(ErrorMessages.InvalidProtocolFormat);
     const named = db.save('a.netcanvas', Buffer.from([]), { name: 'a' });
     await expect(named).resolves.toMatchObject({ name: 'a' });
   });
@@ -141,7 +138,7 @@ describe('ProtocolDB', () => {
     });
 
     it('requires an ID for removal', async () => {
-      expect(db.destroy({})).rejects.toMatchObject({ message: 'Cannot delete protocol without an id' });
+      await expect(db.destroy({})).rejects.toMatchErrorMessage('Cannot delete protocol without an id');
     });
   });
 

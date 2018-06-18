@@ -148,8 +148,9 @@
     "setupFiles": [
       "<rootDir>/config/polyfills.js",
       "<rootDir>/config/jest/polyfills.js",
-      "<rootDir>/src/setupTests.js"
+      "<rootDir>/config/jest/setupTestEnv.js"
     ],
+    "setupTestFrameworkScriptFile": "<rootDir>/config/jest/setupTestFramework.js",
     "testPathIgnorePatterns": [
       "<rootDir>[/\\\\](build|docs|node_modules|scripts|release-builds)[/\\\\]"
     ],

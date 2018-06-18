@@ -42,19 +42,18 @@ class ProtocolDB extends DatabaseAdapter {
   save(filename, sha256Digest, metadata, { returnOldDoc = false } = {}) {
     return new Promise(async (resolve, reject) => {
       if (!filename || !sha256Digest) {
-        reject(new RequestError(ErrorMessages.InvalidFile));
+        reject(new RequestError(ErrorMessages.InvalidContainerFile));
         return;
       }
 
       if (!metadata) {
-        reject(new RequestError(ErrorMessages.InvalidProtocolFormat));
+        reject(new RequestError(`${ErrorMessages.InvalidProtocolFormat}: empty protocol`));
         return;
       }
 
       const name = normalizedName(metadata);
       if (!name) {
-        logger.debug('(no name: reject from DB)');
-        reject(new RequestError(ErrorMessages.InvalidProtocolFormat));
+        reject(new RequestError(`${ErrorMessages.InvalidProtocolFormat}: "name" is required`));
         return;
       }
 
