@@ -3,7 +3,7 @@ const mdns = require('mdns');
 const os = require('os');
 
 const Server = require('../Server');
-const { DeviceService } = require('../devices/DeviceService');
+const { DeviceService, deviceServiceEvents } = require('../devices/DeviceService');
 
 const testPortNumber = 51999;
 const serverOpts = { dataDir: 'db' };
@@ -43,6 +43,21 @@ describe('Server', () => {
     expect(server.status()).toMatchObject({});
   });
 
+  it('forwards relevant events from device service', () => {
+    const handler = jest.fn();
+    const evtName = deviceServiceEvents.PAIRING_CODE_AVAILABLE;
+    server = new Server(serverOpts);
+    server.deviceService = { on: jest.fn() };
+    server.on(evtName, handler);
+    expect(server.deviceService.on).toHaveBeenCalledWith(evtName, handler);
+  });
+
+  it('ignores non-device events', () => {
+    server = new Server(serverOpts);
+    server.deviceService = { on: jest.fn() };
+    server.on('not-a-real-event');
+    expect(server.deviceService.on).not.toHaveBeenCalled();
+  });
 
   describe('with a device service', () => {
     let deviceService;
@@ -59,6 +74,13 @@ describe('Server', () => {
       expect(mockAdvert.start.mock.calls.length).toBe(0);
       server.advertiseDeviceService(deviceService);
       expect(mockAdvert.start.mock.calls.length).toBe(1);
+    });
+
+    it('stops before re-advertising', () => {
+      server.deviceAdvertisement = mockAdvert;
+      expect(mockAdvert.stop.mock.calls.length).toBe(0);
+      server.advertiseDeviceService(deviceService);
+      expect(mockAdvert.stop.mock.calls.length).toBe(1);
     });
 
     it('advertises hostname as instance name', () => {
