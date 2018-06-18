@@ -42,6 +42,7 @@ This repository assumes that `npm` is installed. If you don't have it installed,
 |`test`|Runs testing suite.|
 |`build-docs`|Builds HTML API docs into the docs-build directory.|
 |`electron`|Runs the current code in electron, for testing.|
+|`preflight`|Run all linters, doc generators, and tests.|
 
 Run `npm run` for a list of all available commands.
 
