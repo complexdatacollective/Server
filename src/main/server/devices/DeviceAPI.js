@@ -10,6 +10,7 @@ const { URL } = require('url');
 
 const DeviceManager = require('../../data-managers/DeviceManager');
 const ProtocolManager = require('../../data-managers/ProtocolManager');
+const apiRequestLogger = require('../apiRequestLogger');
 const { PairingRequestService } = require('./PairingRequestService');
 const { RequestError } = require('../../errors/RequestError');
 const { IncompletePairingError } = require('../../errors/IncompletePairingError');
@@ -236,6 +237,10 @@ class DeviceAPI {
     });
 
     server.use(restify.plugins.bodyParser());
+
+    if (process.env.NODE_ENV === 'development') {
+      server.on('after', apiRequestLogger('DeviceAPI'));
+    }
 
     // Whitelist everything for CORS: origins are arbitrary, and customizing client
     // Access-Origins buys no security

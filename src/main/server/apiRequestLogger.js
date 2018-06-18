@@ -4,9 +4,11 @@ const format = (req, res, tag = 'API') => (
   `[${tag}] ${req.method} ${req.url} - ${res.statusCode}`
 );
 
-const apiRequestLogger = tag => (req, res, next) => {
+/**
+ * Logging plugin to be used on restify's `after` event
+ */
+const apiRequestLogger = tag => (req, res/* , route, err */) => {
   logger.info(format(req, res, tag));
-  return next();
 };
 
 module.exports = apiRequestLogger;

@@ -77,7 +77,7 @@ class AdminService {
       });
       api.pre(cors.preflight);
       api.use(cors.actual);
-      api.use(apiRequestLogger('AdminAPI'));
+      api.on('after', apiRequestLogger('AdminAPI'));
     }
 
     api.get('/health', (req, res, next) => {
