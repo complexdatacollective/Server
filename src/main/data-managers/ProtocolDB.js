@@ -3,6 +3,7 @@ const logger = require('electron-log');
 
 const DatabaseAdapter = require('./DatabaseAdapter');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
+const { hexDigest } = require('../utils/sha256');
 
 // Name is the unique identifier for a protocol.
 // This normalizes unicode points, but leaves otherwise unchanged
@@ -27,7 +28,7 @@ class ProtocolDB extends DatabaseAdapter {
    * Insert or update protocol metadata.
    * The value of the "name" property in the JSON metadata is used to uniquely identify a protocol.
    * @param  {string} filename base name of the protocol container (e.g., example.netcavas)
-   * @param  {Buffer} sha256Digest checksum for file contents
+   * @param  {string} contentsDigest hex-encoded SHA-256 of file contents
    * @param  {Object} metadata parsed properties form the protocol JSON file
    * @param  {string} metadata.name required and used as a unique key
    * @param  {string?} metadata.description
@@ -39,9 +40,9 @@ class ProtocolDB extends DatabaseAdapter {
    *                          an object of the shape { prev: {}, curr: {} }.
    * @throws If DB save fails
    */
-  save(filename, sha256Digest, metadata, { returnOldDoc = false } = {}) {
+  save(filename, contentsDigest, metadata, { returnOldDoc = false } = {}) {
     return new Promise(async (resolve, reject) => {
-      if (!filename || !sha256Digest) {
+      if (!filename || !contentsDigest) {
         reject(new RequestError(ErrorMessages.InvalidContainerFile));
         return;
       }
@@ -68,12 +69,13 @@ class ProtocolDB extends DatabaseAdapter {
       this.db.update({
         name,
       }, {
+        _id: hexDigest(name),
         name,
         filename,
         description,
         lastModified,
         networkCanvasVersion,
-        sha256Digest,
+        sha256Digest: contentsDigest,
       }, {
         multi: false,
         upsert: true,

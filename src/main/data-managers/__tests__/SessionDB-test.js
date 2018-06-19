@@ -14,7 +14,7 @@ describe('SessionDB', () => {
 
   it('won’t persist without a session', async () => {
     await expect(sessions.insertAllForProtocol(mockSession, {}))
-      .rejects.toMatchObject({ message: ErrorMessages.MissingProtocol });
+      .rejects.toMatchErrorMessage(ErrorMessages.NotFound);
   });
 
   it('persists a session', async () => {

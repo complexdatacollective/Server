@@ -12,7 +12,7 @@ const DeviceManager = require('../../data-managers/DeviceManager');
 const ProtocolManager = require('../../data-managers/ProtocolManager');
 const apiRequestLogger = require('../apiRequestLogger');
 const { PairingRequestService } = require('./PairingRequestService');
-const { RequestError } = require('../../errors/RequestError');
+const { ErrorMessages, RequestError } = require('../../errors/RequestError');
 const { IncompletePairingError } = require('../../errors/IncompletePairingError');
 const { encrypt } = require('../../utils/shared-api/cipher');
 
@@ -25,7 +25,7 @@ const lanIP = () => {
 };
 
 const ApiName = 'DevciceAPI';
-const ApiVersion = '0.0.7';
+const ApiVersion = '0.0.8';
 const ApiHostName = '0.0.0.0'; // IPv4 for compatibility with Travis (& unknown installations)
 
 const Schema = {
@@ -62,7 +62,12 @@ const Schema = {
    *     properties:
    *       id:
    *         type: string
-   *         example: vV7HGFBCoRSQ53zh
+   *         format: hex
+   *         description: |
+   *           A digest of the protocol name, serving as a unique identifier for this protocol
+   *           across server instances.
+   *           May be used for other endpoints (such as data import).
+   *         example: b40bdb458541a852d517daf1b3b7c7eb038b73f4f04ec867a253e76bdef5452b
    *       name:
    *         type: string
    *         description: Unique protocol name as defined in protocol.json
@@ -167,7 +172,8 @@ const buildErrorResponse = (err, res) => {
   const body = { status: 'error', message: err.message || 'Unknown Error' };
   let statusCode;
   if (err instanceof RequestError) {
-    statusCode = 400;
+    const is404 = err.message === ErrorMessages.NotFound;
+    statusCode = is404 ? 404 : 400;
   } else if (err instanceof IncompletePairingError) {
     // TODO: review; 5xx is probably correct, but weird bc of user involvement
     statusCode = 400;
@@ -395,8 +401,8 @@ class DeviceAPI {
      *         schema:
      *           type: file
      *           example: "[raw data buffer]"
-     *       400:
-     *         description: request error
+     *       404:
+     *         description: Not found
      *         schema:
      *           $ref: '#/definitions/Error'
      */
@@ -464,6 +470,10 @@ class DeviceAPI {
      *                   example: 10
      *       400:
      *         description: Generic request error
+     *         schema:
+     *           $ref: '#/definitions/Error'
+     *       404:
+     *         description: Protocol was not found
      *         schema:
      *           $ref: '#/definitions/Error'
      *       406:

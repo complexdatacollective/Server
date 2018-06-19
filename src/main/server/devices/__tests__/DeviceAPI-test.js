@@ -3,7 +3,7 @@ const { DeviceAPI, OutOfBandDelegate } = require('../DeviceAPI');
 
 const ProtocolManager = require('../../../data-managers/ProtocolManager');
 const { jsonClient, makeUrl } = require('../../../../../config/jest/setupTestEnv');
-const { RequestError } = require('../../../errors/RequestError');
+const { ErrorMessages, RequestError } = require('../../../errors/RequestError');
 
 const testPortNumber = 5200;
 const mockSecretKey = '49b2f34ccbc425c941596fa492be0a382467538359de9ee09d42950056f0bc6a';
@@ -12,6 +12,7 @@ jest.mock('../../../data-managers/DeviceManager');
 jest.mock('../../../data-managers/ProtocolManager');
 jest.mock('../PairingRequestService');
 jest.mock('libsodium-wrappers');
+jest.mock('electron-log');
 
 describe('the DeviceAPI', () => {
   const dataDir = '';
@@ -70,10 +71,8 @@ describe('the DeviceAPI', () => {
 
     describe('POST /devices', () => {
       beforeEach(() => {
-        // Note: mockRejectedValue() triggers UnhandledPromiseRejectionWarning
-        deviceApi.requestService.verifyAndExpireEncryptedRequest.mockImplementation(() => (
-          Promise.reject(new RequestError())
-        ));
+        const err = new RequestError();
+        deviceApi.requestService.verifyAndExpireEncryptedRequest.mockRejectedValue(err);
       });
 
       it('rejects invalid requests', async () => {
@@ -92,9 +91,7 @@ describe('the DeviceAPI', () => {
       describe('with a valid request', () => {
         beforeEach(() => {
           // Mock that the pairing request was found & valid:
-          deviceApi.requestService.verifyAndExpireEncryptedRequest.mockReturnValue((
-            Promise.resolve({})
-          ));
+          deviceApi.requestService.verifyAndExpireEncryptedRequest.mockResolvedValue({});
           // Mock that the new device was successfully saved:
           deviceApi.deviceManager.createDeviceDocument.mockReturnValue((
             Promise.resolve({ secretKey: mockSecretKey })
@@ -133,7 +130,7 @@ describe('the DeviceAPI', () => {
       const mockFileContents = Buffer.from(['a'.charCodeAt()]);
       beforeAll(() => {
         ProtocolManager.mockImplementation(() => ({
-          fileContents: () => Promise.resolve(mockFileContents),
+          fileContents: jest.fn().mockResolvedValue(mockFileContents),
         }));
       });
 
@@ -143,6 +140,19 @@ describe('the DeviceAPI', () => {
         // For the purposes of testing, compare string
         expect(res.json).toBeUndefined();
         expect(res.data).toEqual(mockFileContents.toString());
+      });
+
+      describe('when not found', () => {
+        beforeAll(() => {
+          ProtocolManager.mockImplementation(() => ({
+            fileContents: jest.fn().mockRejectedValue(new RequestError(ErrorMessages.NotFound)),
+          }));
+        });
+
+        it('rejects with 404', async () => {
+          await expect(jsonClient.get(makeUrl('/protocols/doesnotexist.netcanvas', deviceApi.server.url), {}))
+            .rejects.toMatchObject({ statusCode: 404 });
+        });
       });
     });
 
@@ -171,6 +181,34 @@ describe('the DeviceAPI', () => {
         await expect((
           jsonClient.post(makeUrl('/protocols/1/sessions', deviceApi.server.url), 'not-json')
         )).rejects.toHaveProperty('statusCode', 406);
+      });
+
+      describe('when session already exists', () => {
+        beforeAll(() => {
+          const dbErr = new Error('nedb error');
+          dbErr.errorType = 'uniqueViolated';
+          ProtocolManager.mockImplementation(() => ({
+            addSessionData: jest.fn().mockRejectedValue(dbErr),
+          }));
+        });
+
+        it('rejects with a conflict', async () => {
+          await expect(jsonClient.post(makeUrl('/protocols/1/sessions', deviceApi.server.url), {}))
+            .rejects.toMatchObject({ statusCode: 409 });
+        });
+      });
+
+      describe('when there’s another type of server error', () => {
+        beforeAll(() => {
+          ProtocolManager.mockImplementation(() => ({
+            addSessionData: jest.fn().mockRejectedValue(new Error('unexpected error')),
+          }));
+        });
+
+        it('rejects with an unknown server error', async () => {
+          await expect(jsonClient.post(makeUrl('/protocols/1/sessions', deviceApi.server.url), {}))
+            .rejects.toMatchObject({ statusCode: 500 });
+        });
       });
     });
   });

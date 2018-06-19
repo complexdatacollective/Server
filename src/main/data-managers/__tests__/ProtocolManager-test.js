@@ -401,7 +401,7 @@ describe('ProtocolManager', () => {
       it('rejects if adding to an unknown protocol', async () => {
         manager.db.get = jest.fn().mockResolvedValue(null);
         await expect(manager.addSessionData(null, []))
-          .rejects.toMatchErrorMessage(errorMessages.MissingProtocol);
+          .rejects.toMatchErrorMessage(errorMessages.NotFound);
       });
     });
   });

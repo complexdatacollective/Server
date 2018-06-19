@@ -24,7 +24,7 @@ class SessionDB extends DatabaseAdapter {
   insertAllForProtocol(sessionOrSessions, protocol) {
     return new Promise((resolve, reject) => {
       if (!protocol || !protocol._id) {
-        reject(new RequestError(ErrorMessages.MissingProtocol));
+        reject(new RequestError(ErrorMessages.NotFound));
         return;
       }
       const isArray = sessionOrSessions instanceof Array;

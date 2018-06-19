@@ -1,4 +1,3 @@
-const crypto = require('crypto');
 const fs = require('fs');
 const jszip = require('jszip');
 const logger = require('electron-log');
@@ -10,6 +9,7 @@ const ProtocolDB = require('./ProtocolDB');
 const SessionDB = require('./SessionDB');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
 const { readFile, rename, tryUnlink } = require('../utils/promised-fs');
+const { hexDigest } = require('../utils/sha256');
 
 const validFileExts = ['netcanvas'];
 const protocolDirName = 'protocols';
@@ -178,7 +178,7 @@ class ProtocolManager {
       return cleanUpAndThrow(new RequestError(ErrorMessages.InvalidContainerFile));
     }
 
-    const digest = crypto.createHash('sha256').update(fileContents).digest('hex');
+    const digest = hexDigest(fileContents);
     destFilepath = this.pathToProtocolFile(`${digest}${path.extname(tmpFilepath)}`);
     const destFilename = path.basename(destFilepath);
 
@@ -201,7 +201,7 @@ class ProtocolManager {
 
     const zippedProtocol = zip.files[ProtocolDataFile];
     if (!zippedProtocol) {
-      return cleanUpAndThrow(new RequestError(ErrorMessages.MissingProtocol));
+      return cleanUpAndThrow(new RequestError(ErrorMessages.MissingProtocolFile));
     }
 
     try {
@@ -297,7 +297,7 @@ class ProtocolManager {
    * @async
    * @param {string} savedFilename base filename
    * @return {Buffer} raw file contents
-   * @throws {RequestError|Error} If file doesn't exist (ErrorMessages.InvalidContainerFile),
+   * @throws {RequestError|Error} If file doesn't exist (ErrorMessages.NotFound),
    *         or there is an error reading
    */
   fileContents(savedFileName) {
@@ -316,7 +316,11 @@ class ProtocolManager {
 
       fs.readFile(filePath, (err, dataBuffer) => {
         if (err) {
-          reject(err);
+          if (err.code === 'ENOENT') {
+            reject(new RequestError(ErrorMessages.NotFound));
+          } else {
+            reject(err);
+          }
           return;
         }
         resolve(dataBuffer);
@@ -357,7 +361,7 @@ class ProtocolManager {
     return this.getProtocol(protocolId)
       .then((protocol) => {
         if (!protocol) {
-          throw new RequestError(ErrorMessages.MissingProtocol);
+          throw new RequestError(ErrorMessages.NotFound);
         }
         return this.sessionDb.insertAllForProtocol(sessionOrSessions, protocol);
       })

@@ -24,7 +24,8 @@ const ErrorMessages = {
   InvalidProtocolFormat: 'Invalid Protocol Format',
   InvalidRequestBody: 'Could not parse request data',
   InvalidZip: 'Invalid ZIP File',
-  MissingProtocol: 'Missing protocol file',
+  MissingProtocolFile: 'Missing protocol file',
+  NotFound: 'Not Found',
   VerificationFailed: 'Request verification failed',
 };
 
