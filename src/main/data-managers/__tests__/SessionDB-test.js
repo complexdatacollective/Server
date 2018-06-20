@@ -6,7 +6,8 @@ import { ErrorMessages, RequestError } from '../../errors/RequestError';
 
 describe('SessionDB', () => {
   const mockProtocol = { name: 'a', _id: 'protocol1' };
-  const mockSession = { uuid: '1' };
+  const mockSession = { uuid: '1', data: {} };
+  const mockSessions = [{ uuid: '1', data: {} }, { uuid: '2', data: {} }];
   let sessions;
   beforeEach(() => {
     sessions = new SessionDB(null, true);
@@ -23,7 +24,6 @@ describe('SessionDB', () => {
   });
 
   it('persists a batch of sessions', async () => {
-    const mockSessions = [{ uuid: '1' }, { uuid: '2' }];
     const result = await sessions.insertAllForProtocol(mockSessions, mockProtocol);
     expect(result).toHaveLength(2);
   });
@@ -39,41 +39,41 @@ describe('SessionDB', () => {
   });
 
   it('finds all by protocol ID', async () => {
-    await sessions.insertAllForProtocol([{ uuid: '1' }, { uuid: '2' }], mockProtocol);
+    await sessions.insertAllForProtocol(mockSessions, mockProtocol);
     const found = await sessions.findAll(mockProtocol._id);
     expect(found).toHaveLength(2);
   });
 
   it('only finds for protocol ID', async () => {
-    await sessions.insertAllForProtocol([{ uuid: '1' }, { uuid: '2' }], mockProtocol);
+    await sessions.insertAllForProtocol(mockSessions, mockProtocol);
     const found = await sessions.findAll(null);
     expect(found).toHaveLength(0);
   });
 
   it('deletes all by protocol ID', async () => {
-    await sessions.insertAllForProtocol([{ uuid: '1' }, { uuid: '2' }], mockProtocol);
+    await sessions.insertAllForProtocol(mockSessions, mockProtocol);
     sessions.delete(mockProtocol._id);
     const found = await sessions.findAll(mockProtocol._id);
     expect(found).toHaveLength(0);
   });
 
   it('only deletes for protocol ID', async () => {
-    await sessions.insertAllForProtocol([{ uuid: '1' }, { uuid: '2' }], mockProtocol);
+    await sessions.insertAllForProtocol(mockSessions, mockProtocol);
     sessions.delete(null);
     const found = await sessions.findAll(mockProtocol._id);
     expect(found).toHaveLength(2);
   });
 
   it('deletes one by protocol & session IDs', async () => {
-    await sessions.insertAllForProtocol([{ uuid: '1' }, { uuid: '2' }], mockProtocol);
+    await sessions.insertAllForProtocol(mockSessions, mockProtocol);
     sessions.delete(mockProtocol._id, '1');
     const found = await sessions.findAll(mockProtocol._id);
     expect(found).toHaveLength(1);
   });
 
   it('deletes all', async () => {
-    await sessions.insertAllForProtocol({ uuid: '1' }, mockProtocol);
-    await sessions.insertAllForProtocol({ uuid: '2' }, { name: 'p2', _id: 'p2' });
+    await sessions.insertAllForProtocol(mockSessions[0], mockProtocol);
+    await sessions.insertAllForProtocol(mockSessions[1], { name: 'p2', _id: 'p2' });
     sessions.deleteAll();
     const found = await sessions.findAll(mockProtocol._id);
     expect(found).toHaveLength(0);
@@ -86,8 +86,8 @@ describe('SessionDB', () => {
     expect(sessions.db.insert).not.toHaveBeenCalled();
   });
 
-  it('Requires unique sessions IDs', async () => {
-    const promise = sessions.insertAllForProtocol([{ uuid: '1' }, { uuid: '1' }], mockProtocol);
+  it('requires unique session IDs', async () => {
+    const promise = sessions.insertAllForProtocol([mockSession, mockSession], mockProtocol);
     await expect(promise).rejects.toBeInstanceOf(Error);
     await expect(promise).rejects.toMatchObject({ errorType: 'uniqueViolated' });
   });

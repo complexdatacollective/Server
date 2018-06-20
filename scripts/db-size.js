@@ -19,6 +19,7 @@
  * - insert is atomic, hits inherent serialization limit for a certain insert (string length)
  */
 const fs = require('fs');
+const uuidv4 = require('uuid/v4');
 const SessionDB = require('../src/main/data-managers/SessionDB');
 
 const resetDb = !process.env.SKIP_RESET;
@@ -69,10 +70,7 @@ function buildMockData() {
   // Change last edge's property so we can search for it
   edges[edges.length - 1].from = 13;
 
-  const record = {nodes, edges};
-  const mockRecords = new Array(SessionCount);
-  mockRecords.fill(record);
-  return mockRecords;
+  return [...Array(SessionCount)].map(r => r = { uuid: uuidv4(), data: { nodes, edges } });
 }
 
 function clearDb() {
@@ -111,7 +109,7 @@ function testCountSessions() {
 function testFilterByEdge() {
   return new Promise((resolve) => {
     const time = process.hrtime();
-    db.db.find({ edges: { $elemMatch: {"from":13,"to": { $exists: true } ,"type":"friends"} } }, (err, docs) => {
+    db.db.find({ 'data.edges': { $elemMatch: {"from":13,"to": { $exists: true } ,"type":"friends"} } }, (err, docs) => {
       if (err) console.error(err);
       if (docs) printResult('Find all associations with known node at one end', docs.length, process.hrtime(time));
       resolve();
@@ -122,10 +120,10 @@ function testFilterByEdge() {
 function testCountNodes() {
   return new Promise((resolve) => {
     const time = process.hrtime();
-    db.db.find({ nodes: { $exists: true } }).projection({ 'nodes':1, _id: 0 }).exec((err, docs) => {
+    db.db.find({ 'data.nodes': { $exists: true } }).projection({ 'data.nodes':1, _id: 0 }).exec((err, docs) => {
       if (err) console.error(err);
       if (docs) {
-        const count = docs.reduce((count, doc) => count += doc.nodes.length, 0);
+        const count = docs.reduce((count, doc) => count += doc.data.nodes.length, 0);
         printResult('Count all nodes in all documents', count, process.hrtime(time));
       }
       resolve();
@@ -138,10 +136,10 @@ function testCountNodesOnField() {
     const time = process.hrtime();
     // "__countable__" is a dummy field for the projection: we don't need to know anything about nodes other then their length
     // Suppressing return of full node objects speeds up count significantly
-    db.db.find({ nodes: { $exists: true } }).projection({ 'nodes.__countable__':1, _id: 0 }).exec((err, docs) => {
+    db.db.find({ 'data.nodes': { $exists: true } }).projection({ 'data.nodes.__countable__':1, _id: 0 }).exec((err, docs) => {
       if (err) console.error(err);
       if (docs) {
-        const count = docs.reduce((count, doc) => count += doc.nodes.__countable__.length, 0);
+        const count = docs.reduce((count, doc) => count += doc.data.nodes.__countable__.length, 0);
         printResult('Count all nodes in all documents (on field)', count, process.hrtime(time));
       }
       resolve();
@@ -152,10 +150,10 @@ function testCountNodesOnField() {
 function testCountEdges() {
   return new Promise((resolve) => {
     const time = process.hrtime();
-    db.db.find({ nodes: { $exists: true } }).projection({ 'edges.__countable__':1, _id: 0 }).exec((err, docs) => {
+    db.db.find({ 'data.edges': { $exists: true } }).projection({ 'data.edges.__countable__':1, _id: 0 }).exec((err, docs) => {
       if (err) console.error(err);
       if (docs) {
-        const count = docs.reduce((count, doc) => count += doc.edges.__countable__.length, 0);
+        const count = docs.reduce((count, doc) => count += doc.data.edges.__countable__.length, 0);
         printResult('Count all edges in all documents (on field)', count, process.hrtime(time));
       }
       resolve();
