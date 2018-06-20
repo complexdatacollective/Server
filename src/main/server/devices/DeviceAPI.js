@@ -27,7 +27,7 @@ const lanIP = () => {
 };
 
 const ApiName = 'DeviceAPI';
-const ApiVersion = '0.0.9';
+const ApiVersion = '0.0.10';
 const ApiHostName = '0.0.0.0'; // IPv4 for compatibility with Travis (& unknown installations)
 
 const Schema = {
@@ -187,6 +187,15 @@ const buildErrorResponse = (err, res) => {
   res.json(err.statusCode || statusCode, body);
 };
 
+// TODO: handle all error responses here instead of buildErrorResponse
+const handleApiError = (req, res, err, callback) => {
+  err.toJSON = () => ({ // eslint-disable-line no-param-reassign
+    status: 'error',
+    message: err.message || err.name,
+  });
+  return callback();
+};
+
 const requireJsonRequest = (req, res, next) => {
   if (req.header('content-type') !== 'application/json') {
     buildErrorResponse(new NotAcceptableError('content-type must be "application/json"'), res);
@@ -257,6 +266,7 @@ class DeviceAPI extends EventEmitter {
     server.pre(restify.plugins.authorizationParser());
     server.use(authenticatorPlugin);
     server.use(restify.plugins.bodyParser());
+    server.on('restifyError', handleApiError);
 
     if (process.env.NODE_ENV === 'development') {
       server.on('after', apiRequestLogger('DeviceAPI'));

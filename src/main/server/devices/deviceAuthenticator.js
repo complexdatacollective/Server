@@ -19,12 +19,12 @@ const deviceAuthenticator = (deviceManager, exceptPaths = []) => (req, res, next
 
   if (!req.authorization.scheme || req.authorization.scheme !== 'Basic') {
     res.header('WWW-Authenticate', 'Basic');
-    next(new InvalidCredentialsError());
+    next(new InvalidCredentialsError('Invalid Credentials'));
     return;
   }
 
   if (!req.username || req.username === 'anonymous') {
-    next(new InvalidCredentialsError());
+    next(new InvalidCredentialsError('Invalid Credentials'));
     return;
   }
 
@@ -32,7 +32,7 @@ const deviceAuthenticator = (deviceManager, exceptPaths = []) => (req, res, next
     if (exists) {
       next();
     } else {
-      next(new NotAuthorizedError());
+      next(new NotAuthorizedError('Unauthorized'));
     }
   });
 };
