@@ -370,6 +370,12 @@ class ProtocolManager {
         throw insertErr;
       });
   }
+
+
+  // TODO: Probably remove after alpha testing
+  destroyAllSessions() {
+    return this.sessionDb.deleteAll();
+  }
 }
 
 Object.freeze(ErrorMessages);

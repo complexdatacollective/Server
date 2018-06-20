@@ -71,7 +71,15 @@ describe('SessionDB', () => {
     expect(found).toHaveLength(1);
   });
 
-  it('Requires IDs on sessions', async () => {
+  it('deletes all', async () => {
+    await sessions.insertAllForProtocol({ uuid: '1' }, mockProtocol);
+    await sessions.insertAllForProtocol({ uuid: '2' }, { name: 'p2', _id: 'p2' });
+    sessions.deleteAll();
+    const found = await sessions.findAll(mockProtocol._id);
+    expect(found).toHaveLength(0);
+  });
+
+  it('requires IDs on sessions', async () => {
     jest.spyOn(sessions.db, 'insert');
     const promise = sessions.insertAllForProtocol([{}], mockProtocol);
     await expect(promise).rejects.toBeInstanceOf(RequestError);

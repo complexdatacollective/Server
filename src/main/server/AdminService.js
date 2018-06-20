@@ -175,8 +175,9 @@ class AdminService {
   // TODO: Probably remove after alpha testing
   resetData() {
     return Promise.all([
-      this.protocolManager.destroyAllProtocols(),
       this.deviceManager.destroyAllDevices(),
+      this.protocolManager.destroyAllProtocols(),
+      this.protocolManager.destroyAllSessions(),
     ]);
   }
 }

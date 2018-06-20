@@ -83,6 +83,14 @@ class SessionDB extends DatabaseAdapter {
       this.db.remove(query, opts, resolveOrReject(resolve, reject));
     });
   }
+
+  // Delete (destroy) all session data for all protocols
+  // TODO: Probably remove after alpha testing
+  deleteAll() {
+    return new Promise((resolve, reject) => {
+      this.db.remove({}, { multi: true }, resolveOrReject(resolve, reject));
+    });
+  }
 }
 
 module.exports = SessionDB;
