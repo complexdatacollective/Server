@@ -12,6 +12,7 @@ const { URL } = require('url');
 const DeviceManager = require('../../data-managers/DeviceManager');
 const ProtocolManager = require('../../data-managers/ProtocolManager');
 const apiRequestLogger = require('../apiRequestLogger');
+const deviceAuthenticator = require('./deviceAuthenticator');
 const { PairingRequestService } = require('./PairingRequestService');
 const { ErrorMessages, RequestError } = require('../../errors/RequestError');
 const { IncompletePairingError } = require('../../errors/IncompletePairingError');
@@ -199,6 +200,9 @@ const emittedEvents = {
   SESSIONS_IMPORTED: 'SESSIONS_IMPORTED',
 };
 
+// These routes don't require auth; there's no distinction between http methods yet
+const publicRoutes = ['/devices/new', '/devices', '/protocols/:filename'];
+
 /**
  * API Server for device endpoints
  */
@@ -212,9 +216,11 @@ class DeviceAPI extends EventEmitter {
       'OutOfBandDelegate',
     );
     this.requestService = new PairingRequestService();
-    this.server = this.createServer();
     this.protocolManager = new ProtocolManager(dataDir);
     this.deviceManager = new DeviceManager(dataDir);
+
+    const authenticator = deviceAuthenticator(this.deviceManager, publicRoutes);
+    this.server = this.createServer(authenticator);
     this.outOfBandDelegate = outOfBandDelegate;
   }
 
@@ -241,12 +247,15 @@ class DeviceAPI extends EventEmitter {
     });
   }
 
-  createServer() {
+  createServer(authenticatorPlugin) {
     const server = restify.createServer({
       name: ApiName,
       version: ApiVersion,
     });
 
+    server.pre(restify.plugins.pre.sanitizePath());
+    server.pre(restify.plugins.authorizationParser());
+    server.use(authenticatorPlugin);
     server.use(restify.plugins.bodyParser());
 
     if (process.env.NODE_ENV === 'development') {
@@ -255,7 +264,10 @@ class DeviceAPI extends EventEmitter {
 
     // Whitelist everything for CORS: origins are arbitrary, and customizing client
     // Access-Origins buys no security
-    const cors = corsMiddleware({ origins: ['*'] });
+    const cors = corsMiddleware({
+      origins: ['*'],
+      allowHeaders: ['Authorization'],
+    });
     server.pre(cors.preflight);
     server.use(cors.actual);
 

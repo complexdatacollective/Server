@@ -8,6 +8,10 @@ class DeviceManager {
     this.db = new DeviceDB(dbFile);
   }
 
+  exists(deviceId) {
+    return this.db.get(deviceId);
+  }
+
   // TODO: see notes in cipher.js; may want to persist derivation config per-device.
   // TODO: Validate format/lengths. Require arg names for clarity?
   createDeviceDocument(secretHex, deviceName) {

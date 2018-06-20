@@ -44,6 +44,36 @@ class DatabaseAdapter {
       this.db.find({}).sort(mostRecent).exec(resolveOrReject(resolve, reject));
     });
   }
+
+  /**
+   * Get the first document matching the query
+   * @async
+   * @param {Object} query
+   * @return {Object|null} the matching document, or null if not found
+   * @throws {Error}
+   */
+  first(query) {
+    return new Promise((resolve, reject) => {
+      this.db.findOne(query, (err, doc) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(doc);
+        }
+      });
+    });
+  }
+
+  /**
+   * Get the document matching ID
+   * @async
+   * @param {string} id
+   * @return {Object|null} the document, or null if not found
+   * @throws {Error}
+   */
+  get(id) {
+    return this.first({ _id: id });
+  }
 }
 
 module.exports = DatabaseAdapter;

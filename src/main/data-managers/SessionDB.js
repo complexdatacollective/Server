@@ -10,6 +10,7 @@ const sessionDataField = 'data';
 
 /**
  * @class
+ * @extends DatabaseAdapter
  */
 class SessionDB extends DatabaseAdapter {
   /**
