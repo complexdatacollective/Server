@@ -43,6 +43,11 @@ class AdminApiClient {
    * @return {Promise}
    */
   post(route, data) {
+    if (typeof data === 'string') {
+      // Probably programming error; API will never accept top-level strings
+      return Promise.reject(new Error('String not allowed as a JSON text'));
+    }
+
     let json;
     try {
       json = JSON.stringify(data);
@@ -57,6 +62,12 @@ class AdminApiClient {
         headers: new Headers({ 'Content-Type': 'application/json' }),
       })
       .then(consumeResponse);
+  }
+
+  delete(route) {
+    return fetch(this.resolveRoute(route), {
+      method: 'DELETE',
+    });
   }
 
   resolveRoute(route) {

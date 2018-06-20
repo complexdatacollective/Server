@@ -5,6 +5,7 @@ const path = require('path');
 const jszip = require('jszip');
 
 const ProtocolDB = require('./ProtocolDB');
+const SessionDB = require('./SessionDB');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
 
 const validFileExts = ['netcanvas'];
@@ -33,6 +34,10 @@ class ProtocolManager {
 
     const dbFile = path.join(dataDir, 'db', 'protocols.db');
     this.db = new ProtocolDB(dbFile);
+
+    // TODO: move?
+    const sessionDbFile = path.join(dataDir, 'db', 'sessions.db');
+    this.sessionDb = new SessionDB(sessionDbFile);
   }
 
   /**
@@ -250,6 +255,49 @@ class ProtocolManager {
         resolve(dataBuffer);
       });
     });
+  }
+
+  /**
+   * Get all sessions, up to an optional limit, for a protocol
+   * @param {string} protocolId
+   * @param {number?} limit
+   * @async
+   * @return {array}
+   */
+  getProtocolSessions(protocolId, limit) {
+    return this.sessionDb.findAll(protocolId, limit);
+  }
+
+  /**
+   * Delete one or more sessions from a protocol
+   * @param {string} protocolId ID of an existing protocol
+   * @param {string?} sessionId if provided, delete only the specific ID.
+   *                            If omitted, delete all sessions for the protocol.
+   * @async
+   * @return {number} removed count
+   */
+  deleteProtocolSessions(protocolId, sessionId) {
+    return this.sessionDb.delete(protocolId, sessionId);
+  }
+
+  /**
+   * Import data associated with a protocol
+   * @param {string} protocolId ID of an existing protocol
+   * @param {object|array} sessionOrSessions one or more sessions of arbitrary shape
+   * @async
+   */
+  addSessionData(protocolId, sessionOrSessions) {
+    return this.getProtocol(protocolId)
+      .then((protocol) => {
+        if (!protocol) {
+          throw new RequestError(ErrorMessages.MissingProtocol);
+        }
+        return this.sessionDb.insertAllForProtocol(sessionOrSessions, protocol);
+      })
+      .catch((insertErr) => {
+        logger.error(insertErr);
+        throw insertErr;
+      });
   }
 }
 

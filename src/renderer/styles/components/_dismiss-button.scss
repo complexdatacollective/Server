@@ -1,0 +1,11 @@
+.dismiss-button {
+  @include text-button;
+
+  &__icon {
+    &[name='close'] { // specificity needed to override NC-UI
+      height: .5rem;
+      margin-right: .5rem;
+      width: .5rem;
+    }
+  }
+}

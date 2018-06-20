@@ -145,5 +145,33 @@ describe('the DeviceAPI', () => {
         expect(res.data).toEqual(mockFileContents.toString());
       });
     });
+
+    describe('POST /protocols/:protocolId/sessions', () => {
+      beforeAll(() => {
+        ProtocolManager.mockImplementation(() => ({
+          addSessionData: jest.fn().mockImplementation((_, session) => (
+            Promise.resolve((session instanceof Array) ? session : [session])
+          )),
+        }));
+      });
+
+      it('returns created status', async () => {
+        const res = await jsonClient.post(makeUrl('/protocols/1/sessions', deviceApi.server.url), {});
+        expect(res.statusCode).toBe(201);
+        expect(res.json.data).toMatchObject({ insertedCount: 1 });
+      });
+
+      it('accepts multiple sessions', async () => {
+        const res = await jsonClient.post(makeUrl('/protocols/1/sessions', deviceApi.server.url), [{}, {}]);
+        expect(res.statusCode).toBe(201);
+        expect(res.json.data).toMatchObject({ insertedCount: 2 });
+      });
+
+      it('accepts only json', async () => {
+        await expect((
+          jsonClient.post(makeUrl('/protocols/1/sessions', deviceApi.server.url), 'not-json')
+        )).rejects.toHaveProperty('statusCode', 406);
+      });
+    });
   });
 });

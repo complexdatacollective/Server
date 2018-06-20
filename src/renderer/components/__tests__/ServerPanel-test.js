@@ -1,23 +1,50 @@
 /* eslint-env jest */
 import React from 'react';
-import { shallow } from 'enzyme';
+import { mount, shallow } from 'enzyme';
 import { UnwrappedServerPanel as ServerPanel } from '../ServerPanel';
 
-const mockServerOverview = {
-  ip: 'x.x.x.x',
-  clients: 0,
-  uptime: 0,
-  publicKey: '',
+const mockHostname = 'mock-host.local';
+
+const mockApiResponse = {
+  deviceApiPort: 99999,
+  hostname: mockHostname,
+  ip: { address: 'x.x.x.x' },
+  uptime: 1,
+  publicKey: 'abc',
 };
-// setting Date.now so that it is consistent for snapshot
-Date.now = jest.fn(() => 1482363367071);
+
+const mockServerState = {
+  ...mockApiResponse,
+  ip: mockApiResponse.ip.address,
+};
+
+const mockApiClient = {
+  get: jest.fn().mockResolvedValue({ serverStatus: mockApiResponse }),
+};
 
 describe('<ServerPanel />', () => {
-  it('should render', () => {
-    const serverPanel = shallow((
-      <ServerPanel serverOverview={mockServerOverview} />
-    ));
+  it('renders panel items', () => {
+    const serverPanel = shallow(<ServerPanel serverOverview={mockServerState} />);
+    expect(serverPanel.find('PanelItem').length).toBeGreaterThan(1);
+  });
 
-    expect(serverPanel).toMatchSnapshot();
+  it('updates status on update', () => {
+    const serverPanel = shallow(<ServerPanel />);
+    const instance = serverPanel.instance();
+    jest.spyOn(instance, 'getServerHealth');
+    serverPanel.setProps({});
+    expect(instance.getServerHealth).toHaveBeenCalled();
+  });
+
+  it('loads status from API', () => {
+    const serverPanel = shallow(<ServerPanel apiClient={mockApiClient} />);
+    serverPanel.instance().getServerHealth();
+    expect(mockApiClient.get).toHaveBeenCalledWith('/health');
+  });
+
+  it('renders server status once loaded', () => {
+    const serverPanel = mount(<ServerPanel />);
+    serverPanel.setState({ serverOverview: mockServerState });
+    expect(serverPanel.text()).toContain(mockHostname);
   });
 });

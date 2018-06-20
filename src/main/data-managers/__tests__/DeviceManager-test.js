@@ -1,40 +1,43 @@
 /* eslint-env jest */
 const DeviceManager = require('../DeviceManager');
 
-const mockSaltHex = 'daaa785631a9481b53b7d9d8434ea673';
 const mockSecretHex = 'd7ff85d1ce04a59d848a87945f341c06323f7f9a356b5ac982c15481e0117fdc';
+
+jest.mock('../DeviceDB');
 
 describe('the DeviceManager', () => {
   let deviceManager;
 
-  beforeEach((done) => {
+  beforeEach(() => {
     deviceManager = new DeviceManager('.');
-    deviceManager.db.remove({}, { multi: true }, done);
   });
 
-  it('creates a new device', async () => {
-    const doc = await deviceManager.createDeviceDocument(mockSecretHex);
-    expect(doc).toHaveProperty('_id');
+  it('creates a new device', () => {
+    deviceManager.createDeviceDocument(mockSecretHex);
+    expect(deviceManager.db.create).toHaveBeenCalledWith(mockSecretHex, undefined);
   });
 
-  it('will not create without a valid secret', async () => {
-    await expect(deviceManager.createDeviceDocument(null))
-      .rejects.toBeInstanceOf(Error);
+  it('creates a new device with a name', () => {
+    const mockName = 'myDevice';
+    deviceManager.createDeviceDocument(mockSecretHex, mockName);
+    expect(deviceManager.db.create).toHaveBeenCalledWith(mockSecretHex, mockName);
+  });
+
+  it('will not create without a valid secret', () => {
+    expect(deviceManager.createDeviceDocument(null)).rejects.toMatchObject({ message: 'Invalid input' });
   });
 
   it.skip('will not create with a short secret', () => {});
 
-  it('loads all devices', async () => {
-    await deviceManager.createDeviceDocument(mockSaltHex, mockSecretHex);
-    const devices = await deviceManager.fetchDeviceList();
-    expect(devices).toBeInstanceOf(Array);
-    expect(devices).toHaveLength(1);
-  });
+  describe('with stored devices', () => {
+    it('loads all devices', () => {
+      deviceManager.fetchDeviceList();
+      expect(deviceManager.db.all).toHaveBeenCalled();
+    });
 
-  it('removes all devices, and returns removed count', async () => {
-    await deviceManager.createDeviceDocument(mockSecretHex);
-    const numRemoved = await deviceManager.destroyAllDevices();
-    expect(numRemoved).toBe(1);
-    expect(await deviceManager.fetchDeviceList()).toHaveLength(0);
+    it('removes all devices', () => {
+      deviceManager.destroyAllDevices();
+      expect(deviceManager.db.destroyAll).toHaveBeenCalled();
+    });
   });
 });

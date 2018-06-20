@@ -3,9 +3,8 @@ const path = require('path');
 const swaggerJSDoc = require('swagger-jsdoc');
 
 const paths = require('../config/paths');
-
-const ApiVersion = '0.0.0';
-const ApiPort = process.env.DEVICE_SERVICE_PORT || 51001; // See DeviceService
+const { ApiVersion } = require('../src/main/server/devices/DeviceAPI');
+const { DefaultApiPort } = require('../src/main/server/devices/DeviceService');
 
 const deviceApiSource = path.join(__dirname, '..', 'src', 'main', 'server', 'devices', 'DeviceAPI.js');
 
@@ -15,7 +14,7 @@ if (!fs.existsSync(deviceApiSource)) {
 
 const options = {
   swaggerDefinition: {
-    host: `localhost:${ApiPort}`,
+    host: `localhost:${DefaultApiPort}`,
     basePath: '/',
     schemes: ['http'],
     info: {

@@ -1,6 +1,7 @@
 $font-path: '../ui/assets/fonts'; // relative to here
 
 @import '../ui/styles/all';
+@import 'mixins/all';
 @import 'variables';
 @import 'z-indexes';
 @import 'breakpoints';

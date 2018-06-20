@@ -1,6 +1,7 @@
 import React from 'react';
 
 import Types from '../types';
+import SessionPanel from '../containers/SessionPanel';
 import { DummyDashboardFragment, PanelItem, ServerPanel } from '.';
 
 const Workspace = ({ protocol }) => (
@@ -14,7 +15,7 @@ const Workspace = ({ protocol }) => (
         <PanelItem label="Network Canvas Version" value={protocol.networkCanvasVersion} />
         <PanelItem label="Updated" value={protocol.updatedAt && protocol.updatedAt.toLocaleString()} />
       </div>
-
+      <SessionPanel protocolId={protocol.id} />
       <DummyDashboardFragment key={protocol.id} />
     </div>
   </div>

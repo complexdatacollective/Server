@@ -2,7 +2,9 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
 
 const { PairingRequestService } = require('../PairingRequestService');
-const { RequestError } = require('../../../errors/RequestError');
+const { ErrorMessages, RequestError } = require('../../../errors/RequestError');
+const { decrypt } = require('../../../utils/shared-api/cipher');
+
 
 jest.mock('electron-log');
 jest.mock('../../../utils/shared-api/cipher');
@@ -55,5 +57,53 @@ describe('PairingRequest Service', () => {
     await expect(
       reqSvc.verifyAndExpireRequest(),
     ).rejects.toBeInstanceOf(Error);
+  });
+
+  describe('encrypted request', () => {
+    beforeEach(() => {
+      reqSvc.verifyAndExpireRequest = jest.fn().mockResolvedValue({});
+    });
+
+    describe('when request is valid', () => {
+      const mockRequest = {
+        pairingRequestId: '1',
+        pairingCode: 'abc',
+        deviceName: 'somedevice',
+      };
+
+      beforeAll(() => {
+        decrypt.mockReturnValue(JSON.stringify(mockRequest));
+      });
+
+      afterAll(() => {
+        decrypt.mockReset();
+      });
+
+      beforeEach(async () => {
+        await reqSvc.createRequest();
+      });
+
+      it('calls through to verify plaintext', async () => {
+        await reqSvc.verifyAndExpireEncryptedRequest('');
+        expect(reqSvc.verifyAndExpireRequest).toHaveBeenCalledWith(...Object.values(mockRequest));
+      });
+    });
+
+    describe('when request is invalid', () => {
+      it('rejects when not found', async () => {
+        const promise = reqSvc.verifyAndExpireEncryptedRequest('');
+        expect.assertions(2);
+        await expect(promise).rejects.toBeInstanceOf(RequestError);
+        await expect(promise).rejects.toMatchObject({ message: ErrorMessages.VerificationFailed });
+      });
+
+      it('rejects when found but invalid', async () => {
+        await reqSvc.createRequest();
+        const promise = reqSvc.verifyAndExpireEncryptedRequest('');
+        expect.assertions(2);
+        await expect(promise).rejects.toBeInstanceOf(RequestError);
+        await expect(promise).rejects.toMatchObject({ message: ErrorMessages.InvalidPayload });
+      });
+    });
   });
 });

@@ -3,6 +3,7 @@ const logger = require('electron-log');
 const corsMiddleware = require('restify-cors-middleware');
 const detectPort = require('detect-port');
 
+const apiRequestLogger = require('./apiRequestLogger');
 const DeviceManager = require('../data-managers/DeviceManager');
 const ProtocolManager = require('../data-managers/ProtocolManager');
 
@@ -76,6 +77,7 @@ class AdminService {
       });
       api.pre(cors.preflight);
       api.use(cors.actual);
+      api.use(apiRequestLogger('AdminAPI'));
     }
 
     api.get('/health', (req, res, next) => {
@@ -122,6 +124,43 @@ class AdminService {
     api.get('/protocols/:id', (req, res, next) => {
       this.protocolManager.getProtocol(req.params.id)
         .then(protocol => res.send({ status: 'ok', protocol }))
+        .catch((err) => {
+          logger.error(err);
+          res.send(500, { status: 'error' });
+        })
+        .then(next);
+    });
+
+    api.get('/protocols/:id/sessions', (req, res, next) => {
+      // For now, hardcode response limit & offset
+      // TODO: paginated API if needed
+      const limit = 100;
+      this.protocolManager.getProtocolSessions(req.params.id)
+        .then(sessions => res.send({
+          status: 'ok',
+          totalSessions: sessions.length,
+          sessions: sessions.slice(0, limit),
+        }))
+        .catch((err) => {
+          logger.error(err);
+          res.send(500, { status: 'error' });
+        })
+        .then(next);
+    });
+
+    api.del('/protocols/:protocolId/sessions', (req, res, next) => {
+      this.protocolManager.deleteProtocolSessions(req.params.protocolId)
+        .then(() => res.send({ status: 'ok' }))
+        .catch((err) => {
+          logger.error(err);
+          res.send(500, { status: 'error' });
+        })
+        .then(next);
+    });
+
+    api.del('/protocols/:protocolId/sessions/:id', (req, res, next) => {
+      this.protocolManager.deleteProtocolSessions(req.params.protocolId, req.params.id)
+        .then(() => res.send({ status: 'ok' }))
         .catch((err) => {
           logger.error(err);
           res.send(500, { status: 'error' });
