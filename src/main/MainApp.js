@@ -38,12 +38,13 @@ const createApp = () => {
 
   const showImportProtocolDialog = () => {
     protocolManager.presentImportDialog()
-      .then((savedFiles) => {
-        if (savedFiles) {
+      .then((filename) => {
+        // If filename is empty, user cancelled
+        if (filename) {
           dialog.showMessageBox(mainWindow.window, {
             title: 'Success',
             message: 'Successfully Imported:',
-            detail: savedFiles.join('\r\n'),
+            detail: filename,
           });
         }
       })

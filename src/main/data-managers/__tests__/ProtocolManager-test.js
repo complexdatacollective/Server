@@ -4,23 +4,30 @@ import { dialog } from 'electron';
 import JSZip from 'jszip';
 
 import ProtocolManager from '../ProtocolManager';
+import promisedFs from '../../utils/promised-fs';
 
 jest.mock('fs');
 jest.mock('electron');
 jest.mock('electron-log');
 jest.mock('jszip');
+jest.mock('../../utils/promised-fs');
 jest.mock('../ProtocolDB');
 jest.mock('../SessionDB');
 
+const anyNetcanvasFile = expect.stringMatching(/\.netcanvas$/);
+
 describe('ProtocolManager', () => {
-  const mockFileContents = new Buffer([]);
+  const mockFileContents = Buffer.from([0x01]);
   const errorMessages = ProtocolManager.ErrorMessages;
   let manager;
-  let invalidFileErr;
+
+  beforeAll(() => {
+    promisedFs.tryUnlink.mockResolvedValue(undefined);
+  });
 
   beforeEach(() => {
     manager = new ProtocolManager('.');
-    invalidFileErr = expect.objectContaining({ message: errorMessages.InvalidFile });
+    manager.db.save = jest.fn().mockResolvedValue({});
   });
 
   describe('UI hook', () => {
@@ -57,8 +64,8 @@ describe('ProtocolManager', () => {
 
   describe('import interface', () => {
     it('requires files to import', async () => {
-      const emptyErr = expect.objectContaining({ message: errorMessages.EmptyFilelist });
-      await expect(manager.validateAndImport()).rejects.toEqual(emptyErr);
+      await expect(manager.validateAndImport())
+        .rejects.toMatchErrorMessage(errorMessages.EmptyFilelist);
     });
 
     it('makes a directory if needed', () => {
@@ -72,21 +79,24 @@ describe('ProtocolManager', () => {
       });
 
       it('requires a valid file extension', async () => {
-        await expect(manager.validateAndImport(['file.unknownextension'])).rejects.toEqual(invalidFileErr);
+        await expect(manager.validateAndImport(['file.unknownextension']))
+          .rejects.toMatchErrorMessage(errorMessages.InvalidContainerFileExtension);
       });
 
-      it('imports & promises each file', async () => {
-        manager.importFile = jest.fn(infile => `copy-${infile}`);
-        manager.postProcessFile = jest.fn(filename => Promise.resolve(filename));
+      it('limits to one file', async () => {
         const mockFiles = ['a.netcanvas', 'b.netcanvas', 'c.netcanvas'];
-        const results = await manager.validateAndImport(mockFiles);
-        expect(results).toHaveLength(3);
-        expect(results[0]).toMatch(mockFiles[0]);
-        expect(manager.importFile).toHaveBeenCalledTimes(3);
+        await expect(manager.validateAndImport(mockFiles))
+          .rejects.toMatchErrorMessage(errorMessages.FilelistNotSingular);
       });
 
-      // TBD what we want to do here...
-      it.skip('overwrites existing files', () => {});
+      it('imports & promises one file', async () => {
+        manager.importFile = jest.fn(infile => `copy-${infile}`);
+        manager.processFile = jest.fn(filename => Promise.resolve(filename));
+        const mockFilename = 'a.netcanvas';
+        const result = await manager.validateAndImport([mockFilename]);
+        expect(result).toEqual(mockFilename);
+        expect(manager.importFile).toHaveBeenCalledTimes(1);
+      });
     });
   });
 
@@ -126,19 +136,41 @@ describe('ProtocolManager', () => {
   });
 
   describe('file handling', () => {
+    beforeEach(() => {
+      fs.copyFile.mockClear();
+    });
+
     it('uses fs to copy a file', () => {
       manager.importFile('foo.netcanvas');
       expect(fs.copyFile)
-        .toHaveBeenCalledWith('foo.netcanvas', expect.stringMatching(/foo\.netcanvas/), expect.any(Function));
+        .toHaveBeenCalledWith('foo.netcanvas', anyNetcanvasFile, expect.any(Function));
+    });
+
+    it('renames the file base', () => {
+      manager.importFile('foo.netcanvas');
+      expect(fs.copyFile)
+        .toHaveBeenCalledWith('foo.netcanvas', expect.not.stringMatching(/foo\.netcanvas/), expect.any(Function));
+    });
+
+    it('does not overwrite a file', () => {
+      manager.importFile('foo.netcanvas');
+      manager.importFile('foo.netcanvas');
+      const mockCalls = fs.copyFile.mock.calls;
+      expect(mockCalls).toHaveLength(2);
+      const srcArgs = [mockCalls[0][0], mockCalls[1][0]];
+      const destArgs = [mockCalls[0][1], mockCalls[1][1]];
+      expect(srcArgs[0]).toEqual(srcArgs[1]); // copies from same source
+      expect(destArgs[0]).not.toEqual(destArgs[1]); // ...to a new location
     });
 
     it('requires a filename', async () => {
-      await expect(manager.importFile()).rejects.toEqual(invalidFileErr);
+      await expect(manager.importFile())
+        .rejects.toMatchErrorMessage(errorMessages.InvalidContainerFile);
     });
 
     it('resolves with the destination filename', async () => {
       fs.copyFile.mockImplementation((src, dest, cb) => { cb(); });
-      await expect(manager.importFile('foo.netcanvas')).resolves.toMatch(/foo/);
+      await expect(manager.importFile('foo.netcanvas')).resolves.toEqual(anyNetcanvasFile);
     });
 
     it('rejects on failure', async () => {
@@ -157,12 +189,13 @@ describe('ProtocolManager', () => {
 
   describe('fileContents', () => {
     it('rejects on missing input', async () => {
-      await expect(manager.fileContents()).rejects.toMatchObject(invalidFileErr);
+      await expect(manager.fileContents())
+        .rejects.toMatchErrorMessage(errorMessages.InvalidContainerFile);
     });
 
     it('will not try to read file outside directory', async () => {
       expect(fs.readFile).not.toHaveBeenCalled();
-      await expect(manager.fileContents('../insecureaccess')).rejects.toMatchObject(invalidFileErr);
+      await expect(manager.fileContents('../insecureaccess')).rejects.toMatchErrorMessage(errorMessages.InvalidContainerFile);
     });
 
     it('returns raw content buffer', async () => {
@@ -179,45 +212,112 @@ describe('ProtocolManager', () => {
       beforeAll(() => {
         fs.readFile.mockImplementation((file, opts, cb) => {
           const fn = typeof cb === 'undefined' ? opts : cb;
-          fn(invalidFileErr);
+          fn({ message: errorMessages.InvalidContainerFile });
         });
       });
 
       it('rejects when file is missing', async () => {
-        await expect(manager.fileContents('missingfile')).rejects.toMatchObject(invalidFileErr);
+        await expect(manager.fileContents('missingfile')).rejects.toMatchErrorMessage(errorMessages.InvalidContainerFile);
       });
     });
   });
 
   describe('post-processing', () => {
+    const mockProtocolZipObj = {
+      async: () => JSON.stringify({ name: 'myProtocol' }),
+    };
+    const mockZipContents = { files: { 'protocol.json': mockProtocolZipObj } };
+
     beforeAll(() => {
-      fs.readFile.mockImplementation((file, cb) => cb(null, mockFileContents));
-      const mockProtocolZipObj = {
-        async: () => JSON.stringify({ name: 'myProtocol' }),
-      };
-      const mockZipContents = { files: { 'protocol.json': mockProtocolZipObj } };
+      promisedFs.readFile.mockResolvedValue(mockFileContents);
       JSZip.loadAsync.mockReturnValue(Promise.resolve(mockZipContents));
     });
 
+    afterEach(() => {
+      JSZip.loadAsync.mockClear();
+    });
+
     it('parses file to get metadata', async () => {
-      await manager.postProcessFile('');
+      await manager.processFile('');
       expect(JSZip.loadAsync).toHaveBeenCalled();
     });
 
     it('saves metadata to DB', async () => {
-      await manager.postProcessFile('');
+      await manager.processFile('');
       expect(manager.db.save).toHaveBeenCalled();
     });
-  });
 
-  describe('post-processing failures', () => {
-    beforeAll(() => {
-      fs.readFile.mockImplementation((file, cb) => cb(null, mockFileContents));
-      JSZip.loadAsync.mockImplementation(() => Promise.reject({}));
+    it('returns base filename (without path)', async () => {
+      const promise = manager.processFile('foo/bar.netcanvas');
+      await expect(promise).resolves.toEqual(expect.not.stringContaining('foo/'));
     });
 
-    it('rejects if protocol cannot be read', async () => {
-      await expect(manager.postProcessFile('')).rejects.toMatchObject(invalidFileErr);
+    it('skips update if file is identical', async () => {
+      const spy = jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+      await expect(manager.processFile('a.netcanvas')).resolves.toEqual(anyNetcanvasFile);
+      expect(JSZip.loadAsync).not.toHaveBeenCalled();
+      spy.mockRestore();
+    });
+
+    describe('updating', () => {
+      const oldFilename = 'old.netcanvas';
+      const newFilename = 'new.netcanvas';
+      beforeEach(() => {
+        promisedFs.tryUnlink.mockClear();
+        manager.db.save.mockResolvedValue({
+          prev: { filename: oldFilename },
+          curr: { filename: newFilename },
+        });
+      });
+
+      it('removes the previous file', async () => {
+        await manager.processFile('a.netcanvas');
+        expect(promisedFs.tryUnlink).toHaveBeenCalledWith(expect.stringContaining(oldFilename));
+        expect(promisedFs.tryUnlink).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('when file read fails', () => {
+      const readErr = new Error('read-error');
+      beforeAll(() => promisedFs.readFile.mockRejectedValue(readErr));
+
+      it('rejects', async () => {
+        await expect(manager.processFile('')).rejects.toThrow(readErr);
+      });
+    });
+
+    describe('when file is empty', () => {
+      beforeAll(() => promisedFs.readFile.mockResolvedValue(Buffer.from([])));
+
+      it('rejects', async () => {
+        await expect(manager.processFile('')).rejects.toMatchErrorMessage(errorMessages.InvalidContainerFile);
+      });
+    });
+
+    describe('when zip load fails', () => {
+      it('rejects', async () => {
+        promisedFs.readFile.mockResolvedValue(mockFileContents);
+        JSZip.loadAsync.mockRejectedValue({});
+        await expect(manager.processFile('')).rejects.toMatchErrorMessage(errorMessages.InvalidZip);
+      });
+    });
+
+    describe('when JSON parsing fails', () => {
+      it('rejects', async () => {
+        const failingJsonLoader = { async: jest.fn().mockResolvedValue('not-json') };
+        const mockBadContents = { files: { 'protocol.json': failingJsonLoader } };
+        JSZip.loadAsync.mockResolvedValue(mockBadContents);
+        await expect(manager.processFile('')).rejects.toMatchErrorMessage(errorMessages.InvalidProtocolFormat);
+      });
+    });
+
+    describe('when DB save fails', () => {
+      const mockError = new Error('db-error');
+      it('rejects', async () => {
+        JSZip.loadAsync.mockResolvedValue(mockZipContents);
+        manager.db.save.mockRejectedValueOnce(mockError);
+        await expect(manager.processFile('')).rejects.toThrow(mockError);
+      });
     });
   });
 
@@ -299,9 +399,9 @@ describe('ProtocolManager', () => {
       });
 
       it('rejects if adding to an unknown protocol', async () => {
-        const missingError = { message: errorMessages.MissingProtocol };
         manager.db.get = jest.fn().mockResolvedValue(null);
-        await expect(manager.addSessionData(null, [])).rejects.toMatchObject(missingError);
+        await expect(manager.addSessionData(null, []))
+          .rejects.toMatchErrorMessage(errorMessages.NotFound);
       });
     });
   });

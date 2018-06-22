@@ -10,8 +10,9 @@ const { URL } = require('url');
 
 const DeviceManager = require('../../data-managers/DeviceManager');
 const ProtocolManager = require('../../data-managers/ProtocolManager');
+const apiRequestLogger = require('../apiRequestLogger');
 const { PairingRequestService } = require('./PairingRequestService');
-const { RequestError } = require('../../errors/RequestError');
+const { ErrorMessages, RequestError } = require('../../errors/RequestError');
 const { IncompletePairingError } = require('../../errors/IncompletePairingError');
 const { encrypt } = require('../../utils/shared-api/cipher');
 
@@ -24,7 +25,7 @@ const lanIP = () => {
 };
 
 const ApiName = 'DevciceAPI';
-const ApiVersion = '0.0.5';
+const ApiVersion = '0.0.9';
 const ApiHostName = '0.0.0.0'; // IPv4 for compatibility with Travis (& unknown installations)
 
 const Schema = {
@@ -59,24 +60,47 @@ const Schema = {
    *   Protocol:
    *     type: object
    *     properties:
+   *       id:
+   *         type: string
+   *         format: hex
+   *         description: |
+   *           A digest of the protocol name, serving as a unique identifier for this protocol
+   *           across server instances.
+   *           May be used for other endpoints (such as data import).
+   *         example: b40bdb458541a852d517daf1b3b7c7eb038b73f4f04ec867a253e76bdef5452b
    *       name:
    *         type: string
-   *       version:
+   *         description: Unique protocol name as defined in protocol.json
+   *         example: Example Protocol
+   *       description:
    *         type: string
+   *         required: false
+   *         example: Version 2 - internal
+   *       lastModified:
+   *         required: false
+   *         type: datetime
+   *         description: Modification date of the protocol, as defined in protocol.json
+   *         example: 2018-01-01T12:00:00.000Z
    *       networkCanvasVersion:
    *         type: string
+   *         description: Version as defined in protocol.json
+   *         example: "~4.0.0"
    *       downloadUrl:
    *         type: string
-   *       sha256:
+   *         description: URL for direct download of the .netcanvas file
+   *         example: http://x.x.x.x:51001/protocols/foo.netcanvas
+   *       sha256Digest:
    *         type: string
+   *         example: 8f99051c91044bd8159a8cc0fa2aaa831961c4428ce1859b82612743c9720eef
    */
   protocol: (protocol, apiBase) => ({
     id: protocol._id,
     name: protocol.name,
-    version: protocol.version,
+    description: protocol.description,
+    lastModified: protocol.lastModified,
     networkCanvasVersion: protocol.networkCanvasVersion,
     downloadUrl: new URL(`/protocols/${protocol.filename}`, apiBase),
-    sha256: protocol.sha256,
+    sha256Digest: protocol.sha256Digest,
   }),
 
   /**
@@ -145,15 +169,17 @@ class OutOfBandDelegate {
  *         example: 'Human-readable description of error'
  */
 const buildErrorResponse = (err, res) => {
-  const body = { status: 'error', message: err.message || 'Unknown Server Error' };
+  const body = { status: 'error', message: err.message || 'Unknown Error' };
   let statusCode;
   if (err instanceof RequestError) {
-    statusCode = 400;
+    const is404 = err.message === ErrorMessages.NotFound;
+    statusCode = is404 ? 404 : 400;
   } else if (err instanceof IncompletePairingError) {
     // TODO: review; 5xx is probably correct, but weird bc of user involvement
     statusCode = 400;
   } else if (!err.statusCode) {
     logger.error(err);
+    body.message = 'Unknown Server Error';
     statusCode = 500;
   }
   res.json(err.statusCode || statusCode, body);
@@ -217,6 +243,10 @@ class DeviceAPI {
     });
 
     server.use(restify.plugins.bodyParser());
+
+    if (process.env.NODE_ENV === 'development') {
+      server.on('after', apiRequestLogger('DeviceAPI'));
+    }
 
     // Whitelist everything for CORS: origins are arbitrary, and customizing client
     // Access-Origins buys no security
@@ -371,8 +401,8 @@ class DeviceAPI {
      *         schema:
      *           type: file
      *           example: "[raw data buffer]"
-     *       400:
-     *         description: request error
+     *       404:
+     *         description: Not found
      *         schema:
      *           $ref: '#/definitions/Error'
      */
@@ -398,11 +428,15 @@ class DeviceAPI {
      *         in: path
      *         type: string
      *         required: true
-     *         description: This unique ID must point to a protocol that already exists in server.
+     *         description: |
+     *           This unique ID must point to a protocol that already exists in server.
      *           This ID can be obtained from the response to `/protocols`.
      *       - in: body
+     *         description: |
+     *           One or more sessions to import.
      *         schema:
      *           type: object
+     *           description: A single session containing its produced network data
      *           properties:
      *             uuid:
      *               required: true
@@ -410,16 +444,24 @@ class DeviceAPI {
      *               format: uuid
      *               description: a cryptographically-strong, globally unique identifier (required)
      *               example: 2a02fccc-10ec-4bf9-9a7a-d156e3858fb6
-     *             nodes:
-     *               required: false
-     *               type: array
-     *               description: An optional field that may be used for reporting if present
-     *               example: []
-     *             edges:
-     *               required: false
-     *               type: array
-     *               description: An optional field that may be used for reporting if present
-     *               example: []
+     *             data:
+     *               type: object
+     *               description: |
+     *                 The primary data generated by the session.
+     *
+     *                 This may be of any shape, though likely contains the network data.
+     *                 The presence of "nodes" and "edges" properties allows Server to automatically provide some reporting.
+     *               properties:
+     *                 nodes:
+     *                   required: false
+     *                   type: array
+     *                   description: An array of arbitrary objects that may be used for reporting if present
+     *                   example: []
+     *                 edges:
+     *                   required: false
+     *                   type: array
+     *                   description: An array of arbitrary objects that may be used for reporting if present
+     *                   example: []
      *     produces:
      *       - application/json
      *     responses:
@@ -440,6 +482,10 @@ class DeviceAPI {
      *                   example: 10
      *       400:
      *         description: Generic request error
+     *         schema:
+     *           $ref: '#/definitions/Error'
+     *       404:
+     *         description: Protocol was not found
      *         schema:
      *           $ref: '#/definitions/Error'
      *       406:

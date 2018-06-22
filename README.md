@@ -42,6 +42,7 @@ This repository assumes that `npm` is installed. If you don't have it installed,
 |`test`|Runs testing suite.|
 |`build-docs`|Builds HTML API docs into the docs-build directory.|
 |`electron`|Runs the current code in electron, for testing.|
+|`preflight`|Run all linters, doc generators, and tests.|
 
 Run `npm run` for a list of all available commands.
 
@@ -111,12 +112,22 @@ codesign --force --sign "Mac Developer" --timestamp=none Electron.app --deep
 ```
 .
 ├── config             # Project and build configurations (webpack, env config)
+    └── api            # Auto-generated API specs
+    └── jest           # test setup files
 ├── public             # Static public assets to be bundled
 └── src                # Application source code
     └── main           # Main Electron process
         └── server     # Services & APIs
     └── renderer       # GUI (react app)
 ```
+
+## Tests
+
+`config/jest/setupTestEnv` contains helpers which can be imported by tests.
+
+`config/jest/setupTestFramework` contains the following custom matchers:
+
+- `.toMatchErrorMessage(expectedMessage)`: Use to check that an object contains a "message" property with a string value that (partially) matches the `expectedMessage` string.
 
 ## JSDoc
 

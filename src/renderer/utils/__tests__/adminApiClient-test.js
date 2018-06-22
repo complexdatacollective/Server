@@ -26,14 +26,14 @@ describe('an AdminApiClient', () => {
     await expect(client.post('/foo', payload)).resolves.toMatchObject({ status: 'ok' });
   });
 
-  it('rejects string payloads', () => {
-    expect(client.post('/foo', 'not-json')).rejects.toMatchObject({ message: expect.stringMatching(/JSON/) });
+  it('rejects string payloads', async () => {
+    await expect(client.post('/foo', 'not-json')).rejects.toMatchObject({ message: expect.stringMatching(/JSON/) });
   });
 
-  it('rejects invalid JSON', () => {
+  it('rejects invalid JSON', async () => {
     const obj = {};
     obj.circular = obj;
-    expect(client.post('/foo', obj)).rejects.toMatchObject({ message: expect.stringMatching(/JSON/) });
+    await expect(client.post('/foo', obj)).rejects.toMatchObject({ message: expect.stringMatching(/JSON/) });
   });
 
   it('rejects on fetch error', async () => {

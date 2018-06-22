@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import Types from '../types';
-import { actionCreators } from '../ducks/modules/protocol';
+import { actionCreators } from '../ducks/modules/currentProtocolId';
 import { Spinner } from '../ui';
 
 class SettingsScreen extends Component {
@@ -15,11 +15,7 @@ class SettingsScreen extends Component {
 
   componentDidMount() {
     const id = this.props.match.params.id;
-    this.props.loadProtocol(id);
-  }
-
-  shouldComponentUpdate(nextProps) {
-    return nextProps.protocol.id !== (this.props.protocol && this.props.protocol.id);
+    this.props.setCurrentProtocol(id);
   }
 
   render() {
@@ -35,12 +31,12 @@ class SettingsScreen extends Component {
   }
 }
 
-const mapStateToProps = ({ protocol }) => ({
-  protocol,
+const mapStateToProps = ({ currentProtocolId, protocols }) => ({
+  protocol: protocols.find(p => p.id === currentProtocolId),
 });
 
 const mapDispatchToProps = dispatch => ({
-  loadProtocol: bindActionCreators(actionCreators.loadProtocol, dispatch),
+  setCurrentProtocol: bindActionCreators(actionCreators.setCurrentProtocol, dispatch),
 });
 
 SettingsScreen.defaultProps = {
@@ -48,9 +44,9 @@ SettingsScreen.defaultProps = {
 };
 
 SettingsScreen.propTypes = {
-  loadProtocol: PropTypes.func.isRequired,
   match: PropTypes.object.isRequired,
   protocol: Types.protocol,
+  setCurrentProtocol: PropTypes.func.isRequired,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SettingsScreen);

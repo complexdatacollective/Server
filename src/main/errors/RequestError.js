@@ -18,9 +18,14 @@ class RequestError extends Error {
 const ErrorMessages = {
   DecryptionFailed: 'Decryption failed',
   EmptyFilelist: 'Empty filelist',
-  InvalidFile: 'Invalid File',
-  InvalidPayload: 'Payload parsing failed',
-  MissingProtocol: 'Missing protocol',
+  FilelistNotSingular: 'Multiple files must be uploaded separately',
+  InvalidContainerFile: 'Invalid File',
+  InvalidContainerFileExtension: 'File must have a ".netcanvas" extension',
+  InvalidProtocolFormat: 'Invalid Protocol Format',
+  InvalidRequestBody: 'Could not parse request data',
+  InvalidZip: 'Invalid ZIP File',
+  MissingProtocolFile: 'Missing protocol file',
+  NotFound: 'Not Found',
   VerificationFailed: 'Request verification failed',
 };
 

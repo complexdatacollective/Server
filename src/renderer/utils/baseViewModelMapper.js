@@ -13,6 +13,8 @@ const baseViewModelMapper = json => ({
   // Date types
   createdAt: json.createdAt && new Date(json.createdAt),
   updatedAt: json.updatedAt && new Date(json.updatedAt),
+  // TODO: "lastModified" is only for protocols right now; consider protocol-specific mapper
+  lastModified: json.lastModified && new Date(json.lastModified),
 });
 
 export default baseViewModelMapper;

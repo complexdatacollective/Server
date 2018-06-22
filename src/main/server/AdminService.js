@@ -77,7 +77,7 @@ class AdminService {
       });
       api.pre(cors.preflight);
       api.use(cors.actual);
-      api.use(apiRequestLogger('AdminAPI'));
+      api.on('after', apiRequestLogger('AdminAPI'));
     }
 
     api.get('/health', (req, res, next) => {
@@ -121,6 +121,7 @@ class AdminService {
         .then(next);
     });
 
+    // Deprecated; will remove if not needed.
     api.get('/protocols/:id', (req, res, next) => {
       this.protocolManager.getProtocol(req.params.id)
         .then(protocol => res.send({ status: 'ok', protocol }))
@@ -174,8 +175,9 @@ class AdminService {
   // TODO: Probably remove after alpha testing
   resetData() {
     return Promise.all([
-      this.protocolManager.destroyAllProtocols(),
       this.deviceManager.destroyAllDevices(),
+      this.protocolManager.destroyAllProtocols(),
+      this.protocolManager.destroyAllSessions(),
     ]);
   }
 }

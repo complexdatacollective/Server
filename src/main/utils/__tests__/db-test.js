@@ -10,15 +10,15 @@ describe('db helpers', () => {
   });
 
   describe('resolveOrReject', () => {
-    it('converts error callback to rejection', () => {
+    it('converts error callback to rejection', async () => {
       const err = new Error('some-error');
       const promise = new Promise((resolve, reject) => resolveOrReject(resolve, reject)(err));
-      expect(promise).rejects.toMatchObject({ message: err.message });
+      await expect(promise).rejects.toMatchObject({ message: err.message });
     });
 
-    it('converts success callback to resolved promise', () => {
+    it('converts success callback to resolved promise', async () => {
       const promise = new Promise((resolve, reject) => resolveOrReject(resolve, reject)(null, 9));
-      expect(promise).resolves.toBe(9);
+      await expect(promise).resolves.toBe(9);
     });
   });
 });

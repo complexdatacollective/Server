@@ -36,7 +36,7 @@ describe('PairingRequest Service', () => {
 
   it('verifies an existing request', async () => {
     const req = await reqSvc.createRequest();
-    expect(reqSvc.verifyAndExpireRequest(req._id, req.pairingCode)).resolves
+    await expect(reqSvc.verifyAndExpireRequest(req._id, req.pairingCode)).resolves
       .toMatchObject({ pairingCode: expect.any(String) });
   });
 
@@ -102,7 +102,7 @@ describe('PairingRequest Service', () => {
         const promise = reqSvc.verifyAndExpireEncryptedRequest('');
         expect.assertions(2);
         await expect(promise).rejects.toBeInstanceOf(RequestError);
-        await expect(promise).rejects.toMatchObject({ message: ErrorMessages.InvalidPayload });
+        await expect(promise).rejects.toMatchObject({ message: ErrorMessages.InvalidRequestBody });
       });
     });
   });

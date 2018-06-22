@@ -23,8 +23,8 @@ describe('the DeviceManager', () => {
     expect(deviceManager.db.create).toHaveBeenCalledWith(mockSecretHex, mockName);
   });
 
-  it('will not create without a valid secret', () => {
-    expect(deviceManager.createDeviceDocument(null)).rejects.toMatchObject({ message: 'Invalid input' });
+  it('will not create without a valid secret', async () => {
+    await expect(deviceManager.createDeviceDocument(null)).rejects.toMatchObject({ message: 'Invalid input' });
   });
 
   it.skip('will not create with a short secret', () => {});

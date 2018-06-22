@@ -4,8 +4,9 @@ const DatabaseAdapter = require('./DatabaseAdapter');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
 const { mostRecent, resolveOrReject } = require('../utils/db');
 
-// The property name used as a UUID by the client
+// The ID & data properties documented for the API request
 const sessionUidField = 'uuid';
+const sessionDataField = 'data';
 
 /**
  * @class
@@ -24,16 +25,18 @@ class SessionDB extends DatabaseAdapter {
   insertAllForProtocol(sessionOrSessions, protocol) {
     return new Promise((resolve, reject) => {
       if (!protocol || !protocol._id) {
-        reject(new RequestError(ErrorMessages.MissingProtocol));
+        reject(new RequestError(ErrorMessages.NotFound));
         return;
       }
       const isArray = sessionOrSessions instanceof Array;
       let sessions = isArray ? sessionOrSessions : [sessionOrSessions];
-      // Reject if any session is missing its unique ID. Uses same check as nedb.
-      // This ensures uniqueness; removing this check would provide a fallback for clients
+      // Reject if any session is missing its UUID or data fields. Uses same check as nedb.
+      // Requiring UUID ensures uniqueness; removing this check would provide a fallback for clients
       // to import data without caring about uniqueness.
-      if (sessions.some(s => s[sessionUidField] === undefined)) {
-        reject(new RequestError(`'${sessionUidField}' property is required on session`));
+      // Requiring a nested data field ensures metadata is kept separate.
+      const isInvalid = s => s[sessionUidField] === undefined || s[sessionDataField] === undefined;
+      if (sessions.some(isInvalid)) {
+        reject(new RequestError(`'${sessionUidField}' and '${sessionDataField}' required on session`));
         return;
       }
       sessions = sessions.map(s => (
@@ -81,6 +84,14 @@ class SessionDB extends DatabaseAdapter {
     }
     return new Promise((resolve, reject) => {
       this.db.remove(query, opts, resolveOrReject(resolve, reject));
+    });
+  }
+
+  // Delete (destroy) all session data for all protocols
+  // TODO: Probably remove after alpha testing
+  deleteAll() {
+    return new Promise((resolve, reject) => {
+      this.db.remove({}, { multi: true }, resolveOrReject(resolve, reject));
     });
   }
 }

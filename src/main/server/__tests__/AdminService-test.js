@@ -2,7 +2,7 @@
 const net = require('net');
 
 const { AdminService } = require('../AdminService');
-const { jsonClient, makeUrl } = require('../../../setupTests');
+const { jsonClient, makeUrl } = require('../../../../config/jest/setupTestEnv');
 const DeviceManager = require('../../data-managers/DeviceManager');
 const ProtocolManager = require('../../data-managers/ProtocolManager');
 
@@ -211,5 +211,15 @@ describe('the AdminService', () => {
         });
       });
     });
+  });
+
+  it('resets devices, protocols, and sessions', async () => {
+    adminService.deviceManager.destroyAllDevices = jest.fn();
+    adminService.protocolManager.destroyAllProtocols = jest.fn();
+    adminService.protocolManager.destroyAllSessions = jest.fn();
+    await adminService.resetData();
+    expect(adminService.deviceManager.destroyAllDevices).toHaveBeenCalled();
+    expect(adminService.protocolManager.destroyAllProtocols).toHaveBeenCalled();
+    expect(adminService.protocolManager.destroyAllSessions).toHaveBeenCalled();
   });
 });

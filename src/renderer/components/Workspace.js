@@ -10,10 +10,10 @@ const Workspace = ({ protocol }) => (
       <ServerPanel className="dashboard__panel dashboard__panel--server-stats" />
       <div className="dashboard__panel">
         <h4>{protocol.name}</h4>
-        <PanelItem label="Filename" value={protocol.filename} />
-        <PanelItem label="Version" value={protocol.version} />
+        <PanelItem label="Description" value={protocol.description} placeholder="None available" />
         <PanelItem label="Network Canvas Version" value={protocol.networkCanvasVersion} />
-        <PanelItem label="Updated" value={protocol.updatedAt && protocol.updatedAt.toLocaleString()} />
+        <PanelItem label="Last Modified" value={protocol.lastModified && protocol.lastModified.toLocaleString()} placeholder="Unknown" />
+        <PanelItem label="Imported" value={protocol.updatedAt && protocol.updatedAt.toLocaleString()} />
       </div>
       <SessionPanel protocolId={protocol.id} />
       <DummyDashboardFragment key={protocol.id} />

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { ipcRenderer, remote } from 'electron';
+import { ipcRenderer } from 'electron';
 import { withRouter } from 'react-router-dom';
 
 import AppRoutes from './AppRoutes';
@@ -12,8 +12,7 @@ import { AnimatedPairPrompt } from '../components/pairing/PairPrompt';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
 import { actionCreators as deviceActionCreators } from '../ducks/modules/devices';
 import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
-
-const isFrameless = remote.process.platform === 'darwin';
+import { isFrameless } from '../utils/environment';
 
 // This prevents user from being able to drop a file anywhere on the app
 // (which by default triggers a 'save' dialog). If we want to support this,
@@ -67,7 +66,7 @@ class App extends Component {
       pairingRequest,
     } = this.props;
 
-    const appClass = isFrameless ? 'app app--frameless' : 'app';
+    const appClass = isFrameless() ? 'app app--frameless' : 'app';
 
     return (
       <div className={appClass}>
@@ -127,8 +126,11 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(App));
+const ConnectedApp = connect(mapStateToProps, mapDispatchToProps)(App);
+
+export default withRouter(ConnectedApp);
 
 export {
   App as UnconnectedApp,
+  ConnectedApp,
 };

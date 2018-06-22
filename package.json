@@ -28,7 +28,8 @@
     "dist:linux": "electron-builder -l",
     "dist:win": "electron-builder -w",
     "dist:all": "electron-builder -mlw",
-    "generate-icons": "node scripts/generate-app-icons.js"
+    "generate-icons": "node scripts/generate-app-icons.js",
+    "preflight": "npm run lint && npm run sass-lint && npm run build-docs && node scripts/build-api-spec && npm test -- --coverage"
   },
   "repository": {
     "type": "git"
@@ -148,8 +149,9 @@
     "setupFiles": [
       "<rootDir>/config/polyfills.js",
       "<rootDir>/config/jest/polyfills.js",
-      "<rootDir>/src/setupTests.js"
+      "<rootDir>/config/jest/setupTestEnv.js"
     ],
+    "setupTestFrameworkScriptFile": "<rootDir>/config/jest/setupTestFramework.js",
     "testPathIgnorePatterns": [
       "<rootDir>[/\\\\](build|docs|node_modules|scripts|release-builds)[/\\\\]"
     ],

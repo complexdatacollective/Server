@@ -1,4 +1,7 @@
 .panel-item {
+  @include element(placeholder) {
+    font-style: italic;
+  }
   @include element(value) {
     font-weight: bold;
   }
