@@ -361,7 +361,7 @@ class ProtocolManager {
     return this.getProtocol(protocolId)
       .then((protocol) => {
         if (!protocol) {
-          throw new RequestError(ErrorMessages.NotFound);
+          throw new RequestError(ErrorMessages.ProtocolNotFoundForSession);
         }
         return this.sessionDb.insertAllForProtocol(sessionOrSessions, protocol);
       })
