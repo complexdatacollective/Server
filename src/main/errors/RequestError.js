@@ -26,6 +26,7 @@ const ErrorMessages = {
   InvalidZip: 'Invalid ZIP File',
   MissingProtocolFile: 'Missing protocol file',
   NotFound: 'Not Found',
+  ProtocolNotFoundForSession: 'The associated protocol does not exist on this server',
   VerificationFailed: 'Request verification failed',
 };
 
