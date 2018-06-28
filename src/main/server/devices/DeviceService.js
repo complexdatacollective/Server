@@ -3,12 +3,13 @@ const { EventEmitter } = require('events');
 const { ipcMain } = require('electron');
 const logger = require('electron-log');
 
-const { DeviceAPI } = require('./DeviceAPI');
+const { DeviceAPI, apiEvents } = require('./DeviceAPI');
 const { IncompletePairingError, ErrorMessages } = require('../../errors/IncompletePairingError');
 
 const DefaultApiPort = process.env.DEVICE_SERVICE_PORT || 51001;
 
 const emittedEvents = {
+  ...apiEvents,
   PAIRING_CODE_AVAILABLE: 'PAIRING_CODE_AVAILABLE',
   PAIRING_COMPLETE: 'PAIRING_COMPLETE',
   PAIRING_TIMED_OUT: 'PAIRING_TIMED_OUT',
@@ -130,6 +131,22 @@ class DeviceService extends EventEmitter {
         this.emit(emittedEvents.PAIRING_COMPLETE);
       },
     };
+  }
+
+  on(name, cb) {
+    let emitter = null;
+    if (apiEvents && apiEvents[name]) {
+      emitter = this.api;
+    }
+
+    if (emitter) {
+      logger.debug('Delegating', name, 'to', emitter.constructor.name);
+      emitter.on(name, cb);
+    } else {
+      super.on(name, cb);
+    }
+
+    return this;
   }
 }
 

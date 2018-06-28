@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import logger from 'electron-log';
+import { ipcRenderer } from 'electron';
 
 import withApiClient from '../components/withApiClient';
 import viewModelMapper from '../utils/baseViewModelMapper';
@@ -22,6 +23,7 @@ class SessionPanel extends Component {
 
   componentDidMount() {
     this.loadSessions();
+    ipcRenderer.on('SESSIONS_IMPORTED', this.onSessionsImported);
   }
 
   componentDidUpdate(prevProps) {
@@ -31,6 +33,12 @@ class SessionPanel extends Component {
       this.loadSessions();
     }
   }
+
+  componentWillUnmount() {
+    ipcRenderer.removeListener('SESSIONS_IMPORTED', this.onSessionsImported);
+  }
+
+  onSessionsImported = () => this.loadSessions()
 
   get sessionsEndpoint() {
     const id = this.props.protocolId;
