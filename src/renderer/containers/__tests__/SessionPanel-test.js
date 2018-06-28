@@ -2,6 +2,8 @@
 
 import React from 'react';
 import { mount, shallow } from 'enzyme';
+import { ipcRenderer } from 'electron';
+
 import { UnwrappedSessionPanel as SessionPanel } from '../SessionPanel';
 import viewModelMapper from '../../utils/baseViewModelMapper';
 
@@ -51,8 +53,23 @@ describe('<SessionPanel />', () => {
 
     it('loads again on update', () => {
       const subject = shallow(<SessionPanel protocolId={'1'} apiClient={mockApiClient} />);
+      subject.instance().loadPromise = null;
       subject.setProps({ protocolId: '2' });
       expect(apiClient.get).toHaveBeenCalledTimes(2);
+    });
+
+    it('loads again when imports available', () => {
+      const subject = shallow(<SessionPanel protocolId={'1'} apiClient={mockApiClient} />);
+      subject.instance().loadPromise = null;
+      subject.instance().onSessionsImported();
+      expect(apiClient.get).toHaveBeenCalledTimes(2);
+    });
+
+    it('removes ipc handler before unmount', () => {
+      const subject = shallow(<SessionPanel protocolId={'1'} apiClient={mockApiClient} />);
+      const handler = subject.instance().onSessionsImported;
+      subject.unmount();
+      expect(ipcRenderer.removeListener).toHaveBeenCalledWith('SESSIONS_IMPORTED', handler);
     });
 
     describe('deletion', () => {

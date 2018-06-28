@@ -35,6 +35,7 @@ class SessionPanel extends Component {
   }
 
   componentWillUnmount() {
+    if (this.loadPromise) { this.loadPromise.cancelled = true; }
     ipcRenderer.removeListener('SESSIONS_IMPORTED', this.onSessionsImported);
   }
 
@@ -73,19 +74,24 @@ class SessionPanel extends Component {
 
   loadSessions() {
     const { apiClient, protocolId } = this.props;
-    if (!protocolId || !apiClient) {
+    if (!protocolId || !apiClient || this.loadPromise) {
       return;
     }
     this.setState({ isLoading: true, stale: false });
-    apiClient.get(this.sessionsEndpoint)
+    this.loadPromise = apiClient.get(this.sessionsEndpoint)
       .then((resp) => {
-        const sessions = resp.sessions.map(viewModelMapper);
-        this.setState({ isLoading: false, sessions, totalCount: resp.totalSessions });
+        if (!this.loadPromise.cancelled) {
+          const sessions = resp.sessions.map(viewModelMapper);
+          this.setState({ isLoading: false, sessions, totalCount: resp.totalSessions });
+        }
       })
       .catch((err) => {
-        logger.error(err);
-        this.setState({ sessions: [] });
-      });
+        if (!this.loadPromise.cancelled) {
+          logger.error(err);
+          this.setState({ sessions: [] });
+        }
+      })
+      .then(() => { this.loadPromise = null; });
   }
 
   deleteAllSessions() {
