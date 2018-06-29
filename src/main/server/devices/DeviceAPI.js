@@ -25,7 +25,7 @@ const lanIP = () => {
   return iface && iface.address;
 };
 
-const ApiName = 'DevciceAPI';
+const ApiName = 'DeviceAPI';
 const ApiVersion = '0.0.9';
 const ApiHostName = '0.0.0.0'; // IPv4 for compatibility with Travis (& unknown installations)
 

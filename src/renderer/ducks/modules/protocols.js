@@ -27,7 +27,7 @@ const loadProtocolsDispatch = () => ({
 
 const protocolsLoadedDispatch = protocols => ({
   type: PROTOCOLS_LOADED,
-  protocols,
+  protocols: protocols || [],
 });
 
 const loadProtocols = () => (dispatch) => {

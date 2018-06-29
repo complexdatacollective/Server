@@ -3,6 +3,7 @@ const logger = require('electron-log');
 
 const { createApp, userDataDir } = require('./MainApp');
 const { createServer, serverEvents } = require('./server/ServerFactory');
+const { DefaultApiPort } = require('./server/devices/DeviceService');
 
 const ApiConnectionInfoChannel = 'API_INFO';
 const RequestApiConnectionInfoChannel = 'REQUEST_API_INFO';
@@ -11,7 +12,7 @@ const RequestFileImportDialog = 'REQUEST_FILE_IMPORT_DIALOG';
 const { app, mainWindow, showImportProtocolDialog } = createApp();
 
 let server = null;
-createServer(8080, userDataDir).then((runningServer) => {
+createServer(DefaultApiPort, userDataDir).then((runningServer) => {
   server = runningServer;
 
   app.on('before-quit', () => server.close());
