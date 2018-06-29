@@ -19,11 +19,13 @@ createServer(8080, userDataDir).then((runningServer) => {
   // Renderer may be ready before server, in which case send:
   mainWindow.send(ApiConnectionInfoChannel, server.connectionInfo.adminService);
 
-  ipcMain.on(RequestFileImportDialog, showImportProtocolDialog);
-
   ipcMain.on(RequestApiConnectionInfoChannel, (evt) => {
     evt.sender.send(ApiConnectionInfoChannel, server.connectionInfo.adminService);
   });
+
+  ipcMain.on(RequestFileImportDialog, showImportProtocolDialog);
+
+  server.on(serverEvents.SESSIONS_IMPORTED, () => mainWindow.send(serverEvents.SESSIONS_IMPORTED));
 
   // TODO: if send() returns false, let server know so client request can be dropped?
   server.on(serverEvents.PAIRING_CODE_AVAILABLE, (data) => {

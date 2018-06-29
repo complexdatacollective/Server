@@ -2,10 +2,11 @@
 /* eslint max-len: ["error", { "code":100, "ignoreComments": true }] */
 const os = require('os');
 const restify = require('restify');
-const { ConflictError, NotAcceptableError } = require('restify-errors');
 const corsMiddleware = require('restify-cors-middleware');
 const logger = require('electron-log');
 const PropTypes = require('prop-types');
+const { ConflictError, NotAcceptableError } = require('restify-errors');
+const { EventEmitter } = require('events');
 const { URL } = require('url');
 
 const DeviceManager = require('../../data-managers/DeviceManager');
@@ -194,12 +195,16 @@ const requireJsonRequest = (req, res, next) => {
   return true;
 };
 
+const emittedEvents = {
+  SESSIONS_IMPORTED: 'SESSIONS_IMPORTED',
+};
 
 /**
  * API Server for device endpoints
  */
-class DeviceAPI {
+class DeviceAPI extends EventEmitter {
   constructor(dataDir, outOfBandDelegate) {
+    super();
     PropTypes.checkPropTypes(
       OutOfBandDelegate.propTypes,
       outOfBandDelegate,
@@ -582,6 +587,7 @@ class DeviceAPI {
         const protocolId = req.params.id;
         this.protocolManager.addSessionData(protocolId, sessionData)
           .then(docs => res.json(201, { status: 'ok', data: { insertedCount: docs.length } }))
+          .then(() => this.emit(emittedEvents.SESSIONS_IMPORTED))
           .catch((err) => {
             if (err.errorType === 'uniqueViolated') { // from nedb
               this.handlers.onError(new ConflictError(err.message), res);
@@ -600,4 +606,5 @@ module.exports = {
   ApiVersion,
   DeviceAPI,
   OutOfBandDelegate,
+  apiEvents: emittedEvents,
 };

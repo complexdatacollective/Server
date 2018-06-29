@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import logger from 'electron-log';
+import { ipcRenderer } from 'electron';
 
 import withApiClient from '../components/withApiClient';
 import viewModelMapper from '../utils/baseViewModelMapper';
@@ -22,6 +23,7 @@ class SessionPanel extends Component {
 
   componentDidMount() {
     this.loadSessions();
+    ipcRenderer.on('SESSIONS_IMPORTED', this.onSessionsImported);
   }
 
   componentDidUpdate(prevProps) {
@@ -31,6 +33,13 @@ class SessionPanel extends Component {
       this.loadSessions();
     }
   }
+
+  componentWillUnmount() {
+    if (this.loadPromise) { this.loadPromise.cancelled = true; }
+    ipcRenderer.removeListener('SESSIONS_IMPORTED', this.onSessionsImported);
+  }
+
+  onSessionsImported = () => this.loadSessions()
 
   get sessionsEndpoint() {
     const id = this.props.protocolId;
@@ -65,19 +74,24 @@ class SessionPanel extends Component {
 
   loadSessions() {
     const { apiClient, protocolId } = this.props;
-    if (!protocolId || !apiClient) {
+    if (!protocolId || !apiClient || this.loadPromise) {
       return;
     }
     this.setState({ isLoading: true, stale: false });
-    apiClient.get(this.sessionsEndpoint)
+    this.loadPromise = apiClient.get(this.sessionsEndpoint)
       .then((resp) => {
-        const sessions = resp.sessions.map(viewModelMapper);
-        this.setState({ isLoading: false, sessions, totalCount: resp.totalSessions });
+        if (!this.loadPromise.cancelled) {
+          const sessions = resp.sessions.map(viewModelMapper);
+          this.setState({ isLoading: false, sessions, totalCount: resp.totalSessions });
+        }
       })
       .catch((err) => {
-        logger.error(err);
-        this.setState({ sessions: [] });
-      });
+        if (!this.loadPromise.cancelled) {
+          logger.error(err);
+          this.setState({ sessions: [] });
+        }
+      })
+      .then(() => { this.loadPromise = null; });
   }
 
   deleteAllSessions() {
