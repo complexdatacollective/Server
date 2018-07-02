@@ -25,8 +25,12 @@ const consumeResponse = resp => (
  * the value will contain a `message` property, with a short description of the problem.
  */
 class AdminApiClient {
-  constructor(listeningPort = 8080) {
-    this.port = listeningPort;
+  static setPort(port) {
+    this.port = port;
+  }
+
+  get port() {
+    return this.constructor.port || null;
   }
 
   /**

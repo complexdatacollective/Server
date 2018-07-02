@@ -6,12 +6,17 @@ jest.mock('../../../utils/adminApiClient');
 
 describe('the devices module', () => {
   describe('reducer', () => {
-    it('has empty state by default', () => {
-      expect(reducer(undefined)).toEqual([]);
+    it('has null state by default', () => {
+      expect(reducer(undefined)).toEqual(null);
     });
 
     it('is unchanged when loading', () => {
       const state = reducer(undefined, { type: actionTypes.LOAD_DEVICES });
+      expect(state).toEqual(null);
+    });
+
+    it('is array when done loading', () => {
+      const state = reducer(undefined, { type: actionTypes.DEVICES_LOADED, devices: [] });
       expect(state).toEqual([]);
     });
 

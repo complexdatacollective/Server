@@ -6,12 +6,20 @@ jest.mock('../../../utils/adminApiClient');
 
 describe('the protocols module', () => {
   describe('reducer', () => {
-    it('has empty state by default', () => {
-      expect(reducer(undefined)).toEqual([]);
+    it('has null state by default', () => {
+      expect(reducer(undefined)).toEqual(null);
     });
 
     it('is unchanged when loading', () => {
       const state = reducer(undefined, { type: actionTypes.LOAD_PROTOCOLS });
+      expect(state).toEqual(null);
+    });
+
+    it('is array when done loading', () => {
+      const state = reducer(undefined, {
+        type: actionTypes.PROTOCOLS_LOADED,
+        protocols: [],
+      });
       expect(state).toEqual([]);
     });
 

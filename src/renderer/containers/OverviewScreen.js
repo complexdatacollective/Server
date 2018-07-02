@@ -18,7 +18,11 @@ class OverviewScreen extends Component {
     if (protocols && protocols.length) {
       return <Redirect to={`/workspaces/${protocols[0].id}`} />;
     }
-    return <Instructions devices={devices} />;
+    if (devices) {
+      return <Instructions devices={devices} />;
+    }
+    // else still loading...
+    return null;
   }
 }
 

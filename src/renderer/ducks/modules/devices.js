@@ -6,9 +6,16 @@ import viewModelMapper from '../../utils/baseViewModelMapper';
 const LOAD_DEVICES = 'LOAD_DEVICES';
 const DEVICES_LOADED = 'DEVICES_LOADED';
 
-const initialState = [];
+// Null state: Load has not completed
+const initialState = null;
 
-const apiClient = new AdminApiClient();
+let sharedApiClient = null;
+const getApiClient = () => {
+  if (!sharedApiClient) {
+    sharedApiClient = new AdminApiClient();
+  }
+  return sharedApiClient;
+};
 
 const reducer = (state = initialState, action = {}) => {
   switch (action.type) {
@@ -27,12 +34,12 @@ const loadDevicesDispatch = () => ({
 
 const devicesLoadedDispatch = devices => ({
   type: DEVICES_LOADED,
-  devices,
+  devices: devices || [],
 });
 
 const loadDevices = () => (dispatch) => {
   dispatch(loadDevicesDispatch());
-  apiClient.get('/devices')
+  getApiClient().get('/devices')
     .then(resp => resp.devices)
     .then(devices => dispatch(devicesLoadedDispatch(devices)))
     .catch((err) => {
