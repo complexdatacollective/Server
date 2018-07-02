@@ -9,13 +9,13 @@ describe('<OverviewScreen />', () => {
 
   it('renders nothing while loading', () => {
     const subject = shallow(<OverviewScreen loadDevices={loadDevices} />);
-    expect(subject.find('Instructions')).toHaveLength(0);
+    expect(subject.find('GetStarted')).toHaveLength(0);
   });
 
-  it('renders startup instructions when empty data loaded', () => {
-    const props = { loadDevices, devices: [] };
+  it('renders "get started" info when empty data loaded', () => {
+    const props = { loadDevices, devices: [], protocols: [] };
     const subject = shallow(<OverviewScreen {...props} />);
-    expect(subject.find('Instructions')).toHaveLength(1);
+    expect(subject.find('GetStarted')).toHaveLength(1);
   });
 
   it('loads devices on startup', () => {
@@ -28,7 +28,7 @@ describe('<OverviewScreen />', () => {
     const subject = shallow((
       <OverviewScreen loadDevices={loadDevices} protocols={[mockProtocol]} />
     ));
-    expect(subject.find('Instructions')).toHaveLength(0);
+    expect(subject.find('GetStarted')).toHaveLength(0);
     expect(subject.find('Redirect')).toHaveLength(1);
     expect(subject.find('Redirect').prop('to')).toMatch(mockProtocol.id);
   });

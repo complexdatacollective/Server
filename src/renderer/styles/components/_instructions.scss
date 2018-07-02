@@ -1,4 +1,6 @@
-.pairing-instructions {
+$block: instructions;
+
+.#{$block} {
   --icon-height: 2rem;
 
   align-items: center;
@@ -10,27 +12,20 @@
     white-space: nowrap;
   }
 
-  &__device-status {
-    position: absolute;
-    right: spacing(medium);
-    top: spacing(medium);
-  }
-
-  &__section {
+  @include element(section) {
     margin-top: 2rem;
     width: 80%;
   }
 
-  &__steps {
+  @include element(steps) {
     list-style-type: decimal;
-    text-align: middle;
   }
 
-  &__step {
+  @include element(step) {
     margin-bottom: 1rem;
   }
 
-  &__add-icon {
+  @include element(add-icon) {
     &[name='add-a-screen'] {
       height: var(--icon-height);
       vertical-align: -.5rem;
@@ -38,4 +33,16 @@
     }
   }
 
+  @include modifier(compact) {
+    .#{$block} {
+      @include element(section) {
+        margin-top: 0;
+        width: auto;
+      }
+
+      @include element(step) {
+        margin-bottom: 0;
+      }
+    }
+  }
 }

@@ -13,23 +13,26 @@ class WorkspaceScreen extends Component {
   }
 
   render() {
-    const { protocol } = this.props;
+    const { devices, protocol } = this.props;
     if (!protocol) {
       return <div className="workspace--loading"><Spinner /></div>;
     }
-    return <Workspace protocol={protocol} />;
+    return <Workspace protocol={protocol} devices={devices} />;
   }
 }
 
 const mapStateToProps = (state, ownProps) => ({
+  devices: state.devices,
   protocol: selectors.currentProtocol(state, ownProps),
 });
 
 WorkspaceScreen.defaultProps = {
+  devices: null,
   protocol: null,
 };
 
 WorkspaceScreen.propTypes = {
+  devices: Types.devices,
   protocol: Types.protocol,
 };
 

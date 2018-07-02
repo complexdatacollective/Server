@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 
 import Types from '../types';
-import { Instructions } from '../components';
+import { GetStarted } from '../components';
 import { actionCreators } from '../ducks/modules/devices';
 
 class OverviewScreen extends Component {
@@ -18,8 +18,8 @@ class OverviewScreen extends Component {
     if (protocols && protocols.length) {
       return <Redirect to={`/workspaces/${protocols[0].id}`} />;
     }
-    if (devices) {
-      return <Instructions devices={devices} />;
+    if (protocols && devices) {
+      return <GetStarted devices={devices} />;
     }
     // else still loading...
     return null;
