@@ -1,10 +1,8 @@
 /* eslint-env jest */
 import React from 'react';
-import { mount, shallow } from 'enzyme';
-import { ipcRenderer } from 'electron';
+import { shallow } from 'enzyme';
 
-import withApiClient, { IPC } from '../withApiClient';
-import AdminApiClient from '../../utils/adminApiClient';
+import withApiClient from '../withApiClient';
 
 jest.mock('electron');
 
