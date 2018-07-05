@@ -16,8 +16,18 @@ describe('the protocol module', () => {
     });
 
     it('sets the current protocol ID', () => {
-      const state = reducer(undefined, mockAction);
+      const state = reducer(null, mockAction);
       expect(state).toEqual(mockId);
+    });
+
+    it('unsets if current is deleted', () => {
+      const action = { type: 'PROTOCOL_DELETED', id: mockId };
+      expect(reducer(mockId, action)).toEqual(null);
+    });
+
+    it('ignores if another is deleted', () => {
+      const action = { type: 'PROTOCOL_DELETED', id: '' };
+      expect(reducer(mockId, action)).toEqual(mockId);
     });
   });
 

@@ -330,6 +330,21 @@ describe('ProtocolManager', () => {
       expect(call[0]).toMatch(mockProtocol.filename);
     });
 
+    it('rejects when unlink errors if ensureFileDeleted is requested', async () => {
+      const mockProtocol = { filename: 'a.netcanvas' };
+      const mockError = new Error('mock error');
+      fs.unlink.mockImplementation((path, cb) => { cb(mockError); });
+      await expect(manager.destroyProtocol(mockProtocol, true)).rejects.toEqual(mockError);
+    });
+
+    it('rejects when db errors', async () => {
+      const mockProtocol = { filename: 'a.netcanvas' };
+      const mockError = new Error('mock error');
+      fs.unlink.mockImplementation((path, cb) => { cb(); });
+      manager.db.destroy.mockRejectedValue(mockError);
+      await expect(manager.destroyProtocol(mockProtocol, true)).rejects.toEqual(mockError);
+    });
+
     it('removes a protocol from DB', async () => {
       const mockProtocol = { filename: 'a.netcanvas' };
       fs.unlink.mockImplementation((path, cb) => { cb(); });
@@ -345,6 +360,11 @@ describe('ProtocolManager', () => {
       manager.destroyProtocol = jest.fn();
       await manager.destroyAllProtocols();
       expect(manager.destroyProtocol).toHaveBeenCalledTimes(mockProtocols.length);
+    });
+
+    it('removes all sessions', () => {
+      manager.destroyAllSessions();
+      expect(manager.sessionDb.deleteAll).toHaveBeenCalled();
     });
   });
 
@@ -377,7 +397,7 @@ describe('ProtocolManager', () => {
 
     it('allows omitting ID (to delete multiple)', () => {
       manager.deleteProtocolSessions('protocol1');
-      expect(manager.sessionDb.delete).toHaveBeenCalledWith(protocolId, undefined);
+      expect(manager.sessionDb.delete).toHaveBeenCalledWith(protocolId, null);
     });
 
     describe('insertion', () => {

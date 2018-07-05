@@ -1,10 +1,10 @@
-import logger from 'electron-log';
-
 import AdminApiClient from '../../utils/adminApiClient';
 import viewModelMapper from '../../utils/baseViewModelMapper';
 
 const LOAD_PROTOCOLS = 'LOAD_PROTOCOLS';
 const PROTOCOLS_LOADED = 'PROTOCOLS_LOADED';
+const DELETE_PROTOCOL = 'DELETE_PROTOCOL';
+const PROTOCOL_DELETED = 'PROTOCOL_DELETED';
 
 // Null state: Load has not completed
 const initialState = null;
@@ -23,6 +23,10 @@ const reducer = (state = initialState, action = {}) => {
       return action.protocols.map(viewModelMapper);
     case LOAD_PROTOCOLS:
       return state;
+    case DELETE_PROTOCOL:
+      return state;
+    case PROTOCOL_DELETED:
+      return state.filter(protocol => protocol.id !== action.id);
     default:
       return state;
   }
@@ -37,25 +41,39 @@ const protocolsLoadedDispatch = protocols => ({
   protocols: protocols || [],
 });
 
+const deleteProtocolDispatch = id => ({
+  type: DELETE_PROTOCOL,
+  id,
+});
+
+const protocolDeletedDispatch = id => ({
+  type: PROTOCOL_DELETED,
+  id,
+});
+
 const loadProtocols = () => (dispatch) => {
   dispatch(loadProtocolsDispatch());
   getApiClient().get('/protocols')
     .then(resp => resp.protocols)
-    .then(protocols => dispatch(protocolsLoadedDispatch(protocols)))
-    .catch((err) => {
-      // Log & bubble up to let UI handle as needed
-      logger.error(err);
-      throw err;
-    });
+    .then(protocols => dispatch(protocolsLoadedDispatch(protocols)));
+};
+
+const deleteProtocol = id => (dispatch) => {
+  dispatch(deleteProtocolDispatch(id));
+  getApiClient().delete(`/protocols/${id}`)
+    .then(() => dispatch(protocolDeletedDispatch(id)));
 };
 
 const actionCreators = {
+  deleteProtocol,
   loadProtocols,
 };
 
 const actionTypes = {
   LOAD_PROTOCOLS,
   PROTOCOLS_LOADED,
+  DELETE_PROTOCOL,
+  PROTOCOL_DELETED,
 };
 
 export {

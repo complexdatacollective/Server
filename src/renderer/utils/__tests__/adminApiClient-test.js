@@ -57,6 +57,7 @@ describe('an AdminApiClient', () => {
   });
 
   it('can make a delete request', async () => {
+    fetch.mockResponse('{}');
     await client.delete('/foo');
     expect(fetch).toHaveBeenCalledWith(expect.any(String), { method: 'DELETE' });
   });

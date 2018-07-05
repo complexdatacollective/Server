@@ -264,9 +264,16 @@ class ProtocolManager {
       });
   }
 
-  // Destroy both metadata from DB and saved file
+  /**
+   * Destroy both metadata from DB and saved file
+   * Does not destroy associated sessions.
+   * @param {object} protocol
+   * @param {Boolean} ensureFileDeleted If true and the file could not be deleted, rejects.
+   * @async
+   * @return {Boolean} Resolves with true
+   * @throws {Error} on any DB error, or file error if ensureFileDeleted==true
+   */
   destroyProtocol(protocol, ensureFileDeleted = false) {
-    logger.debug('destroying protocol', protocol);
     return new Promise((resolve, reject) => {
       const filePath = this.pathToProtocolFile(protocol.filename);
       fs.unlink(filePath, (fileErr) => {
@@ -347,7 +354,7 @@ class ProtocolManager {
    * @async
    * @return {number} removed count
    */
-  deleteProtocolSessions(protocolId, sessionId) {
+  deleteProtocolSessions(protocolId, sessionId = null) {
     return this.sessionDb.delete(protocolId, sessionId);
   }
 

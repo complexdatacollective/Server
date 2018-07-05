@@ -149,6 +149,19 @@ class AdminService {
         .then(next);
     });
 
+    api.del('/protocols/:protocolId', (req, res, next) => {
+      const { protocolId } = req.params;
+      this.protocolManager.deleteProtocolSessions(protocolId)
+        .then(() => this.protocolManager.getProtocol(protocolId))
+        .then(protocol => this.protocolManager.destroyProtocol(protocol))
+        .then(() => res.send({ status: 'ok' }))
+        .catch((err) => {
+          logger.error(err);
+          res.send(500, { status: 'error' });
+        })
+        .then(next);
+    });
+
     api.del('/protocols/:protocolId/sessions', (req, res, next) => {
       this.protocolManager.deleteProtocolSessions(req.params.protocolId)
         .then(() => res.send({ status: 'ok' }))

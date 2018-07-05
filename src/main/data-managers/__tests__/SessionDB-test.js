@@ -59,7 +59,7 @@ describe('SessionDB', () => {
 
   it('only deletes for protocol ID', async () => {
     await sessions.insertAllForProtocol(mockSessions, mockProtocol);
-    sessions.delete(null);
+    expect(sessions.delete(null)).rejects.toMatchErrorMessage('Invalid protocol ID');
     const found = await sessions.findAll(mockProtocol._id);
     expect(found).toHaveLength(2);
   });
