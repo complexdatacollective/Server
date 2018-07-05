@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 
 import Types from '../types';
-import { actionCreators as currentProtocolCreators } from '../ducks/modules/currentProtocolId';
 import { actionCreators as protocolActionCreators } from '../ducks/modules/protocols';
 import { Button, Spinner } from '../ui';
 
@@ -15,16 +14,11 @@ class SettingsScreen extends Component {
     this.state = {};
   }
 
-  componentDidMount() {
-    const id = this.props.match.params.id;
-    this.props.setCurrentProtocol(id);
-  }
-
   deleteProtocol = () => {
-    const { deleteProtocol, currentProtocolId } = this.props;
+    const { deleteProtocol, match } = this.props;
     // eslint-disable-next-line no-alert
-    if (currentProtocolId && confirm('Destroy this protocol and all related data?')) {
-      deleteProtocol(currentProtocolId);
+    if (match.params.id && confirm('Destroy this protocol and all related data?')) {
+      deleteProtocol(match.params.id);
     }
   }
 
@@ -61,30 +55,25 @@ class SettingsScreen extends Component {
   }
 }
 
-const mapStateToProps = ({ currentProtocolId, protocols }) => ({
-  currentProtocolId,
+const mapStateToProps = ({ protocols }, { match }) => ({
   protocolsHaveLoaded: !!protocols,
-  protocol: protocols && protocols.find(p => p.id === currentProtocolId),
+  protocol: protocols && protocols.find(p => p.id === match.params.id),
 });
 
 const mapDispatchToProps = dispatch => ({
   deleteProtocol: bindActionCreators(protocolActionCreators.deleteProtocol, dispatch),
-  setCurrentProtocol: bindActionCreators(currentProtocolCreators.setCurrentProtocol, dispatch),
 });
 
 SettingsScreen.defaultProps = {
   apiClient: null,
-  currentProtocolId: null,
   protocol: null,
 };
 
 SettingsScreen.propTypes = {
-  currentProtocolId: PropTypes.string,
   deleteProtocol: PropTypes.func.isRequired,
   match: PropTypes.object.isRequired,
   protocol: Types.protocol,
   protocolsHaveLoaded: PropTypes.bool.isRequired,
-  setCurrentProtocol: PropTypes.func.isRequired,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SettingsScreen);
