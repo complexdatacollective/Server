@@ -1,0 +1,17 @@
+.settings {
+  @include element(section) {
+    align-items: center;
+    border-top: 1px solid var(--base-border-color);
+    display: flex;
+    padding: spacing(large) 0;
+  }
+
+  @include element(description) {
+    flex: 1 1 auto;
+    padding-right: spacing(large);
+  }
+
+  @include element(action) {
+    flex: 0 0 auto;
+  }
+}

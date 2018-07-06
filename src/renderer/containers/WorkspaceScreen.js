@@ -1,29 +1,15 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import Types from '../types';
 import Workspace from '../components/Workspace';
-import { actionCreators } from '../ducks/modules/currentProtocolId';
 import { Spinner } from '../ui';
+import { selectors } from '../ducks/modules/protocols';
 
 class WorkspaceScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {};
-  }
-
-  componentDidMount() {
-    const id = this.props.match.params.id;
-    this.props.setCurrentProtocol(id);
-  }
-
-  componentDidUpdate(prevProps) {
-    const id = this.props.match.params.id;
-    if (id !== prevProps.match.params.id) {
-      this.props.setCurrentProtocol(id);
-    }
   }
 
   render() {
@@ -35,12 +21,8 @@ class WorkspaceScreen extends Component {
   }
 }
 
-const mapStateToProps = ({ currentProtocolId, protocols }) => ({
-  protocol: protocols && protocols.find(p => p.id === currentProtocolId),
-});
-
-const mapDispatchToProps = dispatch => ({
-  setCurrentProtocol: bindActionCreators(actionCreators.setCurrentProtocol, dispatch),
+const mapStateToProps = (state, ownProps) => ({
+  protocol: selectors.currentProtocol(state, ownProps),
 });
 
 WorkspaceScreen.defaultProps = {
@@ -48,11 +30,9 @@ WorkspaceScreen.defaultProps = {
 };
 
 WorkspaceScreen.propTypes = {
-  match: PropTypes.object.isRequired,
   protocol: Types.protocol,
-  setCurrentProtocol: PropTypes.func.isRequired,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(WorkspaceScreen);
+export default connect(mapStateToProps)(WorkspaceScreen);
 
 export { WorkspaceScreen as UnconnectedWorkspaceScreen };

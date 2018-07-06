@@ -69,9 +69,11 @@ class AdminApiClient {
   }
 
   delete(route) {
-    return fetch(this.resolveRoute(route), {
-      method: 'DELETE',
-    });
+    return fetch(this.resolveRoute(route),
+      {
+        method: 'DELETE',
+      })
+      .then(consumeResponse);
   }
 
   resolveRoute(route) {

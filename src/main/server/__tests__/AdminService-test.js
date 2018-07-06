@@ -81,6 +81,11 @@ describe('the AdminService', () => {
             serverStatus: expect.any(Object),
           });
         });
+
+        it('reports health status', async () => {
+          adminService.statusDelegate = { status: () => undefined };
+          await expect(jsonClient.get(endpoint)).rejects.toMatchObject({ statusCode: 503 });
+        });
       });
 
       describe('/devices', () => {
@@ -120,6 +125,8 @@ describe('the AdminService', () => {
           ProtocolManager.mockImplementation(() => ({
             validateAndImport: files => Promise.resolve(files),
             allProtocols: jest.fn().mockResolvedValue(mockFiles.map(f => ({ filename: f }))),
+            deleteProtocolSessions: jest.fn().mockResolvedValue({ status: 'ok' }),
+            destroyProtocol: jest.fn().mockResolvedValue({ status: 'ok' }),
             getProtocol: jest.fn().mockResolvedValue(mockProtocol),
           }));
         });
@@ -139,6 +146,11 @@ describe('the AdminService', () => {
           expect(res.json.protocols).toEqual(mockFiles);
         });
 
+        it('deletes a protocol', async () => {
+          const res = await jsonClient.delete(`${endpoint}/${mockProtocol.id}`);
+          expect(res.json.status).toBe('ok');
+        });
+
         describe('when manager fails', () => {
           const mockResp = { statusCode: 500 };
 
@@ -147,6 +159,7 @@ describe('the AdminService', () => {
             ProtocolManager.mockImplementation(() => ({
               validateAndImport: jest.fn().mockRejectedValue(mockError),
               allProtocols: jest.fn().mockRejectedValue(mockError),
+              deleteProtocolSessions: jest.fn().mockRejectedValue(mockError),
               getProtocol: jest.fn().mockRejectedValue(mockError),
             }));
           });
@@ -161,6 +174,10 @@ describe('the AdminService', () => {
 
           it('sends an error for get', async () => {
             await expect(jsonClient.get(`${endpoint}/${mockProtocol.id}`)).rejects.toMatchObject(mockResp);
+          });
+
+          it('sends an error for delete', async () => {
+            await expect(jsonClient.delete(`${endpoint}/${mockProtocol.id}`)).rejects.toMatchObject(mockResp);
           });
         });
       });
@@ -205,8 +222,12 @@ describe('the AdminService', () => {
             await expect(jsonClient.get(sessEndpoint)).rejects.toMatchObject(mockResp);
           });
 
-          it('returns a server error (delete)', async () => {
+          it('returns a server error (delete all)', async () => {
             await expect(jsonClient.delete(sessEndpoint)).rejects.toMatchObject(mockResp);
+          });
+
+          it('returns a server error (delete)', async () => {
+            await expect(jsonClient.delete(`${sessEndpoint}/1`)).rejects.toMatchObject(mockResp);
           });
         });
       });

@@ -34,8 +34,13 @@ describe('serverManager', () => {
     });
 
     it('requires a data directory', async () => {
-      const mockError = { message: 'You must specify a user data directory' };
-      await expect(createServer(testPort)).rejects.toMatchObject(mockError);
+      await expect(createServer(testPort)).rejects
+        .toMatchErrorMessage('You must specify a user data directory');
+    });
+
+    it('requires a port', async () => {
+      await expect(createServer(null, './tmp')).rejects
+        .toMatchErrorMessage('You must specify a server port');
     });
   });
 });

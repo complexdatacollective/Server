@@ -77,6 +77,9 @@ class SessionDB extends DatabaseAdapter {
    * Delete (destroy) one or more sessions associated with a protocol
    */
   delete(protocolId, sessionId = null) {
+    if (!protocolId) {
+      return Promise.reject(new Error(`Invalid protocol ID (${protocolId})`));
+    }
     const query = { protocolId };
     const opts = { multi: true };
     if (sessionId) {

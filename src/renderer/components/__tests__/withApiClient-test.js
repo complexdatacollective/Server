@@ -4,8 +4,6 @@ import { shallow } from 'enzyme';
 
 import withApiClient from '../withApiClient';
 
-jest.mock('electron');
-
 describe('withApiClient HOC', () => {
   let MockComponent;
 
