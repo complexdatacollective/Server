@@ -7,12 +7,21 @@ import { withRouter } from 'react-router-dom';
 
 import AppRoutes from './AppRoutes';
 import ProtocolNav from './ProtocolNav';
+import AdminApiClient from '../utils/adminApiClient';
 import { AppMessage } from '../components';
 import { AnimatedPairPrompt } from '../components/pairing/PairPrompt';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
 import { actionCreators as deviceActionCreators } from '../ducks/modules/devices';
 import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
 import { isFrameless } from '../utils/environment';
+
+const IPC = {
+  REQUEST_API_INFO: 'REQUEST_API_INFO',
+  API_INFO: 'API_INFO',
+  PAIRING_CODE_AVAILABLE: 'PAIRING_CODE_AVAILABLE',
+  PAIRING_TIMED_OUT: 'PAIRING_TIMED_OUT',
+  PAIRING_COMPLETE: 'PAIRING_COMPLETE',
+};
 
 // This prevents user from being able to drop a file anywhere on the app
 // (which by default triggers a 'save' dialog). If we want to support this,
@@ -37,19 +46,25 @@ class App extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {};
+    this.state = { apiReady: false };
 
     preventGlobalDragDrop();
 
-    ipcRenderer.on('PAIRING_CODE_AVAILABLE', (event, data) => {
+    ipcRenderer.send(IPC.REQUEST_API_INFO);
+    ipcRenderer.once(IPC.API_INFO, (event, apiInfo) => {
+      AdminApiClient.setPort(apiInfo.port);
+      this.setState({ apiReady: true });
+    });
+
+    ipcRenderer.on(IPC.PAIRING_CODE_AVAILABLE, (event, data) => {
       props.newPairingRequest(data.pairingCode);
     });
 
-    ipcRenderer.on('PAIRING_TIMED_OUT', () => {
+    ipcRenderer.on(IPC.PAIRING_TIMED_OUT, () => {
       props.dismissPairingRequest();
     });
 
-    ipcRenderer.on('PAIRING_COMPLETE', () => {
+    ipcRenderer.on(IPC.PAIRING_COMPLETE, () => {
       props.completedPairingRequest();
       props.loadDevices();
     });
@@ -65,6 +80,10 @@ class App extends Component {
       appMessages,
       pairingRequest,
     } = this.props;
+
+    const {
+      apiReady,
+    } = this.state;
 
     const appClass = isFrameless() ? 'app app--frameless' : 'app';
 
@@ -82,10 +101,16 @@ class App extends Component {
         }
         <div className="app__titlebar" />
         <div className="app__content">
-          <ProtocolNav className="app__sidebar" />
-          <div className="app__screen">
-            <AppRoutes />
-          </div>
+          {
+            apiReady && (
+              <React.Fragment>
+                <ProtocolNav className="app__sidebar" />
+                <div className="app__screen">
+                  <AppRoutes />
+                </div>
+              </React.Fragment>
+            )
+          }
         </div>
       </div>
     );
@@ -133,4 +158,5 @@ export default withRouter(ConnectedApp);
 export {
   App as UnconnectedApp,
   ConnectedApp,
+  IPC,
 };

@@ -6,9 +6,16 @@ import viewModelMapper from '../../utils/baseViewModelMapper';
 const LOAD_PROTOCOLS = 'LOAD_PROTOCOLS';
 const PROTOCOLS_LOADED = 'PROTOCOLS_LOADED';
 
-const initialState = [];
+// Null state: Load has not completed
+const initialState = null;
 
-const apiClient = new AdminApiClient();
+let sharedApiClient = null;
+const getApiClient = () => {
+  if (!sharedApiClient) {
+    sharedApiClient = new AdminApiClient();
+  }
+  return sharedApiClient;
+};
 
 const reducer = (state = initialState, action = {}) => {
   switch (action.type) {
@@ -27,12 +34,12 @@ const loadProtocolsDispatch = () => ({
 
 const protocolsLoadedDispatch = protocols => ({
   type: PROTOCOLS_LOADED,
-  protocols,
+  protocols: protocols || [],
 });
 
 const loadProtocols = () => (dispatch) => {
   dispatch(loadProtocolsDispatch());
-  apiClient.get('/protocols')
+  getApiClient().get('/protocols')
     .then(resp => resp.protocols)
     .then(protocols => dispatch(protocolsLoadedDispatch(protocols)))
     .catch((err) => {

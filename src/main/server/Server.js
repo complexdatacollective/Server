@@ -24,9 +24,8 @@ class Server extends EventEmitter {
     this.deviceService = new DeviceService({ dataDir });
 
     return Promise.all([
-      // TODO: use port param for device Service
-      this.adminService.start(port),
-      this.deviceService.start().then(service => this.advertiseDeviceService(service)),
+      this.adminService.start(),
+      this.deviceService.start(port).then(service => this.advertiseDeviceService(service)),
     ]).then(() => this);
   }
 
@@ -41,15 +40,16 @@ class Server extends EventEmitter {
     };
   }
 
-  // TODO: return promise of all
   close() {
+    const promises = [];
     if (this.deviceService) {
-      this.deviceService.stop();
+      promises.push(this.deviceService.stop());
     }
     if (this.adminService) {
-      this.adminService.stop();
+      promises.push(this.adminService.stop());
     }
     this.stopAdvertisements();
+    return Promise.all(promises);
   }
 
   advertiseDeviceService(deviceService) {

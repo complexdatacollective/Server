@@ -7,8 +7,14 @@ import { UnconnectedOverviewScreen as OverviewScreen } from '../OverviewScreen';
 describe('<OverviewScreen />', () => {
   const loadDevices = jest.fn();
 
-  it('renders startup instructions', () => {
+  it('renders nothing while loading', () => {
     const subject = shallow(<OverviewScreen loadDevices={loadDevices} />);
+    expect(subject.find('Instructions')).toHaveLength(0);
+  });
+
+  it('renders startup instructions when empty data loaded', () => {
+    const props = { loadDevices, devices: [] };
+    const subject = shallow(<OverviewScreen {...props} />);
     expect(subject.find('Instructions')).toHaveLength(1);
   });
 

@@ -19,6 +19,10 @@ class ServerPanel extends Component {
     };
   }
 
+  componentWillMount() {
+    this.getServerHealth();
+  }
+
   componentDidUpdate() {
     this.getServerHealth();
   }

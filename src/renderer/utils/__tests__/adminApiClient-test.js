@@ -12,6 +12,15 @@ describe('an AdminApiClient', () => {
     fetch.resetMocks();
   });
 
+  it('has no static port', () => {
+    expect(new AdminApiClient().port).toBe(null);
+  });
+
+  it('sets port for all clients', () => {
+    AdminApiClient.setPort(123);
+    expect(new AdminApiClient().port).toBe(123);
+  });
+
   it('can get the server status', async () => {
     const mockStatus = { uptime: 100 };
     fetch.mockResponse(JSON.stringify({ serverStatus: mockStatus }));

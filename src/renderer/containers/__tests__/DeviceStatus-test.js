@@ -33,4 +33,15 @@ describe('<DeviceStatus />', () => {
     shallow(<DeviceStatus loadDevices={mockLoader} />);
     expect(mockLoader).toHaveBeenCalledTimes(1);
   });
+
+  it('renders an empty badge before load', () => {
+    const subject = shallow(<DeviceStatus devices={null} />);
+    expect(subject.find('.device-icon__badge').text()).toEqual('');
+  });
+
+  it('renders a dark button variant', () => {
+    const subject = shallow(<DeviceStatus dark />);
+    const btnClass = subject.find('button').prop('className');
+    expect(btnClass).toContain('--dark');
+  });
 });

@@ -31,7 +31,7 @@ class DeviceStatus extends Component {
       <React.Fragment>
         <button className={buttonClass} onClick={this.toggleShow}>
           <span className="device-icon__badge">
-            {devices.length}
+            {devices ? devices.length : ''}
           </span>
         </button>
         <PairedDeviceModal

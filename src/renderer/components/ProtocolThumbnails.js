@@ -7,7 +7,7 @@ import Types from '../types';
 const ProtocolThumbnails = ({ location, protocols, onClickAddProtocol }) => (
   <div>
     {
-      protocols.map(protocol => (
+      protocols && protocols.map(protocol => (
         <ProtocolThumbnail location={location} protocol={protocol} key={protocol.id} />
       ))
     }

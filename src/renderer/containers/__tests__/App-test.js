@@ -1,18 +1,17 @@
 /* eslint-env jest */
 import React from 'react';
 import { mount, shallow } from 'enzyme';
-import { StaticRouter } from 'react-router';
 import { createStore } from 'redux';
-import { Provider } from 'react-redux';
+import { ipcRenderer } from 'electron';
 
-import { ConnectedApp, UnconnectedApp as App } from '../App';
+import AdminApiClient from '../../utils/adminApiClient';
+import { ConnectedApp, UnconnectedApp as App, IPC } from '../App';
 import { isFrameless } from '../../utils/environment';
-
-// const env = jest.genMockFromModule('../../utils/environment');
 
 jest.mock('../ProtocolNav', () => 'mock-protocol-nav');
 jest.mock('../DeviceStatus');
 jest.mock('../../utils/environment');
+jest.mock('../../utils/adminApiClient', () => ({ setPort: jest.fn() }));
 
 const mockDispatched = {
   ackPairingRequest: jest.fn(),
@@ -30,8 +29,14 @@ describe('<App />', () => {
     { appMessages: [mockMsg], pairingRequest: mockPairRequest }
   ));
 
-  it('renders its routes', () => {
+  it('does not render routes before API is ready', () => {
     const wrapper = shallow(<App {...mockDispatched} />);
+    expect(wrapper.find('AppRoutes')).toHaveLength(0);
+  });
+
+  it('renders its routes once API is ready', () => {
+    const wrapper = shallow(<App {...mockDispatched} />);
+    wrapper.setState({ apiReady: true });
     expect(wrapper.find('AppRoutes')).toHaveLength(1);
   });
 
@@ -40,15 +45,44 @@ describe('<App />', () => {
     expect(wrapper.find('AppMessage')).toHaveLength(1);
   });
 
-  it('renders device pairing prompt when a request exists', () => {
-    const wrapper = mount(
-      <Provider store={mockStore}>
-        <StaticRouter context={{}}>
-          <App {...mockDispatched} />
-        </StaticRouter>
-      </Provider>);
+  it('renders device pairing prompt when a pending request exists', () => {
+    const wrapper = mount(<App {...mockDispatched} pairingRequest={{ status: 'pending' }} />);
+    expect(wrapper.find('PairPrompt')).toHaveLength(1);
+  });
 
-    expect(wrapper.find('PairDevice')).toHaveLength(1);
+  it('does not render device pairing prompt after request acked', () => {
+    const wrapper = mount(<App {...mockDispatched} pairingRequest={{ status: 'acknowledged' }} />);
+    expect(wrapper.find('PairPrompt')).toHaveLength(0);
+  });
+
+  describe('API IPC', () => {
+    it('requests connection info when created', () => {
+      shallow(<App {...mockDispatched} />);
+      expect(ipcRenderer.send).toHaveBeenCalledWith(IPC.REQUEST_API_INFO);
+    });
+
+    it('registers a callback for connection info', () => {
+      shallow(<App {...mockDispatched} />);
+      expect(ipcRenderer.once).toHaveBeenCalledWith(
+        IPC.API_INFO,
+        expect.any(Function),
+      );
+    });
+
+    describe('when notified by server', () => {
+      let callOnce;
+      beforeAll(() => {
+        ipcRenderer.once.mockImplementation((channel, cb) => {
+          callOnce = cb;
+        });
+      });
+
+      it('sets the dynamic port for all clients', () => {
+        shallow(<App {...mockDispatched} />);
+        callOnce(IPC.ApiConnectionInfoChannel, { port: 12345 });
+        expect(AdminApiClient.setPort).toHaveBeenCalledWith(12345);
+      });
+    });
   });
 
   describe('frame', () => {

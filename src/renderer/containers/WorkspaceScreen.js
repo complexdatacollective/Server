@@ -36,7 +36,7 @@ class WorkspaceScreen extends Component {
 }
 
 const mapStateToProps = ({ currentProtocolId, protocols }) => ({
-  protocol: protocols.find(p => p.id === currentProtocolId),
+  protocol: protocols && protocols.find(p => p.id === currentProtocolId),
 });
 
 const mapDispatchToProps = dispatch => ({

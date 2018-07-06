@@ -45,6 +45,10 @@ class DeviceService extends EventEmitter {
     });
   }
 
+  /**
+   * @async
+   * @return {Promise}
+   */
   stop() {
     return this.api.close();
   }

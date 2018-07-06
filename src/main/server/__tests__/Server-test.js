@@ -29,7 +29,9 @@ describe('Server', () => {
     beforeEach(() => {
       server = new Server(serverOpts);
     });
-    afterEach(() => server.close());
+    afterEach(async () => {
+      await server.close();
+    });
 
     it('starts services', async () => {
       await server.startServices(testPortNumber);
@@ -38,18 +40,26 @@ describe('Server', () => {
     });
   });
 
-  it('starts services', () => {
+  it('provides a status object', () => {
     server = new Server(serverOpts);
     expect(server.status()).toMatchObject({});
   });
 
-  it('forwards relevant events from device service', () => {
+  it('forwards pairing request events from device service', () => {
     const handler = jest.fn();
     const evtName = deviceServiceEvents.PAIRING_CODE_AVAILABLE;
     server = new Server(serverOpts);
     server.deviceService = { on: jest.fn() };
     server.on(evtName, handler);
     expect(server.deviceService.on).toHaveBeenCalledWith(evtName, handler);
+  });
+
+  it('registers to hear pairing request events', async () => {
+    server = new Server(serverOpts);
+    await server.startServices(testPortNumber);
+    server.on('PAIRING_CODE_AVAILABLE', jest.fn());
+    await server.close();
+    expect(server.deviceService.eventNames()).toContain('PAIRING_CODE_AVAILABLE');
   });
 
   it('ignores non-device events', () => {
@@ -59,16 +69,20 @@ describe('Server', () => {
     expect(server.deviceService.on).not.toHaveBeenCalled();
   });
 
+  it('handles spurious closing gracefully', async () => {
+    server = new Server(serverOpts);
+    const promises = await server.close();
+    await server.close();
+    expect(promises).toEqual([]);
+  });
+
   describe('with a device service', () => {
     let deviceService;
 
-    beforeEach((done) => {
+    beforeEach(async () => {
       server = new Server();
       deviceService = new DeviceService({});
-      deviceService.start().then(() => done());
     });
-
-    afterEach(() => deviceService.stop());
 
     it('advertises using MDNS', () => {
       expect(mockAdvert.start.mock.calls.length).toBe(0);

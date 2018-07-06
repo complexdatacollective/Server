@@ -4,6 +4,13 @@
   flex-direction: column;
   height: 100%;
 
+  @include modifier(loading) {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
   @include modifier(frameless) {
     .app__titlebar {
       -webkit-app-region: drag; // sass-lint:disable-line no-vendor-prefixes
