@@ -10,6 +10,7 @@ const withDefaultName = dbDevice => ({
 
 /**
  * @class
+ * @extends DatabaseAdapter
  */
 class DeviceDB extends DatabaseAdapter {
   create(secretHex, deviceName) {

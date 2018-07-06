@@ -12,6 +12,7 @@ const { URL } = require('url');
 const DeviceManager = require('../../data-managers/DeviceManager');
 const ProtocolManager = require('../../data-managers/ProtocolManager');
 const apiRequestLogger = require('../apiRequestLogger');
+const deviceAuthenticator = require('./deviceAuthenticator');
 const { PairingRequestService } = require('./PairingRequestService');
 const { ErrorMessages, RequestError } = require('../../errors/RequestError');
 const { IncompletePairingError } = require('../../errors/IncompletePairingError');
@@ -26,7 +27,7 @@ const lanIP = () => {
 };
 
 const ApiName = 'DeviceAPI';
-const ApiVersion = '0.0.9';
+const ApiVersion = '0.0.10';
 const ApiHostName = '0.0.0.0'; // IPv4 for compatibility with Travis (& unknown installations)
 
 const Schema = {
@@ -186,6 +187,15 @@ const buildErrorResponse = (err, res) => {
   res.json(err.statusCode || statusCode, body);
 };
 
+// TODO: handle all error responses here instead of buildErrorResponse
+const handleApiError = (req, res, err, callback) => {
+  err.toJSON = () => ({ // eslint-disable-line no-param-reassign
+    status: 'error',
+    message: err.message || err.name,
+  });
+  return callback();
+};
+
 const requireJsonRequest = (req, res, next) => {
   if (req.header('content-type') !== 'application/json') {
     buildErrorResponse(new NotAcceptableError('content-type must be "application/json"'), res);
@@ -198,6 +208,9 @@ const requireJsonRequest = (req, res, next) => {
 const emittedEvents = {
   SESSIONS_IMPORTED: 'SESSIONS_IMPORTED',
 };
+
+// These routes don't require auth; there's no distinction between http methods yet
+const publicRoutes = ['/devices/new', '/devices', '/protocols/:filename'];
 
 /**
  * API Server for device endpoints
@@ -212,9 +225,11 @@ class DeviceAPI extends EventEmitter {
       'OutOfBandDelegate',
     );
     this.requestService = new PairingRequestService();
-    this.server = this.createServer();
     this.protocolManager = new ProtocolManager(dataDir);
     this.deviceManager = new DeviceManager(dataDir);
+
+    const authenticator = deviceAuthenticator(this.deviceManager, publicRoutes);
+    this.server = this.createServer(authenticator);
     this.outOfBandDelegate = outOfBandDelegate;
   }
 
@@ -241,13 +256,17 @@ class DeviceAPI extends EventEmitter {
     });
   }
 
-  createServer() {
+  createServer(authenticatorPlugin) {
     const server = restify.createServer({
       name: ApiName,
       version: ApiVersion,
     });
 
+    server.pre(restify.plugins.pre.sanitizePath());
+    server.pre(restify.plugins.authorizationParser());
+    server.use(authenticatorPlugin);
     server.use(restify.plugins.bodyParser());
+    server.on('restifyError', handleApiError);
 
     if (process.env.NODE_ENV === 'development') {
       server.on('after', apiRequestLogger('DeviceAPI'));
@@ -255,7 +274,10 @@ class DeviceAPI extends EventEmitter {
 
     // Whitelist everything for CORS: origins are arbitrary, and customizing client
     // Access-Origins buys no security
-    const cors = corsMiddleware({ origins: ['*'] });
+    const cors = corsMiddleware({
+      origins: ['*'],
+      allowHeaders: ['Authorization'],
+    });
     server.pre(cors.preflight);
     server.use(cors.actual);
 

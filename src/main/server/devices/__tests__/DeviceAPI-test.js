@@ -1,6 +1,7 @@
 /* eslint-env jest */
-const { DeviceAPI, OutOfBandDelegate } = require('../DeviceAPI');
+const { InvalidCredentialsError, NotAuthorizedError } = require('restify-errors');
 
+const { DeviceAPI, OutOfBandDelegate } = require('../DeviceAPI');
 const ProtocolManager = require('../../../data-managers/ProtocolManager');
 const { jsonClient, makeUrl } = require('../../../../../config/jest/setupTestEnv');
 const { ErrorMessages, RequestError } = require('../../../errors/RequestError');
@@ -8,14 +9,27 @@ const { ErrorMessages, RequestError } = require('../../../errors/RequestError');
 const testPortNumber = 5200;
 const mockSecretKey = '49b2f34ccbc425c941596fa492be0a382467538359de9ee09d42950056f0bc6a';
 
+const missingCredentialsError = new InvalidCredentialsError();
+const forbiddenError = new NotAuthorizedError();
+
+const admittingAuthenticator = (req, res, next) => next();
+const missingAuthenticator = (req, res, next) => next(missingCredentialsError);
+const forbiddenAuthenticator = (req, res, next) => next(forbiddenError);
+
 jest.mock('../../../data-managers/DeviceManager');
 jest.mock('../../../data-managers/ProtocolManager');
 jest.mock('../PairingRequestService');
 jest.mock('libsodium-wrappers');
 jest.mock('electron-log');
+jest.mock('../deviceAuthenticator', () => () => jest.fn());
 
 describe('the DeviceAPI', () => {
   const dataDir = '';
+  let mockAuthenticator;
+
+  beforeAll(() => {
+    mockAuthenticator = admittingAuthenticator;
+  });
 
   describe('out-of-band IPC delegate', () => {
     let consoleError;
@@ -47,9 +61,13 @@ describe('the DeviceAPI', () => {
       pairingDidComplete: jest.fn(),
     });
 
-    beforeEach((done) => {
+    beforeEach(async () => {
+      // API factory: override mockAuthenticator as needed in beforeAll handler
       deviceApi = new DeviceAPI(dataDir, mockDelegate);
-      deviceApi.listen(testPortNumber).then(() => done());
+      if (mockAuthenticator) {
+        deviceApi.server = deviceApi.createServer(mockAuthenticator);
+      }
+      await deviceApi.listen(testPortNumber);
     });
 
     afterEach((done) => {
@@ -209,6 +227,36 @@ describe('the DeviceAPI', () => {
           await expect(jsonClient.post(makeUrl('/protocols/1/sessions', deviceApi.server.url), {}))
             .rejects.toMatchObject({ statusCode: 500 });
         });
+      });
+    });
+
+    describe('when missing credentials', () => {
+      beforeAll(() => {
+        mockAuthenticator = missingAuthenticator;
+        ProtocolManager.mockImplementation(() => ({
+          allProtocols: jest.fn(),
+        }));
+      });
+
+      it('cannot access protocols', async () => {
+        await expect(jsonClient.get(makeUrl('/protocols', deviceApi.server.url)))
+          .rejects.toMatchObject({ statusCode: 401 });
+        expect(deviceApi.protocolManager.allProtocols).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when credentials are invalid', () => {
+      beforeAll(() => {
+        mockAuthenticator = forbiddenAuthenticator;
+        ProtocolManager.mockImplementation(() => ({
+          allProtocols: jest.fn(),
+        }));
+      });
+
+      it('cannot access protocols', async () => {
+        await expect(jsonClient.get(makeUrl('/protocols', deviceApi.server.url)))
+          .rejects.toMatchObject({ statusCode: 403 });
+        expect(deviceApi.protocolManager.allProtocols).not.toHaveBeenCalled();
       });
     });
   });

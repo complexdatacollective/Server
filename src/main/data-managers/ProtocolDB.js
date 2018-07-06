@@ -22,6 +22,7 @@ const validatedModifyTime = (protocol) => {
 
 /**
  * @class
+ * @extends DatabaseAdapter
  */
 class ProtocolDB extends DatabaseAdapter {
   /**
@@ -116,36 +117,6 @@ class ProtocolDB extends DatabaseAdapter {
         }
       });
     });
-  }
-
-  /**
-   * Get the first protocol matching the query
-   * @async
-   * @param {Object} query
-   * @return {Object} a persisted protocol
-   * @throws {Error}
-   */
-  first(query) {
-    return new Promise((resolve, reject) => {
-      this.db.findOne(query, (err, doc) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(doc);
-        }
-      });
-    });
-  }
-
-  /**
-   * Get the protocol matching ID
-   * @async
-   * @param {Object} id
-   * @return {Object} a persisted protocol
-   * @throws {Error}
-   */
-  get(id) {
-    return this.first({ _id: id });
   }
 }
 
