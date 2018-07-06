@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 
 import Types from '../types';
-import { actionCreators as protocolActionCreators } from '../ducks/modules/protocols';
+import { actionCreators, selectors } from '../ducks/modules/protocols';
 import { Button, Spinner } from '../ui';
 
 class SettingsScreen extends Component {
@@ -55,13 +55,13 @@ class SettingsScreen extends Component {
   }
 }
 
-const mapStateToProps = ({ protocols }, { match }) => ({
-  protocolsHaveLoaded: !!protocols,
-  protocol: protocols && protocols.find(p => p.id === match.params.id),
+const mapStateToProps = (state, ownProps) => ({
+  protocolsHaveLoaded: selectors.protocolsHaveLoaded(state),
+  protocol: selectors.currentProtocol(state, ownProps),
 });
 
 const mapDispatchToProps = dispatch => ({
-  deleteProtocol: bindActionCreators(protocolActionCreators.deleteProtocol, dispatch),
+  deleteProtocol: bindActionCreators(actionCreators.deleteProtocol, dispatch),
 });
 
 SettingsScreen.defaultProps = {

@@ -6,7 +6,6 @@ const PROTOCOLS_LOADED = 'PROTOCOLS_LOADED';
 const DELETE_PROTOCOL = 'DELETE_PROTOCOL';
 const PROTOCOL_DELETED = 'PROTOCOL_DELETED';
 
-// Null state: Load has not completed
 const initialState = null;
 
 let sharedApiClient = null;
@@ -31,6 +30,14 @@ const reducer = (state = initialState, action = {}) => {
       return state;
   }
 };
+
+const currentProtocol = (state, props) => {
+  const protocols = state.protocols;
+  const id = props.match && props.match.params.id;
+  return protocols && id && protocols.find(p => p.id === id);
+};
+
+const protocolsHaveLoaded = state => state.protocols !== initialState;
 
 const loadProtocolsDispatch = () => ({
   type: LOAD_PROTOCOLS,
@@ -76,9 +83,15 @@ const actionTypes = {
   PROTOCOL_DELETED,
 };
 
+const selectors = {
+  currentProtocol,
+  protocolsHaveLoaded,
+};
+
 export {
   actionCreators,
   actionTypes,
+  selectors,
 };
 
 export default reducer;

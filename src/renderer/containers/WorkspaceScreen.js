@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import Types from '../types';
 import Workspace from '../components/Workspace';
 import { Spinner } from '../ui';
+import { selectors } from '../ducks/modules/protocols';
 
 class WorkspaceScreen extends Component {
   constructor(props) {
@@ -20,8 +21,8 @@ class WorkspaceScreen extends Component {
   }
 }
 
-const mapStateToProps = ({ protocols }, { match }) => ({
-  protocol: protocols && protocols.find(p => p.id === match.params.id),
+const mapStateToProps = (state, ownProps) => ({
+  protocol: selectors.currentProtocol(state, ownProps),
 });
 
 WorkspaceScreen.defaultProps = {
