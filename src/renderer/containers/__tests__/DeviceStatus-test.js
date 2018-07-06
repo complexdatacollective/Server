@@ -16,16 +16,16 @@ describe('<DeviceStatus />', () => {
     expect(subject.text()).toMatch(new RegExp(`\\b${mockDevices.length}\\b`));
   });
 
-  it('renders a device list', () => {
+  it('contains a device modal', () => {
     const subject = shallow(<DeviceStatus devices={mockDevices} />);
-    expect(subject.find('PairedDeviceList')).toHaveLength(1);
+    expect(subject.find('PairedDeviceModal')).toHaveLength(1);
   });
 
-  it('only shows the device list on click', () => {
+  it('only shows the device modal on click', () => {
     const subject = shallow(<DeviceStatus devices={mockDevices} />);
-    expect(subject.find('PairedDeviceList').prop('show')).toBe(false);
+    expect(subject.find('PairedDeviceModal').prop('show')).toBe(false);
     subject.find('button').simulate('click');
-    expect(subject.find('PairedDeviceList').prop('show')).toBe(true);
+    expect(subject.find('PairedDeviceModal').prop('show')).toBe(true);
   });
 
   it('requests devices to display', () => {

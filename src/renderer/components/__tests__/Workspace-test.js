@@ -20,14 +20,8 @@ describe('<Workspace />', () => {
     expect(wrapper.text()).toContain(mockProtocol.name);
   });
 
-  it('renders instructions if no devices paired', () => {
-    const wrapper = shallow(<Workspace protocol={mockProtocol} devices={[]} />);
-    expect(wrapper.find('Instructions')).toHaveLength(1);
-  });
-
-  it('renders devices in a dashboard', () => {
-    const device = { id: '1', name: 'd', createdAt: new Date() };
-    const wrapper = shallow(<Workspace protocol={mockProtocol} devices={[device]} />);
+  it('renders a dashboard', () => {
+    const wrapper = shallow(<Workspace protocol={mockProtocol} />);
     expect(wrapper.find('DummyDashboardFragment')).toHaveLength(1);
   });
 });
