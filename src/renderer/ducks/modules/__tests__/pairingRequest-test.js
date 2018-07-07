@@ -1,6 +1,6 @@
 /* eslint-env jest */
 
-import reducer, { actionCreators, actionTypes, PairingStatus } from '../pairingRequest';
+import reducer, { actionCreators, actionTypes, PairingStatus, selectors } from '../pairingRequest';
 
 const pairingCode = 'abc123';
 
@@ -59,6 +59,18 @@ describe('the pairing request module', () => {
       const state = reducer(initialState, actionCreators.dismissPairingRequest());
       expect(state.status).toBeUndefined();
       expect(state.pairingCode).toBeUndefined();
+    });
+  });
+
+  describe('requestIsPending selector', () => {
+    it('returns true when request is pending', () => {
+      const state = { pairingRequest: { status: PairingStatus.Pending } };
+      expect(selectors.requestIsPending(state)).toBe(true);
+    });
+
+    it('returns flase when no request is pending', () => {
+      const state = { pairingRequest: {} };
+      expect(selectors.requestIsPending(state)).toBe(false);
     });
   });
 });

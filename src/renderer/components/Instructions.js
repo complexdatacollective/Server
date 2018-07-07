@@ -31,7 +31,7 @@ const Instructions = ({ compact, showPairingInstructions, showProtocolInstructio
         <h2>To pair a device:</h2>
         <ol className="instructions__steps">
           <li className="instructions__step">
-            Keep this screen open
+            Keep this window open
           </li>
           <li className="instructions__step">
             Open the Network Canvas app on a tablet or computer

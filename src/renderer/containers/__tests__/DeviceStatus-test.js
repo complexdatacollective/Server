@@ -44,4 +44,16 @@ describe('<DeviceStatus />', () => {
     const btnClass = subject.find('button').prop('className');
     expect(btnClass).toContain('--dark');
   });
+
+  it('hides the instructions modal when a pairing request arrives', () => {
+    const state = { showModal: true };
+    const newState = DeviceStatus.getDerivedStateFromProps({ hasPendingRequest: true }, state);
+    expect(newState.showModal).toBe(false);
+  });
+
+  it('keeps the instructions modal when other props update', () => {
+    const state = { showModal: true };
+    const newState = DeviceStatus.getDerivedStateFromProps({ hasPendingRequest: false }, state);
+    expect(newState.showModal).toBe(true);
+  });
 });
