@@ -1,13 +1,13 @@
 {
   "name": "network-canvas-server",
-  "version": "4.0.0-alpha.1",
+  "version": "4.0.0-alpha.2",
   "productName": "Network Canvas Server",
   "description": "A tool for storing, analyzing, and exporting Network Canvas interview data.",
   "private": true,
   "author": "Complex Data Collective",
   "engines": {
     "node": "8.9.3",
-    "npm": "5.3.0"
+    "npm": "6.1.0"
   },
   "scripts": {
     "start": "cross-env BUILD_TARGET=web node scripts/start.js",
