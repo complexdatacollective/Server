@@ -6,8 +6,17 @@ import { connect } from 'react-redux';
 import Types from '../types';
 import PairedDeviceModal from '../components/PairedDeviceModal';
 import { actionCreators } from '../ducks/modules/devices';
+import { selectors } from '../ducks/modules/pairingRequest';
 
 class DeviceStatus extends Component {
+  static getDerivedStateFromProps(props, state) {
+    if (props.hasPendingRequest) {
+      // Close the instructions when a pairing request arrives
+      return { ...state, showModal: false };
+    }
+    return state;
+  }
+
   constructor(props) {
     super(props);
     this.state = { showModal: false };
@@ -22,7 +31,7 @@ class DeviceStatus extends Component {
   }
 
   render() {
-    const { dark, devices } = this.props;
+    const { dark, devices, hasPendingRequest } = this.props;
     let buttonClass = 'device-icon';
     if (dark) {
       buttonClass += ` ${buttonClass}--dark`;
@@ -36,7 +45,7 @@ class DeviceStatus extends Component {
         </button>
         <PairedDeviceModal
           devices={devices}
-          show={this.state.showModal}
+          show={this.state.showModal && !hasPendingRequest}
           onComplete={this.toggleShow}
         />
       </React.Fragment>
@@ -47,17 +56,20 @@ class DeviceStatus extends Component {
 DeviceStatus.defaultProps = {
   dark: false,
   devices: [],
+  hasPendingRequest: false,
   loadDevices: () => {},
 };
 
 DeviceStatus.propTypes = {
   dark: PropTypes.bool,
   devices: Types.devices,
+  hasPendingRequest: PropTypes.bool,
   loadDevices: PropTypes.func,
 };
 
-const mapStateToProps = ({ devices }) => ({
-  devices,
+const mapStateToProps = state => ({
+  devices: state.devices,
+  hasPendingRequest: selectors.requestIsPending(state),
 });
 
 const mapDispatchToProps = dispatch => ({

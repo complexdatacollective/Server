@@ -1,0 +1,11 @@
+.get-started {
+  @include element(title) {
+    text-align: center;
+  }
+
+  @include element(device-status) {
+    position: absolute;
+    right: spacing(medium);
+    top: spacing(medium);
+  }
+}

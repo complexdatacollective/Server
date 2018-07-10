@@ -3,7 +3,7 @@ import React from 'react';
 import Types, { PropTypes } from '../types';
 import { DeviceList, Modal, Overflow } from '../components';
 
-const PairedDeviceList = ({ devices, onComplete, show }) => (
+const PairedDeviceModal = ({ devices, onComplete, show }) => (
   <Modal
     show={show}
     title="Paired Devices"
@@ -18,16 +18,16 @@ const PairedDeviceList = ({ devices, onComplete, show }) => (
   </Modal>
 );
 
-PairedDeviceList.defaultProps = {
+PairedDeviceModal.defaultProps = {
   devices: [],
   onComplete: () => {},
   show: false,
 };
 
-PairedDeviceList.propTypes = {
+PairedDeviceModal.propTypes = {
   devices: Types.devices,
   onComplete: PropTypes.func,
   show: PropTypes.bool,
 };
 
-export default PairedDeviceList;
+export default PairedDeviceModal;

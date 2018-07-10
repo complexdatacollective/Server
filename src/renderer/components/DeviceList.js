@@ -1,10 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import DeviceDetails from '../components/DeviceDetails';
+import Instructions from './Instructions';
+import DeviceDetails from './DeviceDetails';
 
 const EmptyDeviceList = () => (
-  <div>No devices found. You can pair a new device from the Network Canvas app.</div>
+  <div>
+    <h2>No devices found.</h2>
+    <Instructions showProtocolInstructions={false} />
+  </div>
 );
 
 const DeviceList = ({ devices }) => {

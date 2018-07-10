@@ -1,6 +1,6 @@
 /* eslint-env jest */
 import React from 'react';
-import { mount } from 'enzyme';
+import { mount, shallow } from 'enzyme';
 
 import DeviceList from '../DeviceList';
 
@@ -12,7 +12,12 @@ describe('<DeviceList />', () => {
   });
 
   it('renders an empty view when no devices saved', () => {
-    const wrapper = mount(<DeviceList devices={[]} />);
+    const wrapper = shallow(<DeviceList devices={[]} />);
     expect(wrapper.find('EmptyDeviceList')).toHaveLength(1);
+  });
+
+  it('renders instructions when no devices saved', () => {
+    const wrapper = mount(<DeviceList devices={[]} />);
+    expect(wrapper.find('Instructions')).toHaveLength(1);
   });
 });

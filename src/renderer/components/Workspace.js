@@ -21,6 +21,10 @@ const Workspace = ({ protocol }) => (
   </div>
 );
 
+Workspace.defaultProps = {
+  devices: null,
+};
+
 Workspace.propTypes = {
   protocol: Types.protocol.isRequired,
 };

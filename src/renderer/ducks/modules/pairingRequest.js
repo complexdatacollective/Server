@@ -40,6 +40,8 @@ const reducer = (state = initialState, action = {}) => {
   }
 };
 
+const requestIsPending = state => (state.pairingRequest.status === PairingStatus.Pending);
+
 const acknowledgePairingRequest = () => (
   {
     type: ACKNOWLEDGE_PAIRING_REQUEST,
@@ -79,10 +81,15 @@ const actionTypes = {
   NEW_PAIRING_REQUEST,
 };
 
+const selectors = {
+  requestIsPending,
+};
+
 export default reducer;
 
 export {
   actionCreators,
   actionTypes,
   PairingStatus,
+  selectors,
 };
