@@ -74,6 +74,8 @@ const createApp = () => {
         //   click: () => mainWindow.open('/settings'),
         // },
         // { type: 'separator' },
+        { role: 'about' },
+        { type: 'separator' },
         { role: 'quit' },
       ],
     },
