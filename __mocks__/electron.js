@@ -19,6 +19,7 @@ const app = {
     hide: jest.fn(),
     show: jest.fn(),
   },
+  getVersion: jest.fn(() => ''),
   getName: jest.fn(() => 'test'),
   getPath: jest.fn(() => '.'),
   on: jest.fn(),
@@ -30,6 +31,7 @@ const dialog = {
 };
 
 const remote = {
+  app,
   process: {
     platform: '',
   },
