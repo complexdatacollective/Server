@@ -8,7 +8,7 @@ import { withRouter } from 'react-router-dom';
 import AppRoutes from './AppRoutes';
 import ProtocolNav from './ProtocolNav';
 import AdminApiClient from '../utils/adminApiClient';
-import appVersion from '../utils/appVersion';
+import { appVersion, codename } from '../utils/appVersion';
 import { AppMessage } from '../components';
 import { AnimatedPairPrompt } from '../components/pairing/PairPrompt';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
@@ -119,6 +119,10 @@ class App extends Component {
           {
             versionParts[1] &&
             <div>{versionParts[1]}</div>
+          }
+          {
+            codename &&
+            <div className="app__codename">{codename}</div>
           }
         </div>
       </div>

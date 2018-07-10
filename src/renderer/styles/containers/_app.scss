@@ -72,4 +72,13 @@
     left: .5rem;
     position: absolute;
   }
+
+  @include element(codename) {
+    &::before {
+      content: '(“';
+    }
+    &::after {
+      content: '”)';
+    }
+  }
 }

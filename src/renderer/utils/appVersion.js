@@ -1,3 +1,15 @@
 import { remote } from 'electron';
 
-export default remote.app.getVersion();
+const codenames = {
+  '4.0.0-alpha.2': 'Anning',
+};
+
+const appVersion = remote.app.getVersion();
+const codename = codenames[appVersion];
+
+export default appVersion;
+
+export {
+  codename,
+  appVersion,
+};
