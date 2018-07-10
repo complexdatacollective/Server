@@ -8,6 +8,7 @@ import { withRouter } from 'react-router-dom';
 import AppRoutes from './AppRoutes';
 import ProtocolNav from './ProtocolNav';
 import AdminApiClient from '../utils/adminApiClient';
+import appVersion from '../utils/appVersion';
 import { AppMessage } from '../components';
 import { AnimatedPairPrompt } from '../components/pairing/PairPrompt';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
@@ -86,6 +87,7 @@ class App extends Component {
     } = this.state;
 
     const appClass = isFrameless() ? 'app app--frameless' : 'app';
+    const versionParts = appVersion.split('-');
 
     return (
       <div className={appClass}>
@@ -110,6 +112,13 @@ class App extends Component {
                 </div>
               </React.Fragment>
             )
+          }
+        </div>
+        <div className="app__version">
+          <div>{versionParts[0]}</div>
+          {
+            versionParts[1] &&
+            <div>{versionParts[1]}</div>
           }
         </div>
       </div>
