@@ -109,7 +109,7 @@
     "redux-persist": "^4.3.1",
     "redux-thunk": "^2.3.0",
     "reselect": "^3.0.0",
-    "restify": "^6.3.4",
+    "restify": "^7.2.1",
     "restify-cors-middleware": "^1.1.1",
     "uuid": "^3.3.2"
   },
