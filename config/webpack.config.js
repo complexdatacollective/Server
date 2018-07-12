@@ -140,11 +140,22 @@ const loaderRules = Object.freeze([
       {
         test: /\.(js|jsx)$/,
         include: paths.appSrc,
-        loader: require.resolve('babel-loader'),
-        options: {
-          compact: isProduction,
-          cacheDirectory: !isProduction,
-        },
+        use: [
+          {
+            loader: require.resolve('thread-loader'),
+            options: {
+              // In dev, keep workers alive for more effective watch mode
+              poolTimeout: isProduction ? 500 : Infinity,
+            },
+          },
+          {
+            loader: require.resolve('babel-loader'),
+            options: {
+              compact: isProduction,
+              cacheDirectory: !isProduction,
+            },
+          },
+        ],
       },
       {
         test: /\.woff2?$|\.woff$/,
