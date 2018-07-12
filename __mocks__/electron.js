@@ -22,6 +22,7 @@ const app = {
   getVersion: jest.fn(() => ''),
   getName: jest.fn(() => 'test'),
   getPath: jest.fn(() => '.'),
+  makeSingleInstance: jest.fn(),
   on: jest.fn(),
   quit: jest.fn(),
 };
