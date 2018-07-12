@@ -63,7 +63,6 @@
     "eslint-plugin-import": "^2.13.0",
     "eslint-plugin-jsx-a11y": "5.1.1",
     "eslint-plugin-react": "^7.10.0",
-    "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.11",
     "fs-extra": "^6.0.1",
     "html-webpack-plugin": "^3.2.0",
@@ -74,6 +73,7 @@
     "jsdoc": "^3.4.3",
     "jsdoc-babel": "^0.4.0",
     "json-loader": "^0.5.7",
+    "mini-css-extract-plugin": "^0.4.1",
     "node-sass": "^4.9.2",
     "postcss-loader": "^2.1.6",
     "react-dev-utils": "^6.0.0-next.3e165448",
@@ -113,6 +113,9 @@
     "restify-cors-middleware": "^1.1.1",
     "uuid": "^3.3.2"
   },
+  "browserslist": [
+    "Chrome 61"
+  ],
   "build": {
     "extends": null,
     "appId": "NetworkCanvasServer",
