@@ -1,5 +1,6 @@
 /* eslint-env jest */
 require('../index');
+const { autoUpdater } = require('electron-updater');
 const { createApp } = require('../MainApp');
 
 jest.mock('electron');
@@ -28,5 +29,13 @@ jest.mock('../server/ServerFactory', () => ({
 describe('index', () => {
   it('creates the app', () => {
     expect(createApp).toHaveBeenCalled();
+  });
+
+  it('checks for updates on start', () => {
+    expect(autoUpdater.checkForUpdatesAndNotify).toHaveBeenCalled();
+  });
+
+  it('sets an update logger', () => {
+    expect(autoUpdater.logger).toBeDefined();
   });
 });
