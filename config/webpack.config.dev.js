@@ -19,11 +19,20 @@ const publicPath = '/';
 const publicUrl = '';
 // Get environment variables to inject into our app.
 const env = getClientEnvironment(publicUrl);
+let nodeConfig = baseConfig.node;
 
 if (process.env.BUILD_TARGET === 'web') {
   // To open the dev app in a browser, electron needs to be polyfilled.
   // The trailing $ tells webpack to match 'electron' exactly.
   baseConfig.resolve.alias.electron$ = path.join(paths.appSrc, 'shim', 'electron.js');
+  baseConfig.resolve.alias['electron-log$'] = path.join(paths.appSrc, 'shim', 'electron-log.js');
+  nodeConfig = {
+    dgram: 'empty',
+    fs: 'empty',
+    net: 'empty',
+    tls: 'empty',
+    child_process: 'empty',
+  };
 }
 
 // This is the development configuration.
@@ -81,10 +90,13 @@ const config = {
     // Makes some environment variables available in index.html.
     // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
     // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
+    // "REACT_APP_" is a recognized prefix (see config/env.js)
     new InterpolateHtmlPlugin({
       ...env.raw,
       // Whitelist inlined content for the Content-Security-Policy header
       REACT_APP_SCRIPT_SRC_CSP: `'sha256-${inlineCSP.hash256('react-error-overlay')}'`,
+      // Whitelist inlined content for the Content-Security-Policy header
+      REACT_APP_CONNECT_SRC_CSP: 'ws://localhost:* wss://localhost:*',
     }),
     // Add module names to factory functions so they appear in browser profiler.
     new webpack.NamedModulesPlugin(),
@@ -101,6 +113,7 @@ const config = {
     // See https://github.com/facebookincubator/create-react-app/issues/186
     new WatchMissingNodeModulesPlugin(paths.appNodeModules),
   ],
+  node: nodeConfig,
 };
 
 module.exports = config;
