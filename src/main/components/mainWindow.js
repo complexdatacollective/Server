@@ -2,6 +2,14 @@ const path = require('path');
 const url = require('url');
 const { BrowserWindow } = require('electron');
 
+const loadDevToolsExtensions = () => {
+  const extensions = process.env.NC_DEVTOOLS_EXENSION_PATH;
+  if (process.env.NODE_ENV !== 'development' || !extensions) {
+    return;
+  }
+  extensions.split(';').forEach(filepath => BrowserWindow.addDevToolsExtension(filepath));
+};
+
 const getAppUrl = (route) => {
   /* istanbul ignore if  */
   if (process.env.NODE_ENV === 'development' && process.env.WEBPACK_DEV_SERVER_PORT) {
@@ -36,6 +44,7 @@ class MainWindow {
 
     this.window = new BrowserWindow(opts);
     this.addWindowCloseListener();
+    loadDevToolsExtensions();
   }
 
   addWindowCloseListener() {
