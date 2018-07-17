@@ -24,6 +24,7 @@ const chalk = require('chalk');
  */
 function hash256(libName) {
   let index;
+
   try {
     index = require.resolve(libName);
   } catch (err) {
@@ -47,7 +48,12 @@ function hash256(libName) {
   vm.createContext(sandbox);
   vm.runInContext(exportedSrc, sandbox);
 
-  const cspHash = crypto.createHash('sha256').update(sandbox.module.exports).digest('base64');
+  // Newer versions of plugin contain source directly; older versions export a string
+  // TODO: remove legacy parsing above once we're sure it's unneeded
+  const clientSource = sandbox.module.exports || source;
+
+  // const cspHash = crypto.createHash('sha256').update(sandbox.module.exports).digest('base64');
+  const cspHash = crypto.createHash('sha256').update(clientSource).digest('base64');
   return cspHash;
 }
 

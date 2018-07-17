@@ -63,6 +63,7 @@ class AdminService {
   createApi() {
     const api = restify.createServer({
       name: ApiName,
+      onceNext: true,
       version: ApiVersion,
     });
 
@@ -87,7 +88,7 @@ class AdminService {
       } else {
         res.send(503, { status: 'error' });
       }
-      return next();
+      next();
     });
 
     api.get('/devices', (req, res, next) => {
@@ -97,7 +98,7 @@ class AdminService {
           logger.error(err);
           res.send(500, { status: 'error' });
         })
-        .then(next);
+        .then(() => next());
     });
 
     api.post('/protocols', (req, res, next) => {
@@ -108,7 +109,7 @@ class AdminService {
           logger.error(err);
           res.send(500, { status: 'error', message: err.message });
         })
-        .then(next);
+        .then(() => next());
     });
 
     api.get('/protocols', (req, res, next) => {
@@ -118,7 +119,7 @@ class AdminService {
           logger.error(err);
           res.send(500, { status: 'error' });
         })
-        .then(next);
+        .then(() => next());
     });
 
     // Deprecated; will remove if not needed.
@@ -129,7 +130,7 @@ class AdminService {
           logger.error(err);
           res.send(500, { status: 'error' });
         })
-        .then(next);
+        .then(() => next());
     });
 
     api.get('/protocols/:id/sessions', (req, res, next) => {
@@ -146,7 +147,7 @@ class AdminService {
           logger.error(err);
           res.send(500, { status: 'error' });
         })
-        .then(next);
+        .then(() => next());
     });
 
     api.del('/protocols/:protocolId', (req, res, next) => {
@@ -159,7 +160,7 @@ class AdminService {
           logger.error(err);
           res.send(500, { status: 'error' });
         })
-        .then(next);
+        .then(() => next());
     });
 
     api.del('/protocols/:protocolId/sessions', (req, res, next) => {
@@ -169,7 +170,7 @@ class AdminService {
           logger.error(err);
           res.send(500, { status: 'error' });
         })
-        .then(next);
+        .then(() => next());
     });
 
     api.del('/protocols/:protocolId/sessions/:id', (req, res, next) => {
@@ -179,7 +180,7 @@ class AdminService {
           logger.error(err);
           res.send(500, { status: 'error' });
         })
-        .then(next);
+        .then(() => next());
     });
 
     return api;

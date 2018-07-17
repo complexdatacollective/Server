@@ -36,8 +36,8 @@ This repository assumes that `npm` is installed. If you don't have it installed,
 
 |`npm run <script>`|Description|
 |------------------|-----------|
-|`start`|Serves your app at `localhost:3000`.|
-|`server`| Starts the server listening at `localhost:8080`.|
+|`start:electron`| Serves your app from a dev server on port `4000`.|
+|`electron:dev`| Starts the main electron app including background services.|
 |`build`|Compiles assets and prepares app for production in the /www directory.|
 |`test`|Runs testing suite.|
 |`build-docs`|Builds HTML API docs into the docs-build directory.|
@@ -81,17 +81,11 @@ The electron app (and server components) are served out of the /www folder. Chan
 
 ### Development workflow
 
-New approach (work-in-progress):
-
 1. `npm run start:electron`: to start the webpack dev server
   - Note: must be running on port 3000.
 2. `npm run electron:dev` (in another terminal session)
   1. Copies the electron source to `./electron-dev`
   2. Runs the electron app from there, including background services.
-
-Original/browser approach (does not support electron):
-
-To speed up development, the server can be run headlessly out of /src/worker using the command `npm run server:dev` and the UI can be viewed at `localhost:3000` once started with `npm run start`. Communication between the two is not currently supported without the mechanisms of Electron IPC. Any changes made in the UI will be automatically compiled, but any changes made to the background server require it to be restarted in order for changes to be reflected.
 
 ### macOS Firewall during development
 

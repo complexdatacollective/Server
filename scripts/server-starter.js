@@ -6,7 +6,7 @@ const path = require('path');
 const { createServer } = require('../src/main/server/ServerFactory');
 
 let dbSettings = path.join(path.dirname(require.main.filename), 'db', 'settings.json');
-const port = process.env.port || 8080;
+const port = process.env.port || 51001;
 if (app) {
   dbSettings = path.join(app.getPath('userData'), 'db', 'settings.json');
 }

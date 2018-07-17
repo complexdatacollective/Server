@@ -259,6 +259,7 @@ class DeviceAPI extends EventEmitter {
   createServer(authenticatorPlugin) {
     const server = restify.createServer({
       name: ApiName,
+      onceNext: true,
       version: ApiVersion,
     });
 
@@ -560,7 +561,7 @@ class DeviceAPI extends EventEmitter {
             });
           })
           .catch(err => this.handlers.onError(err, res))
-          .then(next);
+          .then(() => next());
       },
 
       onPairingConfirm: (req, res, next) => {
@@ -579,7 +580,7 @@ class DeviceAPI extends EventEmitter {
             res.json({ status: 'ok', data: { message: encrypt(payload, device.secretKey) } });
           })
           .catch(err => this.handlers.onError(err, res))
-          .then(next);
+          .then(() => next());
       },
 
       protocolList: (req, res, next) => {
@@ -587,7 +588,7 @@ class DeviceAPI extends EventEmitter {
           .then(protocols => protocols.map(p => Schema.protocol(p, this.publicUrl)))
           .then(schemas => res.json({ status: 'ok', data: schemas }))
           .catch(err => this.handlers.onError(err, res))
-          .then(next);
+          .then(() => next());
       },
 
       protocolFile: (req, res, next) => {
@@ -597,7 +598,7 @@ class DeviceAPI extends EventEmitter {
             res.send(fileBuf);
           })
           .catch(err => this.handlers.onError(err, res))
-          .then(next);
+          .then(() => next());
       },
 
       uploadSessions: (req, res, next) => {
@@ -617,7 +618,7 @@ class DeviceAPI extends EventEmitter {
               this.handlers.onError(err, res);
             }
           })
-          .then(next);
+          .then(() => next());
       },
     };
   }
