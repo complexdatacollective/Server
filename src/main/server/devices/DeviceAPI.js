@@ -200,14 +200,14 @@ const publicRoutes = ['/devices/new', '/devices', '/protocols/:filename'];
  * API Server for device endpoints
  */
 class DeviceAPI extends EventEmitter {
-  constructor(dataDir, outOfBandDelegate) {
+  constructor(dataDir, outOfBandDelegate, keys) {
     super();
     this.requestService = new PairingRequestService();
     this.protocolManager = new ProtocolManager(dataDir);
     this.deviceManager = new DeviceManager(dataDir);
 
     const authenticator = deviceAuthenticator(this.deviceManager, publicRoutes);
-    this.server = this.createServer(authenticator);
+    this.server = this.createServer(authenticator, keys);
     this.outOfBandDelegate = outOfBandDelegate;
   }
 
@@ -234,11 +234,15 @@ class DeviceAPI extends EventEmitter {
     });
   }
 
-  createServer(authenticatorPlugin) {
+  createServer(authenticatorPlugin/* , keys */) {
+    // if (!keys.cert || !keys.private) { /* TODO: throw */ }
     const server = restify.createServer({
       name: ApiName,
       onceNext: true,
       version: ApiVersion,
+      // TODO: Enable https:
+      // certificate: keys.cert,
+      // key: keys.private,
     });
 
     server.pre(restify.plugins.pre.sanitizePath());

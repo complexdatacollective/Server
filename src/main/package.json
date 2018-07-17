@@ -21,6 +21,7 @@
     "prop-types": "^15.6.1",
     "restify": "^6.3.4",
     "restify-cors-middleware": "^1.1.0",
+    "selfsigned": "^1.10.3",
     "uuid": "^3.2.1"
   },
   "main": "./index.js"

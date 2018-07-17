@@ -1,39 +1,17 @@
-const path = require('path');
-const PrivateSocket = require('private-socket');
-const Datastore = require('nedb');
 const libsodium = require('libsodium-wrappers');
 
 const Server = require('./Server');
-const settings = require('../settings');
-
+const ensurePemKeyPair = require('./ensurePemKeyPair');
 const { deviceServiceEvents } = require('./devices/DeviceService');
 
-const ensurePemKeyPair = (currentAppSettings) => {
-  if (!currentAppSettings || !currentAppSettings.keys) {
-    return PrivateSocket.generatePemKeyPair()
-      .then(
-        keypair =>
-          Object.assign({}, currentAppSettings, { keys: keypair }),
-      );
-  }
-
-  return currentAppSettings;
-};
-
-const startServer = (port, dataDir) => {
-  const settingsDb = path.join(dataDir, 'db', 'settings');
-  const appSettings = settings(new Datastore({ filename: settingsDb, autoload: true }));
-
-  // Guarantee libsodium is ready before other services start up
-  return libsodium.ready.then(() => appSettings.get())
+// Guarantee libsodium is ready before other services start up
+// @return an instance of Server
+const startServer = (port, dataDir) => (
+  libsodium.ready
     .then(ensurePemKeyPair)
-    .then(serverOptions => Object.assign({}, serverOptions, {
-      dataDir,
-    }))
-    .then(appSettings.set)
-    .then(currentAppSettings => new Server(currentAppSettings))
-    .then(server => server.startServices(port)); // returns Server instance
-};
+    .then(keys => new Server({ dataDir, keys }))
+    .then(server => server.startServices(port))
+);
 
 /**
  * Creates the worker services. For Electron, must run in the main process.
@@ -49,5 +27,5 @@ const createServer = (port, dataDir) => {
 
 module.exports = {
   createServer,
-  serverEvents: Object.assign({}, deviceServiceEvents),
+  serverEvents: { ...deviceServiceEvents },
 };

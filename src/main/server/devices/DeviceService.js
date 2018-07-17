@@ -19,22 +19,23 @@ const emittedEvents = {
  * - Device Pairing
  */
 class DeviceService extends EventEmitter {
-  constructor({ dataDir }) {
+  constructor({ dataDir, keys }) {
     super();
-    this.api = this.createApi(dataDir);
+    this.api = this.createApi(dataDir, keys);
   }
 
   get port() { return this.api.port; }
 
-  createApi(dataDir) { // eslint-disable-line class-methods-use-this
-    return new DeviceAPI(dataDir, outOfBandDelegate);
+  createApi(dataDir, keys) { // eslint-disable-line class-methods-use-this
+    return new DeviceAPI(dataDir, outOfBandDelegate, keys);
   }
 
   start(port = DefaultApiPort) {
-    return this.api.listen(parseInt(port, 10)).then((api) => {
-      logger.info(`${api.name} listening at ${api.url}`);
-      return api;
-    });
+    return this.api.listen(parseInt(port, 10))
+      .then((api) => {
+        logger.info(`${api.name} listening at ${api.url}`);
+        return api;
+      });
   }
 
   /**
