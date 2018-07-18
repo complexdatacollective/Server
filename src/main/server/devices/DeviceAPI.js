@@ -209,6 +209,7 @@ class DeviceAPI extends EventEmitter {
     const authenticator = deviceAuthenticator(this.deviceManager, publicRoutes);
     this.server = this.createServer(authenticator, keys);
     this.outOfBandDelegate = outOfBandDelegate;
+    this.publicCert = keys.cert;
   }
 
   get name() { return this.server.name; }
@@ -558,7 +559,10 @@ class DeviceAPI extends EventEmitter {
           .then((device) => {
             // TODO: if responding with error, surface error instead of complete
             this.outOfBandDelegate.pairingDidComplete();
-            const payload = JSON.stringify({ device: Schema.device(device) });
+            const payload = JSON.stringify({
+              device: Schema.device(device),
+              cert: this.publicCert,
+            });
             res.json({ status: 'ok', data: { message: encrypt(payload, device.secretKey) } });
           })
           .catch(err => this.handlers.onError(err, res))
