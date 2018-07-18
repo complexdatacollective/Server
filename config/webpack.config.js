@@ -110,7 +110,7 @@ const loaderRules = Object.freeze([
         options: {
           formatter: eslintFormatter,
           eslintPath: require.resolve('eslint'),
-
+          ...(isProduction ? {} : { emitWarning: true }),
         },
         loader: require.resolve('eslint-loader'),
       },
