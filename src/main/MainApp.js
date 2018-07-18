@@ -16,6 +16,8 @@ const protocolManager = new ProtocolManager(userDataDir);
 const createApp = () => {
   const mainWindow = new MainWindow();
 
+  const openMainWindow = () => mainWindow.open('/overview');
+
   const resetAppData = () => {
     const responseNum = dialog.showMessageBox(mainWindow.window, {
       message: 'Destroy all application files and data?',
@@ -25,14 +27,7 @@ const createApp = () => {
       defaultId: 0,
     });
     if (responseNum === 0) {
-      adminService.resetData()
-        .then(() => {
-          mainWindow.open('/');
-          // The following provides a full restart if needed
-          // (but is more jarring and loses pipe to stdout during dev):
-          // app.relaunch();
-          // app.quit();
-        });
+      adminService.resetData().then(openMainWindow);
     }
   };
 
@@ -58,7 +53,7 @@ const createApp = () => {
   const trayMenu = [
     {
       label: 'Overview',
-      click: () => { mainWindow.open('/overview'); },
+      click: openMainWindow,
     },
     {
       label: 'Quit',
@@ -143,7 +138,7 @@ const createApp = () => {
 
   app.on('ready', () => {
     if (!process.env.DEV_SUPPRESS_WINDOW_DEFAULT_OPEN) {
-      mainWindow.open('/overview');
+      openMainWindow();
     }
     tray = createTray(trayMenu);
     Menu.setApplicationMenu(appMenu);
@@ -153,7 +148,7 @@ const createApp = () => {
       // Desired UX TBD; if menu is only a collection of links to pages
       // visible with in-app nav, then this may make sense on all platforms.
       // ...or we could instead trigger tray.popUpContextMenu() here.
-      tray.on('click', () => mainWindow.open('/overview'));
+      tray.on('click', openMainWindow);
     }
   });
 
@@ -169,6 +164,15 @@ const createApp = () => {
       app.dock.hide();
     }
   });
+
+  // macOS: show GUI when re-opened from finder
+  app.on('activate', openMainWindow);
+
+  // Windows (and mac CLI): show GUI when re-opened
+  const isSecondInstance = app.makeSingleInstance(openMainWindow);
+  if (isSecondInstance) {
+    app.quit();
+  }
 
   return {
     app,
