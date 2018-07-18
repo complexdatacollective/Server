@@ -59,7 +59,9 @@ const unlink = path => (new Promise((resolve, reject) => {
   } catch (err) { reject(err); }
 }));
 
-const tryUnlink = path => unlink(path).catch(() => {});
+const tryUnlink = path => unlink(path).catch((err) => {
+  if (err.code !== 'ENOENT') { throw err; }
+});
 
 module.exports = {
   mkdir,
