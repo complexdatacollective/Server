@@ -1,10 +1,12 @@
 /* eslint-env jest */
+const EventEmitter = require('events');
 const { InvalidCredentialsError, NotAuthorizedError } = require('restify-errors');
 
-const { DeviceAPI, OutOfBandDelegate } = require('../DeviceAPI');
 const ProtocolManager = require('../../../data-managers/ProtocolManager');
+const { DeviceAPI } = require('../DeviceAPI');
 const { jsonClient, makeUrl } = require('../../../../../config/jest/setupTestEnv');
 const { ErrorMessages, RequestError } = require('../../../errors/RequestError');
+const { IncompletePairingError } = require('../../../errors/IncompletePairingError');
 
 const testPortNumber = 5200;
 const mockSecretKey = '49b2f34ccbc425c941596fa492be0a382467538359de9ee09d42950056f0bc6a';
@@ -25,71 +27,80 @@ jest.mock('../deviceAuthenticator', () => () => jest.fn());
 
 describe('the DeviceAPI', () => {
   const dataDir = '';
+  const mockRequestDbEntry = { _id: '123', salt: 'abc', pairingCode: 'abc' };
+  const mockRes = { json: jest.fn() };
+  const abort = jest.fn();
+  let mockDelegate;
   let mockAuthenticator;
+  let deviceApi;
 
   beforeAll(() => {
     mockAuthenticator = admittingAuthenticator;
+    mockDelegate = {
+      pairingDidBeginWithRequest: jest.fn().mockReturnValue({
+        promise: Promise.resolve(mockRequestDbEntry),
+        abort,
+      }),
+      pairingDidComplete: jest.fn(),
+    };
   });
 
-  describe('out-of-band IPC delegate', () => {
-    let consoleError;
-    beforeAll(() => {
-      consoleError = global.console.error;
-      global.console.error = jest.fn();
-    });
+  beforeEach(() => {
+    // API factory: override mockAuthenticator as needed in beforeAll handler
+    deviceApi = new DeviceAPI(dataDir, mockDelegate);
+    deviceApi.requestService.createRequest.mockResolvedValue(mockRequestDbEntry);
+  });
 
-    afterAll(() => {
-      global.console.error = consoleError;
-    });
+  afterEach(async () => {
+    await deviceApi.close();
+  });
 
-    it('logs errors if it does not conform to protocol', () => {
-      const invalidDelegate = {};
-      new DeviceAPI(dataDir, invalidDelegate); // eslint-disable-line no-new
-      expect(global.console.error).toHaveBeenCalledTimes(2);
-      expect(global.console.error).toHaveBeenCalledWith(expect.stringContaining('pairingDidBeginWithRequest'));
-      expect(global.console.error).toHaveBeenCalledWith(expect.stringContaining('pairingDidComplete'));
+  describe('error handler', () => {
+    it('returns a client error when pairing fails', () => {
+      const mockError = new IncompletePairingError('mock');
+      deviceApi.handlers.onError(mockError, mockRes);
+      expect(mockRes.json).toHaveBeenCalledWith(400, expect.objectContaining({ status: 'error' }));
+    });
+  });
+
+  describe('pairing request handler', () => {
+    const mockReq = new EventEmitter();
+    const next = jest.fn();
+
+    it('can be aborted', async () => {
+      await deviceApi.handlers.onPairingRequest(mockReq, mockRes, next);
+      expect(abort).not.toHaveBeenCalled();
+      mockReq.emit('aborted');
+      expect(abort).toHaveBeenCalled();
     });
   });
 
   describe('interface', () => {
-    const mockRequestDbEntry = { _id: '123', salt: 'abc' };
-    let deviceApi;
-    const mockDelegate = new OutOfBandDelegate({
-      pairingDidBeginWithRequest: jest.fn().mockReturnValue({
-        promise: Promise.resolve(mockRequestDbEntry),
-      }),
-      pairingDidComplete: jest.fn(),
-    });
-
     beforeEach(async () => {
-      // API factory: override mockAuthenticator as needed in beforeAll handler
-      deviceApi = new DeviceAPI(dataDir, mockDelegate);
       if (mockAuthenticator) {
         deviceApi.server = deviceApi.createServer(mockAuthenticator);
       }
       await deviceApi.listen(testPortNumber);
     });
 
-    afterEach((done) => {
-      deviceApi.close().then(() => done());
-    });
-
     describe('GET /devices/new', () => {
-      beforeEach(() => {
-        deviceApi.requestService.createRequest.mockResolvedValue(mockRequestDbEntry);
-      });
-
       it('responds to a client pairing request', async () => {
         const res = await jsonClient.get(makeUrl('/devices/new', deviceApi.server.url));
         expect(res.statusCode).toBe(200);
         expect(res.json.data).toHaveProperty('pairingRequestId');
         expect(res.json.data).toHaveProperty('salt');
       });
+
+      it('notifies the gui about the pairing request', async () => {
+        await jsonClient.get(makeUrl('/devices/new', deviceApi.server.url));
+        expect(mockDelegate.pairingDidBeginWithRequest).toHaveBeenCalledWith(expect.objectContaining({ pairingCode: expect.stringMatching(/\w+/) }));
+      });
     });
 
     describe('POST /devices', () => {
       beforeEach(() => {
         const err = new RequestError();
+        deviceApi.requestService.createRequest.mockResolvedValue(mockRequestDbEntry);
         deviceApi.requestService.verifyAndExpireEncryptedRequest.mockRejectedValue(err);
       });
 
@@ -122,6 +133,11 @@ describe('the DeviceAPI', () => {
           });
           expect(resp.statusCode).toBe(200);
           expect(resp.json.data).toHaveProperty('message');
+        });
+
+        it('notifies the gui about completion', async () => {
+          await jsonClient.get(makeUrl('/devices/new', deviceApi.server.url));
+          expect(mockDelegate.pairingDidComplete).toHaveBeenCalled();
         });
       });
     });

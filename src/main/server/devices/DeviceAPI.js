@@ -4,10 +4,10 @@ const os = require('os');
 const restify = require('restify');
 const corsMiddleware = require('restify-cors-middleware');
 const logger = require('electron-log');
-const PropTypes = require('prop-types');
 const { ConflictError, NotAcceptableError } = require('restify-errors');
 const { EventEmitter } = require('events');
 const { URL } = require('url');
+const { sendToGui } = require('../../guiProxy');
 
 const DeviceManager = require('../../data-managers/DeviceManager');
 const ProtocolManager = require('../../data-managers/ProtocolManager');
@@ -142,22 +142,6 @@ const PairingThrottleSettings = {
 };
 
 /**
- * Channel for out-of-band communications
- */
-class OutOfBandDelegate {
-  static get propTypes() {
-    return ({
-      pairingDidBeginWithRequest: PropTypes.func.isRequired,
-      pairingDidComplete: PropTypes.func.isRequired,
-    });
-  }
-  constructor({ pairingDidBeginWithRequest, pairingDidComplete }) {
-    this.pairingDidBeginWithRequest = pairingDidBeginWithRequest;
-    this.pairingDidComplete = pairingDidComplete;
-  }
-}
-
-/**
  * @swagger
  * definitions:
  *   Error:
@@ -218,12 +202,6 @@ const publicRoutes = ['/devices/new', '/devices', '/protocols/:filename'];
 class DeviceAPI extends EventEmitter {
   constructor(dataDir, outOfBandDelegate) {
     super();
-    PropTypes.checkPropTypes(
-      OutOfBandDelegate.propTypes,
-      outOfBandDelegate,
-      'prop',
-      'OutOfBandDelegate',
-    );
     this.requestService = new PairingRequestService();
     this.protocolManager = new ProtocolManager(dataDir);
     this.deviceManager = new DeviceManager(dataDir);
@@ -610,7 +588,7 @@ class DeviceAPI extends EventEmitter {
         const protocolId = req.params.id;
         this.protocolManager.addSessionData(protocolId, sessionData)
           .then(docs => res.json(201, { status: 'ok', data: { insertedCount: docs.length } }))
-          .then(() => this.emit(emittedEvents.SESSIONS_IMPORTED))
+          .then(() => sendToGui(emittedEvents.SESSIONS_IMPORTED))
           .catch((err) => {
             if (err.errorType === 'uniqueViolated') { // from nedb
               this.handlers.onError(new ConflictError(err.message), res);
@@ -628,6 +606,5 @@ module.exports = {
   default: DeviceAPI,
   ApiVersion,
   DeviceAPI,
-  OutOfBandDelegate,
   apiEvents: emittedEvents,
 };

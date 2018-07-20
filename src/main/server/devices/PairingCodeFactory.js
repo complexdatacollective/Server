@@ -3,6 +3,11 @@ const crypto = require('crypto');
 const { PairingCodeLength, CharacterSet } = require('../../utils/shared-api/pairingCodeConfig');
 
 /**
+ * @namespace PairingCodeFactory
+ * @type {Object}
+ */
+
+/**
  * Generate a random passcode that can be used for out-of-band pairing.
  *
  * Basic approach:
@@ -16,6 +21,7 @@ const { PairingCodeLength, CharacterSet } = require('../../utils/shared-api/pair
  * You can estimate the entropy of a pairing code based on its character set and length:
  * `Math.log2(charSet.length ** PairingCodeLength)`.
  *
+ * @memberOf PairingCodeFactory
  * @async
  * @return {string} random pairing code
  * @throws {Error} Rejects if random code couldn't be created

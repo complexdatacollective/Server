@@ -6,6 +6,8 @@ const { AdminService } = require('./server/AdminService');
 const { isWindows } = require('./utils/environment');
 const { createTray } = require('./components/tray');
 
+const guiProxy = require('./guiProxy');
+
 // TODO: move/centralize
 const FileImportUpdated = 'FILE_IMPORT_UPDATED';
 
@@ -15,6 +17,7 @@ const protocolManager = new ProtocolManager(userDataDir);
 
 const createApp = () => {
   const mainWindow = new MainWindow();
+  guiProxy.setMainWindow(mainWindow);
 
   const openMainWindow = () => mainWindow.open('/overview');
 

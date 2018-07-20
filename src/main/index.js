@@ -2,7 +2,7 @@ const { ipcMain } = require('electron');
 const logger = require('electron-log');
 
 const { createApp, userDataDir } = require('./MainApp');
-const { createServer, serverEvents } = require('./server/ServerFactory');
+const { createServer } = require('./server/ServerFactory');
 const { DefaultApiPort } = require('./server/devices/DeviceService');
 
 const ApiConnectionInfoChannel = 'API_INFO';
@@ -25,21 +25,6 @@ createServer(DefaultApiPort, userDataDir).then((runningServer) => {
   });
 
   ipcMain.on(RequestFileImportDialog, showImportProtocolDialog);
-
-  server.on(serverEvents.SESSIONS_IMPORTED, () => mainWindow.send(serverEvents.SESSIONS_IMPORTED));
-
-  // TODO: if send() returns false, let server know so client request can be dropped?
-  server.on(serverEvents.PAIRING_CODE_AVAILABLE, (data) => {
-    mainWindow.send(serverEvents.PAIRING_CODE_AVAILABLE, data);
-  });
-
-  server.on(serverEvents.PAIRING_TIMED_OUT, () => {
-    mainWindow.send(serverEvents.PAIRING_TIMED_OUT);
-  });
-
-  server.on(serverEvents.PAIRING_COMPLETE, (data) => {
-    mainWindow.send(serverEvents.PAIRING_COMPLETE, data);
-  });
 }).catch((err) => {
   logger.error(err);
   throw err;

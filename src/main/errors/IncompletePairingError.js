@@ -20,6 +20,7 @@ const ErrorMessages = {
   PairingCancelledByUser: 'Pairing was cancelled',
   PairingRequestTimedOut: 'Pairing timed out',
   PairingCodeExpired: 'Pairing window expired',
+  PairingGuiUnavailable: 'The main window must be open on this Server',
 };
 
 module.exports = {
