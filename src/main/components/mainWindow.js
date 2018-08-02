@@ -1,6 +1,5 @@
 const path = require('path');
 const url = require('url');
-const chalk = require('chalk');
 const { BrowserWindow } = require('electron');
 
 const DefaultHomeRoute = '/overview';
@@ -13,7 +12,8 @@ const loadDevToolsExtensions = () => {
   try {
     extensions.split(';').forEach(filepath => BrowserWindow.addDevToolsExtension(filepath));
   } catch (err) {
-    /* eslint-disable no-console */
+    /* eslint-disable no-console, global-require */
+    const chalk = require('chalk');
     console.warn(err);
     console.warn(chalk.yellow('A Chrome dev tools extension failed to load. If the extension has upgraded, update your NC_DEVTOOLS_EXENSION_PATH:'));
     console.warn(chalk.yellow(process.env.NC_DEVTOOLS_EXENSION_PATH));
