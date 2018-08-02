@@ -19,7 +19,7 @@ const createApp = () => {
   const mainWindow = new MainWindow();
   guiProxy.setMainWindow(mainWindow);
 
-  const openMainWindow = () => mainWindow.open('/overview');
+  const openMainWindow = () => mainWindow.open();
 
   const resetAppData = () => {
     const responseNum = dialog.showMessageBox(mainWindow.window, {
@@ -56,7 +56,7 @@ const createApp = () => {
   const trayMenu = [
     {
       label: 'Overview',
-      click: openMainWindow,
+      click: () => mainWindow.open('/overview'),
     },
     {
       label: 'Quit',
@@ -67,11 +67,6 @@ const createApp = () => {
   const MenuTemplate = [
     {
       submenu: [
-        // {
-        //   label: 'Settings',
-        //   click: () => mainWindow.open('/settings'),
-        // },
-        // { type: 'separator' },
         { role: 'about' },
         { type: 'separator' },
         { role: 'quit' },
@@ -128,11 +123,6 @@ const createApp = () => {
     // Get rid of the macOS primary menu
     MenuTemplate.shift();
     // Add those items elsewhere as appropriate
-    // MenuTemplate[0].submenu.push({ type: 'separator' });
-    // MenuTemplate[0].submenu.push({
-    //   label: 'Settings',
-    //   click: () => mainWindow.open('/settings'),
-    // });
     MenuTemplate[0].submenu.push({ type: 'separator' });
     MenuTemplate[0].submenu.push({ role: 'quit' });
   }
@@ -140,7 +130,7 @@ const createApp = () => {
   const appMenu = Menu.buildFromTemplate(MenuTemplate);
 
   app.on('ready', () => {
-    if (!process.env.DEV_SUPPRESS_WINDOW_DEFAULT_OPEN) {
+    if (!process.env.NC_DEV_SUPPRESS_WINDOW_DEFAULT_OPEN) {
       openMainWindow();
     }
     tray = createTray(trayMenu);

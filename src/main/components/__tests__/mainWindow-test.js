@@ -34,7 +34,7 @@ describe('MainWindow', () => {
   });
 
   describe('.open()', () => {
-    it('It calls window.loadURL with the correct attributes', () => {
+    it('calls window.loadURL with the correct attributes', () => {
       const route = '/foobarbazbuzz';
 
       mainWindow.open(route);
@@ -50,16 +50,40 @@ describe('MainWindow', () => {
       expect(loadUrlCall).toEqual(mainWindowIndexPath);
     });
 
-    it('It focuses the window', () => {
+    it('focuses the window', () => {
       mainWindow.open('/');
       expect(mainWindow.window.show).toHaveBeenCalledTimes(1);
     });
 
-    it('It re-focuses the window', () => {
+    it('re-focuses the window', () => {
       mainWindow.open('/a');
       mainWindow.window.webContents.getURL = jest.fn().mockReturnValueOnce('a');
       mainWindow.open('/b');
       expect(mainWindow.window.show).toHaveBeenCalledTimes(2);
+    });
+
+    it('accepts URLs', () => {
+      const fileUrl = 'file://index.html';
+      mainWindow.open(fileUrl);
+      expect(mainWindow.window.loadURL).toHaveBeenCalledWith(fileUrl);
+    });
+
+    it('shows the default route if none provided', () => {
+      mainWindow.open();
+      expect(mainWindow.window.loadURL).toHaveBeenCalledWith(expect.stringMatching('file://'));
+      expect(mainWindow.window.show).toHaveBeenCalled();
+    });
+
+    it('shows the window without loading (if a URL is already loaded)', () => {
+      // Setup: open once to instantiate `window` & simulate a URL being loaded
+      mainWindow.open('/');
+      mainWindow.window.webContents.getURL = jest.fn().mockReturnValueOnce('a');
+      mainWindow.window.loadURL.mockClear();
+      mainWindow.window.show.mockClear();
+
+      mainWindow.open();
+      expect(mainWindow.window.loadURL).not.toHaveBeenCalled();
+      expect(mainWindow.window.show).toHaveBeenCalled();
     });
   });
 
