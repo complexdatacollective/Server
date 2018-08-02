@@ -200,15 +200,16 @@ const publicRoutes = ['/devices/new', '/devices', '/protocols/:filename'];
  * API Server for device endpoints
  */
 class DeviceAPI extends EventEmitter {
-  constructor(dataDir, outOfBandDelegate) {
+  constructor(dataDir, outOfBandDelegate, keys) {
     super();
     this.requestService = new PairingRequestService();
     this.protocolManager = new ProtocolManager(dataDir);
     this.deviceManager = new DeviceManager(dataDir);
 
     const authenticator = deviceAuthenticator(this.deviceManager, publicRoutes);
-    this.server = this.createServer(authenticator);
+    this.server = this.createServer(authenticator, keys);
     this.outOfBandDelegate = outOfBandDelegate;
+    this.publicCert = keys.cert;
   }
 
   get name() { return this.server.name; }
@@ -234,11 +235,15 @@ class DeviceAPI extends EventEmitter {
     });
   }
 
-  createServer(authenticatorPlugin) {
+  createServer(authenticatorPlugin/* , keys */) {
+    // if (!keys.cert || !keys.private) { /* TODO: throw */ }
     const server = restify.createServer({
       name: ApiName,
       onceNext: true,
       version: ApiVersion,
+      // TODO: Enable https:
+      // certificate: keys.cert,
+      // key: keys.private,
     });
 
     server.pre(restify.plugins.pre.sanitizePath());
@@ -554,7 +559,10 @@ class DeviceAPI extends EventEmitter {
           .then((device) => {
             // TODO: if responding with error, surface error instead of complete
             this.outOfBandDelegate.pairingDidComplete();
-            const payload = JSON.stringify({ device: Schema.device(device) });
+            const payload = JSON.stringify({
+              device: Schema.device(device),
+              cert: this.publicCert,
+            });
             res.json({ status: 'ok', data: { message: encrypt(payload, device.secretKey) } });
           })
           .catch(err => this.handlers.onError(err, res))

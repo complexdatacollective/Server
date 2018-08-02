@@ -3,6 +3,8 @@
 const path = require('path');
 const { createServer } = require('../ServerFactory');
 
+jest.mock('../ensurePemKeyPair');
+
 const mockServerMethods = {
   close: jest.fn(),
   startServices: jest.fn(() => Promise.resolve(mockServerMethods)), // startServices returns `this`

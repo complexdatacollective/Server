@@ -20,8 +20,9 @@ class Server extends EventEmitter {
    */
   startServices(port) {
     const dataDir = this.options.dataDir;
+    const keys = this.options.keys;
     this.adminService = new AdminService({ statusDelegate: this, dataDir });
-    this.deviceService = new DeviceService({ dataDir });
+    this.deviceService = new DeviceService({ dataDir, keys });
 
     return Promise.all([
       this.adminService.start(),

@@ -26,7 +26,7 @@ createServer(DefaultApiPort, userDataDir).then((runningServer) => {
 
   ipcMain.on(RequestFileImportDialog, showImportProtocolDialog);
 }).catch((err) => {
-  logger.error(err);
+  logger.error('createServer failed', err);
   throw err;
 });
 
