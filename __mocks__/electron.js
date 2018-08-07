@@ -28,6 +28,7 @@ const app = {
 };
 
 const dialog = {
+  showMessageBox: jest.fn(),
   showOpenDialog: jest.fn(),
 };
 
