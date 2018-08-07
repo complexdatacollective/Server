@@ -20,6 +20,7 @@ const createApp = () => {
   guiProxy.setMainWindow(mainWindow);
 
   const openMainWindow = () => mainWindow.open();
+  const reloadHomeScreen = () => mainWindow.open('/overview');
 
   const resetAppData = () => {
     const responseNum = dialog.showMessageBox(mainWindow.window, {
@@ -30,7 +31,7 @@ const createApp = () => {
       defaultId: 0,
     });
     if (responseNum === 0) {
-      adminService.resetData().then(openMainWindow);
+      adminService.resetData().then(reloadHomeScreen);
     }
   };
 
@@ -56,11 +57,11 @@ const createApp = () => {
   const trayMenu = [
     {
       label: 'Overview',
-      click: () => mainWindow.open('/overview'),
+      click: reloadHomeScreen,
     },
     {
       label: 'Quit',
-      click: () => { app.quit(); },
+      click: () => app.quit(),
     },
   ];
 
