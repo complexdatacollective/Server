@@ -1,8 +1,6 @@
 const { ipcMain } = require('electron');
 const logger = require('electron-log');
 
-const { autoUpdater } = require('electron-updater');
-
 const { createApp, userDataDir } = require('./MainApp');
 const { createServer } = require('./server/ServerFactory');
 const { DefaultApiPort } = require('./server/devices/DeviceService');
@@ -35,7 +33,3 @@ createServer(DefaultApiPort, userDataDir).then((runningServer) => {
 process.on('unhandledRejection', (err) => {
   logger.error('unhandledRejection:', err);
 });
-
-autoUpdater.logger = logger;
-autoUpdater.checkForUpdatesAndNotify();
-

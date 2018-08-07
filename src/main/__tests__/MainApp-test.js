@@ -1,9 +1,11 @@
 /* eslint-env jest */
-const { createApp } = require('../MainApp');
 const { app, Menu } = require('electron');
+
+const { createApp } = require('../MainApp');
 const { createTray } = require('../components/tray');
 
 jest.mock('electron');
+jest.mock('electron-updater');
 jest.mock('../components/tray');
 
 describe('the created app', () => {

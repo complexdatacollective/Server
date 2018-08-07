@@ -7,6 +7,7 @@ const { isWindows } = require('./utils/environment');
 const { createTray } = require('./components/tray');
 
 const guiProxy = require('./guiProxy');
+const updater = require('./updater');
 
 // TODO: move/centralize
 const FileImportUpdated = 'FILE_IMPORT_UPDATED';
@@ -64,14 +65,19 @@ const createApp = () => {
     },
   ];
 
+  const appMenu = {
+    submenu: [
+      { role: 'about' },
+      {
+        label: 'Check for Updates...',
+        click: () => updater.checkForUpdates(),
+      },
+      { type: 'separator' },
+      { role: 'quit' },
+    ],
+  };
+
   const MenuTemplate = [
-    {
-      submenu: [
-        { role: 'about' },
-        { type: 'separator' },
-        { role: 'quit' },
-      ],
-    },
     {
       label: 'File',
       submenu: [
@@ -119,22 +125,21 @@ const createApp = () => {
     },
   ];
 
-  if (process.platform !== 'darwin') {
-    // Get rid of the macOS primary menu
-    MenuTemplate.shift();
-    // Add those items elsewhere as appropriate
-    MenuTemplate[0].submenu.push({ type: 'separator' });
-    MenuTemplate[0].submenu.push({ role: 'quit' });
+  if (process.platform === 'darwin') {
+    MenuTemplate.unshift(appMenu);
+  } else {
+    // Use File menu
+    MenuTemplate[0].submenu = MenuTemplate[0].submenu.concat(appMenu.submenu);
   }
 
-  const appMenu = Menu.buildFromTemplate(MenuTemplate);
+  const menuBar = Menu.buildFromTemplate(MenuTemplate);
 
   app.on('ready', () => {
     if (!process.env.NC_DEV_SUPPRESS_WINDOW_DEFAULT_OPEN) {
       openMainWindow();
     }
     tray = createTray(trayMenu);
-    Menu.setApplicationMenu(appMenu);
+    Menu.setApplicationMenu(menuBar);
     if (isWindows) {
       // On Windows, right-click shows the menu.
       // For now, make left-click open the main window.
