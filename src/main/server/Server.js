@@ -1,10 +1,10 @@
 const { EventEmitter } = require('events');
 const os = require('os');
-const mdns = require('mdns');
 const logger = require('electron-log');
 
 const { DeviceService, deviceServiceEvents } = require('./devices/DeviceService');
 const { AdminService } = require('./AdminService');
+const { mdns, mdnsIsSupported } = require('./mdnsProvider');
 
 class Server extends EventEmitter {
   constructor(options = {}) {
@@ -54,10 +54,13 @@ class Server extends EventEmitter {
   }
 
   advertiseDeviceService(deviceService) {
+    const serviceType = { name: 'network-canvas', protocol: 'tcp' };
+    if (!mdnsIsSupported) {
+      return;
+    }
     if (this.deviceAdvertisement) {
       this.deviceAdvertisement.stop();
     }
-    const serviceType = { name: 'network-canvas', protocol: 'tcp' };
     this.deviceAdvertisement = mdns.createAdvertisement(
       serviceType,
       deviceService.port,
@@ -75,10 +78,11 @@ class Server extends EventEmitter {
 
   status() {
     return {
+      mdnsIsSupported,
+      isAdvertising: !!this.deviceAdvertisement,
       hostname: os.hostname(),
       ip: this.publicIP(),
       deviceApiPort: this.connectionInfo.deviceService.port,
-      publicKey: this.options.keys && this.options.keys.publicKey,
       uptime: new Date().getTime() - this.started,
     };
   }
