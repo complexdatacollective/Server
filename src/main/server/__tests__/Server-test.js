@@ -1,12 +1,18 @@
 /* eslint-env jest */
-const mdns = require('mdns');
+/* eslint-disable global-require */
+
+/**
+ * This suite only requires inside test contexts and makes use of jest.resetModules()
+ * in order to simulate MDNS dependency load failures from mdnsProvider.
+ */
+
 const os = require('os');
 
-const Server = require('../Server');
-const { DeviceService, deviceServiceEvents } = require('../devices/DeviceService');
+const { deviceServiceEvents } = require('../devices/DeviceService');
 
 const testPortNumber = 51999;
 const serverOpts = { dataDir: 'db', keys: {} };
+const mockDeviceService = { on: jest.fn(), stop: jest.fn() };
 
 jest.mock('electron-log');
 jest.mock('mdns');
@@ -14,25 +20,36 @@ jest.mock('../../data-managers/DeviceManager');
 jest.mock('../../data-managers/ProtocolManager');
 
 describe('Server', () => {
+  let mdnsProvider;
+  let Server;
   let mockAdvert;
   let server;
+
+  beforeAll(() => {
+    jest.resetModules();
+    Server = require('../Server');
+    mdnsProvider = require('../mdnsProvider');
+  });
 
   beforeEach(() => {
     mockAdvert = {
       start: jest.fn(),
       stop: jest.fn(),
     };
-    mdns.createAdvertisement.mockReturnValue(mockAdvert);
+    mdnsProvider.mdns.createAdvertisement.mockReturnValue(mockAdvert);
+    mockDeviceService.on.mockClear();
+  });
+
+  afterEach(async () => {
+    if (server) {
+      await server.close();
+    }
   });
 
   describe('running services', () => {
     beforeEach(() => {
       server = new Server(serverOpts);
     });
-    afterEach(async () => {
-      await server.close();
-    });
-
     it('starts services', async () => {
       await server.startServices(testPortNumber);
       expect(server.deviceService).toBeDefined();
@@ -49,7 +66,7 @@ describe('Server', () => {
     const handler = jest.fn();
     const evtName = deviceServiceEvents.PAIRING_CODE_AVAILABLE;
     server = new Server(serverOpts);
-    server.deviceService = { on: jest.fn() };
+    server.deviceService = mockDeviceService;
     server.on(evtName, handler);
     expect(server.deviceService.on).toHaveBeenCalledWith(evtName, handler);
   });
@@ -64,7 +81,7 @@ describe('Server', () => {
 
   it('ignores non-device events', () => {
     server = new Server(serverOpts);
-    server.deviceService = { on: jest.fn() };
+    server.deviceService = mockDeviceService;
     server.on('not-a-real-event');
     expect(server.deviceService.on).not.toHaveBeenCalled();
   });
@@ -80,7 +97,13 @@ describe('Server', () => {
     let deviceService;
 
     beforeEach(async () => {
+      const { DeviceService } = require('../devices/DeviceService');
       server = new Server();
+      mockAdvert = {
+        start: jest.fn(),
+        stop: jest.fn(),
+      };
+      mdnsProvider.mdns.createAdvertisement.mockReturnValue(mockAdvert);
       deviceService = new DeviceService({ keys: {} });
     });
 
@@ -99,13 +122,48 @@ describe('Server', () => {
 
     it('advertises hostname as instance name', () => {
       server.advertiseDeviceService(deviceService);
-      const call = mdns.createAdvertisement.mock.calls[0];
+      const call = mdnsProvider.mdns.createAdvertisement.mock.calls[0];
       const optsArg = call[2];
       expect(optsArg).toMatchObject({ name: os.hostname() });
     });
 
     it('returns connection info', () => {
       expect(server.connectionInfo).toMatchObject({ deviceService: expect.any(Object) });
+    });
+  });
+});
+
+describe('Server when MDNS unavailable', () => {
+  let Server;
+  let server;
+
+  beforeAll(() => {
+    jest.resetModules();
+    jest.doMock('../mdnsProvider', () => ({
+      mdns: null,
+      mdnsIsSupported: false,
+    }));
+    Server = require('../Server');
+  });
+
+  describe('when MDNS unavailable', () => {
+    beforeEach(() => {
+      server = new Server(serverOpts);
+    });
+
+    afterEach(async () => {
+      await server.close();
+    });
+
+    it('does not start advertisements', async () => {
+      await server.advertiseDeviceService({});
+      expect(server.deviceAdvertisement).not.toBeDefined();
+    });
+
+    it('sets status appropriately', async () => {
+      await server.advertiseDeviceService({});
+      expect(server.status().mdnsIsSupported).toBe(false);
+      expect(server.status().isAdvertising).toBe(false);
     });
   });
 });

@@ -3,14 +3,6 @@ import PropTypes from 'prop-types';
 import { PanelItem } from '../components';
 import withApiClient from './withApiClient';
 
-const getKeySnippet = key => key && key.slice(400, 416);
-
-const defaultServerOverview = {
-  ip: 'x.x.x.x',
-  uptime: 0,
-  publicKey: '',
-};
-
 class ServerPanel extends Component {
   constructor() {
     super();
@@ -34,13 +26,24 @@ class ServerPanel extends Component {
     }
     apiClient.get('/health')
       .then((resp) => {
-        const { deviceApiPort, hostname, ip, publicKey, uptime } = resp.serverStatus;
+        const {
+          deviceApiPort,
+          hostname,
+          ip,
+          isAdvertising,
+          mdnsIsSupported,
+          uptime,
+        } = resp.serverStatus;
+        let mdnsStatus = isAdvertising ? 'Active' : 'Pending';
+        if (!mdnsIsSupported) {
+          mdnsStatus = 'Unsupported';
+        }
         this.setState({
           serverOverview: {
             hostname,
             ip: ip && ip.address,
             deviceApiPort,
-            publicKey: getKeySnippet(publicKey),
+            mdnsStatus,
             uptime,
           },
         });
@@ -55,15 +58,15 @@ class ServerPanel extends Component {
   render() {
     const { serverOverview } = this.state;
     const { className } = this.props;
-    const overview = { ...defaultServerOverview, ...serverOverview };
-    const uptimeDisplay = overview.uptime &&
-      `${parseInt(overview.uptime / 1000 / 60, 10)}m`;
+    const overview = { ...serverOverview };
+    const uptimeDisplay = overview.uptime && `${parseInt(overview.uptime / 1000 / 60, 10)}m`;
     return (
       <div className={`server-panel ${className}`}>
         <PanelItem label="Local Server IP" value={overview.ip || 'Offline'} />
         <PanelItem label="Server Port" value={overview.deviceApiPort || '-'} />
-        <PanelItem label="Uptime" value={uptimeDisplay} />
+        <PanelItem label="Uptime" value={uptimeDisplay || '-'} />
         <PanelItem label="Server Hostname" value={overview.hostname || '-'} />
+        <PanelItem label="Service Advertising" value={overview.mdnsStatus || '-'} />
       </div>
     );
   }
