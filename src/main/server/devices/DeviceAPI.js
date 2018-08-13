@@ -173,6 +173,7 @@ const buildErrorResponse = (err, res) => {
 
 // TODO: handle all error responses here instead of buildErrorResponse
 const handleApiError = (req, res, err, callback) => {
+  logger.debug('handleApiError', err, req.headers);
   err.toJSON = () => ({ // eslint-disable-line no-param-reassign
     status: 'error',
     message: err.message || err.name,
@@ -207,45 +208,67 @@ class DeviceAPI extends EventEmitter {
     this.deviceManager = new DeviceManager(dataDir);
 
     const authenticator = deviceAuthenticator(this.deviceManager, publicRoutes);
-    this.server = this.createServer(authenticator, keys);
+    this.server = this.createServer(authenticator);
+    this.sslServer = this.createServer(authenticator, keys);
     this.outOfBandDelegate = outOfBandDelegate;
-    this.publicCert = keys.cert;
+    this.publicCert = keys && keys.cert;
   }
 
   get name() { return this.server.name; }
   get publicUrl() { return this.url.replace(ApiHostName, lanIP()); }
   get url() { return this.server.url; }
+  get secureUrl() { return this.sslServer.url; }
 
   // TODO: prevent multiple?
   listen(port) {
     this.port = port;
-    return new Promise((resolve) => {
-      this.server.listen(port, ApiHostName, () => {
-        resolve(this);
-      });
-    });
+    return Promise.all([
+      new Promise((resolve) => {
+        this.server.listen(port, ApiHostName, () => {
+          resolve();
+        });
+      }),
+      new Promise((resolve) => {
+        // TODO: port number handling
+        this.sslServer.listen(port + 1, ApiHostName, () => {
+          resolve();
+        });
+      }),
+    ]).then(() => this);
   }
 
   close() {
-    return new Promise((resolve) => {
+    const promises = [new Promise((resolve) => {
       this.server.close(() => {
         this.port = null;
         resolve();
       });
-    });
+    })];
+    if (this.sslServer) {
+      promises.push(new Promise((resolve) => {
+        this.sslServer.close(() => { resolve(); });
+      }));
+    }
+    return Promise.all(promises);
   }
 
-  createServer(authenticatorPlugin/* , keys */) {
-    // if (!keys.cert || !keys.private) { /* TODO: throw */ }
-    const server = restify.createServer({
+  // TODO: need http for pairing; https for others.
+  createServer(authenticatorPlugin, keys = null) {
+    const serverOpts = {
       name: ApiName,
       onceNext: true,
       version: ApiVersion,
-      // TODO: Enable https:
-      // certificate: keys.cert,
-      // key: keys.private,
-    });
+    };
 
+    if (keys) {
+      if (!keys.cert || !keys.private) {
+        throw new Error('SSL server requires a certificate & key');
+      }
+      serverOpts.certificate = keys.cert;
+      serverOpts.key = keys.private;
+    }
+
+    const server = restify.createServer(serverOpts);
     server.pre(restify.plugins.pre.sanitizePath());
     server.pre(restify.plugins.authorizationParser());
     server.use(authenticatorPlugin);
@@ -253,7 +276,8 @@ class DeviceAPI extends EventEmitter {
     server.on('restifyError', handleApiError);
 
     if (process.env.NODE_ENV === 'development') {
-      server.on('after', apiRequestLogger('DeviceAPI'));
+      const tag = keys ? 'SecureDeviceAPI' : 'DeviceAPI';
+      server.on('after', apiRequestLogger(tag));
     }
 
     // Whitelist everything for CORS: origins are arbitrary, and customizing client
@@ -562,6 +586,7 @@ class DeviceAPI extends EventEmitter {
             const payload = JSON.stringify({
               device: Schema.device(device),
               cert: this.publicCert,
+              secureUrl: this.secureUrl,
             });
             res.json({ status: 'ok', data: { message: encrypt(payload, device.secretKey) } });
           })

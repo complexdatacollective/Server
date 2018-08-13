@@ -34,6 +34,7 @@ class DeviceService extends EventEmitter {
     return this.api.listen(parseInt(port, 10))
       .then((api) => {
         logger.info(`${api.name} listening at ${api.url}`);
+        logger.info(`${api.name} listening at ${api.secureUrl}`);
         return api;
       });
   }

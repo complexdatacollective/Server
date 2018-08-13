@@ -47,7 +47,7 @@ describe('the DeviceAPI', () => {
 
   beforeEach(() => {
     // API factory: override mockAuthenticator as needed in beforeAll handler
-    deviceApi = new DeviceAPI(dataDir, mockDelegate, {});
+    deviceApi = new DeviceAPI(dataDir, mockDelegate);
     deviceApi.requestService.createRequest.mockResolvedValue(mockRequestDbEntry);
   });
 

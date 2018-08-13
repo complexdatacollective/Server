@@ -11,7 +11,7 @@ const os = require('os');
 const { deviceServiceEvents } = require('../devices/DeviceService');
 
 const testPortNumber = 51999;
-const serverOpts = { dataDir: 'db', keys: {} };
+const serverOpts = { dataDir: 'db' };
 const mockDeviceService = { on: jest.fn(), stop: jest.fn() };
 
 jest.mock('electron-log');
@@ -104,7 +104,7 @@ describe('Server', () => {
         stop: jest.fn(),
       };
       mdnsProvider.mdns.createAdvertisement.mockReturnValue(mockAdvert);
-      deviceService = new DeviceService({ keys: {} });
+      deviceService = new DeviceService({});
     });
 
     it('advertises using MDNS', () => {
