@@ -27,7 +27,7 @@ const lanIP = () => {
 };
 
 const ApiName = 'DeviceAPI';
-const ApiVersion = '0.0.10';
+const ApiVersion = '0.0.11';
 const ApiHostName = '0.0.0.0'; // IPv4 for compatibility with Travis (& unknown installations)
 
 const Schema = {
@@ -104,29 +104,6 @@ const Schema = {
     downloadUrl: new URL(`/protocols/${protocol.filename}`, apiBase),
     sha256Digest: protocol.sha256Digest,
   }),
-
-  /**
-   * @swagger
-   * definitions:
-   *   DecryptedPairingConfirmationRequest:
-   *     type: object
-   *     properties:
-   *       pairingRequestId:
-   *         required: true
-   *         type: string
-   *         description: available from the 'Pairing Request' response
-   *         example: b0a17a58-dc13-4270-998f-ec46a7d8edb2
-   *       pairingCode:
-   *         required: true
-   *         type: string
-   *         description: alphanumeric code entered by the user
-   *         example: u8jz1M85JRAB
-   *       deviceName:
-   *         required: false
-   *         type: string
-   *         description: A short, user-friendly description of the client device
-   *         example: Nexus 7 Tablet
-   */
 };
 
 // Throttle the pairing endpoints. Legitimate requests will not succeed
@@ -384,11 +361,46 @@ class DeviceAPI extends EventEmitter {
      *
      *                 As in the request, the message is a hex encoding of nonce + ciphertext.
      *
-     *                 For the message format after decryption, see [Device](#/definitions/Device).
+     *                 For the message format after decryption, see [DecryptedPairingConfirmationResponse](#/definitions/DecryptedPairingConfirmationResponse).
      *       400:
      *         description: request error
      *         schema:
      *           $ref: '#/definitions/Error'
+     *
+     * definitions:
+     *   DecryptedPairingConfirmationRequest:
+     *     type: object
+     *     properties:
+     *       pairingRequestId:
+     *         required: true
+     *         type: string
+     *         description: available from the 'Pairing Request' response
+     *         example: b0a17a58-dc13-4270-998f-ec46a7d8edb2
+     *       pairingCode:
+     *         required: true
+     *         type: string
+     *         description: alphanumeric code entered by the user
+     *         example: u8jz1M85JRAB
+     *       deviceName:
+     *         required: false
+     *         type: string
+     *         description: A short, user-friendly description of the client device
+     *         example: Nexus 7 Tablet
+     *
+     *   DecryptedPairingConfirmationResponse:
+     *     type: object
+     *     properties:
+     *       device:
+     *         $ref: '#/definitions/Device'
+     *       certificate:
+     *         type: string
+     *         description: A PEM-formatted public certificate.
+     *         example: "-----BEGIN CERTIFICATE-----\nMIIDBjCCA..."
+     *       securePort:
+     *         type: string
+     *         description: Port number to use when making HTTPS requests. |
+     *           The HTTPS service runs on a different port than the pairing (HTTP) service.
+     *         example: 51002
      */
     server.post('/devices',
       restify.plugins.throttle(PairingThrottleSettings), this.handlers.onPairingConfirm);
@@ -583,10 +595,11 @@ class DeviceAPI extends EventEmitter {
           .then((device) => {
             // TODO: if responding with error, surface error instead of complete
             this.outOfBandDelegate.pairingDidComplete();
+            const secureAddr = this.sslServer.address();
             const payload = JSON.stringify({
               device: Schema.device(device),
-              cert: this.publicCert,
-              secureUrl: this.secureUrl,
+              certificate: this.publicCert,
+              securePort: secureAddr && secureAddr.port,
             });
             res.json({ status: 'ok', data: { message: encrypt(payload, device.secretKey) } });
           })
