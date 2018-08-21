@@ -253,19 +253,18 @@ class DeviceAPI extends EventEmitter {
   get secureUrl() { return this.sslServer && this.sslServer.url; }
 
   // TODO: prevent multiple?
-  listen(port) {
-    this.port = port;
+  listen(httpPort, httpsPort) {
+    this.httpPort = httpPort;
     const promises = [
       new Promise((resolve) => {
-        this.server.listen(port, ApiHostName, () => {
+        this.server.listen(httpPort, ApiHostName, () => {
           resolve();
         });
       }),
     ];
-    if (this.sslServer) {
+    if (httpsPort && this.sslServer) {
       promises.push(new Promise((resolve) => {
-        // TODO: port number handling
-        this.sslServer.listen(port + 1, ApiHostName, () => {
+        this.sslServer.listen(httpsPort, ApiHostName, () => {
           resolve();
         });
       }));
@@ -276,7 +275,7 @@ class DeviceAPI extends EventEmitter {
   close() {
     const promises = [new Promise((resolve) => {
       this.server.close(() => {
-        this.port = null;
+        this.httpPort = null;
         resolve();
       });
     })];

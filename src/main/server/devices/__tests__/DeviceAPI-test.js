@@ -8,7 +8,8 @@ const { jsonClient, secureClient, makeUrl, httpsCert, httpsPrivateKey } = requir
 const { ErrorMessages, RequestError } = require('../../../errors/RequestError');
 const { IncompletePairingError } = require('../../../errors/IncompletePairingError');
 
-const testPortNumber = 5200;
+const testHttpPortNumber = 5200;
+const testHttpsPortNumber = 5201;
 const mockSecretKey = '49b2f34ccbc425c941596fa492be0a382467538359de9ee09d42950056f0bc6a';
 
 const missingCredentialsError = new InvalidCredentialsError();
@@ -102,7 +103,7 @@ describe('the DeviceAPI', () => {
       if (mockKeys) {
         deviceApi.sslServer = deviceApi.createSecureServer(mockAuthenticator, mockKeys);
       }
-      await deviceApi.listen(testPortNumber);
+      await deviceApi.listen(testHttpPortNumber, testHttpsPortNumber);
     });
 
     describe('GET /devices/new', () => {

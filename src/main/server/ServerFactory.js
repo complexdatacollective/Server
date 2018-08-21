@@ -6,11 +6,11 @@ const { deviceServiceEvents } = require('./devices/DeviceService');
 
 // Guarantee libsodium is ready before other services start up
 // @return an instance of Server
-const startServer = (port, dataDir) => (
+const startServer = (dataDir, httpPort, httpsPort) => (
   libsodium.ready
     .then(ensurePemKeyPair)
     .then(keys => new Server({ dataDir, keys }))
-    .then(server => server.startServices(port))
+    .then(server => server.startServices(httpPort, httpsPort))
 );
 
 /**
@@ -19,10 +19,9 @@ const startServer = (port, dataDir) => (
  * @return {Server} the high-level Server instance which manages all services
  * @throws {Error} If port or dataDir are not supplied
  */
-const createServer = (port, dataDir) => {
-  if (!port) { return Promise.reject(new Error('You must specify a server port')); }
+const createServer = (dataDir, httpPort, httpsPort) => {
   if (!dataDir) { return Promise.reject(new Error('You must specify a user data directory')); }
-  return startServer(port, dataDir);
+  return startServer(dataDir, httpPort, httpsPort);
 };
 
 module.exports = {

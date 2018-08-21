@@ -4,7 +4,7 @@ const swaggerJSDoc = require('swagger-jsdoc');
 
 const paths = require('../config/paths');
 const { ApiVersion } = require('../src/main/server/devices/DeviceAPI');
-const { DefaultApiPort } = require('../src/main/server/devices/DeviceService');
+const { DefaultHttpsPort } = require('../src/main/server/devices/DeviceService');
 
 const deviceApiSource = path.join(__dirname, '..', 'src', 'main', 'server', 'devices', 'DeviceAPI.js');
 
@@ -12,15 +12,27 @@ if (!fs.existsSync(deviceApiSource)) {
   throw new Error(`Device API source not found at ${deviceApiSource}`);
 }
 
+const description = `This REST API provides endpoints for communication with [Network Canvas](https://github.com/codaco/Network-Canvas) clients.
+
+HTTP endpoints cover initial client/server pairing, which uses an out-of-band pairing
+code for security.
+
+HTTPS endpoints handle communications between a paired Client & Server.
+`;
+
 const options = {
   swaggerDefinition: {
-    host: `localhost:${DefaultApiPort}`,
+    host: `localhost:${DefaultHttpsPort}`,
     basePath: '/',
     schemes: ['http', 'https'],
     info: {
       title: 'Network Canvas Devices API',
-      description: 'REST API for paired tablet & desktop clients',
+      description,
       version: ApiVersion,
+      license: {
+        name: 'GNU General Public License v3.0',
+        url: 'https://github.com/codaco/Server/blob/master/LICENSE',
+      },
     },
   },
   // Path to the API docs

@@ -32,14 +32,15 @@ describe('Device Service', () => {
       deviceService.api.listen.mockResolvedValue({});
     });
 
-    it('starts the API on a default port', () => {
+    it('starts http & https APIs on default ports', () => {
       deviceService.start();
-      expect(deviceService.api.listen).toHaveBeenCalledWith(expect.any(Number));
+      expect(deviceService.api.listen)
+        .toHaveBeenCalledWith(expect.any(Number), expect.any(Number));
     });
 
-    it('ensures API is given a number for port', () => {
-      deviceService.start('9999');
-      expect(deviceService.api.listen).toHaveBeenCalledWith(9999);
+    it('ensures API is given numbers for ports', () => {
+      deviceService.start('9999', '9998');
+      expect(deviceService.api.listen).toHaveBeenCalledWith(9999, 9998);
     });
   });
 });
