@@ -4,7 +4,7 @@ const { InvalidCredentialsError, NotAuthorizedError } = require('restify-errors'
 
 const ProtocolManager = require('../../../data-managers/ProtocolManager');
 const { DeviceAPI } = require('../DeviceAPI');
-const { jsonClient, makeUrl } = require('../../../../../config/jest/setupTestEnv');
+const { jsonClient, secureClient, makeUrl, httpsCert, httpsPrivateKey } = require('../../../../../config/jest/setupTestEnv');
 const { ErrorMessages, RequestError } = require('../../../errors/RequestError');
 const { IncompletePairingError } = require('../../../errors/IncompletePairingError');
 
@@ -32,6 +32,7 @@ describe('the DeviceAPI', () => {
   const abort = jest.fn();
   let mockDelegate;
   let mockAuthenticator;
+  let mockKeys;
   let deviceApi;
 
   beforeAll(() => {
@@ -75,10 +76,31 @@ describe('the DeviceAPI', () => {
     });
   });
 
+  describe('ssl server', () => {
+    let secureApi;
+    beforeEach(() => {
+      secureApi = new DeviceAPI(dataDir, mockDelegate, {
+        cert: httpsCert,
+        private: httpsPrivateKey,
+      });
+    });
+    it('is created when keys are supplied', () => {
+      expect(secureApi.sslServer).toBeDefined();
+      expect(secureApi.secureUrl).toEqual(expect.stringMatching(/^https:/));
+    });
+    it('makes its public key available', () => {
+      expect(secureApi.publicCert).toBe(httpsCert);
+    });
+    it('throws if cert or key is unavailable', () => {
+      expect(() => new DeviceAPI(dataDir, mockDelegate, { cert: null })).toThrowError(/SSL/);
+    });
+  });
+
   describe('interface', () => {
     beforeEach(async () => {
-      if (mockAuthenticator) {
-        deviceApi.server = deviceApi.createServer(mockAuthenticator);
+      deviceApi.server = deviceApi.createPairingServer();
+      if (mockKeys) {
+        deviceApi.sslServer = deviceApi.createSecureServer(mockAuthenticator, mockKeys);
       }
       await deviceApi.listen(testPortNumber);
     });
@@ -146,16 +168,23 @@ describe('the DeviceAPI', () => {
       const mockFilename = 'a.netcanvas';
 
       beforeAll(() => {
+        mockKeys = {
+          cert: httpsCert,
+          private: httpsPrivateKey,
+        };
         ProtocolManager.mockImplementation(() => ({
           allProtocols: () => Promise.resolve([{ filename: mockFilename }]),
         }));
       });
 
       it('lists available protocols via downloadUrl', async () => {
-        const res = await jsonClient.get(makeUrl('/protocols', deviceApi.server.url));
+        const res = await secureClient.get(makeUrl('/protocols', deviceApi.sslServer.url));
         const expectedUrl = expect.stringContaining(mockFilename);
         expect(res.statusCode).toBe(200);
-        expect(res.json.data).toContainEqual({ downloadUrl: expectedUrl });
+        expect(res.json.data).toContainEqual({
+          downloadUrl: expectedUrl,
+          secureDownloadUrl: expectedUrl,
+        });
       });
     });
 
@@ -200,20 +229,20 @@ describe('the DeviceAPI', () => {
       });
 
       it('returns created status', async () => {
-        const res = await jsonClient.post(makeUrl('/protocols/1/sessions', deviceApi.server.url), {});
+        const res = await secureClient.post(makeUrl('/protocols/1/sessions', deviceApi.sslServer.url), {});
         expect(res.statusCode).toBe(201);
         expect(res.json.data).toMatchObject({ insertedCount: 1 });
       });
 
       it('accepts multiple sessions', async () => {
-        const res = await jsonClient.post(makeUrl('/protocols/1/sessions', deviceApi.server.url), [{}, {}]);
+        const res = await secureClient.post(makeUrl('/protocols/1/sessions', deviceApi.sslServer.url), [{}, {}]);
         expect(res.statusCode).toBe(201);
         expect(res.json.data).toMatchObject({ insertedCount: 2 });
       });
 
       it('accepts only json', async () => {
         await expect((
-          jsonClient.post(makeUrl('/protocols/1/sessions', deviceApi.server.url), 'not-json')
+          secureClient.post(makeUrl('/protocols/1/sessions', deviceApi.sslServer.url), 'not-json')
         )).rejects.toHaveProperty('statusCode', 406);
       });
 
@@ -227,7 +256,7 @@ describe('the DeviceAPI', () => {
         });
 
         it('rejects with a conflict', async () => {
-          await expect(jsonClient.post(makeUrl('/protocols/1/sessions', deviceApi.server.url), {}))
+          await expect(secureClient.post(makeUrl('/protocols/1/sessions', deviceApi.sslServer.url), {}))
             .rejects.toMatchObject({ statusCode: 409 });
         });
       });
@@ -240,7 +269,7 @@ describe('the DeviceAPI', () => {
         });
 
         it('rejects with an unknown server error', async () => {
-          await expect(jsonClient.post(makeUrl('/protocols/1/sessions', deviceApi.server.url), {}))
+          await expect(secureClient.post(makeUrl('/protocols/1/sessions', deviceApi.sslServer.url), {}))
             .rejects.toMatchObject({ statusCode: 500 });
         });
       });
@@ -255,7 +284,7 @@ describe('the DeviceAPI', () => {
       });
 
       it('cannot access protocols', async () => {
-        await expect(jsonClient.get(makeUrl('/protocols', deviceApi.server.url)))
+        await expect(secureClient.get(makeUrl('/protocols', deviceApi.sslServer.url)))
           .rejects.toMatchObject({ statusCode: 401 });
         expect(deviceApi.protocolManager.allProtocols).not.toHaveBeenCalled();
       });
@@ -270,7 +299,7 @@ describe('the DeviceAPI', () => {
       });
 
       it('cannot access protocols', async () => {
-        await expect(jsonClient.get(makeUrl('/protocols', deviceApi.server.url)))
+        await expect(secureClient.get(makeUrl('/protocols', deviceApi.sslServer.url)))
           .rejects.toMatchObject({ statusCode: 403 });
         expect(deviceApi.protocolManager.allProtocols).not.toHaveBeenCalled();
       });

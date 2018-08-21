@@ -222,33 +222,36 @@ class DeviceAPI extends EventEmitter {
 
     const authenticator = deviceAuthenticator(this.deviceManager, publicRoutes);
     this.server = this.createPairingServer();
-    this.sslServer = this.createSecureServer(authenticator, keys);
+    this.sslServer = keys && this.createSecureServer(authenticator, keys);
     this.outOfBandDelegate = outOfBandDelegate;
     this.publicCert = keys && keys.cert;
   }
 
   get name() { return this.server.name; }
   get httpBase() { return this.server.url.replace(ApiHostName, lanIP()); }
-  get httpsBase() { return this.sslServer.url.replace(ApiHostName, lanIP()); }
+  get httpsBase() { return this.secureUrl.replace(ApiHostName, lanIP()); }
   get url() { return this.server.url; }
-  get secureUrl() { return this.sslServer.url; }
+  get secureUrl() { return this.sslServer && this.sslServer.url; }
 
   // TODO: prevent multiple?
   listen(port) {
     this.port = port;
-    return Promise.all([
+    const promises = [
       new Promise((resolve) => {
         this.server.listen(port, ApiHostName, () => {
           resolve();
         });
       }),
-      new Promise((resolve) => {
+    ];
+    if (this.sslServer) {
+      promises.push(new Promise((resolve) => {
         // TODO: port number handling
         this.sslServer.listen(port + 1, ApiHostName, () => {
           resolve();
         });
-      }),
-    ]).then(() => this);
+      }));
+    }
+    return Promise.all(promises).then(() => this);
   }
 
   close() {
@@ -617,7 +620,7 @@ class DeviceAPI extends EventEmitter {
           .then((device) => {
             // TODO: if responding with error, surface error instead of complete
             this.outOfBandDelegate.pairingDidComplete();
-            const secureAddr = this.sslServer.address();
+            const secureAddr = this.sslServer && this.sslServer.address();
             const payload = JSON.stringify({
               device: Schema.device(device),
               certificate: this.publicCert,
