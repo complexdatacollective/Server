@@ -27,7 +27,7 @@ const lanIP = () => {
 };
 
 const ApiName = 'DeviceAPI';
-const ApiVersion = '0.0.11';
+const ApiVersion = '0.0.12';
 const ApiHostName = '0.0.0.0'; // IPv4 for compatibility with Travis (& unknown installations)
 
 const Schema = {
@@ -89,19 +89,24 @@ const Schema = {
    *         example: "~4.0.0"
    *       downloadUrl:
    *         type: string
+   *         description: '**[Deprecated]** URL for direct download of the .netcanvas file'
+   *         example: http://x.x.x.x:51001/protocols/foo.netcanvas
+   *       secureDownloadUrl:
+   *         type: string
    *         description: URL for direct download of the .netcanvas file
    *         example: http://x.x.x.x:51001/protocols/foo.netcanvas
    *       sha256Digest:
    *         type: string
    *         example: 8f99051c91044bd8159a8cc0fa2aaa831961c4428ce1859b82612743c9720eef
    */
-  protocol: (protocol, apiBase) => ({
+  protocol: (protocol, httpBase, httpsBase) => ({
     id: protocol._id,
     name: protocol.name,
     description: protocol.description,
     lastModified: protocol.lastModified,
     networkCanvasVersion: protocol.networkCanvasVersion,
-    downloadUrl: new URL(`/protocols/${protocol.filename}`, apiBase),
+    downloadUrl: new URL(`/protocols/${protocol.filename}`, httpBase),
+    secureDownloadUrl: new URL(`/protocols/${protocol.filename}`, httpsBase),
     sha256Digest: protocol.sha256Digest,
   }),
 };
@@ -172,7 +177,38 @@ const emittedEvents = {
 };
 
 // These routes don't require auth; there's no distinction between http methods yet
-const publicRoutes = ['/devices/new', '/devices', '/protocols/:filename'];
+// TODO: remove once client support for secure downloads finished
+const publicRoutes = ['/protocols/:filename'];
+
+const createBaseServer = (opts = {}) => {
+  const serverOpts = {
+    name: ApiName,
+    onceNext: true,
+    version: ApiVersion,
+    ...opts,
+  };
+
+  const server = restify.createServer(serverOpts);
+  server.pre(restify.plugins.pre.sanitizePath());
+  server.pre(restify.plugins.authorizationParser());
+  server.use(restify.plugins.bodyParser());
+  server.on('restifyError', handleApiError);
+
+  if (process.env.NODE_ENV === 'development') {
+    server.on('after', apiRequestLogger(opts.logTag || 'DeviceAPI'));
+  }
+
+  // Whitelist everything for CORS: origins are arbitrary, and customizing client
+  // Access-Origins buys no security
+  const cors = corsMiddleware({
+    origins: ['*'],
+    allowHeaders: ['Authorization'],
+  });
+  server.pre(cors.preflight);
+  server.use(cors.actual);
+
+  return server;
+};
 
 /**
  * API Server for device endpoints
@@ -185,14 +221,15 @@ class DeviceAPI extends EventEmitter {
     this.deviceManager = new DeviceManager(dataDir);
 
     const authenticator = deviceAuthenticator(this.deviceManager, publicRoutes);
-    this.server = this.createServer(authenticator);
-    this.sslServer = this.createServer(authenticator, keys);
+    this.server = this.createPairingServer();
+    this.sslServer = this.createSecureServer(authenticator, keys);
     this.outOfBandDelegate = outOfBandDelegate;
     this.publicCert = keys && keys.cert;
   }
 
   get name() { return this.server.name; }
-  get publicUrl() { return this.url.replace(ApiHostName, lanIP()); }
+  get httpBase() { return this.server.url.replace(ApiHostName, lanIP()); }
+  get httpsBase() { return this.sslServer.url.replace(ApiHostName, lanIP()); }
   get url() { return this.server.url; }
   get secureUrl() { return this.sslServer.url; }
 
@@ -229,42 +266,8 @@ class DeviceAPI extends EventEmitter {
     return Promise.all(promises);
   }
 
-  // TODO: need http for pairing; https for others.
-  createServer(authenticatorPlugin, keys = null) {
-    const serverOpts = {
-      name: ApiName,
-      onceNext: true,
-      version: ApiVersion,
-    };
-
-    if (keys) {
-      if (!keys.cert || !keys.private) {
-        throw new Error('SSL server requires a certificate & key');
-      }
-      serverOpts.certificate = keys.cert;
-      serverOpts.key = keys.private;
-    }
-
-    const server = restify.createServer(serverOpts);
-    server.pre(restify.plugins.pre.sanitizePath());
-    server.pre(restify.plugins.authorizationParser());
-    server.use(authenticatorPlugin);
-    server.use(restify.plugins.bodyParser());
-    server.on('restifyError', handleApiError);
-
-    if (process.env.NODE_ENV === 'development') {
-      const tag = keys ? 'SecureDeviceAPI' : 'DeviceAPI';
-      server.on('after', apiRequestLogger(tag));
-    }
-
-    // Whitelist everything for CORS: origins are arbitrary, and customizing client
-    // Access-Origins buys no security
-    const cors = corsMiddleware({
-      origins: ['*'],
-      allowHeaders: ['Authorization'],
-    });
-    server.pre(cors.preflight);
-    server.use(cors.actual);
+  createPairingServer() {
+    const server = createBaseServer();
 
     /**
      * @swagger
@@ -404,6 +407,25 @@ class DeviceAPI extends EventEmitter {
      */
     server.post('/devices',
       restify.plugins.throttle(PairingThrottleSettings), this.handlers.onPairingConfirm);
+
+    // This is also supported over http.
+    // TODO: Restrict protocol downloads to http once supported on client
+    server.get('/protocols/:filename', this.handlers.protocolFile);
+
+    return server;
+  }
+
+  createSecureServer(authenticatorPlugin, keys) {
+    if (!keys.cert || !keys.private) {
+      throw new Error('SSL server requires a certificate & key');
+    }
+    const server = createBaseServer({
+      certificate: keys.cert,
+      key: keys.private,
+      logTag: 'SecureDeviceAPI',
+    });
+
+    server.use(authenticatorPlugin);
 
     /**
      * @swagger
@@ -609,7 +631,7 @@ class DeviceAPI extends EventEmitter {
 
       protocolList: (req, res, next) => {
         this.protocolManager.allProtocols()
-          .then(protocols => protocols.map(p => Schema.protocol(p, this.publicUrl)))
+          .then(protocols => protocols.map(p => Schema.protocol(p, this.httpBase, this.httpsBase)))
           .then(schemas => res.json({ status: 'ok', data: schemas }))
           .catch(err => this.handlers.onError(err, res))
           .then(() => next());
