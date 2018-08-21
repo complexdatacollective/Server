@@ -149,10 +149,10 @@ const PairingThrottleSettings = {
  *     properties:
  *       message:
  *         type: 'string'
- *         example: 'error'
+ *         example: 'Human-readable description of error'
  *       status:
  *         type: 'string'
- *         example: 'Human-readable description of error'
+ *         example: 'error'
  */
 const buildErrorResponse = (err, res) => {
   const body = { status: 'error', message: err.message || 'Unknown Error' };
