@@ -16,7 +16,7 @@ const options = {
   swaggerDefinition: {
     host: `localhost:${DefaultApiPort}`,
     basePath: '/',
-    schemes: ['http'],
+    schemes: ['http', 'https'],
     info: {
       title: 'Network Canvas Devices API',
       description: 'REST API for paired tablet & desktop clients',

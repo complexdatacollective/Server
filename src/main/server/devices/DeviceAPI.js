@@ -26,6 +26,25 @@ const lanIP = () => {
   return iface && iface.address;
 };
 
+/**
+ * @swagger
+ * security:
+ *   - Device Identification
+ * securityDefinitions:
+ *   Device Identification:
+ *     type: basic
+ *     description: |
+ *       For all paired endpoints. Pass the client's deviceId as the username. See [Device](#/definitions/Device).
+ *       All paired endpoints exist under the https server.
+ *
+ *       Example:
+ *       ```
+ *       # Given a deviceId `5b1ac0e7-c896-405f-bab0-8b778ab1b6eb`:
+ *       Authorization: Basic NWIxYWMwZTctYzg5Ni00MDVmLWJhYjAtOGI3NzhhYjFiNmViOg==
+ *       ```
+ *
+ *       For the pairing protocol (`GET /devices/new`, `POST `/devices`), no deviceId is required (nor available).
+ */
 const ApiName = 'DeviceAPI';
 const ApiVersion = '0.0.12';
 const ApiHostName = '0.0.0.0'; // IPv4 for compatibility with Travis (& unknown installations)
