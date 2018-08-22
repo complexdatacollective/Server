@@ -182,10 +182,7 @@ describe('the DeviceAPI', () => {
         const res = await secureClient.get(makeUrl('/protocols', deviceApi.sslServer.url));
         const expectedUrl = expect.stringContaining(mockFilename);
         expect(res.statusCode).toBe(200);
-        expect(res.json.data).toContainEqual({
-          downloadUrl: expectedUrl,
-          secureDownloadUrl: expectedUrl,
-        });
+        expect(res.json.data).toContainEqual({ downloadUrl: expectedUrl });
       });
     });
 
@@ -198,12 +195,17 @@ describe('the DeviceAPI', () => {
         }));
       });
 
-      it('returns file data', async () => {
-        const res = await jsonClient.get(makeUrl(`/protocols/${mockFilename}`, deviceApi.server.url));
+      it('returns file data securely', async () => {
+        const res = await secureClient.get(makeUrl(`/protocols/${mockFilename}`, deviceApi.sslServer.url));
         expect(res.statusCode).toBe(200);
         // For the purposes of testing, compare string
         expect(res.json).toBeUndefined();
         expect(res.data).toEqual(mockFileContents.toString());
+      });
+
+      it('will not return file data over http', async () => {
+        await expect(jsonClient.get(makeUrl(`/protocols/${mockFilename}`, deviceApi.server.url)))
+          .rejects.toMatchObject({ statusCode: 404 });
       });
 
       describe('when not found', () => {

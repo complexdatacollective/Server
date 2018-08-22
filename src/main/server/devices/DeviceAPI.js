@@ -46,7 +46,7 @@ const lanIP = () => {
  *       For the pairing protocol (`GET /devices/new`, `POST `/devices`), no deviceId is required (nor available).
  */
 const ApiName = 'DeviceAPI';
-const ApiVersion = '0.0.12';
+const ApiVersion = '0.0.13';
 const ApiHostName = '0.0.0.0'; // IPv4 for compatibility with Travis (& unknown installations)
 
 const Schema = {
@@ -108,12 +108,8 @@ const Schema = {
    *         example: "~4.0.0"
    *       downloadUrl:
    *         type: string
-   *         description: '**[Deprecated]** URL for direct download of the .netcanvas file'
-   *         example: http://x.x.x.x:51001/protocols/foo.netcanvas
-   *       secureDownloadUrl:
-   *         type: string
    *         description: URL for direct download of the .netcanvas file
-   *         example: http://x.x.x.x:51001/protocols/foo.netcanvas
+   *         example: https://x.x.x.x:51001/protocols/foo.netcanvas
    *       sha256Digest:
    *         type: string
    *         example: 8f99051c91044bd8159a8cc0fa2aaa831961c4428ce1859b82612743c9720eef
@@ -124,8 +120,7 @@ const Schema = {
     description: protocol.description,
     lastModified: protocol.lastModified,
     networkCanvasVersion: protocol.networkCanvasVersion,
-    downloadUrl: new URL(`/protocols/${protocol.filename}`, httpBase),
-    secureDownloadUrl: new URL(`/protocols/${protocol.filename}`, httpsBase),
+    downloadUrl: new URL(`/protocols/${protocol.filename}`, httpsBase),
     sha256Digest: protocol.sha256Digest,
   }),
 };
@@ -428,10 +423,6 @@ class DeviceAPI extends EventEmitter {
      */
     server.post('/devices',
       restify.plugins.throttle(PairingThrottleSettings), this.handlers.onPairingConfirm);
-
-    // This is also supported over http.
-    // TODO: Restrict protocol downloads to http once supported on client
-    server.get('/protocols/:filename', this.handlers.protocolFile);
 
     return server;
   }
