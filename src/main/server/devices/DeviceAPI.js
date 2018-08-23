@@ -438,6 +438,7 @@ class DeviceAPI extends EventEmitter {
     });
 
     server.use(authenticatorPlugin);
+    server.use(restify.plugins.gzipResponse());
 
     /**
      * @swagger
