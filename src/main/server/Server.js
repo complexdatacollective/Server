@@ -38,7 +38,8 @@ class Server extends EventEmitter {
         port: this.adminService && this.adminService.port,
       },
       deviceService: {
-        ports: this.deviceService && [this.deviceService.httpPort, this.deviceService.httpsPort],
+        httpPort: this.deviceService && this.deviceService.httpPort,
+        httpsPort: this.deviceService && this.deviceService.httpsPort,
       },
     };
   }

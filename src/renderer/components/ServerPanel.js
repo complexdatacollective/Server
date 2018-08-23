@@ -63,9 +63,9 @@ class ServerPanel extends Component {
     return (
       <div className={`server-panel ${className}`}>
         <PanelItem label="Local Server IP" value={overview.ip || 'Offline'} />
-        <PanelItem label="Server Port" value={overview.deviceApiPort || '-'} />
+        <PanelItem label="Pairing Port" value={overview.deviceApiPort || '-'} />
         <PanelItem label="Uptime" value={uptimeDisplay || '-'} />
-        <PanelItem label="Server Hostname" value={overview.hostname || '-'} />
+        <PanelItem label="Hostname" value={overview.hostname || '-'} />
         <PanelItem label="Service Advertising" value={overview.mdnsStatus || '-'} />
       </div>
     );
