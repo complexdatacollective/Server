@@ -183,6 +183,11 @@ describe('the DeviceAPI', () => {
         expect(res.statusCode).toBe(200);
         expect(res.json.data).toContainEqual({ downloadPath: `/protocols/${mockFilename}` });
       });
+
+      it('is not available over http', async () => {
+        await expect(jsonClient.get(makeUrl('/protocols', deviceApi.server.url)))
+          .rejects.toMatchObject({ statusCode: 404 });
+      });
     });
 
     describe('GET /protocols/:filename', () => {
@@ -234,6 +239,11 @@ describe('the DeviceAPI', () => {
         const res = await secureClient.post(makeUrl('/protocols/1/sessions', deviceApi.sslServer.url), {});
         expect(res.statusCode).toBe(201);
         expect(res.json.data).toMatchObject({ insertedCount: 1 });
+      });
+
+      it('is not available over http', async () => {
+        await expect(jsonClient.post(makeUrl('/protocols/1/sessions', deviceApi.server.url), {}))
+          .rejects.toMatchObject({ statusCode: 404 });
       });
 
       it('accepts multiple sessions', async () => {
