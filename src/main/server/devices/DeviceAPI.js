@@ -190,9 +190,8 @@ const emittedEvents = {
   SESSIONS_IMPORTED: 'SESSIONS_IMPORTED',
 };
 
-// These routes don't require auth; there's no distinction between http methods yet
-// TODO: remove once client support for secure downloads finished
-const publicRoutes = ['/protocols/:filename'];
+// Any https routes not requiring auth can go here
+const publicRoutes = [];
 
 const createBaseServer = (opts = {}) => {
   const serverOpts = {
