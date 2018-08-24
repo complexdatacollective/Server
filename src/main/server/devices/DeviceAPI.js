@@ -6,7 +6,6 @@ const corsMiddleware = require('restify-cors-middleware');
 const logger = require('electron-log');
 const { ConflictError, NotAcceptableError } = require('restify-errors');
 const { EventEmitter } = require('events');
-const { URL } = require('url');
 const { sendToGui } = require('../../guiProxy');
 
 const DeviceManager = require('../../data-managers/DeviceManager');
@@ -46,7 +45,7 @@ const lanIP = () => {
  *       For the pairing protocol (`GET /devices/new`, `POST `/devices`), no deviceId is required (nor available).
  */
 const ApiName = 'DeviceAPI';
-const ApiVersion = '0.0.13';
+const ApiVersion = '0.0.14';
 const ApiHostName = '0.0.0.0'; // IPv4 for compatibility with Travis (& unknown installations)
 
 const Schema = {
@@ -106,21 +105,22 @@ const Schema = {
    *         type: string
    *         description: Version as defined in protocol.json
    *         example: "~4.0.0"
-   *       downloadUrl:
+   *       downloadPath:
    *         type: string
-   *         description: URL for direct download of the .netcanvas file
-   *         example: https://x.x.x.x:51001/protocols/foo.netcanvas
+   *         description: URL for direct download of the .netcanvas file from this server.|
+   *           Protocol downloads must use the https service.
+   *         example: /protocols/foo.netcanvas
    *       sha256Digest:
    *         type: string
    *         example: 8f99051c91044bd8159a8cc0fa2aaa831961c4428ce1859b82612743c9720eef
    */
-  protocol: (protocol, httpBase, httpsBase) => ({
+  protocol: protocol => ({
     id: protocol._id,
     name: protocol.name,
     description: protocol.description,
     lastModified: protocol.lastModified,
     networkCanvasVersion: protocol.networkCanvasVersion,
-    downloadUrl: new URL(`/protocols/${protocol.filename}`, httpsBase),
+    downloadPath: `/protocols/${protocol.filename}`,
     sha256Digest: protocol.sha256Digest,
   }),
 };
@@ -289,8 +289,9 @@ class DeviceAPI extends EventEmitter {
      * /devices/new:
      *   get:
      *     summary: Pairing Request
-     *     description: Pairing Step 1.
-     *         Generate a new pairing request.
+     *     description: |
+     *         Pairing Step 1. Generate a new pairing request.
+     *
      *         Responds with the request ID, and presents a pairing passcode to user (out of band).
      *         This information can be used to complete the pairing (create a device).
      *
@@ -444,6 +445,7 @@ class DeviceAPI extends EventEmitter {
      * /protocols:
      *   get:
      *     summary: Protocol list
+     *     description: Provides metadata about all protocols available from this server
      *     produces:
      *       - application/json
      *     responses:

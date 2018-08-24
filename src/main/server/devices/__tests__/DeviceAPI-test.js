@@ -178,11 +178,10 @@ describe('the DeviceAPI', () => {
         }));
       });
 
-      it('lists available protocols via downloadUrl', async () => {
+      it('lists available protocol download paths', async () => {
         const res = await secureClient.get(makeUrl('/protocols', deviceApi.sslServer.url));
-        const expectedUrl = expect.stringContaining(mockFilename);
         expect(res.statusCode).toBe(200);
-        expect(res.json.data).toContainEqual({ downloadUrl: expectedUrl });
+        expect(res.json.data).toContainEqual({ downloadPath: `/protocols/${mockFilename}` });
       });
     });
 
