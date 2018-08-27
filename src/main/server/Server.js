@@ -33,11 +33,13 @@ class Server extends EventEmitter {
   }
 
   get connectionInfo() {
+    const ipInfo = this.publicIP();
     return {
       adminService: {
         port: this.adminService && this.adminService.port,
       },
       deviceService: {
+        address: ipInfo && ipInfo.address,
         httpPort: this.deviceService && this.deviceService.httpPort,
         httpsPort: this.deviceService && this.deviceService.httpsPort,
       },

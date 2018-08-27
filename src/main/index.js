@@ -17,10 +17,10 @@ createServer(userDataDir).then((runningServer) => {
   app.on('before-quit', () => server.close());
 
   // Renderer may be ready before server, in which case send:
-  mainWindow.send(ApiConnectionInfoChannel, server.connectionInfo.adminService);
+  mainWindow.send(ApiConnectionInfoChannel, server.connectionInfo);
 
   ipcMain.on(RequestApiConnectionInfoChannel, (evt) => {
-    evt.sender.send(ApiConnectionInfoChannel, server.connectionInfo.adminService);
+    evt.sender.send(ApiConnectionInfoChannel, server.connectionInfo);
   });
 
   ipcMain.on(RequestFileImportDialog, showImportProtocolDialog);

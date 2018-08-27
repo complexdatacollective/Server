@@ -7,7 +7,7 @@ import Instructions from '../Instructions';
 describe('<Instructions />', () => {
   it('renders protocol import instructions by default', () => {
     const subject = shallow(<Instructions />);
-    expect(subject.text()).toMatch('Import a protocol');
+    expect(subject.text()).toMatch('To import a protocol:');
   });
 
   it('renders device pairing instructions by default', () => {
@@ -16,7 +16,7 @@ describe('<Instructions />', () => {
   });
 
   it('hides protocol instructions if instructed', () => {
-    const subject = shallow(<Instructions showProtocolInstructions={false} />);
+    const subject = shallow(<Instructions showImportInstructions={false} />);
     expect(subject.text()).not.toMatch('Import a protocol');
   });
 
@@ -28,5 +28,12 @@ describe('<Instructions />', () => {
   it('has a compact variant', () => {
     const subject = shallow(<Instructions compact />);
     expect(subject.find('.instructions').prop('className')).toMatch('--compact');
+  });
+
+  it('renders API info', () => {
+    const apiInfo = { address: '192.168.x.x', httpPort: 65531 };
+    const subject = shallow(<Instructions apiInfo={apiInfo} />);
+    expect(subject.text()).toMatch(apiInfo.address);
+    expect(subject.text()).toMatch(apiInfo.httpPort.toString());
   });
 });

@@ -7,7 +7,7 @@ import DeviceDetails from './DeviceDetails';
 const EmptyDeviceList = () => (
   <div>
     <h2>No devices found.</h2>
-    <Instructions showProtocolInstructions={false} />
+    <Instructions showImportInstructions={false} />
   </div>
 );
 

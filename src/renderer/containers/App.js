@@ -12,6 +12,7 @@ import { appVersion, codename } from '../utils/appVersion';
 import { AppMessage } from '../components';
 import { AnimatedPairPrompt } from '../components/pairing/PairPrompt';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
+import { actionCreators as connectionInfoActionCreators } from '../ducks/modules/connectionInfo';
 import { actionCreators as deviceActionCreators } from '../ducks/modules/devices';
 import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
 import { isFrameless } from '../utils/environment';
@@ -52,8 +53,9 @@ class App extends Component {
     preventGlobalDragDrop();
 
     ipcRenderer.send(IPC.REQUEST_API_INFO);
-    ipcRenderer.once(IPC.API_INFO, (event, apiInfo) => {
-      AdminApiClient.setPort(apiInfo.port);
+    ipcRenderer.once(IPC.API_INFO, (event, connectionInfo) => {
+      AdminApiClient.setPort(connectionInfo.adminService.port);
+      this.props.setConnectionInfo(connectionInfo);
       this.setState({ apiReady: true });
     });
 
@@ -141,6 +143,7 @@ App.propTypes = {
   pairingRequest: PropTypes.shape({
     status: PropTypes.string,
   }),
+  setConnectionInfo: PropTypes.func.isRequired,
 };
 
 App.defaultProps = {
@@ -161,6 +164,7 @@ function mapDispatchToProps(dispatch) {
     newPairingRequest: bindActionCreators(actionCreators.newPairingRequest, dispatch),
     dismissPairingRequest: bindActionCreators(actionCreators.dismissPairingRequest, dispatch),
     dismissAppMessages: bindActionCreators(messageActionCreators.dismissAppMessages, dispatch),
+    setConnectionInfo: bindActionCreators(connectionInfoActionCreators.setConnectionInfo, dispatch),
   };
 }
 

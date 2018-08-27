@@ -4,7 +4,7 @@ import Types from '../types';
 import DeviceStatus from '../containers/DeviceStatus';
 import Instructions from '../components/Instructions';
 
-const GetStarted = ({ devices }) => (
+const GetStarted = ({ apiInfo, devices }) => (
   <div className="get-started">
     {
       devices.length > 0 &&
@@ -16,15 +16,17 @@ const GetStarted = ({ devices }) => (
     <h1 className="get-started__title">Get Started with Server</h1>
     <hr />
 
-    <Instructions showPairingInstructions={devices.length === 0} />
+    <Instructions apiInfo={apiInfo} showPairingInstructions={devices.length === 0} />
   </div>
 );
 
 GetStarted.defaultProps = {
+  apiInfo: null,
   devices: [],
 };
 
 GetStarted.propTypes = {
+  apiInfo: Types.deviceApiInfo,
   devices: Types.devices,
 };
 

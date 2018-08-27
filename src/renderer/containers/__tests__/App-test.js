@@ -20,9 +20,14 @@ const mockDispatched = {
   dismissPairingRequest: jest.fn(),
   dismissAppMessages: jest.fn(),
   loadDevices: jest.fn(),
+  setConnectionInfo: jest.fn(),
 };
 
 describe('<App />', () => {
+  beforeEach(() => {
+    Object.values(mockDispatched).forEach(mockFn => mockFn.mockClear());
+  });
+
   const mockPairRequest = {};
   const mockMsg = { timestamp: 1529338487695, text: 'ok' };
   const mockStore = createStore(() => (
@@ -79,8 +84,15 @@ describe('<App />', () => {
 
       it('sets the dynamic port for all clients', () => {
         shallow(<App {...mockDispatched} />);
-        callOnce(IPC.ApiConnectionInfoChannel, { port: 12345 });
+        callOnce(IPC.ApiConnectionInfoChannel, { adminService: { port: 12345 } });
         expect(AdminApiClient.setPort).toHaveBeenCalledWith(12345);
+      });
+
+      it('sets redux state', () => {
+        const connectionInfo = { adminService: { port: 12345 } };
+        shallow(<App {...mockDispatched} />);
+        callOnce(IPC.ApiConnectionInfoChannel, connectionInfo);
+        expect(mockDispatched.setConnectionInfo).toHaveBeenCalledWith(connectionInfo);
       });
     });
   });
