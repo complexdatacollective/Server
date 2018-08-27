@@ -1,9 +1,9 @@
 /* eslint-env jest */
-
 import React from 'react';
+import { createStore } from 'redux';
 import { shallow } from 'enzyme';
 
-import { UnconnectedPairDevice as PairDevice } from '../PairDevice';
+import ConnectedPairDevice, { UnconnectedPairDevice as PairDevice } from '../PairDevice';
 import { PairingStatus } from '../../ducks/modules/pairingRequest';
 
 const mockPin = '1a';
@@ -37,5 +37,25 @@ describe('<PairDevice />', () => {
   it('render a completion message', () => {
     const subject = shallow(<PairDevice {...makeProps(PairingStatus.Complete)} />);
     expect(subject.find('p').text()).toMatch(/device is now paired/);
+  });
+
+  describe('Connected', () => {
+    const state = {
+      pairingRequest: { id: '123456' },
+    };
+    let store;
+    beforeEach(() => {
+      store = createStore(() => state);
+    });
+
+    it('maps dispatched dismiss function', () => {
+      const subject = shallow(<ConnectedPairDevice store={store} />);
+      expect(subject.prop('dismissPairingRequest')).toBeInstanceOf(Function);
+    });
+
+    it('maps pairingRequest to props', () => {
+      const subject = shallow(<ConnectedPairDevice store={store} />);
+      expect(subject.prop('pairingRequest')).toEqual(state.pairingRequest);
+    });
   });
 });

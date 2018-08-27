@@ -1,8 +1,8 @@
 /* eslint-env jest */
-
 import React from 'react';
+import { createStore } from 'redux';
 import { shallow } from 'enzyme';
-import { UnconnectedOverviewScreen as OverviewScreen } from '../OverviewScreen';
+import ConnectedOverviewScreen, { UnconnectedOverviewScreen as OverviewScreen } from '../OverviewScreen';
 
 describe('<OverviewScreen />', () => {
   const loadDevices = jest.fn();
@@ -31,5 +31,37 @@ describe('<OverviewScreen />', () => {
     expect(subject.find('GetStarted')).toHaveLength(0);
     expect(subject.find('Redirect')).toHaveLength(1);
     expect(subject.find('Redirect').prop('to')).toMatch(mockProtocol.id);
+  });
+
+  describe('Connected', () => {
+    const state = {
+      devices: [{ id: 'device1', name: '1', createdAt: new Date() }],
+      protocols: [{ id: 'protocol1', name: '1', createdAt: new Date() }],
+      connectionInfo: { deviceService: { httpPort: 5555, address: '192.168.x.x' } },
+    };
+    let store;
+    beforeEach(() => {
+      store = createStore(() => state);
+    });
+
+    it('maps a dispatched load function', () => {
+      const subject = shallow(<ConnectedOverviewScreen store={store} />);
+      expect(subject.prop('loadDevices')).toBeInstanceOf(Function);
+    });
+
+    it('maps devices to props', () => {
+      const subject = shallow(<ConnectedOverviewScreen store={store} />);
+      expect(subject.prop('devices')).toEqual(state.devices);
+    });
+
+    it('maps protocols to props', () => {
+      const subject = shallow(<ConnectedOverviewScreen store={store} />);
+      expect(subject.prop('protocols')).toEqual(state.protocols);
+    });
+
+    it('maps API info to props', () => {
+      const subject = shallow(<ConnectedOverviewScreen store={store} />);
+      expect(subject.prop('deviceApiInfo')).toEqual(state.connectionInfo.deviceService);
+    });
   });
 });

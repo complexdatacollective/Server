@@ -1,9 +1,10 @@
 /* eslint-env jest */
 import React from 'react';
-import { mount } from 'enzyme';
+import { createStore } from 'redux';
+import { mount, shallow } from 'enzyme';
 
 import AdminApiClient from '../../utils/adminApiClient'; // see __mocks__
-import { UnconnectedFileDropTarget as FileDropTarget } from '../FileDropTarget';
+import ConnectedFileDropTarget, { UnconnectedFileDropTarget as FileDropTarget } from '../FileDropTarget';
 
 jest.mock('../../utils/adminApiClient');
 
@@ -68,6 +69,23 @@ describe('<FileDropTarget />', () => {
         expect(mockProps.showMessage).toHaveBeenCalled();
         done();
       });
+    });
+  });
+
+  describe('Connected', () => {
+    let store;
+    beforeEach(() => {
+      store = createStore(() => ({}));
+    });
+
+    it('maps a dispatched loadProtocols fn to props', () => {
+      const subject = shallow(<ConnectedFileDropTarget store={store} />);
+      expect(subject.prop('loadProtocols')).toBeInstanceOf(Function);
+    });
+
+    it('maps a dispatched showMessage fn to props', () => {
+      const subject = shallow(<ConnectedFileDropTarget store={store} />);
+      expect(subject.prop('showMessage')).toBeInstanceOf(Function);
     });
   });
 });

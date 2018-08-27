@@ -159,7 +159,7 @@ describe('the DeviceAPI', () => {
         });
 
         it('notifies the gui about completion', async () => {
-          await jsonClient.get(makeUrl('/devices/new', deviceApi.server.url));
+          await jsonClient.post(makeUrl('/devices', deviceApi.server.url), {});
           expect(mockDelegate.pairingDidComplete).toHaveBeenCalled();
         });
       });

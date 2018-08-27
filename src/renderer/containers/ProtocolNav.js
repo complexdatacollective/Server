@@ -75,9 +75,12 @@ const mapDispatchToProps = dispatch => ({
   loadProtocols: bindActionCreators(actionCreators.loadProtocols, dispatch),
 });
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(ProtocolNav));
+const ConnectedProtocolNav = connect(mapStateToProps, mapDispatchToProps)(ProtocolNav);
+
+export default withRouter(ConnectedProtocolNav);
 
 export {
+  ConnectedProtocolNav,
   ProtocolNav as UnconnectedProtocolNav,
   ipcChannels,
 };
