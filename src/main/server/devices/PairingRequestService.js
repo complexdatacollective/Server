@@ -1,9 +1,8 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
-
-const NeDB = require('nedb');
 const uuidv4 = require('uuid/v4');
 const logger = require('electron-log');
 
+const PairingRequestDB = require('../../data-managers/PairingRequestDB');
 const PairingCodeFactory = require('./PairingCodeFactory');
 const { ErrorMessages, RequestError } = require('../../errors/RequestError');
 const {
@@ -34,9 +33,9 @@ const dbConfig = {
 
 class PairingRequestService {
   constructor() {
-    this.db = new NeDB(dbConfig); // eslint-disable-line new-cap
+    this.sharedDb = new PairingRequestDB(null, true, dbConfig);
 
-    this.db.ensureIndex({
+    this.sharedDb.db.ensureIndex({
       fieldName: 'createdAt',
       expireAfterSeconds: DeviceRequestTTLSeconds,
     }, (err) => {
@@ -46,35 +45,26 @@ class PairingRequestService {
 
   // Pairing code is used to derive a shared secret.
   createRequest() {
-    return new Promise((resolve, reject) => {
-      PairingCodeFactory.generatePairingCodeAsync()
-        .then((pairingCode) => {
-          const saltBytes = newSaltBytes();
-          const secretKeyBytes = deriveSecretKeyBytes(pairingCode, saltBytes);
-
-          this.db.insert({
-            salt: toHex(saltBytes),
-            secretKey: toHex(secretKeyBytes),
-            pairingCode,
-            used: false,
-            _id: uuidv4(),
-          }, (err, newRequest) => {
-            if (err) {
-              // TODO: retry?
-              reject(err);
-            } else {
-              logger.info('New pairing request saved', newRequest._id);
-              resolve(newRequest);
-            }
-          });
+    return PairingCodeFactory.generatePairingCodeAsync()
+      .then((pairingCode) => {
+        const saltBytes = newSaltBytes();
+        const secretKeyBytes = deriveSecretKeyBytes(pairingCode, saltBytes);
+        return { pairingCode, saltBytes, secretKeyBytes };
+      })
+      .then(({ pairingCode, saltBytes, secretKeyBytes }) => (
+        this.sharedDb.create({
+          salt: toHex(saltBytes),
+          secretKey: toHex(secretKeyBytes),
+          pairingCode,
+          used: false,
+          _id: uuidv4(),
         })
-        .catch(err => reject(err));
-    });
+      ));
   }
 
   verifyAndExpireEncryptedRequest(messageHex) {
     return new Promise((resolve, reject) => {
-      this.db.findOne({ used: false }).sort({ createdAt: -1 }).exec((err, doc) => {
+      this.sharedDb.db.findOne({ used: false }).sort({ createdAt: -1 }).exec((err, doc) => {
         if (err || !doc) {
           reject(new RequestError(ErrorMessages.VerificationFailed));
         }
@@ -124,7 +114,7 @@ class PairingRequestService {
       const updateClause = { $set: { used: true, deviceName } };
       const opts = { multi: false, returnUpdatedDocs: true };
 
-      this.db.update(query, updateClause, opts, (err, num, doc) => {
+      this.sharedDb.db.update(query, updateClause, opts, (err, num, doc) => {
         if (err) {
           // Assume error on our side
           logger.error(err);
@@ -138,8 +128,21 @@ class PairingRequestService {
       });
     });
   }
+
+  /**
+   * See if the pairing request is still available (unused and unexpired)
+   * @async
+   * @param  {string} requestId
+   * @return {Object} the request, if it is still available;
+   *                   false if it has expired, has been used, or is not found.
+   * @throws {Error} If any DB error thrown
+   */
+  checkRequest(requestId) {
+    return this.sharedDb.first({ _id: requestId, used: false });
+  }
 }
 
 module.exports = {
+  DeviceRequestTTLSeconds,
   PairingRequestService,
 };

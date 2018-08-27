@@ -77,7 +77,7 @@ const outOfBandDelegate = {
     };
 
     const guiIsReady = sendToGui(emittedEvents.PAIRING_CODE_AVAILABLE,
-      { pairingCode: pairingRequest.pairingCode });
+      { pairingCode: pairingRequest.pairingCode, id: pairingRequest._id });
 
     let promise;
 

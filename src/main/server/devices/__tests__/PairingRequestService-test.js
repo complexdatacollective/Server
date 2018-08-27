@@ -16,11 +16,15 @@ describe('PairingRequest Service', () => {
     reqSvc = new PairingRequestService();
   });
 
+  afterEach((done) => {
+    reqSvc.sharedDb.db.remove({}, { multi: true }, () => done());
+  });
+
   it('creates a new request', (done) => {
-    reqSvc.db.count({}, (err, initialCount) => {
+    reqSvc.sharedDb.db.count({}, (err, initialCount) => {
       reqSvc.createRequest()
         .then(() => {
-          reqSvc.db.count({}, (err2, count) => {
+          reqSvc.sharedDb.db.count({}, (err2, count) => {
             expect(count).toBe(initialCount + 1);
             done();
           });
@@ -57,6 +61,11 @@ describe('PairingRequest Service', () => {
     await expect(
       reqSvc.verifyAndExpireRequest(),
     ).rejects.toBeInstanceOf(Error);
+  });
+
+  it('checks for validity', async () => {
+    const req = await reqSvc.createRequest();
+    expect(await reqSvc.checkRequest(req._id)).toEqual(req);
   });
 
   describe('encrypted request', () => {

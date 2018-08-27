@@ -12,19 +12,19 @@ describe('the DeviceManager', () => {
   });
 
   it('creates a new device', async () => {
-    const doc = await dbClient.create(mockSecretHex);
+    const doc = await dbClient.createWithSecretAndName(mockSecretHex);
     expect(doc).toHaveProperty('_id');
   });
 
   it('loads all devices', async () => {
-    await dbClient.create(mockSecretHex);
+    await dbClient.createWithSecretAndName(mockSecretHex);
     const devices = await dbClient.all();
     expect(devices).toBeInstanceOf(Array);
     expect(devices).toHaveLength(1);
   });
 
   it('removes all devices, and returns removed count', async () => {
-    await dbClient.create(mockSecretHex);
+    await dbClient.createWithSecretAndName(mockSecretHex);
     const numRemoved = await dbClient.destroyAll();
     expect(numRemoved).toBe(1);
     expect(await dbClient.all()).toHaveLength(0);
@@ -38,7 +38,7 @@ describe('the DeviceManager', () => {
     });
 
     it('rejects a create', async () => {
-      await expect(dbClient.create(mockSecretHex)).rejects.toThrow(mockError);
+      await expect(dbClient.createWithSecretAndName(mockSecretHex)).rejects.toThrow(mockError);
     });
 
     it('rejects a destroy', async () => {

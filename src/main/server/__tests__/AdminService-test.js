@@ -9,6 +9,7 @@ const ProtocolManager = require('../../data-managers/ProtocolManager');
 jest.mock('electron-log');
 jest.mock('../../data-managers/DeviceManager');
 jest.mock('../../data-managers/ProtocolManager');
+jest.mock('../devices/PairingRequestService');
 
 const testPortNumber = 52001;
 
@@ -85,6 +86,28 @@ describe('the AdminService', () => {
         it('reports health status', async () => {
           adminService.statusDelegate = { status: () => undefined };
           await expect(jsonClient.get(endpoint)).rejects.toMatchObject({ statusCode: 503 });
+        });
+      });
+
+      describe('pairing_requests/:id', () => {
+        const endpoint = makeUrl('/pairing_requests/1', apiBase);
+
+        it('returns 200 if exists', async () => {
+          adminService.pairingRequestService.checkRequest.mockResolvedValue({
+            createdAt: new Date(),
+          });
+          const resp = await jsonClient.head(endpoint);
+          expect(resp.statusCode).toBe(200);
+        });
+
+        it('returns 404 if expired', async () => {
+          adminService.pairingRequestService.checkRequest.mockResolvedValue(null);
+          await expect(jsonClient.head(endpoint)).rejects.toMatchObject({ statusCode: 404 });
+        });
+
+        it('returns 500 if expired', async () => {
+          adminService.pairingRequestService.checkRequest.mockRejectedValue(new Error());
+          await expect(jsonClient.head(endpoint)).rejects.toMatchObject({ statusCode: 500 });
         });
       });
 

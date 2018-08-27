@@ -81,6 +81,8 @@ const jsonClient = (useHttps) => {
 
     delete: uri => agent.request(uri, null, 'DELETE'),
 
+    head: uri => agent.request(uri, null, 'HEAD'),
+
     request: (uri, reqData, method) => (
       new Promise((resolve, reject) => {
         let client = http;

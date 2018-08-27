@@ -9,7 +9,11 @@ import { PairingStatus } from '../../ducks/modules/pairingRequest';
 const mockPin = '1a';
 
 const makeProps = status => ({
-  dismissPairingRequest: () => {},
+  apiClient: {
+    checkPairingCodeExpired: jest.fn().mockResolvedValue({}),
+  },
+  showMessage: jest.fn(),
+  dismissPairingRequest: jest.fn(),
   pairingRequest: {
     pairingCode: status ? mockPin : null,
     status,
@@ -37,6 +41,15 @@ describe('<PairDevice />', () => {
   it('render a completion message', () => {
     const subject = shallow(<PairDevice {...makeProps(PairingStatus.Complete)} />);
     expect(subject.find('p').text()).toMatch(/device is now paired/);
+  });
+
+  it('checks for updates', () => {
+    jest.useFakeTimers();
+    const props = { ...makeProps(PairingStatus.Acknowledged) };
+    const subject = shallow(<PairDevice {...props} />);
+    subject.setProps({ update: true });
+    jest.runAllTimers();
+    expect(props.apiClient.checkPairingCodeExpired).toHaveBeenCalled();
   });
 
   describe('Connected', () => {

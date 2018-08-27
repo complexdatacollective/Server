@@ -14,13 +14,23 @@ describe('the DeviceManager', () => {
 
   it('creates a new device', () => {
     deviceManager.createDeviceDocument(mockSecretHex);
-    expect(deviceManager.db.create).toHaveBeenCalledWith(mockSecretHex, undefined);
+    expect(deviceManager.db.createWithSecretAndName).toHaveBeenCalledWith(mockSecretHex, undefined);
+  });
+
+  it('returns existence (not found)', async () => {
+    deviceManager.db.get.mockResolvedValue(null);
+    expect(await deviceManager.exists('notfound')).toBe(false);
+  });
+
+  it('returns existence (found)', async () => {
+    deviceManager.db.get.mockResolvedValue({});
+    expect(await deviceManager.exists('notfound')).toBe(true);
   });
 
   it('creates a new device with a name', () => {
     const mockName = 'myDevice';
     deviceManager.createDeviceDocument(mockSecretHex, mockName);
-    expect(deviceManager.db.create).toHaveBeenCalledWith(mockSecretHex, mockName);
+    expect(deviceManager.db.createWithSecretAndName).toHaveBeenCalledWith(mockSecretHex, mockName);
   });
 
   it('will not create without a valid secret', async () => {

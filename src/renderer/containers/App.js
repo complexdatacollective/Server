@@ -65,7 +65,7 @@ class App extends Component {
     });
 
     ipcRenderer.on(IPC.PAIRING_CODE_AVAILABLE, (event, data) => {
-      props.newPairingRequest(data.pairingCode);
+      props.newPairingRequest(data.id, data.pairingCode);
     });
 
     ipcRenderer.on(IPC.PAIRING_TIMED_OUT, () => {

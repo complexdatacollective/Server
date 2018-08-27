@@ -34,6 +34,7 @@ const reducer = (state = initialState, action = {}) => {
         ...state,
         status: PairingStatus.Pending,
         pairingCode: action.pairingCode,
+        id: action.id,
       };
     default:
       return state;
@@ -60,9 +61,10 @@ const dismissPairingRequest = () => (
   }
 );
 
-const newPairingRequest = pairingCode => (
+const newPairingRequest = (id, pairingCode) => (
   {
     type: NEW_PAIRING_REQUEST,
+    id,
     pairingCode,
   }
 );

@@ -9,7 +9,6 @@ const DbConfig = {
 };
 
 class DatabaseAdapter {
-  // TODO: See comments at DeviceManager.dbClient
   static dbClient(filename, config = {}) {
     if (!this.dbClients) {
       this.dbClients = {};
@@ -73,6 +72,25 @@ class DatabaseAdapter {
    */
   get(id) {
     return this.first({ _id: id });
+  }
+
+  /**
+   * Insert a record into the DB
+   * @async
+   * @param  {Object} data document to insert
+   * @return {Object} the inserted document
+   * @throws {Error} if DB error or document returned from DB is null
+   */
+  create(data) {
+    return new Promise((resolve, reject) => {
+      this.db.insert(data, (err, doc) => {
+        if (err || !doc) {
+          reject(err || new Error('Insert failed'));
+        } else {
+          resolve(doc);
+        }
+      });
+    });
   }
 }
 

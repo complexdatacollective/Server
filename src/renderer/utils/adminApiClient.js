@@ -33,6 +33,24 @@ class AdminApiClient {
     return this.constructor.port || null;
   }
 
+  checkPairingCodeExpired(pairingRequestId) {
+    return this.head(`/pairing_requests/${pairingRequestId}`)
+      .then((resp) => {
+        let isExpired;
+        if (resp.status === 404) { isExpired = true; }
+        if (resp.status === 200) { isExpired = false; }
+        // else (server error): undefined
+        return {
+          isExpired,
+          expiresAt: resp.headers.get('expires'),
+        };
+      });
+  }
+
+  head(route) {
+    return fetch(this.resolveRoute(route), { method: 'HEAD' });
+  }
+
   /**
    * @param  {string} route
    * @return {Promise}
