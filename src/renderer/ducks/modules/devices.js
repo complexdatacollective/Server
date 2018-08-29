@@ -1,7 +1,6 @@
-import logger from 'electron-log';
-
 import AdminApiClient from '../../utils/adminApiClient';
 import viewModelMapper from '../../utils/baseViewModelMapper';
+import { actionCreators as messageActionCreators } from './appMessages';
 
 const LOAD_DEVICES = 'LOAD_DEVICES';
 const DEVICES_LOADED = 'DEVICES_LOADED';
@@ -42,11 +41,7 @@ const loadDevices = () => (dispatch) => {
   getApiClient().get('/devices')
     .then(resp => resp.devices)
     .then(devices => dispatch(devicesLoadedDispatch(devices)))
-    .catch((err) => {
-      // Log & bubble up to let UI handle as needed
-      logger.error(err);
-      throw err;
-    });
+    .catch(err => dispatch(messageActionCreators.showMessage(err.message)));
 };
 
 const actionCreators = {

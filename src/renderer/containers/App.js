@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import logger from 'electron-log';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { ipcRenderer } from 'electron';
@@ -54,7 +55,11 @@ class App extends Component {
 
     ipcRenderer.send(IPC.REQUEST_API_INFO);
     ipcRenderer.once(IPC.API_INFO, (event, connectionInfo) => {
-      AdminApiClient.setPort(connectionInfo.adminService.port);
+      if (connectionInfo.adminService) {
+        AdminApiClient.setPort(connectionInfo.adminService.port);
+      } else {
+        logger.warn('Admin API unavailable');
+      }
       this.props.setConnectionInfo(connectionInfo);
       this.setState({ apiReady: true });
     });
