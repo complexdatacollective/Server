@@ -16,6 +16,10 @@ describe('an AdminApiClient', () => {
     expect(new AdminApiClient().port).toBe(null);
   });
 
+  it('checks for port before fetching', () => {
+    expect(client.fetch()).rejects.toMatchErrorMessage('no port set');
+  });
+
   it('sets port for all clients', () => {
     AdminApiClient.setPort(123);
     expect(new AdminApiClient().port).toBe(123);

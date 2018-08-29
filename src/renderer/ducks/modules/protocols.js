@@ -1,5 +1,3 @@
-import logger from 'electron-log';
-
 import AdminApiClient from '../../utils/adminApiClient';
 import viewModelMapper from '../../utils/baseViewModelMapper';
 import { actionCreators as messageActionCreators } from './appMessages';
@@ -63,7 +61,7 @@ const protocolDeletedDispatch = id => ({
 
 const loadProtocols = () => (dispatch) => {
   dispatch(loadProtocolsDispatch());
-  getApiClient().get('/protocols')
+  return getApiClient().get('/protocols')
     .then(resp => resp.protocols)
     .then(protocols => dispatch(protocolsLoadedDispatch(protocols)))
     .catch(err => dispatch(messageActionCreators.showMessage(err.message)));
@@ -71,7 +69,7 @@ const loadProtocols = () => (dispatch) => {
 
 const deleteProtocol = id => (dispatch) => {
   dispatch(deleteProtocolDispatch(id));
-  getApiClient().delete(`/protocols/${id}`)
+  return getApiClient().delete(`/protocols/${id}`)
     .then(() => dispatch(protocolDeletedDispatch(id)))
     .catch(err => dispatch(messageActionCreators.showMessage(err.message)));
 };

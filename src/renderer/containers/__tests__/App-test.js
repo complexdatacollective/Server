@@ -8,6 +8,7 @@ import AdminApiClient from '../../utils/adminApiClient';
 import { ConnectedApp, UnconnectedApp as App, IPC } from '../App';
 import { isFrameless } from '../../utils/environment';
 
+jest.mock('electron-log');
 jest.mock('../ProtocolNav', () => 'mock-protocol-nav');
 jest.mock('../DeviceStatus');
 jest.mock('../../utils/environment');
@@ -93,6 +94,12 @@ describe('<App />', () => {
         shallow(<App {...mockDispatched} />);
         callOnce(IPC.ApiConnectionInfoChannel, connectionInfo);
         expect(mockDispatched.setConnectionInfo).toHaveBeenCalledWith(connectionInfo);
+      });
+
+      it('does not crash when adminService unavailable', () => {
+        shallow(<App {...mockDispatched} />);
+        callOnce(IPC.ApiConnectionInfoChannel, {});
+        expect(mockDispatched.setConnectionInfo).toHaveBeenCalled();
       });
     });
   });

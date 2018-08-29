@@ -38,7 +38,7 @@ const devicesLoadedDispatch = devices => ({
 
 const loadDevices = () => (dispatch) => {
   dispatch(loadDevicesDispatch());
-  getApiClient().get('/devices')
+  return getApiClient().get('/devices')
     .then(resp => resp.devices)
     .then(devices => dispatch(devicesLoadedDispatch(devices)))
     .catch(err => dispatch(messageActionCreators.showMessage(err.message)));
