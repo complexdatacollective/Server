@@ -1,12 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { BarChart, CountsWidget, InterviewWidget, LineChart, PieChart } from '../components';
-import { countsData, interviewData, barData, pieData, lineData } from '../utils/dummy_data';
+import { BarChart, InterviewWidget, LineChart, PieChart } from '../components';
+import { interviewData, barData, pieData, lineData } from '../utils/dummy_data';
 
 const DummyDashboardFragment = ({ className }) => (
   <React.Fragment>
-    <div className={`${className}__panel`}><CountsWidget data={countsData} /></div>
     <div className={`${className}__panel`}><InterviewWidget data={interviewData} /></div>
     <div className={`${className}__panel`}><BarChart data={barData} /></div>
     <div className={`${className}__panel`}><PieChart data={pieData} /></div>

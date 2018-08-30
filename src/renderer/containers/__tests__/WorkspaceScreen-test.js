@@ -4,23 +4,20 @@ import { shallow } from 'enzyme';
 import { createStore } from 'redux';
 
 import ConnectedWorkspaceScreen, { UnconnectedWorkspaceScreen as WorkspaceScreen } from '../WorkspaceScreen';
+import AdminApiClient from '../../utils/adminApiClient';
+import { mockProtocol } from '../../../../config/jest/setupTestEnv';
 
-const mockProtocol = {
-  id: '1',
-  filename: 'a.netcanvas',
-  name: 'MyProtocol',
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  networkCanvasVersion: '1',
-  version: '2.0',
-};
+jest.mock('../../utils/adminApiClient');
 
 describe('<WorkspaceScreen />', () => {
   let wrapper;
 
   beforeEach(() => {
+    const mockApiClient = new AdminApiClient();
+    mockApiClient.get.mockResolvedValue({ sessions: [] });
     wrapper = shallow((
       <WorkspaceScreen
+        apiClient={mockApiClient}
         match={{ params: { id: 1 } }}
       />
     ));
@@ -30,9 +27,9 @@ describe('<WorkspaceScreen />', () => {
     expect(wrapper.find('Spinner')).toHaveLength(1);
   });
 
-  it('renders a workspace when protocol is loaded', () => {
+  it('renders dashboard panels', () => {
     wrapper.setProps({ protocol: mockProtocol });
-    expect(wrapper.find('Workspace')).toHaveLength(1);
+    expect(wrapper.find('.dashboard__panel').length).toBeGreaterThan(0);
   });
 
   describe('when connected', () => {

@@ -1,6 +1,6 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
-
 const DatabaseAdapter = require('./DatabaseAdapter');
+const Reportable = require('./Reportable');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
 const { mostRecent, resolveOrReject } = require('../utils/db');
 
@@ -12,7 +12,7 @@ const sessionDataField = 'data';
  * @class
  * @extends DatabaseAdapter
  */
-class SessionDB extends DatabaseAdapter {
+class SessionDB extends Reportable(DatabaseAdapter) {
   /**
    * Persist one or more sessions for a protocol.
    * This method takes a protocol object rather than ID; the caller must verify that

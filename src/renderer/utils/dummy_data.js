@@ -1,9 +1,3 @@
-const countsData = [
-  { name: 'Node count', count: 423 },
-  { name: 'Edge count', count: 256 },
-  { name: 'Interview count', count: 56 },
-];
-
 const interviewData = [
   { name: 'Duration (minutes)',
     data: [{ name: 'Mean', count: 23 },
@@ -18,7 +12,6 @@ const interviewData = [
       { name: 'Min', count: 2 },
       { name: 'Max', count: 78 }] },
 ];
-
 
 const barData = [
   { name: 'Page A', uv: 4000, pv: 2400, amt: 2400 },
@@ -53,7 +46,6 @@ const lineData = [
   { time: new Date(2017, 7, 3).toLocaleDateString(), value: 15, other: 89 }];
 
 export {
-  countsData,
   interviewData,
   barData,
   pieData,

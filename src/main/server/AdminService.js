@@ -26,6 +26,7 @@ class AdminService {
     this.deviceManager = new DeviceManager(dataDir);
     this.protocolManager = new ProtocolManager(dataDir);
     this.pairingRequestService = new PairingRequestService();
+    this.reportDb = this.protocolManager.reportDb;
   }
 
   /**
@@ -151,6 +152,12 @@ class AdminService {
           logger.error(err);
           res.send(500, { status: 'error' });
         })
+        .then(() => next());
+    });
+
+    api.get('/protocols/:id/reports/total_counts', (req, res, next) => {
+      this.reportDb.totalCounts(req.params.id)
+        .then(counts => res.send({ status: 'ok', counts }))
         .then(() => next());
     });
 
