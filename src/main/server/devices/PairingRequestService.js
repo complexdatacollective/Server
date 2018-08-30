@@ -13,34 +13,9 @@ const {
   toHex,
 } = require('../../utils/shared-api/cipher');
 
-const DeviceRequestTTLSeconds = 5 * 60;
-
-const dbConfig = {
-  corruptAlertThreshold: 0,
-  // TODO: review in-mem/on-disk and document.
-  // Notes on persistence:
-  //    0. We want to store the pairing passcode, which is sensitive.
-  //    1. Auto-expiration is only triggered by a query
-  //    2. nedb uses an append-only format; until compaction happens, data is still on disk.
-  //    3. Therefore, if sensitive data is on disk, we must periodically expire & compact.
-  //       setAutocompactionInterval() is insufficient
-  // With in-memory, closing the app will cancel the pairing process.
-  inMemoryOnly: true,
-  // filename: path.join(dataDir, DeviceRequestDbName),
-  // autoload: true,
-  timestampData: true,
-};
-
 class PairingRequestService {
   constructor() {
-    this.sharedDb = new PairingRequestDB(null, true, dbConfig);
-
-    this.sharedDb.db.ensureIndex({
-      fieldName: 'createdAt',
-      expireAfterSeconds: DeviceRequestTTLSeconds,
-    }, (err) => {
-      if (err) { logger.error(err); }
-    });
+    this.sharedDb = new PairingRequestDB('PairingRequestDB');
   }
 
   // Pairing code is used to derive a shared secret.
@@ -140,9 +115,12 @@ class PairingRequestService {
   checkRequest(requestId) {
     return this.sharedDb.first({ _id: requestId, used: false });
   }
+
+  get deviceRequestTTLSeconds() {
+    return this.sharedDb.deviceRequestTTLSeconds;
+  }
 }
 
 module.exports = {
-  DeviceRequestTTLSeconds,
   PairingRequestService,
 };

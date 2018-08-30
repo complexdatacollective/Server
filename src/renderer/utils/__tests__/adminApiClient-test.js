@@ -35,7 +35,7 @@ describe('an AdminApiClient', () => {
 
   it('can post data', async () => {
     const payload = { foo: 'bar' };
-    fetch.mockResponse(JSON.stringify({ status: 'ok', data: payload }));
+    fetch.mockResponseOnce(JSON.stringify({ status: 'ok', data: payload }));
     await expect(client.post('/foo', payload)).resolves.toMatchObject({ status: 'ok' });
   });
 
@@ -56,13 +56,42 @@ describe('an AdminApiClient', () => {
   });
 
   it('rejects on server error', async () => {
-    fetch.mockResponse(JSON.stringify({ status: 'error' }), { status: 503 });
+    fetch.mockResponseOnce(JSON.stringify({ status: 'error' }), { status: 503 });
     await expect(client.get('/health')).rejects.toMatchObject({ status: 'error' });
   });
 
   it('can make a delete request', async () => {
-    fetch.mockResponse('{}');
+    fetch.mockResponseOnce('{}');
     await client.delete('/foo');
-    expect(fetch).toHaveBeenCalledWith(expect.any(String), { method: 'DELETE' });
+    expect(fetch).toHaveBeenCalledWith(expect.stringMatching('/foo'), { method: 'DELETE' });
+  });
+
+  it('can make a head request', async () => {
+    fetch.mockResponseOnce('');
+    await client.head('/foo');
+    expect(fetch).toHaveBeenCalledWith(expect.stringMatching('/foo'), { method: 'HEAD' });
+  });
+
+  describe('checkPairingCodeExpired', () => {
+    it('resolves with expiration status when not expired', async () => {
+      fetch.mockResponseOnce('', { status: 200 });
+      await expect(client.checkPairingCodeExpired('request1')).resolves.toMatchObject({ isExpired: false });
+    });
+
+    it('contains an expires header if resource has not expired', async () => {
+      const expires = new Date('1/1/2018').toJSON();
+      fetch.mockResponseOnce('', { status: 200, headers: { expires } });
+      await expect(client.checkPairingCodeExpired('request1')).resolves.toMatchObject({ expiresAt: expires });
+    });
+
+    it('resolves with expiration status when expired', async () => {
+      fetch.mockResponseOnce('', { status: 404 });
+      await expect(client.checkPairingCodeExpired('request1')).resolves.toMatchObject({ isExpired: true });
+    });
+
+    it('resolves with unknown expiration status if network error', async () => {
+      fetch.mockRejectOnce(new Error('network error'));
+      await expect(client.checkPairingCodeExpired('request1')).resolves.toMatchObject({ isExpired: undefined });
+    });
   });
 });

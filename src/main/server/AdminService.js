@@ -6,7 +6,7 @@ const detectPort = require('detect-port');
 const apiRequestLogger = require('./apiRequestLogger');
 const DeviceManager = require('../data-managers/DeviceManager');
 const ProtocolManager = require('../data-managers/ProtocolManager');
-const { DeviceRequestTTLSeconds, PairingRequestService } = require('./devices/PairingRequestService');
+const { PairingRequestService } = require('./devices/PairingRequestService');
 
 const DefaultPort = 8080;
 
@@ -107,7 +107,8 @@ class AdminService {
       this.pairingRequestService.checkRequest(req.params.id)
         .then((pairingRequest) => {
           if (pairingRequest) {
-            const expiresAt = pairingRequest.createdAt.getTime() + (DeviceRequestTTLSeconds * 1000);
+            const ttl = this.pairingRequestService.deviceRequestTTLSeconds * 1000;
+            const expiresAt = pairingRequest.createdAt.getTime() + ttl;
             res.header('Expires', new Date(expiresAt).toJSON());
             res.send(200);
           } else {

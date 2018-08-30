@@ -44,7 +44,8 @@ class AdminApiClient {
           isExpired,
           expiresAt: resp.headers.get('expires'),
         };
-      });
+      })
+      .catch(() => ({ isExpired: undefined, expiresAt: undefined }));
   }
 
   head(route) {

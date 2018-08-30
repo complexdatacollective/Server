@@ -7,7 +7,7 @@ describe('the DeviceManager', () => {
   let dbClient;
 
   beforeEach((done) => {
-    dbClient = new DeviceDB(null, true);
+    dbClient = new DeviceDB(null, { inMemoryOnly: true });
     dbClient.db.remove({}, { multi: true }, done);
   });
 

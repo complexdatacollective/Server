@@ -19,10 +19,9 @@ class PairDevice extends Component {
         apiClient.checkPairingCodeExpired(pairingRequest.id)
           .then(({ isExpired, expiresAt }) => {
             if (isExpired) {
-              clearTimeout(this.timer);
-              this.timer = null;
               dismissPairingRequest();
               showMessage('Pairing timed out');
+              this.timer = null;
             } else {
               let expiresIn = new Date(expiresAt) - new Date();
               if (isNaN(expiresIn) || expiresIn < DefaultExpiredCheckInterval) {

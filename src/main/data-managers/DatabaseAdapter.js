@@ -8,27 +8,45 @@ const DbConfig = {
   timestampData: true,
 };
 
+/**
+ * @class An abstract class wrapping NeDB instances.
+ * If a name is given (for either on-disk or in-mem DBs), this ensures DB
+ * access uses the same underlying DB instance, as NeDB does not support concurrent
+ * client initialization.
+ */
 class DatabaseAdapter {
-  static dbClient(filename, config = {}) {
+  static dbClient(dbName, config = {}) {
     if (!this.dbClients) {
       this.dbClients = {};
     }
-    if (!this.dbClients[filename]) {
-      this.dbClients[filename] = new NeDB({ ...DbConfig, ...config, filename });
+    if (!this.dbClients[dbName]) {
+      const dbConfig = { ...DbConfig, ...config };
+      if (!dbConfig.inMemoryOnly) {
+        dbConfig.filename = dbName;
+      }
+      this.dbClients[dbName] = new NeDB(dbConfig);
     }
-    return this.dbClients[filename];
+    return this.dbClients[dbName];
   }
 
   /**
    * @constructor
-   * @param  {string} dbFile name of file (e.g., 'protocols.db')
-   * @param  {Boolean} [inMemoryOnly=false] useful for testing
+   * @param  {string} dbName name of file (e.g., 'protocols.db'), or a unique name for in-mem DB
+   *                         If a name is not supplied, DB will not be shared across instances;
+   *                         this is probably the desired behavior for tests.
+   *                         If name is empty, inMemoryOnly will be forced to true.
+   * @param  {Object} additionalConfig See nedb docs
+   * @param  {Boolean} additionalConfig.inMemoryOnly=false
+   * @param  {Boolean} additionalConfig.autoload=true
+   * @param  {Boolean} additionalConfig.timestampData=true
+   * @param  {Boolean} additionalConfig.corruptAlertThreshold=0
+   * @throws {Error}
    */
-  constructor(dbFile, inMemoryOnly = false, additionalConfig = {}) {
-    if (inMemoryOnly) {
-      this.db = new NeDB({ ...DbConfig, inMemoryOnly, ...additionalConfig });
+  constructor(dbName, additionalConfig = {}) {
+    if (!dbName) {
+      this.db = new NeDB({ ...DbConfig, ...additionalConfig, inMemoryOnly: true });
     } else {
-      this.db = this.constructor.dbClient(dbFile, additionalConfig);
+      this.db = this.constructor.dbClient(dbName, { ...DbConfig, ...additionalConfig });
     }
   }
 
