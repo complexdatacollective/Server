@@ -6,10 +6,10 @@ import { interviewData, barData, pieData, lineData } from '../utils/dummy_data';
 
 const DummyDashboardFragment = ({ className }) => (
   <React.Fragment>
-    <div className={`${className}__panel`}><InterviewWidget data={interviewData} /></div>
-    <div className={`${className}__panel`}><BarChart data={barData} /></div>
-    <div className={`${className}__panel`}><PieChart data={pieData} /></div>
-    <div className={`${className}__panel`}><LineChart data={lineData} /></div>
+    <div className={`${className}__panel ${className}__panel-mock`}><InterviewWidget data={interviewData} /></div>
+    <div className={`${className}__panel ${className}__panel-mock`}><BarChart data={barData} /></div>
+    <div className={`${className}__panel ${className}__panel-mock`}><PieChart data={pieData} /></div>
+    <div className={`${className}__panel ${className}__panel-mock`}><LineChart data={lineData} /></div>
   </React.Fragment>
 );
 
