@@ -1,7 +1,9 @@
 options:
   config-file: src/renderer/ui/.sass-lint.yml
 files:
-  include: 'src/**/*.s+(a|c)ss'
+  include: 'src/**/*.scss'
+  ignore:
+    - 'src/renderer/ui/**/*.scss'
 # Temporarily whitelist new prop (until next published sass-lint version)
 rules:
   no-misspelled-properties:
