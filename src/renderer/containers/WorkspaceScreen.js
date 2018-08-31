@@ -99,7 +99,7 @@ class WorkspaceScreen extends Component {
           <ProtocolCountsPanel
             protocolId={protocol.id}
             updatedAt={protocol.updatedAt}
-            sessionCount={sessions && sessions.length}
+            sessionCount={totalSessionsCount}
           />
           <DummyDashboardFragment key={protocol.id} />
         </div>
