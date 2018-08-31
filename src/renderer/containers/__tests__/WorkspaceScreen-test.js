@@ -41,11 +41,11 @@ describe('<WorkspaceScreen />', () => {
     expect(wrapper.instance().loadSessions).toHaveBeenCalled();
   });
 
-  it('does not reload sessions when protocol is same', () => {
+  it('does not reload sessions when already set', () => {
     wrapper.instance().loadSessions = jest.fn();
+    wrapper.setState({ sessions: [{}] });
     wrapper.setProps({ protocol: mockProtocol });
-    wrapper.setProps({ protocol: mockProtocol });
-    expect(wrapper.instance().loadSessions).toHaveBeenCalledTimes(1);
+    expect(wrapper.instance().loadSessions).not.toHaveBeenCalled();
   });
 
   it('clears sessions if load errors', (done) => {
@@ -53,9 +53,23 @@ describe('<WorkspaceScreen />', () => {
     wrapper.setProps({ protocol: mockProtocol, sessions: [{ id: 1 }] });
     // setImmediate: allow the load promise from setting protocol to flush
     setImmediate(() => {
-      expect(wrapper.state()).toEqual({ sessions: [] });
+      expect(wrapper.state()).toMatchObject({ sessions: [] });
       done();
     });
+  });
+
+  it('unsets sessions when protocol changes', () => {
+    const state = { prevProtocolId: 1 };
+    const props = { protocol: { id: 2 } };
+    expect(WorkspaceScreen.getDerivedStateFromProps(props, state)).toMatchObject({
+      sessions: null,
+    });
+  });
+
+  it('retains state when protocol is same', () => {
+    const state = { prevProtocolId: 1 };
+    const props = { protocol: { id: 2 } };
+    expect(WorkspaceScreen.getDerivedStateFromProps(state, props)).toBe(null);
   });
 
   it('renders dashboard panels', () => {

@@ -23,7 +23,12 @@ class ProtocolCountsPanel extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.sessionCount !== prevProps.sessionCount) {
+    const prevCount = prevProps.sessionCount;
+    const newCount = this.props.sessionCount;
+    // When mounted (on each workspace load), sessionCount is null.
+    // Only reload data when session count changes (i.e., a session was
+    // imported or deleted while on this workspace).
+    if (newCount !== null && prevCount !== null && newCount !== prevCount) {
       this.loadData();
     }
   }
@@ -47,13 +52,12 @@ class ProtocolCountsPanel extends Component {
 
 ProtocolCountsPanel.defaultProps = {
   apiClient: null,
-  protocolId: null,
-  sessionCount: 0,
+  sessionCount: null,
 };
 
 ProtocolCountsPanel.propTypes = {
   apiClient: PropTypes.object,
-  protocolId: PropTypes.string,
+  protocolId: PropTypes.string.isRequired,
   sessionCount: PropTypes.number,
 };
 

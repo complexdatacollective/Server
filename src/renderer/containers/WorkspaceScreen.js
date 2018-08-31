@@ -13,9 +13,24 @@ import { Spinner } from '../ui';
 import { selectors } from '../ducks/modules/protocols';
 
 class WorkspaceScreen extends Component {
+  static getDerivedStateFromProps(props, state) {
+    if (props.protocol && props.protocol.id !== state.prevProtocolId) {
+      // Protocol has changed; reset data to trigger new load
+      return {
+        prevProtocolId: props.protocol.id,
+        sessions: null,
+        totalSessionsCount: null,
+      };
+    }
+    return null;
+  }
+
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      sessions: null,
+      totalSessionsCount: null,
+    };
   }
 
   componentDidMount() {
@@ -23,8 +38,8 @@ class WorkspaceScreen extends Component {
     ipcRenderer.on('SESSIONS_IMPORTED', this.onSessionsImported);
   }
 
-  componentDidUpdate(prevProps) {
-    if (this.props.protocol !== prevProps.protocol) {
+  componentDidUpdate() {
+    if (!this.state.sessions) {
       this.loadSessions();
     }
   }
@@ -97,11 +112,12 @@ class WorkspaceScreen extends Component {
             deleteSession={sessionId => this.deleteSession(sessionId)}
           />
           <ProtocolCountsPanel
+            key={`protocol-counts-${protocol.id}`}
             protocolId={protocol.id}
             updatedAt={protocol.updatedAt}
             sessionCount={totalSessionsCount}
           />
-          <DummyDashboardFragment key={protocol.id} />
+          <DummyDashboardFragment key={`dummy-${protocol.id}`} />
         </div>
       </div>
     );

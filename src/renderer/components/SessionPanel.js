@@ -8,8 +8,7 @@ const emptyContent = (<p>Interviews you import from Network Canvas will appear h
 
 class SessionPanel extends Component {
   get header() {
-    const { sessions = [] } = this.props;
-    const { totalCount } = this.props;
+    const { sessions, totalCount } = this.props;
     const countText = (totalCount && sessions.length < totalCount) ? `(${sessions.length} of ${totalCount})` : '';
     return (
       <div className="session-panel__header">
@@ -20,7 +19,7 @@ class SessionPanel extends Component {
           </small>
         </h4>
         {
-          sessions.length > 0 &&
+          sessions && sessions.length > 0 &&
           <DismissButton small inline onClick={() => this.deleteAllSessions()}>
             Delete all
           </DismissButton>
