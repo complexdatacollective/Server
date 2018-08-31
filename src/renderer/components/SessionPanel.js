@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import { DismissButton, ScrollingPanelItem } from '../components';
+import { formatDate } from '../utils/formatters';
 
 const emptyContent = (<p>Interviews you import from Network Canvas will appear here.</p>);
 
@@ -54,7 +55,10 @@ class SessionPanel extends Component {
             <li key={s.id}>
               <p>
                 <DismissButton small inline onClick={() => this.deleteSession(s.id)} />
-                {s.id}
+                <span>{formatDate(s.updatedAt)}</span>
+                <span className="session-panel__id">
+                  {s.id && s.id.substring(0, 13)}
+                </span>
               </p>
             </li>
           ))}
