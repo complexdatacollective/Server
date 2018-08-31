@@ -254,6 +254,23 @@ describe('the AdminService', () => {
           });
         });
       });
+
+      describe('reports', () => {
+        beforeAll(() => {
+          ProtocolManager.mockImplementation(() => ({
+            reportDb: {
+              totalCounts: jest.fn().mockResolvedValue({}),
+            },
+          }));
+        });
+
+        it('fetches count totals', async () => {
+          const endpoint = makeUrl('protocols/1/reports/total_counts', apiBase);
+          const res = await jsonClient.get(endpoint);
+          expect(res.json.status).toBe('ok');
+          expect(res.json.counts).toMatchObject({});
+        });
+      });
     });
   });
 

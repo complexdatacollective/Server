@@ -31,8 +31,8 @@ class ProtocolCountsPanel extends Component {
   loadData() {
     const route = `/protocols/${this.props.protocolId}/reports/total_counts`;
     this.props.apiClient.get(route)
-      .then(({ counts: { nodes, edges, sessions } }) => this.setState({
-        countsData: shapeCountData(nodes, edges, sessions),
+      .then(({ counts }) => counts && this.setState({
+        countsData: shapeCountData(counts.nodes, counts.edges, counts.sessions),
       }));
   }
 
