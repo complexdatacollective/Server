@@ -4,7 +4,8 @@ import PropTypes from 'prop-types';
 const DeviceDetails = ({ device }) => (
   <div className="device">
     <h3 className="device__name">{device.name}</h3>
-    <p className="device__id">Paired on: {device.createdAt.toLocaleDateString()}</p>
+    <p className="device__info">{device.id}</p>
+    <p className="device__info">Paired on: {device.createdAt.toLocaleDateString()}</p>
   </div>
 );
 

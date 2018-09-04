@@ -138,7 +138,7 @@ For now, you'll have to generate API-specific documentation based on the spec. O
 npm install -g spectacle-docs
 
 # publish to ./docs/api and start a server
-spectacle --target-dir docs/api --development-mode --port 4400 config/api/api-spec-0.0.0.json
+spectacle --target-dir docs/api --development-mode --port 4400 config/api/api-spec-[version].json
 
 # ...Now view at http://localhost:4400
 ```

@@ -18,7 +18,7 @@ class Server extends EventEmitter {
    * @param  {number} port
    * @return {Server} this
    */
-  startServices(port) {
+  startServices(httpPort, httpsPort) {
     const dataDir = this.options.dataDir;
     const keys = this.options.keys;
     this.adminService = new AdminService({ statusDelegate: this, dataDir });
@@ -26,7 +26,9 @@ class Server extends EventEmitter {
 
     return Promise.all([
       this.adminService.start(),
-      this.deviceService.start(port).then(service => this.advertiseDeviceService(service)),
+      this.deviceService
+        .start(httpPort, httpsPort)
+        .then(service => this.advertiseDeviceService(service)),
     ]).then(() => this);
   }
 
@@ -36,7 +38,8 @@ class Server extends EventEmitter {
         port: this.adminService && this.adminService.port,
       },
       deviceService: {
-        port: this.deviceService && this.deviceService.port,
+        httpPort: this.deviceService && this.deviceService.httpPort,
+        httpsPort: this.deviceService && this.deviceService.httpsPort,
       },
     };
   }
@@ -63,11 +66,11 @@ class Server extends EventEmitter {
     }
     this.deviceAdvertisement = mdns.createAdvertisement(
       serviceType,
-      deviceService.port,
+      deviceService.httpPort,
       { name: os.hostname() },
     );
     this.deviceAdvertisement.start();
-    logger.info(`MDNS: advertising ${JSON.stringify(serviceType)} on ${deviceService.port}`);
+    logger.info(`MDNS: advertising ${JSON.stringify(serviceType)} on ${deviceService.httpPort}`);
   }
 
   stopAdvertisements() {
@@ -82,7 +85,7 @@ class Server extends EventEmitter {
       isAdvertising: !!this.deviceAdvertisement,
       hostname: os.hostname(),
       ip: this.publicIP(),
-      deviceApiPort: this.connectionInfo.deviceService.port,
+      deviceApiPort: this.connectionInfo.deviceService.httpPort,
       uptime: new Date().getTime() - this.started,
     };
   }

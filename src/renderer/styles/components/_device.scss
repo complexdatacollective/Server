@@ -1,9 +1,12 @@
 .device {
+  margin-bottom: 2rem;
+
   @include element(name) {
     margin-bottom: spacing('tiny');
   }
 
-  @include element(id) {
+  @include element(info) {
     @include typography('copy-small');
+    margin-bottom: 0;
   }
 }

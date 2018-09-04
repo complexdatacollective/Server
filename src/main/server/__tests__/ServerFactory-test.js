@@ -18,31 +18,32 @@ jest.mock('../Server', () => function MockServer() {
   return mockServerMethods;
 });
 
-const testPort = 9001; // Auto find port
+const testHttpPort = 9001;
+const testHttpsPort = 9002;
 const testDataDir = path.join('.');
 
 describe('serverManager', () => {
   describe('createServer', () => {
     it('creates a server', async () => {
-      await createServer(testPort, testDataDir).then((server) => {
+      await createServer(testDataDir, testHttpPort, testHttpsPort).then((server) => {
         expect(server).toBeDefined();
       });
     });
 
     it('starts services', async () => {
-      await createServer(testPort, testDataDir).then((server) => {
+      await createServer(testDataDir, testHttpPort, testHttpsPort).then((server) => {
         expect(server.startServices).toHaveBeenCalled();
       });
     });
 
     it('requires a data directory', async () => {
-      await expect(createServer(testPort)).rejects
+      await expect(createServer(null)).rejects
         .toMatchErrorMessage('You must specify a user data directory');
     });
 
-    it('requires a port', async () => {
-      await expect(createServer(null, './tmp')).rejects
-        .toMatchErrorMessage('You must specify a server port');
+    it('does not require a port', async () => {
+      await expect(createServer('./tmp')).resolves
+        .toMatchObject({ close: expect.any(Function) });
     });
   });
 });

@@ -4,6 +4,7 @@ const logger = require('electron-log');
 const { app } = require('electron');
 
 const promisedFs = require('../utils/promised-fs');
+const { commonName } = require('../utils/shared-api/sslConfig.js');
 
 const userDataDir = app.getPath('userData');
 const certDir = path.join(userDataDir, 'nc_certificates');
@@ -22,7 +23,7 @@ const fingerprintFile = path.join(certDir, 'device-api-fingerprint.txt');
 const generatePemKeyPair = () => {
   const AltNameTypeDNS = 2;
   const AltNameTypeIP = 7;
-  const attrs = [{ name: 'commonName', value: 'Network Canvas (localhost)' }];
+  const attrs = [{ name: 'commonName', value: commonName }];
   const extensions = [
     {
       name: 'basicConstraints',

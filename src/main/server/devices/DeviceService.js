@@ -4,7 +4,8 @@ const logger = require('electron-log');
 const { DeviceAPI, apiEvents } = require('./DeviceAPI');
 const { emittedEvents: pairingEvents, outOfBandDelegate } = require('./OutOfBandDelegate');
 
-const DefaultApiPort = process.env.DEVICE_SERVICE_PORT || 51001;
+const DefaultHttpPort = 51001;
+const DefaultHttpsPort = 51002;
 
 const emittedEvents = {
   ...apiEvents,
@@ -24,16 +25,18 @@ class DeviceService extends EventEmitter {
     this.api = this.createApi(dataDir, keys);
   }
 
-  get port() { return this.api.port; }
+  get httpPort() { return this.api.httpPort; }
+  get httpsPort() { return this.api.httpsPort; }
 
   createApi(dataDir, keys) { // eslint-disable-line class-methods-use-this
     return new DeviceAPI(dataDir, outOfBandDelegate, keys);
   }
 
-  start(port = DefaultApiPort) {
-    return this.api.listen(parseInt(port, 10))
+  start(httpPort = DefaultHttpPort, httpsPort = DefaultHttpsPort) {
+    return this.api.listen(parseInt(httpPort, 10), parseInt(httpsPort, 10))
       .then((api) => {
         logger.info(`${api.name} listening at ${api.url}`);
+        logger.info(`${api.name} listening at ${api.secureUrl}`);
         return api;
       });
   }
@@ -65,6 +68,7 @@ class DeviceService extends EventEmitter {
 
 module.exports = {
   DeviceService,
-  DefaultApiPort,
+  DefaultHttpPort,
+  DefaultHttpsPort,
   deviceServiceEvents: emittedEvents,
 };

@@ -3,7 +3,6 @@ const logger = require('electron-log');
 
 const { createApp, userDataDir } = require('./MainApp');
 const { createServer } = require('./server/ServerFactory');
-const { DefaultApiPort } = require('./server/devices/DeviceService');
 
 const ApiConnectionInfoChannel = 'API_INFO';
 const RequestApiConnectionInfoChannel = 'REQUEST_API_INFO';
@@ -12,7 +11,7 @@ const RequestFileImportDialog = 'REQUEST_FILE_IMPORT_DIALOG';
 const { app, mainWindow, showImportProtocolDialog } = createApp();
 
 let server = null;
-createServer(DefaultApiPort, userDataDir).then((runningServer) => {
+createServer(userDataDir).then((runningServer) => {
   server = runningServer;
 
   app.on('before-quit', () => server.close());
@@ -32,4 +31,5 @@ createServer(DefaultApiPort, userDataDir).then((runningServer) => {
 
 process.on('unhandledRejection', (err) => {
   logger.error('unhandledRejection:', err);
+  process.exit(1);
 });
