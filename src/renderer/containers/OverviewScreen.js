@@ -14,12 +14,12 @@ class OverviewScreen extends Component {
   }
 
   render() {
-    const { devices, protocols } = this.props;
+    const { deviceApiInfo, devices, protocols } = this.props;
     if (protocols && protocols.length) {
       return <Redirect to={`/workspaces/${protocols[0].id}`} />;
     }
     if (protocols && devices) {
-      return <GetStarted devices={devices} />;
+      return <GetStarted devices={devices} apiInfo={deviceApiInfo} />;
     }
     // else still loading...
     return null;
@@ -27,19 +27,22 @@ class OverviewScreen extends Component {
 }
 
 OverviewScreen.defaultProps = {
+  deviceApiInfo: null,
   devices: null,
   protocols: null,
 };
 
 OverviewScreen.propTypes = {
+  deviceApiInfo: Types.deviceApiInfo,
   devices: Types.devices,
   loadDevices: PropTypes.func.isRequired,
   protocols: Types.protocols,
 };
 
-const mapStateToProps = ({ devices, protocols }) => ({
+const mapStateToProps = ({ connectionInfo: { deviceService }, devices, protocols }) => ({
   devices,
   protocols,
+  deviceApiInfo: deviceService,
 });
 
 const mapDispatchToProps = dispatch => ({

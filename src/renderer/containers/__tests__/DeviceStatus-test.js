@@ -1,8 +1,10 @@
 /* eslint-env jest */
 import React from 'react';
+import { createStore } from 'redux';
 import { shallow } from 'enzyme';
 
-import { UnconnectedDeviceStatus as DeviceStatus } from '../DeviceStatus';
+import ConnectedDeviceStatus, { UnconnectedDeviceStatus as DeviceStatus } from '../DeviceStatus';
+import { PairingStatus } from '../../ducks/modules/pairingRequest';
 
 jest.mock('../../utils/adminApiClient');
 
@@ -55,5 +57,31 @@ describe('<DeviceStatus />', () => {
     const state = { showModal: true };
     const newState = DeviceStatus.getDerivedStateFromProps({ hasPendingRequest: false }, state);
     expect(newState.showModal).toBe(true);
+  });
+
+  describe('Connected', () => {
+    const state = {
+      devices: [{ id: 'device1', name: '1', createdAt: new Date() }],
+      pairingRequest: { status: PairingStatus.Pending },
+    };
+    let store;
+    beforeEach(() => {
+      store = createStore(() => state);
+    });
+
+    it('maps a dispatched loadDevices fn to props', () => {
+      const subject = shallow(<ConnectedDeviceStatus store={store} />);
+      expect(subject.prop('loadDevices')).toBeInstanceOf(Function);
+    });
+
+    it('maps devices to props', () => {
+      const subject = shallow(<ConnectedDeviceStatus store={store} />);
+      expect(subject.prop('devices')).toEqual(state.devices);
+    });
+
+    it('maps hasPendingRequest to props', () => {
+      const subject = shallow(<ConnectedDeviceStatus store={store} />);
+      expect(subject.prop('hasPendingRequest')).toBe(true);
+    });
   });
 });

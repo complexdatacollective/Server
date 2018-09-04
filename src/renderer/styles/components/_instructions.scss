@@ -33,6 +33,26 @@ $block: instructions;
     }
   }
 
+  @include element(definition-list) {
+    dt {
+      float: left;
+
+      &::after {
+        content: ':';
+        margin-right: .5rem;
+      }
+    }
+
+    dd {
+      margin-bottom: 0;
+    }
+  }
+
+  @include element(subsection) {
+    border: 1px solid var(--color-platinum--dark);
+    padding: 2rem 2rem 1rem;
+  }
+
   @include modifier(compact) {
     .#{$block} {
       @include element(section) {

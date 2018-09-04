@@ -1,5 +1,10 @@
 import PropTypes from 'prop-types';
 
+const deviceApiInfo = PropTypes.shape({
+  address: PropTypes.string.isRequired,
+  httpPort: PropTypes.number.isRequired,
+});
+
 const device = PropTypes.shape({
   id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
@@ -14,6 +19,7 @@ const protocol = device;
 const protocols = PropTypes.arrayOf(protocol);
 
 const Types = {
+  deviceApiInfo,
   device,
   devices,
   protocol,

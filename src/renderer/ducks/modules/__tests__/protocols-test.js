@@ -59,6 +59,7 @@ describe('the protocols module', () => {
 
   describe('actions', () => {
     const dispatcher = jest.fn();
+    const mockApiClient = new AdminApiClient();
 
     beforeEach(() => {
       dispatcher.mockClear();
@@ -70,6 +71,13 @@ describe('the protocols module', () => {
         expect(dispatcher).toHaveBeenCalledWith({ type: actionTypes.LOAD_PROTOCOLS });
         expect(mockGetFn).toHaveBeenCalled();
       });
+
+      it('handles errors internally', async () => {
+        const err = new Error('mock error');
+        mockApiClient.get.mockRejectedValue(err);
+        await actionCreators.loadProtocols()(dispatcher);
+        expect(dispatcher).toHaveBeenCalledWith(expect.objectContaining({ text: err.message }));
+      });
     });
 
     describe('deleteProtocol', () => {
@@ -77,6 +85,13 @@ describe('the protocols module', () => {
         actionCreators.deleteProtocol('1')(dispatcher);
         expect(dispatcher).toHaveBeenCalledWith({ type: actionTypes.DELETE_PROTOCOL, id: '1' });
         expect(mockDeleteFn).toHaveBeenCalled();
+      });
+
+      it('handles errors internally', async () => {
+        const err = new Error('mock error');
+        mockApiClient.delete.mockRejectedValue(err);
+        await actionCreators.deleteProtocol('1')(dispatcher);
+        expect(dispatcher).toHaveBeenCalledWith(expect.objectContaining({ text: err.message }));
       });
     });
   });

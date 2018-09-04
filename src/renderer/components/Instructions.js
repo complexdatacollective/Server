@@ -1,14 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import Types from '../types';
 import { Icon } from '../ui/components';
 
-const Instructions = ({ compact, showPairingInstructions, showProtocolInstructions }) => (
+const Instructions = ({ compact, apiInfo, showPairingInstructions, showImportInstructions }) => (
   <div className={`instructions ${compact ? 'instructions--compact' : ''}`}>
     {
-      showProtocolInstructions &&
+      showImportInstructions &&
       <section className="instructions__section">
-        <h2>Import a protocol:</h2>
+        <h2>To import a protocol:</h2>
         <p>
           Import a <code>.netcanvas</code> protocol file by dragging it to the sidebar,
           using the <code>+</code> button, or selecting <code>Import Protocol...</code> from
@@ -41,6 +42,22 @@ const Instructions = ({ compact, showPairingInstructions, showProtocolInstructio
             button on the device’s setup screen
           </li>
         </ol>
+        {
+          apiInfo &&
+          <section className="instructions__subsection">
+            <p>
+              <em>If this Server is not automatically discovered by your device,
+              you may enter the connection information manually:</em>
+            </p>
+            <dl className="instructions__definition-list">
+              <dt>Address</dt>
+              <dd>{apiInfo.address}</dd>
+              <dt>Port</dt>
+              <dd>{apiInfo.httpPort}</dd>
+            </dl>
+          </section>
+        }
+
       </section>
     }
   </div>
@@ -48,14 +65,16 @@ const Instructions = ({ compact, showPairingInstructions, showProtocolInstructio
 
 Instructions.defaultProps = {
   compact: false,
+  apiInfo: null,
   showPairingInstructions: true,
-  showProtocolInstructions: true,
+  showImportInstructions: true,
 };
 
 Instructions.propTypes = {
   compact: PropTypes.bool,
+  apiInfo: Types.deviceApiInfo,
   showPairingInstructions: PropTypes.bool,
-  showProtocolInstructions: PropTypes.bool,
+  showImportInstructions: PropTypes.bool,
 };
 
 export default Instructions;

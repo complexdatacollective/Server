@@ -38,7 +38,7 @@ class AdminApiClient {
    * @return {Promise}
    */
   get(route) {
-    return fetch(this.resolveRoute(route)).then(consumeResponse);
+    return this.fetch(this.resolveRoute(route)).then(consumeResponse);
   }
 
   /**
@@ -59,7 +59,7 @@ class AdminApiClient {
       return Promise.reject(err);
     }
 
-    return fetch(this.resolveRoute(route),
+    return this.fetch(this.resolveRoute(route),
       {
         method: 'POST',
         body: json,
@@ -69,15 +69,21 @@ class AdminApiClient {
   }
 
   delete(route) {
-    return fetch(this.resolveRoute(route),
+    return this.fetch(this.resolveRoute(route),
       {
         method: 'DELETE',
       })
       .then(consumeResponse);
   }
 
+  fetch(...args) {
+    if (!this.port) {
+      return Promise.reject(new Error('Admin API unavailable (no port set)'));
+    }
+    return fetch(...args);
+  }
+
   resolveRoute(route) {
-    // TODO: https
     const protocol = 'http';
     return `${protocol}://localhost:${this.port}/${route.replace(/^\//, '')}`;
   }

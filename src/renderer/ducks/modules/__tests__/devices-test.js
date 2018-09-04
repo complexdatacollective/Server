@@ -30,10 +30,21 @@ describe('the devices module', () => {
       const dispatcher = jest.fn();
       const mockApiClient = new AdminApiClient();
 
+      beforeEach(() => {
+        dispatcher.mockClear();
+      });
+
       it('exports an async "load" action', () => {
         actionCreators.loadDevices()(dispatcher);
         expect(dispatcher).toHaveBeenCalledWith({ type: actionTypes.LOAD_DEVICES });
         expect(mockApiClient.get).toHaveBeenCalled();
+      });
+
+      it('handles errors internally', async () => {
+        const err = new Error('mock error');
+        mockApiClient.get.mockRejectedValue(err);
+        await actionCreators.loadDevices()(dispatcher);
+        expect(dispatcher).toHaveBeenCalledWith(expect.objectContaining({ text: err.message }));
       });
     });
   });

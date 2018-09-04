@@ -1,9 +1,10 @@
 /* eslint-env jest */
 import React from 'react';
+import { createStore } from 'redux';
 import { shallow } from 'enzyme';
 import { ipcRenderer } from 'electron';
 
-import { UnconnectedProtocolNav as ProtocolNav, ipcChannels } from '../ProtocolNav';
+import { ConnectedProtocolNav, UnconnectedProtocolNav as ProtocolNav, ipcChannels } from '../ProtocolNav';
 
 jest.mock('electron');
 
@@ -63,6 +64,26 @@ describe('<ProtocolNav />', () => {
       const btn = thumbnails.dive().find('button');
       btn.simulate('click');
       expect(ipcRenderer.send).toHaveBeenCalledWith(ipcChannels.RequestFileImportDialog);
+    });
+  });
+
+  describe('Connected', () => {
+    const state = {
+      protocols: [{ id: 'protocol1', name: '1', createdAt: new Date() }],
+    };
+    let store;
+    beforeEach(() => {
+      store = createStore(() => state);
+    });
+
+    it('maps a dispatched loadProtocols function', () => {
+      const subject = shallow(<ConnectedProtocolNav store={store} location={{}} />);
+      expect(subject.prop('loadProtocols')).toBeInstanceOf(Function);
+    });
+
+    it('maps protocols to props', () => {
+      const subject = shallow(<ConnectedProtocolNav store={store} location={{}} />);
+      expect(subject.prop('protocols')).toEqual(state.protocols);
     });
   });
 });

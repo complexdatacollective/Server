@@ -16,8 +16,8 @@ export const store = createStore(
   ),
 );
 
-// TODO: solve hydration problem with viewModelMapper if keeping persistence
+// TODO: remove redux-persist, or use for settings
 export const persistor = persistStore(
   store,
-  { blacklist: ['appMessages', 'protocols', 'devices', 'pairingRequest'] },
+  { whitelist: [] },
 );
