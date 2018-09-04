@@ -21,7 +21,7 @@ function Modal(props) {
 
   return (
     <ModalTransition in={show}>
-      <div key="modal" className={`modal ${className}`} onClick={onCancel || onComplete}>
+      <div key="modal" className={`modal ${className}`}>
         <div className="modal__background" transition-role="background" />
         <div className="modal__window" transition-role="window" onClick={e => e.stopPropagation()}>
           <div className="modal__layout">
