@@ -58,7 +58,7 @@ class ProtocolDB extends DatabaseAdapter {
         return;
       }
 
-      const { description, variableRegistry, networkCanvasVersion = '' } = metadata;
+      const { description, variableRegistry, networkCanvasVersion } = metadata;
       const lastModified = validatedModifyTime(metadata);
 
       let oldDoc;
