@@ -10,7 +10,7 @@ describe('SessionDB', () => {
   const mockSessions = [{ uuid: '1', data: {} }, { uuid: '2', data: {} }];
   let sessions;
   beforeEach(() => {
-    sessions = new SessionDB(null, true);
+    sessions = new SessionDB(null, { inMemoryOnly: true });
   });
 
   it('won’t persist without a session', async () => {

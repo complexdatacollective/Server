@@ -5,6 +5,7 @@ const { apiEvents } = require('../DeviceAPI');
 jest.mock('electron-log');
 jest.mock('../PairingRequestService');
 jest.mock('../DeviceAPI');
+jest.mock('../../../data-managers/DeviceDB');
 
 describe('Device Service', () => {
   let deviceService;

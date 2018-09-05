@@ -9,7 +9,7 @@ class DeviceManager {
   }
 
   exists(deviceId) {
-    return this.db.get(deviceId);
+    return this.db.get(deviceId).then(Boolean);
   }
 
   // TODO: see notes in cipher.js; may want to persist derivation config per-device.
@@ -18,7 +18,7 @@ class DeviceManager {
     if (!secretHex) {
       return Promise.reject(new Error('Invalid input'));
     }
-    return this.db.create(secretHex, deviceName);
+    return this.db.createWithSecretAndName(secretHex, deviceName);
   }
 
   fetchDeviceList() {

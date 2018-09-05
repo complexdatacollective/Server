@@ -10,7 +10,7 @@ describe('ProtocolDB', () => {
   const mockProtocol = { name: 'a', description: 'v1' };
   let db;
   beforeEach(() => {
-    db = new ProtocolDB(null, true);
+    db = new ProtocolDB(null, { inMemoryOnly: true });
   });
 
   it('persists protocol metadata', async () => {

@@ -13,19 +13,11 @@ const withDefaultName = dbDevice => ({
  * @extends DatabaseAdapter
  */
 class DeviceDB extends DatabaseAdapter {
-  create(secretHex, deviceName) {
-    return new Promise((resolve, reject) => {
-      this.db.insert({
-        secretKey: secretHex,
-        name: deviceName,
-        _id: uuidv4(),
-      }, (err, doc) => {
-        if (err || !doc) {
-          reject(err || new Error('Insert failed'));
-        } else {
-          resolve(doc);
-        }
-      });
+  createWithSecretAndName(secretHex, deviceName) {
+    return this.create({
+      secretKey: secretHex,
+      name: deviceName,
+      _id: uuidv4(),
     });
   }
 

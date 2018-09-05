@@ -2,14 +2,16 @@
 
 import reducer, { actionCreators, actionTypes, PairingStatus, selectors } from '../pairingRequest';
 
+const id = 'request1';
 const pairingCode = 'abc123';
 
 describe('the pairing request module', () => {
   describe('action creator', () => {
     it('exports a new action', () => {
-      expect(actionCreators.newPairingRequest(pairingCode)).toEqual({
+      expect(actionCreators.newPairingRequest(id, pairingCode)).toEqual({
         type: actionTypes.NEW_PAIRING_REQUEST,
         pairingCode,
+        id,
       });
     });
 
@@ -38,7 +40,7 @@ describe('the pairing request module', () => {
     });
 
     it('moves to the pending state', () => {
-      const state = reducer(undefined, actionCreators.newPairingRequest(pairingCode));
+      const state = reducer(undefined, actionCreators.newPairingRequest(id, pairingCode));
       expect(state.status).toEqual(PairingStatus.Pending);
     });
 
@@ -55,7 +57,7 @@ describe('the pairing request module', () => {
     });
 
     it('handles dissmissing', () => {
-      const initialState = actionCreators.newPairingRequest(pairingCode);
+      const initialState = actionCreators.newPairingRequest(id, pairingCode);
       const state = reducer(initialState, actionCreators.dismissPairingRequest());
       expect(state.status).toBeUndefined();
       expect(state.pairingCode).toBeUndefined();
