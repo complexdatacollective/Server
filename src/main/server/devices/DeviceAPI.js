@@ -355,10 +355,12 @@ class DeviceAPI extends EventEmitter {
      *                 For the message format before encryption, see
      *                 [DecryptedPairingConfirmationRequest](#/definitions/DecryptedPairingConfirmationRequest).
      *
-     *                 To encrypt the JSON payload above, use [libsodium](https://download.libsodium.org/doc/):
+     *                 To encrypt the JSON payload above, use `encrypt` from the [secure-comms-api](https://github.com/codaco/secure-comms-api/blob/master/cipher.js).
+     *
+     *                 Interally, `encrypt` uses [libsodium](https://download.libsodium.org/doc/) to:
      *                 1. Derive a secret key from (1) the out-of-band pairing code, and (2) the salt returned from `/devices/new`
      *                 2. Generate a nonce
-     *                 3. Use the [secretbox_easy API](https://download.libsodium.org/doc/secret-key_cryptography/authenticated_encryption.html) for authenticated encryption
+     *                 3. Call the [secretbox_easy API](https://download.libsodium.org/doc/secret-key_cryptography/authenticated_encryption.html) for authenticated encryption
      *
      *                 The nonce must be additionally sent in plaintext in order to decrypt the message. The server can reconstruct the secret from previous knowledge about the salt and pairing code.
      *

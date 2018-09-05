@@ -19,11 +19,11 @@ const admittingAuthenticator = (req, res, next) => next();
 const missingAuthenticator = (req, res, next) => next(missingCredentialsError);
 const forbiddenAuthenticator = (req, res, next) => next(forbiddenError);
 
+jest.mock('electron-log');
 jest.mock('../../../data-managers/DeviceManager');
 jest.mock('../../../data-managers/ProtocolManager');
 jest.mock('../PairingRequestService');
-jest.mock('libsodium-wrappers');
-jest.mock('electron-log');
+jest.mock('../../../utils/shared-api', () => ({ encrypt: jest.fn().mockReturnValue('xxxxxx') }));
 jest.mock('../deviceAuthenticator', () => () => jest.fn());
 
 describe('the DeviceAPI', () => {
