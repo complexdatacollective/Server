@@ -69,11 +69,14 @@
   @include element(version) {
     bottom: .5rem;
     color: var(--color-platinum--dark);
+    font-size: .9rem;
     left: .5rem;
     position: absolute;
   }
 
   @include element(codename) {
+    line-height: 1.6;
+
     &::before {
       content: '“';
     }
