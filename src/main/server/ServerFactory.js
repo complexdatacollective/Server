@@ -1,13 +1,12 @@
-const libsodium = require('libsodium-wrappers');
-
 const Server = require('./Server');
 const ensurePemKeyPair = require('./ensurePemKeyPair');
+const { ready: cipherReady } = require('../utils/shared-api/cipher');
 const { deviceServiceEvents } = require('./devices/DeviceService');
 
-// Guarantee libsodium is ready before other services start up
+// Guarantee cipher functions ready before other services start up
 // @return an instance of Server
 const startServer = (dataDir, httpPort, httpsPort) => (
-  libsodium.ready
+  cipherReady
     .then(ensurePemKeyPair)
     .then(keys => new Server({ dataDir, keys }))
     .then(server => server.startServices(httpPort, httpsPort))
