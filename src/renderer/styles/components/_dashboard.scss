@@ -25,6 +25,12 @@
       }
     }
 
+    @include modifier(chart) {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
     @include modifier(scrollable) {
       --scrolling-panel-header-height: 1rem;
       --scrolling-panel-header-margin: #{spacing(medium)};
@@ -42,5 +48,18 @@
     @include modifier(server-stats) {
       grid-area: 1 / span $column-count;
     }
+  }
+
+  @include element(chartContainer) {
+    flex: 0 1 100%;
+  }
+
+  @include element(emptyData) {
+    color: var(--color-platinum--dark);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
+    text-align: center;
   }
 }

@@ -20,5 +20,6 @@ export { default as PieChart } from './charts/PieChart';
 export { default as Scrollable } from './Scrollable';
 export { default as ScrollingPanelItem } from './ScrollingPanelItem';
 export { default as ServerPanel } from './ServerPanel';
+export { default as SessionHistoryPanel } from './SessionHistoryPanel';
 export { default as SessionPanel } from './SessionPanel';
 export { default as TabBar } from './TabBar';
