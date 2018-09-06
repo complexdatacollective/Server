@@ -3,11 +3,14 @@ import PropTypes from 'prop-types';
 
 import CountsWidget from '../components/charts/CountsWidget';
 import withApiClient from '../components/withApiClient';
+import { formatDecimal } from '../utils/formatters';
 
 const shapeCountData = (nodeCount, edgeCount, sessionCount) => ([
-  { name: 'Node count', count: nodeCount },
-  { name: 'Edge count', count: edgeCount },
-  { name: 'Interview count', count: sessionCount },
+  { name: 'Total Nodes', count: nodeCount },
+  { name: 'Total Edges', count: edgeCount },
+  { name: 'Total Interviews', count: sessionCount },
+  { name: 'Mean Nodes / Interview', count: sessionCount && formatDecimal(nodeCount / sessionCount) },
+  { name: 'Mean Edges / Interview', count: sessionCount && formatDecimal(edgeCount / sessionCount) },
 ]);
 
 class ProtocolCountsPanel extends Component {

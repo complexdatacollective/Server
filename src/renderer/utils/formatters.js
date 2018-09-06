@@ -1,7 +1,11 @@
 const dateOpts = { year: '2-digit', month: 'numeric', day: 'numeric' };
 
-const formatDate = d => d && d.toLocaleString(undefined, dateOpts);
+const decimalFormatter = new Intl.NumberFormat();
+
+const formatDate = d => (d ? d.toLocaleString(undefined, dateOpts) : '');
+const formatDecimal = n => (isNaN(n) ? '' : decimalFormatter.format(n));
 
 export {
-  formatDate, // eslint-disable-line import/prefer-default-export
+  formatDate,
+  formatDecimal,
 };
