@@ -669,8 +669,11 @@ class DeviceAPI extends EventEmitter {
         const sessionData = req.body;
         const protocolId = req.params.id;
         this.protocolManager.addSessionData(protocolId, sessionData)
-          .then(docs => res.json(201, { status: 'ok', data: { insertedCount: docs.length } }))
-          .then(() => sendToGui(emittedEvents.SESSIONS_IMPORTED))
+          .then((docs) => {
+            res.json(201, { status: 'ok', data: { insertedCount: docs.length } });
+            return docs;
+          })
+          .then(docs => sendToGui(emittedEvents.SESSIONS_IMPORTED, docs))
           .catch((err) => {
             if (err.errorType === 'uniqueViolated') { // from nedb
               this.handlers.onError(new ConflictError(err.message), res);

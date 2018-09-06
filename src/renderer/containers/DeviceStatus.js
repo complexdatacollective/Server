@@ -9,8 +9,6 @@ import { actionCreators } from '../ducks/modules/devices';
 import { selectors } from '../ducks/modules/pairingRequest';
 
 class DeviceStatus extends Component {
-  // See eslint-plugin-react #1839; impossible ordering bug. TODO: remove when fixed
-  // eslint-disable-next-line react/sort-comp
   static getDerivedStateFromProps(props, state) {
     if (props.hasPendingRequest) {
       // Close the instructions when a pairing request arrives

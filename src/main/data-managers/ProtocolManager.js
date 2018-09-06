@@ -32,6 +32,7 @@ class ProtocolManager {
 
     const sessionDbFile = path.join(dataDir, 'db', 'sessions.db');
     this.sessionDb = new SessionDB(sessionDbFile);
+    this.reportDb = this.sessionDb;
   }
 
   pathToProtocolFile(filename) {
@@ -377,7 +378,6 @@ class ProtocolManager {
         throw insertErr;
       });
   }
-
 
   // TODO: Probably remove after alpha testing
   destroyAllSessions() {

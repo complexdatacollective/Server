@@ -13,6 +13,17 @@
   @include element(panel) {
     background-color: var(--color-white);
     padding: spacing(small);
+    position: relative;
+
+    &-mock {
+      &::after {
+        bottom: 2px;
+        content: 'mock';
+        opacity: .3;
+        position: absolute;
+        right: 2px;
+      }
+    }
 
     @include modifier(scrollable) {
       --scrolling-panel-header-height: 1rem;

@@ -147,12 +147,23 @@ const makeUrl = (pathInput, base) => (
 const httpClient = jsonClient();
 const secureClient = jsonClient(true);
 
+const mockProtocol = {
+  id: '1',
+  filename: 'a.netcanvas',
+  name: 'MyProtocol',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  networkCanvasVersion: '1',
+  version: '2.0',
+};
+
 const Helpers = {
   jsonClient: httpClient,
   secureClient,
   makeUrl,
   httpsCert,
   httpsPrivateKey,
+  mockProtocol,
 };
 
 module.exports = Helpers;
