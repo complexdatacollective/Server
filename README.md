@@ -100,6 +100,20 @@ cd ./node_modules/electron/dist
 codesign --force --sign "Mac Developer" --timestamp=none Electron.app --deep
 ```
 
+### Dev tools
+
+Electron supports [extensions to Chrome devtools](https://electronjs.org/docs/tutorial/devtools-extension) such as Redux DevTools.
+
+In the development environment, these will be loaded if you provide one or more paths to your extensions (semicolon-separated) in the `NC_DEVTOOLS_EXENSION_PATH` environment variable. The electron docs describe how to find the filepath for an extension once installed.
+
+Example: enabling Redux Devtools on macOS:
+```bash
+NC_DEVTOOLS_EXENSION_PATH=~/Library/Application\ Support/Google/Chrome/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.15.2_0 npm run electron:dev
+```
+
+### Redux Logging
+
+To disable redux logging in favor of the redux devtool, create a file named `.env.local` in the project directory (if it doesn't exist) and add `REACT_APP_DISABLE_REDUX_LOGGER=true`.
 
 ## Application Structure
 

@@ -12,6 +12,8 @@
 config/api/api-spec-*.json
 .eslintcache
 
+.env.local
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
