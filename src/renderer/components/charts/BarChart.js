@@ -2,25 +2,38 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { BarChart as RechartBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-import { getCSSValueDict } from '../../utils/css-variables';
+import { getCSSValueDict, getCSSValues } from '../../utils/css-variables';
 
-const colorDict = getCSSValueDict('--graph-data-1', '--graph-tooltip');
+const colorDict = getCSSValueDict('--graph-tooltip');
+const barColors = getCSSValues(
+  '--graph-data-1',
+  '--graph-data-2',
+  '--graph-data-3',
+  '--graph-data-4',
+);
 
 // 99% width to work around recharts problem with resizing
-const BarChart = ({ className, data }) => (
+const BarChart = ({ className, data, dataKeys }) => (
   <ResponsiveContainer height="100%" width="99%">
     <RechartBarChart
       data={data}
       barGap={0}
       barCategoryGap={0}
+      maxBarSize={50}
       className={className}
     >
       <XAxis dataKey="name" />
       <YAxis />
       <CartesianGrid strokeDasharray="3 3" />
       <Tooltip labelStyle={{ color: colorDict['--graph-tooltip'] }} />
-      <Legend />
-      <Bar dataKey="pv" fill={colorDict['--graph-data-1']} />
+      {
+        dataKeys.length > 1 ? <Legend /> : null
+      }
+      {
+        dataKeys.map((dataKey, i) => (
+          <Bar key={dataKey} dataKey={dataKey} fill={barColors[i % barColors.length]} />
+        ))
+      }
     </RechartBarChart>
   </ResponsiveContainer>
 );
@@ -32,6 +45,7 @@ BarChart.defaultProps = {
 BarChart.propTypes = {
   className: PropTypes.string,
   data: PropTypes.array.isRequired,
+  dataKeys: PropTypes.array.isRequired,
 };
 
 export default BarChart;

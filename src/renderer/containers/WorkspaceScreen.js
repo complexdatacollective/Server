@@ -8,9 +8,15 @@ import Types from '../types';
 import ProtocolCountsPanel from './ProtocolCountsPanel';
 import withApiClient from '../components/withApiClient';
 import viewModelMapper from '../utils/baseViewModelMapper';
-import { DummyDashboardFragment, ProtocolPanel, ServerPanel, SessionPanel } from '../components';
 import { Spinner } from '../ui';
 import { selectors } from '../ducks/modules/protocols';
+import {
+  DummyDashboardFragment,
+  ProtocolPanel,
+  ServerPanel,
+  SessionHistoryPanel,
+  SessionPanel,
+} from '../components';
 
 class WorkspaceScreen extends Component {
   static getDerivedStateFromProps(props, state) {
@@ -97,7 +103,7 @@ class WorkspaceScreen extends Component {
   render() {
     const { protocol } = this.props;
     const { sessions, totalSessionsCount } = this.state;
-    if (!protocol) {
+    if (!protocol || !sessions) {
       return <div className="workspace--loading"><Spinner /></div>;
     }
     return (
@@ -105,18 +111,21 @@ class WorkspaceScreen extends Component {
         <div className="dashboard">
           <ServerPanel className="dashboard__panel dashboard__panel--server-stats" />
           <ProtocolPanel protocol={protocol} />
-          <SessionPanel
-            sessions={sessions}
-            totalCount={totalSessionsCount}
-            deleteAllSessions={() => this.deleteAllSessions()}
-            deleteSession={sessionId => this.deleteSession(sessionId)}
-          />
           <ProtocolCountsPanel
             key={`protocol-counts-${protocol.id}`}
             protocolId={protocol.id}
             updatedAt={protocol.updatedAt}
             sessionCount={totalSessionsCount}
           />
+          <SessionPanel
+            sessions={sessions}
+            totalCount={totalSessionsCount}
+            deleteAllSessions={() => this.deleteAllSessions()}
+            deleteSession={sessionId => this.deleteSession(sessionId)}
+          />
+          {
+            sessions && <SessionHistoryPanel sessions={sessions} />
+          }
           <DummyDashboardFragment key={`dummy-${protocol.id}`} />
         </div>
       </div>

@@ -29,6 +29,18 @@ describe('<WorkspaceScreen />', () => {
     expect(wrapper.find('Spinner')).toHaveLength(1);
   });
 
+  it('renders a loading state until sessions load', () => {
+    wrapper.setProps({ protocol: mockProtocol });
+    expect(wrapper.find('Spinner')).toHaveLength(1);
+  });
+
+  it('renders dashboard panels once loaded', () => {
+    wrapper.setProps({ protocol: mockProtocol });
+    wrapper.setState({ sessions: [] });
+    expect(wrapper.find('Spinner')).toHaveLength(0);
+    expect(wrapper.find('.dashboard__panel').length).toBeGreaterThan(0);
+  });
+
   it('loads sessions when new set imported', () => {
     wrapper.instance().loadSessions = jest.fn();
     wrapper.instance().onSessionsImported();
@@ -70,11 +82,6 @@ describe('<WorkspaceScreen />', () => {
     const state = { prevProtocolId: 1 };
     const props = { protocol: { id: 2 } };
     expect(WorkspaceScreen.getDerivedStateFromProps(state, props)).toBe(null);
-  });
-
-  it('renders dashboard panels', () => {
-    wrapper.setProps({ protocol: mockProtocol });
-    expect(wrapper.find('.dashboard__panel').length).toBeGreaterThan(0);
   });
 
   it('deletes one session', () => {

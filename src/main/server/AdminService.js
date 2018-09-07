@@ -155,6 +155,7 @@ class AdminService {
         .then(() => next());
     });
 
+    // "counts": { "sessions": 1, "nodes": 20, "edges": 0 }
     api.get('/protocols/:id/reports/total_counts', (req, res, next) => {
       this.reportDb.totalCounts(req.params.id)
         .then(counts => res.send({ status: 'ok', counts }))
