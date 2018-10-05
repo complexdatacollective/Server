@@ -40,6 +40,7 @@ const remote = {
 };
 
 const Tray = jest.fn().mockImplementation(() => ({
+  on: jest.fn(),
   setContextMenu: jest.fn(),
   setToolTip: jest.fn(),
 }));
