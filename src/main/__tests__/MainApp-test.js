@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const { app, Menu } = require('electron');
+const { app, Menu, Tray } = require('electron');
 
 const { createApp } = require('../MainApp');
 const { createTray } = require('../components/tray');
@@ -17,12 +17,18 @@ describe('the created app', () => {
   describe('on "ready"', () => {
     let mainWindow;
     let readyCallback;
+    let trayMenu;
 
     beforeAll(() => {
       app.on.mockImplementation((evtName, cb) => {
         if (evtName === 'ready') {
           readyCallback = cb;
         }
+      });
+
+      createTray.mockImplementation((menu) => {
+        trayMenu = menu;
+        return new Tray();
       });
     });
 
@@ -42,14 +48,6 @@ describe('the created app', () => {
     });
 
     describe('the tray menu', () => {
-      let trayMenu;
-
-      beforeAll(() => {
-        createTray.mockImplementation((menu) => {
-          trayMenu = menu;
-        });
-      });
-
       it('is created', () => {
         readyCallback();
         expect(trayMenu).toBeDefined();
