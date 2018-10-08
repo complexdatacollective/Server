@@ -1,4 +1,5 @@
 /* eslint-env jest */
+/* eslint-disable no-underscore-dangle */
 const DeviceDB = require('../DeviceDB');
 
 const mockSecretHex = 'd7ff85d1ce04a59d848a87945f341c06323f7f9a356b5ac982c15481e0117fdc';
@@ -28,6 +29,17 @@ describe('the DeviceManager', () => {
     const numRemoved = await dbClient.destroyAll();
     expect(numRemoved).toBe(1);
     expect(await dbClient.all()).toHaveLength(0);
+  });
+
+  it('removes one device, and returns removed count', async () => {
+    const device = await dbClient.createWithSecretAndName(mockSecretHex);
+    const numRemoved = await dbClient.destroy(device._id);
+    expect(numRemoved).toBe(1);
+    expect(await dbClient.all()).toHaveLength(0);
+  });
+
+  it('requires an ID for deletion', async () => {
+    expect(dbClient.destroy()).rejects.toMatchErrorMessage('Cannot delete device without an id');
   });
 
   describe('when underlying db fails', () => {

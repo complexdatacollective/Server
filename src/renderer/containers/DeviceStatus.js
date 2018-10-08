@@ -31,7 +31,7 @@ class DeviceStatus extends Component {
   }
 
   render() {
-    const { dark, devices, hasPendingRequest } = this.props;
+    const { dark, deleteDevice, devices, hasPendingRequest } = this.props;
     let buttonClass = 'device-icon';
     if (dark) {
       buttonClass += ` ${buttonClass}--dark`;
@@ -47,6 +47,7 @@ class DeviceStatus extends Component {
           devices={devices}
           show={this.state.showModal && !hasPendingRequest}
           onComplete={this.toggleShow}
+          deleteDevice={deleteDevice}
         />
       </React.Fragment>
     );
@@ -56,12 +57,14 @@ class DeviceStatus extends Component {
 DeviceStatus.defaultProps = {
   dark: false,
   devices: [],
+  deleteDevice: null,
   hasPendingRequest: false,
   loadDevices: () => {},
 };
 
 DeviceStatus.propTypes = {
   dark: PropTypes.bool,
+  deleteDevice: PropTypes.func,
   devices: Types.devices,
   hasPendingRequest: PropTypes.bool,
   loadDevices: PropTypes.func,
@@ -73,6 +76,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  deleteDevice: bindActionCreators(actionCreators.deleteDevice, dispatch),
   loadDevices: bindActionCreators(actionCreators.loadDevices, dispatch),
 });
 

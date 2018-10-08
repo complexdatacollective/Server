@@ -104,6 +104,16 @@ class AdminService {
         .then(() => next());
     });
 
+    api.del('/devices/:id', (req, res, next) => {
+      this.deviceManager.destroy(req.params.id)
+        .then(() => res.send({ status: 'ok' }))
+        .catch((err) => {
+          logger.error(err);
+          res.send(500, { status: 'error' });
+        })
+        .then(() => next());
+    });
+
     api.head('/pairing_requests/:id', (req, res, next) => {
       this.pairingRequestService.checkRequest(req.params.id)
         .then((pairingRequest) => {

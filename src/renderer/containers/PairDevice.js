@@ -49,6 +49,7 @@ class PairDevice extends Component {
     return (
       <div>
         <Modal
+          closeWhenBackgroundClicked
           show={pairingRequest.status === PairingStatus.Complete}
           title="All Set!"
           onComplete={dismissPairingRequest}
