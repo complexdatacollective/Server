@@ -15,7 +15,13 @@ const TabBar = ({ match }) => {
   return (
     <nav className="tab-bar">
       <NavLink exact {...navLinkProps} to={`/workspaces/${workspaceId}`}>
-        Dashboard
+        Overview
+      </NavLink>
+      <NavLink exact {...navLinkProps} to={`/workspaces/${workspaceId}/data`}>
+        Browse Data
+      </NavLink>
+      <NavLink exact {...navLinkProps} to={`/workspaces/${workspaceId}/export`}>
+        Export
       </NavLink>
       <NavLink exact {...navLinkProps} to={`/workspaces/${workspaceId}/settings`}>
         Settings
