@@ -1,10 +1,11 @@
 /* eslint-env jest */
 
-const { dialog } = require('electron');
 const updater = require('../updater');
+const dialog = require('../dialog');
 
 jest.mock('electron');
 jest.mock('electron-updater');
+jest.mock('../dialog');
 
 describe('updater', () => {
   beforeEach(() => {

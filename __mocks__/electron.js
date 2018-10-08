@@ -1,7 +1,5 @@
 /* eslint-env jest */
 
-// const electron = jest.genMockFromModule('electron');
-
 const ipcRenderer = {
   on: jest.fn(),
   once: jest.fn(),
