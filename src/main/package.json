@@ -1,13 +1,13 @@
 {
   "name": "network-canvas-server",
-  "version": "4.0.0-alpha.4",
+  "version": "4.0.0-alpha.8",
   "productName": "Network Canvas Server",
   "description": "A tool for storing, analyzing, and exporting Network Canvas interview data.",
   "private": true,
   "author": "Complex Data Collective",
   "engines": {
-    "node": "8.9.3",
-    "npm": "6.1.0"
+    "node": "10.11.0",
+    "npm": "6.4.1"
   },
   "dependencies": {
     "detect-port": "^1.2.2",
@@ -16,7 +16,7 @@
     "ip": "^1.1.5",
     "jszip": "^3.1.5",
     "libsodium-wrappers": "^0.7.3",
-    "mdns": "^2.3.4",
+    "mdns": "^2.4.0",
     "nedb": "^1.8.0",
     "private-socket": "https://github.com/codaco/PrivateSocket.git",
     "prop-types": "^15.6.1",

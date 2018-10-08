@@ -12,8 +12,9 @@
 
   @include element(panel) {
     background-color: var(--color-white);
-    padding: spacing(small);
+    padding: spacing(large);
     position: relative;
+    border-radius: .75rem;
 
     &-mock {
       &::after {
