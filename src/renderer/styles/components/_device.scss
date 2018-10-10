@@ -1,6 +1,4 @@
 .device {
-  margin-bottom: 2rem;
-
   @include element(name) {
     margin-bottom: spacing('tiny');
   }

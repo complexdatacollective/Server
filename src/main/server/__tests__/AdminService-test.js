@@ -117,6 +117,7 @@ describe('the AdminService', () => {
 
         beforeAll(() => {
           DeviceManager.mockImplementation(() => ({
+            destroy: () => Promise.resolve({}),
             fetchDeviceList: () => Promise.resolve(mockDevices),
           }));
         });
@@ -126,15 +127,25 @@ describe('the AdminService', () => {
           expect(resp.json.devices).toEqual(mockDevices);
         });
 
+        it('deletes a device', async () => {
+          const res = await jsonClient.delete(`${endpoint}/1`);
+          expect(res.json).toEqual({ status: 'ok' });
+        });
+
         describe('when manager fails', () => {
           beforeAll(() => {
             DeviceManager.mockImplementation(() => ({
+              destroy: () => Promise.reject({ error: 'mock' }),
               fetchDeviceList: () => Promise.reject({ error: 'mock' }),
             }));
           });
 
-          it('sends an error', async () => {
+          it('sends an error for the device list', async () => {
             await expect(jsonClient.get(endpoint)).rejects.toMatchObject({ statusCode: 500 });
+          });
+
+          it('sends an error for device deletion', async () => {
+            await expect(jsonClient.delete(`${endpoint}/1`)).rejects.toMatchObject({ statusCode: 500 });
           });
         });
       });

@@ -34,8 +34,8 @@ describe('the devices module', () => {
         dispatcher.mockClear();
       });
 
-      it('exports an async "load" action', () => {
-        actionCreators.loadDevices()(dispatcher);
+      it('exports an async "load" action', async () => {
+        await actionCreators.loadDevices()(dispatcher);
         expect(dispatcher).toHaveBeenCalledWith({ type: actionTypes.LOAD_DEVICES });
         expect(mockApiClient.get).toHaveBeenCalled();
       });
@@ -44,6 +44,34 @@ describe('the devices module', () => {
         const err = new Error('mock error');
         mockApiClient.get.mockRejectedValue(err);
         await actionCreators.loadDevices()(dispatcher);
+        expect(dispatcher).toHaveBeenCalledWith(expect.objectContaining({ text: err.message }));
+      });
+    });
+
+    describe('deleteDevice', () => {
+      const dispatcher = jest.fn();
+      const mockApiClient = new AdminApiClient();
+
+      beforeEach(() => {
+        dispatcher.mockClear();
+        mockApiClient.get.mockResolvedValue([]);
+      });
+
+      it('exports an async "delete" action', async () => {
+        await actionCreators.deleteDevice('abc')(dispatcher);
+        expect(dispatcher).toHaveBeenCalledWith({ type: actionTypes.DELETE_DEVICE, deviceId: 'abc' });
+        expect(mockApiClient.delete).toHaveBeenCalled();
+      });
+
+      it('reloads after delete', async () => {
+        await actionCreators.deleteDevice('abc')(dispatcher);
+        expect(dispatcher).toHaveBeenCalledWith({ type: actionTypes.LOAD_DEVICES });
+      });
+
+      it('handles errors internally', async () => {
+        const err = new Error('mock error');
+        mockApiClient.get.mockRejectedValue(err);
+        await actionCreators.deleteDevice('abc')(dispatcher);
         expect(dispatcher).toHaveBeenCalledWith(expect.objectContaining({ text: err.message }));
       });
     });

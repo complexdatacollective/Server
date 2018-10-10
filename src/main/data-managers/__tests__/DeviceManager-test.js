@@ -49,5 +49,10 @@ describe('the DeviceManager', () => {
       deviceManager.destroyAllDevices();
       expect(deviceManager.db.destroyAll).toHaveBeenCalled();
     });
+
+    it('removes a device', () => {
+      deviceManager.destroy('someId');
+      expect(deviceManager.db.destroy).toHaveBeenCalled();
+    });
   });
 });

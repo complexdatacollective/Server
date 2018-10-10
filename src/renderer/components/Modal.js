@@ -11,6 +11,7 @@ import { Modal as ModalTransition } from '../components/transitions';
  */
 function Modal(props) {
   const {
+    closeWhenBackgroundClicked,
     children,
     className,
     onCancel,
@@ -19,9 +20,14 @@ function Modal(props) {
     title,
   } = props;
 
+  let backgroundClickHandler = null;
+  if (closeWhenBackgroundClicked) {
+    backgroundClickHandler = onCancel || onComplete;
+  }
+
   return (
     <ModalTransition in={show}>
-      <div key="modal" className={`modal ${className}`}>
+      <div key="modal" className={`modal ${className}`} onClick={backgroundClickHandler}>
         <div className="modal__background" transition-role="background" />
         <div className="modal__window" transition-role="window" onClick={e => e.stopPropagation()}>
           <div className="modal__layout">
@@ -53,6 +59,7 @@ function Modal(props) {
 }
 
 Modal.propTypes = {
+  closeWhenBackgroundClicked: PropTypes.bool,
   className: PropTypes.string,
   onCancel: PropTypes.func,
   onComplete: PropTypes.func,
@@ -62,6 +69,7 @@ Modal.propTypes = {
 };
 
 Modal.defaultProps = {
+  closeWhenBackgroundClicked: false,
   className: '',
   onCancel: null,
   onComplete: null,

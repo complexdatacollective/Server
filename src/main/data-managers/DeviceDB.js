@@ -2,6 +2,9 @@
 const uuidv4 = require('uuid/v4');
 
 const DatabaseAdapter = require('./DatabaseAdapter');
+const { resolveOrReject } = require('../utils/db');
+
+const missingRequiredIdMessage = 'Cannot delete device without an id';
 
 const withDefaultName = dbDevice => ({
   name: `Device ${dbDevice._id.substr(0, 6)}`,
@@ -34,6 +37,13 @@ class DeviceDB extends DatabaseAdapter {
           resolve(numRemoved);
         }
       });
+    });
+  }
+
+  destroy(deviceId) {
+    return new Promise((resolve, reject) => {
+      if (!deviceId) { reject(new Error(missingRequiredIdMessage)); }
+      this.db.remove({ _id: deviceId }, { multi: false }, resolveOrReject(resolve, reject));
     });
   }
 }

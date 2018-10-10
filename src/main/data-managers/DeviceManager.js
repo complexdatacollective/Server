@@ -29,6 +29,10 @@ class DeviceManager {
   destroyAllDevices() {
     return this.db.destroyAll();
   }
+
+  destroy(deviceId) {
+    return this.db.destroy(deviceId);
+  }
 }
 
 module.exports = DeviceManager;
