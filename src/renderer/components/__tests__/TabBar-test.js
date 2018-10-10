@@ -11,7 +11,7 @@ describe('<TabBar />', () => {
     expect(links).toHaveLength(2);
 
     const labels = links.map(l => l.children().text());
-    expect(labels).toContain('Dashboard');
+    expect(labels).toContain('Overview');
     expect(labels).toContain('Settings');
   });
 });
