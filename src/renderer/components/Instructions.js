@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import Types from '../types';
-import { Icon } from '../ui/components';
 
 const Instructions = ({ compact, apiInfo, showPairingInstructions, showImportInstructions }) => (
   <div className={`instructions ${compact ? 'instructions--compact' : ''}`}>
@@ -38,8 +37,7 @@ const Instructions = ({ compact, apiInfo, showPairingInstructions, showImportIns
             Open the Network Canvas app on a tablet or computer
           </li>
           <li className="instructions__step">
-            Tap the <Icon name="add-a-screen" className="instructions__add-icon" />
-            button on the device’s setup screen
+            Tap the Server pairing button on the device’s setup screen
           </li>
         </ol>
         {
