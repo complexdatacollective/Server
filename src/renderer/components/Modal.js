@@ -20,9 +20,14 @@ function Modal(props) {
     title,
   } = props;
 
+  let backgroundClickHandler = null;
+  if (closeWhenBackgroundClicked) {
+    backgroundClickHandler = onCancel || onComplete;
+  }
+
   return (
     <ModalTransition in={show}>
-      <div key="modal" className={`modal ${className}`} onClick={closeWhenBackgroundClicked && (onCancel || onComplete)}>
+      <div key="modal" className={`modal ${className}`} onClick={backgroundClickHandler}>
         <div className="modal__background" transition-role="background" />
         <div className="modal__window" transition-role="window" onClick={e => e.stopPropagation()}>
           <div className="modal__layout">
