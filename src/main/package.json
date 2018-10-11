@@ -10,20 +10,19 @@
     "npm": "6.1.0"
   },
   "dependencies": {
-    "detect-port": "^1.2.2",
-    "electron-log": "^2.2.7",
+    "detect-port": "^1.2.3",
+    "electron-log": "^2.2.16",
     "electron-updater": "^3.1.1",
-    "ip": "^1.1.5",
     "jszip": "^3.1.5",
     "libsodium-wrappers": "^0.7.3",
-    "mdns": "^2.3.4",
+    "mdns": "^2.4.0",
     "nedb": "^1.8.0",
     "private-socket": "https://github.com/codaco/PrivateSocket.git",
-    "prop-types": "^15.6.1",
-    "restify": "^6.3.4",
-    "restify-cors-middleware": "^1.1.0",
+    "prop-types": "^15.6.2",
+    "restify": "^7.2.1",
+    "restify-cors-middleware": "^1.1.1",
     "selfsigned": "^1.10.3",
-    "uuid": "^3.2.1"
+    "uuid": "^3.3.2"
   },
   "main": "./index.js"
 }
