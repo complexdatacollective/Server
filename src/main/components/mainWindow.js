@@ -75,6 +75,12 @@ class MainWindow {
       evt.preventDefault();
       this.open(newUrl);
     });
+
+    // For now, any navigation off the SPA is unneeded
+    this.window.webContents.on('will-navigate', (evt) => {
+      evt.preventDefault();
+    });
+
     loadDevToolsExtensions();
   }
 
