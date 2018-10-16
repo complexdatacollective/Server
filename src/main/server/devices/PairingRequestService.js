@@ -50,9 +50,10 @@ class PairingRequestService {
           const secretBytes = deriveSecretKeyBytes(doc.pairingCode, fromHex(doc.salt));
           plaintext = decrypt(messageHex, toHex(secretBytes));
         } catch (decipherErr) {
-          // This could be from either derivation or decryption
+          // This could be from either derivation or decryption; by far the most likely
+          // issue is a mis-typed pairing code.
           logger.debug(decipherErr);
-          reject(new RequestError(ErrorMessages.DecryptionFailed));
+          reject(new RequestError(ErrorMessages.InvalidPairingCode));
           return;
         }
         try {

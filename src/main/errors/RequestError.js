@@ -16,16 +16,16 @@ class RequestError extends Error {
 }
 
 const ErrorMessages = {
-  DecryptionFailed: 'Decryption failed',
   EmptyFilelist: 'Empty filelist',
   FilelistNotSingular: 'Multiple files must be uploaded separately',
-  InvalidContainerFile: 'Invalid File',
+  InvalidContainerFile: 'Invalid file',
   InvalidContainerFileExtension: 'File must have a ".netcanvas" extension',
-  InvalidProtocolFormat: 'Invalid Protocol Format',
+  InvalidPairingCode: 'Incorrect pairing code',
+  InvalidProtocolFormat: 'Invalid protocol format',
   InvalidRequestBody: 'Could not parse request data',
-  InvalidZip: 'Invalid ZIP File',
+  InvalidZip: 'Invalid ZIP file',
   MissingProtocolFile: 'Missing protocol file',
-  NotFound: 'Not Found',
+  NotFound: 'Not found',
   ProtocolNotFoundForSession: 'The associated protocol does not exist on this server',
   VerificationFailed: 'Request verification failed',
 };
