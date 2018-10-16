@@ -3,6 +3,7 @@
 const path = require('path');
 const url = require('url');
 const { EventEmitter } = require('events');
+const { BrowserWindow } = require('electron');
 
 const MainWindow = require('../mainWindow');
 
@@ -98,6 +99,33 @@ describe('MainWindow', () => {
     it('Drops messages when no window open', () => {
       const sent = mainWindow.send('foo');
       expect(sent).toBe(false);
+    });
+  });
+
+  describe('webContent', () => {
+    let mockEvt;
+    beforeEach(() => {
+      const mockWebContents = new EventEmitter();
+      mockWebContents.getURL = jest.fn();
+      mockEvt = { preventDefault: jest.fn() };
+      BrowserWindow.mockImplementationOnce(() => ({
+        getURL: jest.fn(),
+        loadURL: jest.fn(),
+        on: jest.fn(),
+        show: jest.fn(),
+        webContents: mockWebContents,
+      }));
+      mainWindow.create();
+    });
+
+    it('prevents navigation away from app', () => {
+      mainWindow.window.webContents.emit('will-navigate', mockEvt, 'http://example.com');
+      expect(mockEvt.preventDefault).toHaveBeenCalled();
+    });
+
+    it('prevents new windows form opening', () => {
+      mainWindow.window.webContents.emit('new-window', mockEvt, 'http://example.com');
+      expect(mockEvt.preventDefault).toHaveBeenCalled();
     });
   });
 });

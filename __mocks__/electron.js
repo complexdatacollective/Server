@@ -39,7 +39,7 @@ const remote = {
   },
 };
 
-const Tray = jest.fn().mockImplementation(() => ({
+const Tray = jest.fn(() => ({
   on: jest.fn(),
   setContextMenu: jest.fn(),
   setToolTip: jest.fn(),
@@ -50,22 +50,18 @@ const Menu = {
   setApplicationMenu: jest.fn(),
 };
 
-class BrowserWindow {
-  constructor() {
-    return {
-      loadURL: jest.fn(),
-      maximize: jest.fn(),
-      show: jest.fn(),
-      on: jest.fn(),
-      webContents: {
-        getURL: jest.fn(),
-        on: jest.fn(),
-        openDevTools: jest.fn(),
-        send: jest.fn(),
-      },
-    };
-  }
-}
+const BrowserWindow = jest.fn(() => ({
+  loadURL: jest.fn(),
+  maximize: jest.fn(),
+  show: jest.fn(),
+  on: jest.fn(),
+  webContents: {
+    getURL: jest.fn(),
+    on: jest.fn(),
+    openDevTools: jest.fn(),
+    send: jest.fn(),
+  },
+}));
 
 BrowserWindow.getAllWindows = jest.fn().mockReturnValue([]);
 
