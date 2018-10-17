@@ -12,6 +12,7 @@ const DeviceManager = require('../../data-managers/DeviceManager');
 const ProtocolManager = require('../../data-managers/ProtocolManager');
 const apiRequestLogger = require('../apiRequestLogger');
 const deviceAuthenticator = require('./deviceAuthenticator');
+const { Version } = require('../../apiConfig').DeviceAPIConfig;
 const { PairingRequestService } = require('./PairingRequestService');
 const { ErrorMessages, RequestError } = require('../../errors/RequestError');
 const { IncompletePairingError } = require('../../errors/IncompletePairingError');
@@ -45,7 +46,7 @@ const lanIP = () => {
  *       For the pairing protocol (`GET /devices/new`, `POST `/devices`), no deviceId is required (nor available).
  */
 const ApiName = 'DeviceAPI';
-const ApiVersion = '0.0.14';
+const ApiVersion = Version;
 const ApiHostName = '0.0.0.0'; // IPv4 for compatibility with Travis (& unknown installations)
 
 const Schema = {
@@ -691,7 +692,6 @@ class DeviceAPI extends EventEmitter {
 
 module.exports = {
   default: DeviceAPI,
-  ApiVersion,
   DeviceAPI,
   apiEvents: emittedEvents,
 };

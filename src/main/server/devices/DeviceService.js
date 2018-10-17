@@ -2,10 +2,8 @@ const { EventEmitter } = require('events');
 const logger = require('electron-log');
 
 const { DeviceAPI, apiEvents } = require('./DeviceAPI');
+const { DefaultHttpPort, DefaultHttpsPort } = require('../../apiConfig').DeviceAPIConfig;
 const { emittedEvents: pairingEvents, outOfBandDelegate } = require('./OutOfBandDelegate');
-
-const DefaultHttpPort = 51001;
-const DefaultHttpsPort = 51002;
 
 const emittedEvents = {
   ...apiEvents,
