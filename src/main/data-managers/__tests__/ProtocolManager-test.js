@@ -40,7 +40,7 @@ describe('ProtocolManager', () => {
     });
 
     it('allows an import via the open dialog', (done) => {
-      const simulateChooseFile = (opts, callback) => {
+      const simulateChooseFile = (browserWindow, opts, callback) => {
         callback(mockFileList);
         expect(manager.validateAndImport).toHaveBeenCalled();
         done();
@@ -52,7 +52,7 @@ describe('ProtocolManager', () => {
 
     it('allows dialog to be cancelled', (done) => {
       expect.assertions(1);
-      const simulateChooseNothing = (opts, callback) => {
+      const simulateChooseNothing = (browserWindow, opts, callback) => {
         callback();
         expect(manager.validateAndImport).not.toHaveBeenCalled();
         done();

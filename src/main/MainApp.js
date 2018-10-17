@@ -37,7 +37,7 @@ const createApp = () => {
   };
 
   const showImportProtocolDialog = () => {
-    protocolManager.presentImportDialog()
+    protocolManager.presentImportDialog(mainWindow.window)
       .then((filename) => {
         // If filename is empty, user cancelled
         if (filename) {
