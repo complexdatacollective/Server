@@ -157,7 +157,8 @@ const createApp = () => {
     }
   });
 
-  // Don't quit when all windows are closed.
+  // By subscribing to this event, the app will not quit when all windows are closed.
+  // Note: This event will not fire when the windows are closed during an update (see updater.js)
   app.on('window-all-closed', () => {
     if (app.dock) {
       app.dock.hide();
