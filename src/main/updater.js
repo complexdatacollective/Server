@@ -1,5 +1,6 @@
+const logger = require('electron-log');
 const { autoUpdater } = require('electron-updater');
-const { dialog } = require('electron');
+const { app, dialog } = require('electron');
 
 const releasesUrl = 'https://github.com/codaco/Server/releases';
 
@@ -32,12 +33,15 @@ const onUpdateDownloaded = () => {
     detail: 'Your update is ready to install. Click this notification to restart the app and install the update.',
     buttons: ['Restart'],
   },
-  () => setImmediate(() => autoUpdater.quitAndInstall()));
+  () => setImmediate(() => {
+    app.removeAllListeners('window-all-closed'); // Prevent app shutdown from stalling
+    autoUpdater.quitAndInstall();
+  }));
 };
 
 const onError = (error) => {
-  const message = error ? (error.stack || error).toString() : 'An unknown error occurred';
-  dialog.showErrorBox('Error', message);
+  logger.error(error);
+  dialog.showErrorBox('Error', 'We encountered an error with the app update. You may need to update this app manually.');
 };
 
 autoUpdater.autoDownload = false;
