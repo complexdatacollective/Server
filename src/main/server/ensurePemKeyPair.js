@@ -48,6 +48,10 @@ const generatePemKeyPair = () => {
           type: AltNameTypeIP,
           ip: '127.0.0.1',
         },
+        {
+          type: AltNameTypeIP,
+          ip: '::',
+        },
       ],
     },
   ];
