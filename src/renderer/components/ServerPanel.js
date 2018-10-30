@@ -32,6 +32,7 @@ class ServerPanel extends Component {
           ip,
           isAdvertising,
           mdnsIsSupported,
+          publicAddresses,
           uptime,
         } = resp.serverStatus;
         let mdnsStatus = isAdvertising ? 'Active' : 'Pending';
@@ -44,6 +45,7 @@ class ServerPanel extends Component {
             ip: ip && ip.address,
             deviceApiPort,
             mdnsStatus,
+            publicAddresses,
             uptime,
           },
         });
@@ -62,7 +64,7 @@ class ServerPanel extends Component {
     const uptimeDisplay = overview.uptime && `${parseInt(overview.uptime / 1000 / 60, 10)}m`;
     return (
       <div className={`server-panel ${className}`}>
-        <PanelItem label="Local Server IP" value={overview.ip || 'Offline'} />
+        <PanelItem label="Local Server Address" value={overview.publicAddresses || 'Offline'} />
         <PanelItem label="Pairing Port" value={overview.deviceApiPort || '-'} />
         <PanelItem label="Uptime" value={uptimeDisplay || '-'} />
         <PanelItem label="Hostname" value={overview.hostname || '-'} />

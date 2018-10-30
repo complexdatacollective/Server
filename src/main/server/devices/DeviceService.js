@@ -23,6 +23,10 @@ class DeviceService extends EventEmitter {
     this.api = this.createApi(dataDir, keys);
   }
 
+  static get publicAddresses() {
+    return DeviceAPI.publicAddresses;
+  }
+
   get httpPort() { return this.api.httpPort; }
   get httpsPort() { return this.api.httpsPort; }
 

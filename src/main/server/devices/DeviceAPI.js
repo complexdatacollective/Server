@@ -18,14 +18,6 @@ const { ErrorMessages, RequestError } = require('../../errors/RequestError');
 const { IncompletePairingError } = require('../../errors/IncompletePairingError');
 const { encrypt } = require('../../utils/shared-api/cipher');
 
-// TODO: remove dupe from Server
-const lanIP = () => {
-  const interfaces = Object.values(os.networkInterfaces());
-  const lanV4 = val => val.family === 'IPv4' && val.internal === false;
-  const iface = [].concat(...interfaces).find(lanV4);
-  return iface && iface.address;
-};
-
 /**
  * @swagger
  * security:
@@ -47,7 +39,7 @@ const lanIP = () => {
  */
 const ApiName = 'DeviceAPI';
 const ApiVersion = Version;
-const ApiHostName = '0.0.0.0'; // IPv4 for compatibility with Travis (& unknown installations)
+const ApiHostName = '::'; // Listen on IPv6 and IPv4
 
 const Schema = {
   /**
@@ -241,9 +233,22 @@ class DeviceAPI extends EventEmitter {
     this.publicCert = keys && keys.cert;
   }
 
+  static get publicAddresses() {
+    const isLinkLocal = addr => /^(fe80::|169\.254)/.test(addr);
+    const interfaces = Object.values(os.networkInterfaces());
+    return [].concat(...interfaces)
+      .filter(iface => iface.internal === false && !isLinkLocal(iface.address))
+      .map(iface => iface.address);
+  }
+
+  // In the absence of user config, choose the first available
+  static get lanIP() {
+    return this.publicAddresses[0];
+  }
+
   get name() { return this.server.name; }
-  get httpBase() { return this.server.url.replace(ApiHostName, lanIP()); }
-  get httpsBase() { return this.secureUrl.replace(ApiHostName, lanIP()); }
+  get httpBase() { return this.server.url.replace(ApiHostName, this.lanIP); }
+  get httpsBase() { return this.secureUrl.replace(ApiHostName, this.lanIP); }
   get url() { return this.server.url; }
   get secureUrl() { return this.sslServer && this.sslServer.url; }
 
