@@ -10,10 +10,6 @@ const mockServerMethods = {
   startServices: jest.fn(() => Promise.resolve(mockServerMethods)), // startServices returns `this`
 };
 
-jest.mock('private-socket', () => ({
-  generatePemKeyPair: jest.fn().mockResolvedValue({}),
-}));
-
 jest.mock('../Server', () => function MockServer() {
   return mockServerMethods;
 });
