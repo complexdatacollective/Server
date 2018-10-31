@@ -145,7 +145,7 @@ const jsonClient = (useHttps) => {
 };
 
 const makeUrl = (pathInput, base) => (
-  new URL(pathInput, base.replace('0.0.0.0', 'localhost'))
+  new URL(pathInput, base.replace('0.0.0.0', 'localhost').replace('[::]', 'localhost'))
 );
 
 const httpClient = jsonClient();
