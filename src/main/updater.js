@@ -1,6 +1,7 @@
 const logger = require('electron-log');
 const { autoUpdater } = require('electron-updater');
-const { app, dialog } = require('electron');
+const { app } = require('electron');
+const dialog = require('./dialog');
 
 const releasesUrl = 'https://github.com/codaco/Server/releases';
 

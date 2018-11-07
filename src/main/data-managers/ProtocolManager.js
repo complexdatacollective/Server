@@ -3,8 +3,8 @@ const jszip = require('jszip');
 const logger = require('electron-log');
 const path = require('path');
 const uuid = require('uuid/v4');
-const { dialog } = require('electron');
 
+const dialog = require('../dialog');
 const ProtocolDB = require('./ProtocolDB');
 const SessionDB = require('./SessionDB');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
@@ -47,7 +47,7 @@ class ProtocolManager {
    *                                     `undefined` if no files were selected
    * @throws {Error} If importing of any input file failed
    */
-  presentImportDialog() {
+  presentImportDialog(browserWindow) {
     const opts = {
       title: 'Import Protocol',
       properties: ['openFile'],
@@ -56,7 +56,7 @@ class ProtocolManager {
       ],
     };
     return new Promise((resolve, reject) => {
-      dialog.showOpenDialog(opts, (filePaths) => {
+      dialog.showOpenDialog(browserWindow, opts, (filePaths) => {
         if (!filePaths) {
           // User cancelled
           resolve();

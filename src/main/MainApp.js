@@ -1,5 +1,4 @@
-const { app, dialog, Menu } = require('electron');
-
+const { app, Menu } = require('electron');
 const ProtocolManager = require('./data-managers/ProtocolManager');
 const MainWindow = require('./components/mainWindow');
 const { AdminService } = require('./server/AdminService');
@@ -8,6 +7,7 @@ const { createTray } = require('./components/tray');
 
 const guiProxy = require('./guiProxy');
 const updater = require('./updater');
+const dialog = require('./dialog');
 
 // TODO: move/centralize
 const FileImportUpdated = 'FILE_IMPORT_UPDATED';
@@ -37,7 +37,7 @@ const createApp = () => {
   };
 
   const showImportProtocolDialog = () => {
-    protocolManager.presentImportDialog()
+    protocolManager.presentImportDialog(mainWindow.window)
       .then((filename) => {
         // If filename is empty, user cancelled
         if (filename) {

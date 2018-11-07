@@ -1,10 +1,10 @@
 /* eslint-env jest */
 import fs from 'fs';
-import { dialog } from 'electron';
 import JSZip from 'jszip';
 
 import ProtocolManager from '../ProtocolManager';
 import promisedFs from '../../utils/promised-fs';
+import dialog from '../../dialog';
 
 jest.mock('fs');
 jest.mock('electron');
@@ -13,6 +13,7 @@ jest.mock('jszip');
 jest.mock('../../utils/promised-fs');
 jest.mock('../ProtocolDB');
 jest.mock('../SessionDB');
+jest.mock('../../dialog');
 
 const anyNetcanvasFile = expect.stringMatching(/\.netcanvas$/);
 
@@ -39,7 +40,7 @@ describe('ProtocolManager', () => {
     });
 
     it('allows an import via the open dialog', (done) => {
-      const simulateChooseFile = (opts, callback) => {
+      const simulateChooseFile = (browserWindow, opts, callback) => {
         callback(mockFileList);
         expect(manager.validateAndImport).toHaveBeenCalled();
         done();
@@ -51,7 +52,7 @@ describe('ProtocolManager', () => {
 
     it('allows dialog to be cancelled', (done) => {
       expect.assertions(1);
-      const simulateChooseNothing = (opts, callback) => {
+      const simulateChooseNothing = (browserWindow, opts, callback) => {
         callback();
         expect(manager.validateAndImport).not.toHaveBeenCalled();
         done();

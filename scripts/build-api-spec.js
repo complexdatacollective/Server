@@ -1,10 +1,12 @@
+/* eslint-env node */
+/* eslint-disable no-console */
+
 const fs = require('fs');
 const path = require('path');
 const swaggerJSDoc = require('swagger-jsdoc');
 
 const paths = require('../config/paths');
-const { ApiVersion } = require('../src/main/server/devices/DeviceAPI');
-const { DefaultHttpsPort } = require('../src/main/server/devices/DeviceService');
+const { DeviceAPIConfig } = require('../src/main/apiConfig');
 
 const deviceApiSource = path.join(__dirname, '..', 'src', 'main', 'server', 'devices', 'DeviceAPI.js');
 
@@ -22,13 +24,13 @@ HTTPS endpoints handle communications between a paired Client & Server.
 
 const options = {
   swaggerDefinition: {
-    host: `localhost:${DefaultHttpsPort}`,
+    host: `localhost:${DeviceAPIConfig.DefaultHttpsPort}`,
     basePath: '/',
     schemes: ['http', 'https'],
     info: {
       title: 'Network Canvas Devices API',
       description,
-      version: ApiVersion,
+      version: DeviceAPIConfig.Version,
       license: {
         name: 'GNU General Public License v3.0',
         url: 'https://github.com/codaco/Server/blob/master/LICENSE',
@@ -40,7 +42,7 @@ const options = {
 };
 
 const destDir = path.join(paths.config, 'api');
-const destPath = path.join(destDir, `api-spec-${ApiVersion}.json`);
+const destPath = path.join(destDir, `api-spec-${DeviceAPIConfig.version}.json`);
 const destFile = fs.openSync(destPath, 'w');
 
 const apiSpec = swaggerJSDoc(options);
