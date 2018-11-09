@@ -8,14 +8,13 @@ const mockHostname = 'mock-host.local';
 const mockApiResponse = {
   deviceApiPort: 99999,
   hostname: mockHostname,
-  ip: { address: 'x.x.x.x' },
+  publicAddresses: ['x.x.x.x'],
   uptime: 1,
   publicKey: 'abc',
 };
 
 const mockServerState = {
   ...mockApiResponse,
-  ip: mockApiResponse.ip.address,
 };
 
 const mockApiClient = {

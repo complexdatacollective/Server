@@ -33,13 +33,12 @@ class Server extends EventEmitter {
   }
 
   get connectionInfo() {
-    const ipInfo = this.publicIP();
     return {
       adminService: {
         port: this.adminService && this.adminService.port,
       },
       deviceService: {
-        address: ipInfo && ipInfo.address,
+        publicAddresses: DeviceService.publicAddresses,
         httpPort: this.deviceService && this.deviceService.httpPort,
         httpsPort: this.deviceService && this.deviceService.httpsPort,
       },
@@ -86,17 +85,10 @@ class Server extends EventEmitter {
       mdnsIsSupported,
       isAdvertising: !!this.deviceAdvertisement,
       hostname: os.hostname(),
-      ip: this.publicIP(),
+      publicAddresses: this.connectionInfo.deviceService.publicAddresses,
       deviceApiPort: this.connectionInfo.deviceService.httpPort,
       uptime: new Date().getTime() - this.started,
     };
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  publicIP() {
-    const addrs = Object.values(os.networkInterfaces());
-    return [].concat(...addrs)
-      .find(val => val.family === 'IPv4' && val.internal === false);
   }
 
   on(name, cb) {
