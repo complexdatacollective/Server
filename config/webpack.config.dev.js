@@ -1,5 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const paths = require('./paths');
 const getClientEnvironment = require('./env');
@@ -91,7 +92,7 @@ const config = {
     // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
     // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
     // "REACT_APP_" is a recognized prefix (see config/env.js)
-    new InterpolateHtmlPlugin({
+    new InterpolateHtmlPlugin(HtmlWebpackPlugin, {
       ...env.raw,
       // Whitelist inlined content in Content Security Policy
       // REACT_APP_SCRIPT_SRC_CSP: `'sha256-${inlineCSP.hash256('react-error-overlay')}'`,
