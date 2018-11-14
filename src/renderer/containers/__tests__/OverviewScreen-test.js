@@ -37,7 +37,7 @@ describe('<OverviewScreen />', () => {
     const state = {
       devices: [{ id: 'device1', name: '1', createdAt: new Date() }],
       protocols: [{ id: 'protocol1', name: '1', createdAt: new Date() }],
-      connectionInfo: { deviceService: { httpPort: 5555, address: '192.168.x.x' } },
+      connectionInfo: { deviceService: { httpPort: 5555, publicAddresses: ['192.168.x.x'] } },
     };
     let store;
     beforeEach(() => {

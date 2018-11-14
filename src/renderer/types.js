@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 
 const deviceApiInfo = PropTypes.shape({
-  address: PropTypes.string.isRequired,
+  publicAddresses: PropTypes.arrayOf(PropTypes.string).isRequired,
   httpPort: PropTypes.number.isRequired,
 });
 
