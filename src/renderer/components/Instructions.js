@@ -48,8 +48,8 @@ const Instructions = ({ compact, apiInfo, showPairingInstructions, showImportIns
               you may enter the connection information manually:</em>
             </p>
             <dl className="instructions__definition-list">
-              <dt>Address</dt>
-              <dd>{apiInfo.address}</dd>
+              <dt>Addresses</dt>
+              <dd>{apiInfo.publicAddresses.join(', ')}</dd>
               <dt>Port</dt>
               <dd>{apiInfo.httpPort}</dd>
             </dl>

@@ -31,9 +31,9 @@ describe('<Instructions />', () => {
   });
 
   it('renders API info', () => {
-    const apiInfo = { address: '192.168.x.x', httpPort: 65531 };
+    const apiInfo = { publicAddresses: ['192.168.x.x'], httpPort: 65531 };
     const subject = shallow(<Instructions apiInfo={apiInfo} />);
-    expect(subject.text()).toMatch(apiInfo.address);
+    expect(subject.text()).toMatch(apiInfo.publicAddresses[0]);
     expect(subject.text()).toMatch(apiInfo.httpPort.toString());
   });
 });
