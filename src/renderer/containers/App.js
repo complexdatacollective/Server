@@ -15,7 +15,7 @@ import { AnimatedPairPrompt } from '../components/pairing/PairPrompt';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
 import { actionCreators as connectionInfoActionCreators } from '../ducks/modules/connectionInfo';
 import { actionCreators as deviceActionCreators } from '../ducks/modules/devices';
-import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
+import { actionCreators as messageActionCreators, messages } from '../ducks/modules/appMessages';
 import { isFrameless } from '../utils/environment';
 
 const IPC = {
@@ -24,6 +24,7 @@ const IPC = {
   PAIRING_CODE_AVAILABLE: 'PAIRING_CODE_AVAILABLE',
   PAIRING_TIMED_OUT: 'PAIRING_TIMED_OUT',
   PAIRING_COMPLETE: 'PAIRING_COMPLETE',
+  PROTOCOL_IMPORT_SUCCEEDED: 'PROTOCOL_IMPORT_SUCCEEDED',
 };
 
 // This prevents user from being able to drop a file anywhere on the app
@@ -75,6 +76,10 @@ class App extends Component {
     ipcRenderer.on(IPC.PAIRING_COMPLETE, () => {
       props.completedPairingRequest();
       props.loadDevices();
+    });
+
+    ipcRenderer.on(IPC.PROTOCOL_IMPORT_SUCCEEDED, () => {
+      props.showConfirmationMessage(messages.protocolImportSuccess);
     });
 
     this.props.dismissAppMessages();
@@ -167,6 +172,8 @@ function mapDispatchToProps(dispatch) {
     completedPairingRequest: bindActionCreators(actionCreators.completedPairingRequest, dispatch),
     loadDevices: bindActionCreators(deviceActionCreators.loadDevices, dispatch),
     newPairingRequest: bindActionCreators(actionCreators.newPairingRequest, dispatch),
+    showConfirmationMessage:
+      bindActionCreators(messageActionCreators.showConfirmationMessage, dispatch),
     dismissPairingRequest: bindActionCreators(actionCreators.dismissPairingRequest, dispatch),
     dismissAppMessages: bindActionCreators(messageActionCreators.dismissAppMessages, dispatch),
     setConnectionInfo: bindActionCreators(connectionInfoActionCreators.setConnectionInfo, dispatch),

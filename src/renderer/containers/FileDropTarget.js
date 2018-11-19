@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import AdminApiClient from '../utils/adminApiClient';
-import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
+import { actionCreators as messageActionCreators, messages } from '../ducks/modules/appMessages';
 import { actionCreators as protocolActionCreators } from '../ducks/modules/protocols';
 
 const onDragOver = (evt) => {
@@ -52,7 +52,7 @@ class FileDropTarget extends Component {
     this.apiClient
       .post('/protocols', { files })
       .then(resp => resp.protocols)
-      .then(() => showConfirmationMessage('File imported successfully'))
+      .then(() => showConfirmationMessage(messages.protocolImportSuccess))
       .then(() => loadProtocols())
       .catch(err => showErrorMessage(err.message || 'Could not save file'));
   }

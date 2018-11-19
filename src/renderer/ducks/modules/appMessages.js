@@ -9,6 +9,10 @@ const messageTypes = {
   Error: Symbol('Error'),
 };
 
+const messages = {
+  protocolImportSuccess: 'Protocol imported successfully',
+};
+
 const newMessage = (text, messageType) => ({
   messageType,
   timestamp: Date.now(),
@@ -68,4 +72,5 @@ export {
   actionCreators,
   actionTypes,
   messageTypes,
+  messages,
 };
