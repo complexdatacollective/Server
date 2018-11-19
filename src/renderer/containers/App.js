@@ -88,7 +88,7 @@ class App extends Component {
   render() {
     const {
       ackPairingRequest,
-      dismissAppMessages,
+      dismissAppMessage,
       dismissPairingRequest,
       appMessages,
       pairingRequest,
@@ -101,10 +101,14 @@ class App extends Component {
     const appClass = isFrameless() ? 'app app--frameless' : 'app';
     const versionParts = appVersion.split('-');
 
+    const handleDismissal = timestamp => dismissAppMessage(timestamp);
+
     return (
       <div className={appClass}>
-        <div role="Button" tabIndex="0" className="app__flash" onClick={dismissAppMessages}>
-          { appMessages.map(msg => <AppMessage key={msg.timestamp} {...msg} />) }
+        <div className="app__flash">
+          { appMessages.map(msg => (
+            <AppMessage key={msg.timestamp} {...msg} handleDismissal={handleDismissal} />
+          )) }
         </div>
         {
           <AnimatedPairPrompt
@@ -146,7 +150,7 @@ App.propTypes = {
   ackPairingRequest: PropTypes.func.isRequired,
   appMessages: PropTypes.array,
   completedPairingRequest: PropTypes.func.isRequired,
-  dismissAppMessages: PropTypes.func.isRequired,
+  dismissAppMessage: PropTypes.func.isRequired,
   dismissPairingRequest: PropTypes.func.isRequired,
   loadDevices: PropTypes.func.isRequired,
   newPairingRequest: PropTypes.func.isRequired,
@@ -175,6 +179,7 @@ function mapDispatchToProps(dispatch) {
     showConfirmationMessage:
       bindActionCreators(messageActionCreators.showConfirmationMessage, dispatch),
     dismissPairingRequest: bindActionCreators(actionCreators.dismissPairingRequest, dispatch),
+    dismissAppMessage: bindActionCreators(messageActionCreators.dismissAppMessage, dispatch),
     dismissAppMessages: bindActionCreators(messageActionCreators.dismissAppMessages, dispatch),
     setConnectionInfo: bindActionCreators(connectionInfoActionCreators.setConnectionInfo, dispatch),
   };

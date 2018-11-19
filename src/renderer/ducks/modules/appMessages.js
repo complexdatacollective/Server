@@ -1,3 +1,4 @@
+const DISMISS_MESSAGE = 'DISMISS_MESSAGE';
 const DISMISS_MESSAGES = 'DISMISS_MESSAGES';
 const SHOW_MESSAGE = 'SHOW_MESSAGE';
 const UPDATE_MESSAGE_STATE = 'UPDATE_MESSAGE_STATE';
@@ -26,6 +27,8 @@ const reducer = (state = initialState, action = {}) => {
   switch (action.type) {
     case DISMISS_MESSAGES:
       return initialState;
+    case DISMISS_MESSAGE:
+      return state.filter(msg => msg.timestamp !== action.messageTimestamp);
     case UPDATE_MESSAGE_STATE:
       return state
         .filter(msg => !msg.isExpired)
@@ -55,6 +58,11 @@ const dismissAppMessages = () => ({
   type: DISMISS_MESSAGES,
 });
 
+const dismissAppMessage = messageTimestamp => ({
+  type: DISMISS_MESSAGE,
+  messageTimestamp,
+});
+
 const showMessage = (text, messageType = messageTypes.Error) => (dispatch) => {
   dispatch({
     type: SHOW_MESSAGE,
@@ -68,6 +76,7 @@ const showConfirmationMessage = text => showMessage(text, messageTypes.Confirmat
 const showErrorMessage = showMessage;
 
 const actionCreators = {
+  dismissAppMessage,
   dismissAppMessages,
   showConfirmationMessage,
   showErrorMessage,

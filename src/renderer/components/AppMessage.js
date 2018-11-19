@@ -18,10 +18,17 @@ const modifierClass = (messageType) => {
   }
 };
 
-const AppMessage = ({ text, type, isExpired }) => (
+const AppMessage = ({ text, type, isExpired, timestamp, handleDismissal }) => (
   <Fade transitionIn={!isExpired}>
     <div className={`${baseCssClass} ${modifierClass(type)}`}>
-      <Icon name="close" size="small" color="red" className="app-message__close" />
+      <button onClick={() => handleDismissal(timestamp)} className="app-message__button">
+        <Icon
+          className="app-message__close"
+          name="close"
+          size="small"
+          color="red"
+        />
+      </button>
       <div className="app-message__text">
         {text}
       </div>
@@ -33,6 +40,8 @@ AppMessage.propTypes = {
   type: PropTypes.any,
   text: PropTypes.string.isRequired,
   isExpired: PropTypes.bool,
+  timestamp: PropTypes.number.isRequired,
+  handleDismissal: PropTypes.func.isRequired,
 };
 
 AppMessage.defaultProps = {

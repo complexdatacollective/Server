@@ -1,8 +1,9 @@
 .app-message {
   background-color: var(--message-background-color);
   color: var(--message-color);
-  cursor: pointer;
+  // cursor: pointer;
   padding: spacing(small);
+  padding-top: var(--app-titlebar-height);
   position: fixed;
   text-align: center;
   width: 100%;
@@ -13,10 +14,14 @@
     color: var(--error-message-color);
   }
 
+  @include element(button) {
+    @include reset-button;
+    cursor: pointer;
+    float: right;
+  }
+
   @include element(close) {
     color: var(--message-color);
-
-    float: right;
 
     &[name='close'] { // Specificity needed to match UI lib
       height: 1rem;

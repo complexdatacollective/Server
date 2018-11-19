@@ -19,6 +19,7 @@ const mockDispatched = {
   completedPairingRequest: jest.fn(),
   newPairingRequest: jest.fn(),
   dismissPairingRequest: jest.fn(),
+  dismissAppMessage: jest.fn(),
   dismissAppMessages: jest.fn(),
   loadDevices: jest.fn(),
   setConnectionInfo: jest.fn(),
@@ -170,7 +171,7 @@ describe('<App />', () => {
 
     it('provides message dismissal', () => {
       const wrapper = shallow(<ConnectedApp store={mockStore} />);
-      expect(wrapper.prop('dismissAppMessages')).toBeInstanceOf(Function);
+      expect(wrapper.prop('dismissAppMessage')).toBeInstanceOf(Function);
     });
   });
 });
