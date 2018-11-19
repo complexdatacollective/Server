@@ -8,6 +8,11 @@
   width: 100%;
   z-index: var(--z-index-app-messages);
 
+  @include modifier(error) {
+    background-color: var(--error-message-background-color);
+    color: var(--error-message-color);
+  }
+
   @include element(close) {
     color: var(--message-color);
 

@@ -9,9 +9,9 @@ import ConnectedFileDropTarget, { UnconnectedFileDropTarget as FileDropTarget } 
 jest.mock('../../utils/adminApiClient');
 
 const mockProps = {
-  showMessage: jest.fn(),
+  showConfirmationMessage: jest.fn(),
+  showErrorMessage: jest.fn(),
 };
-mockProps.showMessage.bftest = 'bcf';
 
 describe('<FileDropTarget />', () => {
   let wrapper;
@@ -51,6 +51,23 @@ describe('<FileDropTarget />', () => {
     expect(evtData.dataTransfer.dropEffect).toEqual('copy');
   });
 
+  describe('when upload succeeds', () => {
+    const mockClient = {
+      post: jest.fn().mockResolvedValue({}),
+      get: jest.fn().mockResolvedValue({}),
+    };
+    beforeAll(() => {
+      AdminApiClient.mockImplementation(() => mockClient);
+    });
+
+    it('displays a success confirmation', () => {
+      wrapper.simulate('drop', { dataTransfer: { files: {} } });
+      expect(mockClient.post).toHaveBeenCalled();
+      expect(mockProps.showConfirmationMessage).toHaveBeenCalled();
+      expect(mockProps.showErrorMessage).not.toHaveBeenCalled();
+    });
+  });
+
   describe('when upload fails', () => {
     const mockErrorClient = {
       post: jest.fn().mockRejectedValue({}),
@@ -66,7 +83,7 @@ describe('<FileDropTarget />', () => {
       // process on next loop, to allow callback to have been called
       setImmediate(() => {
         expect(mockErrorClient.post).toHaveBeenCalled();
-        expect(mockProps.showMessage).toHaveBeenCalled();
+        expect(mockProps.showErrorMessage).toHaveBeenCalled();
         done();
       });
     });
@@ -83,9 +100,14 @@ describe('<FileDropTarget />', () => {
       expect(subject.prop('loadProtocols')).toBeInstanceOf(Function);
     });
 
-    it('maps a dispatched showMessage fn to props', () => {
+    it('maps a dispatched showErrorMessage fn to props', () => {
       const subject = shallow(<ConnectedFileDropTarget store={store} />);
-      expect(subject.prop('showMessage')).toBeInstanceOf(Function);
+      expect(subject.prop('showErrorMessage')).toBeInstanceOf(Function);
+    });
+
+    it('maps a dispatched showConfirmationMessage fn to props', () => {
+      const subject = shallow(<ConnectedFileDropTarget store={store} />);
+      expect(subject.prop('showConfirmationMessage')).toBeInstanceOf(Function);
     });
   });
 });

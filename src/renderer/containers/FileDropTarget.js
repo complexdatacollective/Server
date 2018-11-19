@@ -47,12 +47,14 @@ class FileDropTarget extends Component {
       files.push(fileList[i].path);
     }
 
+    const { loadProtocols, showConfirmationMessage, showErrorMessage } = this.props;
     this.setState({ draggingOver: false });
     this.apiClient
       .post('/protocols', { files })
       .then(resp => resp.protocols)
-      .then(() => this.props.loadProtocols())
-      .catch(err => this.props.showMessage(err.message || 'Could not save file'));
+      .then(() => showConfirmationMessage('File imported successfully'))
+      .then(() => loadProtocols())
+      .catch(err => showErrorMessage(err.message || 'Could not save file'));
   }
 
   render() {
@@ -84,11 +86,14 @@ FileDropTarget.defaultProps = {
 FileDropTarget.propTypes = {
   children: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   loadProtocols: PropTypes.func,
-  showMessage: PropTypes.func.isRequired,
+  showConfirmationMessage: PropTypes.func.isRequired,
+  showErrorMessage: PropTypes.func.isRequired,
 };
 
 const mapDispatchToProps = dispatch => ({
-  showMessage: bindActionCreators(messageActionCreators.showMessage, dispatch),
+  showConfirmationMessage:
+    bindActionCreators(messageActionCreators.showConfirmationMessage, dispatch),
+  showErrorMessage: bindActionCreators(messageActionCreators.showErrorMessage, dispatch),
   loadProtocols: bindActionCreators(protocolActionCreators.loadProtocols, dispatch),
 });
 

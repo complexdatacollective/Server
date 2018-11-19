@@ -5,6 +5,7 @@ const messageLifetimeMillis = 3 * 1000;
 const initialState = [];
 
 const messageTypes = {
+  Confirmation: Symbol('Confirmation'),
   Error: Symbol('Error'),
 };
 
@@ -45,8 +46,14 @@ const showMessage = (text, messageType = messageTypes.Error) => ({
   ...newMessage(text, messageType),
 });
 
+const showConfirmationMessage = text => showMessage(text, messageTypes.Confirmation);
+
+const showErrorMessage = showMessage;
+
 const actionCreators = {
   dismissAppMessages,
+  showConfirmationMessage,
+  showErrorMessage,
   showMessage,
 };
 
