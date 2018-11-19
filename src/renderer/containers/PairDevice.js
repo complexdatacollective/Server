@@ -14,13 +14,13 @@ class PairDevice extends Component {
   componentDidUpdate() {
     if (!this.timer &&
         this.props.pairingRequest.status === PairingStatus.Acknowledged) {
-      const { apiClient, dismissPairingRequest, showMessage, pairingRequest } = this.props;
+      const { apiClient, dismissPairingRequest, showErrorMessage, pairingRequest } = this.props;
       const doCheck = () => {
         apiClient.checkPairingCodeExpired(pairingRequest.id)
           .then(({ isExpired, expiresAt }) => {
             if (isExpired) {
               dismissPairingRequest();
-              showMessage('Pairing timed out');
+              showErrorMessage('Pairing timed out');
               this.timer = null;
             } else {
               let expiresIn = new Date(expiresAt) - new Date();
@@ -81,12 +81,12 @@ PairDevice.propTypes = {
     pairingCode: PropTypes.string,
     status: PropTypes.string,
   }).isRequired,
-  showMessage: PropTypes.func.isRequired,
+  showErrorMessage: PropTypes.func.isRequired,
 };
 
 const mapDispatchToProps = dispatch => ({
   dismissPairingRequest: bindActionCreators(actionCreators.dismissPairingRequest, dispatch),
-  showMessage: bindActionCreators(messageActionCreators.showMessage, dispatch),
+  showErrorMessage: bindActionCreators(messageActionCreators.showErrorMessage, dispatch),
 });
 
 const mapStateToProps = ({ pairingRequest }) => ({

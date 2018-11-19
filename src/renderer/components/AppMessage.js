@@ -18,8 +18,8 @@ const modifierClass = (messageType) => {
   }
 };
 
-const AppMessage = ({ text, type }) => (
-  <Fade transitionIn>
+const AppMessage = ({ text, type, isExpired }) => (
+  <Fade transitionIn={!isExpired}>
     <div className={`${baseCssClass} ${modifierClass(type)}`}>
       <Icon name="close" size="small" color="red" className="app-message__close" />
       <div className="app-message__text">
@@ -32,9 +32,11 @@ const AppMessage = ({ text, type }) => (
 AppMessage.propTypes = {
   type: PropTypes.any,
   text: PropTypes.string.isRequired,
+  isExpired: PropTypes.bool,
 };
 
 AppMessage.defaultProps = {
+  isExpired: false,
   type: null,
 };
 

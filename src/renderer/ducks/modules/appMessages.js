@@ -1,7 +1,8 @@
 const DISMISS_MESSAGES = 'DISMISS_MESSAGES';
 const SHOW_MESSAGE = 'SHOW_MESSAGE';
+const UPDATE_MESSAGE_STATE = 'UPDATE_MESSAGE_STATE';
 
-const messageLifetimeMillis = 3 * 1000;
+const messageLifetimeMillis = 10 * 1000;
 const initialState = [];
 
 const messageTypes = {
@@ -19,12 +20,16 @@ const newMessage = (text, messageType) => ({
   text,
 });
 
-const recencyFilter = m => m.timestamp >= Date.now() - messageLifetimeMillis;
+const isRecent = m => m.timestamp >= Date.now() - messageLifetimeMillis;
 
 const reducer = (state = initialState, action = {}) => {
   switch (action.type) {
     case DISMISS_MESSAGES:
       return initialState;
+    case UPDATE_MESSAGE_STATE:
+      return state
+        .filter(msg => !msg.isExpired)
+        .map(msg => (isRecent(msg) ? msg : { ...msg, isExpired: true }));
     case SHOW_MESSAGE: {
       const message = {
         text: action.text,
@@ -32,7 +37,7 @@ const reducer = (state = initialState, action = {}) => {
         type: action.messageType,
       };
       return state
-        .filter(recencyFilter)
+        .filter(isRecent)
         .filter(m => m.timestamp !== action.timestamp)
         .concat([message]);
     }
@@ -41,14 +46,22 @@ const reducer = (state = initialState, action = {}) => {
   }
 };
 
+// Used internally to mark old messages as expired
+const updateMessageState = () => ({
+  type: UPDATE_MESSAGE_STATE,
+});
+
 const dismissAppMessages = () => ({
   type: DISMISS_MESSAGES,
 });
 
-const showMessage = (text, messageType = messageTypes.Error) => ({
-  type: SHOW_MESSAGE,
-  ...newMessage(text, messageType),
-});
+const showMessage = (text, messageType = messageTypes.Error) => (dispatch) => {
+  dispatch({
+    type: SHOW_MESSAGE,
+    ...newMessage(text, messageType),
+  });
+  setTimeout(() => dispatch(updateMessageState()), messageLifetimeMillis);
+};
 
 const showConfirmationMessage = text => showMessage(text, messageTypes.Confirmation);
 
@@ -58,7 +71,6 @@ const actionCreators = {
   dismissAppMessages,
   showConfirmationMessage,
   showErrorMessage,
-  showMessage,
 };
 
 const actionTypes = {
