@@ -48,7 +48,6 @@ const getAppUrl = (route) => {
 };
 
 /**
- * @class
  * Manages the sole instance of the app's BrowserWindow (electron).
  */
 class MainWindow {

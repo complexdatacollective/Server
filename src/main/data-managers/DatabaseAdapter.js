@@ -9,7 +9,10 @@ const DbConfig = {
 };
 
 /**
- * @class An abstract class wrapping NeDB instances.
+ * An abstract class wrapping NeDB instances.
+ *
+ * Methods return promises.
+ *
  * If a name is given (for either on-disk or in-mem DBs), this ensures DB
  * access uses the same underlying DB instance, as NeDB does not support concurrent
  * client initialization.

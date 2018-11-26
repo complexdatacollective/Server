@@ -41,9 +41,7 @@ const preventGlobalDragDrop = () => {
 };
 
 /**
- * @class App
  * Main app container.
- * @param props {object} - children
  */
 class App extends Component {
   constructor(props) {

@@ -21,7 +21,6 @@ const validatedModifyTime = (protocol) => {
 };
 
 /**
- * @class
  * @extends DatabaseAdapter
  */
 class ProtocolDB extends DatabaseAdapter {

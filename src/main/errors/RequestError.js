@@ -1,7 +1,4 @@
 /**
- * @class RequestError
- *
- * @description
  * Used to indicate an error with a request to a data manager; for example,
  * an incorrect, missing, or malformed filename when importing a protocol.
  *

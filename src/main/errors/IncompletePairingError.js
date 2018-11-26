@@ -1,12 +1,7 @@
 /**
- * @class IncompletePairingError
+ * Used to indicate an error specific to the pairing process with a client.
  *
- * @description
- * Used to indicate an error with a request to a data manager; for example,
- * an incorrect, missing, or malformed filename when importing a protocol.
- *
- * API services can use this to distinguish between client input errors and
- * unexpected (server) errors.
+ * Error messages are assumed to be user-facing.
  */
 class IncompletePairingError extends Error {
   constructor(message) {

@@ -19,7 +19,7 @@ const ProtocolDataFile = 'protocol.json';
 const hasValidExtension = filepath => validFileExts.includes(path.extname(filepath).replace(/^\./, ''));
 
 /**
- * @class ProtocolManager
+ * Interface to protocol data (higher-level than DB)
  */
 class ProtocolManager {
   constructor(dataDir) {
