@@ -31,6 +31,8 @@ const printResult = (taskDesc, result, hrtimeDiff) => {
   console.log(`[${(ns / nsPerSec).toLocaleString()}s]`, taskDesc, result);
 }
 
+const nodePrimaryKeyProperty = '_uid';
+
 const dbFile = 'perf-test-sessions.db';
 let db;
 
@@ -48,29 +50,52 @@ function initDb() {
   });
 }
 
-function buildMockData() {
+const EdgesPerSession = 180;
+const NodesPerSession = 18;
+const SessionCount = 4500;
+
+const useRealIds = true;
+
+function buildMockData({ sessionCount = SessionCount, edgesPerSession = EdgesPerSession, nodesPerSession = NodesPerSession, ...rest } = {}) {
+  if (Object.keys(rest).length) {
+    throw new Error(`Unknown options: ${Object.keys(rest)}`);
+  }
+
   /**
    * https://github.com/codaco/Server/issues/107
    * 80k nodes + 850k edges across 4,500 participant interviews.
    *
    * Normal dist: 18 nodes, 180 edges per interview
    */
-  const mockNode = {"uid":"person_3","type":"person","name":"Carlito","nickname":"Carl","age":"25","itemType":"NEW_NODE","stageId":"namegen1","promptId":"6cl","school_important":true,"id":1,"closenessLayout":{"x":0.35625,"y":0.6988888888888889}};
+  const mockNode = {[nodePrimaryKeyProperty]:"person_3","type":"person","name":"Carlito","nickname":"Carl","age":"25","itemType":"NEW_NODE","stageId":"namegen1","promptId":"6cl","school_important":true,"id":2,"closenessLayout":{"x":0.35625,"y":0.6988888888888889}};
   const mockEdge = {"from":12,"to":11,"type":"friends"};
 
-  const EdgesPerSession = 180;
-  const NodesPerSession = 18;
-  const SessionCount = 4500;
+  const makeNetwork = (includeEgo = false) => {
+    let nodes = new Array(nodesPerSession);
+    let edges = new Array(edgesPerSession);
+    nodes.fill(mockNode);
+    edges.fill(mockEdge);
 
-  const nodes = new Array(NodesPerSession);
-  const edges = new Array(EdgesPerSession);
-  nodes.fill(mockNode);
-  edges.fill(mockEdge);
+    // Change last edge's property so we can search for it
+    edges[edges.length - 1].from = 13;
 
-  // Change last edge's property so we can search for it
-  edges[edges.length - 1].from = 13;
+    if (useRealIds) {
+      const pickNodeUid = () => nodes[~~(Math.random() * nodes.length)][nodePrimaryKeyProperty];
+      nodes = nodes.map(node => ({ ...node, [nodePrimaryKeyProperty]: uuidv4(), age: ~~(Math.random() * 80) + 20 }))
+      edges = edges.map(edge => ({ ...edge, from: pickNodeUid(), to: pickNodeUid() }))
 
-  return [...Array(SessionCount)].map(r => r = { uuid: uuidv4(), data: { nodes, edges } });
+      if (includeEgo) {
+        nodes[0].id = 1;
+      }
+    }
+
+    return { nodes, edges };
+  }
+
+  return [...Array(sessionCount)].map((r, i) => ({
+    uuid: uuidv4(),
+    data: makeNetwork(i == 0),
+  }));
 }
 
 function clearDb() {
@@ -180,17 +205,110 @@ function printDbSize() {
 
 function go() { return Promise.resolve(); }
 
-console.log('Initializing DB...');
-initDb()
-  .then(resetDb? clearDb : go)
-  .then(resetDb? insertDocs : go)
-  .then(testCountSessions)
-  .then(testFilterByEdge)
-  .then(testCountNodes)
-  .then(testCountNodesOnField)
-  .then(testCountEdges)
-  .then(printDbSize)
-  .then(compactDB)
-  .then(printDbSize)
-  .catch(console.error)
-  ;
+const variableRegistry = {
+  // const mockNode = {
+  // [nodePrimaryKeyProperty]:"person_3",
+  // "type":"person",
+  // "name":"Carlito",
+  // "nickname":"Carl",
+  // "age":"25",
+  // "itemType":"NEW_NODE",
+  // "stageId":"namegen1",
+  // "promptId":"6cl",
+  // "school_important":true,
+  // "id":2,
+  // "closenessLayout":{"x":0.35625,"y":0.6988888888888889}};
+  node: {
+    person: {
+      name: 'person',
+      label: 'Person',
+      displayVariable: 'nickname',
+      variables: {
+        name: {
+          "name": "name",
+          "label": "Name",
+          "description": "Human readable description",
+          "type": "text",
+          "validation": {
+            "required": true,
+            "minLength": 1,
+            "maxLength": 24
+          }
+        },
+        age: {
+          "name": "age",
+          "label": "Age",
+          "description": "Human readable description",
+          "type": "number",
+          "validation": {
+            "required": true,
+            "minValue": 16,
+            "maxValue": 100
+          }
+        },
+        nickname: {
+          "name": "nickname",
+          "label": "Nickname",
+          "description": "Human readable description",
+          "type": "text",
+          "validation": {
+            "required": true,
+            "minLength": 1,
+            "maxLength": 8
+          }
+        },
+        id: {
+          name: "id",
+          type: "text",
+        },
+        itemType: {
+          name: "itemType",
+          type: "text",
+        },
+        stageId: {
+          name: "stageId",
+          type: "text",
+        },
+        promptId: {
+          name: "promptId",
+          type: "text",
+        },
+        school_important: {
+          "name": "school_important",
+          "label": "school_important",
+          "description": "Human readable description",
+          "type": "boolean"
+        },
+        closenessLayout: {
+          "name": "closenessLayout",
+          "label": "Closeness layout",
+          "description": "Closeness layout",
+          "type": "layout"
+        },
+      }
+    }
+  },
+  edge: {},
+};
+
+if (require.main === module) {
+  console.log('Initializing DB...');
+  initDb()
+    .then(resetDb? clearDb : go)
+    .then(resetDb? insertDocs : go)
+    .then(testCountSessions)
+    .then(testFilterByEdge)
+    .then(testCountNodes)
+    .then(testCountNodesOnField)
+    .then(testCountEdges)
+    .then(printDbSize)
+    .then(compactDB)
+    .then(printDbSize)
+    .catch(console.error)
+    ;
+}
+
+module.exports = {
+  buildMockData,
+  variableRegistry,
+}
