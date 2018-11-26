@@ -12,7 +12,7 @@ const transitionStyles = {
 };
 
 const Fade = ({ children, transitionIn }) => (
-  <Transition appear in={transitionIn} timeout={0}>
+  <Transition appear in={transitionIn} timeout={duration} unmountOnExit>
     {status => (
       <div
         style={{
