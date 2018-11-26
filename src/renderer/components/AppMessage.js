@@ -4,17 +4,19 @@ import PropTypes from 'prop-types';
 import { Icon } from '../ui/components';
 import Fade from './transitions/Fade';
 import { messageTypes } from '../ducks/modules/appMessages';
+import { isFrameless } from '../utils/environment';
 
 const baseCssClass = 'app-message';
 
 const modifierClass = (messageType) => {
+  const frameClass = isFrameless() ? `${baseCssClass}--frameless` : '';
   switch (messageType) {
     case messageTypes.Confirmation:
-      return `${baseCssClass}--confirmation`;
+      return `${baseCssClass}--confirmation ${frameClass}`;
     case messageTypes.Error:
-      return `${baseCssClass}--error`;
+      return `${baseCssClass}--error ${frameClass}`;
     default:
-      return '';
+      return frameClass;
   }
 };
 

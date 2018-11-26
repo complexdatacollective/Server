@@ -1,13 +1,17 @@
 .app-message {
   background-color: var(--message-background-color);
   color: var(--message-color);
-  // cursor: pointer;
   padding: spacing(small);
-  padding-top: var(--app-titlebar-height);
   position: fixed;
   text-align: center;
   width: 100%;
   z-index: var(--z-index-app-messages);
+
+  @include modifier(frameless) {
+    // For frameless windows, ensure button is clickable below the titlebar area
+    padding-bottom: var(--app-titlebar-height);
+    padding-top: var(--app-titlebar-height);
+  }
 
   @include modifier(error) {
     background-color: var(--error-message-background-color);
