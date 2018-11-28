@@ -1,0 +1,126 @@
+// sass-lint:disable no-color-literals
+
+:root {
+  --color-shadow: rgba(0, 0, 0, .15);
+  --color-modal-shadow: rgba(20, 0, 0, .2);
+
+  // UI overwrites
+  --background: var(--color-white);
+  --text: var(--color-charcoal);
+  --input-background: var(--color-platinum);
+  --input-label: var(--color-charcoal);
+  --text-light: var(--color-white); // actually this one is new
+  --text-dark: var(--color-charcoal);
+  --ring--background: var(--color-navy-taupe);
+
+  // App Chrome
+  --background-dark: var(--color-navy-taupe);
+  --architect-wave: var(--color-sea-green);
+  --architect-control-bar-shadow: rgba(20, 0, 0, .3);
+  --architect-titlebar: var(--color-sea-green--dark);
+
+  // Errors
+  --architect-error-background: var(--color-rich-black);
+  --architect-error-code-background: var(--color-shadow);
+  --architect-warning: var(--color-tomato);
+
+  --architect-media-background: var(--color-rich-black);
+
+  // App-wide
+  --architect-background: var(--color-white);
+  --architect-text: var(--color-charcoal);
+  --architect-shadow: var(--color-shadow);
+  --architect-divider: var(--color-platinum);
+  --architect-selected: var(--color-sea-green);
+
+  // Control bar
+  --architect-control-bar-background: var(--color-cyber-grape);
+  --architect-control-bar-text: var(--color-white);
+
+  // forms
+  --form-control: var(--color-platinum);
+
+  // dialog
+  --architect-dialog-background: var(--color-platinum);
+  --architect-dialog-background--dark: var(--color-platinum--dark);
+
+  // sortable, rename?
+  --architect-sortable-text: var(--color-charcoal);
+  --architect-sortable-background: var(--color-platinum);
+  --architect-sortable-preview-background: var(--color-platinum);
+  --architect-sortable-preview-background--alt: var(--color-platinum--dark);
+
+  // Modal
+  --architect-modal-shadow: var(--modal-overlay);
+
+  // Logic screen
+  --architect-logic-background: var(--color-mustard);
+  --architect-logic-guidance: var(--color-mustard--dark);
+  --architect-logic-text: var(--color-white);
+
+  // Guidance
+  --architect-guidance-background: var(--color-platinum);
+  --architect-guidance-text: var(--text);
+  --architect-guidance-toggle-background: var(--info);
+  --architect-guidance-toggle-background--hover: var(--color-sea-serpent--dark);
+  --architect-guidance-toggle-label: var(--color-white);
+
+  // TODO: review below
+  --architect-edit-button-background: var(--primary);
+  --architect-edit-button-fill: var(--color-white);
+
+  --architect-ui-button: var(--color-sea-green);
+  --architect-ui-button-text: var(--color-white);
+  --architect-ui-radio-border: var(--color-cyber-grape);
+  --architect-ui-radio-dot: var(--color-sea-green);
+  --architect-button-background--dark: var(--color-navy-taupe);
+  --architect-button-background--dark--hover: var(--color-cyber-grape);
+
+  --architect-drawer-background: var(--color-platinum);
+  --architect-drawer-background--guidance: var(--color-platinum--dark);
+  --architect-drawer-text: var(--color-charcoal);
+
+  --architect-panel-background: var(--color-platinum);
+  --architect-panel-shadow: var(--color-shadow);
+  --architect-panel-text: var(--color-charcoal);
+  --architect-panel-divider: var(--color-platinum--dark);
+  --architect-border: var(--color-platinum--dark);
+  --architect-input-placeholder: var(--color-platinum);
+  --architect-input-focus: var(--color-sea-green);
+  --architect-intent--inactive: var(--color-charcoal);
+  --architect-intent: var(--color-mustard);
+  --architect-intent-border: var(--color-mustard--dark);
+
+  --architect-timeline-highlight: rgba(216, 216, 216, .2);
+  --architect-timeline-line: var(--color-neon-coral);
+  --architect-timeline-screen: var(--color-navy-taupe);
+
+
+  // rule
+  --architect-rule-text: var(--color-white);
+  --architect-rule-control: var(--color-cyber-grape);
+  --architect-rule-type: var(--color-neon-coral);
+  --architect-rule-attribute: var(--color-neon-coral--dark);
+  --architect-rule-operator: var(--color-navy-taupe);
+  --architect-rule-value: var(--color-barbie-pink);
+  --architect-rule-delete: var(--color-rich-black);
+
+  --architect-rule-type--alter: var(--color-neon-coral);
+  --architect-rule-attribute--ego: var(--color-mustard--dark);
+  --architect-rule-type--edge: var(--color-sea-green);
+  --architect-rule-attribute--edge: var(--color-sea-green--dark);
+
+  // logic
+  --architect-rules: var(--color-charcoal);
+  --architect-rules-background: var(--color-intent);
+  --architect-rules--and: var(--color-slate-blue--dark);
+  --architect-rules--or: var(--color-neon-carrot--dark);
+
+  // content item types
+  --architect-variant--1: var(--color-slate-blue--dark);
+  --architect-variant--2: var(--color-mustard--dark);
+  --architect-variant--3: var(--color-sea-green);
+  --architect-variant--4: var(--color-sea-green--dark);
+
+  --architect-asset-background: var(--color-charcoal);
+}
