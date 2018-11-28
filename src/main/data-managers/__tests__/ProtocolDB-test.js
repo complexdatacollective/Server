@@ -13,9 +13,15 @@ describe('ProtocolDB', () => {
     db = new ProtocolDB(null, { inMemoryOnly: true });
   });
 
-  it('persists protocol metadata', async () => {
+  it('persists protocol metadata (name & description)', async () => {
     const result = await db.save('a.netcanvas', Buffer.from([]), mockProtocol);
     expect(result).toMatchObject(mockProtocol);
+  });
+
+  it('persists the variable registry', async () => {
+    const registry = { variableRegistry: { nodes: {} } };
+    const result = await db.save('a.netcanvas', Buffer.from([]), { ...mockProtocol, ...registry });
+    expect(result).toMatchObject(registry);
   });
 
   it('inserts metadata with new name', async () => {
