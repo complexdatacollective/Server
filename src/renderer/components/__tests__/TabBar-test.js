@@ -8,10 +8,11 @@ describe('<TabBar />', () => {
     const mockMatch = { params: { id: '1' } };
     const wrapper = shallow(<TabBar match={mockMatch} />);
     const links = wrapper.find('NavLink');
-    expect(links).toHaveLength(2);
+    expect(links).toHaveLength(3);
 
     const labels = links.map(l => l.children().text());
     expect(labels).toContain('Overview');
+    expect(labels).toContain('Export');
     expect(labels).toContain('Settings');
   });
 });

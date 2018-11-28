@@ -17,10 +17,12 @@ const TabBar = ({ match }) => {
       <NavLink exact {...navLinkProps} to={`/workspaces/${workspaceId}`}>
         Overview
       </NavLink>
+      <NavLink exact {...navLinkProps} to={`/workspaces/${workspaceId}/export`}>
+        Export
+      </NavLink>
       <NavLink exact {...navLinkProps} to={`/workspaces/${workspaceId}/settings`}>
         Settings
       </NavLink>
-
       <div className="tab-bar__secondary">
         <DeviceStatus />
       </div>
