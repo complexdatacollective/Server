@@ -11,9 +11,6 @@ const consumeResponse = resp => (
 );
 
 /**
- * @class AdminApiClient
- *
- * @description
  * Restful API client for desktop (GUI) services.
  *
  * `post()` and `get()` methods each return a Promise.
