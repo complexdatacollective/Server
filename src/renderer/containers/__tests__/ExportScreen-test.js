@@ -2,15 +2,17 @@
 
 import React from 'react';
 import { shallow } from 'enzyme';
-import ExportScreen from '../ExportScreen';
+import { ExportScreen } from '../ExportScreen';
 
 describe('<ExportScreen />', () => {
+  const protocol = { id: '1', name: 'mock', createdAt: new Date(1540000000000) };
+
   it('should render an export button', () => {
     const subject = shallow((
-      <ExportScreen />
+      <ExportScreen protocolsHaveLoaded protocol={protocol} />
     ));
 
-    expect(subject.find('button')).toHaveLength(1);
-    expect(subject.find('button').text()).toMatch(/export/i);
+    expect(subject.find('Button')).toHaveLength(1);
+    expect(subject.find('Button').html()).toMatch(/export/i);
   });
 });
