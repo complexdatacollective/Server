@@ -8,7 +8,7 @@ import { SortableElement } from 'react-sortable-hoc';
 import DragHandle from './DragHandle';
 import DropDown from './DropDown';
 import Input from './Input';
-import { getVariableRegistry } from '../../../selectors/protocol';
+// import { getVariableRegistry } from '../../../selectors/protocol';
 import { getVariableOptions } from './selectors';
 import { getOperatorsForType } from './operators';
 
@@ -117,14 +117,14 @@ class EdgeRule extends PureComponent {
             </div>
           )}
         </div>
-        <div className="rule__delete" onClick={() => onDeleteRule(id)} />
+        <button className="rule__delete" onClick={() => onDeleteRule(id)} />
       </div>
     );
   }
 }
 
-function mapStateToProps(state, { options }) {
-  const variableRegistry = getVariableRegistry(state);
+function mapStateToProps(state, { options, variableRegistry }) {
+  // const variableRegistry = getVariableRegistry(state);
   const edgeTypes = map(variableRegistry.edge, (edge, edgeId) => [edgeId, edge.name]);
   const valueInputType = options ?
     get(variableRegistry.node, [options.type, 'variables', options.attribute, 'type']) :
