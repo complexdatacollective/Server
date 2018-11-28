@@ -5,6 +5,7 @@ import { Redirect } from 'react-router-dom';
 
 import Types from '../types';
 import { selectors } from '../ducks/modules/protocols';
+import { Filter } from '../components/Filter';
 import { Button, Spinner } from '../ui';
 
 const ExportScreen = ({ protocol, protocolsHaveLoaded }) => {
@@ -41,6 +42,7 @@ const ExportScreen = ({ protocol, protocolsHaveLoaded }) => {
         <div className="export__description">
           <h3>Filtering</h3>
           <p>Optionally filter the network before export.</p>
+          <Filter />
         </div>
       </div>
       <Button size="small">Export</Button>
