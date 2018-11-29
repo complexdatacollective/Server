@@ -21,7 +21,7 @@ const mockProps = {
   },
 };
 
-describe('<AlterRule />', () => {
+xdescribe('<AlterRule />', () => {
   it('can render', () => {
     const component = shallow(<AlterRule {...mockProps} />);
 

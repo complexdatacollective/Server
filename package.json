@@ -151,7 +151,9 @@
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{js,jsx}",
-      "!**/src/renderer/ui/**",
+      "!src/renderer/ui/**",
+      "!src/renderer/components/Filter/**",
+      "!src/renderer/components/Transitions/(Appear|Drawer)*",
       "!**/dummy_data.js"
     ],
     "modulePathIgnorePatterns": [
