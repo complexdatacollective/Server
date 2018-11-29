@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { LineChart as RechartLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-import { getCSSValueDict } from '../../utils/css-variables';
+import { getCSSValueDict } from '../../utils/CSSVariables';
 
 const colorDict = getCSSValueDict('--graph-data-1', '--graph-data-2', '--graph-tooltip');
 

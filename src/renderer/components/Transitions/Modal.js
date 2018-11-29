@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { CSSTransition } from 'react-transition-group';
-import { getCSSNumber } from '../../utils/css-variables';
+import { getCSSNumber } from '../../utils/CSSVariables';
 
 const duration = {
   enter: getCSSNumber('--animation-duration-fast-ms'),

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { BarChart as RechartBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-import { getCSSValueDict, getCSSValues } from '../../utils/css-variables';
+import { getCSSValueDict, getCSSValues } from '../../utils/CSSVariables';
 
 const colorDict = getCSSValueDict('--graph-tooltip');
 const barColors = getCSSValues(
