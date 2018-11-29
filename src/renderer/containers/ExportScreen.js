@@ -8,6 +8,8 @@ import Filter from '../components/Filter'; // eslint-disable-line import/no-name
 import DrawerTransition from '../components/Transitions/Drawer';
 import { selectors } from '../ducks/modules/protocols';
 import { Button, Spinner } from '../ui';
+import Checkbox from '../ui/components/Fields/Checkbox';
+import Radio from '../ui/components/Fields/Radio';
 
 const defaultFilter = {
   join: '',
@@ -70,8 +72,15 @@ class ExportScreen extends Component {
             <h3>Filetype</h3>
             <p>Choose an export format</p>
             <div>
-              <input name="export_format" value="csv" id="export_format_csv" type="radio" onChange={this.handleFormatChange} />
-              <label htmlFor="export_format">CSV</label>
+              <Radio
+                label="CSV"
+                input={{
+                  name: 'export_format',
+                  checked: this.state.exportFormat === 'csv',
+                  value: 'csv',
+                  onChange: this.handleFormatChange,
+                }}
+              />
               <DrawerTransition in={showCsvOpts}>
                 <div className="export__subpanel">
                   <div className="export__subpanel-content">
@@ -79,15 +88,15 @@ class ExportScreen extends Component {
                     {
                       Object.entries(availableCsvTypes).map(([csvType, label]) => (
                         <div key={`export_csv_type_${csvType}`}>
-                          <input
-                            name="export_csv_types"
-                            checked={this.state.csvTypes.has(csvType)}
-                            id={`export_csv_type_${csvType}`}
-                            value={csvType}
-                            type="checkbox"
-                            onChange={this.handleCsvTypeChange}
+                          <Checkbox
+                            label={label}
+                            input={{
+                              name: 'export_csv_types',
+                              checked: this.state.csvTypes.has(csvType),
+                              value: csvType,
+                              onChange: this.handleCsvTypeChange,
+                            }}
                           />
-                          <label htmlFor={`export_csv_type_${csvType}`}>{label}</label>
                         </div>
                       ))
                     }
@@ -96,10 +105,15 @@ class ExportScreen extends Component {
               </DrawerTransition>
             </div>
             <div>
-              <input name="export_format" value="graphml" id="export_format_graphml" type="radio" onChange={this.handleFormatChange} />
-              <label htmlFor="export_format_graphml">
-                GraphML
-              </label>
+              <Radio
+                label="GraphML"
+                input={{
+                  name: 'export_format',
+                  checked: this.state.exportFormat === 'graphml',
+                  value: 'graphml',
+                  onChange: this.handleFormatChange,
+                }}
+              />
             </div>
           </div>
         </div>
@@ -138,4 +152,5 @@ export default connect(mapStateToProps)(ExportScreen);
 
 export {
   ExportScreen,
+  availableCsvTypes,
 };
