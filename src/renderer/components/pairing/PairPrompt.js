@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Icon } from '../../ui/components';
 
-import SlideDown from '../transitions/SlideDown';
+import SlideDown from '../Transitions/SlideDown';
 
 const PairPrompt = ({ onDismiss, onAcknowledge }) => (
   <div className="pairing-prompt">

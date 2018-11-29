@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '../ui/components';
 
-import { Modal as ModalTransition } from '../components/transitions';
+import { Modal as ModalTransition } from '../components/Transitions';
 
 /**
  * @class Modal
