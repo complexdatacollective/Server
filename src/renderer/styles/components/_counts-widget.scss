@@ -4,9 +4,17 @@
   justify-content: center;
   padding: 1rem;
 
-  &__content {
+  @include element(content) {
     align-items: center;
     display: flex;
     justify-content: space-between;
+  }
+
+  @include element(key) {
+    margin: spacing(small) 0;
+  }
+
+  @include element(value) {
+    margin: spacing(small) 0;
   }
 }

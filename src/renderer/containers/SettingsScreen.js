@@ -45,7 +45,7 @@ class SettingsScreen extends Component {
             </p>
           </div>
           <div className="settings__action">
-            <Button size="small" color="tomato" onClick={this.deleteProtocol}>
+            <Button color="tomato" onClick={this.deleteProtocol}>
               Delete
             </Button>
           </div>

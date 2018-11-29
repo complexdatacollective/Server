@@ -41,13 +41,13 @@ function Modal(props) {
           <div className="modal__close">
             {
               onCancel &&
-              <Button color="tomato" size="small" onClick={() => onCancel()}>
+              <Button color="tomato" onClick={() => onCancel()}>
                 Cancel
               </Button>
             }
             {
               onComplete &&
-              <Button size="small" onClick={() => onComplete()}>
+              <Button onClick={() => onComplete()}>
                 Finished
               </Button>
             }

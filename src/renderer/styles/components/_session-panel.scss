@@ -9,11 +9,11 @@
   }
 
   @include element(header-count) {
-    margin-left: .5rem;
+    margin-left: 0.5rem;
   }
 
   @include element(id) {
     color: var(--color-charcoal);
-    margin-left: .5rem;
+    margin-left: 0.5rem;
   }
 }

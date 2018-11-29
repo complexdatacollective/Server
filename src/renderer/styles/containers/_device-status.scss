@@ -4,7 +4,7 @@
   background: center / contain no-repeat url('../images/devices.png');
   cursor: pointer;
   height: #{spacing('medium') * 2}; // stay on par with link padding
-  margin: .5rem spacing('medium');
+  margin: 0.5rem spacing('medium');
   position: relative;
   width: #{spacing('medium') * 2}; // square with height
 
@@ -13,15 +13,15 @@
   }
 
   @include element(badge) {
-    --badge-offset: -.4rem;
+    --badge-offset: -0.4rem;
     --badge-size: 1.4rem;
     background-color: var(--color-sea-green);
     border: 2px solid var(--color-white);
-    border-radius: calc(var(--badge-size) * .5);
+    border-radius: calc(var(--badge-size) * 0.5);
     bottom: var(--badge-offset);
     color: var(--color-white);
     display: block;
-    font-size: .9rem;
+    font-size: 0.9rem;
     height: var(--badge-size);
     line-height: 1.2;
     position: absolute;

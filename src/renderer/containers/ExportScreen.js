@@ -114,7 +114,7 @@ class ExportScreen extends Component {
             />
           </div>
         </div>
-        <Button size="small" disabled>Export</Button>
+        <Button disabled>Export</Button>
       </div>
     );
   }

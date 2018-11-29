@@ -22,11 +22,11 @@
   @include element(char) {
     background-color: var(--color-white);
     border: 1px solid var(--base-border-color);
-    border-radius: .25rem;
+    border-radius: 0.25rem;
     display: inline-block;
     font-family: var(--code-font);
     font-size: 4rem;
-    margin: spacing(tiny) .1rem;
+    margin: spacing(tiny) 0.1rem;
     padding: spacing(small);
 
     &:nth-of-type(4n) {

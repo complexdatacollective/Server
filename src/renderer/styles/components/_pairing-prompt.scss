@@ -5,7 +5,7 @@
   @include slide-down-transition($estimated-height);
 
   background-color: var(--color-cyber-grape);
-  border-bottom: .5rem solid var(--color-mustard);
+  border-bottom: 0.5rem solid var(--color-mustard);
   color: var(--color-white);
   display: flex;
   left: calc(50% - #{$width / 2});
