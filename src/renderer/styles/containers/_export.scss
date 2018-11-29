@@ -11,7 +11,12 @@
     padding-right: spacing(large);
   }
 
-  @include element(action) {
-    flex: 0 0 auto;
+  @include element(subpanel) {
+    transform-origin: top;
+    padding: 0 1rem;
+  }
+
+  @include element(subpanel-content) {
+    padding: 1rem 0;
   }
 }
