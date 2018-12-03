@@ -27,6 +27,7 @@ class ExportScreen extends Component {
     super(props);
     this.state = {
       exportFormat: null,
+      exportNetworkUnion: null,
       csvTypes: new Set(Object.keys(availableCsvTypes)),
       filter: defaultFilter,
     };
@@ -51,6 +52,10 @@ class ExportScreen extends Component {
     this.setState({ csvTypes });
   }
 
+  handleUnionChange = (evt) => {
+    this.setState({ exportNetworkUnion: evt.target.value === 'true' });
+  }
+
   render() {
     const { protocol, protocolsHaveLoaded } = this.props;
 
@@ -68,65 +73,93 @@ class ExportScreen extends Component {
       <div className="export">
         <h1>{protocol.name}</h1>
         <div className="export__section">
-          <div className="export__description">
-            <h3>Filetype</h3>
-            <p>Choose an export format</p>
-            <div>
-              <Radio
-                label="CSV"
-                input={{
-                  name: 'export_format',
-                  checked: this.state.exportFormat === 'csv',
-                  value: 'csv',
-                  onChange: this.handleFormatChange,
-                }}
-              />
-              <DrawerTransition in={showCsvOpts}>
-                <div className="export__subpanel">
-                  <div className="export__subpanel-content">
-                    <h4>Include the following files:</h4>
-                    {
-                      Object.entries(availableCsvTypes).map(([csvType, label]) => (
-                        <div key={`export_csv_type_${csvType}`}>
-                          <Checkbox
-                            label={label}
-                            input={{
-                              name: 'export_csv_types',
-                              checked: this.state.csvTypes.has(csvType),
-                              value: csvType,
-                              onChange: this.handleCsvTypeChange,
-                            }}
-                          />
-                        </div>
-                      ))
-                    }
-                  </div>
+          <h3>File Type</h3>
+          <p>
+            Choose an export format. If multiple files are produced, they’ll be archived in a ZIP
+            for download.
+          </p>
+          <div>
+            <Radio
+              label="CSV"
+              input={{
+                name: 'export_format',
+                checked: this.state.exportFormat === 'csv',
+                value: 'csv',
+                onChange: this.handleFormatChange,
+              }}
+            />
+            <DrawerTransition in={showCsvOpts}>
+              <div className="export__subpanel">
+                <div className="export__subpanel-content">
+                  <h4>Include the following files:</h4>
+                  {
+                    Object.entries(availableCsvTypes).map(([csvType, label]) => (
+                      <div key={`export_csv_type_${csvType}`}>
+                        <Checkbox
+                          label={label}
+                          input={{
+                            name: 'export_csv_types',
+                            checked: this.state.csvTypes.has(csvType),
+                            value: csvType,
+                            onChange: this.handleCsvTypeChange,
+                          }}
+                        />
+                      </div>
+                    ))
+                  }
                 </div>
-              </DrawerTransition>
-            </div>
-            <div>
-              <Radio
-                label="GraphML"
-                input={{
-                  name: 'export_format',
-                  checked: this.state.exportFormat === 'graphml',
-                  value: 'graphml',
-                  onChange: this.handleFormatChange,
-                }}
-              />
-            </div>
+              </div>
+            </DrawerTransition>
+          </div>
+          <div>
+            <Radio
+              label="GraphML"
+              input={{
+                name: 'export_format',
+                checked: this.state.exportFormat === 'graphml',
+                value: 'graphml',
+                onChange: this.handleFormatChange,
+              }}
+            />
           </div>
         </div>
         <div className="export__section">
-          <div className="export__description">
-            <h3>Filtering</h3>
-            <p>Optionally filter the network before export.</p>
-            <Filter
-              filter={this.state.filter}
-              onChange={this.handleFilterChange}
-              variableRegistry={protocol.variableRegistry}
+          <h3>Interview Networks</h3>
+          <p>
+            Choose whether to export all networks separately, or to merge them
+            before exporting.
+          </p>
+          <div>
+            <Radio
+              label="Export the network from each interview separately"
+              input={{
+                name: 'export_network_union',
+                checked: this.state.exportNetworkUnion === false,
+                value: 'false',
+                onChange: this.handleUnionChange,
+              }}
             />
           </div>
+          <div>
+            <Radio
+              label="Export the union of all interview networks"
+              input={{
+                name: 'export_network_union',
+                checked: this.state.exportNetworkUnion === true,
+                value: 'true',
+                onChange: this.handleUnionChange,
+              }}
+            />
+          </div>
+        </div>
+        <div className="export__section">
+          <h3>Filtering</h3>
+          <p>Optionally filter the network(s) before export.</p>
+          <Filter
+            filter={this.state.filter}
+            onChange={this.handleFilterChange}
+            variableRegistry={protocol.variableRegistry}
+          />
         </div>
         <Button disabled>Export</Button>
       </div>
