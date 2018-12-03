@@ -20,6 +20,8 @@ const modifierClass = (messageType) => {
   }
 };
 
+const iconName = type => (type === messageTypes.Error ? 'error' : 'info');
+
 const AppMessage = ({ text, type, isExpired, timestamp, handleDismissal }) => (
   <Fade transitionIn={!isExpired}>
     <div className={`${baseCssClass} ${modifierClass(type)}`}>
@@ -32,7 +34,8 @@ const AppMessage = ({ text, type, isExpired, timestamp, handleDismissal }) => (
         />
       </button>
       <div className="app-message__text">
-        {text}
+        <Icon className="app-message__icon" name={iconName(type)} size="small" />
+        <span>{text}</span>
       </div>
     </div>
   </Fade>
