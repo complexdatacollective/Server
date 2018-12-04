@@ -1,5 +1,7 @@
 const { Readable } = require('stream');
 
+const { csvEOL } = require('./csv');
+
 /**
  * Builds an adjacency list for a network, based only on its edges (it need
  * not contain all nodes).
@@ -42,7 +44,6 @@ const asAdjacencyList = (edges, directed = false) =>
  */
 // TODO: quoting/escaping (not needed while we're only using UUIDs)
 const toCSVStream = (adjancencyList, outStream) => {
-  const csvEOL = '\r\n';
   const adjacencies = Object.entries(adjancencyList);
   const totalRows = adjacencies.length;
   let rowContent;
