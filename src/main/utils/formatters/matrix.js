@@ -3,7 +3,7 @@
 
 const { Readable } = require('stream');
 
-const nodePrimaryKeyProperty = '_uid';
+const { nodePrimaryKeyProperty } = require('./network');
 const { csvEOL } = require('./csv');
 
 /**
