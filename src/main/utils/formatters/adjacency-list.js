@@ -1,3 +1,5 @@
+const { Readable } = require('stream');
+
 /**
  * Builds an adjacency list for a network, based only on its edges (it need
  * not contain all nodes).
@@ -28,14 +30,39 @@ const asAdjacencyList = (edges, directed = false) =>
     return acc;
   }, {});
 
+/**
+ * Write a CSV reprensentation of the list to the given Writable stream.
+ *
+ * @example
+ * ```
+ * a,b,c
+ * b,a
+ * c,a
+ * ```
+ */
 // TODO: quoting/escaping (not needed while we're only using UUIDs)
 const toCSVStream = (adjancencyList, outStream) => {
   const csvEOL = '\r\n';
-  Object.entries(adjancencyList).forEach(([source, destinations]) => {
-    const rowContent = `${source},${[...destinations].join(',')}${csvEOL}`;
-    outStream.write(rowContent);
+  const adjacencies = Object.entries(adjancencyList);
+  const totalRows = adjacencies.length;
+  let rowContent;
+  let rowIndex = 0;
+
+  const inStream = new Readable({
+    read(/* size */) {
+      if (rowIndex < totalRows) {
+        const [source, destinations] = adjacencies[rowIndex];
+        rowContent = `${source},${[...destinations].join(',')}${csvEOL}`;
+        this.push(rowContent);
+        rowIndex += 1;
+      } else {
+        this.push(null);
+      }
+    },
   });
-  outStream.end();
+
+  // TODO: handle teardown. Use pipeline() API in Node 10?
+  inStream.pipe(outStream);
 };
 
 module.exports = {
