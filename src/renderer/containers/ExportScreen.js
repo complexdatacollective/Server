@@ -10,6 +10,7 @@ import { selectors } from '../ducks/modules/protocols';
 import { Button, Spinner } from '../ui';
 import Checkbox from '../ui/components/Fields/Checkbox';
 import Radio from '../ui/components/Fields/Radio';
+import Toggle from '../ui/components/Fields/Toggle';
 
 const defaultFilter = {
   join: '',
@@ -30,6 +31,7 @@ class ExportScreen extends Component {
       exportNetworkUnion: null,
       csvTypes: new Set(Object.keys(availableCsvTypes)),
       filter: defaultFilter,
+      useDirectedEdges: true,
     };
   }
 
@@ -54,6 +56,10 @@ class ExportScreen extends Component {
 
   handleUnionChange = (evt) => {
     this.setState({ exportNetworkUnion: evt.target.value === 'true' });
+  }
+
+  useDandleDirectedEdgesChange = (evt) => {
+    this.setState({ useDirectedEdges: evt.target.checked });
   }
 
   render() {
@@ -107,6 +113,17 @@ class ExportScreen extends Component {
                       </div>
                     ))
                   }
+                </div>
+                <div className="export__subpanel-content">
+                  <h4>Directed Edges</h4>
+                  <Toggle
+                    label="Treat edges as directed"
+                    input={{
+                      name: 'export_use_directed_edges',
+                      onChange: this.useDandleDirectedEdgesChange,
+                      value: this.state.useDirectedEdges,
+                    }}
+                  />
                 </div>
               </div>
             </DrawerTransition>

@@ -18,6 +18,11 @@ body {
   }
 }
 
+// NC-UI defines this as the same as the field it overlays, so it's never visible
+.form-field-toggle__button {
+  background-color: var(--color-platinum--dark);
+}
+
 @mixin input-focus-style {
   // NC-UI doesn't style focus colors; fix for keyboard accessibility
   $focused-accent-border: var(--color-cerulean-blue);
