@@ -1,6 +1,8 @@
 /* eslint-disable no-bitwise */
 /* eslint space-infix-ops: ["error", {"int32Hint": true}] */
 
+const { Readable } = require('stream');
+
 const nodePrimaryKeyProperty = '_uid';
 
 /**
@@ -50,7 +52,6 @@ const nodePrimaryKeyProperty = '_uid';
 // TODO: Take a guess at heap use based on network size and throw if exceeded?
 class AdjacencyMatrix {
   constructor(network) {
-    // TODO: support arbitrary labeling (not just _uid)
     // TODO: Store a quote-escaped version?
     // Track only unique IDs (duplicates are discarded). The ordering here provides the ordering for
     // both header and data output.
@@ -112,8 +113,7 @@ class AdjacencyMatrix {
   /**
    * @param {Stream.Writable} outStream A writable stream for CSV output
    */
-  // FIXME: This is synchronous.
-  // TODO: stream writing could be more efficient; also look at fs.write
+  // TODO: support cancellation
   toCSVStream(outStream) {
     const csvEOL = '\r\n'; // always this, not os-specific
     const uniqueNodeIds = this.uniqueNodeIds;
@@ -124,13 +124,10 @@ class AdjacencyMatrix {
     // cannot be used directly to index into arrayViews.
     let matrixIndex = 0;
 
-    // Header row
-    // TODO: escape uniqueNodeIds (if not already) & quote
-    outStream.write(`,${uniqueNodeIds.join(',')}${csvEOL}`);
+    const headerRowContent = `,${uniqueNodeIds.join(',')}${csvEOL}`;
 
-    // Data rows
     // TODO: escape headerLabels (if not already) & quote
-    const rowContent = (headerLabel, matrix) => {
+    const dataRowContent = (headerLabel, matrix) => {
       const rowBuffer = new ArrayBuffer(dataColumnCount);
       const cols = new Uint8Array(rowBuffer);
 
@@ -176,22 +173,35 @@ class AdjacencyMatrix {
     let truncatingView = this.arrayView.subarray();
     let row;
 
-    for (let rowNum = 0; rowNum < dataColumnCount; rowNum += 1) {
-      row = rowContent(uniqueNodeIds[rowNum], truncatingView);
-      outStream.write(row);
+    let headerWritten = false;
+    let rowNum = 0;
 
-      // TODO: how to test? inject/mock max?
-      if (matrixIndex > v8MaxInt) {
-        // 'Reset' our view of the matrix to keep the index small
-        // by truncating our data view of the underlying buffer.
-        const leftoverBits = matrixIndex % 8;
-        truncatingView = truncatingView.subarray(~~(matrixIndex / 8));
-        matrixIndex = leftoverBits;
-      }
-    }
-    outStream.end();
+    const inStream = new Readable({
+      read(/* size */) {
+        if (!headerWritten) {
+          this.push(headerRowContent);
+          headerWritten = true;
+        } else if (rowNum < dataColumnCount) {
+          row = dataRowContent(uniqueNodeIds[rowNum], truncatingView);
+          this.push(row);
+          rowNum += 1;
 
-    return outStream;
+          // TODO: how to test? inject/mock max?
+          if (matrixIndex > v8MaxInt) {
+            // 'Reset' our view of the matrix to keep the index small
+            // by truncating our data view of the underlying buffer.
+            const leftoverBits = matrixIndex % 8;
+            truncatingView = truncatingView.subarray(~~(matrixIndex / 8));
+            matrixIndex = leftoverBits;
+          }
+        } else {
+          this.push(null);
+        }
+      },
+    });
+
+    // TODO: handle teardown. Use pipeline() API in Node 10?
+    inStream.pipe(outStream);
   }
 
   toArray(matrixView = this.arrayView) {
