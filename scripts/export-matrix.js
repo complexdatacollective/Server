@@ -3,7 +3,7 @@
 const fs = require('fs');
 const { buildMockData } = require('./db-size');
 const { asAdjacencyMatrix } = require('../src/main/utils/formatters/matrix');
-const { asAdjacencyList } = require('../src/main/utils/formatters/adjacency-list');
+const { asAdjacencyList, toCSVStream } = require('../src/main/utils/formatters/adjacency-list');
 
 
 const mockdata = buildMockData({ sessionCount: 4500 });
@@ -15,8 +15,12 @@ mockdata.forEach((session) => {
 });
 
 console.time('list');
-asAdjacencyList(merged.edges, false);
+const list = asAdjacencyList(merged.edges, false);
 console.timeEnd('list');
+
+console.time('list-csv');
+toCSVStream(list, fs.createWriteStream('test-export-list.csv'));
+console.timeEnd('list-csv');
 
 console.time('list-directed');
 asAdjacencyList(merged.edges, true);
@@ -32,5 +36,5 @@ console.timeEnd('matrix-directed');
 
 // Test CSV output
 console.time('csv');
-matrix.toCSVStream(fs.createWriteStream('test-export.csv'));
+matrix.toCSVStream(fs.createWriteStream('test-export-matrix.csv'));
 console.timeEnd('csv');
