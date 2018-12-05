@@ -1,9 +1,10 @@
 // Sharing Issues:
-// - APIs (string output vs streaming); see saveFile()
-// - need to abstract DOMParser
-// - need to abstract XMLSerializer (see xmlToString())
-// - source data differs (we're working with resolved names in Server)
+// - [ ] APIs (string output vs streaming); see saveFile()
+// - [ ] need to abstract DOMParser
+// - [ ] need to abstract XMLSerializer (see xmlToString())
+// - [x] source data differs (we're working with resolved names in Server)
 //    - this affects variable type lookup for nodes and labels for edges
+// - [x] document is not global
 
 const { DOMParser, XMLSerializer } = require('xmldom'); // TODO: these are globals in browser
 
@@ -40,10 +41,23 @@ const setUpXml = () => {
   return (new DOMParser()).parseFromString(graphMLOutline, 'text/xml');
 };
 
+const getVariableDefinition = (variables, key) => {
+  if (!variables) {
+    return null;
+  }
+  if (variables[key]) {
+    // NC: When dealing with variableIDs (not transposed), we have the match
+    return variables[key];
+  }
+  // Server: need to look up based on name (transpose name back to ID)
+  const entries = Object.entries(variables).find(([, variable]) => variable.name === key);
+  return entries && entries[1];
+};
+
 const getVariableInfo = (variableRegistry, type, element, key) => (
-  variableRegistry[type] && variableRegistry[type][element.type] &&
-  variableRegistry[type][element.type].variables &&
-  variableRegistry[type][element.type].variables[key]
+  variableRegistry[type] &&
+  variableRegistry[type][element.type] &&
+  getVariableDefinition(variableRegistry[type][element.type].variables, key)
 );
 
 const isVariableRegistryExists = (variableRegistry, type, element, key) => {
@@ -126,8 +140,8 @@ const generateKeys = (
     // Node data model attributes are now stored under a specific propertyy
 
     Object.keys(iterableElement).forEach((key) => {
-      // transpose ids to names based on registry
-      // FIXME: Server should not be transposing
+      // transpose ids to names based on registry; fall back to the raw key
+      // (Server does not need transposing.)
       const keyName = getTypeFromVariableRegistry(variableRegistry, type, element, key, 'name') || key;
       if (done.indexOf(keyName) === -1 && !excludeList.includes(keyName)) {
         const keyElement = document.createElementNS(graphML.namespaceURI, 'key');
@@ -213,10 +227,16 @@ const addElements = (
     graph.appendChild(domElement);
 
     if (type === 'edge') {
-      // FIXME: ID/name transposition for Server
-      const label = variableRegistry && variableRegistry[type] &&
+      let label = variableRegistry && variableRegistry[type] &&
         variableRegistry[type][dataElement.type] && (variableRegistry[type][dataElement.type].name
           || variableRegistry[type][dataElement.type].label);
+
+      // If we couldn't find a transposition, use the key directly.
+      // This will be the case on Server (and `type` will already contain the name).
+      if (!label) {
+        label = dataElement.type;
+      }
+
       domElement.appendChild(getDataElement(document, uri, 'label', label));
 
       Object.keys(dataElement).forEach((key) => {
