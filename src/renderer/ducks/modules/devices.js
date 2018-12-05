@@ -42,7 +42,7 @@ const loadDevices = () => (dispatch) => {
   return getApiClient().get('/devices')
     .then(resp => resp.devices)
     .then(devices => dispatch(devicesLoadedAction(devices)))
-    .catch(err => dispatch(messageActionCreators.showMessage(err.message)));
+    .catch(err => messageActionCreators.showErrorMessage(err.message)(dispatch));
 };
 
 const deleteDeviceAction = deviceId => ({
@@ -54,7 +54,7 @@ const deleteDevice = deviceId => (dispatch) => {
   dispatch(deleteDeviceAction(deviceId));
   return getApiClient().delete(`devices/${deviceId}`)
     .then(() => loadDevices()(dispatch))
-    .catch(err => dispatch(messageActionCreators.showMessage(err.message)));
+    .catch(err => messageActionCreators.showErrorMessage(err.message)(dispatch));
 };
 
 const actionCreators = {

@@ -64,14 +64,14 @@ const loadProtocols = () => (dispatch) => {
   return getApiClient().get('/protocols')
     .then(resp => resp.protocols)
     .then(protocols => dispatch(protocolsLoadedDispatch(protocols)))
-    .catch(err => dispatch(messageActionCreators.showMessage(err.message)));
+    .catch(err => messageActionCreators.showErrorMessage(err.message)(dispatch));
 };
 
 const deleteProtocol = id => (dispatch) => {
   dispatch(deleteProtocolDispatch(id));
   return getApiClient().delete(`/protocols/${id}`)
     .then(() => dispatch(protocolDeletedDispatch(id)))
-    .catch(err => dispatch(messageActionCreators.showMessage(err.message)));
+    .catch(err => messageActionCreators.showErrorMessage(err.message)(dispatch));
 };
 
 const actionCreators = {

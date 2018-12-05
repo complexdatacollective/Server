@@ -11,6 +11,7 @@ const dialog = require('./dialog');
 
 // TODO: move/centralize
 const FileImportUpdated = 'FILE_IMPORT_UPDATED';
+const PROTOCOL_IMPORT_SUCCEEDED = 'PROTOCOL_IMPORT_SUCCEEDED';
 
 const userDataDir = app.getPath('userData');
 const adminService = new AdminService({ dataDir: userDataDir });
@@ -41,11 +42,7 @@ const createApp = () => {
       .then((filename) => {
         // If filename is empty, user cancelled
         if (filename) {
-          dialog.showMessageBox(mainWindow.window, {
-            title: 'Success',
-            message: 'Successfully Imported:',
-            detail: filename,
-          });
+          mainWindow.send(PROTOCOL_IMPORT_SUCCEEDED, filename);
         }
       })
       .then(() => mainWindow.send(FileImportUpdated))

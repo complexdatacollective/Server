@@ -1,5 +1,5 @@
 /* eslint-env jest */
-import reducer, { actionCreators, actionTypes } from '../appMessages';
+import reducer, { actionCreators, actionTypes, messageTypes } from '../appMessages';
 
 jest.mock('../../../utils/adminApiClient');
 
@@ -28,11 +28,32 @@ describe('the appMessages module', () => {
       });
     });
 
-    it('exports a show creator', () => {
-      expect(actionCreators.showMessage('testing')).toMatchObject({
+    it('exports a showErrorMessage thunk', () => {
+      expect(actionCreators.showErrorMessage('testing')).toBeInstanceOf(Function);
+    });
+
+    it('exports a showConfirmationMessage thunk', () => {
+      expect(actionCreators.showConfirmationMessage('testing')).toBeInstanceOf(Function);
+    });
+
+    it('dispatches an error message to show', () => {
+      const dispatch = jest.fn();
+      actionCreators.showErrorMessage('testing')(dispatch);
+      expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
+        messageType: messageTypes.Error,
         type: actionTypes.SHOW_MESSAGE,
         text: 'testing',
-      });
+      }));
+    });
+
+    it('dispatches a confirmation message to show', () => {
+      const dispatch = jest.fn();
+      actionCreators.showConfirmationMessage('testing')(dispatch);
+      expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
+        messageType: messageTypes.Confirmation,
+        type: actionTypes.SHOW_MESSAGE,
+        text: 'testing',
+      }));
     });
   });
 });

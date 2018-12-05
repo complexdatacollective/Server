@@ -1,19 +1,51 @@
 .app-message {
+  --margin: #{spacing(medium)};
   background-color: var(--message-background-color);
+  border-color: var(--message-border-color);
+  border-style: solid;
+  border-width: 4px;
+  border-radius: 1rem;
+  bottom: 0;
   color: var(--message-color);
-  cursor: pointer;
-  padding: spacing(small);
+  font-size: 1.2rem;
+  margin: spacing(medium);
+  padding: spacing(medium);
   position: fixed;
   text-align: center;
-  width: 100%;
+  width: calc(100% - 2 * var(--margin));
   z-index: var(--z-index-app-messages);
+
+  @include modifier(error) {
+    background-color: var(--error-message-background-color);
+    border-color: var(--error-message-border-color);
+    color: var(--error-message-color);
+  }
+
+  @include element(icon) {
+    margin-right: 1rem;
+
+    &[name] { // needed to match NC-UI specificity
+      height: 35px;
+      width: 35px;
+    }
+  }
+
+  @include element(text) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @include element(button) {
+    @include reset-button;
+    cursor: pointer;
+    float: right;
+  }
 
   @include element(close) {
     color: var(--message-color);
 
-    float: right;
-
-    &[name='close'] { // Specificity needed to match UI lib
+    &[name] { // needed to match NC-UI specificity
       height: 1rem;
     }
   }
