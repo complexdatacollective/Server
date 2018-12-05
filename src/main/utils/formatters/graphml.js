@@ -3,7 +3,7 @@
 // - need to abstract DOMParser
 // - need to abstract XMLSerializer (see xmlToString())
 // - source data differs (we're working with resolved names in Server)
-//    - could inject the transform dependencies (no-ops for server)
+//    - this affects variable type lookup for nodes and labels for edges
 
 const { DOMParser, XMLSerializer } = require('xmldom'); // TODO: these are globals in browser
 
@@ -127,6 +127,7 @@ const generateKeys = (
 
     Object.keys(iterableElement).forEach((key) => {
       // transpose ids to names based on registry
+      // FIXME: Server should not be transposing
       const keyName = getTypeFromVariableRegistry(variableRegistry, type, element, key, 'name') || key;
       if (done.indexOf(keyName) === -1 && !excludeList.includes(keyName)) {
         const keyElement = document.createElementNS(graphML.namespaceURI, 'key');
@@ -212,6 +213,7 @@ const addElements = (
     graph.appendChild(domElement);
 
     if (type === 'edge') {
+      // FIXME: ID/name transposition for Server
       const label = variableRegistry && variableRegistry[type] &&
         variableRegistry[type][dataElement.type] && (variableRegistry[type][dataElement.type].name
           || variableRegistry[type][dataElement.type].label);

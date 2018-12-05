@@ -67,6 +67,9 @@ function buildMockData({ sessionCount = SessionCount, edgesPerSession = EdgesPer
    * 80k nodes + 850k edges across 4,500 participant interviews.
    *
    * Normal dist: 18 nodes, 180 edges per interview
+   *
+   * This format should match that of the NC export (stored in DB).
+   * Note that variable IDs are already transposed to names.
    */
   const mockNode = {
     [nodePrimaryKeyProperty]: 'person_3',
@@ -220,19 +223,10 @@ function printDbSize() {
 
 function go() { return Promise.resolve(); }
 
+// Note that IDs are not transposed to names here; for ease of review, node variable names & IDs
+// happen to match (except for 'prop1' and 'prop2', which can be used to verify correct behavior
+// with transposition).
 const variableRegistry = {
-  // const mockNode = {
-  // [nodePrimaryKeyProperty]:"person_3",
-  // "type":"person",
-  // "name":"Carlito",
-  // "nickname":"Carl",
-  // "age":"25",
-  // "itemType":"NEW_NODE",
-  // "stageId":"namegen1",
-  // "promptId":"6cl",
-  // "school_important":true,
-  // "id":2,
-  // "closenessLayout":{"x":0.35625,"y":0.6988888888888889}};
   node: {
     person: {
       name: 'person',
@@ -280,13 +274,13 @@ const variableRegistry = {
           name: "itemType",
           type: "text",
         },
-        stageId: {
-          name: "stageId",
+        '68119732-49a4-449f-b056-f444f4e41982': {
+          name: "prop1",
           type: "text",
         },
-        promptId: {
-          name: "promptId",
-          type: "text",
+        'cb0a01eb-bc86-4e8f-afc6-4a60806a7c8d': {
+          name: "prop2",
+          type: "number",
         },
         school_important: {
           "name": "school_important",
@@ -303,7 +297,12 @@ const variableRegistry = {
       }
     }
   },
-  edge: {},
+  edge: {
+    '77199445-9d50-4646-b0bc-6d6b0c0e06bd': {
+      name: 'friend',
+      label: 'Friend',
+    }
+  },
 };
 
 if (require.main === module) {
