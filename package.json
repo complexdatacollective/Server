@@ -119,7 +119,8 @@
     "restify-cors-middleware": "^1.1.1",
     "selfsigned": "^1.10.3",
     "thread-loader": "^1.1.5",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.2",
+    "xmldom": "^0.1.27"
   },
   "browserslist": [
     "Chrome 61"
