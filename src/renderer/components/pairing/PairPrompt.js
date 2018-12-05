@@ -16,11 +16,11 @@ const PairPrompt = ({ onDismiss, onAcknowledge }) => (
         This will give it access to your interview protocols and allow it to upload data.
       </p>
       <div className="pairing-prompt__buttonGroup">
-        <Button color="platinum" size="small" onClick={onDismiss}>
+        <Button color="platinum" onClick={onDismiss}>
           Dismiss
         </Button>
         &nbsp;
-        <Button size="small" onClick={onAcknowledge}>
+        <Button onClick={onAcknowledge}>
           Pair With Device
         </Button>
       </div>
