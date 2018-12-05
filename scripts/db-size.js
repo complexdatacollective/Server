@@ -32,6 +32,7 @@ const printResult = (taskDesc, result, hrtimeDiff) => {
 }
 
 const nodePrimaryKeyProperty = '_uid';
+const nodeAttributesProperty = 'attributes';
 
 const dbFile = 'perf-test-sessions.db';
 let db;
@@ -67,7 +68,21 @@ function buildMockData({ sessionCount = SessionCount, edgesPerSession = EdgesPer
    *
    * Normal dist: 18 nodes, 180 edges per interview
    */
-  const mockNode = {[nodePrimaryKeyProperty]:"person_3","type":"person","name":"Carlito","nickname":"Carl","age":"25","itemType":"NEW_NODE","stageId":"namegen1","promptId":"6cl","school_important":true,"id":2,"closenessLayout":{"x":0.35625,"y":0.6988888888888889}};
+  const mockNode = {
+    [nodePrimaryKeyProperty]: 'person_3',
+    type: 'person',
+    [nodeAttributesProperty]: {
+      name: 'Carlito',
+      nickname: 'Carl',
+      age: '25',
+      itemType: 'NEW_NODE',
+      prop1: 'example1',
+      prop2: 22,
+      school_important: true,
+      id:2,
+      closenessLayout: {"x":0.35625,"y":0.6988888888888889},
+    }
+  };
   const mockEdge = {"from":12,"to":11,"type":"friends"};
 
   const makeNetwork = (includeEgo = false) => {
@@ -77,7 +92,7 @@ function buildMockData({ sessionCount = SessionCount, edgesPerSession = EdgesPer
     edges.fill(mockEdge);
 
     // Change last edge's property so we can search for it
-    edges[edges.length - 1].from = 13;
+    if (edges.length) { edges[edges.length - 1].from = 13; }
 
     if (useRealIds) {
       const pickNodeUid = () => nodes[~~(Math.random() * nodes.length)][nodePrimaryKeyProperty];
