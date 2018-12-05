@@ -6,6 +6,9 @@ const getCSSNumber = (prop, element = document.documentElement) => (
   Number(getCSSValue(prop, element))
 );
 
+// Compatibility with Architect. TODO: refactor (NC#738)
+const getCSSVariableAsNumber = getCSSNumber;
+
 /**
  * @param  {...string} props property names (example: '--color-1')
  * @return {array} CSS custom property values
@@ -26,6 +29,7 @@ const getCSSValueDict = (...props) => (
 export {
   getCSSValue,
   getCSSNumber,
+  getCSSVariableAsNumber,
   getCSSValues,
   getCSSValueDict,
 };

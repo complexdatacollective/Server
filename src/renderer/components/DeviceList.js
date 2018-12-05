@@ -29,7 +29,7 @@ const DeviceList = ({ deleteDevice, devices }) => {
       <DeviceDetails device={device} />
       {
         deleteDevice &&
-        <Button size="small" color="neon-coral" onClick={() => confirmDelete(device.id)}>
+        <Button color="neon-coral" onClick={() => confirmDelete(device.id)}>
           Unpair
         </Button>
       }

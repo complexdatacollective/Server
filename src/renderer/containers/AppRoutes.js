@@ -5,7 +5,7 @@ import {
   Switch,
 } from 'react-router-dom';
 
-import { PairDevice, OverviewScreen, SettingsScreen, WorkspaceScreen } from './';
+import { PairDevice, OverviewScreen, SettingsScreen, ExportScreen, WorkspaceScreen } from './';
 import { TabBar } from '../components';
 
 const AppRoutes = () => (
@@ -16,7 +16,7 @@ const AppRoutes = () => (
         <Route path="/overview" component={OverviewScreen} />
         <Route exact path="/workspaces/:id/" component={WorkspaceScreen} />
         <Route exact path="/workspaces/:id/settings" component={SettingsScreen} />
-        {/* <Route path="/export" component={ExportScreen} /> */}
+        <Route exact path="/workspaces/:id/export" component={ExportScreen} />
         <Route>
           <Redirect to="/overview" />
         </Route>

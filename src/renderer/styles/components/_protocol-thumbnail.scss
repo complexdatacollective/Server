@@ -1,15 +1,15 @@
 .protocol-thumbnail {
-  $protocol-border-highlight: rgba(255, 255, 255, .15);
+  $protocol-border-highlight: rgba(255, 255, 255, 0.15);
   $protocol-border-transparent: rgba(255, 255, 255, 0);
 
   --border-highlight: #{$protocol-border-highlight};
   --border-transparent: #{$protocol-border-transparent};
   --border-width: 6px;
-  --thumbnail-size: calc(var(--app-sidebar-width) * .6);
+  --thumbnail-size: calc(var(--app-sidebar-width) * 0.6);
 
   background-color: var(--color-cyber-grape);
   border: var(--border-width) solid var(--border-transparent);
-  border-radius: .75rem;
+  border-radius: 0.75rem;
   color: var(--color-white);
   display: block;
   font-size: 2rem;

@@ -4,6 +4,7 @@ files:
   include: 'src/**/*.scss'
   ignore:
     - 'src/renderer/ui/**/*.scss'
+    - 'src/renderer/styles/architect/**/*.scss'
 # Temporarily whitelist new prop (until next published sass-lint version)
 rules:
   no-misspelled-properties:

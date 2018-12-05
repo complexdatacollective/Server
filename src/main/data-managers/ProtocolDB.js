@@ -58,7 +58,7 @@ class ProtocolDB extends DatabaseAdapter {
         return;
       }
 
-      const { description, networkCanvasVersion = '' } = metadata;
+      const { description, variableRegistry, networkCanvasVersion = '' } = metadata;
       const lastModified = validatedModifyTime(metadata);
 
       let oldDoc;
@@ -75,6 +75,7 @@ class ProtocolDB extends DatabaseAdapter {
         description,
         lastModified,
         networkCanvasVersion,
+        variableRegistry,
         sha256Digest: contentsDigest,
       }, {
         multi: false,

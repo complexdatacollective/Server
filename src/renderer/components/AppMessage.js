@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import Fade from './Transitions/Fade';
 import { Icon } from '../ui/components';
-import Fade from './transitions/Fade';
 import { messageTypes } from '../ducks/modules/appMessages';
 import { isFrameless } from '../utils/environment';
 

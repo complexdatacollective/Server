@@ -1,6 +1,8 @@
 $font-path: '../ui/assets/fonts'; // relative to here
 
 @import '../ui/styles/all';
+@import 'architect/all'; // contains theming; import first so we can override
+
 @import 'mixins/all';
 @import 'variables';
 @import 'z-indexes';

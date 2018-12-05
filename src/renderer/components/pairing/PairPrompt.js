@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Icon } from '../../ui/components';
 
-import SlideDown from '../transitions/SlideDown';
+import SlideDown from '../Transitions/SlideDown';
 
 const PairPrompt = ({ onDismiss, onAcknowledge }) => (
   <div className="pairing-prompt">
@@ -16,11 +16,11 @@ const PairPrompt = ({ onDismiss, onAcknowledge }) => (
         This will give it access to your interview protocols and allow it to upload data.
       </p>
       <div className="pairing-prompt__buttonGroup">
-        <Button color="platinum" size="small" onClick={onDismiss}>
+        <Button color="platinum" onClick={onDismiss}>
           Dismiss
         </Button>
         &nbsp;
-        <Button size="small" onClick={onAcknowledge}>
+        <Button onClick={onAcknowledge}>
           Pair With Device
         </Button>
       </div>

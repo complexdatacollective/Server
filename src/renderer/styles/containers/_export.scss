@@ -1,0 +1,18 @@
+.export {
+  @include element(section) {
+    align-items: stretch;
+    border-top: 1px solid var(--base-border-color);
+    display: flex;
+    flex-direction: column;
+    padding: spacing(large) 0;
+  }
+
+  @include element(subpanel) {
+    transform-origin: top;
+    padding: 0 1rem;
+  }
+
+  @include element(subpanel-content) {
+    padding: 1rem 0;
+  }
+}

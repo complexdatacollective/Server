@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '../ui/components';
 
-import { Modal as ModalTransition } from '../components/transitions';
+import { Modal as ModalTransition } from '../components/Transitions';
 
 /**
  * @class Modal
@@ -41,13 +41,13 @@ function Modal(props) {
           <div className="modal__close">
             {
               onCancel &&
-              <Button color="tomato" size="small" onClick={() => onCancel()}>
+              <Button color="tomato" onClick={() => onCancel()}>
                 Cancel
               </Button>
             }
             {
               onComplete &&
-              <Button size="small" onClick={() => onComplete()}>
+              <Button onClick={() => onComplete()}>
                 Finished
               </Button>
             }

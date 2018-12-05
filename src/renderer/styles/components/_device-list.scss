@@ -1,5 +1,6 @@
 .device-list {
   @include element(device) {
+    align-items: flex-start;
     display: flex;
     justify-content: space-between;
     margin-bottom: 2rem;

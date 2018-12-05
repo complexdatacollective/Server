@@ -5,8 +5,8 @@ const CountsWidget = ({ className, data }) => (
   <div className={`counts-widget ${className}`}>
     {data.map((entry, index) => (
       <div key={index} className="counts-widget__content">
-        <h4>{entry.name}: </h4>
-        <h1>{entry.count}</h1>
+        <p className="counts-widget__key">{entry.name}: </p>
+        <p className="counts-widget__value">{entry.count}</p>
       </div>))}
   </div>
 );
