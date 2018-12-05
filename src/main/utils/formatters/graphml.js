@@ -1,8 +1,17 @@
+// Sharing Issues:
+// - APIs (string output vs streaming); see saveFile()
+// - need to abstract DOMParser
+// - need to abstract XMLSerializer (see xmlToString())
+// - source data differs (we're working with resolved names in Server)
+//    - could inject the transform dependencies (no-ops for server)
+
+const { DOMParser, XMLSerializer } = require('xmldom'); // TODO: these are globals in browser
+
 const { findKey, forInRight, isNil } = require('lodash');
 
 const { nodePrimaryKeyProperty, nodeAttributesProperty, getNodeAttributes } = require('./network');
 
-// TODO: VariableType[Values] is shared with 'protocol-consts' in NC;
+// TODO: VariableType[Values] is shared with 'protocol-consts' in NC
 const VariableType = Object.freeze({
   boolean: 'boolean',
   text: 'text',
@@ -78,6 +87,8 @@ const generateKeys = (
   variableRegistry, // variable registry
   layoutVariable, // boolean value uses for edges?
 ) => {
+  const document = graph.ownerDocument;
+
   // generate keys for attributes
   const missingVariables = [];
   const done = [];
@@ -166,7 +177,7 @@ const generateKeys = (
   return missingVariables;
 };
 
-const getDataElement = (uri, key, text) => {
+const getDataElement = (document, uri, key, text) => {
   const data = document.createElementNS(uri, 'data');
   data.setAttribute('key', key);
   data.appendChild(document.createTextNode(text));
@@ -182,6 +193,8 @@ const addElements = (
   variableRegistry, // Copy of variable registry
   layoutVariable, // Primary layout variable. Null for edges
 ) => {
+  const document = graph.ownerDocument;
+
   dataList.forEach((dataElement, index) => {
     const domElement = document.createElementNS(uri, type);
     const nodeAttrs = getNodeAttributes(dataElement);
@@ -202,18 +215,20 @@ const addElements = (
       const label = variableRegistry && variableRegistry[type] &&
         variableRegistry[type][dataElement.type] && (variableRegistry[type][dataElement.type].name
           || variableRegistry[type][dataElement.type].label);
-      domElement.appendChild(getDataElement(uri, 'label', label));
+      domElement.appendChild(getDataElement(document, uri, 'label', label));
 
       Object.keys(dataElement).forEach((key) => {
         const keyName = getTypeFromVariableRegistry(variableRegistry, type, dataElement, key, 'name') || key;
         if (!excludeList.includes(keyName)) {
           if (typeof dataElement[key] !== 'object') {
-            domElement.appendChild(getDataElement(uri, keyName, dataElement[key]));
+            domElement.appendChild(getDataElement(document, uri, keyName, dataElement[key]));
           } else if (getTypeFromVariableRegistry(variableRegistry, type, dataElement, key) === 'layout') {
-            domElement.appendChild(getDataElement(uri, `${keyName}X`, dataElement[key].x));
-            domElement.appendChild(getDataElement(uri, `${keyName}Y`, dataElement[key].y));
+            domElement.appendChild(getDataElement(document, uri, `${keyName}X`, dataElement[key].x));
+            domElement.appendChild(getDataElement(document, uri, `${keyName}Y`, dataElement[key].y));
           } else {
-            domElement.appendChild(getDataElement(uri, keyName, JSON.stringify(dataElement[key])));
+            domElement.appendChild(
+              getDataElement(document, uri, keyName, JSON.stringify(dataElement[key])),
+            );
           }
         }
       });
@@ -226,35 +241,43 @@ const addElements = (
         if (!excludeList.includes(keyName)) {
           if (typeof nodeAttrs[key] !== 'object') {
             domElement.appendChild(
-              getDataElement(uri, keyName, nodeAttrs[key]));
+              getDataElement(document, uri, keyName, nodeAttrs[key]));
           } else if (getTypeFromVariableRegistry(variableRegistry, type, dataElement, key) === 'layout') {
-            domElement.appendChild(getDataElement(uri, `${keyName}X`, nodeAttrs[key].x));
-            domElement.appendChild(getDataElement(uri, `${keyName}Y`, nodeAttrs[key].y));
+            domElement.appendChild(getDataElement(document, uri, `${keyName}X`, nodeAttrs[key].x));
+            domElement.appendChild(getDataElement(document, uri, `${keyName}Y`, nodeAttrs[key].y));
           } else {
             domElement.appendChild(
-              getDataElement(uri, keyName, JSON.stringify(nodeAttrs[key])));
+              getDataElement(document, uri, keyName, JSON.stringify(nodeAttrs[key])));
           }
         }
       });
     }
 
-    // add positions for gephi
+    // Add positions for gephi layout. Use window dimensions for scaling if available.
     if (layoutVariable && nodeAttrs[layoutVariable]) {
-      domElement.appendChild(getDataElement(uri, 'x', nodeAttrs[layoutVariable].x * window.innerWidth));
-      domElement.appendChild(getDataElement(uri, 'y', (1.0 - nodeAttrs[layoutVariable].y) * window.innerHeight));
+      let canvasWidth = 1024;
+      let canvasHeight = 768;
+      if (typeof window !== 'undefined') {
+        canvasWidth = window.innerWidth; // eslint-disable-line no-undef
+        canvasHeight = window.innerHeight; // eslint-disable-line no-undef
+      }
+      domElement.appendChild(getDataElement(document, uri, 'x', nodeAttrs[layoutVariable].x * canvasWidth));
+      domElement.appendChild(getDataElement(document, uri, 'y', (1.0 - nodeAttrs[layoutVariable].y) * canvasHeight));
     }
   });
 };
 
-const xmlToString = (xmlData) => {
-  let xmlString;
-  if (window.ActiveXObject) { // IE
-    xmlString = xmlData.xml;
-  } else { // code for Mozilla, Firefox, Opera, etc.
-    xmlString = (new window.XMLSerializer()).serializeToString(xmlData);
-  }
-  return xmlString;
-};
+const xmlToString = xmlData => new XMLSerializer().serializeToString(xmlData);
+
+// const xmlToString = (xmlData) => {
+//   let xmlString;
+//   if (window.ActiveXObject) { // IE
+//     xmlString = xmlData.xml;
+//   } else { // code for Mozilla, Firefox, Opera, etc.
+//     xmlString = (new window.XMLSerializer()).serializeToString(xmlData);
+//   }
+//   return xmlString;
+// };
 
 const createGraphML = (networkData, variableRegistry, onError) => {
   // default graph structure
