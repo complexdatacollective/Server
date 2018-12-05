@@ -1,8 +1,22 @@
-import { findKey, forInRight, isNil } from 'lodash';
+const { findKey, forInRight, isNil } = require('lodash');
 
-import saveFile from './SaveFile';
-import { nodePrimaryKeyProperty, nodeAttributesProperty, getNodeAttributes } from '../ducks/modules/network';
-import { VariableType, VariableTypeValues } from '../protocol-consts';
+const { nodePrimaryKeyProperty, nodeAttributesProperty, getNodeAttributes } = require('./network');
+
+// TODO: VariableType[Values] is shared with 'protocol-consts' in NC;
+const VariableType = Object.freeze({
+  boolean: 'boolean',
+  text: 'text',
+  number: 'number',
+  datetime: 'datetime',
+  ordinal: 'ordinal',
+  categorical: 'categorical',
+  layout: 'layout',
+  location: 'location',
+});
+const VariableTypeValues = Object.freeze(Object.values(VariableType));
+
+// TODO: different API needed for server
+const saveFile = xml => xml;
 
 const setUpXml = () => {
   const graphMLOutline = '<?xml version="1.0" encoding="UTF-8"?>\n' +
@@ -289,4 +303,4 @@ const createGraphML = (networkData, variableRegistry, onError) => {
     { message: 'Your network canvas graphml file.', subject: 'network canvas export' });
 };
 
-export default createGraphML;
+module.exports = createGraphML;

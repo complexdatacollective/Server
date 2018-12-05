@@ -1,2 +1,12 @@
 // TODO: share with other places this is defined
-module.exports.nodePrimaryKeyProperty = '_uid';
+const nodePrimaryKeyProperty = '_uid';
+
+const nodeAttributesProperty = 'attributes';
+
+const getNodeAttributes = node => node[nodeAttributesProperty] || {};
+
+module.exports = {
+  getNodeAttributes,
+  nodeAttributesProperty,
+  nodePrimaryKeyProperty,
+};
