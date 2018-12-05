@@ -181,7 +181,6 @@ const addElements = (
   excludeList, // Attributes to exclude lookup of in variable registry
   variableRegistry, // Copy of variable registry
   layoutVariable, // Primary layout variable. Null for edges
-  extra = false, // ???
 ) => {
   dataList.forEach((dataElement, index) => {
     const domElement = document.createElementNS(uri, type);
@@ -192,15 +191,32 @@ const addElements = (
     } else {
       domElement.setAttribute('id', index);
     }
-    if (extra) domElement.setAttribute('source', dataElement.from);
-    if (extra) domElement.setAttribute('target', dataElement.to);
+
+    if (type === 'edge') {
+      domElement.setAttribute('source', dataElement.from);
+      domElement.setAttribute('target', dataElement.to);
+    }
     graph.appendChild(domElement);
 
-    if (extra) {
+    if (type === 'edge') {
       const label = variableRegistry && variableRegistry[type] &&
         variableRegistry[type][dataElement.type] && (variableRegistry[type][dataElement.type].name
           || variableRegistry[type][dataElement.type].label);
       domElement.appendChild(getDataElement(uri, 'label', label));
+
+      Object.keys(dataElement).forEach((key) => {
+        const keyName = getTypeFromVariableRegistry(variableRegistry, type, dataElement, key, 'name') || key;
+        if (!excludeList.includes(keyName)) {
+          if (typeof dataElement[key] !== 'object') {
+            domElement.appendChild(getDataElement(uri, keyName, dataElement[key]));
+          } else if (getTypeFromVariableRegistry(variableRegistry, type, dataElement, key) === 'layout') {
+            domElement.appendChild(getDataElement(uri, `${keyName}X`, dataElement[key].x));
+            domElement.appendChild(getDataElement(uri, `${keyName}Y`, dataElement[key].y));
+          } else {
+            domElement.appendChild(getDataElement(uri, keyName, JSON.stringify(dataElement[key])));
+          }
+        }
+      });
     }
 
     // Add node attributes
@@ -217,20 +233,6 @@ const addElements = (
           } else {
             domElement.appendChild(
               getDataElement(uri, keyName, JSON.stringify(nodeAttrs[key])));
-          }
-        }
-      });
-    } else {
-      Object.keys(dataElement).forEach((key) => {
-        const keyName = getTypeFromVariableRegistry(variableRegistry, type, dataElement, key, 'name') || key;
-        if (!excludeList.includes(keyName)) {
-          if (typeof dataElement[key] !== 'object') {
-            domElement.appendChild(getDataElement(uri, keyName, dataElement[key]));
-          } else if (getTypeFromVariableRegistry(variableRegistry, type, dataElement, key) === 'layout') {
-            domElement.appendChild(getDataElement(uri, `${keyName}X`, dataElement[key].x));
-            domElement.appendChild(getDataElement(uri, `${keyName}Y`, dataElement[key].y));
-          } else {
-            domElement.appendChild(getDataElement(uri, keyName, JSON.stringify(dataElement[key])));
           }
         }
       });
@@ -297,7 +299,7 @@ const createGraphML = (networkData, variableRegistry, onError) => {
 
   // add nodes and edges to graph
   addElements(graph, graphML.namespaceURI, networkData.nodes, 'node', [nodePrimaryKeyProperty, nodeAttributesProperty], variableRegistry, layoutVariable);
-  addElements(graph, graphML.namespaceURI, networkData.edges, 'edge', ['from', 'to', 'type'], variableRegistry, null, true);
+  addElements(graph, graphML.namespaceURI, networkData.edges, 'edge', ['from', 'to', 'type'], variableRegistry);
 
   return saveFile(xmlToString(xml), onError, 'graphml', ['graphml'], 'networkcanvas.graphml', 'text/xml',
     { message: 'Your network canvas graphml file.', subject: 'network canvas export' });
