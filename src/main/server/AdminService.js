@@ -6,6 +6,7 @@ const detectPort = require('detect-port');
 const apiRequestLogger = require('./apiRequestLogger');
 const DeviceManager = require('../data-managers/DeviceManager');
 const ProtocolManager = require('../data-managers/ProtocolManager');
+const ExportManager = require('../data-managers/ExportManager');
 const { PairingRequestService } = require('./devices/PairingRequestService');
 
 const DefaultPort = 8080;
@@ -25,6 +26,7 @@ class AdminService {
     this.statusDelegate = statusDelegate;
     this.deviceManager = new DeviceManager(dataDir);
     this.protocolManager = new ProtocolManager(dataDir);
+    this.exportManager = new ExportManager(dataDir);
     this.pairingRequestService = new PairingRequestService();
     this.reportDb = this.protocolManager.reportDb;
   }
@@ -182,6 +184,18 @@ class AdminService {
           totalSessions: sessions.length,
           sessions: sessions.slice(0, limit),
         }))
+        .catch((err) => {
+          logger.error(err);
+          res.send(500, { status: 'error' });
+        })
+        .then(() => next());
+    });
+
+    // See ExportManager#createExportFile for possible req body params
+    api.post('/protocols/:protocolId/export_requests', (req, res, next) => {
+      this.exportManager
+        .createExportFile(req.params.protocolId, req.body)
+        .then(filepath => res.send({ status: 'ok', filepath }))
         .catch((err) => {
           logger.error(err);
           res.send(500, { status: 'error' });

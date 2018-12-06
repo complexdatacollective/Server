@@ -54,13 +54,13 @@ class SessionDB extends Reportable(DatabaseAdapter) {
   }
 
   /**
-   * Find all sessions for a protocol
+   * Find all sessions for a protocol.
+   * The default projection returns only limited data to speed up query.
    */
-  findAll(protocolId, limit = null) {
-    // For now, return only limited data to speed query
-    const projection = { updatedAt: 1 };
+  findAll(protocolId, limit = null, projection = { updatedAt: 1 }) {
     return new Promise((resolve, reject) => {
-      let cursor = this.db.find({ protocolId }, projection).sort(mostRecent);
+      let cursor = this.db.find({ protocolId }, projection || undefined);
+      cursor = cursor.sort(mostRecent);
       if (limit) { cursor = cursor.limit(limit); }
       cursor.exec((err, docs) => {
         if (err) {
