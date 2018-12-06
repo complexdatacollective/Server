@@ -23,49 +23,10 @@ body {
   background-color: var(--color-platinum--dark);
 }
 
-@mixin input-focus-style {
-  // NC-UI doesn't style focus colors; fix for keyboard accessibility
-  $focused-accent-border: var(--color-cerulean-blue);
-  $focused-accent-background: var(--color-sea-green--dark);
-
-  &::before {
-    border-color: $focused-accent-border;
-  }
-
-  &::after {
-    background-color: $focused-accent-background;
+.form-field {
+  &.form-field-toggle {
+    margin-bottom: 0; // other NC field types don't have a margin; reset for consistency
   }
 }
 
-@mixin fix-input-border-color {
-  border-color: var(--input-accent); // NC-UI hardcodes to white; override
-}
-
-// sass-lint:disable force-pseudo-nesting
-.form-field-radio:hover {
-  .form-field-radio__radio::before {
-    @include fix-input-border-color;
-  }
-}
-
-.form-field-checkbox__input,
-.form-field-checkbox__input:checked {
-  ~ .form-field-checkbox__checkbox::before {
-    @include fix-input-border-color;
-  }
-
-  &:focus ~ .form-field-checkbox__checkbox {
-    @include input-focus-style;
-  }
-}
-
-.form-field-radio__input {
-  ~ .form-field-radio__radio::before {
-    @include fix-input-border-color;
-  }
-
-  &:focus ~ .form-field-radio__radio {
-    @include input-focus-style
-  }
-}
-// sass-lint:enable force-pseudo-nesting
+@import 'field_focus_fixes';
