@@ -58,7 +58,7 @@ class ExportScreen extends Component {
     this.setState({ exportNetworkUnion: evt.target.value === 'true' });
   }
 
-  useDandleDirectedEdgesChange = (evt) => {
+  handleDirectedEdgesChange = (evt) => {
     this.setState({ useDirectedEdges: evt.target.checked });
   }
 
@@ -120,7 +120,7 @@ class ExportScreen extends Component {
                     label="Treat edges as directed"
                     input={{
                       name: 'export_use_directed_edges',
-                      onChange: this.useDandleDirectedEdgesChange,
+                      onChange: this.handleDirectedEdgesChange,
                       value: this.state.useDirectedEdges,
                     }}
                   />
