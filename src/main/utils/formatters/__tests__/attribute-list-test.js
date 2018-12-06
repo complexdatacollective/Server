@@ -1,7 +1,14 @@
 /* eslint-env jest */
 
 import { makeWriteableStream } from '../../../../../config/jest/setupTestEnv';
-import { toCSVStream } from '../attribute-list';
+import { asAttributeList, toCSVStream } from '../attribute-list';
+
+describe('asAttributeList', () => {
+  it('transforms a network to nodes', () => {
+    const network = { nodes: [{ id: 1 }], edges: [] };
+    expect(asAttributeList(network)).toEqual(network.nodes);
+  });
+});
 
 describe('toCSVStream', () => {
   let writable;

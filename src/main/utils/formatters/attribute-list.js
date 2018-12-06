@@ -3,7 +3,7 @@ const { Readable } = require('stream');
 const { nodePrimaryKeyProperty } = require('./network');
 const { cellValue, csvEOL } = require('./csv');
 
-const asAttributeList = nodes => nodes;
+const asAttributeList = network => network.nodes;
 
 /**
  * The output of this formatter will contain the primary key (_uid)
@@ -62,7 +62,7 @@ class AttributeListFormatter {
     this.list = asAttributeList(data, directed);
   }
   writeToStream(outStream) {
-    toCSVStream(outStream, this.list);
+    toCSVStream(this.list, outStream);
   }
 }
 

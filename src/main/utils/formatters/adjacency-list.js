@@ -16,13 +16,14 @@ const { csvEOL } = require('./csv');
  * | c    | a        |
  * ```
  *
- * @param  {Array}  edges from the NC network
+ * @param  {Object} network NC network containing edges
+ * @param  {Array} network.edges
  * @param  {Boolean} directed if false, adjacencies are represented in both directions
  *                            default: false
  * @return {Object.<string, Set>} the adjacency list
  */
-const asAdjacencyList = (edges, directed = false) =>
-  edges.reduce((acc, val) => {
+const asAdjacencyList = (network, directed = false) =>
+  (network.edges || []).reduce((acc, val) => {
     acc[val.from] = acc[val.from] || new Set();
     acc[val.from].add(val.to);
     if (directed === false) {
@@ -71,7 +72,7 @@ class AdjacencyListFormatter {
     this.list = asAdjacencyList(data, directed);
   }
   writeToStream(outStream) {
-    toCSVStream(outStream, this.list);
+    toCSVStream(this.list, outStream);
   }
 }
 
