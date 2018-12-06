@@ -236,6 +236,16 @@ const asAdjacencyMatrix = (network, directed = false) => {
   return adjacencyMatrix;
 };
 
+class AdjacencyMatrixFormatter {
+  constructor(data, directed = false) {
+    this.matrix = asAdjacencyMatrix(data, directed);
+  }
+  writeToStream(outStream) {
+    this.matrix.toCSVStream(outStream);
+  }
+}
+
 module.exports = {
+  AdjacencyMatrixFormatter,
   asAdjacencyMatrix,
 };

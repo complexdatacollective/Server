@@ -57,7 +57,18 @@ const toCSVStream = (nodes, outStream) => {
   inStream.pipe(outStream);
 };
 
+class AttributeListFormatter {
+  constructor(data, directed = false) {
+    this.list = asAttributeList(data, directed);
+  }
+  writeToStream(outStream) {
+    toCSVStream(outStream, this.list);
+  }
+}
+
+
 module.exports = {
+  AttributeListFormatter,
   asAttributeList,
   toCSVStream,
 };

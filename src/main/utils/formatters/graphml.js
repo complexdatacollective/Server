@@ -2,6 +2,8 @@
 // - [ ] APIs (string output vs streaming); see saveFile()
 // - [ ] need to abstract DOMParser
 // - [ ] need to abstract XMLSerializer (see xmlToString())
+// - [ ] need directed as an option (until network encapsulates this)
+// - [x] updated export (default/named)
 // - [x] source data differs (we're working with resolved names in Server)
 //    - this affects variable type lookup for nodes and labels for edges
 // - [x] document is not global
@@ -350,4 +352,21 @@ const createGraphML = (networkData, variableRegistry, onError) => {
     { message: 'Your network canvas graphml file.', subject: 'network canvas export' });
 };
 
-module.exports = createGraphML;
+class GraphMLFormatter {
+  constructor(data) {
+    this.network = data;
+  }
+  toString() {
+    return createGraphML(this.network);
+  }
+}
+
+// Provides ES6 named + default imports via babel
+Object.defineProperty(exports, '__esModule', {
+  value: true,
+});
+
+exports.default = createGraphML;
+
+exports.GraphMLFormatter = GraphMLFormatter;
+exports.createGraphML = createGraphML;

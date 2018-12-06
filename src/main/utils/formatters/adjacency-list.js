@@ -66,7 +66,17 @@ const toCSVStream = (adjancencyList, outStream) => {
   inStream.pipe(outStream);
 };
 
+class AdjacencyListFormatter {
+  constructor(data, directed = false) {
+    this.list = asAdjacencyList(data, directed);
+  }
+  writeToStream(outStream) {
+    toCSVStream(outStream, this.list);
+  }
+}
+
 module.exports = {
+  AdjacencyListFormatter,
   asAdjacencyList,
   toCSVStream,
 };
