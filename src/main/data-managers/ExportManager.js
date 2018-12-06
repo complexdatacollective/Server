@@ -1,6 +1,20 @@
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const uuid = require('uuid');
+const logger = require('electron-log');
+
+const tmpDirPrefix = 'org.codaco.server.exporting.';
+const makeTempDir = () =>
+  new Promise((resolve, reject) => {
+    fs.mkdtemp(path.join(os.tmpdir(), tmpDirPrefix), (err, dir) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(dir);
+      }
+    });
+  });
 
 const SessionDB = require('./SessionDB');
 const {
@@ -40,16 +54,38 @@ const getFormatterClass = (formatterType) => {
   }
 };
 
-const exportFile = (exportFormat, network, forceDirectedEdges) => {
-  const Formatter = getFormatterClass(exportFormat);
-  if (!Formatter) {
-    // TODO: throw?
-    return;
+const getFileExtension = (formatterType) => {
+  switch (formatterType) {
+    case formats.graphml:
+      return '.graphml';
+    case formats.adjacencyMatrix:
+    case formats.adjacencyList:
+    case formats.attributeList:
+      return '.csv';
+    default:
+      return null;
   }
-  const formatter = new Formatter(network, forceDirectedEdges);
-  // TODO: tmpfile, naming, promis resolution, etc.
-  formatter.writeToStream(fs.createWriteStream(`${uuid()}.csv`));
 };
+
+const exportFile = (exportFormat, outDir, network, forceDirectedEdges) => {
+  const Formatter = getFormatterClass(exportFormat);
+  const extension = getFileExtension(exportFormat);
+  if (!Formatter || !extension) {
+    return Promise.reject(new Error(`Invalid export format ${exportFormat}`));
+  }
+  return new Promise((resolve, reject) => {
+    const formatter = new Formatter(network, forceDirectedEdges);
+    const filepath = path.join(outDir, `${uuid()}${extension}`);
+    const writeStream = fs.createWriteStream(filepath);
+    writeStream.on('finish', () => { resolve(filepath); });
+    writeStream.on('error', (err) => { reject(err); });
+    // TODO: on('ready')?
+    logger.debug(`Writing ${exportFormat} file ${filepath}`);
+    formatter.writeToStream(writeStream);
+  });
+};
+
+const flatten = shallowArrays => [].concat(...shallowArrays);
 
 class ExportManager {
   constructor(sessionDataDir) {
@@ -80,15 +116,36 @@ class ExportManager {
     protocolId,
     { exportFormats, exportNetworkUnion, useDirectedEdges/* , filter */ } = {},
   ) {
-    // if (!exportFormat) {
-    //   return Promise.reject(new Error('exportFormat required'));
-    // }
-    const exportFormat = exportFormats[0];
-    return this.sessionDB.findAll(protocolId, null, null)
+    let tmpDir;
+    const cleanUp = () => {
+      try {
+        // TODO: clean up all our temp files
+        const outDirPrefix = tmpDir.substring(0, tmpDir.length - 6);
+        if (tmpDir && (new RegExp(`${tmpDirPrefix}$`).test(outDirPrefix))) {
+          // fs.rmdirSync(tmpDir);
+        }
+      } catch (err) { /* don't throw; cleanUp is called after catching */ }
+    };
+
+    return makeTempDir()
+      .then((dir) => {
+        tmpDir = dir;
+        if (!tmpDir) {
+          throw new Error('Temporary directory unavailable');
+        }
+      })
+      .then(() => this.sessionDB.findAll(protocolId, null, null))
+      // TODO: may want to preserve some session metadata for naming?
       .then(sessions => sessions.map(session => session.data))
-      .then(sessions => (exportNetworkUnion ? [unionOfNetworks(sessions)] : sessions))
-      .then(networks => Promise.all(networks.map(network =>
-        exportFile(exportFormat, network, useDirectedEdges))));
+      .then(networks => (exportNetworkUnion ? [unionOfNetworks(networks)] : networks))
+      .then(networks =>
+        Promise.all(
+          flatten(
+            networks.map(network =>
+              exportFormats.map(format =>
+                exportFile(format, tmpDir, network, useDirectedEdges))))))
+      .catch(err => logger.error(err))
+      .then(cleanUp);
   }
 }
 
