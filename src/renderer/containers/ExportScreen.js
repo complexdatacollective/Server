@@ -6,11 +6,12 @@ import { Redirect } from 'react-router-dom';
 import Types from '../types';
 import Filter from '../components/Filter'; // eslint-disable-line import/no-named-as-default
 import DrawerTransition from '../components/Transitions/Drawer';
-import { selectors } from '../ducks/modules/protocols';
-import { Button, Spinner } from '../ui';
 import Checkbox from '../ui/components/Fields/Checkbox';
 import Radio from '../ui/components/Fields/Radio';
 import Toggle from '../ui/components/Fields/Toggle';
+import withApiClient from '../components/withApiClient';
+import { selectors } from '../ducks/modules/protocols';
+import { Button, Spinner } from '../ui';
 
 const defaultFilter = {
   join: '',
@@ -62,6 +63,28 @@ class ExportScreen extends Component {
     this.setState({ useDirectedEdges: evt.target.checked });
   }
 
+  handleExport = () => {
+    const { apiClient, protocol: { id: protocolId } } = this.props;
+    if (!apiClient) {
+      return;
+    }
+
+    const {
+      exportFormat,
+      exportNetworkUnion,
+      csvTypes,
+      filter,
+      useDirectedEdges,
+    } = this.state;
+
+    apiClient.post(`/protocols/${protocolId}/export_requests`, {
+      exportFormats: (exportFormat === 'csv' && [...csvTypes]) || [exportFormat],
+      exportNetworkUnion,
+      filter,
+      useDirectedEdges,
+    });
+  }
+
   render() {
     const { protocol, protocolsHaveLoaded } = this.props;
 
@@ -76,7 +99,7 @@ class ExportScreen extends Component {
     const showCsvOpts = this.state.exportFormat === 'csv';
 
     return (
-      <div className="export">
+      <form className="export" onSubmit={this.handleExport}>
         <h1>{protocol.name}</h1>
         <div className="export__section">
           <h3>File Type</h3>
@@ -178,18 +201,20 @@ class ExportScreen extends Component {
             variableRegistry={protocol.variableRegistry}
           />
         </div>
-        <Button disabled>Export</Button>
-      </div>
+        <Button type="submit">Export</Button>
+      </form>
     );
   }
 }
 
 ExportScreen.propTypes = {
+  apiClient: PropTypes.object,
   protocol: Types.protocol,
   protocolsHaveLoaded: PropTypes.bool.isRequired,
 };
 
 ExportScreen.defaultProps = {
+  apiClient: null,
   protocol: null,
 };
 
@@ -198,7 +223,7 @@ const mapStateToProps = (state, ownProps) => ({
   protocol: selectors.currentProtocol(state, ownProps),
 });
 
-export default connect(mapStateToProps)(ExportScreen);
+export default connect(mapStateToProps)(withApiClient(ExportScreen));
 
 export {
   ExportScreen,
