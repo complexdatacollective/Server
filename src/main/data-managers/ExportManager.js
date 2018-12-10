@@ -1,77 +1,22 @@
 /* eslint-disable no-underscore-dangle */
 
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
 const uuid = require('uuid');
 const logger = require('electron-log');
 
+const SessionDB = require('./SessionDB');
 const { archive } = require('../utils/archive');
 const { writeFile } = require('../utils/promised-fs');
-const { RequestError } = require('../errors/RequestError');
-
-const tmpDirPrefix = 'org.codaco.server.exporting.';
-const makeTempDir = () =>
-  new Promise((resolve, reject) => {
-    fs.mkdtemp(path.join(os.tmpdir(), tmpDirPrefix), (err, dir) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(dir);
-      }
-    });
-  });
-
-const SessionDB = require('./SessionDB');
+const { RequestError, ErrorMessages } = require('../errors/RequestError');
+const { unionOfNetworks } = require('../utils/formatters/network');
+const { makeTempDir } = require('../utils/formatters/dir');
 const {
-  AdjacencyMatrixFormatter,
-  AdjacencyListFormatter,
-  AttributeListFormatter,
-  GraphMLFormatter,
-} = require('../utils/formatters');
-
-const formats = {
-  graphml: 'graphml',
-  // CSV:
-  adjacencyMatrix: 'adjacencyMatrix',
-  adjacencyList: 'adjacencyList',
-  attributeList: 'attributeList',
-};
-
-const unionOfNetworks = networks =>
-  networks.reduce((union, network) => {
-    union.nodes.push(...network.nodes);
-    union.edges.push(...network.edges);
-    return union;
-  }, { nodes: [], edges: [] });
-
-const getFormatterClass = (formatterType) => {
-  switch (formatterType) {
-    case formats.graphml:
-      return GraphMLFormatter;
-    case formats.adjacencyMatrix:
-      return AdjacencyMatrixFormatter;
-    case formats.adjacencyList:
-      return AdjacencyListFormatter;
-    case formats.attributeList:
-      return AttributeListFormatter;
-    default:
-      return null;
-  }
-};
-
-const getFileExtension = (formatterType) => {
-  switch (formatterType) {
-    case formats.graphml:
-      return '.graphml';
-    case formats.adjacencyMatrix:
-    case formats.adjacencyList:
-    case formats.attributeList:
-      return '.csv';
-    default:
-      return null;
-  }
-};
+  formats,
+  formatsAreValid,
+  getFileExtension,
+  getFormatterClass,
+} = require('../utils/formatters/utils');
 
 const exportFile = (exportFormat, outDir, network, { useDirectedEdges, variableRegistry } = {}) => {
   const Formatter = getFormatterClass(exportFormat);
@@ -132,14 +77,21 @@ class ExportManager {
     protocol,
     { destinationFilepath, exportFormats, exportNetworkUnion, useDirectedEdges/* , filter */ } = {},
   ) {
+    if (!protocol) {
+      return Promise.reject(new RequestError(ErrorMessages.NotFound));
+    }
+    if (!destinationFilepath || !formatsAreValid(exportFormats) || !exportFormats.length) {
+      return Promise.reject(new RequestError(ErrorMessages.InvalidExportOptions));
+    }
+
     let tmpDir;
     const cleanUp = () => {
       try {
         // TODO: clean up all our temp files
-        const outDirPrefix = tmpDir.substring(0, tmpDir.length - 6);
-        if (tmpDir && (new RegExp(`${tmpDirPrefix}$`).test(outDirPrefix))) {
-          // fs.rmdirSync(tmpDir);
-        }
+        // const outDirPrefix = tmpDir.substring(0, tmpDir.length - 6);
+        // if (tmpDir && (new RegExp(`${tmpDirPrefix}$`).test(outDirPrefix))) {
+        // fs.rmdirSync(tmpDir);
+        // }
       } catch (err) { /* don't throw; cleanUp is called after catching */ }
     };
 

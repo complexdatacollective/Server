@@ -205,12 +205,7 @@ class AdminService {
     // See ExportManager#createExportFile for possible req body params
     api.post('/protocols/:protocolId/export_requests', (req, res, next) => {
       this.protocolManager.getProtocol(req.params.protocolId)
-        .then((protocol) => {
-          if (!protocol) {
-            throw new RequestError(ErrorMessages.NotFound);
-          }
-          return this.exportManager.createExportFile(protocol, req.body);
-        })
+        .then(protocol => this.exportManager.createExportFile(protocol, req.body))
         .then(filepath => res.send({ status: 'ok', filepath }))
         .catch((err) => {
           logger.error(err);

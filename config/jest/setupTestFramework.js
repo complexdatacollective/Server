@@ -6,6 +6,15 @@
  * Relies on jest utils, and so must be called within an `it()` function.
  */
 expect.extend({
+  toAlwaysPass() {
+    // This is useful for asserting that a promise resolves, but we don't care what it resolves to,
+    // as `.resolves` by itself adds no assertions.
+    // Example: `expect(fn).resolves.toAlwaysPass()`
+    return {
+      message: 'expected anything or nothing',
+      pass: true,
+    };
+  },
   toMatchErrorMessage(receivedObj, expectedMessage) {
     const {
       matcherHint,

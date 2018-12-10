@@ -20,7 +20,8 @@ describe('promisified fs', () => {
 
     helpers.forEach((helper) => {
       it('resolves successful callback', async () => {
-        await expect(pfs[helper]('.')).resolves;
+        expect.hasAssertions();
+        await expect(pfs[helper]('.')).resolves.toAlwaysPass();
       });
     });
 
