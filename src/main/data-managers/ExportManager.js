@@ -4,6 +4,8 @@ const path = require('path');
 const uuid = require('uuid');
 const logger = require('electron-log');
 
+const { archive } = require('../utils/archive');
+
 const tmpDirPrefix = 'org.codaco.server.exporting.';
 const makeTempDir = () =>
   new Promise((resolve, reject) => {
@@ -99,6 +101,7 @@ class ExportManager {
    * temporary location, and returns [a promise resolving to] the filepath.
    *
    * @async
+   * @param {string} options.destinationFilepath local FS path to output the final file
    * @param {string} options.exportFormat "csv" or "graphml"
    * @param {Array} options.csvTypes if `exportFormat` is "csv", then include these types in output.
    *                                 Options: ["adjacencyMatrix", "adjacencyList", "attributeList"]
@@ -114,7 +117,7 @@ class ExportManager {
    */
   createExportFile(
     protocolId,
-    { exportFormats, exportNetworkUnion, useDirectedEdges/* , filter */ } = {},
+    { destinationFilepath, exportFormats, exportNetworkUnion, useDirectedEdges/* , filter */ } = {},
   ) {
     let tmpDir;
     const cleanUp = () => {
@@ -139,12 +142,19 @@ class ExportManager {
       .then(sessions => sessions.map(session => session.data))
       .then(networks => (exportNetworkUnion ? [unionOfNetworks(networks)] : networks))
       .then(networks =>
+        // TODO: evaluate & test. It'll be easier to track progress when run concurrently,
+        // but this may run into memory issues.
         Promise.all(
           flatten(
             networks.map(network =>
               exportFormats.map(format =>
                 exportFile(format, tmpDir, network, useDirectedEdges))))))
-      .catch(err => logger.error(err))
+      .then(exportedPaths => archive(exportedPaths, destinationFilepath))
+      .catch((err) => {
+        cleanUp();
+        logger.error(err);
+        throw err;
+      })
       .then(cleanUp);
   }
 }
