@@ -2,10 +2,12 @@
 import React from 'react';
 import { createStore } from 'redux';
 import { shallow } from 'enzyme';
+import { remote } from 'electron';
 
 import ConnectedExportScreen, { ExportScreen, availableCsvTypes } from '../ExportScreen';
 
 jest.mock('react-router-dom');
+jest.mock('electron');
 
 describe('Connected ExportScreen', () => {
   it('provides protocol props', () => {
@@ -17,23 +19,43 @@ describe('Connected ExportScreen', () => {
 });
 
 describe('<ExportScreen />', () => {
+  const createdAt = new Date(1540000000000);
+  let props;
+
+  beforeEach(() => {
+    props = { protocol: null, showConfirmation: jest.fn(), showError: jest.fn() };
+  });
+
   it('should render a spinner before protocol loaded', () => {
-    const subject = shallow(<ExportScreen protocolsHaveLoaded={false} />);
+    const subject = shallow(<ExportScreen {...props} protocolsHaveLoaded={false} />);
     expect(subject.find('Spinner')).toHaveLength(1);
   });
 
   it('redirects if protocol not found', () => {
-    const subject = shallow(<ExportScreen protocolsHaveLoaded protocol={null} />);
+    const subject = shallow(<ExportScreen {...props} protocolsHaveLoaded />);
     expect(subject.find('Redirect')).toHaveLength(1);
+  });
+
+  describe('API client', () => {
+    const apiClient = { post: jest.fn().mockResolvedValue({}) };
+    const protocol = { id: '1', name: '1', createdAt };
+
+    it('handles export requests', () => {
+      props = { ...props, apiClient, protocol, protocolsHaveLoaded: true };
+      const subject = shallow(<ExportScreen {...props} />);
+      subject.instance().exportToFile('');
+      expect(apiClient.post).toHaveBeenCalled();
+    });
   });
 
   describe('once protocol loaded', () => {
     let subject;
 
     beforeEach(() => {
-      const protocol = { id: '1', name: 'mock', createdAt: new Date(1540000000000) };
+      const protocol = { id: '1', name: 'mock', createdAt };
+      props = { protocol, showConfirmation: jest.fn(), showError: jest.fn() };
       subject = shallow((
-        <ExportScreen protocolsHaveLoaded protocol={protocol} />
+        <ExportScreen {...props} protocolsHaveLoaded />
       ));
     });
 
@@ -62,6 +84,23 @@ describe('<ExportScreen />', () => {
       expect(subject.state('csvTypes').has(csvType)).toBe(false);
       checkbox.simulate('change', { target: { value: csvType, checked: true } });
       expect(subject.state('csvTypes').has(csvType)).toBe(true);
+    });
+
+    it('toggles union setting', () => {
+      const radioWrapper = subject.findWhere(n => n.name() === 'Radio' && (/the union of/).test(n.prop('label')));
+      radioWrapper.dive().find('input').simulate('change', { target: { value: 'true' } });
+      expect(subject.state('exportNetworkUnion')).toBe(true);
+    });
+
+    it('toggles directed edge setting', () => {
+      const radioWrapper = subject.findWhere(n => n.name() === 'Toggle' && (/directed/).test(n.prop('label')));
+      radioWrapper.dive().find('input').simulate('change', { target: { checked: true } });
+      expect(subject.state('useDirectedEdges')).toBe(true);
+    });
+
+    it('prompts for output path before export', () => {
+      subject.instance().handleExport();
+      expect(remote.dialog.showSaveDialog).toHaveBeenCalled();
     });
 
     it('manages filter state', () => {

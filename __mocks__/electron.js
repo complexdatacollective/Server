@@ -28,10 +28,12 @@ const app = {
 const dialog = {
   showMessageBox: jest.fn(),
   showOpenDialog: jest.fn(),
+  showSaveDialog: jest.fn(),
 };
 
 const remote = {
   app,
+  dialog,
   process: {
     platform: '',
   },

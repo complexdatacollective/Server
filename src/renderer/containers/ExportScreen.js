@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { Redirect } from 'react-router-dom';
+import { remote } from 'electron';
 
 import Types from '../types';
 import Filter from '../components/Filter'; // eslint-disable-line import/no-named-as-default
@@ -12,6 +14,7 @@ import Toggle from '../ui/components/Fields/Toggle';
 import withApiClient from '../components/withApiClient';
 import { selectors } from '../ducks/modules/protocols';
 import { Button, Spinner } from '../ui';
+import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
 
 const defaultFilter = {
   join: '',
@@ -64,7 +67,25 @@ class ExportScreen extends Component {
   }
 
   handleExport = () => {
-    const { apiClient, protocol: { id: protocolId } } = this.props;
+    const defaultName = this.props.protocol.name || 'network-canvas-data';
+    const exportDialog = {
+      title: 'Export ',
+      filters: [{
+        name: `${defaultName}-export`,
+        // TODO: support exporting a single graphml file
+        extensions: ['zip'],
+      }],
+    };
+
+    remote.dialog.showSaveDialog(exportDialog, (filepath) => {
+      if (filepath) {
+        this.setState({ exportInProgress: true }, () => this.exportToFile(filepath));
+      }
+    });
+  }
+
+  exportToFile = (destinationFilepath) => {
+    const { apiClient, showError, showConfirmation, protocol: { id: protocolId } } = this.props;
     if (!apiClient) {
       return;
     }
@@ -77,12 +98,17 @@ class ExportScreen extends Component {
       useDirectedEdges,
     } = this.state;
 
-    apiClient.post(`/protocols/${protocolId}/export_requests`, {
-      exportFormats: (exportFormat === 'csv' && [...csvTypes]) || [exportFormat],
-      exportNetworkUnion,
-      filter,
-      useDirectedEdges,
-    });
+    apiClient
+      .post(`/protocols/${protocolId}/export_requests`, {
+        exportFormats: (exportFormat === 'csv' && [...csvTypes]) || [exportFormat],
+        exportNetworkUnion,
+        destinationFilepath,
+        filter,
+        useDirectedEdges,
+      })
+      .then(() => showConfirmation('Export complete'))
+      .catch(err => showError(err.message))
+      .then(() => this.setState({ exportInProgress: false }));
   }
 
   render() {
@@ -97,6 +123,7 @@ class ExportScreen extends Component {
     }
 
     const showCsvOpts = this.state.exportFormat === 'csv';
+    const { exportInProgress } = this.state;
 
     return (
       <form className="export" onSubmit={this.handleExport}>
@@ -201,7 +228,7 @@ class ExportScreen extends Component {
             variableRegistry={protocol.variableRegistry}
           />
         </div>
-        <Button type="submit">Export</Button>
+        <Button type="submit" disabled={exportInProgress}>Export</Button>
       </form>
     );
   }
@@ -211,6 +238,8 @@ ExportScreen.propTypes = {
   apiClient: PropTypes.object,
   protocol: Types.protocol,
   protocolsHaveLoaded: PropTypes.bool.isRequired,
+  showConfirmation: PropTypes.func.isRequired,
+  showError: PropTypes.func.isRequired,
 };
 
 ExportScreen.defaultProps = {
@@ -223,7 +252,12 @@ const mapStateToProps = (state, ownProps) => ({
   protocol: selectors.currentProtocol(state, ownProps),
 });
 
-export default connect(mapStateToProps)(withApiClient(ExportScreen));
+const mapDispatchToProps = dispatch => ({
+  showConfirmation: bindActionCreators(messageActionCreators.showConfirmationMessage, dispatch),
+  showError: bindActionCreators(messageActionCreators.showErrorMessage, dispatch),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(withApiClient(ExportScreen));
 
 export {
   ExportScreen,
