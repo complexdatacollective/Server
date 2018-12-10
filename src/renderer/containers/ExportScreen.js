@@ -31,7 +31,7 @@ class ExportScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      exportFormat: null,
+      exportFormat: 'graphml',
       exportNetworkUnion: null,
       csvTypes: new Set(Object.keys(availableCsvTypes)),
       filter: defaultFilter,
@@ -136,6 +136,17 @@ class ExportScreen extends Component {
           </p>
           <div>
             <Radio
+              label="GraphML"
+              input={{
+                name: 'export_format',
+                checked: this.state.exportFormat === 'graphml',
+                value: 'graphml',
+                onChange: this.handleFormatChange,
+              }}
+            />
+          </div>
+          <div>
+            <Radio
               label="CSV"
               input={{
                 name: 'export_format',
@@ -177,17 +188,6 @@ class ExportScreen extends Component {
                 </div>
               </div>
             </DrawerTransition>
-          </div>
-          <div>
-            <Radio
-              label="GraphML"
-              input={{
-                name: 'export_format',
-                checked: this.state.exportFormat === 'graphml',
-                value: 'graphml',
-                onChange: this.handleFormatChange,
-              }}
-            />
           </div>
         </div>
         <div className="export__section">
