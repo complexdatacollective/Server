@@ -353,11 +353,12 @@ const createGraphML = (networkData, variableRegistry, onError) => {
 };
 
 class GraphMLFormatter {
-  constructor(data) {
+  constructor(data, variableRegistry) {
     this.network = data;
+    this.variableRegistry = variableRegistry;
   }
   toString() {
-    return createGraphML(this.network);
+    return createGraphML(this.network, this.variableRegistry);
   }
 }
 
