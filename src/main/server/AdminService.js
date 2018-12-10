@@ -8,6 +8,7 @@ const DeviceManager = require('../data-managers/DeviceManager');
 const ProtocolManager = require('../data-managers/ProtocolManager');
 const ExportManager = require('../data-managers/ExportManager');
 const { PairingRequestService } = require('./devices/PairingRequestService');
+const { RequestError, ErrorMessages } = require('../errors/RequestError');
 
 const DefaultPort = 8080;
 
@@ -16,6 +17,16 @@ const ApiVersion = '0.0.1';
 
 // Admin API should listen *only* on loopback
 const Host = '127.0.0.1';
+
+const codeForError = (err) => {
+  if (err.message === ErrorMessages.NotFound) {
+    return 404;
+  }
+  if (err instanceof RequestError) {
+    return 400;
+  }
+  return 500;
+};
 
 /**
  * Provides a RESTful API for electron renderer clients on the same machine.
@@ -193,12 +204,17 @@ class AdminService {
 
     // See ExportManager#createExportFile for possible req body params
     api.post('/protocols/:protocolId/export_requests', (req, res, next) => {
-      this.exportManager
-        .createExportFile(req.params.protocolId, req.body)
+      this.protocolManager.getProtocol(req.params.protocolId)
+        .then((protocol) => {
+          if (!protocol) {
+            throw new RequestError(ErrorMessages.NotFound);
+          }
+          return this.exportManager.createExportFile(protocol, req.body);
+        })
         .then(filepath => res.send({ status: 'ok', filepath }))
         .catch((err) => {
           logger.error(err);
-          res.send(500, { status: 'error' });
+          res.send(codeForError(err), { status: 'error', message: err.message });
         })
         .then(() => next());
     });

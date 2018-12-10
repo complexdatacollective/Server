@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle */
+
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -75,6 +77,7 @@ const exportFile = (exportFormat, outDir, network, forceDirectedEdges) => {
   if (!Formatter || !extension) {
     return Promise.reject(new Error(`Invalid export format ${exportFormat}`));
   }
+
   return new Promise((resolve, reject) => {
     const formatter = new Formatter(network, forceDirectedEdges);
     const filepath = path.join(outDir, `${uuid()}${extension}`);
@@ -101,6 +104,7 @@ class ExportManager {
    * temporary location, and returns [a promise resolving to] the filepath.
    *
    * @async
+   * @param {Object} protocol the saved protocol from DB
    * @param {string} options.destinationFilepath local FS path to output the final file
    * @param {string} options.exportFormat "csv" or "graphml"
    * @param {Array} options.csvTypes if `exportFormat` is "csv", then include these types in output.
@@ -116,7 +120,7 @@ class ExportManager {
    * @return {string} filepath of written file
    */
   createExportFile(
-    protocolId,
+    protocol,
     { destinationFilepath, exportFormats, exportNetworkUnion, useDirectedEdges/* , filter */ } = {},
   ) {
     let tmpDir;
@@ -137,7 +141,7 @@ class ExportManager {
           throw new Error('Temporary directory unavailable');
         }
       })
-      .then(() => this.sessionDB.findAll(protocolId, null, null))
+      .then(() => this.sessionDB.findAll(protocol._id, null, null))
       // TODO: may want to preserve some session metadata for naming?
       .then(sessions => sessions.map(session => session.data))
       .then(networks => (exportNetworkUnion ? [unionOfNetworks(networks)] : networks))
@@ -149,6 +153,7 @@ class ExportManager {
             networks.map(network =>
               exportFormats.map(format =>
                 exportFile(format, tmpDir, network, useDirectedEdges))))))
+      // TODO: check length; if 0: reject, if 1: don't zip?
       .then(exportedPaths => archive(exportedPaths, destinationFilepath))
       .catch((err) => {
         cleanUp();
