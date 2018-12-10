@@ -7,6 +7,8 @@ const uuid = require('uuid');
 const logger = require('electron-log');
 
 const { archive } = require('../utils/archive');
+const { writeFile } = require('../utils/promised-fs');
+const { RequestError } = require('../errors/RequestError');
 
 const tmpDirPrefix = 'org.codaco.server.exporting.';
 const makeTempDir = () =>
@@ -71,15 +73,22 @@ const getFileExtension = (formatterType) => {
   }
 };
 
-const exportFile = (exportFormat, outDir, network, forceDirectedEdges) => {
+const exportFile = (exportFormat, outDir, network, { useDirectedEdges, variableRegistry } = {}) => {
   const Formatter = getFormatterClass(exportFormat);
   const extension = getFileExtension(exportFormat);
   if (!Formatter || !extension) {
-    return Promise.reject(new Error(`Invalid export format ${exportFormat}`));
+    return Promise.reject(new RequestError(`Invalid export format ${exportFormat}`));
+  }
+
+  // Temporary support for graphml string interface
+  if (exportFormat === formats.graphml) {
+    const formatter = new Formatter(network, variableRegistry); // TODO: unify interface
+    const filepath = path.join(outDir, `${uuid()}${extension}`);
+    return writeFile(filepath, formatter.toString()).then(() => filepath);
   }
 
   return new Promise((resolve, reject) => {
-    const formatter = new Formatter(network, forceDirectedEdges);
+    const formatter = new Formatter(network, useDirectedEdges);
     const filepath = path.join(outDir, `${uuid()}${extension}`);
     const writeStream = fs.createWriteStream(filepath);
     writeStream.on('finish', () => { resolve(filepath); });
@@ -134,6 +143,11 @@ class ExportManager {
       } catch (err) { /* don't throw; cleanUp is called after catching */ }
     };
 
+    const exportOpts = {
+      useDirectedEdges,
+      variableRegistry: protocol.variableRegistry,
+    };
+
     return makeTempDir()
       .then((dir) => {
         tmpDir = dir;
@@ -152,7 +166,7 @@ class ExportManager {
           flatten(
             networks.map(network =>
               exportFormats.map(format =>
-                exportFile(format, tmpDir, network, useDirectedEdges))))))
+                exportFile(format, tmpDir, network, exportOpts))))))
       // TODO: check length; if 0: reject, if 1: don't zip?
       .then(exportedPaths => archive(exportedPaths, destinationFilepath))
       .catch((err) => {
