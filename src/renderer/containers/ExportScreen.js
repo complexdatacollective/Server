@@ -89,8 +89,10 @@ class ExportScreen extends Component {
   }
 
   handleCancel = () => {
-    // TODO: cancel underlying requests
-    this.setState({ exportInProgress: false });
+    // this.setState({ exportInProgress: false });
+    // TODO: cancel underlying requests with an AbortController (requires Electron 3+)
+    // Temporary workaround:
+    remote.getCurrentWindow().reload();
   }
 
   exportToFile = (destinationFilepath) => {
