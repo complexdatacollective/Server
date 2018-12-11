@@ -2,7 +2,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const uuid = require('uuid');
 const logger = require('electron-log');
 
 const SessionDB = require('./SessionDB');
@@ -20,6 +19,7 @@ const {
 
 /**
  * Export a single (CSV or graphml) file
+ * @param  {string} namePrefix
  * @param  {formats} exportFormat
  * @param  {string} outDir directory where we should write the file
  * @param  {object} network NC-formatted network `({ nodes, edges })`
@@ -30,7 +30,13 @@ const {
  *                           If aborted, the returned promise will never settle.
  * @private
  */
-const exportFile = (exportFormat, outDir, network, { useDirectedEdges, variableRegistry } = {}) => {
+const exportFile = (
+  namePrefix,
+  exportFormat,
+  outDir,
+  network,
+  { useDirectedEdges, variableRegistry } = {},
+) => {
   const Formatter = getFormatterClass(exportFormat);
   const extension = getFileExtension(exportFormat);
   if (!Formatter || !extension) {
@@ -43,13 +49,13 @@ const exportFile = (exportFormat, outDir, network, { useDirectedEdges, variableR
   // Temporary support for graphml string interface
   if (exportFormat === formats.graphml) {
     const formatter = new Formatter(network, variableRegistry); // TODO: unify interface
-    const filepath = path.join(outDir, `${uuid()}${extension}`);
+    const filepath = path.join(outDir, `${namePrefix}${extension}`);
     return writeFile(filepath, formatter.toString()).then(() => filepath);
   }
 
   const pathPromise = new Promise((resolve, reject) => {
     const formatter = new Formatter(network, useDirectedEdges);
-    const filepath = path.join(outDir, `${uuid()}${extension}`);
+    const filepath = path.join(outDir, `${namePrefix}.${exportFormat}${extension}`);
     writeStream = fs.createWriteStream(filepath);
     writeStream.on('finish', () => { resolve(filepath); });
     writeStream.on('error', (err) => { reject(err); });
@@ -140,9 +146,9 @@ class ExportManager {
         // TODO: evaluate & test. It'll be easier to track progress when run concurrently,
         // but this may run into memory issues.
         promisedExports = flatten(
-          networks.map(network =>
+          networks.map((network, i) =>
             exportFormats.map(format =>
-              exportFile(format, tmpDir, network, exportOpts))));
+              exportFile(`${i + 1}`, format, tmpDir, network, exportOpts))));
         return Promise.all(promisedExports);
       })
       // TODO: check length; if 0: reject, if 1: don't zip?
