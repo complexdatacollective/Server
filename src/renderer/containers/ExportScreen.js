@@ -11,6 +11,7 @@ import DrawerTransition from '../components/Transitions/Drawer';
 import Checkbox from '../ui/components/Fields/Checkbox';
 import Radio from '../ui/components/Fields/Radio';
 import Toggle from '../ui/components/Fields/Toggle';
+import ExportModal from '../components/ExportModal';
 import withApiClient from '../components/withApiClient';
 import { selectors } from '../ducks/modules/protocols';
 import { Button, Spinner } from '../ui';
@@ -79,9 +80,17 @@ class ExportScreen extends Component {
 
     remote.dialog.showSaveDialog(exportDialog, (filepath) => {
       if (filepath) {
-        this.setState({ exportInProgress: true }, () => this.exportToFile(filepath));
+        this.setState(
+          { exportInProgress: true },
+          () => this.exportToFile(filepath),
+        );
       }
     });
+  }
+
+  handleCancel = () => {
+    // TODO: cancel underlying requests
+    this.setState({ exportInProgress: false });
   }
 
   exportToFile = (destinationFilepath) => {
@@ -127,6 +136,13 @@ class ExportScreen extends Component {
 
     return (
       <form className="export" onSubmit={this.handleExport}>
+        {
+          <ExportModal
+            className="modal--export"
+            show={exportInProgress}
+            handleCancel={this.handleCancel}
+          />
+        }
         <h1>{protocol.name}</h1>
         <div className="export__section">
           <h3>File Type</h3>
