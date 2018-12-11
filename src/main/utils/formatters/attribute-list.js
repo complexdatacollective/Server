@@ -19,6 +19,9 @@ const attributeHeaders = (nodes) => {
   return [...headerSet];
 };
 
+/**
+ * @return {Object} an abort controller; call the attached abort() method as needed.
+ */
 const toCSVStream = (nodes, outStream) => {
   const totalRows = nodes.length;
   const attrNames = attributeHeaders(nodes);
@@ -55,6 +58,10 @@ const toCSVStream = (nodes, outStream) => {
 
   // TODO: handle teardown. Use pipeline() API in Node 10?
   inStream.pipe(outStream);
+
+  return {
+    abort: () => { inStream.destroy(); },
+  };
 };
 
 class AttributeListFormatter {

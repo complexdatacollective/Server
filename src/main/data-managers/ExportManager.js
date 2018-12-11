@@ -18,12 +18,27 @@ const {
   getFormatterClass,
 } = require('../utils/formatters/utils');
 
+/**
+ * Export a single (CSV or graphml) file
+ * @param  {formats} exportFormat
+ * @param  {string} outDir directory where we should write the file
+ * @param  {object} network NC-formatted network `({ nodes, edges })`
+ * @param  {object} [options]
+ * @param  {boolean} [options.useDirectedEdges=false] true to force directed edges
+ * @param  {Object} [options.variableRegistry] needed for graphML export
+ * @return {Promise} promise decorated with an `abort` method.
+ *                           If aborted, the returned promise will never settle.
+ * @private
+ */
 const exportFile = (exportFormat, outDir, network, { useDirectedEdges, variableRegistry } = {}) => {
   const Formatter = getFormatterClass(exportFormat);
   const extension = getFileExtension(exportFormat);
   if (!Formatter || !extension) {
     return Promise.reject(new RequestError(`Invalid export format ${exportFormat}`));
   }
+
+  let streamController;
+  let writeStream;
 
   // Temporary support for graphml string interface
   if (exportFormat === formats.graphml) {
@@ -32,20 +47,34 @@ const exportFile = (exportFormat, outDir, network, { useDirectedEdges, variableR
     return writeFile(filepath, formatter.toString()).then(() => filepath);
   }
 
-  return new Promise((resolve, reject) => {
+  const pathPromise = new Promise((resolve, reject) => {
     const formatter = new Formatter(network, useDirectedEdges);
     const filepath = path.join(outDir, `${uuid()}${extension}`);
-    const writeStream = fs.createWriteStream(filepath);
+    writeStream = fs.createWriteStream(filepath);
     writeStream.on('finish', () => { resolve(filepath); });
     writeStream.on('error', (err) => { reject(err); });
     // TODO: on('ready')?
     logger.debug(`Writing ${exportFormat} file ${filepath}`);
-    formatter.writeToStream(writeStream);
+    streamController = formatter.writeToStream(writeStream);
   });
+
+  pathPromise.abort = () => {
+    if (streamController) {
+      streamController.abort();
+    }
+    if (writeStream) {
+      writeStream.destroy();
+    }
+  };
+
+  return pathPromise;
 };
 
 const flatten = shallowArrays => [].concat(...shallowArrays);
 
+/**
+ * Interface for all data exports
+ */
 class ExportManager {
   constructor(sessionDataDir) {
     // TODO: path is duplicated in ProtocolManager
@@ -71,6 +100,9 @@ class ExportManager {
    *                                `exportNetworkUnion` is true)
    * @param {boolean} options.useDirectedEdges used by the formatters. May be removed in the future
    *                                           if information is encapsulated in network.
+   * @return {Promise} A `promise` that resloves to a filepath (string). The promise is decorated
+   *                     with an `abort` function to support request cancellations.
+   *                     If the export is aborted, then the returned promise will never settle.
    * @return {string} filepath of written file
    */
   createExportFile(
@@ -95,12 +127,13 @@ class ExportManager {
       } catch (err) { /* don't throw; cleanUp is called after catching */ }
     };
 
+    let promisedExports;
     const exportOpts = {
       useDirectedEdges,
       variableRegistry: protocol.variableRegistry,
     };
 
-    return makeTempDir()
+    const exportPromise = makeTempDir()
       .then((dir) => {
         tmpDir = dir;
         if (!tmpDir) {
@@ -111,14 +144,15 @@ class ExportManager {
       // TODO: may want to preserve some session metadata for naming?
       .then(sessions => sessions.map(session => session.data))
       .then(networks => (exportNetworkUnion ? [unionOfNetworks(networks)] : networks))
-      .then(networks =>
+      .then((networks) => {
         // TODO: evaluate & test. It'll be easier to track progress when run concurrently,
         // but this may run into memory issues.
-        Promise.all(
-          flatten(
-            networks.map(network =>
-              exportFormats.map(format =>
-                exportFile(format, tmpDir, network, exportOpts))))))
+        promisedExports = flatten(
+          networks.map(network =>
+            exportFormats.map(format =>
+              exportFile(format, tmpDir, network, exportOpts))));
+        return Promise.all(promisedExports);
+      })
       // TODO: check length; if 0: reject, if 1: don't zip?
       .then(exportedPaths => archive(exportedPaths, destinationFilepath))
       .catch((err) => {
@@ -127,6 +161,14 @@ class ExportManager {
         throw err;
       })
       .then(cleanUp);
+
+    exportPromise.abort = () => {
+      if (promisedExports) {
+        promisedExports.forEach(promise => promise.abort());
+      }
+    };
+
+    return exportPromise;
   }
 }
 

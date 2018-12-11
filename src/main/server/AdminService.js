@@ -203,9 +203,27 @@ class AdminService {
     });
 
     // See ExportManager#createExportFile for possible req body params
+    // Handles export in a single, long-lived http request
     api.post('/protocols/:protocolId/export_requests', (req, res, next) => {
+      apiRequestLogger('AdminAPI')(req, { statusCode: 0 }); // log request start
+
+      let abortRequest;
+      req.on('aborted', () => {
+        if (abortRequest) {
+          logger.debug('Export request aborted');
+          abortRequest();
+        }
+      });
+
+      req.setTimeout(0);
+      res.setTimeout(0);
+
       this.protocolManager.getProtocol(req.params.protocolId)
-        .then(protocol => this.exportManager.createExportFile(protocol, req.body))
+        .then((protocol) => {
+          const exportRequest = this.exportManager.createExportFile(protocol, req.body);
+          abortRequest = exportRequest.abort;
+          return exportRequest;
+        })
         .then(filepath => res.send({ status: 'ok', filepath }))
         .catch((err) => {
           logger.error(err);

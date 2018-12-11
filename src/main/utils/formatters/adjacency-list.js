@@ -42,6 +42,8 @@ const asAdjacencyList = (network, directed = false) =>
  * b,a
  * c,a
  * ```
+ *
+ * @return {Object} an abort controller; call the attached abort() method as needed.
  */
 // TODO: quoting/escaping (not needed while we're only using UUIDs)
 const toCSVStream = (adjancencyList, outStream) => {
@@ -65,6 +67,10 @@ const toCSVStream = (adjancencyList, outStream) => {
 
   // TODO: handle teardown. Use pipeline() API in Node 10?
   inStream.pipe(outStream);
+
+  return {
+    abort: () => { inStream.destroy(); },
+  };
 };
 
 class AdjacencyListFormatter {
