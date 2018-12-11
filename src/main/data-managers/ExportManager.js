@@ -10,7 +10,7 @@ const { archive } = require('../utils/archive');
 const { writeFile } = require('../utils/promised-fs');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
 const { unionOfNetworks } = require('../utils/formatters/network');
-const { makeTempDir } = require('../utils/formatters/dir');
+const { makeTempDir, removeTempDir } = require('../utils/formatters/dir');
 const {
   formats,
   formatsAreValid,
@@ -117,15 +117,7 @@ class ExportManager {
     }
 
     let tmpDir;
-    const cleanUp = () => {
-      try {
-        // TODO: clean up all our temp files
-        // const outDirPrefix = tmpDir.substring(0, tmpDir.length - 6);
-        // if (tmpDir && (new RegExp(`${tmpDirPrefix}$`).test(outDirPrefix))) {
-        // fs.rmdirSync(tmpDir);
-        // }
-      } catch (err) { /* don't throw; cleanUp is called after catching */ }
-    };
+    const cleanUp = () => removeTempDir(tmpDir);
 
     let promisedExports;
     const exportOpts = {
@@ -166,6 +158,7 @@ class ExportManager {
       if (promisedExports) {
         promisedExports.forEach(promise => promise.abort());
       }
+      cleanUp();
     };
 
     return exportPromise;

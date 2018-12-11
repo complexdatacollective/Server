@@ -11,7 +11,10 @@ jest.mock('../../utils/archive', () => ({
   archive: jest.fn().mockResolvedValue({}),
 }));
 
-jest.mock('../../utils/formatters/dir');
+jest.mock('../../utils/formatters/dir', () => ({
+  makeTempDir: jest.fn().mockResolvedValue('temp'),
+  removeTempDir: jest.fn(),
+}));
 
 describe('ExportManager', () => {
   let protocol;

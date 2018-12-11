@@ -21,6 +21,11 @@ const formats = {
   attributeList: 'attributeList',
 };
 
+const extensions = {
+  graphml: '.graphml',
+  csv: '.csv',
+};
+
 /**
  * Check validity of supplied formats
  * @param  {string[]} suppliedFormats
@@ -38,11 +43,11 @@ const formatsAreValid = suppliedFormats =>
 const getFileExtension = (formatterType) => {
   switch (formatterType) {
     case formats.graphml:
-      return '.graphml';
+      return extensions.graphml;
     case formats.adjacencyMatrix:
     case formats.adjacencyList:
     case formats.attributeList:
-      return '.csv';
+      return extensions.csv;
     default:
       return null;
   }
@@ -69,6 +74,7 @@ const getFormatterClass = (formatterType) => {
 };
 
 module.exports = {
+  extensions,
   formats,
   formatsAreValid,
   getFileExtension,
