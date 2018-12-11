@@ -33,7 +33,7 @@ class ExportScreen extends Component {
     super(props);
     this.state = {
       exportFormat: 'graphml',
-      exportNetworkUnion: null,
+      exportNetworkUnion: false,
       csvTypes: new Set(Object.keys(availableCsvTypes)),
       filter: defaultFilter,
       useDirectedEdges: true,
