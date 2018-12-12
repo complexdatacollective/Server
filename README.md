@@ -82,7 +82,7 @@ The electron app (and server components) are served out of the /www folder. Chan
 ### Development workflow
 
 1. `npm run start:electron`: to start the webpack dev server
-  - Note: must be running on port 3000.
+  - Note: must be running on port 4000.
 2. `npm run electron:dev` (in another terminal session)
   1. Copies the electron source to `./electron-dev`
   2. Runs the electron app from there, including background services.
