@@ -4,13 +4,13 @@ import { DOMParser } from 'xmldom';
 import createGraphML from '../graphml';
 
 describe('createGraphML', () => {
+  const buildXML = (...args) => (new DOMParser()).parseFromString(createGraphML(...args));
   const edgeType = 'peer';
   let network;
   let variableRegistry;
   let xml;
 
   beforeEach(() => {
-    const buildXML = (...args) => (new DOMParser()).parseFromString(createGraphML(...args));
     network = {
       nodes: [
         { _uid: '1', type: 'person', attributes: { 'mock-uuid-1': 'Dee', 'mock-uuid-2': 40 } },
@@ -42,6 +42,10 @@ describe('createGraphML', () => {
     expect(xml.getElementsByTagName('graphml')).toHaveLength(1);
   });
 
+  it('defaults to undirected edges', () => {
+    expect(xml.getElementsByTagName('graph')[0].getAttribute('edgedefault')).toEqual('undirected');
+  });
+
   it('adds nodes', () => {
     expect(xml.getElementsByTagName('node')).toHaveLength(2);
   });
@@ -57,5 +61,15 @@ describe('createGraphML', () => {
   it('exports edge labels', () => { // This indicates that [non-]transposition worked for edges
     const edge = xml.getElementsByTagName('edge')[0];
     expect(edge.getElementsByTagName('data')[0].textContent).toEqual(edgeType);
+  });
+
+  describe('with directed edge option', () => {
+    beforeEach(() => {
+      xml = buildXML(network, variableRegistry, null, true);
+    });
+
+    it('specifies directed edges', () => {
+      expect(xml.getElementsByTagName('graph')[0].getAttribute('edgedefault')).toEqual('directed');
+    });
   });
 });

@@ -193,20 +193,20 @@ class ExportScreen extends Component {
                     ))
                   }
                 </div>
-                <div className="export__subpanel-content">
-                  <h4>Directed Edges</h4>
-                  <Toggle
-                    label="Treat edges as directed"
-                    input={{
-                      name: 'export_use_directed_edges',
-                      onChange: this.handleDirectedEdgesChange,
-                      value: this.state.useDirectedEdges,
-                    }}
-                  />
-                </div>
               </div>
             </DrawerTransition>
           </div>
+        </div>
+        <div className="export__section">
+          <h4>Directed Edges</h4>
+          <Toggle
+            label="Treat edges as directed"
+            input={{
+              name: 'export_use_directed_edges',
+              onChange: this.handleDirectedEdgesChange,
+              value: this.state.useDirectedEdges,
+            }}
+          />
         </div>
         <div className="export__section">
           <h3>Interview Networks</h3>

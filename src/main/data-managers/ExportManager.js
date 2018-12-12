@@ -48,7 +48,7 @@ const exportFile = (
 
   // Temporary support for graphml string interface
   if (exportFormat === formats.graphml) {
-    const formatter = new Formatter(network, variableRegistry); // TODO: unify interface
+    const formatter = new Formatter(network, useDirectedEdges, variableRegistry);
     const filepath = path.join(outDir, `${namePrefix}${extension}`);
     return writeFile(filepath, formatter.toString()).then(() => filepath);
   }
