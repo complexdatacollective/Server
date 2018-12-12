@@ -4,3 +4,6 @@
 [submodule "src/main/utils/shared-api"]
 	path = src/main/utils/shared-api
 	url = https://github.com/codaco/secure-comms-api.git
+[submodule "src/main/utils/network-query"]
+	path = src/main/utils/network-query
+	url = https://github.com/codaco/networkQuery.git

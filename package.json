@@ -173,6 +173,7 @@
     "setupTestFrameworkScriptFile": "<rootDir>/config/jest/setupTestFramework.js",
     "testPathIgnorePatterns": [
       "<rootDir>[/\\\\](build|docs|node_modules|scripts|release-builds)[/\\\\]",
+      "<rootDir>/src/main/utils/network-query",
       "<rootDir>/src/renderer/ui"
     ],
     "testEnvironment": "node",
