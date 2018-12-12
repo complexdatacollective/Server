@@ -68,6 +68,11 @@ class ExportScreen extends Component {
   }
 
   handleExport = () => {
+    if (!this.formatsAreValid()) {
+      this.props.showError('Please select at least one file type to export');
+      return;
+    }
+
     const defaultName = this.props.protocol.name || 'network-canvas-data';
     const exportDialog = {
       title: 'Export ',
@@ -93,6 +98,10 @@ class ExportScreen extends Component {
     // TODO: cancel underlying requests with an AbortController (requires Electron 3+)
     // Temporary workaround:
     remote.getCurrentWindow().reload();
+  }
+
+  formatsAreValid() {
+    return this.state.exportFormat === 'graphml' || this.state.csvTypes.size > 0;
   }
 
   exportToFile = (destinationFilepath) => {
