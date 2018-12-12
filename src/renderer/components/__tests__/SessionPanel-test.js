@@ -19,7 +19,7 @@ const props = {
 describe('<SessionPanel />', () => {
   it('renders a title', () => {
     const subject = mount(<SessionPanel {...props} />);
-    expect(subject.text()).toMatch('Sessions');
+    expect(subject.text()).toMatch('Interviews');
   });
 
   it('renders sessions', () => {

@@ -13,7 +13,7 @@ class SessionPanel extends Component {
     return (
       <div className="session-panel__header">
         <h4 className="session-panel__header-text">
-          Imported Sessions
+          Imported Interviews
           <small className="session-panel__header-count">
             {countText}
           </small>
