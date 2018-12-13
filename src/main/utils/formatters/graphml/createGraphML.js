@@ -1,15 +1,13 @@
 // Sharing Issues:
 // - [ ] APIs (string output vs streaming); see saveFile()
 //    - Change in signature: NetworkCanvas must inject saveFile as a final arg
-// - [ ] need to abstract DOMParser
+// - [x] need to abstract DOMParser
 // - [x] need to abstract XMLSerializer (see xmlToString())
 // - [x] need directed as an option (until network encapsulates this)
 // - [x] updated export (default/named)
 // - [x] source data differs (we're working with resolved names in Server)
 //    - this affects variable type lookup for nodes and labels for edges
 // - [x] document is not global
-
-const { DOMParser } = require('xmldom'); // TODO: these are globals in browser
 
 const { findKey, forInRight } = require('lodash');
 
@@ -21,6 +19,17 @@ const {
   variableRegistryExists,
   VariableType,
 } = require('./helpers');
+
+// In a browser process, window provides a globalContext;
+// in an electron main process, we can inject required globals
+let globalContext;
+
+if (typeof window !== 'undefined') {
+  globalContext = window; // eslint-disable-line no-undef
+} else {
+  globalContext = {};
+  globalContext.DOMParser = require('xmldom').DOMParser; // eslint-disable-line global-require
+}
 
 const getXmlHeader = (useDirectedEdges) => {
   const edgeDefault = useDirectedEdges ? 'directed' : 'undirected';
@@ -36,9 +45,10 @@ const xmlFooter = '</graph>\n</graphml>\n';
 
 const setUpXml = (useDirectedEdges) => {
   const graphMLOutline = `${getXmlHeader(useDirectedEdges)}${xmlFooter}`;
-  return (new DOMParser()).parseFromString(graphMLOutline, 'text/xml');
+  return (new globalContext.DOMParser()).parseFromString(graphMLOutline, 'text/xml');
 };
 
+// <key> elements provide the type definitions for GraphML data elements
 // @return {Object} a fragment to insert, and any variables that were missing from the variable
 //                  registry: `{ fragment: <DocumentFragment>, missingVariables: [] }`.
 const generateKeyElements = (
@@ -220,12 +230,8 @@ const generateDataElements = (
 
     // Add positions for gephi layout. Use window dimensions for scaling if available.
     if (layoutVariable && nodeAttrs[layoutVariable]) {
-      let canvasWidth = 1024;
-      let canvasHeight = 768;
-      if (typeof window !== 'undefined') {
-        canvasWidth = window.innerWidth; // eslint-disable-line no-undef
-        canvasHeight = window.innerHeight; // eslint-disable-line no-undef
-      }
+      const canvasWidth = globalContext.innerWidth || 1024;
+      const canvasHeight = globalContext.innerHeight || 768;
       domElement.appendChild(createDataElement(document, 'x', nodeAttrs[layoutVariable].x * canvasWidth));
       domElement.appendChild(createDataElement(document, 'y', (1.0 - nodeAttrs[layoutVariable].y) * canvasHeight));
     }
@@ -235,13 +241,16 @@ const generateDataElements = (
 };
 
 const xmlToString = (xmlData) => {
-  if (typeof window === 'undefined') {
+  if (!globalContext.XMLSerializer) {
     console.warn('`window` not supported on this platform'); // eslint-disable-line no-console
     return '';
   }
-  return (new window.XMLSerializer()).serializeToString(xmlData); // eslint-disable-line no-undef
+  return (globalContext.XMLSerializer()).serializeToString(xmlData);
 };
 
+/**
+ * @return {Document} the containing XML document
+ */
 const buildGraphML = (networkData, variableRegistry, useDirectedEdges) => {
   // default graph structure
   const xml = setUpXml(useDirectedEdges);
