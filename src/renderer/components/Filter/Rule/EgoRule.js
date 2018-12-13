@@ -104,7 +104,7 @@ class EgoRule extends PureComponent {
           </div>
         }
         { !hasPersonType && <div>No &quot;Person&quot; node type found!</div> }
-        <button className="rule__delete" onClick={() => onDeleteRule(id)} />
+        <button type="button" className="rule__delete" onClick={() => onDeleteRule(id)} />
       </div>
     );
   }

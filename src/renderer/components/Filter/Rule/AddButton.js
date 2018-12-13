@@ -23,6 +23,7 @@ class AddButton extends PureComponent {
       >
         <button
           className="rule-add-button__open"
+          type="button"
           disabled
         >
           +
