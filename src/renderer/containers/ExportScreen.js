@@ -35,13 +35,13 @@ class ExportScreen extends Component {
       exportFormat: 'graphml',
       exportNetworkUnion: false,
       csvTypes: new Set(Object.keys(availableCsvTypes)),
-      filter: defaultFilter,
+      entityFilter: defaultFilter,
       useDirectedEdges: true,
     };
   }
 
-  handleFilterChange = (filter) => {
-    this.setState({ filter });
+  handleFilterChange = (entityFilter) => {
+    this.setState({ entityFilter });
   }
 
   handleFormatChange = (evt) => {
@@ -114,7 +114,7 @@ class ExportScreen extends Component {
       exportFormat,
       exportNetworkUnion,
       csvTypes,
-      filter,
+      entityFilter,
       useDirectedEdges,
     } = this.state;
 
@@ -123,7 +123,7 @@ class ExportScreen extends Component {
         exportFormats: (exportFormat === 'csv' && [...csvTypes]) || [exportFormat],
         exportNetworkUnion,
         destinationFilepath,
-        filter,
+        entityFilter,
         useDirectedEdges,
       })
       .then(() => showConfirmation('Export complete'))
@@ -248,9 +248,9 @@ class ExportScreen extends Component {
         </div>
         <div className="export__section">
           <h3>Filtering</h3>
-          <p>Optionally filter the network(s) before export.</p>
+          <p>Include nodes and edges that meet the following criteria:</p>
           <Filter
-            filter={this.state.filter}
+            filter={this.state.entityFilter}
             onChange={this.handleFilterChange}
             variableRegistry={variableRegistry}
           />

@@ -32,7 +32,7 @@ const filterNetworksWithQuery = (networks, inclusionQueryConfig) =>
  * @return {Object[]} a copy of `networks`, each possibly containing a subset of the original
  */
 const filterNetworkEntities = (networks, filterConfig) => {
-  if (!filterConfig) {
+  if (!filterConfig || !filterConfig.rules || !filterConfig.rules.length) {
     return networks;
   }
   const filter = getFilter(filterConfig);

@@ -107,7 +107,7 @@ describe('<ExportScreen />', () => {
       const filterInstance = subject.find('Connect(FilterGroup)');
       const mockFilter = { join: null, rules: [{ mock: true }] };
       filterInstance.simulate('change', mockFilter);
-      expect(subject.state('filter')).toEqual(mockFilter);
+      expect(subject.state('entityFilter')).toEqual(mockFilter);
     });
   });
 });
