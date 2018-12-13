@@ -1,8 +1,10 @@
 /* eslint-env jest */
+import { DOMParser } from 'xmldom';
+
 import { buildGraphML } from '../createGraphML';
 
 describe('buildGraphML', () => {
-  const buildXML = (...args) => buildGraphML(...args);
+  const buildXML = (...args) => (new DOMParser()).parseFromString(buildGraphML(...args));
   const edgeType = 'peer';
   let network;
   let variableRegistry;

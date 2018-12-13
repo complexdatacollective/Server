@@ -1,6 +1,7 @@
 // Sharing Issues:
 // - [ ] APIs (string output vs streaming); see saveFile()
 //    - Change in signature: NetworkCanvas must inject saveFile as a final arg
+// - [ ] linebreak handling?
 // - [x] need to abstract DOMParser
 // - [x] need to abstract XMLSerializer (see xmlToString())
 // - [x] need directed as an option (until network encapsulates this)
@@ -24,27 +25,34 @@ const {
 // in an electron main process, we can inject required globals
 let globalContext;
 
-if (typeof window !== 'undefined') {
-  globalContext = window; // eslint-disable-line no-undef
+/* eslint-disable no-undef, global-require */
+if (typeof window !== 'undefined' && window.DOMParser && window.XMLSerializer) {
+  globalContext = window;
 } else {
+  const dom = require('xmldom');
   globalContext = {};
-  globalContext.DOMParser = require('xmldom').DOMParser; // eslint-disable-line global-require
+  globalContext.DOMParser = dom.DOMParser;
+  globalContext.XMLSerializer = dom.XMLSerializer;
 }
+/* eslint-enable */
 
-const getXmlHeader = (useDirectedEdges) => {
+const eol = '\n';
+
+const xmlHeader = `<?xml version="1.0" encoding="UTF-8"?>
+  <graphml xmlns="http://graphml.graphdrawing.org/xmlns"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns
+           http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">${eol}`;
+
+const getGraphHeader = (useDirectedEdges) => {
   const edgeDefault = useDirectedEdges ? 'directed' : 'undirected';
-  return '<?xml version="1.0" encoding="UTF-8"?>\n' +
-    '<graphml xmlns="http://graphml.graphdrawing.org/xmlns"\n' +
-    'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n' +
-    'xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns\n' +
-    'http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">\n' +
-    `  <graph edgedefault="${edgeDefault}">\n`;
+  return `<graph edgedefault="${edgeDefault}">${eol}`;
 };
 
-const xmlFooter = '</graph>\n</graphml>\n';
+const xmlFooter = `</graph>${eol}</graphml>${eol}`;
 
 const setUpXml = (useDirectedEdges) => {
-  const graphMLOutline = `${getXmlHeader(useDirectedEdges)}${xmlFooter}`;
+  const graphMLOutline = `${xmlHeader}${getGraphHeader(useDirectedEdges)}${xmlFooter}`;
   return (new globalContext.DOMParser()).parseFromString(graphMLOutline, 'text/xml');
 };
 
@@ -240,22 +248,14 @@ const generateDataElements = (
   return fragment;
 };
 
-const xmlToString = (xmlData) => {
-  if (!globalContext.XMLSerializer) {
-    console.warn('`window` not supported on this platform'); // eslint-disable-line no-console
-    return '';
-  }
-  return (globalContext.XMLSerializer()).serializeToString(xmlData);
-};
+// Generator to supply XML content in chunks to both string and stream producers
+function* graphMLGenerator(networkData, variableRegistry, useDirectedEdges) {
+  const serializer = new globalContext.XMLSerializer();
+  const serialize = fragment => `${serializer.serializeToString(fragment)}${eol}`;
 
-/**
- * @return {Document} the containing XML document
- */
-const buildGraphML = (networkData, variableRegistry, useDirectedEdges) => {
-  // default graph structure
-  const xml = setUpXml(useDirectedEdges);
-  const graph = xml.getElementsByTagName('graph')[0];
-  const graphML = xml.getElementsByTagName('graphml')[0];
+  yield xmlHeader;
+
+  const xmlDoc = setUpXml(useDirectedEdges);
 
   // find the first variable of type layout
   let layoutVariable;
@@ -265,24 +265,23 @@ const buildGraphML = (networkData, variableRegistry, useDirectedEdges) => {
 
   // generate keys for nodes
   const { missingVariables: missingNodeVars, fragment: nodeKeyFragment } = generateKeyElements(
-    graph.ownerDocument,
+    xmlDoc,
     networkData.nodes,
     'node',
     [nodePrimaryKeyProperty],
     variableRegistry,
     layoutVariable,
   );
-  graphML.insertBefore(nodeKeyFragment, graph);
+  yield serialize(nodeKeyFragment);
 
   // generate keys for edges and add to keys for nodes
   const { missingVariables: missingEdgeVars, fragment: edgeKeyFragment } = generateKeyElements(
-    graph.ownerDocument,
+    xmlDoc,
     networkData.edges,
     'edge',
     ['from', 'to', 'type'],
     variableRegistry,
   );
-  graphML.insertBefore(edgeKeyFragment, graph);
 
   const missingVariables = [...missingNodeVars, ...missingEdgeVars];
   if (missingVariables.length > 0) {
@@ -293,27 +292,43 @@ const buildGraphML = (networkData, variableRegistry, useDirectedEdges) => {
     // return null;
   }
 
+  yield serialize(edgeKeyFragment);
+
+  yield getGraphHeader(useDirectedEdges);
+
   // add nodes and edges to graph
   const nodeFragment = generateDataElements(
-    graph.ownerDocument,
+    xmlDoc,
     networkData.nodes,
     'node',
     [nodePrimaryKeyProperty, nodeAttributesProperty],
     variableRegistry,
     layoutVariable,
   );
-  graph.appendChild(nodeFragment);
+  yield serialize(nodeFragment);
 
   const edgeFragment = generateDataElements(
-    graph.ownerDocument,
+    xmlDoc,
     networkData.edges,
     'edge',
     ['from', 'to', 'type'],
     variableRegistry,
   );
-  graph.appendChild(edgeFragment);
+  yield serialize(edgeFragment);
 
-  return xml;
+  yield xmlFooter;
+}
+
+/**
+ * @throws
+ */
+const buildGraphML = (networkData, variableRegistry, useDirectedEdges) => {
+  // TODO: stream
+  let xmlString = '';
+  for (const chunk of graphMLGenerator(networkData, variableRegistry, useDirectedEdges)) { // eslint-disable-line
+    xmlString += chunk;
+  }
+  return xmlString;
 };
 
 /**
@@ -325,15 +340,17 @@ const buildGraphML = (networkData, variableRegistry, useDirectedEdges) => {
  * @return {} the return value from saveFile
  */
 const createGraphML = (networkData, variableRegistry, onError, saveFile) => {
-  let xml;
+  let xmlString = '';
   try {
-    xml = buildGraphML(networkData, variableRegistry);
+    for (const chunk of graphMLGenerator(networkData, variableRegistry)) { // eslint-disable-line
+      xmlString += chunk;
+    }
   } catch (err) {
     onError(err);
     return null;
   }
   return saveFile(
-    xmlToString(xml),
+    xmlString,
     onError,
     'graphml',
     ['graphml'],
