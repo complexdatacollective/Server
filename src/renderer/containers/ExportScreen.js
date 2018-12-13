@@ -132,7 +132,7 @@ class ExportScreen extends Component {
   }
 
   render() {
-    const { protocol, protocolsHaveLoaded } = this.props;
+    const { protocol, protocolsHaveLoaded, variableRegistry } = this.props;
 
     if (protocolsHaveLoaded && !protocol) { // This protocol doesn't exist
       return <Redirect to="/" />;
@@ -252,7 +252,7 @@ class ExportScreen extends Component {
           <Filter
             filter={this.state.filter}
             onChange={this.handleFilterChange}
-            variableRegistry={protocol.variableRegistry}
+            variableRegistry={variableRegistry}
           />
         </div>
         <Button type="submit" disabled={exportInProgress}>Export</Button>
@@ -267,16 +267,19 @@ ExportScreen.propTypes = {
   protocolsHaveLoaded: PropTypes.bool.isRequired,
   showConfirmation: PropTypes.func.isRequired,
   showError: PropTypes.func.isRequired,
+  variableRegistry: PropTypes.object,
 };
 
 ExportScreen.defaultProps = {
   apiClient: null,
   protocol: null,
+  variableRegistry: null,
 };
 
 const mapStateToProps = (state, ownProps) => ({
   protocolsHaveLoaded: selectors.protocolsHaveLoaded(state),
   protocol: selectors.currentProtocol(state, ownProps),
+  variableRegistry: selectors.transposedRegistry(state, ownProps),
 });
 
 const mapDispatchToProps = dispatch => ({

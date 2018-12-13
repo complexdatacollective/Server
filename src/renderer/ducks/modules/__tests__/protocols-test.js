@@ -1,5 +1,5 @@
 /* eslint-env jest */
-import reducer, { actionCreators, actionTypes } from '../protocols';
+import reducer, { actionCreators, actionTypes, selectors } from '../protocols';
 import AdminApiClient from '../../../utils/adminApiClient';
 
 jest.mock('../../../utils/adminApiClient');
@@ -92,6 +92,36 @@ describe('the protocols module', () => {
         mockApiClient.delete.mockRejectedValue(err);
         await actionCreators.deleteProtocol('1')(dispatcher);
         expect(dispatcher).toHaveBeenCalledWith(expect.objectContaining({ text: err.message }));
+      });
+    });
+  });
+
+  describe('selectors', () => {
+    const { currentProtocol, protocolsHaveLoaded, transposedRegistry } = selectors;
+
+    describe('currentProtocol', () => {
+      it('returns the current protocol object', () => {
+        const state = { protocols: [{ id: '1' }] };
+        const props = { match: { params: { id: '1' } } };
+        expect(currentProtocol(state, props)).toEqual(state.protocols[0]);
+      });
+    });
+
+    describe('protocolsHaveLoaded', () => {
+      it('indicates protocols have loaded', () => {
+        expect(protocolsHaveLoaded({ protocols: null })).toBe(false);
+        expect(protocolsHaveLoaded({ protocols: [{ id: '1' }] })).toBe(true);
+      });
+    });
+
+    describe('transposedRegistry', () => {
+      it('returns a modified registry', () => {
+        const variableRegistry = { node: { 'node-type-id': { name: 'person', variables: {} } } };
+        const state = { protocols: [{ id: '1', variableRegistry }] };
+        const props = { match: { params: { id: '1' } } };
+        const transposed = transposedRegistry(state, props);
+        expect(transposed).toHaveProperty('node');
+        expect(transposed.node).toHaveProperty('person');
       });
     });
   });
