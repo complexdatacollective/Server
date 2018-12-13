@@ -5,7 +5,7 @@ const { buildMockData, variableRegistry } = require('./db-size');
 const { asAdjacencyMatrix } = require('../src/main/utils/formatters/matrix');
 const { asAdjacencyList, toCSVStream } = require('../src/main/utils/formatters/adjacency-list');
 const { toCSVStream: toAttributeCSV } = require('../src/main/utils/formatters/attribute-list');
-const createGraphML = require('../src/main/utils/formatters/graphml');
+const createGraphML = require('../src/main/utils/formatters/graphml/createGraphML');
 
 const mockdata = buildMockData({ sessionCount: 1 });
 const merged = { nodes: [], edges: [] };

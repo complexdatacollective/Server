@@ -1,7 +1,7 @@
 /* eslint-env jest */
 import { DOMParser } from 'xmldom';
 
-import createGraphML from '../graphml';
+import createGraphML from '../createGraphML';
 
 describe('createGraphML', () => {
   const buildXML = (...args) => (new DOMParser()).parseFromString(createGraphML(...args));

@@ -12,7 +12,7 @@ const { DOMParser, XMLSerializer } = require('xmldom'); // TODO: these are globa
 
 const { findKey, forInRight, isNil } = require('lodash');
 
-const { nodePrimaryKeyProperty, nodeAttributesProperty, getNodeAttributes } = require('./network');
+const { nodePrimaryKeyProperty, nodeAttributesProperty, getNodeAttributes } = require('../network');
 
 // TODO: VariableType[Values] is shared with 'protocol-consts' in NC
 const VariableType = Object.freeze({
