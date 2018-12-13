@@ -66,15 +66,22 @@ const getTypeFromVariableRegistry = (variableRegistry, type, element, key, varia
   return variableInfo && variableInfo[variableAttribute];
 };
 
-const createDataElement = (document, key, text) => {
-  const data = document.createElement('data');
-  data.setAttribute('key', key);
-  data.appendChild(document.createTextNode(text));
-  return data;
+const createElement = (xmlDoc, tagName, attrs = {}, child = null) => {
+  const element = xmlDoc.createElement(tagName);
+  Object.entries(attrs).forEach(([key, val]) => {
+    element.setAttribute(key, val);
+  });
+  if (child) {
+    element.appendChild(child);
+  }
+  return element;
 };
 
+const createDataElement = (xmlDoc, key, text) =>
+  createElement(xmlDoc, 'data', { key }, xmlDoc.createTextNode(text));
+
+exports.createDataElement = createDataElement;
 exports.getGraphMLTypeForKey = getGraphMLTypeForKey;
 exports.getTypeFromVariableRegistry = getTypeFromVariableRegistry;
 exports.variableRegistryExists = variableRegistryExists;
-exports.createDataElement = createDataElement;
 exports.VariableType = VariableType;

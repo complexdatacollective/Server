@@ -1,14 +1,15 @@
 // Sharing Issues:
 // - [ ] APIs (string output vs streaming); see saveFile()
+//    - Change in signature: NetworkCanvas must inject saveFile as a final arg
 // - [ ] need to abstract DOMParser
-// - [ ] need to abstract XMLSerializer (see xmlToString())
+// - [x] need to abstract XMLSerializer (see xmlToString())
 // - [x] need directed as an option (until network encapsulates this)
 // - [x] updated export (default/named)
 // - [x] source data differs (we're working with resolved names in Server)
 //    - this affects variable type lookup for nodes and labels for edges
 // - [x] document is not global
 
-const { DOMParser, XMLSerializer } = require('xmldom'); // TODO: these are globals in browser
+const { DOMParser } = require('xmldom'); // TODO: these are globals in browser
 
 const { findKey, forInRight } = require('lodash');
 
@@ -20,9 +21,6 @@ const {
   variableRegistryExists,
   VariableType,
 } = require('./helpers');
-
-// TODO: different API needed for server
-const saveFile = xml => xml;
 
 const getXmlHeader = (useDirectedEdges) => {
   const edgeDefault = useDirectedEdges ? 'directed' : 'undirected';
@@ -236,19 +234,15 @@ const generateDataElements = (
   return fragment;
 };
 
-const xmlToString = xmlData => new XMLSerializer().serializeToString(xmlData);
+const xmlToString = (xmlData) => {
+  if (typeof window === 'undefined') {
+    console.warn('`window` not supported on this platform'); // eslint-disable-line no-console
+    return '';
+  }
+  return (new window.XMLSerializer()).serializeToString(xmlData); // eslint-disable-line no-undef
+};
 
-// const xmlToString = (xmlData) => {
-//   let xmlString;
-//   if (window.ActiveXObject) { // IE
-//     xmlString = xmlData.xml;
-//   } else { // code for Mozilla, Firefox, Opera, etc.
-//     xmlString = (new window.XMLSerializer()).serializeToString(xmlData);
-//   }
-//   return xmlString;
-// };
-
-const createGraphML = (networkData, variableRegistry, onError, useDirectedEdges) => {
+const buildGraphML = (networkData, variableRegistry, useDirectedEdges) => {
   // default graph structure
   const xml = setUpXml(useDirectedEdges);
   const graph = xml.getElementsByTagName('graph')[0];
@@ -285,7 +279,7 @@ const createGraphML = (networkData, variableRegistry, onError, useDirectedEdges)
   if (missingVariables.length > 0) {
     // hard fail if checking the registry fails
     // remove this to fall back to using "text" for unknowns
-    // onError(`The variable registry seems to be missing
+    // throw new Error(`The variable registry seems to be missing
     // "type" of: ${join(missingVariables, ', ')}.`);
     // return null;
   }
@@ -310,9 +304,36 @@ const createGraphML = (networkData, variableRegistry, onError, useDirectedEdges)
   );
   graph.appendChild(edgeFragment);
 
-  return saveFile(xmlToString(xml), onError, 'graphml', ['graphml'], 'networkcanvas.graphml', 'text/xml',
-    { message: 'Your network canvas graphml file.', subject: 'network canvas export' });
+  return xml;
 };
+
+/**
+ * Network Canvas interface for ExportData
+ * @param  {Object} networkData network from redux state
+ * @param  {Object} variableRegistry from protocol in redux state
+ * @param  {Function} onError
+ * @param  {Function} saveFile injected SaveFile dependency (called with the xml contents)
+ * @return {} the return value from saveFile
+ */
+const createGraphML = (networkData, variableRegistry, onError, saveFile) => {
+  let xml;
+  try {
+    xml = buildGraphML(networkData, variableRegistry);
+  } catch (err) {
+    onError(err);
+    return null;
+  }
+  return saveFile(
+    xmlToString(xml),
+    onError,
+    'graphml',
+    ['graphml'],
+    'networkcanvas.graphml',
+    'text/xml',
+    { message: 'Your network canvas graphml file.', subject: 'network canvas export' },
+  );
+};
+
 
 // Provides ES6 named + default imports via babel
 Object.defineProperty(exports, '__esModule', {
@@ -322,3 +343,4 @@ Object.defineProperty(exports, '__esModule', {
 exports.default = createGraphML;
 
 exports.createGraphML = createGraphML;
+exports.buildGraphML = buildGraphML;

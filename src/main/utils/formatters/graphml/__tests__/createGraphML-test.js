@@ -1,10 +1,8 @@
 /* eslint-env jest */
-import { DOMParser } from 'xmldom';
+import { buildGraphML } from '../createGraphML';
 
-import createGraphML from '../createGraphML';
-
-describe('createGraphML', () => {
-  const buildXML = (...args) => (new DOMParser()).parseFromString(createGraphML(...args));
+describe('buildGraphML', () => {
+  const buildXML = (...args) => buildGraphML(...args);
   const edgeType = 'peer';
   let network;
   let variableRegistry;
@@ -65,7 +63,7 @@ describe('createGraphML', () => {
 
   describe('with directed edge option', () => {
     beforeEach(() => {
-      xml = buildXML(network, variableRegistry, null, true);
+      xml = buildXML(network, variableRegistry, true);
     });
 
     it('specifies directed edges', () => {

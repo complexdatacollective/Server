@@ -1,4 +1,4 @@
-const { createGraphML } = require('./createGraphML');
+const { buildGraphML } = require('./createGraphML');
 
 class GraphMLFormatter {
   constructor(data, useDirectedEdges, variableRegistry) {
@@ -7,7 +7,8 @@ class GraphMLFormatter {
     this.useDirectedEdges = useDirectedEdges;
   }
   toString() {
-    return createGraphML(this.network, this.variableRegistry, null, this.useDirectedEdges);
+    const contents = buildGraphML(this.network, this.variableRegistry, this.useDirectedEdges);
+    return contents.toString();
   }
 }
 
