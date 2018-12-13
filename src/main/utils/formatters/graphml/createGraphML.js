@@ -10,22 +10,16 @@
 
 const { DOMParser, XMLSerializer } = require('xmldom'); // TODO: these are globals in browser
 
-const { findKey, forInRight, isNil } = require('lodash');
+const { findKey, forInRight } = require('lodash');
 
 const { nodePrimaryKeyProperty, nodeAttributesProperty, getNodeAttributes } = require('../network');
-
-// TODO: VariableType[Values] is shared with 'protocol-consts' in NC
-const VariableType = Object.freeze({
-  boolean: 'boolean',
-  text: 'text',
-  number: 'number',
-  datetime: 'datetime',
-  ordinal: 'ordinal',
-  categorical: 'categorical',
-  layout: 'layout',
-  location: 'location',
-});
-const VariableTypeValues = Object.freeze(Object.values(VariableType));
+const {
+  createDataElement,
+  getGraphMLTypeForKey,
+  getTypeFromVariableRegistry,
+  variableRegistryExists,
+  VariableType,
+} = require('./helpers');
 
 // TODO: different API needed for server
 const saveFile = xml => xml;
@@ -46,57 +40,6 @@ const setUpXml = (useDirectedEdges) => {
   const graphMLOutline = `${getXmlHeader(useDirectedEdges)}${xmlFooter}`;
   return (new DOMParser()).parseFromString(graphMLOutline, 'text/xml');
 };
-
-const getVariableDefinition = (variables, key) => {
-  if (!variables) {
-    return null;
-  }
-  if (variables[key]) {
-    // NC: When dealing with variableIDs (not transposed), we have the match
-    return variables[key];
-  }
-  // Server: need to look up based on name (transpose name back to ID)
-  const entries = Object.entries(variables).find(([, variable]) => variable.name === key);
-  return entries && entries[1];
-};
-
-const getVariableInfo = (variableRegistry, type, element, key) => (
-  variableRegistry[type] &&
-  variableRegistry[type][element.type] &&
-  getVariableDefinition(variableRegistry[type][element.type].variables, key)
-);
-
-const variableRegistryExists = (variableRegistry, type, element, key) => {
-  const variableInfo = getVariableInfo(variableRegistry, type, element, key);
-  return variableInfo && variableInfo.type && VariableTypeValues.includes(variableInfo.type);
-};
-
-const getTypeFromVariableRegistry = (variableRegistry, type, element, key, variableAttribute = 'type') => {
-  const variableInfo = getVariableInfo(variableRegistry, type, element, key);
-  return variableInfo && variableInfo[variableAttribute];
-};
-
-// returns a graphml type
-const getTypeForKey = (data, key) => (
-  data.reduce((result, value) => {
-    const attrs = getNodeAttributes(value);
-    if (isNil(attrs[key])) return result;
-    let currentType = typeof attrs[key];
-    if (currentType === 'number') {
-      currentType = Number.isInteger(attrs[key]) ? 'integer' : 'double';
-      if (result && currentType !== result) return 'double';
-    }
-    if (String(Number.parseInt(attrs[key], 10)) === attrs[key]) {
-      currentType = 'integer';
-      if (result === 'double') return 'double';
-    } else if (String(Number.parseFloat(attrs[key], 10)) === attrs[key]) {
-      currentType = 'double';
-      if (result === 'integer') return 'double';
-    }
-    if (isNil(currentType)) return result;
-    if (currentType === result || result === '') return currentType;
-    return 'string';
-  }, ''));
 
 // @return {Object} a fragment to insert, and any variables that were missing from the variable
 //                  registry: `{ fragment: <DocumentFragment>, missingVariables: [] }`.
@@ -166,7 +109,7 @@ const generateKeyElements = (
             break;
           case VariableType.ordinal:
           case VariableType.number: {
-            const keyType = getTypeForKey(entities, key);
+            const keyType = getGraphMLTypeForKey(entities, key);
             keyElement.setAttribute('attr.type', keyType);
             break;
           }
@@ -200,13 +143,6 @@ const generateKeyElements = (
     fragment,
     missingVariables,
   };
-};
-
-const getDataElement = (document, key, text) => {
-  const data = document.createElement('data');
-  data.setAttribute('key', key);
-  data.appendChild(document.createTextNode(text));
-  return data;
 };
 
 // @return {DocumentFragment} a fragment containing all XML elements for the supplied dataList
@@ -247,19 +183,19 @@ const generateDataElements = (
         label = dataElement.type;
       }
 
-      domElement.appendChild(getDataElement(document, 'label', label));
+      domElement.appendChild(createDataElement(document, 'label', label));
 
       Object.keys(dataElement).forEach((key) => {
         const keyName = getTypeFromVariableRegistry(variableRegistry, type, dataElement, key, 'name') || key;
         if (!excludeList.includes(keyName)) {
           if (typeof dataElement[key] !== 'object') {
-            domElement.appendChild(getDataElement(document, keyName, dataElement[key]));
+            domElement.appendChild(createDataElement(document, keyName, dataElement[key]));
           } else if (getTypeFromVariableRegistry(variableRegistry, type, dataElement, key) === 'layout') {
-            domElement.appendChild(getDataElement(document, `${keyName}X`, dataElement[key].x));
-            domElement.appendChild(getDataElement(document, `${keyName}Y`, dataElement[key].y));
+            domElement.appendChild(createDataElement(document, `${keyName}X`, dataElement[key].x));
+            domElement.appendChild(createDataElement(document, `${keyName}Y`, dataElement[key].y));
           } else {
             domElement.appendChild(
-              getDataElement(document, keyName, JSON.stringify(dataElement[key])),
+              createDataElement(document, keyName, JSON.stringify(dataElement[key])),
             );
           }
         }
@@ -272,14 +208,13 @@ const generateDataElements = (
         const keyName = getTypeFromVariableRegistry(variableRegistry, type, dataElement, key, 'name') || key;
         if (!excludeList.includes(keyName)) {
           if (typeof nodeAttrs[key] !== 'object') {
-            domElement.appendChild(
-              getDataElement(document, keyName, nodeAttrs[key]));
+            domElement.appendChild(createDataElement(document, keyName, nodeAttrs[key]));
           } else if (getTypeFromVariableRegistry(variableRegistry, type, dataElement, key) === 'layout') {
-            domElement.appendChild(getDataElement(document, `${keyName}X`, nodeAttrs[key].x));
-            domElement.appendChild(getDataElement(document, `${keyName}Y`, nodeAttrs[key].y));
+            domElement.appendChild(createDataElement(document, `${keyName}X`, nodeAttrs[key].x));
+            domElement.appendChild(createDataElement(document, `${keyName}Y`, nodeAttrs[key].y));
           } else {
             domElement.appendChild(
-              getDataElement(document, keyName, JSON.stringify(nodeAttrs[key])));
+              createDataElement(document, keyName, JSON.stringify(nodeAttrs[key])));
           }
         }
       });
@@ -293,8 +228,8 @@ const generateDataElements = (
         canvasWidth = window.innerWidth; // eslint-disable-line no-undef
         canvasHeight = window.innerHeight; // eslint-disable-line no-undef
       }
-      domElement.appendChild(getDataElement(document, 'x', nodeAttrs[layoutVariable].x * canvasWidth));
-      domElement.appendChild(getDataElement(document, 'y', (1.0 - nodeAttrs[layoutVariable].y) * canvasHeight));
+      domElement.appendChild(createDataElement(document, 'x', nodeAttrs[layoutVariable].x * canvasWidth));
+      domElement.appendChild(createDataElement(document, 'y', (1.0 - nodeAttrs[layoutVariable].y) * canvasHeight));
     }
   });
 
@@ -379,17 +314,6 @@ const createGraphML = (networkData, variableRegistry, onError, useDirectedEdges)
     { message: 'Your network canvas graphml file.', subject: 'network canvas export' });
 };
 
-class GraphMLFormatter {
-  constructor(data, useDirectedEdges, variableRegistry) {
-    this.network = data;
-    this.variableRegistry = variableRegistry;
-    this.useDirectedEdges = useDirectedEdges;
-  }
-  toString() {
-    return createGraphML(this.network, this.variableRegistry, null, this.useDirectedEdges);
-  }
-}
-
 // Provides ES6 named + default imports via babel
 Object.defineProperty(exports, '__esModule', {
   value: true,
@@ -397,5 +321,4 @@ Object.defineProperty(exports, '__esModule', {
 
 exports.default = createGraphML;
 
-exports.GraphMLFormatter = GraphMLFormatter;
 exports.createGraphML = createGraphML;
