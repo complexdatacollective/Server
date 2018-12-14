@@ -1,10 +1,16 @@
 /* eslint-env jest */
 import { DOMParser } from 'xmldom';
 
-import { buildGraphML } from '../createGraphML';
+import { graphMLGenerator } from '../createGraphML';
 
 describe('buildGraphML', () => {
-  const buildXML = (...args) => (new DOMParser()).parseFromString(buildGraphML(...args));
+  const buildXML = (...args) => {
+    let xmlString = '';
+    for (const chunk of graphMLGenerator(...args)) { // eslint-disable-line no-restricted-syntax
+      xmlString += chunk;
+    }
+    return (new DOMParser()).parseFromString(xmlString);
+  };
   const edgeType = 'peer';
   let network;
   let variableRegistry;

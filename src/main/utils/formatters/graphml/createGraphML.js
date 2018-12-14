@@ -263,25 +263,50 @@ function* graphMLGenerator(networkData, variableRegistry, useDirectedEdges) {
     layoutVariable = findKey(value.variables, { type: 'layout' });
   });
 
-  // generate keys for nodes
-  const { missingVariables: missingNodeVars, fragment: nodeKeyFragment } = generateKeyElements(
+  const generateNodeKeys = nodes => generateKeyElements(
     xmlDoc,
-    networkData.nodes,
+    nodes,
     'node',
     [nodePrimaryKeyProperty],
     variableRegistry,
     layoutVariable,
   );
-  yield serialize(nodeKeyFragment);
-
-  // generate keys for edges and add to keys for nodes
-  const { missingVariables: missingEdgeVars, fragment: edgeKeyFragment } = generateKeyElements(
+  const generateEdgeKeys = edges => generateKeyElements(
     xmlDoc,
-    networkData.edges,
+    edges,
     'edge',
     ['from', 'to', 'type'],
     variableRegistry,
   );
+  const generateNodeElements = nodes => generateDataElements(
+    xmlDoc,
+    nodes,
+    'node',
+    [nodePrimaryKeyProperty, nodeAttributesProperty],
+    variableRegistry,
+    layoutVariable,
+  );
+  const generateEdgeElements = edges => generateDataElements(
+    xmlDoc,
+    edges,
+    'edge',
+    ['from', 'to', 'type'],
+    variableRegistry,
+  );
+
+  // generate keys for nodes
+  const {
+    missingVariables: missingNodeVars,
+    fragment: nodeKeyFragment,
+  } = generateNodeKeys(networkData.nodes);
+  yield serialize(nodeKeyFragment);
+
+  // generate keys for edges and add to keys for nodes
+  const {
+    missingVariables: missingEdgeVars,
+    fragment: edgeKeyFragment,
+  } = generateEdgeKeys(networkData.edges);
+  yield serialize(edgeKeyFragment); // after we've potentially thrown missingVariables
 
   const missingVariables = [...missingNodeVars, ...missingEdgeVars];
   if (missingVariables.length > 0) {
@@ -292,44 +317,21 @@ function* graphMLGenerator(networkData, variableRegistry, useDirectedEdges) {
     // return null;
   }
 
-  yield serialize(edgeKeyFragment);
-
   yield getGraphHeader(useDirectedEdges);
 
   // add nodes and edges to graph
-  const nodeFragment = generateDataElements(
-    xmlDoc,
-    networkData.nodes,
-    'node',
-    [nodePrimaryKeyProperty, nodeAttributesProperty],
-    variableRegistry,
-    layoutVariable,
-  );
-  yield serialize(nodeFragment);
+  for (let i = 0; i < networkData.nodes.length; i += 100) {
+    const nodeFragment = generateNodeElements(networkData.nodes.slice(i, i + 100));
+    yield serialize(nodeFragment);
+  }
 
-  const edgeFragment = generateDataElements(
-    xmlDoc,
-    networkData.edges,
-    'edge',
-    ['from', 'to', 'type'],
-    variableRegistry,
-  );
-  yield serialize(edgeFragment);
+  for (let i = 0; i < networkData.edges.length; i += 100) {
+    const edgeFragment = generateEdgeElements(networkData.edges.slice(i, i + 100));
+    yield serialize(edgeFragment);
+  }
 
   yield xmlFooter;
 }
-
-/**
- * @throws
- */
-const buildGraphML = (networkData, variableRegistry, useDirectedEdges) => {
-  // TODO: stream
-  let xmlString = '';
-  for (const chunk of graphMLGenerator(networkData, variableRegistry, useDirectedEdges)) { // eslint-disable-line
-    xmlString += chunk;
-  }
-  return xmlString;
-};
 
 /**
  * Network Canvas interface for ExportData
@@ -369,4 +371,4 @@ Object.defineProperty(exports, '__esModule', {
 exports.default = createGraphML;
 
 exports.createGraphML = createGraphML;
-exports.buildGraphML = buildGraphML;
+exports.graphMLGenerator = graphMLGenerator;
