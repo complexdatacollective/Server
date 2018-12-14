@@ -1,11 +1,14 @@
 /* eslint-disable no-console */
 
 const fs = require('fs');
+
 const { buildMockData, variableRegistry } = require('./db-size');
-const { asAdjacencyMatrix } = require('../src/main/utils/formatters/matrix');
-const { asAdjacencyList, toCSVStream } = require('../src/main/utils/formatters/adjacency-list');
-const { toCSVStream: toAttributeCSV } = require('../src/main/utils/formatters/attribute-list');
-const createGraphML = require('../src/main/utils/formatters/graphml/createGraphML');
+const {
+  AdjacencyMatrixFormatter,
+  AdjacencyListFormatter,
+  AttributeListFormatter,
+  GraphMLFormatter,
+} = require('../src/main/utils/formatters');
 
 const mockdata = buildMockData({ sessionCount: 1 });
 const merged = { nodes: [], edges: [] };
@@ -15,37 +18,33 @@ mockdata.forEach((session) => {
   merged.edges.push(...session.data.edges);
 });
 
-console.time('graphml');
-const xml = createGraphML(merged, variableRegistry, (err) => {
-  console.error(err);
+const write = async (formatter, outFile) => new Promise((resolve, reject) => {
+  const writeStream = fs.createWriteStream(outFile);
+  writeStream.on('finish', () => { resolve(); });
+  writeStream.on('error', (err) => { reject(err); });
+  formatter.writeToStream(writeStream);
 });
-fs.writeFileSync('test-graph.xml', xml, console.error);
-console.timeEnd('graphml');
 
-console.time('attr-list-csv');
-toAttributeCSV(merged.nodes, fs.createWriteStream('test-export-attrs.csv'));
-console.timeEnd('attr-list-csv');
+(async () => {
+  let formatter;
 
-console.time('adjacency-list');
-const list = asAdjacencyList(merged.edges, false);
-console.timeEnd('adjacency-list');
+  console.time('graphml');
+  formatter = new GraphMLFormatter(merged, false, variableRegistry);
+  await write(formatter, 'test-export-xml.graphml');
+  console.timeEnd('graphml');
 
-console.time('adjacency-list-csv');
-toCSVStream(list, fs.createWriteStream('test-export-list.csv'));
-console.timeEnd('adjacency-list-csv');
+  console.time('attr-list-csv');
+  formatter = new AttributeListFormatter(merged);
+  await write(formatter, 'test-export-attrs.csv');
+  console.timeEnd('attr-list-csv');
 
-console.time('list-directed');
-asAdjacencyList(merged.edges, true);
-console.timeEnd('list-directed');
+  console.time('adjacency-list');
+  formatter = new AdjacencyListFormatter(merged);
+  await write(formatter, 'test-export-adjacency.csv');
+  console.timeEnd('adjacency-list');
 
-console.time('matrix');
-asAdjacencyMatrix(merged, false);
-console.timeEnd('matrix');
-
-console.time('matrix-directed');
-const matrix = asAdjacencyMatrix(merged, true);
-console.timeEnd('matrix-directed');
-
-console.time('matrix-csv');
-matrix.toCSVStream(fs.createWriteStream('test-export-matrix.csv'));
-console.timeEnd('matrix-csv');
+  console.time('matrix');
+  formatter = new AdjacencyMatrixFormatter(merged);
+  await write(formatter, 'test-export-matrix.csv');
+  console.timeEnd('matrix');
+})();
