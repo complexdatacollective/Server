@@ -1,11 +1,11 @@
 const GraphMLFormatter = require('./graphml/GraphMLFormatter');
 const { AdjacencyMatrixFormatter } = require('./matrix');
-const { AdjacencyListFormatter } = require('./adjacency-list');
 const { AttributeListFormatter } = require('./attribute-list');
+const { EdgeListFormatter } = require('./edge-list');
 
 module.exports = {
   AdjacencyMatrixFormatter,
-  AdjacencyListFormatter,
   AttributeListFormatter,
+  EdgeListFormatter,
   GraphMLFormatter,
 };

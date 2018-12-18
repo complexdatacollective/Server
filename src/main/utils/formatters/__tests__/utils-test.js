@@ -7,7 +7,7 @@ describe('formatter utilities', () => {
   describe('getFileExtension', () => {
     it('maps CSV types', () => {
       expect(getFileExtension(formats.adjacencyMatrix)).toEqual('.csv');
-      expect(getFileExtension(formats.adjacencyList)).toEqual('.csv');
+      expect(getFileExtension(formats.edgeList)).toEqual('.csv');
       expect(getFileExtension(formats.attributeList)).toEqual('.csv');
     });
   });

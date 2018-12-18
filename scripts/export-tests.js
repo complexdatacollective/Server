@@ -5,9 +5,9 @@ const fs = require('fs');
 const { buildMockData, variableRegistry } = require('./db-size');
 const {
   AdjacencyMatrixFormatter,
-  AdjacencyListFormatter,
   AttributeListFormatter,
   GraphMLFormatter,
+  EdgeListFormatter,
 } = require('../src/main/utils/formatters');
 
 const mockdata = buildMockData({ sessionCount: 1 });
@@ -38,10 +38,10 @@ const write = async (formatter, outFile) => new Promise((resolve, reject) => {
   await write(formatter, 'test-export-attrs.csv');
   console.timeEnd('attr-list-csv');
 
-  console.time('adjacency-list');
-  formatter = new AdjacencyListFormatter(merged);
-  await write(formatter, 'test-export-adjacency.csv');
-  console.timeEnd('adjacency-list');
+  console.time('edge-list');
+  formatter = new EdgeListFormatter(merged);
+  await write(formatter, 'test-export-edge.csv');
+  console.timeEnd('edge-list');
 
   console.time('matrix');
   formatter = new AdjacencyMatrixFormatter(merged);
