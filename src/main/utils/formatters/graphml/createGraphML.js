@@ -11,6 +11,7 @@
 // - [x] document is not global
 
 const { findKey, forInRight } = require('lodash');
+const uuid = require('uuid');
 
 const { nodePrimaryKeyProperty, nodeAttributesProperty, getNodeAttributes } = require('../network');
 const {
@@ -172,14 +173,14 @@ const generateDataElements = (
 ) => {
   const fragment = document.createDocumentFragment();
 
-  dataList.forEach((dataElement, index) => {
+  dataList.forEach((dataElement) => {
     const domElement = document.createElement(type);
     const nodeAttrs = getNodeAttributes(dataElement);
 
     if (dataElement[nodePrimaryKeyProperty]) {
       domElement.setAttribute('id', dataElement[nodePrimaryKeyProperty]);
     } else {
-      domElement.setAttribute('id', index);
+      domElement.setAttribute('id', uuid());
     }
 
     if (type === 'edge') {
