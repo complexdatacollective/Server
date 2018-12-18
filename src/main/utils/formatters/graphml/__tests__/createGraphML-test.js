@@ -60,8 +60,8 @@ describe('buildGraphML', () => {
     expect(xml.getElementsByTagName('edge')).toHaveLength(1);
   });
 
-  it('infers integer types', () => { // This indicates that transposition worked for nodes
-    expect(xml.getElementById('age').getAttribute('attr.type')).toEqual('integer');
+  it('infers int types', () => { // This indicates that transposition worked for nodes
+    expect(xml.getElementById('age').getAttribute('attr.type')).toEqual('int');
   });
 
   it('exports edge labels', () => { // This indicates that [non-]transposition worked for edges
