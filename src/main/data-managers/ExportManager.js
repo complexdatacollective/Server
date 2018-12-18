@@ -6,7 +6,6 @@ const logger = require('electron-log');
 
 const SessionDB = require('./SessionDB');
 const { archive } = require('../utils/archive');
-const { writeFile } = require('../utils/promised-fs');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
 const { makeTempDir, removeTempDir } = require('../utils/formatters/dir');
 const {
@@ -15,7 +14,6 @@ const {
   unionOfNetworks,
 } = require('../utils/formatters/network');
 const {
-  formats,
   formatsAreValid,
   getFileExtension,
   getFormatterClass,
@@ -50,15 +48,8 @@ const exportFile = (
   let streamController;
   let writeStream;
 
-  // Temporary support for graphml string interface
-  if (exportFormat === formats.graphml) {
-    const formatter = new Formatter(network, useDirectedEdges, variableRegistry);
-    const filepath = path.join(outDir, `${namePrefix}${extension}`);
-    return writeFile(filepath, formatter.toString()).then(() => filepath);
-  }
-
   const pathPromise = new Promise((resolve, reject) => {
-    const formatter = new Formatter(network, useDirectedEdges);
+    const formatter = new Formatter(network, useDirectedEdges, variableRegistry);
     const filepath = path.join(outDir, `${namePrefix}.${exportFormat}${extension}`);
     writeStream = fs.createWriteStream(filepath);
     writeStream.on('finish', () => { resolve(filepath); });
