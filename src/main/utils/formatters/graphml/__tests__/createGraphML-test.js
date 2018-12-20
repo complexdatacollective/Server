@@ -1,10 +1,16 @@
 /* eslint-env jest */
 import { DOMParser } from 'xmldom';
 
-import createGraphML from '../graphml';
+import { graphMLGenerator } from '../createGraphML';
 
-describe('createGraphML', () => {
-  const buildXML = (...args) => (new DOMParser()).parseFromString(createGraphML(...args));
+describe('buildGraphML', () => {
+  const buildXML = (...args) => {
+    let xmlString = '';
+    for (const chunk of graphMLGenerator(...args)) { // eslint-disable-line no-restricted-syntax
+      xmlString += chunk;
+    }
+    return (new DOMParser()).parseFromString(xmlString);
+  };
   const edgeType = 'peer';
   let network;
   let variableRegistry;
@@ -54,8 +60,8 @@ describe('createGraphML', () => {
     expect(xml.getElementsByTagName('edge')).toHaveLength(1);
   });
 
-  it('infers integer types', () => { // This indicates that transposition worked for nodes
-    expect(xml.getElementById('age').getAttribute('attr.type')).toEqual('integer');
+  it('infers int types', () => { // This indicates that transposition worked for nodes
+    expect(xml.getElementById('age').getAttribute('attr.type')).toEqual('int');
   });
 
   it('exports edge labels', () => { // This indicates that [non-]transposition worked for edges
@@ -65,7 +71,7 @@ describe('createGraphML', () => {
 
   describe('with directed edge option', () => {
     beforeEach(() => {
-      xml = buildXML(network, variableRegistry, null, true);
+      xml = buildXML(network, variableRegistry, true);
     });
 
     it('specifies directed edges', () => {
