@@ -3,7 +3,7 @@ const { Readable } = require('stream');
 const { nodePrimaryKeyProperty } = require('./network');
 const { cellValue, csvEOL } = require('./csv');
 
-const asAttributeList = nodes => nodes;
+const asAttributeList = network => network.nodes;
 
 /**
  * The output of this formatter will contain the primary key (_uid)
@@ -19,6 +19,9 @@ const attributeHeaders = (nodes) => {
   return [...headerSet];
 };
 
+/**
+ * @return {Object} an abort controller; call the attached abort() method as needed.
+ */
 const toCSVStream = (nodes, outStream) => {
   const totalRows = nodes.length;
   const attrNames = attributeHeaders(nodes);
@@ -55,9 +58,24 @@ const toCSVStream = (nodes, outStream) => {
 
   // TODO: handle teardown. Use pipeline() API in Node 10?
   inStream.pipe(outStream);
+
+  return {
+    abort: () => { inStream.destroy(); },
+  };
 };
 
+class AttributeListFormatter {
+  constructor(data, directed = false) {
+    this.list = asAttributeList(data, directed);
+  }
+  writeToStream(outStream) {
+    toCSVStream(this.list, outStream);
+  }
+}
+
+
 module.exports = {
+  AttributeListFormatter,
   asAttributeList,
   toCSVStream,
 };

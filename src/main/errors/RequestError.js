@@ -21,6 +21,7 @@ const ErrorMessages = {
   InvalidProtocolFormat: 'Invalid protocol format',
   InvalidRequestBody: 'Could not parse request data',
   InvalidZip: 'Invalid ZIP file',
+  InvalidExportOptions: 'Invalid export options',
   MissingProtocolFile: 'Missing protocol file',
   NotFound: 'Not found',
   ProtocolNotFoundForSession: 'The associated protocol does not exist on this server',

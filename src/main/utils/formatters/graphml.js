@@ -2,6 +2,8 @@
 // - [ ] APIs (string output vs streaming); see saveFile()
 // - [ ] need to abstract DOMParser
 // - [ ] need to abstract XMLSerializer (see xmlToString())
+// - [x] need directed as an option (until network encapsulates this)
+// - [x] updated export (default/named)
 // - [x] source data differs (we're working with resolved names in Server)
 //    - this affects variable type lookup for nodes and labels for edges
 // - [x] document is not global
@@ -28,13 +30,14 @@ const VariableTypeValues = Object.freeze(Object.values(VariableType));
 // TODO: different API needed for server
 const saveFile = xml => xml;
 
-const setUpXml = () => {
+const setUpXml = (useDirectedEdges) => {
+  const edgeDefault = useDirectedEdges ? 'directed' : 'undirected';
   const graphMLOutline = '<?xml version="1.0" encoding="UTF-8"?>\n' +
     '<graphml xmlns="http://graphml.graphdrawing.org/xmlns"\n' +
     'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n' +
     'xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns\n' +
     'http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">\n' +
-    '  <graph edgedefault="undirected">\n' +
+    `  <graph edgedefault="${edgeDefault}">\n` +
     ' </graph>\n' +
     ' </graphml>\n';
 
@@ -301,9 +304,9 @@ const xmlToString = xmlData => new XMLSerializer().serializeToString(xmlData);
 //   return xmlString;
 // };
 
-const createGraphML = (networkData, variableRegistry, onError) => {
+const createGraphML = (networkData, variableRegistry, onError, useDirectedEdges = false) => {
   // default graph structure
-  const xml = setUpXml();
+  const xml = setUpXml(useDirectedEdges);
   const graph = xml.getElementsByTagName('graph')[0];
   const graphML = xml.getElementsByTagName('graphml')[0];
 
@@ -350,4 +353,23 @@ const createGraphML = (networkData, variableRegistry, onError) => {
     { message: 'Your network canvas graphml file.', subject: 'network canvas export' });
 };
 
-module.exports = createGraphML;
+class GraphMLFormatter {
+  constructor(data, useDirectedEdges, variableRegistry) {
+    this.network = data;
+    this.variableRegistry = variableRegistry;
+    this.useDirectedEdges = useDirectedEdges;
+  }
+  toString() {
+    return createGraphML(this.network, this.variableRegistry, null, this.useDirectedEdges);
+  }
+}
+
+// Provides ES6 named + default imports via babel
+Object.defineProperty(exports, '__esModule', {
+  value: true,
+});
+
+exports.default = createGraphML;
+
+exports.GraphMLFormatter = GraphMLFormatter;
+exports.createGraphML = createGraphML;

@@ -1,10 +1,10 @@
 const fs = require('fs');
 
-const resolveOrRejectWith = (resolve, reject) => (err) => {
+const resolveOrRejectWith = (resolve, reject) => (err, ...args) => {
   if (err) {
     reject(err);
   } else {
-    resolve();
+    resolve(...args);
   }
 };
 
@@ -17,6 +17,21 @@ const mkdir = (path, mode) => (new Promise((resolve, reject) => {
   try {
     fs.mkdir.apply(null, args);
   } catch (err) { reject(err); }
+}));
+
+const readdir = (path, options) => (new Promise((resolve, reject) => {
+  const args = [path];
+  if (options) {
+    args.push(options);
+  }
+  args.push(resolveOrRejectWith(resolve, reject));
+  try {
+    fs.readdir.apply(null, args);
+  } catch (err) { reject(err); }
+}));
+
+const rmdir = path => (new Promise((resolve, reject) => {
+  fs.rmdir(path, resolveOrRejectWith(resolve, reject));
 }));
 
 const writeFile = (file, data, options) => (new Promise((resolve, reject) => {
@@ -35,13 +50,7 @@ const readFile = (path, options) => (new Promise((resolve, reject) => {
   if (options) {
     args.push(options);
   }
-  args.push((err, data) => {
-    if (err) {
-      reject(err);
-    } else {
-      resolve(data);
-    }
-  });
+  args.push(resolveOrRejectWith(resolve, reject));
   try {
     fs.readFile.apply(null, args);
   } catch (err) { reject(err); }
@@ -65,6 +74,8 @@ const tryUnlink = path => unlink(path).catch((err) => {
 
 module.exports = {
   mkdir,
+  readdir,
+  rmdir,
   readFile,
   rename,
   tryUnlink,

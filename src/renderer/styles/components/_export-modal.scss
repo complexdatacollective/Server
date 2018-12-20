@@ -1,0 +1,8 @@
+.modal {
+  @include modifier(export) {
+
+    .modal__window {
+      min-width: 80vw;
+    }
+  }
+}

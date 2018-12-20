@@ -1,16 +1,21 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { Redirect } from 'react-router-dom';
+import { remote } from 'electron';
 
 import Types from '../types';
 import Filter from '../components/Filter'; // eslint-disable-line import/no-named-as-default
 import DrawerTransition from '../components/Transitions/Drawer';
-import { selectors } from '../ducks/modules/protocols';
-import { Button, Spinner } from '../ui';
 import Checkbox from '../ui/components/Fields/Checkbox';
 import Radio from '../ui/components/Fields/Radio';
 import Toggle from '../ui/components/Fields/Toggle';
+import ExportModal from '../components/ExportModal';
+import withApiClient from '../components/withApiClient';
+import { selectors } from '../ducks/modules/protocols';
+import { Button, Spinner } from '../ui';
+import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
 
 const defaultFilter = {
   join: '',
@@ -27,8 +32,8 @@ class ExportScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      exportFormat: null,
-      exportNetworkUnion: null,
+      exportFormat: 'graphml',
+      exportNetworkUnion: false,
       csvTypes: new Set(Object.keys(availableCsvTypes)),
       filter: defaultFilter,
       useDirectedEdges: true,
@@ -58,8 +63,72 @@ class ExportScreen extends Component {
     this.setState({ exportNetworkUnion: evt.target.value === 'true' });
   }
 
-  useDandleDirectedEdgesChange = (evt) => {
+  handleDirectedEdgesChange = (evt) => {
     this.setState({ useDirectedEdges: evt.target.checked });
+  }
+
+  handleExport = () => {
+    if (!this.formatsAreValid()) {
+      this.props.showError('Please select at least one file type to export');
+      return;
+    }
+
+    const defaultName = this.props.protocol.name || 'network-canvas-data';
+    const exportDialog = {
+      title: 'Export ',
+      filters: [{
+        name: `${defaultName}-export`,
+        // TODO: support exporting a single graphml file
+        extensions: ['zip'],
+      }],
+    };
+
+    remote.dialog.showSaveDialog(exportDialog, (filepath) => {
+      if (filepath) {
+        this.setState(
+          { exportInProgress: true },
+          () => this.exportToFile(filepath),
+        );
+      }
+    });
+  }
+
+  handleCancel = () => {
+    // this.setState({ exportInProgress: false });
+    // TODO: cancel underlying requests with an AbortController (requires Electron 3+)
+    // Temporary workaround:
+    remote.getCurrentWindow().reload();
+  }
+
+  formatsAreValid() {
+    return this.state.exportFormat === 'graphml' || this.state.csvTypes.size > 0;
+  }
+
+  exportToFile = (destinationFilepath) => {
+    const { apiClient, showError, showConfirmation, protocol: { id: protocolId } } = this.props;
+    if (!apiClient) {
+      return;
+    }
+
+    const {
+      exportFormat,
+      exportNetworkUnion,
+      csvTypes,
+      filter,
+      useDirectedEdges,
+    } = this.state;
+
+    apiClient
+      .post(`/protocols/${protocolId}/export_requests`, {
+        exportFormats: (exportFormat === 'csv' && [...csvTypes]) || [exportFormat],
+        exportNetworkUnion,
+        destinationFilepath,
+        filter,
+        useDirectedEdges,
+      })
+      .then(() => showConfirmation('Export complete'))
+      .catch(err => showError(err.message))
+      .then(() => this.setState({ exportInProgress: false }));
   }
 
   render() {
@@ -74,9 +143,17 @@ class ExportScreen extends Component {
     }
 
     const showCsvOpts = this.state.exportFormat === 'csv';
+    const { exportInProgress } = this.state;
 
     return (
-      <div className="export">
+      <form className="export" onSubmit={this.handleExport}>
+        {
+          <ExportModal
+            className="modal--export"
+            show={exportInProgress}
+            handleCancel={this.handleCancel}
+          />
+        }
         <h1>{protocol.name}</h1>
         <div className="export__section">
           <h3>File Type</h3>
@@ -84,6 +161,17 @@ class ExportScreen extends Component {
             Choose an export format. If multiple files are produced, they’ll be archived in a ZIP
             for download.
           </p>
+          <div>
+            <Radio
+              label="GraphML"
+              input={{
+                name: 'export_format',
+                checked: this.state.exportFormat === 'graphml',
+                value: 'graphml',
+                onChange: this.handleFormatChange,
+              }}
+            />
+          </div>
           <div>
             <Radio
               label="CSV"
@@ -114,31 +202,20 @@ class ExportScreen extends Component {
                     ))
                   }
                 </div>
-                <div className="export__subpanel-content">
-                  <h4>Directed Edges</h4>
-                  <Toggle
-                    label="Treat edges as directed"
-                    input={{
-                      name: 'export_use_directed_edges',
-                      onChange: this.useDandleDirectedEdgesChange,
-                      value: this.state.useDirectedEdges,
-                    }}
-                  />
-                </div>
               </div>
             </DrawerTransition>
           </div>
-          <div>
-            <Radio
-              label="GraphML"
-              input={{
-                name: 'export_format',
-                checked: this.state.exportFormat === 'graphml',
-                value: 'graphml',
-                onChange: this.handleFormatChange,
-              }}
-            />
-          </div>
+        </div>
+        <div className="export__section">
+          <h4>Directed Edges</h4>
+          <Toggle
+            label="Treat edges as directed"
+            input={{
+              name: 'export_use_directed_edges',
+              onChange: this.handleDirectedEdgesChange,
+              value: this.state.useDirectedEdges,
+            }}
+          />
         </div>
         <div className="export__section">
           <h3>Interview Networks</h3>
@@ -178,18 +255,22 @@ class ExportScreen extends Component {
             variableRegistry={protocol.variableRegistry}
           />
         </div>
-        <Button disabled>Export</Button>
-      </div>
+        <Button type="submit" disabled={exportInProgress}>Export</Button>
+      </form>
     );
   }
 }
 
 ExportScreen.propTypes = {
+  apiClient: PropTypes.object,
   protocol: Types.protocol,
   protocolsHaveLoaded: PropTypes.bool.isRequired,
+  showConfirmation: PropTypes.func.isRequired,
+  showError: PropTypes.func.isRequired,
 };
 
 ExportScreen.defaultProps = {
+  apiClient: null,
   protocol: null,
 };
 
@@ -198,7 +279,12 @@ const mapStateToProps = (state, ownProps) => ({
   protocol: selectors.currentProtocol(state, ownProps),
 });
 
-export default connect(mapStateToProps)(ExportScreen);
+const mapDispatchToProps = dispatch => ({
+  showConfirmation: bindActionCreators(messageActionCreators.showConfirmationMessage, dispatch),
+  showError: bindActionCreators(messageActionCreators.showErrorMessage, dispatch),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(withApiClient(ExportScreen));
 
 export {
   ExportScreen,

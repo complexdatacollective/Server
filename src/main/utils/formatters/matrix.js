@@ -113,8 +113,8 @@ class AdjacencyMatrix {
 
   /**
    * @param {Stream.Writable} outStream A writable stream for CSV output
+   * @return {Object} an abort controller; call the attached abort() method as needed.
    */
-  // TODO: support cancellation
   toCSVStream(outStream) {
     const uniqueNodeIds = this.uniqueNodeIds;
     const dataColumnCount = uniqueNodeIds.length;
@@ -202,6 +202,10 @@ class AdjacencyMatrix {
 
     // TODO: handle teardown. Use pipeline() API in Node 10?
     inStream.pipe(outStream);
+
+    return {
+      abort: () => { inStream.destroy(); },
+    };
   }
 
   toArray(matrixView = this.arrayView) {
@@ -236,6 +240,16 @@ const asAdjacencyMatrix = (network, directed = false) => {
   return adjacencyMatrix;
 };
 
+class AdjacencyMatrixFormatter {
+  constructor(data, directed = false) {
+    this.matrix = asAdjacencyMatrix(data, directed);
+  }
+  writeToStream(outStream) {
+    return this.matrix.toCSVStream(outStream);
+  }
+}
+
 module.exports = {
+  AdjacencyMatrixFormatter,
   asAdjacencyMatrix,
 };

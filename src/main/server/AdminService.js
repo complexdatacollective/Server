@@ -6,7 +6,9 @@ const detectPort = require('detect-port');
 const apiRequestLogger = require('./apiRequestLogger');
 const DeviceManager = require('../data-managers/DeviceManager');
 const ProtocolManager = require('../data-managers/ProtocolManager');
+const ExportManager = require('../data-managers/ExportManager');
 const { PairingRequestService } = require('./devices/PairingRequestService');
+const { RequestError, ErrorMessages } = require('../errors/RequestError');
 
 const DefaultPort = 8080;
 
@@ -15,6 +17,16 @@ const ApiVersion = '0.0.1';
 
 // Admin API should listen *only* on loopback
 const Host = '127.0.0.1';
+
+const codeForError = (err) => {
+  if (err.message === ErrorMessages.NotFound) {
+    return 404;
+  }
+  if (err instanceof RequestError) {
+    return 400;
+  }
+  return 500;
+};
 
 /**
  * Provides a RESTful API for electron renderer clients on the same machine.
@@ -25,6 +37,7 @@ class AdminService {
     this.statusDelegate = statusDelegate;
     this.deviceManager = new DeviceManager(dataDir);
     this.protocolManager = new ProtocolManager(dataDir);
+    this.exportManager = new ExportManager(dataDir);
     this.pairingRequestService = new PairingRequestService();
     this.reportDb = this.protocolManager.reportDb;
   }
@@ -185,6 +198,36 @@ class AdminService {
         .catch((err) => {
           logger.error(err);
           res.send(500, { status: 'error' });
+        })
+        .then(() => next());
+    });
+
+    // See ExportManager#createExportFile for possible req body params
+    // Handles export in a single, long-lived http request
+    api.post('/protocols/:protocolId/export_requests', (req, res, next) => {
+      apiRequestLogger('AdminAPI')(req, { statusCode: 0 }); // log request start
+
+      let abortRequest;
+      req.on('aborted', () => {
+        if (abortRequest) {
+          logger.debug('Export request aborted');
+          abortRequest();
+        }
+      });
+
+      req.setTimeout(0);
+      res.setTimeout(0);
+
+      this.protocolManager.getProtocol(req.params.protocolId)
+        .then((protocol) => {
+          const exportRequest = this.exportManager.createExportFile(protocol, req.body);
+          abortRequest = exportRequest.abort;
+          return exportRequest;
+        })
+        .then(filepath => res.send({ status: 'ok', filepath }))
+        .catch((err) => {
+          logger.error(err);
+          res.send(codeForError(err), { status: 'error', message: err.message });
         })
         .then(() => next());
     });
