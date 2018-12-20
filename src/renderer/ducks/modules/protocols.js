@@ -41,6 +41,10 @@ const currentProtocol = (state, props) => {
 // Transpose one section of the registry ('node' or 'edge') from IDs to names
 const transposedRegistrySection = (section = {}) =>
   Object.values(section).reduce((sectionRegistry, definition) => {
+    if (!definition.variables) { // not required for edges
+      return sectionRegistry;
+    }
+
     const displayVariable = definition.variables[definition.displayVariable];
 
     const variables = Object.values(definition.variables).reduce((acc, variable) => {

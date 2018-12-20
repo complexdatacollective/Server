@@ -123,6 +123,14 @@ describe('the protocols module', () => {
         expect(transposed).toHaveProperty('node');
         expect(transposed.node).toHaveProperty('person');
       });
+
+      it('does not require edge variables', () => {
+        const variableRegistry = { node: { 'node-type-id': { name: 'person', variables: {} } }, edge: { 'edge-type-id': {} } };
+        const state = { protocols: [{ id: '1', variableRegistry }] };
+        const props = { match: { params: { id: '1' } } };
+        const transposed = transposedRegistry(state, props);
+        expect(transposed.edge).toEqual({});
+      });
     });
   });
 });
