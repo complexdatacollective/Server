@@ -35,13 +35,13 @@ class ExportScreen extends Component {
       exportFormat: 'graphml',
       exportNetworkUnion: false,
       csvTypes: new Set(Object.keys(availableCsvTypes)),
-      filter: defaultFilter,
+      entityFilter: defaultFilter,
       useDirectedEdges: true,
     };
   }
 
-  handleFilterChange = (filter) => {
-    this.setState({ filter });
+  handleFilterChange = (entityFilter) => {
+    this.setState({ entityFilter });
   }
 
   handleFormatChange = (evt) => {
@@ -114,7 +114,7 @@ class ExportScreen extends Component {
       exportFormat,
       exportNetworkUnion,
       csvTypes,
-      filter,
+      entityFilter,
       useDirectedEdges,
     } = this.state;
 
@@ -123,7 +123,7 @@ class ExportScreen extends Component {
         exportFormats: (exportFormat === 'csv' && [...csvTypes]) || [exportFormat],
         exportNetworkUnion,
         destinationFilepath,
-        filter,
+        entityFilter,
         useDirectedEdges,
       })
       .then(() => showConfirmation('Export complete'))
@@ -132,7 +132,7 @@ class ExportScreen extends Component {
   }
 
   render() {
-    const { protocol, protocolsHaveLoaded } = this.props;
+    const { protocol, protocolsHaveLoaded, variableRegistry } = this.props;
 
     if (protocolsHaveLoaded && !protocol) { // This protocol doesn't exist
       return <Redirect to="/" />;
@@ -248,11 +248,11 @@ class ExportScreen extends Component {
         </div>
         <div className="export__section">
           <h3>Filtering</h3>
-          <p>Optionally filter the network(s) before export.</p>
+          <p>Include nodes and edges that meet the following criteria:</p>
           <Filter
-            filter={this.state.filter}
+            filter={this.state.entityFilter}
             onChange={this.handleFilterChange}
-            variableRegistry={protocol.variableRegistry}
+            variableRegistry={variableRegistry}
           />
         </div>
         <Button type="submit" disabled={exportInProgress}>Export</Button>
@@ -267,16 +267,19 @@ ExportScreen.propTypes = {
   protocolsHaveLoaded: PropTypes.bool.isRequired,
   showConfirmation: PropTypes.func.isRequired,
   showError: PropTypes.func.isRequired,
+  variableRegistry: PropTypes.object,
 };
 
 ExportScreen.defaultProps = {
   apiClient: null,
   protocol: null,
+  variableRegistry: null,
 };
 
 const mapStateToProps = (state, ownProps) => ({
   protocolsHaveLoaded: selectors.protocolsHaveLoaded(state),
   protocol: selectors.currentProtocol(state, ownProps),
+  variableRegistry: selectors.transposedRegistry(state, ownProps),
 });
 
 const mapDispatchToProps = dispatch => ({

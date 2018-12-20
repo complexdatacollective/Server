@@ -1,7 +1,7 @@
 {
   "source": {
     "includePattern": ".+\\.js$",
-    "excludePattern": "__tests__"
+    "excludePattern": "__tests__|utils\/network-query"
   },
   "plugins": ["plugins/markdown"]
 }

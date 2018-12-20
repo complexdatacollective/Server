@@ -8,8 +8,12 @@ const SessionDB = require('./SessionDB');
 const { archive } = require('../utils/archive');
 const { writeFile } = require('../utils/promised-fs');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
-const { unionOfNetworks } = require('../utils/formatters/network');
 const { makeTempDir, removeTempDir } = require('../utils/formatters/dir');
+const {
+  filterNetworkEntities,
+  filterNetworksWithQuery,
+  unionOfNetworks,
+} = require('../utils/formatters/network');
 const {
   formats,
   formatsAreValid,
@@ -104,6 +108,11 @@ class ExportManager {
    * @param {Object} options.filter before formatting, apply this filter to each network (if
    *                                `exportNetworkUnion` is false) or the merged network (if
    *                                `exportNetworkUnion` is true)
+   * @param {Object} networkFilter a user-supplied filter configuration which will be run on each
+   *                               member of each network, to filter out unwanted nodes & edges.
+   * @param {Object} networkInclusionQuery a user-supplied query configuration which will be run on
+   *                                       each interview's network to determine if it should be
+   *                                       exported
    * @param {boolean} options.useDirectedEdges used by the formatters. May be removed in the future
    *                                           if information is encapsulated in network.
    * @return {Promise} A `promise` that resloves to a filepath (string). The promise is decorated
@@ -113,7 +122,14 @@ class ExportManager {
    */
   createExportFile(
     protocol,
-    { destinationFilepath, exportFormats, exportNetworkUnion, useDirectedEdges/* , filter */ } = {},
+    {
+      destinationFilepath,
+      exportFormats,
+      exportNetworkUnion,
+      entityFilter,
+      networkInclusionQuery,
+      useDirectedEdges,
+    } = {},
   ) {
     if (!protocol) {
       return Promise.reject(new RequestError(ErrorMessages.NotFound));
@@ -131,6 +147,14 @@ class ExportManager {
       variableRegistry: protocol.variableRegistry,
     };
 
+    // Export flow:
+    // 1. fetch all networks produced for this protocol's interviews
+    // 2. optional: run user query to select networks are exported
+    // 3. optional: merge all networks into a single union for export
+    // 4. optional: filter each network based on user-supplied rules
+    // 5. [TODO: #199] optional: insert ego with edges into each network
+    // 6. export each format for each network
+    // 7. save ZIP file to requested location
     const exportPromise = makeTempDir()
       .then((dir) => {
         tmpDir = dir;
@@ -141,12 +165,14 @@ class ExportManager {
       .then(() => this.sessionDB.findAll(protocol._id, null, null))
       // TODO: may want to preserve some session metadata for naming?
       .then(sessions => sessions.map(session => session.data))
+      .then(allNetworks => filterNetworksWithQuery(allNetworks, networkInclusionQuery))
       .then(networks => (exportNetworkUnion ? [unionOfNetworks(networks)] : networks))
-      .then((networks) => {
+      .then(networks => filterNetworkEntities(networks, entityFilter))
+      .then((filteredNetworks) => {
         // TODO: evaluate & test. It'll be easier to track progress when run concurrently,
         // but this may run into memory issues.
         promisedExports = flatten(
-          networks.map((network, i) =>
+          filteredNetworks.map((network, i) =>
             exportFormats.map(format =>
               exportFile(`${i + 1}`, format, tmpDir, network, exportOpts))));
         return Promise.all(promisedExports);

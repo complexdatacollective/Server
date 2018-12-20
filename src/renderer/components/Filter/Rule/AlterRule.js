@@ -117,7 +117,7 @@ class AlterRule extends PureComponent {
             </div>
           )}
         </div>
-        <button className="rule__delete" onClick={() => onDeleteRule(id)} />
+        <button type="button" className="rule__delete" onClick={() => onDeleteRule(id)} />
       </div>
     );
   }

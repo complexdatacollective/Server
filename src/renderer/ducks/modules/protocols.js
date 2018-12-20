@@ -38,6 +38,42 @@ const currentProtocol = (state, props) => {
   return protocols && id && protocols.find(p => p.id === id);
 };
 
+// Transpose one section of the registry ('node' or 'edge') from IDs to names
+const transposedRegistrySection = (section = {}) =>
+  Object.values(section).reduce((sectionRegistry, definition) => {
+    if (!definition.variables) { // not required for edges
+      return sectionRegistry;
+    }
+
+    const displayVariable = definition.variables[definition.displayVariable];
+
+    const variables = Object.values(definition.variables).reduce((acc, variable) => {
+      acc[variable.name] = variable;
+      return acc;
+    }, {});
+    sectionRegistry[definition.name] = { // eslint-disable-line no-param-reassign
+      ...definition,
+      displayVariable: displayVariable && displayVariable.name,
+      variables,
+    };
+    return sectionRegistry;
+  }, {});
+
+// Transpose all types & variable IDs to names
+// Imported data is transposed; this allows utility components from Architect to work as-is.
+const transposedRegistry = (state, props) => {
+  const protocol = currentProtocol(state, props);
+  if (!protocol) {
+    return null;
+  }
+
+  const registry = protocol.variableRegistry || {};
+  return {
+    edge: transposedRegistrySection(registry.edge),
+    node: transposedRegistrySection(registry.node),
+  };
+};
+
 const protocolsHaveLoaded = state => state.protocols !== initialState;
 
 const loadProtocolsDispatch = () => ({
@@ -89,6 +125,7 @@ const actionTypes = {
 const selectors = {
   currentProtocol,
   protocolsHaveLoaded,
+  transposedRegistry,
 };
 
 export {
