@@ -3,6 +3,12 @@
 import ExportManager from '../ExportManager';
 import { ErrorMessages } from '../../errors/RequestError';
 
+jest.mock('../SessionDB', () => (function MockSessionDB() {
+  return {
+    findAll: jest.fn().mockResolvedValue([]),
+  };
+}));
+
 jest.mock('../../utils/promised-fs', () => ({
   writeFile: jest.fn().mockResolvedValue(undefined),
 }));
