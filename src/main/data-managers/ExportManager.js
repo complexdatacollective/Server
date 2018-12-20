@@ -92,7 +92,7 @@ class ExportManager {
    * @param {string} options.destinationFilepath local FS path to output the final file
    * @param {string} options.exportFormat "csv" or "graphml"
    * @param {Array} options.csvTypes if `exportFormat` is "csv", then include these types in output.
-   *                                 Options: ["adjacencyMatrix", "adjacencyList", "attributeList"]
+   *                                 Options: ["adjacencyMatrix", "attributeList", "edgeList"]
    * @param {boolean} options.exportNetworkUnion true if all interview networks should be merged
    *                                             false if each interview network should be exported
    *                                             individually

@@ -4,8 +4,8 @@
 
 const {
   AdjacencyMatrixFormatter,
-  AdjacencyListFormatter,
   AttributeListFormatter,
+  EdgeListFormatter,
   GraphMLFormatter,
 } = require('./index');
 
@@ -17,8 +17,8 @@ const formats = {
   graphml: 'graphml',
   // CSV:
   adjacencyMatrix: 'adjacencyMatrix',
-  adjacencyList: 'adjacencyList',
   attributeList: 'attributeList',
+  edgeList: 'edgeList',
 };
 
 const extensions = {
@@ -45,7 +45,7 @@ const getFileExtension = (formatterType) => {
     case formats.graphml:
       return extensions.graphml;
     case formats.adjacencyMatrix:
-    case formats.adjacencyList:
+    case formats.edgeList:
     case formats.attributeList:
       return extensions.csv;
     default:
@@ -64,8 +64,8 @@ const getFormatterClass = (formatterType) => {
       return GraphMLFormatter;
     case formats.adjacencyMatrix:
       return AdjacencyMatrixFormatter;
-    case formats.adjacencyList:
-      return AdjacencyListFormatter;
+    case formats.edgeList:
+      return EdgeListFormatter;
     case formats.attributeList:
       return AttributeListFormatter;
     default:

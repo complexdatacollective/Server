@@ -24,8 +24,8 @@ const defaultFilter = {
 
 const availableCsvTypes = {
   adjacencyMatrix: 'Adjacency Matrix',
-  adjacencyList: 'Adjacency List',
   attributeList: 'Attribute List',
+  edgeList: 'Edge List',
 };
 
 class ExportScreen extends Component {

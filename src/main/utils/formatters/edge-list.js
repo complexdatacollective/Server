@@ -3,17 +3,18 @@ const { Readable } = require('stream');
 const { csvEOL } = require('./csv');
 
 /**
- * Builds an adjacency list for a network, based only on its edges (it need
- * not contain all nodes).
+ * Builds an edge list for a network, based only on its edges (it need
+ * not contain all nodes). Each row contains two nodes; nodes in each column may be duplicated.
  *
  * Note that duplicate edges (e.g., of different types) are not conveyed in the output.
  *
- * @example:
+ * @example
  * ```
- * | node | adjacent |
- * | a    | b,c      |
- * | b    | a        |
- * | c    | a        |
+ * | from | to   |
+ * | a    | b    |
+ * | a    | c    |
+ * | b    | a    |
+ * | c    | a    |
  * ```
  *
  * @param  {Object} network NC network containing edges
@@ -22,7 +23,7 @@ const { csvEOL } = require('./csv');
  *                            default: false
  * @return {Object.<string, Set>} the adjacency list
  */
-const asAdjacencyList = (network, directed = false) =>
+const asEdgeList = (network, directed = false) =>
   (network.edges || []).reduce((acc, val) => {
     acc[val.from] = acc[val.from] || new Set();
     acc[val.from].add(val.to);
@@ -38,7 +39,8 @@ const asAdjacencyList = (network, directed = false) =>
  *
  * @example
  * ```
- * a,b,c
+ * a,b
+ * a,c
  * b,a
  * c,a
  * ```
@@ -46,19 +48,19 @@ const asAdjacencyList = (network, directed = false) =>
  * @return {Object} an abort controller; call the attached abort() method as needed.
  */
 // TODO: quoting/escaping (not needed while we're only using UUIDs)
-const toCSVStream = (adjancencyList, outStream) => {
-  const adjacencies = Object.entries(adjancencyList);
-  const totalRows = adjacencies.length;
-  let rowContent;
-  let rowIndex = 0;
+const toCSVStream = (edgeList, outStream) => {
+  const adjacencies = Object.entries(edgeList);
+  const totalChunks = adjacencies.length;
+  let chunkContent;
+  let chunkIndex = 0;
 
   const inStream = new Readable({
     read(/* size */) {
-      if (rowIndex < totalRows) {
-        const [source, destinations] = adjacencies[rowIndex];
-        rowContent = `${source},${[...destinations].join(',')}${csvEOL}`;
-        this.push(rowContent);
-        rowIndex += 1;
+      if (chunkIndex < totalChunks) {
+        const [fromId, destinations] = adjacencies[chunkIndex];
+        chunkContent = [...destinations].map(toId => `${fromId},${toId}`).join(csvEOL);
+        this.push(`${chunkContent}${csvEOL}`);
+        chunkIndex += 1;
       } else {
         this.push(null);
       }
@@ -73,9 +75,9 @@ const toCSVStream = (adjancencyList, outStream) => {
   };
 };
 
-class AdjacencyListFormatter {
+class EdgeListFormatter {
   constructor(data, directed = false) {
-    this.list = asAdjacencyList(data, directed);
+    this.list = asEdgeList(data, directed);
   }
   writeToStream(outStream) {
     toCSVStream(this.list, outStream);
@@ -83,7 +85,7 @@ class AdjacencyListFormatter {
 }
 
 module.exports = {
-  AdjacencyListFormatter,
-  asAdjacencyList,
+  EdgeListFormatter,
+  asEdgeList,
   toCSVStream,
 };
