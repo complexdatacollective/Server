@@ -1,19 +1,26 @@
 /* eslint-disable no-console */
 
 const fs = require('fs');
-const { buildMockData } = require('./db-size');
+const { buildMockData, variableRegistry } = require('./db-size');
 const { asAdjacencyMatrix } = require('../src/main/utils/formatters/matrix');
 const { asAdjacencyList, toCSVStream } = require('../src/main/utils/formatters/adjacency-list');
 const { toCSVStream: toAttributeCSV } = require('../src/main/utils/formatters/attribute-list');
+const createGraphML = require('../src/main/utils/formatters/graphml');
 
-
-const mockdata = buildMockData({ sessionCount: 4500 });
+const mockdata = buildMockData({ sessionCount: 1 });
 const merged = { nodes: [], edges: [] };
 
 mockdata.forEach((session) => {
   merged.nodes.push(...session.data.nodes);
   merged.edges.push(...session.data.edges);
 });
+
+console.time('graphml');
+const xml = createGraphML(merged, variableRegistry, (err) => {
+  console.error(err);
+});
+fs.writeFileSync('test-graph.xml', xml, console.error);
+console.timeEnd('graphml');
 
 console.time('attr-list-csv');
 toAttributeCSV(merged.nodes, fs.createWriteStream('test-export-attrs.csv'));

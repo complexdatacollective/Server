@@ -97,6 +97,7 @@
     "detect-port": "^1.2.3",
     "jszip": "^3.1.5",
     "libsodium-wrappers": "^0.7.3",
+    "lodash": "^4.17.11",
     "mdns": "^2.4.0",
     "nedb": "^1.8.0",
     "prop-types": "^15.6.2",
@@ -119,7 +120,8 @@
     "restify-cors-middleware": "^1.1.1",
     "selfsigned": "^1.10.3",
     "thread-loader": "^1.1.5",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.2",
+    "xmldom": "^0.1.27"
   },
   "browserslist": [
     "Chrome 61"
