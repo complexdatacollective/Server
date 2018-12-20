@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const logger = require('electron-log');
+const { flattenDeep } = require('lodash');
 
 const SessionDB = require('./SessionDB');
 const { archive } = require('../utils/archive');
@@ -17,7 +18,21 @@ const {
   formatsAreValid,
   getFileExtension,
   getFormatterClass,
+  partitionByEdgeType,
 } = require('../utils/formatters/utils');
+
+const escapeFilePart = part => part.replace(/\W/g, '');
+
+const makeFilename = (prefix, edgeType, exportFormat, extension) => {
+  let name = prefix;
+  if (extension !== `.${exportFormat}`) {
+    name += `.${exportFormat}`;
+  }
+  if (edgeType) {
+    name += `.${escapeFilePart(edgeType)}`;
+  }
+  return `${name}${extension}`;
+};
 
 /**
  * Export a single (CSV or graphml) file
@@ -34,6 +49,7 @@ const {
  */
 const exportFile = (
   namePrefix,
+  edgeType,
   exportFormat,
   outDir,
   network,
@@ -50,12 +66,13 @@ const exportFile = (
 
   const pathPromise = new Promise((resolve, reject) => {
     const formatter = new Formatter(network, useDirectedEdges, variableRegistry);
-    const filepath = path.join(outDir, `${namePrefix}.${exportFormat}${extension}`);
+    const outputName = makeFilename(namePrefix, edgeType, exportFormat, extension);
+    const filepath = path.join(outDir, outputName);
     writeStream = fs.createWriteStream(filepath);
     writeStream.on('finish', () => { resolve(filepath); });
     writeStream.on('error', (err) => { reject(err); });
     // TODO: on('ready')?
-    logger.debug(`Writing ${exportFormat} file ${filepath}`);
+    logger.debug(`Writing file ${filepath}`);
     streamController = formatter.writeToStream(writeStream);
   });
 
@@ -70,8 +87,6 @@ const exportFile = (
 
   return pathPromise;
 };
-
-const flatten = shallowArrays => [].concat(...shallowArrays);
 
 /**
  * Interface for all data exports
@@ -154,18 +169,30 @@ class ExportManager {
         }
       })
       .then(() => this.sessionDB.findAll(protocol._id, null, null))
-      // TODO: may want to preserve some session metadata for naming?
       .then(sessions => sessions.map(session => session.data))
       .then(allNetworks => filterNetworksWithQuery(allNetworks, networkInclusionQuery))
       .then(networks => (exportNetworkUnion ? [unionOfNetworks(networks)] : networks))
       .then(networks => filterNetworkEntities(networks, entityFilter))
-      .then((filteredNetworks) => {
-        // TODO: evaluate & test. It'll be easier to track progress when run concurrently,
-        // but this may run into memory issues.
-        promisedExports = flatten(
-          filteredNetworks.map((network, i) =>
+      .then((networks) => {
+        promisedExports = flattenDeep(
+          // Export every network
+          // => [n1, n2]
+          networks.map((network, i) =>
+            // ...in every file format requested
+            // => [[n1.matrix.csv, n1.attrs.csv], [n2.matrix.csv, n2.attrs.csv]]
             exportFormats.map(format =>
-              exportFile(`${i + 1}`, format, tmpDir, network, exportOpts))));
+              // ...partitioning martrix & edge-list output based on edge type
+              // => [ [[n1.matrix.knows.csv, n1.matrix.likes.csv], [n1.attrs.csv]],
+              //      [[n2.matrix.knows.csv, n2.matrix.likes.csv], [n2.attrs.csv]]]
+              partitionByEdgeType(network, format).map(partitionedNetwork =>
+                // gather one promise for each exported file
+                exportFile(
+                  `${i + 1}`,
+                  partitionedNetwork.edgeType,
+                  format,
+                  tmpDir,
+                  partitionedNetwork,
+                  exportOpts)))));
         return Promise.all(promisedExports);
       })
       // TODO: check length; if 0: reject, if 1: don't zip?

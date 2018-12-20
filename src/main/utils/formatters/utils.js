@@ -36,6 +36,45 @@ const formatsAreValid = suppliedFormats =>
   (suppliedFormats && suppliedFormats.every(format => formats[format])) || false;
 
 /**
+ * Partition a network as needed for edge-list and adjacency-matrix formats.
+ * Each network contains a reference to the original nodes, with a subset of edges
+ * based on the type.
+ *
+ * @param  {Array} network in NC format
+ * @param  {string} format one of `formats`
+ * @return {Array} An array of networks, partitioned by edge type. Each network object is decorated
+ *                 with an additional `edgeType` prop to facilitate format naming.
+ */
+const partitionByEdgeType = (network, format) => {
+  switch (format) {
+    case formats.graphml:
+    case formats.attributeList:
+      return [network];
+    case formats.edgeList:
+    case formats.adjacencyMatrix: {
+      if (!network.edges.length) {
+        return [network];
+      }
+
+      const { nodes } = network;
+      const partitionedEdgeMap = network.edges.reduce((edgeMap, edge) => {
+        edgeMap[edge.type] = edgeMap[edge.type] || []; // eslint-disable-line no-param-reassign
+        edgeMap[edge.type].push(edge);
+        return edgeMap;
+      }, {});
+
+      return Object.entries(partitionedEdgeMap).map(([edgeType, edges]) => ({
+        nodes,
+        edges,
+        edgeType,
+      }));
+    }
+    default:
+      throw new Error('Unexpected format', format);
+  }
+};
+
+/**
  * Provide the appropriate file extension for the export type
  * @param  {string} formatterType one of the `format`s
  * @return {string}
@@ -79,4 +118,5 @@ module.exports = {
   formatsAreValid,
   getFileExtension,
   getFormatterClass,
+  partitionByEdgeType,
 };
