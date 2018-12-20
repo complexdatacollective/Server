@@ -7,6 +7,7 @@ const https = require('https');
 const enzyme = require('enzyme');
 const Adapter = require('enzyme-adapter-react-16');
 const url = require('url');
+const Writable = require('stream').Writable;
 
 enzyme.configure({ adapter: new Adapter() });
 
@@ -144,6 +145,27 @@ const jsonClient = (useHttps) => {
   return agent;
 };
 
+/**
+ * @return {Stream.Writable} a writable stream, with an `asString()` method added for convenience
+ */
+const makeWriteableStream = () => {
+  const chunks = [];
+
+  const writable = new Writable({
+    write(chunk, encoding, next) {
+      chunks.push(chunk.toString());
+      next(null);
+    },
+  });
+
+  writable.asString = async () => new Promise((resolve, reject) => {
+    writable.on('finish', () => { resolve(chunks.join('')); });
+    writable.on('error', (err) => { reject(err); });
+  });
+
+  return writable;
+};
+
 const makeUrl = (pathInput, base) => (
   new URL(pathInput, base.replace('0.0.0.0', 'localhost').replace('[::]', 'localhost'))
 );
@@ -167,6 +189,7 @@ const Helpers = {
   makeUrl,
   httpsCert,
   httpsPrivateKey,
+  makeWriteableStream,
   mockProtocol,
 };
 

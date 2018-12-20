@@ -3,7 +3,8 @@
 
 const { Readable } = require('stream');
 
-const nodePrimaryKeyProperty = '_uid';
+const { nodePrimaryKeyProperty } = require('./network');
+const { csvEOL } = require('./csv');
 
 /**
  * An opaque reprensentation of an adjacency matrix with binary values (edge is present/absent).
@@ -115,7 +116,6 @@ class AdjacencyMatrix {
    */
   // TODO: support cancellation
   toCSVStream(outStream) {
-    const csvEOL = '\r\n'; // always this, not os-specific
     const uniqueNodeIds = this.uniqueNodeIds;
     const dataColumnCount = uniqueNodeIds.length;
     const matrixCellCount = dataColumnCount * dataColumnCount;

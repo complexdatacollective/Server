@@ -1,6 +1,5 @@
 /* eslint-env jest */
-import { Writable } from 'stream';
-
+import { makeWriteableStream } from '../../../../../config/jest/setupTestEnv';
 import { asAdjacencyMatrix } from '../matrix';
 
 const mockNetwork = edges => ({
@@ -74,42 +73,30 @@ describe('asAdjacencyMatrix', () => {
 });
 
 describe('toCSVStream', () => {
-  let chunks;
-  let streamToString;
   let writable;
 
   beforeEach(() => {
-    chunks = [];
-    streamToString = async stream => new Promise((resolve, reject) => {
-      stream.on('finish', () => { resolve(chunks.join('')); });
-      stream.on('error', (err) => { reject(err); });
-    });
-    writable = new Writable({
-      write(chunk, encoding, next) {
-        chunks.push(chunk.toString());
-        next(null);
-      },
-    });
+    writable = makeWriteableStream();
   });
 
   it('Writes a simple csv', async () => {
     const matrix = mockMatrix([{ from: 1, to: 2 }]);
     matrix.toCSVStream(writable);
-    const csv = await streamToString(writable);
+    const csv = await writable.asString();
     expect(csv).toEqual(',1,2\r\n1,0,1\r\n2,1,0\r\n');
   });
 
   it('Works with string UIDs', async () => {
     const matrix = mockMatrix([{ from: 'a', to: 'b' }]);
     matrix.toCSVStream(writable);
-    const csv = await streamToString(writable);
+    const csv = await writable.asString();
     expect(csv).toEqual(',a,b\r\na,0,1\r\nb,1,0\r\n');
   });
 
   it('Handles duplicate edges', async () => {
     const matrix = mockMatrix([{ from: 1, to: 2 }, { from: 1, to: 2 }]);
     matrix.toCSVStream(writable);
-    const csv = await streamToString(writable);
+    const csv = await writable.asString();
     expect(csv).toEqual(',1,2\r\n1,0,1\r\n2,1,0\r\n');
   });
 
@@ -122,7 +109,7 @@ describe('toCSVStream', () => {
       { from: 9, to: 10 },
     ]);
     matrix.toCSVStream(writable);
-    const csv = await streamToString(writable);
+    const csv = await writable.asString();
     const rows = [
       ',1,2,3,4,5,6,7,8,9,10',
       '1,0,1,0,0,0,0,0,0,0,0',
