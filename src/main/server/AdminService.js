@@ -112,7 +112,7 @@ class AdminService {
         .then(devices => res.send({ status: 'ok', devices }))
         .catch((err) => {
           logger.error(err);
-          res.send(500, { status: 'error' });
+          res.send(codeForError(err), { status: 'error' });
         })
         .then(() => next());
     });
@@ -122,7 +122,7 @@ class AdminService {
         .then(() => res.send({ status: 'ok' }))
         .catch((err) => {
           logger.error(err);
-          res.send(500, { status: 'error' });
+          res.send(codeForError(err), { status: 'error' });
         })
         .then(() => next());
     });
@@ -141,7 +141,7 @@ class AdminService {
         })
         .catch((err) => {
           logger.error(err);
-          res.send(500, { status: 'error', message: err.message });
+          res.send(codeForError(err), { status: 'error', message: err.message });
         })
         .then(() => next());
     });
@@ -152,7 +152,7 @@ class AdminService {
         .then(saved => res.send({ status: 'ok', protocols: saved }))
         .catch((err) => {
           logger.error(err);
-          res.send(500, { status: 'error', message: err.message });
+          res.send(codeForError(err), { status: 'error', message: err.message });
         })
         .then(() => next());
     });
@@ -162,7 +162,7 @@ class AdminService {
         .then(protocols => res.send({ status: 'ok', protocols }))
         .catch((err) => {
           logger.error(err);
-          res.send(500, { status: 'error' });
+          res.send(codeForError(err), { status: 'error' });
         })
         .then(() => next());
     });
@@ -173,7 +173,7 @@ class AdminService {
         .then(protocol => res.send({ status: 'ok', protocol }))
         .catch((err) => {
           logger.error(err);
-          res.send(500, { status: 'error' });
+          res.send(codeForError(err), { status: 'error' });
         })
         .then(() => next());
     });
@@ -197,13 +197,17 @@ class AdminService {
         }))
         .catch((err) => {
           logger.error(err);
-          res.send(500, { status: 'error' });
+          res.send(codeForError(err), { status: 'error' });
         })
         .then(() => next());
     });
 
-    // See ExportManager#createExportFile for possible req body params
-    // Handles export in a single, long-lived http request
+    // Handles data export in a single, long-lived http request.
+    //
+    // See ExportManager#createExportFile for possible req body params.
+    //
+    // Progress is periodically streamed as newline-delimited JSON strings:
+    // `{ "progress": 0.45 }\n`.
     api.post('/protocols/:protocolId/export_requests', (req, res, next) => {
       apiRequestLogger('AdminAPI')(req, { statusCode: 0 }); // log request start
 
@@ -217,17 +221,27 @@ class AdminService {
 
       req.setTimeout(0);
       res.setTimeout(0);
+      res.setHeader('content-type', 'text/plain');
+
+      const onProgress = (fractionComplete) => {
+        if (!res.finished) {
+          res.write(`${JSON.stringify({ progress: fractionComplete })}\n`);
+        }
+      };
 
       this.protocolManager.getProtocol(req.params.protocolId)
         .then((protocol) => {
-          const exportRequest = this.exportManager.createExportFile(protocol, req.body);
+          const exportRequest = this.exportManager.createExportFile(protocol, req.body, onProgress);
           abortRequest = exportRequest.abort;
           return exportRequest;
         })
-        .then(filepath => res.send({ status: 'ok', filepath }))
+        .then(() => res.end())
         .catch((err) => {
           logger.error(err);
-          res.send(codeForError(err), { status: 'error', message: err.message });
+          if (!res.finished) {
+            res.write(`${JSON.stringify({ status: 'error', message: err.message })}\n`);
+            res.end();
+          }
         })
         .then(() => next());
     });
@@ -240,7 +254,7 @@ class AdminService {
         .then(() => res.send({ status: 'ok' }))
         .catch((err) => {
           logger.error(err);
-          res.send(500, { status: 'error' });
+          res.send(codeForError(err), { status: 'error' });
         })
         .then(() => next());
     });
@@ -250,7 +264,7 @@ class AdminService {
         .then(() => res.send({ status: 'ok' }))
         .catch((err) => {
           logger.error(err);
-          res.send(500, { status: 'error' });
+          res.send(codeForError(err), { status: 'error' });
         })
         .then(() => next());
     });
@@ -260,7 +274,7 @@ class AdminService {
         .then(() => res.send({ status: 'ok' }))
         .catch((err) => {
           logger.error(err);
-          res.send(500, { status: 'error' });
+          res.send(codeForError(err), { status: 'error' });
         })
         .then(() => next());
     });

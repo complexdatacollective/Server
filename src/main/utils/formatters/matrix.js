@@ -1,8 +1,10 @@
 /* eslint-disable no-bitwise */
 /* eslint space-infix-ops: ["error", {"int32Hint": true}] */
 
+const logger = require('electron-log');
 const { Readable } = require('stream');
 
+const progressEvent = require('./progressEvent');
 const { nodePrimaryKeyProperty } = require('./network');
 const { csvEOL } = require('./csv');
 
@@ -53,7 +55,6 @@ const { csvEOL } = require('./csv');
 // TODO: Take a guess at heap use based on network size and throw if exceeded?
 class AdjacencyMatrix {
   constructor(network) {
-    // TODO: Store a quote-escaped version?
     // Track only unique IDs (duplicates are discarded). The ordering here provides the ordering for
     // both header and data output.
     const uniqueNodeIds = [...new Set(network.nodes.map(node => node[nodePrimaryKeyProperty]))];
@@ -178,26 +179,41 @@ class AdjacencyMatrix {
 
     const inStream = new Readable({
       read(/* size */) {
-        if (!headerWritten) {
-          this.push(headerRowContent);
-          headerWritten = true;
-        } else if (rowNum < dataColumnCount) {
-          row = dataRowContent(uniqueNodeIds[rowNum], truncatingView);
-          this.push(row);
-          rowNum += 1;
+        // By wrapping in a timeout, we allow exporters to interleave; otherwise,
+        // they'll proceed in sequence. This makes progress tracking easier;
+        // we could instead have exporters estimate their length ahead of time.
+        setTimeout(() => {
+          if (!headerWritten) {
+            this.push(headerRowContent);
+            headerWritten = true;
+          } else if (rowNum < dataColumnCount) {
+            row = dataRowContent(uniqueNodeIds[rowNum], truncatingView);
+            this.push(row);
+            rowNum += 1;
 
-          // TODO: how to test? inject/mock max?
-          if (matrixIndex > v8MaxInt) {
-            // 'Reset' our view of the matrix to keep the index small
-            // by truncating our data view of the underlying buffer.
-            const leftoverBits = matrixIndex % 8;
-            truncatingView = truncatingView.subarray(~~(matrixIndex / 8));
-            matrixIndex = leftoverBits;
+            // TODO: how to test? inject/mock max?
+            if (matrixIndex > v8MaxInt) {
+              // 'Reset' our view of the matrix to keep the index small
+              // by truncating our data view of the underlying buffer.
+              const leftoverBits = matrixIndex % 8;
+              truncatingView = truncatingView.subarray(~~(matrixIndex / 8));
+              matrixIndex = leftoverBits;
+            }
+
+            // Report progress on every write. If exporting very large matrices, we may want to
+            // only report periodically, but will need to update the progress handler.
+            outStream.emit(progressEvent, rowNum / dataColumnCount);
+          } else {
+            this.push(null);
+            outStream.emit(progressEvent, 1);
           }
-        } else {
-          this.push(null);
-        }
+        }, 0);
       },
+    });
+
+    inStream.on('error', (err) => {
+      logger.warn('Readable error', err.message);
+      logger.debug(err);
     });
 
     // TODO: handle teardown. Use pipeline() API in Node 10?
@@ -205,6 +221,7 @@ class AdjacencyMatrix {
 
     return {
       abort: () => { inStream.destroy(); },
+      estimatedProgressStepCount: dataColumnCount,
     };
   }
 

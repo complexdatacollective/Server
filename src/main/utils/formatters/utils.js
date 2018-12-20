@@ -112,10 +112,56 @@ const getFormatterClass = (formatterType) => {
   }
 };
 
+
+/**
+ * A very simple progress accumulator which divides the total work into a number of
+ * micro-steps, each step being one write of an export worker to its output stream.
+ *
+ * This relies on all workers making progress concurrently; if work is serialized, no
+ * cumulative progress will be reported.
+ *
+ * This should be good enough as long as stream throughput is consistent and each worker
+ * step is doing roughly the same amount of work. (Note that matrix output may currently vary
+ * significantly and we may want to improve this, but see #218.)
+ *
+ * @param  {Function} onProgressUpdate callback for cumulative progress updates,
+ *                                     receiving a `fractionCompleted` argument.
+ * @param  {number} workerCount the number of exporters which will be reporting progress
+ * @return {Function} an individual progress handler which can be passed to an exporter
+ */
+const cumulativeProgressHandler = (onProgressUpdate, workerCount) => {
+  let allWorkersStarted = false;
+  let stepsToCompletion;
+  const workerProgress = {};
+  return (exportId, fractionCompleted) => {
+    if (!workerProgress[exportId]) {
+      workerProgress[exportId] = {
+        numberOfSteps: 1 / fractionCompleted,
+      };
+    }
+    const thisWorker = workerProgress[exportId];
+    thisWorker.fractionCompleted = fractionCompleted;
+    thisWorker.stepsCompleted = fractionCompleted * thisWorker.numberOfSteps;
+
+    allWorkersStarted = allWorkersStarted || (Object.keys(workerProgress).length === workerCount);
+
+    if (allWorkersStarted) {
+      stepsToCompletion = stepsToCompletion ||
+        Object.values(workerProgress).reduce((sum, worker) => sum + worker.numberOfSteps, 0);
+
+      const cumulativeProgress = Object.values(workerProgress).reduce((weightedAvg, worker) =>
+        weightedAvg + (worker.fractionCompleted * worker.numberOfSteps / stepsToCompletion), 0);
+
+      onProgressUpdate(cumulativeProgress);
+    }
+  };
+};
+
 module.exports = {
   extensions,
   formats,
   formatsAreValid,
+  cumulativeProgressHandler,
   getFileExtension,
   getFormatterClass,
   partitionByEdgeType,

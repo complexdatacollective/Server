@@ -6,6 +6,7 @@ const logger = require('electron-log');
 const { flattenDeep } = require('lodash');
 
 const SessionDB = require('./SessionDB');
+const progressEvent = require('../utils/formatters/progressEvent');
 const { archive } = require('../utils/archive');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
 const { makeTempDir, removeTempDir } = require('../utils/formatters/dir');
@@ -16,6 +17,7 @@ const {
   unionOfNetworks,
 } = require('../utils/formatters/network');
 const {
+  cumulativeProgressHandler,
   formatsAreValid,
   getFileExtension,
   getFormatterClass,
@@ -55,6 +57,7 @@ const exportFile = (
   outDir,
   network,
   { useDirectedEdges, variableRegistry } = {},
+  progressHandler = null,
 ) => {
   const Formatter = getFormatterClass(exportFormat);
   const extension = getFileExtension(exportFormat);
@@ -72,10 +75,19 @@ const exportFile = (
     writeStream = fs.createWriteStream(filepath);
     writeStream.on('finish', () => { resolve(filepath); });
     writeStream.on('error', (err) => { reject(err); });
+    if (progressHandler) {
+      writeStream.on(progressEvent, (progress) => {
+        progressHandler(outputName, progress);
+      });
+    }
     // TODO: on('ready')?
     logger.debug(`Writing file ${filepath}`);
     streamController = formatter.writeToStream(writeStream);
   });
+
+  pathPromise.onExportProgress = (progress) => {
+    pathPromise.exportProgress = progress;
+  };
 
   pathPromise.abort = () => {
     if (streamController) {
@@ -125,7 +137,6 @@ class ExportManager {
    * @return {Promise} A `promise` that resloves to a filepath (string). The promise is decorated
    *                     with an `abort` function to support request cancellations.
    *                     If the export is aborted, then the returned promise will never settle.
-   * @return {string} filepath of written file
    */
   createExportFile(
     protocol,
@@ -137,6 +148,7 @@ class ExportManager {
       networkInclusionQuery,
       useDirectedEdges,
     } = {},
+    onProgressUpdate = null,
   ) {
     if (!protocol) {
       return Promise.reject(new RequestError(ErrorMessages.NotFound));
@@ -175,10 +187,10 @@ class ExportManager {
       .then(networks => (exportNetworkUnion ? [unionOfNetworks(networks)] : networks))
       .then(networks => filterNetworkEntities(networks, entityFilter))
       .then((networks) => {
-        promisedExports = flattenDeep(
+        const partitionedNetworks = flattenDeep(
           // Export every network
           // => [n1, n2]
-          networks.map((network, i) =>
+          networks.map(network =>
             // ...in every file format requested
             // => [[n1.matrix.csv, n1.attrs.csv], [n2.matrix.csv, n2.attrs.csv]]
             exportFormats.map(format =>
@@ -186,14 +198,25 @@ class ExportManager {
               // => [ [[n1.matrix.knows.csv, n1.matrix.likes.csv], [n1.attrs.csv]],
               //      [[n2.matrix.knows.csv, n2.matrix.likes.csv], [n2.attrs.csv]]]
               partitionByEdgeType(network, format).map(partitionedNetwork =>
-                // gather one promise for each exported file
-                exportFile(
-                  `${i + 1}`,
-                  partitionedNetwork.edgeType,
+                ({
                   format,
-                  tmpDir,
                   partitionedNetwork,
-                  exportOpts)))));
+                })))));
+
+        const exportCount = partitionedNetworks.length;
+        const progressHandler = onProgressUpdate &&
+          cumulativeProgressHandler(onProgressUpdate, exportCount);
+
+        promisedExports = partitionedNetworks.map(({ format, partitionedNetwork }, i) =>
+          exportFile(
+            `${i + 1}`,
+            partitionedNetwork.edgeType,
+            format,
+            tmpDir,
+            partitionedNetwork,
+            exportOpts,
+            progressHandler));
+
         return Promise.all(promisedExports);
       })
       // TODO: check length; if 0: reject, if 1: don't zip?

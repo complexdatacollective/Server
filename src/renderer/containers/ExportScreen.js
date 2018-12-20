@@ -13,6 +13,7 @@ import Radio from '../ui/components/Fields/Radio';
 import Toggle from '../ui/components/Fields/Toggle';
 import ExportModal from '../components/ExportModal';
 import withApiClient from '../components/withApiClient';
+import { makeStreamingResponseConsumer } from '../utils/adminApiClient';
 import { selectors } from '../ducks/modules/protocols';
 import { Button, Spinner } from '../ui';
 import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
@@ -118,6 +119,10 @@ class ExportScreen extends Component {
       useDirectedEdges,
     } = this.state;
 
+    const responseConsumer = makeStreamingResponseConsumer((fractionComplete) => {
+      this.setState({ fractionComplete });
+    });
+
     apiClient
       .post(`/protocols/${protocolId}/export_requests`, {
         exportFormats: (exportFormat === 'csv' && [...csvTypes]) || [exportFormat],
@@ -125,6 +130,8 @@ class ExportScreen extends Component {
         destinationFilepath,
         entityFilter,
         useDirectedEdges,
+      }, {
+        responseConsumer,
       })
       .then(() => showConfirmation('Export complete'))
       .catch(err => showError(err.message))
@@ -152,6 +159,7 @@ class ExportScreen extends Component {
             className="modal--export"
             show={exportInProgress}
             handleCancel={this.handleCancel}
+            fractionComplete={this.state.fractionComplete}
           />
         }
         <h1>{protocol.name}</h1>

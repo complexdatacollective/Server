@@ -1,3 +1,7 @@
+/**
+ * Default repsonse handler.
+ * Most endpoints return JSON; error information is conveyed in a JSON object.
+ */
 const consumeResponse = resp => (
   resp.json()
     .then((respJson) => {
@@ -9,6 +13,49 @@ const consumeResponse = resp => (
       throw errJson;
     })
 );
+
+/**
+ * Produce a custom response handler for export requests.
+ *
+ * The export endpoint on AdminService streams progress updates over a long-lived connection.
+ * Stream messages are newline-delimited JSON strings conveying either a progress amount or
+ * an error that occurred.
+ *
+ * @param  {Function} progressHandler periodic callback receiving a `fractionCompleted` arg
+ * @return {Function} a consumer that can be supplied to an API `post()` call.
+ */
+const makeStreamingResponseConsumer = progressHandler =>
+  (resp) => {
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+
+    const processNext = async () => {
+      const { value, done } = await reader.read();
+
+      if (done) {
+        return true;
+      }
+
+      const text = decoder.decode(value, { stream: true });
+      const lines = text && text.split('\n').filter(s => s.length);
+      if (lines.length) {
+        try {
+          const lastLine = lines[lines.length - 1];
+          const json = JSON.parse(lastLine);
+          if (json.progress) {
+            progressHandler(json.progress);
+          } else if (json.status === 'error') {
+            return Promise.reject(new Error(json.message || 'Server error'));
+          }
+        } catch (err) {
+          return Promise.reject(err);
+        }
+      }
+      return processNext();
+    };
+
+    return processNext();
+  };
 
 /**
  * Restful API client for desktop (GUI) services.
@@ -60,9 +107,11 @@ class AdminApiClient {
   /**
    * @param  {string} route
    * @param  {Object} data will be JSON.stringified into the request body
+   * @param  {Object} opts
+   * @param  {Boolean} opts.streamResponse
    * @return {Promise}
    */
-  post(route, data) {
+  post(route, data, { responseConsumer } = {}) {
     if (typeof data === 'string') {
       // Probably programming error; API will never accept top-level strings
       return Promise.reject(new Error('String not allowed as a JSON text'));
@@ -81,7 +130,7 @@ class AdminApiClient {
         body: json,
         headers: new Headers({ 'Content-Type': 'application/json' }),
       })
-      .then(consumeResponse);
+      .then(responseConsumer || consumeResponse);
   }
 
   delete(route) {
@@ -106,3 +155,7 @@ class AdminApiClient {
 }
 
 export default AdminApiClient;
+
+export {
+  makeStreamingResponseConsumer,
+};
