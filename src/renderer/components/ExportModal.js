@@ -2,14 +2,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import Modal from './Modal';
-import { Spinner } from '../ui/components';
+import Progress from '../ui/components/Progress';
 
-const ExportModal = ({ className, handleCancel, show }) => (
+const ExportModal = ({ className, handleCancel, fractionComplete, show }) => (
   <Modal className={className} title="Exporting..." show={show} onCancel={handleCancel}>
     <div className="export-modal__progress">
       <div className="export-modal__progress">
-        {/* TODO: progress */}
-        <Spinner small />
+        {
+          <Progress max={1} value={fractionComplete} />
+        }
       </div>
     </div>
   </Modal>
@@ -17,12 +18,14 @@ const ExportModal = ({ className, handleCancel, show }) => (
 
 ExportModal.propTypes = {
   className: PropTypes.string,
+  fractionComplete: PropTypes.number,
   handleCancel: PropTypes.func.isRequired,
   show: PropTypes.bool,
 };
 
 ExportModal.defaultProps = {
   className: null,
+  fractionComplete: 0,
   show: false,
 };
 
