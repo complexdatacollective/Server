@@ -1,5 +1,7 @@
+const logger = require('electron-log');
 const { Readable } = require('stream');
 
+const progressEvent = require('./progressEvent');
 const { csvEOL } = require('./csv');
 
 /**
@@ -56,15 +58,24 @@ const toCSVStream = (edgeList, outStream) => {
 
   const inStream = new Readable({
     read(/* size */) {
-      if (chunkIndex < totalChunks) {
-        const [fromId, destinations] = adjacencies[chunkIndex];
-        chunkContent = [...destinations].map(toId => `${fromId},${toId}`).join(csvEOL);
-        this.push(`${chunkContent}${csvEOL}`);
-        chunkIndex += 1;
-      } else {
-        this.push(null);
-      }
+      setTimeout(() => {
+        if (chunkIndex < totalChunks) {
+          const [fromId, destinations] = adjacencies[chunkIndex];
+          chunkContent = [...destinations].map(toId => `${fromId},${toId}`).join(csvEOL);
+          this.push(`${chunkContent}${csvEOL}`);
+          chunkIndex += 1;
+          outStream.emit(progressEvent, chunkIndex / totalChunks);
+        } else {
+          this.push(null);
+          outStream.emit(progressEvent, 1);
+        }
+      }, 0);
     },
+  });
+
+  inStream.on('error', (err) => {
+    logger.warn('Readable error', err.message);
+    logger.debug(err);
   });
 
   // TODO: handle teardown. Use pipeline() API in Node 10?

@@ -221,7 +221,6 @@ class AdjacencyMatrix {
 
     return {
       abort: () => { inStream.destroy(); },
-      estimatedProgressStepCount: dataColumnCount,
     };
   }
 

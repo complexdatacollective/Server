@@ -13,6 +13,10 @@
 const { findKey, forInRight } = require('lodash');
 const uuid = require('uuid');
 
+// The generator will yield content in groups of this size
+const edgeGroupSize = 100;
+const nodeGroupSize = 100;
+
 const { nodePrimaryKeyProperty, nodeAttributesProperty, getNodeAttributes } = require('../network');
 const {
   createDataElement,
@@ -242,6 +246,13 @@ const generateDataElements = (
   return fragment;
 };
 
+// Provide the stream interface with the number of chunks we expect the graphMLGenerator to produce
+// for a rough progress estimation. This should equal the number of `yield`s in the generator.
+const estimatedChunkCount = network =>
+  5 + // xmlHeader + nodeKeys + edgeKeys + graphHeader + footer
+  Math.ceil(network.nodes.length / nodeGroupSize) +
+  Math.ceil(network.edges.length / edgeGroupSize);
+
 // Generator to supply XML content in chunks to both string and stream producers
 function* graphMLGenerator(networkData, variableRegistry, useDirectedEdges) {
   const serializer = new globalContext.XMLSerializer();
@@ -314,13 +325,13 @@ function* graphMLGenerator(networkData, variableRegistry, useDirectedEdges) {
   yield getGraphHeader(useDirectedEdges);
 
   // add nodes and edges to graph
-  for (let i = 0; i < networkData.nodes.length; i += 100) {
-    const nodeFragment = generateNodeElements(networkData.nodes.slice(i, i + 100));
+  for (let i = 0; i < networkData.nodes.length; i += nodeGroupSize) {
+    const nodeFragment = generateNodeElements(networkData.nodes.slice(i, i + nodeGroupSize));
     yield serialize(nodeFragment);
   }
 
-  for (let i = 0; i < networkData.edges.length; i += 100) {
-    const edgeFragment = generateEdgeElements(networkData.edges.slice(i, i + 100));
+  for (let i = 0; i < networkData.edges.length; i += edgeGroupSize) {
+    const edgeFragment = generateEdgeElements(networkData.edges.slice(i, i + edgeGroupSize));
     yield serialize(edgeFragment);
   }
 
@@ -365,4 +376,5 @@ Object.defineProperty(exports, '__esModule', {
 exports.default = createGraphML;
 
 exports.createGraphML = createGraphML;
+exports.estimatedChunkCount = estimatedChunkCount;
 exports.graphMLGenerator = graphMLGenerator;
