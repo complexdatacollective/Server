@@ -1,6 +1,6 @@
 const logger = require('electron-log');
-const { Readable } = require('stream');
 
+const AsyncReadable = require('../AsyncReadable');
 const progressEvent = require('../progressEvent');
 const { estimatedChunkCount, graphMLGenerator } = require('./createGraphML');
 
@@ -18,19 +18,17 @@ class GraphMLFormatter {
     );
     let chunksRead = 0;
     const totalChunks = estimatedChunkCount(this.network);
-    const inStream = new Readable({
-      read(/* size */) {
-        setTimeout(() => {
-          const { done, value } = generator.next();
-          if (done) {
-            this.push(null);
-            outStream.emit(progressEvent, 1);
-          } else {
-            this.push(value);
-            chunksRead += 1;
-            outStream.emit(progressEvent, chunksRead / totalChunks);
-          }
-        }, 0);
+    const inStream = new AsyncReadable({
+      read() {
+        const { done, value } = generator.next();
+        if (done) {
+          this.push(null);
+          outStream.emit(progressEvent, 1);
+        } else {
+          this.push(value);
+          chunksRead += 1;
+          outStream.emit(progressEvent, chunksRead / totalChunks);
+        }
       },
     });
 

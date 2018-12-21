@@ -1,6 +1,6 @@
 const logger = require('electron-log');
-const { Readable } = require('stream');
 
+const AsyncReadable = require('./AsyncReadable');
 const progressEvent = require('./progressEvent');
 const { nodePrimaryKeyProperty } = require('./network');
 const { cellValue, csvEOL } = require('./csv');
@@ -32,33 +32,31 @@ const toCSVStream = (nodes, outStream) => {
   let rowContent;
   let node;
 
-  const inStream = new Readable({
-    read(/* size */) {
-      setTimeout(() => {
-        if (!headerWritten) {
-          this.push(`${attrNames.map(attr => cellValue(attr)).join(',')}${csvEOL}`);
-          headerWritten = true;
-        } else if (rowIndex < totalRows) {
-          node = nodes[rowIndex];
-          const values = attrNames.map((attrName) => {
-            // The primary key exists at the top-level; all others inside `.attributes`
-            let value;
-            if (attrName === nodePrimaryKeyProperty) {
-              value = node[attrName];
-            } else {
-              value = node.attributes[attrName];
-            }
-            return cellValue(value);
-          });
-          rowContent = `${values.join(',')}${csvEOL}`;
-          this.push(rowContent);
-          rowIndex += 1;
-          outStream.emit(progressEvent, rowIndex / totalRows);
-        } else {
-          this.push(null);
-          outStream.emit(progressEvent, 1);
-        }
-      }, 0);
+  const inStream = new AsyncReadable({
+    read() {
+      if (!headerWritten) {
+        this.push(`${attrNames.map(attr => cellValue(attr)).join(',')}${csvEOL}`);
+        headerWritten = true;
+      } else if (rowIndex < totalRows) {
+        node = nodes[rowIndex];
+        const values = attrNames.map((attrName) => {
+          // The primary key exists at the top-level; all others inside `.attributes`
+          let value;
+          if (attrName === nodePrimaryKeyProperty) {
+            value = node[attrName];
+          } else {
+            value = node.attributes[attrName];
+          }
+          return cellValue(value);
+        });
+        rowContent = `${values.join(',')}${csvEOL}`;
+        this.push(rowContent);
+        rowIndex += 1;
+        outStream.emit(progressEvent, rowIndex / totalRows);
+      } else {
+        this.push(null);
+        outStream.emit(progressEvent, 1);
+      }
     },
   });
 

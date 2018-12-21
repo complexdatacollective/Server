@@ -2,8 +2,8 @@
 /* eslint space-infix-ops: ["error", {"int32Hint": true}] */
 
 const logger = require('electron-log');
-const { Readable } = require('stream');
 
+const AsyncReadable = require('./AsyncReadable');
 const progressEvent = require('./progressEvent');
 const { nodePrimaryKeyProperty } = require('./network');
 const { csvEOL } = require('./csv');
@@ -177,37 +177,32 @@ class AdjacencyMatrix {
     let headerWritten = false;
     let rowNum = 0;
 
-    const inStream = new Readable({
-      read(/* size */) {
-        // By wrapping in a timeout, we allow exporters to interleave; otherwise,
-        // they'll proceed in sequence. This makes progress tracking easier;
-        // we could instead have exporters estimate their length ahead of time.
-        setTimeout(() => {
-          if (!headerWritten) {
-            this.push(headerRowContent);
-            headerWritten = true;
-          } else if (rowNum < dataColumnCount) {
-            row = dataRowContent(uniqueNodeIds[rowNum], truncatingView);
-            this.push(row);
-            rowNum += 1;
+    const inStream = new AsyncReadable({
+      read() {
+        if (!headerWritten) {
+          this.push(headerRowContent);
+          headerWritten = true;
+        } else if (rowNum < dataColumnCount) {
+          row = dataRowContent(uniqueNodeIds[rowNum], truncatingView);
+          this.push(row);
+          rowNum += 1;
 
-            // TODO: how to test? inject/mock max?
-            if (matrixIndex > v8MaxInt) {
-              // 'Reset' our view of the matrix to keep the index small
-              // by truncating our data view of the underlying buffer.
-              const leftoverBits = matrixIndex % 8;
-              truncatingView = truncatingView.subarray(~~(matrixIndex / 8));
-              matrixIndex = leftoverBits;
-            }
-
-            // Report progress on every write. If exporting very large matrices, we may want to
-            // only report periodically, but will need to update the progress handler.
-            outStream.emit(progressEvent, rowNum / dataColumnCount);
-          } else {
-            this.push(null);
-            outStream.emit(progressEvent, 1);
+          // TODO: how to test? inject/mock max?
+          if (matrixIndex > v8MaxInt) {
+            // 'Reset' our view of the matrix to keep the index small
+            // by truncating our data view of the underlying buffer.
+            const leftoverBits = matrixIndex % 8;
+            truncatingView = truncatingView.subarray(~~(matrixIndex / 8));
+            matrixIndex = leftoverBits;
           }
-        }, 0);
+
+          // Report progress on every write. If exporting very large matrices, we may want to
+          // only report periodically, but will need to update the progress handler.
+          outStream.emit(progressEvent, rowNum / dataColumnCount);
+        } else {
+          this.push(null);
+          outStream.emit(progressEvent, 1);
+        }
       },
     });
 

@@ -1,6 +1,6 @@
 const logger = require('electron-log');
-const { Readable } = require('stream');
 
+const AsyncReadable = require('./AsyncReadable');
 const progressEvent = require('./progressEvent');
 const { csvEOL } = require('./csv');
 
@@ -56,8 +56,8 @@ const toCSVStream = (edgeList, outStream) => {
   let chunkContent;
   let chunkIndex = 0;
 
-  const inStream = new Readable({
-    read(/* size */) {
+  const inStream = new AsyncReadable({
+    read() {
       setTimeout(() => {
         if (chunkIndex < totalChunks) {
           const [fromId, destinations] = adjacencies[chunkIndex];
