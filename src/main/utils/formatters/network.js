@@ -39,11 +39,39 @@ const filterNetworkEntities = (networks, filterConfig) => {
   return networks.map(network => filter(network));
 };
 
+const transposedRegistrySection = (section = {}) =>
+  Object.values(section).reduce((sectionRegistry, definition) => {
+    if (!definition.variables) { // not required for edges
+      sectionRegistry[definition.name] = definition; // eslint-disable-line no-param-reassign
+      return sectionRegistry;
+    }
+
+    const displayVariable = definition.variables[definition.displayVariable];
+
+    const variables = Object.values(definition.variables).reduce((acc, variable) => {
+      acc[variable.name] = variable;
+      return acc;
+    }, {});
+    sectionRegistry[definition.name] = { // eslint-disable-line no-param-reassign
+      ...definition,
+      displayVariable: displayVariable && displayVariable.name,
+      variables,
+    };
+    return sectionRegistry;
+  }, {});
+
+const transposedRegistry = (registry = {}) => ({
+  edge: transposedRegistrySection(registry.edge),
+  node: transposedRegistrySection(registry.node),
+});
+
 module.exports = {
   filterNetworkEntities,
   filterNetworksWithQuery,
   getNodeAttributes,
   nodeAttributesProperty,
   nodePrimaryKeyProperty,
+  transposedRegistry,
+  transposedRegistrySection,
   unionOfNetworks,
 };

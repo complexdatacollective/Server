@@ -108,7 +108,6 @@ const generateKeyElements = (
 
     Object.keys(iterableElement).forEach((key) => {
       // transpose ids to names based on registry; fall back to the raw key
-      // (Server does not need transposing.)
       const keyName = getTypeFromVariableRegistry(variableRegistry, type, element, key, 'name') || key;
       if (done.indexOf(keyName) === -1 && !excludeList.includes(keyName)) {
         const keyElement = document.createElement('key');
@@ -190,15 +189,9 @@ const generateDataElements = (
     fragment.appendChild(domElement);
 
     if (type === 'edge') {
-      let label = variableRegistry && variableRegistry[type] &&
+      const label = variableRegistry && variableRegistry[type] &&
         variableRegistry[type][dataElement.type] && (variableRegistry[type][dataElement.type].name
           || variableRegistry[type][dataElement.type].label);
-
-      // If we couldn't find a transposition, use the key directly.
-      // This will be the case on Server (and `type` will already contain the name).
-      if (!label) {
-        label = dataElement.type;
-      }
 
       domElement.appendChild(createDataElement(document, 'label', label));
 

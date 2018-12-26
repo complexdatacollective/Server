@@ -1,6 +1,7 @@
 import AdminApiClient from '../../utils/adminApiClient';
 import viewModelMapper from '../../utils/baseViewModelMapper';
 import { actionCreators as messageActionCreators } from './appMessages';
+import { transposedRegistrySection } from '../../../main/utils/formatters/network'; // TODO: move
 
 const LOAD_PROTOCOLS = 'LOAD_PROTOCOLS';
 const PROTOCOLS_LOADED = 'PROTOCOLS_LOADED';
@@ -37,27 +38,6 @@ const currentProtocol = (state, props) => {
   const id = props.match && props.match.params.id;
   return protocols && id && protocols.find(p => p.id === id);
 };
-
-// Transpose one section of the registry ('node' or 'edge') from IDs to names
-const transposedRegistrySection = (section = {}) =>
-  Object.values(section).reduce((sectionRegistry, definition) => {
-    if (!definition.variables) { // not required for edges
-      return sectionRegistry;
-    }
-
-    const displayVariable = definition.variables[definition.displayVariable];
-
-    const variables = Object.values(definition.variables).reduce((acc, variable) => {
-      acc[variable.name] = variable;
-      return acc;
-    }, {});
-    sectionRegistry[definition.name] = { // eslint-disable-line no-param-reassign
-      ...definition,
-      displayVariable: displayVariable && displayVariable.name,
-      variables,
-    };
-    return sectionRegistry;
-  }, {});
 
 // Transpose all types & variable IDs to names
 // Imported data is transposed; this allows utility components from Architect to work as-is.
