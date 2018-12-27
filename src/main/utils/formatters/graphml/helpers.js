@@ -37,23 +37,11 @@ const getGraphMLTypeForKey = (data, key) => (
     return 'string';
   }, ''));
 
-const getVariableDefinition = (variables, key) => {
-  if (!variables) {
-    return null;
-  }
-  if (variables[key]) {
-    // NC: When dealing with variableIDs (not transposed), we have the match
-    return variables[key];
-  }
-  // Server: need to look up based on name (transpose name back to ID)
-  const entries = Object.entries(variables).find(([, variable]) => variable.name === key);
-  return entries && entries[1];
-};
-
 const getVariableInfo = (variableRegistry, type, element, key) => (
   variableRegistry[type] &&
   variableRegistry[type][element.type] &&
-  getVariableDefinition(variableRegistry[type][element.type].variables, key)
+  variableRegistry[type][element.type].variables &&
+  variableRegistry[type][element.type].variables[key]
 );
 
 const variableRegistryExists = (variableRegistry, type, element, key) => {

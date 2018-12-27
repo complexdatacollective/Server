@@ -12,6 +12,7 @@ const { makeTempDir, removeTempDir } = require('../utils/formatters/dir');
 const {
   filterNetworkEntities,
   filterNetworksWithQuery,
+  transposedRegistry,
   unionOfNetworks,
 } = require('../utils/formatters/network');
 const {
@@ -150,7 +151,7 @@ class ExportManager {
     let promisedExports;
     const exportOpts = {
       useDirectedEdges,
-      variableRegistry: protocol.variableRegistry,
+      variableRegistry: transposedRegistry(protocol.variableRegistry),
     };
 
     // Export flow:

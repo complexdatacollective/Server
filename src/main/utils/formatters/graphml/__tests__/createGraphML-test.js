@@ -19,8 +19,8 @@ describe('buildGraphML', () => {
   beforeEach(() => {
     network = {
       nodes: [
-        { _uid: '1', type: 'person', attributes: { 'mock-uuid-1': 'Dee', 'mock-uuid-2': 40 } },
-        { _uid: '2', type: 'person', attributes: { 'mock-uuid-1': 'Carl', 'mock-uuid-2': 50 } },
+        { _uid: '1', type: 'person', attributes: { 'mock-uuid-1': 'Dee', 'mock-uuid-2': 40, 'mock-uuid-3': { x: 0, y: 0 } } },
+        { _uid: '2', type: 'person', attributes: { 'mock-uuid-1': 'Carl', 'mock-uuid-2': 50, 'mock-uuid-3': { x: 0, y: 0 } } },
       ],
       edges: [
         { from: '1', to: '2', type: 'mock-uuid-3' },
@@ -32,6 +32,7 @@ describe('buildGraphML', () => {
           variables: {
             'mock-uuid-1': { name: 'firstName', type: 'string' },
             'mock-uuid-2': { name: 'age', type: 'number' },
+            'mock-uuid-3': { name: 'layout', type: 'layout' },
           },
         },
       },
@@ -62,6 +63,11 @@ describe('buildGraphML', () => {
 
   it('infers int types', () => { // This indicates that transposition worked for nodes
     expect(xml.getElementById('age').getAttribute('attr.type')).toEqual('int');
+  });
+
+  it('converts layout types', () => {
+    expect(xml.getElementById('layoutX').getAttribute('attr.type')).toEqual('double');
+    expect(xml.getElementById('layoutY').getAttribute('attr.type')).toEqual('double');
   });
 
   it('exports edge labels', () => { // This indicates that [non-]transposition worked for edges
