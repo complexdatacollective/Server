@@ -64,7 +64,7 @@ describe('the AdminService', () => {
         expect(testPortNumber).toBeLessThan(65535 - 1);
         const svc = await adminService.start(testPortNumber);
         expect(svc).toBe(adminService);
-        expect(svc.port).toEqual(testPortNumber + 1);
+        expect(svc.port).toBeGreaterThan(testPortNumber);
       });
     });
 

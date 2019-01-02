@@ -18,6 +18,7 @@ jest.mock('electron-log');
 jest.mock('mdns');
 jest.mock('../../data-managers/DeviceManager');
 jest.mock('../../data-managers/ProtocolManager');
+jest.mock('../AdminService');
 
 describe('Server', () => {
   let mdnsProvider;
