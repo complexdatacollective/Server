@@ -63,6 +63,13 @@ describe('Reportable', () => {
           edges: mockData.data.edges.length,
         });
       });
+
+      it('provides summary stats', async () => {
+        await expect(reportDB.summaryStats(mockData.protocolId)).resolves.toMatchObject({
+          nodes: { min: 2, max: 2, mean: 2 },
+          edges: { min: 2, max: 2, mean: 2 },
+        });
+      });
     });
 
     describe('with multiple sessions', () => {

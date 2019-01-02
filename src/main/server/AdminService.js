@@ -185,6 +185,13 @@ class AdminService {
         .then(() => next());
     });
 
+    // "stats": { "nodes": { "min":0, "max":0, "mean":0 }, "edges": { "min":0, "max":0, "mean":0 } }
+    api.get('/protocols/:id/reports/summary_stats', (req, res, next) => {
+      this.reportDb.summaryStats(req.params.id)
+        .then(stats => res.send({ status: 'ok', stats }))
+        .then(() => next());
+    });
+
     api.get('/protocols/:id/sessions', (req, res, next) => {
       // For now, hardcode response limit & offset
       // TODO: paginated API if needed
