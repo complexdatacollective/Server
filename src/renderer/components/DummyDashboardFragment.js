@@ -8,7 +8,9 @@ const DummyDashboardFragment = ({ className }) => (
   <React.Fragment>
     <div className={`${className}__panel ${className}__panel-mock`}><BarChart data={barData} dataKeys={['pv', 'uv']} /></div>
     <div className={`${className}__panel ${className}__panel-mock`}><PieChart data={pieData} /></div>
-    <div className={`${className}__panel ${className}__panel-mock`}><LineChart data={lineData} /></div>
+    <div className={`${className}__panel ${className}__panel-mock`}>
+      <LineChart data={lineData} dataKeys={['value', 'other']} />
+    </div>
   </React.Fragment>
 );
 

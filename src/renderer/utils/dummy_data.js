@@ -19,16 +19,16 @@ const pieData = [
 
 // days with no data are represented with null values
 const lineData = [
-  { time: new Date(2017, 6, 24).toLocaleDateString(), value: 40, other: 22 },
-  { time: new Date(2017, 6, 25).toLocaleDateString() },
-  { time: new Date(2017, 6, 26).toLocaleDateString(), value: 75, other: 43 },
-  { time: new Date(2017, 6, 27).toLocaleDateString(), value: 32, other: 45 },
-  { time: new Date(2017, 6, 28).toLocaleDateString(), value: 20, other: 67 },
-  { time: new Date(2017, 6, 29).toLocaleDateString() },
-  { time: new Date(2017, 6, 30).toLocaleDateString(), value: 100, other: 56 },
-  { time: new Date(2017, 7, 1).toLocaleDateString(), value: 5, other: 75 },
-  { time: new Date(2017, 7, 2).toLocaleDateString(), other: 61 },
-  { time: new Date(2017, 7, 3).toLocaleDateString(), value: 15, other: 89 }];
+  { time: +new Date(2017, 6, 24), value: 40, other: 22 },
+  { time: +new Date(2017, 6, 25) },
+  { time: +new Date(2017, 6, 26), value: 75, other: 43 },
+  { time: +new Date(2017, 6, 27), value: 32, other: 45 },
+  { time: +new Date(2017, 6, 28), value: 20, other: 67 },
+  { time: +new Date(2017, 6, 29) },
+  { time: +new Date(2017, 6, 30), value: 100, other: 56 },
+  { time: +new Date(2017, 7, 1), value: 5, other: 75 },
+  { time: +new Date(2017, 7, 2), other: 61 },
+  { time: +new Date(2017, 7, 3), value: 15, other: 89 }];
 
 export {
   barData,
