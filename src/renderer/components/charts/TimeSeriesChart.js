@@ -1,6 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { LineChart as RechartLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 import { getCSSValueDict } from '../../utils/CSSVariables';
 import { formatDatetime } from '../../utils/formatters';
@@ -16,9 +25,9 @@ const colorDict = getCSSValueDict(
 const timeFormatter = timestamp => formatDatetime(new Date(timestamp));
 
 // 99% width to work around recharts problem with resizing
-const LineChart = ({ className, data, dataKeys }) => (
+const TimeSeriesChart = ({ className, data, dataKeys }) => (
   <ResponsiveContainer height="100%" width="99%">
-    <RechartLineChart
+    <LineChart
       data={data}
       className={className}
     >
@@ -49,18 +58,18 @@ const LineChart = ({ className, data, dataKeys }) => (
         labelFormatter={timeFormatter}
         labelStyle={{ color: colorDict['--graph-tooltip'] }}
       />
-    </RechartLineChart>
+    </LineChart>
   </ResponsiveContainer>
 );
 
-LineChart.defaultProps = {
+TimeSeriesChart.defaultProps = {
   className: '',
 };
 
-LineChart.propTypes = {
+TimeSeriesChart.propTypes = {
   className: PropTypes.string,
   data: PropTypes.array.isRequired,
   dataKeys: PropTypes.array.isRequired,
 };
 
-export default LineChart;
+export default TimeSeriesChart;

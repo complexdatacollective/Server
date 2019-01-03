@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import { EmptyData, LineChart } from '../components';
+import { EmptyData, TimeSeriesChart } from '../components';
 import withApiClient from '../components/withApiClient';
 
 class EntityTimeSeriesPanel extends Component {
@@ -41,7 +41,7 @@ class EntityTimeSeriesPanel extends Component {
     const { timeSeriesData } = this.state;
     let content;
     if (timeSeriesData.length > 0) {
-      content = <LineChart data={this.state.timeSeriesData} dataKeys={dataKeys} />;
+      content = <TimeSeriesChart data={this.state.timeSeriesData} dataKeys={dataKeys} />;
     } else {
       content = <EmptyData />;
     }
