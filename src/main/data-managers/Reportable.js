@@ -1,4 +1,5 @@
 /* eslint-disable no-param-reassign */ // disabled for reducers
+const attributesProperty = require('../utils/network-query/nodeAttributesProperty');
 const { resolveOrReject } = require('../utils/db');
 
 // This is a dummy field used for projections when counting network members.
@@ -22,6 +23,14 @@ const summaryStats = (entityCounts) => {
   }, { min: Infinity, max: 0, sum: 0 });
   stats.mean = stats.sum / entityCounts.length;
   return stats;
+};
+
+const flatten = shallowArrays => [].concat(...shallowArrays);
+
+const entityKey = (entityName) => {
+  if (entityName === 'node') return 'nodes';
+  if (entityName === 'edge') return 'edges';
+  return null;
 };
 
 /**
@@ -49,6 +58,37 @@ const Reportable = Super => class extends Super {
         nodes,
         edges,
       })));
+  }
+
+  /**
+   * Count occurences of ordinal values in the study for a histogram.
+   * @param  {string} protocolId
+   * @param  {string} ordinalVariableName
+   * @param  {string} entityName='node' Possible values: 'node', 'edge'.
+   * @param  {string} entityType=null If given, filter all nodes by the given type first.
+   *                                  This may be needed if variable names overlap,
+   *                                  since variable IDs aren't exported.
+   * @return {Object} buckets keyed by ordinal value, with count values
+   */
+  ordinalBuckets(protocolId, ordinalVariableName, entityName = 'node', entityType = null) {
+    return new Promise((resolve, reject) => {
+      const key = entityKey(entityName);
+      this.db.find({ protocolId, [`data.${key}`]: { $exists: true } }, resolveOrReject((docs) => {
+        let entities = flatten(docs.map(doc => doc.data[key]));
+        if (entityType) {
+          entities = entities.filter(entity => entity.type === entityType);
+        }
+        const buckets = entities.reduce((acc, entity) => {
+          const ordValue = entity[attributesProperty][ordinalVariableName];
+          if (ordValue !== undefined) {
+            acc[ordValue] = acc[ordValue] || 0;
+            acc[ordValue] += 1;
+          }
+          return acc;
+        }, {});
+        resolve(buckets);
+      }, reject));
+    });
   }
 
   nodeStats(protocolId) {

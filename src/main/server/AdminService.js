@@ -84,6 +84,7 @@ class AdminService {
     });
 
     api.use(restify.plugins.bodyParser());
+    api.use(restify.plugins.queryParser());
 
     if (process.env.NODE_ENV === 'development') {
       // Allow origin access from the live-reload server.
@@ -189,6 +190,14 @@ class AdminService {
     api.get('/protocols/:id/reports/summary_stats', (req, res, next) => {
       this.reportDb.summaryStats(req.params.id)
         .then(stats => res.send({ status: 'ok', stats }))
+        .then(() => next());
+    });
+
+    // "buckets": {}
+    api.get('/protocols/:id/reports/ordinalBuckets', (req, res, next) => {
+      const { variableName, entityName, entityType } = req.query;
+      this.reportDb.ordinalBuckets(req.params.id, variableName, entityName, entityType)
+        .then(buckets => res.send({ status: 'ok', buckets }))
         .then(() => next());
     });
 
