@@ -20,6 +20,8 @@ describe('OrdinalHistogramPanel', () => {
   beforeEach(() => {
     props = {
       protocolId: '1',
+      entityType: 'person',
+      entityName: 'node',
       variableDefinition: {
         label: '',
         name: '',

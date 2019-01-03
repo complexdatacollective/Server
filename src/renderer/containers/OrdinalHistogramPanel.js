@@ -29,16 +29,16 @@ class OrdinalHistogramPanel extends Component {
   }
 
   loadData() {
+    const { entityName, entityType, variableDefinition } = this.props;
     const route = `/protocols/${this.props.protocolId}/reports/ordinalBuckets`;
-    const query = {
-      variableName: this.props.variableDefinition.name,
-      // TODO: actual entity & type
-      entityName: 'node',
-      entityType: 'person',
-    };
+    const query = { variableName: variableDefinition.name };
+    if (entityName && entityType) {
+      query.entityName = entityName;
+      query.entityType = entityType;
+    }
     this.props.apiClient.get(route, query)
       .then(({ buckets }) => buckets && this.setState({
-        barData: this.props.variableDefinition.options.map(({ label, value }) => ({
+        barData: variableDefinition.options.map(({ label, value }) => ({
           name: label,
           value: buckets[value.toString()] || 0,
         })),
@@ -57,12 +57,15 @@ class OrdinalHistogramPanel extends Component {
 
 OrdinalHistogramPanel.defaultProps = {
   apiClient: null,
-  entityType: 'node',
+  entityName: 'node',
+  entityType: null,
   sessionCount: null,
 };
 
 OrdinalHistogramPanel.propTypes = {
   apiClient: PropTypes.object,
+  entityName: Types.entityName,
+  entityType: PropTypes.string,
   protocolId: PropTypes.string.isRequired,
   sessionCount: PropTypes.number,
   variableDefinition: Types.variableDefinition.isRequired,

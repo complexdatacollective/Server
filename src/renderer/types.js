@@ -27,10 +27,13 @@ const variableDefinition = PropTypes.shape({
   })),
 });
 
+const entityName = PropTypes.oneOf(['node', 'edge']);
+
 const Types = {
   deviceApiInfo,
   device,
   devices,
+  entityName,
   protocol,
   protocols,
   variableDefinition,

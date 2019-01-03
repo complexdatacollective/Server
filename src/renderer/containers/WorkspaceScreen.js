@@ -65,6 +65,34 @@ class WorkspaceScreen extends Component {
     return id && `/protocols/${id}/sessions`;
   }
 
+  get ordinalHistogram() {
+    // Default to the first ordinal variable found in the registry
+    let ordinalDefinition = null;
+    let entityTypeName = null;
+
+    const { protocol } = this.props;
+    const variableRegistry = transposedRegistry(protocol.variableRegistry);
+    const nodeDefinitions = variableRegistry.node.person && variableRegistry.node;
+
+    if (nodeDefinitions) {
+      const entityType = Object.values(nodeDefinitions).find((typeDefinition) => {
+        ordinalDefinition = Object.values(typeDefinition.variables)
+          .find(variable => variable.type === 'ordinal');
+        return !!ordinalDefinition;
+      });
+      entityTypeName = entityType && entityType.name;
+    }
+
+    return ordinalDefinition &&
+      <OrdinalHistogramPanel
+        key={protocol.id}
+        protocolId={protocol.id}
+        variableDefinition={ordinalDefinition}
+        entityName="node"
+        entityType={entityTypeName}
+      />;
+  }
+
   sessionEndpoint(sessionId) {
     const base = this.sessionsEndpoint;
     return base && `${base}/${sessionId}`;
@@ -100,7 +128,6 @@ class WorkspaceScreen extends Component {
     const { apiClient } = this.props;
     apiClient.delete(this.sessionEndpoint(sessionId))
       .then(() => this.loadSessions());
-    // TODO: catch / error msg
   }
 
   render() {
@@ -110,30 +137,13 @@ class WorkspaceScreen extends Component {
       return <div className="workspace--loading"><Spinner /></div>;
     }
 
-    // Find the first ordinal variable (for now, in node/person)
-    let ordinalDefinition = null;
-    const variableRegistry = transposedRegistry(protocol.variableRegistry);
-    const nodeDefinitions = variableRegistry.node.person && variableRegistry.node;
-
-    if (nodeDefinitions) {
-      ordinalDefinition = Object.values(nodeDefinitions.person.variables)
-        .find(variable => variable.type === 'ordinal');
-    }
-
     return (
       <div className="workspace">
         <div className="dashboard">
           <ServerPanel className="dashboard__panel dashboard__panel--server-stats" />
           <ProtocolPanel protocol={protocol} />
 
-          {
-            ordinalDefinition &&
-            <OrdinalHistogramPanel
-              key={protocol.id}
-              protocolId={protocol.id}
-              variableDefinition={ordinalDefinition}
-            />
-          }
+          { this.ordinalHistogram }
 
           <ProtocolCountsPanel
             key={`protocol-counts-${protocol.id}`}
