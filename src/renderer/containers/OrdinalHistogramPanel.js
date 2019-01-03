@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import BarChart from '../components/charts/BarChart';
 import withApiClient from '../components/withApiClient';
 import Types from '../types';
+import { BarChart, EmptyData } from '../components';
 
 class OrdinalHistogramPanel extends Component {
   constructor(props) {
@@ -37,19 +37,35 @@ class OrdinalHistogramPanel extends Component {
       query.entityType = entityType;
     }
     this.props.apiClient.get(route, query)
-      .then(({ buckets }) => buckets && this.setState({
-        barData: variableDefinition.options.map(({ label, value }) => ({
-          name: label,
-          value: buckets[value.toString()] || 0,
-        })),
-      }));
+      .then(({ buckets }) => {
+        if (Object.keys(buckets).length) {
+          // Provide data for every ordinal option, even if one has no data
+          this.setState({
+            barData: variableDefinition.options.map(({ label, value = '' }) => ({
+              name: label,
+              value: buckets[value.toString()] || 0,
+            })),
+          });
+        } else {
+          this.setState({ barData: [] });
+        }
+      });
   }
 
   render() {
+    const { barData } = this.state;
+    let content;
+    if (barData.length) {
+      content = <BarChart data={barData} dataKeys={['value']} />;
+    } else {
+      content = <EmptyData />;
+    }
     return (
       <div className="dashboard__panel">
-        <h4>Answer distribution: {this.props.variableDefinition.label}</h4>
-        <BarChart data={this.state.barData} dataKeys={['value']} />
+        <h4>
+          Ordinal distribution: {this.props.variableDefinition.label}
+        </h4>
+        {content}
       </div>
     );
   }

@@ -48,7 +48,12 @@ describe('OrdinalHistogramPanel', () => {
     expect(mockApiClient.get).toHaveBeenCalledTimes(1);
   });
 
+  it('renders an empty view before data loads', () => {
+    expect(subject.find('BarChart')).toHaveLength(0);
+  });
+
   it('renders a bar chart', () => {
+    subject.mount(); // wait for loaded data
     expect(subject.find('BarChart')).toHaveLength(1);
   });
 
