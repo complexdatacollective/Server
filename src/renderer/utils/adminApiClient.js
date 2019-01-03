@@ -50,11 +50,16 @@ class AdminApiClient {
   }
 
   /**
-   * @param  {string} route
+   * @param {string} route
+   * @params {Object} [params] optional query params for the request
    * @return {Promise}
    */
-  get(route) {
-    return this.fetch(this.resolveRoute(route)).then(consumeResponse);
+  get(route, params) {
+    let resolvedRoute = this.resolveRoute(route);
+    if (params) {
+      resolvedRoute = `${resolvedRoute}?${new URLSearchParams(params).toString()}`;
+    }
+    return this.fetch(resolvedRoute).then(consumeResponse);
   }
 
   /**
