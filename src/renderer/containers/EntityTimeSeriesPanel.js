@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import { LineChart } from '../components';
+import { EmptyData, LineChart } from '../components';
 import withApiClient from '../components/withApiClient';
 
 class EntityTimeSeriesPanel extends Component {
@@ -38,8 +38,20 @@ class EntityTimeSeriesPanel extends Component {
   render() {
     // For now, just render node & edge counts
     const dataKeys = ['node', 'edge'];
-    return this.state.timeSeriesData.length && (
-      <LineChart data={this.state.timeSeriesData} dataKeys={dataKeys} />
+    const { timeSeriesData } = this.state;
+    let content;
+    if (timeSeriesData.length > 0) {
+      content = <LineChart data={this.state.timeSeriesData} dataKeys={dataKeys} />;
+    } else {
+      content = <EmptyData />;
+    }
+    return (
+      <div className="dashboard__panel">
+        <h4 className="dashboard__header-text">
+          Imported network sizes
+        </h4>
+        {content}
+      </div>
     );
   }
 }
