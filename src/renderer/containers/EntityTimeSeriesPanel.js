@@ -46,11 +46,13 @@ class EntityTimeSeriesPanel extends Component {
       content = <EmptyData />;
     }
     return (
-      <div className="dashboard__panel">
+      <div className="dashboard__panel dashboard__panel--chart">
         <h4 className="dashboard__header-text">
           Imported network sizes
         </h4>
-        {content}
+        <div className="dashboard__chartContainer">
+          {content}
+        </div>
       </div>
     );
   }
