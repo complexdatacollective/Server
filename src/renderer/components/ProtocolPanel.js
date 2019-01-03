@@ -5,7 +5,7 @@ import PanelItem from './PanelItem';
 
 const ProtocolPanel = ({ protocol }) => (
   <div className="dashboard__panel">
-    <h4>{protocol.name}</h4>
+    <h4 className="dashboard__header-text">{protocol.name}</h4>
     <PanelItem label="Description" value={protocol.description} placeholder="None available" />
     <PanelItem label="Network Canvas Version" value={protocol.networkCanvasVersion} placeholder="None specified" />
     <PanelItem label="Last Modified" value={protocol.lastModified && protocol.lastModified.toLocaleString()} placeholder="Unknown" />

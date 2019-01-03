@@ -62,7 +62,7 @@ class OrdinalHistogramPanel extends Component {
     }
     return (
       <div className="dashboard__panel">
-        <h4>
+        <h4 className="dashboard__header-text">
           Ordinal distribution: {this.props.variableDefinition.label}
         </h4>
         {content}
