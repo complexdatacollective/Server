@@ -6,9 +6,11 @@ const resolveOrReject = (resolve, reject) => (err, data) => {
   }
 };
 
+const leastRecent = { createdAt: 1 };
 const mostRecent = { createdAt: -1 };
 
 module.exports = {
+  leastRecent,
   mostRecent,
   resolveOrReject,
 };
