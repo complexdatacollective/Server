@@ -275,6 +275,7 @@ describe('the AdminService', () => {
             reportDb: {
               totalCounts: jest.fn().mockResolvedValue(countsResult),
               optionValueBuckets: jest.fn().mockResolvedValue(bucketsResult),
+              entityTimeSeries: jest.fn().mockResolvedValue([]),
             },
           }));
         });
@@ -291,6 +292,13 @@ describe('the AdminService', () => {
           const res = await jsonClient.get(endpoint);
           expect(res.json.status).toBe('ok');
           expect(res.json.buckets).toMatchObject(bucketsResult);
+        });
+
+        it('fetches a time series', async () => {
+          const endpoint = makeUrl('protocols/1/reports/entity_time_series', apiBase);
+          const res = await jsonClient.get(endpoint);
+          expect(res.json.status).toBe('ok');
+          expect(res.json.entities).toMatchObject([]);
         });
       });
     });

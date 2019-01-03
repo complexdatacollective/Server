@@ -9,7 +9,7 @@ import TwoNodesEdgesSessions from './data/two-nodes-edges-sessions.json';
 import NodeDataSession from './data/node-data-session.json';
 
 const MockDB = class MockDB {
-  db = new NeDB({ inMemoryOnly: true })
+  db = new NeDB({ inMemoryOnly: true, timestampData: true })
 };
 
 const ReportDB = ReportableMixin(MockDB);
@@ -82,6 +82,10 @@ describe('Reportable', () => {
           edges: NodesEdgesSession.data.edges.length * 2,
         });
       });
+
+      it('merges entity counts when imported at same time', async () => {
+        await expect(reportDB.entityTimeSeries(mockData[0].protocolId)).resolves.toHaveLength(1);
+      });
     });
 
     describe('with empty nodes & edges', () => {
@@ -110,6 +114,15 @@ describe('Reportable', () => {
         await expect(reportDB.optionValueBuckets(mockData.protocolId, 'frequencyOrdinal')).resolves.toMatchObject({
           1: 1,
           2: 1,
+        });
+      });
+
+      it('produces entity counts as a time series', async () => {
+        await expect(reportDB.entityTimeSeries(mockData.protocolId)).resolves.toContainEqual({
+          time: expect.any(Number),
+          edge: 0,
+          node: 2,
+          node_person: 2,
         });
       });
     });

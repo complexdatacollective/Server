@@ -68,3 +68,7 @@ EntityTimeSeriesPanel.propTypes = {
 };
 
 export default withApiClient(EntityTimeSeriesPanel);
+
+export {
+  EntityTimeSeriesPanel as UnconnectedEntityTimeSeriesPanel,
+};

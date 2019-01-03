@@ -201,7 +201,7 @@ class AdminService {
         .then(() => next());
     });
 
-    // "entities": { "nodes": { "person": [{ datetime: 0, value: 0 } }] }, "edges": {} }
+    // "entities": [{ time: 1546455484765, node: 20, edge: 0 }]
     api.get('/protocols/:id/reports/entity_time_series', (req, res, next) => {
       this.reportDb.entityTimeSeries(req.params.id)
         .then(entities => res.send({ status: 'ok', entities }))
