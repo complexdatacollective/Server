@@ -7,8 +7,10 @@ import { ipcRenderer } from 'electron';
 import Types from '../types';
 import InterviewStatsPanel from './InterviewStatsPanel';
 import ProtocolCountsPanel from './ProtocolCountsPanel';
+import OrdinalHistogramPanel from './OrdinalHistogramPanel';
 import withApiClient from '../components/withApiClient';
 import viewModelMapper from '../utils/baseViewModelMapper';
+import { transposedRegistry } from '../../main/utils/formatters/network'; // TODO: move
 import { Spinner } from '../ui';
 import { selectors } from '../ducks/modules/protocols';
 import {
@@ -107,11 +109,32 @@ class WorkspaceScreen extends Component {
     if (!protocol || !sessions) {
       return <div className="workspace--loading"><Spinner /></div>;
     }
+
+    // Find the first ordinal variable (for now, in node/person)
+    let ordinalDefinition = null;
+    const variableRegistry = transposedRegistry(protocol.variableRegistry);
+    const nodeDefinitions = variableRegistry.node.person && variableRegistry.node;
+
+    if (nodeDefinitions) {
+      ordinalDefinition = Object.values(nodeDefinitions.person.variables)
+        .find(variable => variable.type === 'ordinal');
+    }
+
     return (
       <div className="workspace">
         <div className="dashboard">
           <ServerPanel className="dashboard__panel dashboard__panel--server-stats" />
           <ProtocolPanel protocol={protocol} />
+
+          {
+            ordinalDefinition &&
+            <OrdinalHistogramPanel
+              key={protocol.id}
+              protocolId={protocol.id}
+              variableDefinition={ordinalDefinition}
+            />
+          }
+
           <ProtocolCountsPanel
             key={`protocol-counts-${protocol.id}`}
             protocolId={protocol.id}

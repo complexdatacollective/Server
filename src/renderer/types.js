@@ -18,12 +18,22 @@ const protocol = device;
 
 const protocols = PropTypes.arrayOf(protocol);
 
+const variableDefinition = PropTypes.shape({
+  label: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  options: PropTypes.arrayOf(PropTypes.shape({
+    label: PropTypes.string.isRequired,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  })),
+});
+
 const Types = {
   deviceApiInfo,
   device,
   devices,
   protocol,
   protocols,
+  variableDefinition,
 };
 
 export default Object.freeze(Types);

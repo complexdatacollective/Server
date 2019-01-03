@@ -7,8 +7,9 @@ import ConnectedWorkspaceScreen, { UnconnectedWorkspaceScreen as WorkspaceScreen
 import AdminApiClient from '../../utils/adminApiClient';
 import { mockProtocol } from '../../../../config/jest/setupTestEnv';
 
-jest.mock('../../utils/adminApiClient');
 jest.mock('electron-log');
+jest.mock('../../utils/adminApiClient');
+jest.mock('../../components/withApiClient', () => component => component);
 
 describe('<WorkspaceScreen />', () => {
   let wrapper;
@@ -109,6 +110,23 @@ describe('<WorkspaceScreen />', () => {
     expect(() => wrapper.unmount()).not.toThrow();
   });
 
+  it('renders an Ordinal Histogram', () => {
+    const protocol = {
+      ...mockProtocol,
+      variableRegistry: {
+        node: {
+          person: {
+            name: 'person',
+            variables: { ord: { label: 'ord', name: 'ord', type: 'ordinal' } },
+          },
+        },
+      },
+    };
+    wrapper.setState({ sessions: [{}] });
+    wrapper.setProps({ protocol });
+    expect(wrapper.find('OrdinalHistogramPanel')).toHaveLength(1);
+  });
+
   describe('when connected', () => {
     it('sets protocol based on store state & URL match', () => {
       const mockStore = createStore(() => (
@@ -116,6 +134,7 @@ describe('<WorkspaceScreen />', () => {
       ));
       const subj = shallow((
         <ConnectedWorkspaceScreen
+          apiClient={mockApiClient}
           store={mockStore}
           match={{ params: { id: mockProtocol.id } }}
         />
