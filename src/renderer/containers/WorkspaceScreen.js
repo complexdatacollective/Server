@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { ipcRenderer } from 'electron';
 
 import Types from '../types';
+import InterviewStatsPanel from './InterviewStatsPanel';
 import ProtocolCountsPanel from './ProtocolCountsPanel';
 import withApiClient from '../components/withApiClient';
 import viewModelMapper from '../utils/baseViewModelMapper';
@@ -117,6 +118,10 @@ class WorkspaceScreen extends Component {
             updatedAt={protocol.updatedAt}
             sessionCount={totalSessionsCount}
           />
+          {
+            sessions &&
+              <InterviewStatsPanel protocolId={protocol.id} sessionCount={totalSessionsCount} />
+          }
           <SessionPanel
             sessions={sessions}
             totalCount={totalSessionsCount}

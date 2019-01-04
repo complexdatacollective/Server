@@ -36,8 +36,6 @@ describe('ProtocolCountsPanel', () => {
     const text = subject.find('CountsWidget').text();
     expect(text).toMatch(/Total Nodes: 15/);
     expect(text).toMatch(/Total Edges: 13/);
-    expect(text).toMatch(/Mean.*: 7\.5/);
-    expect(text).toMatch(/Mean.*: 6\.5/);
   });
 
   describe('api client', () => {

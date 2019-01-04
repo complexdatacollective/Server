@@ -2,19 +2,26 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 1rem;
+  padding: spacing(medium) 0;
 
   @include element(content) {
-    align-items: center;
     display: flex;
-    justify-content: space-between;
+    margin: 0 spacing(small);
+    flex: 0 1 auto;
+    width: 100%;
   }
 
   @include element(key) {
-    margin: spacing(small) 0;
+    margin: spacing(small) spacing(small) spacing(small) 0;
+    display: flex;
+    flex: 0 1 50%;
+    justify-content: flex-start;
   }
 
   @include element(value) {
     margin: spacing(small) 0;
+    display: flex;
+    justify-content: flex-end;
+    flex: 0 1 50%;
   }
 }

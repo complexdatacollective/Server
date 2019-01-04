@@ -155,6 +155,7 @@
     "collectCoverageFrom": [
       "src/**/*.{js,jsx}",
       "!src/renderer/ui/**",
+      "!src/main/utils/network-query/**",
       "!src/renderer/components/Filter/**",
       "!src/renderer/components/Transitions/(Appear|Drawer)*",
       "!**/dummy_data.js"
