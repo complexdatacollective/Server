@@ -36,12 +36,13 @@ const makeStreamingResponseConsumer = progressHandler =>
         return true;
       }
 
+      // Look for the last JSON object in the reponse stream
       const text = decoder.decode(value, { stream: true });
-      const lines = text && text.split('\n').filter(s => s.length);
-      if (lines.length) {
+      const statusMatch = text.match(/({.+})[^}]*$/);
+      if (statusMatch && statusMatch[1]) {
+        const latestStatus = statusMatch[1];
         try {
-          const lastLine = lines[lines.length - 1];
-          const json = JSON.parse(lastLine);
+          const json = JSON.parse(latestStatus);
           if (json.progress) {
             progressHandler(json.progress);
           } else if (json.status === 'error') {
