@@ -3,13 +3,21 @@ import PropTypes from 'prop-types';
 
 import withApiClient from '../components/withApiClient';
 import Types from '../types';
-import { BarChart, EmptyData } from '../components';
+import { BarChart, EmptyData, PieChart } from '../components';
 
-class OrdinalHistogramPanel extends Component {
+const chartComponent = variableType => ((variableType === 'categorical') ? PieChart : BarChart);
+
+const headerLabel = variableType => ((variableType === 'categorical') ? 'Categorical' : 'Ordinal');
+
+/**
+ * Depending on variableType, renders either a pie chart with a distribution of categorical
+ * node attributes, or a Bar chart with a distribution of ordinal attributes.
+ */
+class AnswerDistributionPanel extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      barData: [],
+      chartData: [],
     };
   }
 
@@ -30,7 +38,7 @@ class OrdinalHistogramPanel extends Component {
 
   loadData() {
     const { entityName, entityType, variableDefinition } = this.props;
-    const route = `/protocols/${this.props.protocolId}/reports/ordinalBuckets`;
+    const route = `/protocols/${this.props.protocolId}/reports/option_buckets`;
     const query = { variableName: variableDefinition.name };
     if (entityName && entityType) {
       query.entityName = entityName;
@@ -41,54 +49,56 @@ class OrdinalHistogramPanel extends Component {
         if (Object.keys(buckets).length) {
           // Provide data for every ordinal option, even if one has no data
           this.setState({
-            barData: variableDefinition.options.map(({ label, value = '' }) => ({
+            chartData: variableDefinition.options.map(({ label, value = '' }) => ({
               name: label,
               value: buckets[value.toString()] || 0,
             })),
           });
         } else {
-          this.setState({ barData: [] });
+          this.setState({ chartData: [] });
         }
       });
   }
 
   render() {
-    const { barData } = this.state;
+    const { chartData } = this.state;
+    const { variableType, variableDefinition } = this.props;
+    const Chart = chartComponent(variableType);
+    const header = headerLabel(variableType);
     let content;
-    if (barData.length) {
-      content = <BarChart data={barData} dataKeys={['value']} />;
+    if (chartData.length) {
+      content = <Chart data={chartData} dataKeys={['value']} />;
     } else {
       content = <EmptyData />;
     }
     return (
-      <div className="dashboard__panel">
+      <div className="dashboard__panel dashboard__panel--chart">
         <h4 className="dashboard__header-text">
-          Ordinal distribution: {this.props.variableDefinition.label}
+          {header} distribution: {variableDefinition.label}
         </h4>
-        {content}
+        <div className="dashboard__chartContainer">
+          {content}
+        </div>
       </div>
     );
   }
 }
 
-OrdinalHistogramPanel.defaultProps = {
+AnswerDistributionPanel.defaultProps = {
   apiClient: null,
   entityName: 'node',
   entityType: null,
   sessionCount: null,
 };
 
-OrdinalHistogramPanel.propTypes = {
+AnswerDistributionPanel.propTypes = {
   apiClient: PropTypes.object,
   entityName: Types.entityName,
   entityType: PropTypes.string,
   protocolId: PropTypes.string.isRequired,
   sessionCount: PropTypes.number,
   variableDefinition: Types.variableDefinition.isRequired,
+  variableType: PropTypes.oneOf(['categorical', 'ordinal']).isRequired,
 };
 
-export default withApiClient(OrdinalHistogramPanel);
-
-export {
-  OrdinalHistogramPanel as UnconnectedOrdinalHistogramPanel,
-};
+export default withApiClient(AnswerDistributionPanel);

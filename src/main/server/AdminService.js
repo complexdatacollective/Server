@@ -194,9 +194,9 @@ class AdminService {
     });
 
     // "buckets": {}
-    api.get('/protocols/:id/reports/ordinalBuckets', (req, res, next) => {
+    api.get('/protocols/:id/reports/option_buckets', (req, res, next) => {
       const { variableName, entityName, entityType } = req.query;
-      this.reportDb.ordinalBuckets(req.params.id, variableName, entityName, entityType)
+      this.reportDb.optionValueBuckets(req.params.id, variableName, entityName, entityType)
         .then(buckets => res.send({ status: 'ok', buckets }))
         .then(() => next());
     });

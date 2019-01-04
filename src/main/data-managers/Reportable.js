@@ -61,16 +61,16 @@ const Reportable = Super => class extends Super {
   }
 
   /**
-   * Count occurences of ordinal values in the study for a histogram.
+   * Count occurences of ordinal or categorical values in the study for a histogram.
    * @param  {string} protocolId
-   * @param  {string} ordinalVariableName
+   * @param  {string} variableName the ordinal or categorial variabel name to count
    * @param  {string} entityName='node' Possible values: 'node', 'edge'.
    * @param  {string} entityType=null If given, filter all nodes by the given type first.
    *                                  This may be needed if variable names overlap,
    *                                  since variable IDs aren't exported.
-   * @return {Object} buckets keyed by ordinal value, with count values
+   * @return {Object} buckets keyed by ordinal/cardinal value, with count values
    */
-  ordinalBuckets(protocolId, ordinalVariableName, entityName = 'node', entityType = null) {
+  optionValueBuckets(protocolId, variableName, entityName = 'node', entityType = null) {
     return new Promise((resolve, reject) => {
       const key = entityKey(entityName);
       this.db.find({ protocolId, [`data.${key}`]: { $exists: true } }, resolveOrReject((docs) => {
@@ -79,10 +79,10 @@ const Reportable = Super => class extends Super {
           entities = entities.filter(entity => entity.type === entityType);
         }
         const buckets = entities.reduce((acc, entity) => {
-          const ordValue = entity[attributesProperty][ordinalVariableName];
-          if (ordValue !== undefined) {
-            acc[ordValue] = acc[ordValue] || 0;
-            acc[ordValue] += 1;
+          const optionValue = entity[attributesProperty][variableName];
+          if (optionValue !== undefined) {
+            acc[optionValue] = acc[optionValue] || 0;
+            acc[optionValue] += 1;
           }
           return acc;
         }, {});

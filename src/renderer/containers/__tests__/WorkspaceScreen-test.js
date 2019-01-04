@@ -110,7 +110,7 @@ describe('<WorkspaceScreen />', () => {
     expect(() => wrapper.unmount()).not.toThrow();
   });
 
-  it('renders an Ordinal Histogram', () => {
+  it('renders an ordinal panel', () => {
     const protocol = {
       ...mockProtocol,
       variableRegistry: {
@@ -124,7 +124,28 @@ describe('<WorkspaceScreen />', () => {
     };
     wrapper.setState({ sessions: [{}] });
     wrapper.setProps({ protocol });
-    expect(wrapper.find('OrdinalHistogramPanel')).toHaveLength(1);
+    const panel = wrapper.find('AnswerDistributionPanel');
+    expect(panel).toHaveLength(1);
+    expect(panel.prop('variableType')).toEqual('ordinal');
+  });
+
+  it('renders a categorical panel', () => {
+    const protocol = {
+      ...mockProtocol,
+      variableRegistry: {
+        node: {
+          person: {
+            name: 'person',
+            variables: { ord: { label: 'ord', name: 'ord', type: 'categorical' } },
+          },
+        },
+      },
+    };
+    wrapper.setState({ sessions: [{}] });
+    wrapper.setProps({ protocol });
+    const panel = wrapper.find('AnswerDistributionPanel');
+    expect(panel).toHaveLength(1);
+    expect(panel.prop('variableType')).toEqual('categorical');
   });
 
   describe('when connected', () => {

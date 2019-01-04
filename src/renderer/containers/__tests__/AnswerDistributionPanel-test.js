@@ -1,7 +1,7 @@
 /* eslint-env jest */
 import React from 'react';
 import { mount, shallow } from 'enzyme';
-import OrdinalHistogramPanel from '../OrdinalHistogramPanel';
+import AnswerDistributionPanel from '../AnswerDistributionPanel';
 
 import AdminApiClient from '../../utils/adminApiClient';
 
@@ -12,13 +12,19 @@ jest.mock('../../utils/adminApiClient', () => {
   return MockApiClient;
 });
 
-describe('OrdinalHistogramPanel', () => {
+describe('AnswerDistributionPanel', () => {
   let props;
   let subject;
   let mockApiClient;
+  let variableType;
+
+  beforeAll(() => {
+    variableType = 'categorical';
+  });
 
   beforeEach(() => {
     props = {
+      variableType,
       protocolId: '1',
       entityType: 'person',
       entityName: 'node',
@@ -33,7 +39,7 @@ describe('OrdinalHistogramPanel', () => {
       },
     };
     mockApiClient = new AdminApiClient();
-    subject = mount(<OrdinalHistogramPanel {...props} />);
+    subject = mount(<AnswerDistributionPanel {...props} />);
   });
 
   it('loads data', () => {
@@ -50,26 +56,45 @@ describe('OrdinalHistogramPanel', () => {
 
   it('renders an empty view before data loads', () => {
     expect(subject.find('BarChart')).toHaveLength(0);
+    expect(subject.find('PieChart')).toHaveLength(0);
+    expect(subject.find('.dashboard__emptyData')).toHaveLength(1);
   });
 
-  it('renders a bar chart', () => {
-    subject.mount(); // wait for loaded data
-    expect(subject.find('BarChart')).toHaveLength(1);
+  describe('for ordinal variables', () => {
+    beforeAll(() => {
+      variableType = 'ordinal';
+    });
+
+    it('renders a bar chart', () => {
+      subject.mount(); // wait for loaded data
+      expect(subject.find('BarChart')).toHaveLength(1);
+    });
+  });
+
+  describe('for categorical variables', () => {
+    beforeAll(() => {
+      variableType = 'categorical';
+    });
+
+    it('renders a pie chart', () => {
+      subject.mount(); // wait for loaded data
+      expect(subject.find('PieChart')).toHaveLength(1);
+    });
   });
 
   describe('API handler', () => {
     beforeEach(async () => {
-      subject = shallow(<OrdinalHistogramPanel {...props} />).dive();
+      subject = shallow(<AnswerDistributionPanel {...props} />).dive();
       await subject.instance().loadData();
     });
 
     it('sets correct data format', async () => {
-      expect(subject.state('barData')).toContainEqual({ name: 'a', value: 4 });
-      expect(subject.state('barData')).toContainEqual({ name: 'b', value: 5 });
+      expect(subject.state('chartData')).toContainEqual({ name: 'a', value: 4 });
+      expect(subject.state('chartData')).toContainEqual({ name: 'b', value: 5 });
     });
 
     it('sets zeros for missing values', async () => {
-      expect(subject.state('barData')).toContainEqual({ name: 'c', value: 0 });
+      expect(subject.state('chartData')).toContainEqual({ name: 'c', value: 0 });
     });
   });
 });
