@@ -17,7 +17,7 @@ class AsyncReadable extends Readable {
   }
 
   _read() {
-    setTimeout(this.readSync, 0);
+    setImmediate(this.readSync);
   }
 }
 

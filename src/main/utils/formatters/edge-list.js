@@ -58,18 +58,16 @@ const toCSVStream = (edgeList, outStream) => {
 
   const inStream = new AsyncReadable({
     read() {
-      setTimeout(() => {
-        if (chunkIndex < totalChunks) {
-          const [fromId, destinations] = adjacencies[chunkIndex];
-          chunkContent = [...destinations].map(toId => `${fromId},${toId}`).join(csvEOL);
-          this.push(`${chunkContent}${csvEOL}`);
-          chunkIndex += 1;
-          outStream.emit(progressEvent, chunkIndex / totalChunks);
-        } else {
-          this.push(null);
-          outStream.emit(progressEvent, 1);
-        }
-      }, 0);
+      if (chunkIndex < totalChunks) {
+        const [fromId, destinations] = adjacencies[chunkIndex];
+        chunkContent = [...destinations].map(toId => `${fromId},${toId}`).join(csvEOL);
+        this.push(`${chunkContent}${csvEOL}`);
+        chunkIndex += 1;
+        outStream.emit(progressEvent, chunkIndex / totalChunks);
+      } else {
+        this.push(null);
+        outStream.emit(progressEvent, 1);
+      }
     },
   });
 
