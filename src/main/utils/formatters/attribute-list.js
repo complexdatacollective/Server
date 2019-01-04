@@ -78,7 +78,7 @@ class AttributeListFormatter {
     this.list = asAttributeList(data, directed);
   }
   writeToStream(outStream) {
-    toCSVStream(this.list, outStream);
+    return toCSVStream(this.list, outStream);
   }
 }
 

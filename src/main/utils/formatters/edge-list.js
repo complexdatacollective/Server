@@ -91,7 +91,7 @@ class EdgeListFormatter {
     this.list = asEdgeList(data, directed);
   }
   writeToStream(outStream) {
-    toCSVStream(this.list, outStream);
+    return toCSVStream(this.list, outStream);
   }
 }
 
