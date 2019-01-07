@@ -2,18 +2,13 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import withApiClient from '../components/withApiClient';
+import AnswerDistributionPanel from '../components/AnswerDistributionPanel';
 import Types from '../types';
-import { BarChart, EmptyData, PieChart } from '../components';
-
-const chartComponent = variableType => ((variableType === 'categorical') ? PieChart : BarChart);
-
-const headerLabel = variableType => ((variableType === 'categorical') ? 'Categorical' : 'Ordinal');
 
 /**
- * Depending on variableType, renders either a pie chart with a distribution of categorical
- * node attributes, or a Bar chart with a distribution of ordinal attributes.
+ * Renders a collection of ordinal & categorical distribution panels
  */
-class AnswerDistributionPanel extends Component {
+class AnswerDistributionPanels extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -64,42 +59,27 @@ class AnswerDistributionPanel extends Component {
   render() {
     const { chartData } = this.state;
     const { variableType, variableDefinition } = this.props;
-    const Chart = chartComponent(variableType);
-    const header = headerLabel(variableType);
-    let content;
-    if (chartData.length) {
-      content = <Chart allowDecimals={false} data={chartData} dataKeys={['value']} />;
-    } else {
-      content = <EmptyData />;
-    }
+    const panelProps = { chartData, variableType, variableDefinition };
+    // TODO: render one per variable
     return (
-      <div className="dashboard__panel dashboard__panel--chart">
-        <h4 className="dashboard__header-text">
-          {header} distribution: {variableDefinition.label}
-        </h4>
-        <div className="dashboard__chartContainer">
-          {content}
-        </div>
-      </div>
+      <AnswerDistributionPanel {...panelProps} />
     );
   }
 }
 
-AnswerDistributionPanel.defaultProps = {
+AnswerDistributionPanels.defaultProps = {
   apiClient: null,
   entityName: 'node',
   entityType: null,
   sessionCount: null,
 };
 
-AnswerDistributionPanel.propTypes = {
+AnswerDistributionPanels.propTypes = {
   apiClient: PropTypes.object,
   entityName: Types.entityName,
   entityType: PropTypes.string,
   protocolId: PropTypes.string.isRequired,
   sessionCount: PropTypes.number,
-  variableDefinition: Types.variableDefinition.isRequired,
-  variableType: PropTypes.oneOf(['categorical', 'ordinal']).isRequired,
 };
 
-export default withApiClient(AnswerDistributionPanel);
+export default withApiClient(AnswerDistributionPanels);

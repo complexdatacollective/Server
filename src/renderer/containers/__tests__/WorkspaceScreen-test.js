@@ -129,7 +129,7 @@ describe('<WorkspaceScreen />', () => {
       };
       wrapper.setState({ sessions: [{}] });
       wrapper.setProps({ protocol });
-      const panel = wrapper.find('AnswerDistributionPanel');
+      const panel = wrapper.find('AnswerDistributionPanels');
       expect(panel).toHaveLength(1);
       expect(panel.prop('variableType')).toEqual('ordinal');
     });
@@ -140,7 +140,7 @@ describe('<WorkspaceScreen />', () => {
       };
       wrapper.setState({ sessions: [{}] });
       wrapper.setProps({ protocol });
-      const panel = wrapper.find('AnswerDistributionPanel');
+      const panel = wrapper.find('AnswerDistributionPanels');
       expect(panel).toHaveLength(1);
       expect(panel.prop('variableType')).toEqual('categorical');
     });
@@ -148,7 +148,7 @@ describe('<WorkspaceScreen />', () => {
     it('sets sessionCount to drive updates', () => {
       wrapper.setState({ sessions: [{}, {}], totalSessionsCount: 2 });
       wrapper.setProps({ protocol });
-      expect(wrapper.find('AnswerDistributionPanel').prop('sessionCount')).toEqual(2);
+      expect(wrapper.find('AnswerDistributionPanels').prop('sessionCount')).toEqual(2);
     });
   });
 

@@ -1,7 +1,7 @@
 /* eslint-env jest */
 import React from 'react';
 import { mount, shallow } from 'enzyme';
-import AnswerDistributionPanel from '../AnswerDistributionPanel';
+import AnswerDistributionPanels from '../AnswerDistributionPanels';
 
 import AdminApiClient from '../../utils/adminApiClient';
 
@@ -14,7 +14,7 @@ jest.mock('../../utils/adminApiClient', () => {
   return MockApiClient;
 });
 
-describe('AnswerDistributionPanel', () => {
+describe('AnswerDistributionPanels', () => {
   let props;
   let subject;
   let mockApiClient;
@@ -41,7 +41,7 @@ describe('AnswerDistributionPanel', () => {
       },
     };
     mockApiClient = new AdminApiClient();
-    subject = mount(<AnswerDistributionPanel {...props} />);
+    subject = mount(<AnswerDistributionPanels {...props} />);
   });
 
   it('loads data', () => {
@@ -56,37 +56,9 @@ describe('AnswerDistributionPanel', () => {
     expect(mockApiClient.get).toHaveBeenCalledTimes(1);
   });
 
-  it('renders an empty view before data loads', () => {
-    expect(subject.find('BarChart')).toHaveLength(0);
-    expect(subject.find('PieChart')).toHaveLength(0);
-    expect(subject.find('.dashboard__emptyData')).toHaveLength(1);
-  });
-
-  describe('for ordinal variables', () => {
-    beforeAll(() => {
-      variableType = 'ordinal';
-    });
-
-    it('renders a bar chart', () => {
-      subject.mount(); // wait for loaded data
-      expect(subject.find('BarChart')).toHaveLength(1);
-    });
-  });
-
-  describe('for categorical variables', () => {
-    beforeAll(() => {
-      variableType = 'categorical';
-    });
-
-    it('renders a pie chart', () => {
-      subject.mount(); // wait for loaded data
-      expect(subject.find('PieChart')).toHaveLength(1);
-    });
-  });
-
   describe('API handler', () => {
     beforeEach(async () => {
-      subject = shallow(<AnswerDistributionPanel {...props} />).dive();
+      subject = shallow(<AnswerDistributionPanels {...props} />).dive();
       await subject.instance().loadData();
     });
 

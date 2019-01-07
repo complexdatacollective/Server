@@ -7,7 +7,7 @@ import { ipcRenderer } from 'electron';
 import Types from '../types';
 import InterviewStatsPanel from './InterviewStatsPanel';
 import ProtocolCountsPanel from './ProtocolCountsPanel';
-import AnswerDistributionPanel from './AnswerDistributionPanel';
+import AnswerDistributionPanels from './AnswerDistributionPanels';
 import EntityTimeSeriesPanel from './EntityTimeSeriesPanel';
 import withApiClient from '../components/withApiClient';
 import viewModelMapper from '../utils/baseViewModelMapper';
@@ -99,7 +99,7 @@ class WorkspaceScreen extends Component {
 
     if (ordinalDefinition) {
       content.push(
-        <AnswerDistributionPanel
+        <AnswerDistributionPanels
           variableType="ordinal"
           key="ordinal-panel"
           protocolId={protocol.id}
@@ -112,7 +112,7 @@ class WorkspaceScreen extends Component {
 
     if (categoricalDefinition) {
       content.push(
-        <AnswerDistributionPanel
+        <AnswerDistributionPanels
           variableType="categorical"
           key="cagtegorical-panel"
           protocolId={protocol.id}
