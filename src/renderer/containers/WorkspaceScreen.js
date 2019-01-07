@@ -72,6 +72,7 @@ class WorkspaceScreen extends Component {
     let ordinalDefinition = null;
     let ordinalEntityType = null;
 
+    const { totalSessionsCount } = this.state;
     const { protocol } = this.props;
     const variableRegistry = transposedRegistry(protocol.variableRegistry);
     const nodeDefinitions = Object.values(variableRegistry.node || {});
@@ -105,6 +106,7 @@ class WorkspaceScreen extends Component {
           variableDefinition={ordinalDefinition}
           entityName="node"
           entityType={ordinalEntityType}
+          sessionCount={totalSessionsCount}
         />);
     }
 
@@ -116,6 +118,7 @@ class WorkspaceScreen extends Component {
           protocolId={protocol.id}
           variableDefinition={categoricalDefinition}
           entityType={categoricalEntityType}
+          sessionCount={totalSessionsCount}
         />);
     }
 

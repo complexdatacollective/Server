@@ -110,42 +110,46 @@ describe('<WorkspaceScreen />', () => {
     expect(() => wrapper.unmount()).not.toThrow();
   });
 
-  it('renders an ordinal panel', () => {
+  describe('with a distribution variable', () => {
     const protocol = {
       ...mockProtocol,
       variableRegistry: {
         node: {
           person: {
             name: 'person',
-            variables: { ord: { label: 'ord', name: 'ord', type: 'ordinal' } },
+            variables: {},
           },
         },
       },
     };
-    wrapper.setState({ sessions: [{}] });
-    wrapper.setProps({ protocol });
-    const panel = wrapper.find('AnswerDistributionPanel');
-    expect(panel).toHaveLength(1);
-    expect(panel.prop('variableType')).toEqual('ordinal');
-  });
 
-  it('renders a categorical panel', () => {
-    const protocol = {
-      ...mockProtocol,
-      variableRegistry: {
-        node: {
-          person: {
-            name: 'person',
-            variables: { ord: { label: 'ord', name: 'ord', type: 'categorical' } },
-          },
-        },
-      },
-    };
-    wrapper.setState({ sessions: [{}] });
-    wrapper.setProps({ protocol });
-    const panel = wrapper.find('AnswerDistributionPanel');
-    expect(panel).toHaveLength(1);
-    expect(panel.prop('variableType')).toEqual('categorical');
+    it('renders an ordinal panel', () => {
+      protocol.variableRegistry.node.person.variables = {
+        ord: { label: 'ord', name: 'ord', type: 'ordinal' },
+      };
+      wrapper.setState({ sessions: [{}] });
+      wrapper.setProps({ protocol });
+      const panel = wrapper.find('AnswerDistributionPanel');
+      expect(panel).toHaveLength(1);
+      expect(panel.prop('variableType')).toEqual('ordinal');
+    });
+
+    it('renders a categorical panel', () => {
+      protocol.variableRegistry.node.person.variables = {
+        cat: { label: 'cat', name: 'cat', type: 'categorical' },
+      };
+      wrapper.setState({ sessions: [{}] });
+      wrapper.setProps({ protocol });
+      const panel = wrapper.find('AnswerDistributionPanel');
+      expect(panel).toHaveLength(1);
+      expect(panel.prop('variableType')).toEqual('categorical');
+    });
+
+    it('sets sessionCount to drive updates', () => {
+      wrapper.setState({ sessions: [{}, {}], totalSessionsCount: 2 });
+      wrapper.setProps({ protocol });
+      expect(wrapper.find('AnswerDistributionPanel').prop('sessionCount')).toEqual(2);
+    });
   });
 
   describe('when connected', () => {
