@@ -8,6 +8,7 @@ import Types from '../types';
 import InterviewStatsPanel from './InterviewStatsPanel';
 import ProtocolCountsPanel from './ProtocolCountsPanel';
 import AnswerDistributionPanel from './AnswerDistributionPanel';
+import EntityTimeSeriesPanel from './EntityTimeSeriesPanel';
 import withApiClient from '../components/withApiClient';
 import viewModelMapper from '../utils/baseViewModelMapper';
 import { transposedRegistry } from '../../main/utils/formatters/network'; // TODO: move
@@ -195,6 +196,10 @@ class WorkspaceScreen extends Component {
           />
           {
             sessions && <SessionHistoryPanel sessions={sessions} />
+          }
+          {
+            sessions &&
+              <EntityTimeSeriesPanel protocolId={protocol.id} sessionCount={totalSessionsCount} />
           }
           <DummyDashboardFragment key={`dummy-${protocol.id}`} />
         </div>

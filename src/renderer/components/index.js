@@ -9,7 +9,7 @@ export { default as EmptyData } from './charts/EmptyData';
 export { default as GetStarted } from './GetStarted';
 export { default as Instructions } from './Instructions';
 export { default as InterviewWidget } from './charts/InterviewWidget';
-export { default as LineChart } from './charts/LineChart';
+export { default as TimeSeriesChart } from './charts/TimeSeriesChart';
 export { default as Modal } from './Modal';
 export { default as Overflow } from './Overflow';
 export { default as PanelItem } from './PanelItem';

@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */ // disabled for reducers
 const attributesProperty = require('../utils/network-query/nodeAttributesProperty');
-const { resolveOrReject } = require('../utils/db');
+const { leastRecent, resolveOrReject } = require('../utils/db');
 
 // This is a dummy field used for projections when counting network members.
 // When we don't need to know anything about members other than size, returning
@@ -33,6 +33,17 @@ const entityKey = (entityName) => {
   return null;
 };
 
+// Count entities by type, accumulating in an object.
+// See entityTimeSeries for the format of `types
+const reduceEntityTypeCounts = (types = [], entityName = 'node') =>
+  types.reduce((sumMap, type) => {
+    const typeKey = `node_${type}`;
+    sumMap[typeKey] = sumMap[typeKey] || 0;
+    sumMap[typeKey] += 1;
+    sumMap[entityName] += 1;
+    return sumMap;
+  }, { [entityName]: 0 });
+
 /**
  * Mixin for report queries on a SessionDB.
  */
@@ -44,6 +55,71 @@ const Reportable = Super => class extends Super {
         this.edgeStats(protocolId).catch(() => {}),
       ])
       .then(([nodes, edges]) => ({ nodes, edges }));
+  }
+
+  /**
+   * Collect counts of each entity ('node', 'edge') and type ('person', etc.) segmented
+   * by creation date.
+   *
+   * An input [DB] record is of the format:
+   * ```
+   * {
+   *   "data": {
+   *     "edges": {"type":["friend", undefined]},
+   *     "nodes": {"type":["person", "venue"]}
+   *   },
+   *   "createdAt":"2019-01-01T11:11:11Z"
+   * }
+   * ```
+   *
+   * This is mapped to the following entry, which is tailored to the recharts (render) format:
+   * ```
+   * {
+   *   time: 1546341071000,
+   *   node: 2,
+   *   node_person: 1,
+   *   node_venue: 1,
+   *   edge: 2,
+   *   edge_friend: 1
+   * }
+   * ```
+   *
+   * Note that the render format requires a Number for the time value.
+   *
+   * @param {string} protocolId
+   * @return {Array} entries in the format described above
+   */
+  entityTimeSeries(protocolId) {
+    return new Promise((resolve, reject) => {
+      let cursor = this.db.find({ protocolId });
+      cursor = cursor.projection({ 'data.edges.type': 1, 'data.nodes.type': 1, createdAt: 1, _id: 0 });
+      cursor = cursor.sort(leastRecent);
+      cursor.exec(resolveOrReject(((records) => {
+        resolve(records.reduce((entries, record) => {
+          const { edges: { type: edgeTypes } = {}, nodes: { type: nodeTypes } = {} } = record.data;
+          const time = record.createdAt.getTime();
+          const nodeTypeCounts = reduceEntityTypeCounts(nodeTypes, 'node');
+          const edgeTypeCounts = reduceEntityTypeCounts(edgeTypes, 'edge');
+
+          const prevEntry = entries.length && entries[entries.length - 1];
+          if (prevEntry.time === time) {
+            // If two sessions have the same import time, merge.
+            // (We may support batch imports in the future.)
+            Object.entries({ ...nodeTypeCounts, ...edgeTypeCounts }).forEach(([key, value]) => {
+              prevEntry[key] = prevEntry[key] || 0;
+              prevEntry[key] += value;
+            });
+          } else {
+            entries.push({
+              time,
+              ...nodeTypeCounts,
+              ...edgeTypeCounts,
+            });
+          }
+          return entries;
+        }, []));
+      }), reject));
+    });
   }
 
   totalCounts(protocolId) {
