@@ -15,7 +15,6 @@ import { transposedRegistry } from '../../main/utils/formatters/network'; // TOD
 import { Spinner } from '../ui';
 import { selectors } from '../ducks/modules/protocols';
 import {
-  DummyDashboardFragment,
   ProtocolPanel,
   ServerPanel,
   SessionHistoryPanel,
@@ -201,7 +200,6 @@ class WorkspaceScreen extends Component {
             sessions &&
               <EntityTimeSeriesPanel protocolId={protocol.id} sessionCount={totalSessionsCount} />
           }
-          <DummyDashboardFragment key={`dummy-${protocol.id}`} />
         </div>
       </div>
     );

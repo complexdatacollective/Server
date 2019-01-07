@@ -15,16 +15,6 @@
     padding: spacing(large);
     position: relative;
 
-    &-mock {
-      &::after {
-        bottom: 2px;
-        content: 'mock';
-        opacity: 0.3;
-        position: absolute;
-        right: 2px;
-      }
-    }
-
     @include modifier(chart) {
       display: flex;
       flex-direction: column;
