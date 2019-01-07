@@ -7,8 +7,9 @@ import ConnectedWorkspaceScreen, { UnconnectedWorkspaceScreen as WorkspaceScreen
 import AdminApiClient from '../../utils/adminApiClient';
 import { mockProtocol } from '../../../../config/jest/setupTestEnv';
 
-jest.mock('../../utils/adminApiClient');
 jest.mock('electron-log');
+jest.mock('../../utils/adminApiClient');
+jest.mock('../../components/withApiClient', () => component => component);
 
 describe('<WorkspaceScreen />', () => {
   let wrapper;
@@ -109,6 +110,48 @@ describe('<WorkspaceScreen />', () => {
     expect(() => wrapper.unmount()).not.toThrow();
   });
 
+  describe('with a distribution variable', () => {
+    const protocol = {
+      ...mockProtocol,
+      variableRegistry: {
+        node: {
+          person: {
+            name: 'person',
+            variables: {},
+          },
+        },
+      },
+    };
+
+    it('renders an ordinal panel', () => {
+      protocol.variableRegistry.node.person.variables = {
+        ord: { label: 'ord', name: 'ord', type: 'ordinal' },
+      };
+      wrapper.setState({ sessions: [{}] });
+      wrapper.setProps({ protocol });
+      const panel = wrapper.find('AnswerDistributionPanel');
+      expect(panel).toHaveLength(1);
+      expect(panel.prop('variableType')).toEqual('ordinal');
+    });
+
+    it('renders a categorical panel', () => {
+      protocol.variableRegistry.node.person.variables = {
+        cat: { label: 'cat', name: 'cat', type: 'categorical' },
+      };
+      wrapper.setState({ sessions: [{}] });
+      wrapper.setProps({ protocol });
+      const panel = wrapper.find('AnswerDistributionPanel');
+      expect(panel).toHaveLength(1);
+      expect(panel.prop('variableType')).toEqual('categorical');
+    });
+
+    it('sets sessionCount to drive updates', () => {
+      wrapper.setState({ sessions: [{}, {}], totalSessionsCount: 2 });
+      wrapper.setProps({ protocol });
+      expect(wrapper.find('AnswerDistributionPanel').prop('sessionCount')).toEqual(2);
+    });
+  });
+
   describe('when connected', () => {
     it('sets protocol based on store state & URL match', () => {
       const mockStore = createStore(() => (
@@ -116,6 +159,7 @@ describe('<WorkspaceScreen />', () => {
       ));
       const subj = shallow((
         <ConnectedWorkspaceScreen
+          apiClient={mockApiClient}
           store={mockStore}
           match={{ params: { id: mockProtocol.id } }}
         />

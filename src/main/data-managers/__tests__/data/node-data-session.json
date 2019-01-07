@@ -1,0 +1,29 @@
+{
+    "_id": "d1cb9396-9a30-41ff-86d5-7a8fd2d2c449",
+    "createdAt": {
+        "$$date": 1535721582111
+    },
+    "data": {
+        "edges": [],
+        "nodes": [
+            {
+                "_uid": "91980bde-1cc1-4681-b482-8a6ede07c2c8",
+                "type": "person",
+                "attributes": {
+                    "frequencyOrdinal": 1
+                }
+            },
+            {
+                "_uid": "d5fb6341-91a0-4674-b615-039280c9c212",
+                "type": "person",
+                "attributes": {
+                    "frequencyOrdinal": 2
+                }
+            }
+        ]
+    },
+    "protocolId": "66c3daea0fb5e4005bba91c8b83f2637c169e5c17536bf0ea3de523d468b062c",
+    "updatedAt": {
+        "$$date": 1535721582111
+    }
+}

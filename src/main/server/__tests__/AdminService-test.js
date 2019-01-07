@@ -267,10 +267,14 @@ describe('the AdminService', () => {
       });
 
       describe('reports', () => {
+        const countsResult = { nodes: 0, edges: 0 };
+        const bucketsResult = { one: 4, two: 0 };
+
         beforeAll(() => {
           ProtocolManager.mockImplementation(() => ({
             reportDb: {
-              totalCounts: jest.fn().mockResolvedValue({}),
+              totalCounts: jest.fn().mockResolvedValue(countsResult),
+              optionValueBuckets: jest.fn().mockResolvedValue(bucketsResult),
             },
           }));
         });
@@ -279,7 +283,14 @@ describe('the AdminService', () => {
           const endpoint = makeUrl('protocols/1/reports/total_counts', apiBase);
           const res = await jsonClient.get(endpoint);
           expect(res.json.status).toBe('ok');
-          expect(res.json.counts).toMatchObject({});
+          expect(res.json.counts).toMatchObject(countsResult);
+        });
+
+        it('fetches bucketed categorical/ordinal data', async () => {
+          const endpoint = makeUrl('protocols/1/reports/option_buckets', apiBase);
+          const res = await jsonClient.get(endpoint);
+          expect(res.json.status).toBe('ok');
+          expect(res.json.buckets).toMatchObject(bucketsResult);
         });
       });
     });

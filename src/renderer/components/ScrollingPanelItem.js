@@ -5,7 +5,7 @@ import Scrollable from './Scrollable';
 
 const ScrollingPanelItem = ({ children, header }) => (
   <div className="dashboard__panel dashboard__panel--scrollable">
-    <div className="dashboard__panel-header">{header}</div>
+    <div className="dashboard__header">{header}</div>
     <Scrollable className="dashboard__panel-content">
       {children}
     </Scrollable>

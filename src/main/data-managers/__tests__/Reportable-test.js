@@ -6,6 +6,7 @@ import EmptyDataSession from './data/empty-data-session.json';
 import EmptyNetworkSession from './data/empty-network-session.json';
 import NodesEdgesSession from './data/nodes-edges-session.json';
 import TwoNodesEdgesSessions from './data/two-nodes-edges-sessions.json';
+import NodeDataSession from './data/node-data-session.json';
 
 const MockDB = class MockDB {
   db = new NeDB({ inMemoryOnly: true })
@@ -99,6 +100,16 @@ describe('Reportable', () => {
         await expect(reportDB.totalCounts(mockData.protocolId)).resolves.toMatchObject({
           nodes: 0,
           edges: 0,
+        });
+      });
+    });
+
+    describe('with node variables', () => {
+      beforeAll(() => { mockData = NodeDataSession; });
+      it('summarizes an ordinal variable', async () => {
+        await expect(reportDB.optionValueBuckets(mockData.protocolId, 'frequencyOrdinal')).resolves.toMatchObject({
+          1: 1,
+          2: 1,
         });
       });
     });

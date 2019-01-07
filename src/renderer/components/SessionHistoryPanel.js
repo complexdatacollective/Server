@@ -35,7 +35,7 @@ const buildChartContent = (sessions) => {
  */
 const SessionHistoryPanel = ({ sessions }) => (
   <div className="dashboard__panel dashboard__panel--chart">
-    <h4>Interviews by import date</h4>
+    <h4 className="dashboard__header-text">Interviews by import date</h4>
     <div className="dashboard__chartContainer">
       { buildChartContent(sessions) }
     </div>

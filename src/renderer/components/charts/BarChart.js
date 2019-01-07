@@ -13,7 +13,7 @@ const barColors = getCSSValues(
 );
 
 // 99% width to work around recharts problem with resizing
-const BarChart = ({ className, data, dataKeys }) => (
+const BarChart = ({ className, data, dataKeys, allowDecimals }) => (
   <ResponsiveContainer height="100%" width="99%">
     <RechartBarChart
       data={data}
@@ -23,7 +23,7 @@ const BarChart = ({ className, data, dataKeys }) => (
       className={className}
     >
       <XAxis dataKey="name" />
-      <YAxis />
+      <YAxis allowDecimals={allowDecimals} />
       <CartesianGrid strokeDasharray="3 3" />
       <Tooltip labelStyle={{ color: colorDict['--graph-tooltip'] }} />
       {
@@ -39,10 +39,12 @@ const BarChart = ({ className, data, dataKeys }) => (
 );
 
 BarChart.defaultProps = {
+  allowDecimals: true,
   className: '',
 };
 
 BarChart.propTypes = {
+  allowDecimals: PropTypes.bool,
   className: PropTypes.string,
   data: PropTypes.array.isRequired,
   dataKeys: PropTypes.array.isRequired,

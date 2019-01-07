@@ -11,8 +11,8 @@ class SessionPanel extends Component {
     const { sessions, totalCount } = this.props;
     const countText = (totalCount && sessions.length < totalCount) ? `(${sessions.length} of ${totalCount})` : '';
     return (
-      <div className="session-panel__header">
-        <h4 className="session-panel__header-text">
+      <div className="dashboard__header session-panel__header">
+        <h4 className="dashboard__header-text">
           Imported Interviews
           <small className="session-panel__header-count">
             {countText}

@@ -33,6 +33,12 @@ describe('an AdminApiClient', () => {
     expect(data.serverStatus).toMatchObject(mockStatus);
   });
 
+  it('accepts a params object for get requests', async () => {
+    fetch.mockResponseOnce('{}');
+    await client.get('/foo', { query: 'abc' });
+    expect(fetch).toHaveBeenCalledWith(expect.stringMatching(/\/foo\?query=abc$/));
+  });
+
   it('can post data', async () => {
     const payload = { foo: 'bar' };
     fetch.mockResponseOnce(JSON.stringify({ status: 'ok', data: payload }));
