@@ -67,7 +67,7 @@ class AnswerDistributionPanel extends Component {
     const header = headerLabel(variableType);
     let content;
     if (chartData.length) {
-      content = <Chart data={chartData} dataKeys={['value']} />;
+      content = <Chart allowDecimals={false} data={chartData} dataKeys={['value']} />;
     } else {
       content = <EmptyData />;
     }
