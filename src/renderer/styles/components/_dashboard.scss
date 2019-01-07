@@ -56,4 +56,8 @@
   @include element(header-text) {
     white-space: nowrap;
   }
+
+  @include element(header-subtext) {
+    display: block;
+  }
 }

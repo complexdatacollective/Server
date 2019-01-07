@@ -23,7 +23,8 @@ const content = (chartData, variableType) => {
 const AnswerDistributionPanel = ({ chartData, variableType, variableDefinition }) => (
   <div className="dashboard__panel dashboard__panel--chart">
     <h4 className="dashboard__header-text">
-      {headerLabel(variableType)} distribution: {variableDefinition.label}
+      {variableDefinition.label}
+      <small className="dashboard__header-subtext">{headerLabel(variableType)} distribution</small>
     </h4>
     <div className="dashboard__chartContainer">
       {content(chartData, variableType)}
