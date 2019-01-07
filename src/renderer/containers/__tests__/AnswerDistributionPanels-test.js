@@ -18,26 +18,33 @@ describe('AnswerDistributionPanels', () => {
   let props;
   let subject;
   let mockApiClient;
-  let variableType;
+  // let variableType;
 
-  beforeAll(() => {
-    variableType = 'categorical';
-  });
+  // beforeAll(() => {
+  //   variableType = 'categorical';
+  // });
 
   beforeEach(() => {
     props = {
-      variableType,
       protocolId: '1',
-      entityType: 'person',
-      entityName: 'node',
-      variableDefinition: {
-        label: '',
-        name: 'distributionVariable',
-        options: [
-          { label: 'a', value: 1 },
-          { label: 'b', value: 2 },
-          { label: 'c', value: 3 },
-        ],
+      variableRegistry: {
+        node: {
+          person: {
+            name: 'person',
+            variables: {
+              distributionVariable: {
+                label: '',
+                name: 'distributionVariable',
+                type: 'ordinal',
+                options: [
+                  { label: 'a', value: 1 },
+                  { label: 'b', value: 2 },
+                  { label: 'c', value: 3 },
+                ],
+              },
+            },
+          },
+        },
       },
     };
     mockApiClient = new AdminApiClient();
@@ -62,13 +69,18 @@ describe('AnswerDistributionPanels', () => {
       await subject.instance().loadData();
     });
 
+    it('renders one chart per variable', () => {
+      expect(subject.state('charts')).toHaveLength(1);
+    });
+
     it('sets correct data format', async () => {
-      expect(subject.state('chartData')).toContainEqual({ name: 'a', value: 4 });
-      expect(subject.state('chartData')).toContainEqual({ name: 'b', value: 5 });
+      const chart = subject.state('charts')[0];
+      expect(chart.chartData).toContainEqual({ name: 'a', value: 4 });
+      expect(chart.chartData).toContainEqual({ name: 'b', value: 5 });
     });
 
     it('sets zeros for missing values', async () => {
-      expect(subject.state('chartData')).toContainEqual({ name: 'c', value: 0 });
+      expect(subject.state('charts')[0].chartData).toContainEqual({ name: 'c', value: 0 });
     });
   });
 });

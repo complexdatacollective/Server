@@ -193,10 +193,11 @@ class AdminService {
         .then(() => next());
     });
 
-    // "buckets": { "person": { "varName": { "val1": 0, "val2": 0 } } }
+    // ?variableNames=var1,var2&entityName=node
+    // "buckets": { "person": { "var1": { "val1": 0, "val2": 0 }, "var2": {} } }
     api.get('/protocols/:id/reports/option_buckets', (req, res, next) => {
-      const { variableName, entityName, entityType } = req.query;
-      this.reportDb.optionValueBuckets(req.params.id, variableName, entityName, entityType)
+      const { variableNames = '', entityName = 'node' } = req.query;
+      this.reportDb.optionValueBuckets(req.params.id, variableNames.split(','), entityName)
         .then(buckets => res.send({ status: 'ok', buckets }))
         .then(() => next());
     });

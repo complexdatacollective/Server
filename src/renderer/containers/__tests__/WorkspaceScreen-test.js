@@ -8,6 +8,7 @@ import AdminApiClient from '../../utils/adminApiClient';
 import { mockProtocol } from '../../../../config/jest/setupTestEnv';
 
 jest.mock('electron-log');
+jest.mock('../AnswerDistributionPanels');
 jest.mock('../../utils/adminApiClient');
 jest.mock('../../components/withApiClient', () => component => component);
 
@@ -123,7 +124,7 @@ describe('<WorkspaceScreen />', () => {
       },
     };
 
-    it('renders an ordinal panel', () => {
+    it('renders a distribution panel if an ordinal is available', () => {
       protocol.variableRegistry.node.person.variables = {
         ord: { label: 'ord', name: 'ord', type: 'ordinal' },
       };
@@ -131,10 +132,9 @@ describe('<WorkspaceScreen />', () => {
       wrapper.setProps({ protocol });
       const panel = wrapper.find('AnswerDistributionPanels');
       expect(panel).toHaveLength(1);
-      expect(panel.prop('variableType')).toEqual('ordinal');
     });
 
-    it('renders a categorical panel', () => {
+    it('renders a distribution panel if a categorical is available', () => {
       protocol.variableRegistry.node.person.variables = {
         cat: { label: 'cat', name: 'cat', type: 'categorical' },
       };
@@ -142,7 +142,6 @@ describe('<WorkspaceScreen />', () => {
       wrapper.setProps({ protocol });
       const panel = wrapper.find('AnswerDistributionPanels');
       expect(panel).toHaveLength(1);
-      expect(panel.prop('variableType')).toEqual('categorical');
     });
 
     it('sets sessionCount to drive updates', () => {

@@ -138,36 +138,38 @@ const Reportable = Super => class extends Super {
 
   /**
    * Count occurences of ordinal or categorical values in the study for a histogram.
-   * TODO: Counts are returned for each variableName requested, regardless of entity type.
+   * Counts are returned for each variableName requested, regardless of entity type.
+   * variableNames are grouped by entityType, since names may conflict.
    *
    * @param  {string} protocolId
-   * @param  {string} variableName the ordinal or categorial variabel name to count
+   * @param  {Array} variableNames the ordinal or categorial variable names to count
    * @param  {string} entityName='node' Possible values: 'node', 'edge'.
    * @return {Object} buckets keyed by ordinal/cardinal value, with count values
    *
    * @example
    * ```
-   * { buckets: { person: { contactFrequency: { 1: 1, 2: 4 } } } }
+   * { person: { contactFrequency: { 1: 1, 2: 4 } } }
    * ```
    */
-  optionValueBuckets(protocolId, variableName, entityName = 'node') {
+  optionValueBuckets(protocolId, variableNames, entityName = 'node') {
     return new Promise((resolve, reject) => {
       const key = entityKey(entityName);
       this.db.find({ protocolId, [`data.${key}`]: { $exists: true } }, resolveOrReject((docs) => {
         const entities = flatten(docs.map(doc => doc.data[key]));
         const buckets = entities.reduce((acc, entity) => {
           acc[entity.type] = acc[entity.type] || {};
-          acc[entity.type][variableName] = acc[entity.type][variableName] || {};
-          const optionValue = entity[attributesProperty][variableName];
-          const counts = acc[entity.type][variableName];
-          if (optionValue === undefined) {
-            return acc;
-          }
-          // Categorical values are expressed as arrays of multiple options
-          const optionValues = (optionValue instanceof Array) ? optionValue : [optionValue];
-          optionValues.forEach((value) => {
-            counts[value] = counts[value] || 0;
-            counts[value] += 1;
+          variableNames.forEach((variableName) => {
+            acc[entity.type][variableName] = acc[entity.type][variableName] || {};
+            const optionValue = entity[attributesProperty][variableName];
+            if (optionValue !== undefined) {
+              // Categorical values are expressed as arrays of multiple options
+              const optionValues = (optionValue instanceof Array) ? optionValue : [optionValue];
+              const counts = acc[entity.type][variableName];
+              optionValues.forEach((value) => {
+                counts[value] = counts[value] || 0;
+                counts[value] += 1;
+              });
+            }
           });
           return acc;
         }, {});
