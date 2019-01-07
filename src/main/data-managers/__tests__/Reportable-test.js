@@ -113,8 +113,23 @@ describe('Reportable', () => {
       beforeAll(() => { mockData = NodeDataSession; });
       it('summarizes an ordinal variable', async () => {
         await expect(reportDB.optionValueBuckets(mockData.protocolId, 'frequencyOrdinal')).resolves.toMatchObject({
-          1: 1,
-          2: 1,
+          person: {
+            frequencyOrdinal: {
+              1: 1,
+              2: 1,
+            },
+          },
+        });
+      });
+
+      it('summarizes a categorical variable', async () => {
+        await expect(reportDB.optionValueBuckets(mockData.protocolId, 'preferenceCategorical')).resolves.toMatchObject({
+          person: {
+            preferenceCategorical: {
+              a: 2,
+              b: 1,
+            },
+          },
         });
       });
 

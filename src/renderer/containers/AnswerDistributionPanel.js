@@ -46,12 +46,13 @@ class AnswerDistributionPanel extends Component {
     }
     this.props.apiClient.get(route, query)
       .then(({ buckets }) => {
-        if (Object.keys(buckets).length) {
+        const data = buckets[entityType] && buckets[entityType][variableDefinition.name];
+        if (data && Object.keys(data).length) {
           // Provide data for every ordinal option, even if one has no data
           this.setState({
             chartData: variableDefinition.options.map(({ label, value = '' }) => ({
               name: label,
-              value: buckets[value.toString()] || 0,
+              value: data[value.toString()] || 0,
             })),
           });
         } else {

@@ -8,7 +8,9 @@ import AdminApiClient from '../../utils/adminApiClient';
 jest.mock('recharts');
 jest.mock('../../utils/adminApiClient', () => {
   function MockApiClient() {}
-  MockApiClient.prototype.get = jest.fn().mockResolvedValue({ buckets: { 1: 4, 2: 5 } });
+  MockApiClient.prototype.get = jest.fn().mockResolvedValue({
+    buckets: { person: { distributionVariable: { 1: 4, 2: 5 } } },
+  });
   return MockApiClient;
 });
 
@@ -30,7 +32,7 @@ describe('AnswerDistributionPanel', () => {
       entityName: 'node',
       variableDefinition: {
         label: '',
-        name: '',
+        name: 'distributionVariable',
         options: [
           { label: 'a', value: 1 },
           { label: 'b', value: 2 },
