@@ -37,7 +37,7 @@ const entityKey = (entityName) => {
 // See entityTimeSeries for the format of `types`
 const reduceEntityTypeCounts = (types = [], entityName = 'node') =>
   types.reduce((sumMap, type) => {
-    const typeKey = `node_${type}`;
+    const typeKey = `${entityName}_${type}`;
     sumMap[typeKey] = sumMap[typeKey] || 0;
     sumMap[typeKey] += 1;
     sumMap[entityName] += 1;
