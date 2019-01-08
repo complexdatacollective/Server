@@ -5,13 +5,52 @@ import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 
 import Types from '../types';
+import CheckboxGroup from '../ui/components/Fields/CheckboxGroup';
 import { actionCreators, selectors } from '../ducks/modules/protocols';
+import { actionCreators as chartActionCreators } from '../ducks/modules/excludedChartVariables';
 import { Button, Spinner } from '../ui';
 
 class SettingsScreen extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      excludedChartVariables: {},
+    };
+  }
+
+  get chartConfigSection() {
+    const { distributionVariables, setExcludedVariables } = this.props;
+    if (!Object.keys(distributionVariables).length) {
+      return null;
+    }
+    return (
+      <div className="settings__section">
+        <div className="settings__description">
+          <h3>Chart Variable Distributions</h3>
+          <p>
+            Display an Overview chart for distributions of the following ordinal &
+            categorical variables
+          </p>
+          {
+            distributionVariables &&
+            Object.entries(distributionVariables).map(([section, vars]) => (
+              <CheckboxGroup
+                key={section}
+                className="settings__checkbox-group"
+                label={`Type: ${section}`}
+                input={{
+                  value: this.includedChartVariablesForSection(section),
+                  onChange: (newValue) => {
+                    setExcludedVariables(section, vars.filter(v => !newValue.includes(v)));
+                  },
+                }}
+                options={vars.map(v => ({ value: v, label: v }))}
+              />
+            ))
+          }
+        </div>
+      </div>
+    );
   }
 
   deleteProtocol = () => {
@@ -20,6 +59,13 @@ class SettingsScreen extends Component {
     if (match.params.id && confirm('Destroy this protocol and all related data?')) {
       deleteProtocol(match.params.id);
     }
+  }
+
+  includedChartVariablesForSection = (section) => {
+    const { excludedChartVariables, distributionVariables } = this.props;
+    const excludeSection = excludedChartVariables[section];
+    return distributionVariables[section].filter(
+      variable => !excludeSection || !excludeSection.includes(variable));
   }
 
   render() {
@@ -50,30 +96,39 @@ class SettingsScreen extends Component {
             </Button>
           </div>
         </div>
+        { this.chartConfigSection }
       </div>
     );
   }
 }
 
 const mapStateToProps = (state, ownProps) => ({
+  excludedChartVariables: state.excludedChartVariables,
   protocolsHaveLoaded: selectors.protocolsHaveLoaded(state),
   protocol: selectors.currentProtocol(state, ownProps),
+  distributionVariables: selectors.ordinalAndCategoricalVariables(state, ownProps),
 });
 
 const mapDispatchToProps = dispatch => ({
   deleteProtocol: bindActionCreators(actionCreators.deleteProtocol, dispatch),
+  setExcludedVariables: bindActionCreators(chartActionCreators.setExcludedVariables, dispatch),
 });
 
 SettingsScreen.defaultProps = {
   apiClient: null,
+  distributionVariables: {},
+  excludedChartVariables: {},
   protocol: null,
 };
 
 SettingsScreen.propTypes = {
   deleteProtocol: PropTypes.func.isRequired,
+  distributionVariables: PropTypes.object,
   match: PropTypes.object.isRequired,
+  excludedChartVariables: PropTypes.object,
   protocol: Types.protocol,
   protocolsHaveLoaded: PropTypes.bool.isRequired,
+  setExcludedVariables: PropTypes.func.isRequired,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SettingsScreen);

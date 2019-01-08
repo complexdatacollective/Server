@@ -7,12 +7,18 @@ import ConnectedSettingsScreen, { UnconnectedSettingsScreen as SettingsScreen } 
 
 describe('<SettingsScreen />', () => {
   const deleteProtocol = jest.fn();
+  const setExcludedVariables = jest.fn();
   const mockProtocol = { id: '1', name: '1', createdAt: new Date() };
   let subject;
 
   beforeEach(() => {
     const match = { params: { id: mockProtocol.id } };
-    const props = { match, deleteProtocol, protocolsHaveLoaded: true };
+    const props = {
+      match,
+      deleteProtocol,
+      protocolsHaveLoaded: true,
+      setExcludedVariables,
+    };
     subject = shallow(<SettingsScreen {...props} />);
   });
 
@@ -29,6 +35,22 @@ describe('<SettingsScreen />', () => {
   it('renders a delete button', () => {
     subject.setProps({ protocol: mockProtocol });
     expect(subject.find('Button')).toHaveLength(1);
+  });
+
+  it('renders checkboxes for chart variable selection', () => {
+    const distributionVariables = { person: ['catVar'] };
+    subject.setProps({ protocol: mockProtocol, distributionVariables });
+    expect(subject.find('CheckboxGroup')).toHaveLength(1);
+  });
+
+  it('updates excluded variables from checkbox input', () => {
+    const distributionVariables = { person: ['catVar'] };
+    subject.setProps({ protocol: mockProtocol, distributionVariables });
+    expect(setExcludedVariables).not.toHaveBeenCalled();
+    const checkboxes = subject.find('CheckboxGroup');
+    const input = checkboxes.dive().find('Checkbox').dive().find('input');
+    input.simulate('change', []);
+    expect(setExcludedVariables).toHaveBeenCalled();
   });
 
   describe('clicking delete', () => {

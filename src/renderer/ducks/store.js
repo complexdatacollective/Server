@@ -16,8 +16,7 @@ export const store = createStore(
   ),
 );
 
-// TODO: remove redux-persist, or use for settings
 export const persistor = persistStore(
   store,
-  { whitelist: [] },
+  { whitelist: ['excludedChartVariables'] },
 );

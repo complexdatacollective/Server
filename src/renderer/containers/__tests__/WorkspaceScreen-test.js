@@ -8,7 +8,7 @@ import AdminApiClient from '../../utils/adminApiClient';
 import { mockProtocol } from '../../../../config/jest/setupTestEnv';
 
 jest.mock('electron-log');
-jest.mock('../AnswerDistributionPanels');
+jest.mock('../AnswerDistributionPanels', () => 'AnswerDistributionPanels');
 jest.mock('../../utils/adminApiClient');
 jest.mock('../../components/withApiClient', () => component => component);
 
@@ -113,6 +113,7 @@ describe('<WorkspaceScreen />', () => {
   });
 
   describe('with a distribution variable', () => {
+    const panelSelector = 'AnswerDistributionPanels';
     const protocol = {
       ...mockProtocol,
       variableRegistry: {
@@ -131,8 +132,7 @@ describe('<WorkspaceScreen />', () => {
       };
       wrapper.setState({ sessions: [{}] });
       wrapper.setProps({ protocol });
-      const panel = wrapper.find('AnswerDistributionPanels');
-      expect(panel).toHaveLength(1);
+      expect(wrapper.find(panelSelector)).toHaveLength(1);
     });
 
     it('renders a distribution panel if a categorical is available', () => {
@@ -141,14 +141,13 @@ describe('<WorkspaceScreen />', () => {
       };
       wrapper.setState({ sessions: [{}] });
       wrapper.setProps({ protocol });
-      const panel = wrapper.find('AnswerDistributionPanels');
-      expect(panel).toHaveLength(1);
+      expect(wrapper.find(panelSelector)).toHaveLength(1);
     });
 
     it('sets sessionCount to drive updates', () => {
       wrapper.setState({ sessions: [{}, {}], totalSessionsCount: 2 });
       wrapper.setProps({ protocol });
-      expect(wrapper.find('AnswerDistributionPanels').prop('sessionCount')).toEqual(2);
+      expect(wrapper.find(panelSelector).prop('sessionCount')).toEqual(2);
     });
   });
 

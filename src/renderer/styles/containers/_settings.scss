@@ -14,4 +14,12 @@
   @include element(action) {
     flex: 0 0 auto;
   }
+
+  @include element(checkbox-group) {
+    .form-field {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      justify-items: left;
+    }
+  }
 }

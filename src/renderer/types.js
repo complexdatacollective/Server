@@ -34,7 +34,7 @@ const variableDefinition = PropTypes.shape({
 const entityType = PropTypes.shape({ variables: PropTypes.objectOf(variableDefinition) });
 
 const variableRegistry = PropTypes.shape({
-  node: PropTypes.objectOf(entityType).isRequired,
+  node: PropTypes.objectOf(entityType),
   edge: PropTypes.objectOf(entityType),
 });
 

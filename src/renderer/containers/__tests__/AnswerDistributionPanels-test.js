@@ -1,7 +1,7 @@
 /* eslint-env jest */
 import React from 'react';
 import { mount, shallow } from 'enzyme';
-import AnswerDistributionPanels from '../AnswerDistributionPanels';
+import { UnconnectedAnswerDistributionPanels as AnswerDistributionPanels } from '../AnswerDistributionPanels';
 
 import AdminApiClient from '../../utils/adminApiClient';
 

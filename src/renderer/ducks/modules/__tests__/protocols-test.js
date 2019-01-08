@@ -97,13 +97,63 @@ describe('the protocols module', () => {
   });
 
   describe('selectors', () => {
-    const { currentProtocol, protocolsHaveLoaded, transposedRegistry } = selectors;
+    const {
+      currentProtocol,
+      isDistributionVariable,
+      ordinalAndCategoricalVariables,
+      protocolsHaveLoaded,
+      transposedRegistry,
+    } = selectors;
 
     describe('currentProtocol', () => {
       it('returns the current protocol object', () => {
         const state = { protocols: [{ id: '1' }] };
         const props = { match: { params: { id: '1' } } };
         expect(currentProtocol(state, props)).toEqual(state.protocols[0]);
+      });
+    });
+
+    describe('isDistributionVariable', () => {
+      it('returns true for categorical variables', () => {
+        expect(isDistributionVariable({ type: 'ordinal' })).toBe(true);
+      });
+
+      it('returns true for ordinal variables', () => {
+        expect(isDistributionVariable({ type: 'categorical' })).toBe(true);
+      });
+
+      it('returns false by default', () => {
+        expect(isDistributionVariable({})).toBe(false);
+      });
+    });
+
+    describe('ordinalAndCategoricalVariables', () => {
+      it('returns node variable names sectioned by entity type', () => {
+        const variableRegistry = {
+          node: { 'node-type-id': { name: 'person', variables: { 'var-id-1': { name: 'catVar', type: 'categorical' } } } },
+        };
+        const state = { protocols: [{ id: '1', variableRegistry }] };
+        const props = { match: { params: { id: '1' } } };
+        expect(ordinalAndCategoricalVariables(state, props)).toEqual({ person: ['catVar'] });
+      });
+
+      it('ignores sections without these variables', () => {
+        const variableRegistry = {
+          node: { 'node-type-id': { name: 'venue', variables: { 'var-id-1': { name: 'intVar', type: 'number' } } } },
+        };
+        const state = { protocols: [{ id: '1', variableRegistry }] };
+        const props = { match: { params: { id: '1' } } };
+        expect(ordinalAndCategoricalVariables(state, props)).not.toHaveProperty('venue');
+      });
+
+      it('returns an empty object if node registry unavailable', () => {
+        const state = { protocols: [{ id: '1', variableRegistry: {} }] };
+        const props = { match: { params: { id: '1' } } };
+        expect(ordinalAndCategoricalVariables(state, props)).toEqual({});
+      });
+
+      it('returns an empty object if protocol unavailable', () => {
+        expect(ordinalAndCategoricalVariables({}, {})).toEqual({});
       });
     });
 

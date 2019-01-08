@@ -19,10 +19,10 @@ describe('AnswerDistributionPanel', () => {
   beforeEach(() => {
     props = {
       chartData,
-      variableType,
       variableDefinition: {
         label: '',
         name: 'distributionVariable',
+        type: variableType,
         options: [
           { label: 'a', value: 1 },
           { label: 'b', value: 2 },

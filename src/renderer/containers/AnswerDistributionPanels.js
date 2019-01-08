@@ -1,9 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
 import withApiClient from '../components/withApiClient';
 import AnswerDistributionPanel from '../components/AnswerDistributionPanel';
+import { selectors } from '../ducks/modules/protocols';
 import Types from '../types';
+
+const isDistributionVariable = selectors.isDistributionVariable;
 
 const hasData = bucket => bucket && Object.keys(bucket).length > 0;
 
@@ -22,30 +26,32 @@ const hasData = bucket => bucket && Object.keys(bucket).length > 0;
  * @param {Object} buckets The API response from `option_buckets`
  * @return {Array} chartDefinitions
  */
-const shapeBucketData = (transposedNodeRegistry, buckets) =>
+const shapeBucketData = (transposedNodeRegistry, buckets, excludedChartVariables) =>
   Object.entries(transposedNodeRegistry).reduce((acc, [entityType, { variables }]) => {
+    const excludedSectionVariables = excludedChartVariables[entityType] || [];
     Object.entries(variables).forEach(([variableName, def]) => {
-      if (def.type === 'ordinal' || def.type === 'categorical') {
-        const data = buckets[entityType] && buckets[entityType][variableName];
-        const values = hasData(data) && def.options.map((option) => {
-          // Option defs are usually in the format { label, value }, however:
-          // - options may be strings or numerics instead of objects
-          const isOptionObject = option && typeof option === 'object';
-          // - label is optional, in which case `value` is used as the label
-          const name = isOptionObject ? (option.label || option.value) : option;
-          const dataKey = (isOptionObject ? option.value : option).toString();
-          return {
-            name,
-            value: data[dataKey] || 0,
-          };
-        });
-        acc.push({
-          entityType,
-          variableType: def.type,
-          variableDefinition: def,
-          chartData: values || [],
-        });
+      if (!isDistributionVariable(def) || excludedSectionVariables.includes(def.name)) {
+        return;
       }
+      const data = buckets[entityType] && buckets[entityType][variableName];
+      const values = hasData(data) && def.options.map((option) => {
+        // Option defs are usually in the format { label, value }, however:
+        // - options may be strings or numerics instead of objects
+        const isOptionObject = option && typeof option === 'object';
+        // - label is optional, in which case `value` is used as the label
+        const name = isOptionObject ? (option.label || option.value) : option;
+        const dataKey = (isOptionObject ? option.value : option).toString();
+        return {
+          name,
+          value: data[dataKey] || 0,
+        };
+      });
+      acc.push({
+        entityType,
+        variableType: def.type,
+        variableDefinition: def,
+        chartData: values || [],
+      });
     });
     return acc;
   }, []);
@@ -77,7 +83,7 @@ class AnswerDistributionPanels extends Component {
   }
 
   loadData() {
-    const { transposedRegistry: { node: nodeRegistry = {} } } = this.props;
+    const { excludedChartVariables, transposedRegistry: { node: nodeRegistry = {} } } = this.props;
     const variableNames = Object.values(nodeRegistry).reduce((acc, nodeTypeDefinition) => {
       acc.push(...Object.keys(nodeTypeDefinition.variables || {}));
       return acc;
@@ -89,7 +95,7 @@ class AnswerDistributionPanels extends Component {
     this.props.apiClient.get(route, query)
       .then(({ buckets }) => {
         this.setState({
-          charts: shapeBucketData(nodeRegistry, buckets),
+          charts: shapeBucketData(nodeRegistry, buckets, excludedChartVariables),
         });
       });
   }
@@ -99,23 +105,34 @@ class AnswerDistributionPanels extends Component {
       <AnswerDistributionPanel
         key={`${chart.variableType}-${chart.entityType}-${chart.variableDefinition.name}`}
         chartData={chart.chartData}
-        variableType={chart.variableType}
         variableDefinition={chart.variableDefinition}
       />
     ));
   }
 }
 
+const mapStateToProps = state => ({
+  excludedChartVariables: state.excludedChartVariables,
+});
+
 AnswerDistributionPanels.defaultProps = {
   apiClient: null,
+  excludedChartVariables: {},
   sessionCount: null,
 };
 
 AnswerDistributionPanels.propTypes = {
   apiClient: PropTypes.object,
+  excludedChartVariables: PropTypes.object,
   protocolId: PropTypes.string.isRequired,
   sessionCount: PropTypes.number,
   transposedRegistry: Types.variableRegistry.isRequired,
 };
 
-export default withApiClient(AnswerDistributionPanels);
+const UnconnectedAnswerDistributionPanels = withApiClient(AnswerDistributionPanels);
+
+export default connect(mapStateToProps)(UnconnectedAnswerDistributionPanels);
+
+export {
+  UnconnectedAnswerDistributionPanels,
+};

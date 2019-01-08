@@ -20,25 +20,26 @@ const content = (chartData, variableType) => {
  * Depending on variableType, renders either a pie chart with a distribution of categorical
  * node attributes, or a Bar chart with a distribution of ordinal attributes.
  */
-const AnswerDistributionPanel = ({ chartData, variableType, variableDefinition }) => (
+const AnswerDistributionPanel = ({ chartData, variableDefinition }) => (
   <div className="dashboard__panel dashboard__panel--chart">
     <h4 className="dashboard__header-text">
       {variableDefinition.label}
-      <small className="dashboard__header-subtext">{headerLabel(variableType)} distribution</small>
+      <small className="dashboard__header-subtext">
+        {headerLabel(variableDefinition.type)} distribution
+      </small>
     </h4>
     <div className="dashboard__chartContainer">
-      {content(chartData, variableType)}
+      {content(chartData, variableDefinition.type)}
     </div>
   </div>
 );
 
 AnswerDistributionPanel.defaultProps = {
-  chartData: null,
+  chartData: [],
 };
 
 AnswerDistributionPanel.propTypes = {
   chartData: PropTypes.array,
-  variableType: PropTypes.oneOf(['categorical', 'ordinal']).isRequired,
   variableDefinition: Types.variableDefinition.isRequired,
 };
 
