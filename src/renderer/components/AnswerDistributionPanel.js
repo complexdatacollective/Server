@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import Types from '../types';
 import { BarChart, EmptyData, PieChart } from '../components';
 
+const sumValues = groups => groups.reduce((sum, group) => sum + group.value, 0);
+
 const chartComponent = variableType => ((variableType === 'categorical') ? PieChart : BarChart);
 
 const headerLabel = variableType => ((variableType === 'categorical') ? 'Categorical' : 'Ordinal');
@@ -30,6 +32,9 @@ const AnswerDistributionPanel = ({ chartData, variableDefinition }) => (
     </h4>
     <div className="dashboard__chartContainer">
       {content(chartData, variableDefinition.type)}
+    </div>
+    <div className="dashboard__chartFooter">
+      Total: {sumValues(chartData)} observations
     </div>
   </div>
 );

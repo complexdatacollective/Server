@@ -45,6 +45,12 @@
     flex: 0 1 100%;
   }
 
+  @include element(chartFooter) {
+    color: var(--text-dark);
+    flex: 0 0 auto;
+    text-align: center;
+  }
+
   @include element(emptyData) {
     color: var(--color-platinum--dark);
     display: flex;
