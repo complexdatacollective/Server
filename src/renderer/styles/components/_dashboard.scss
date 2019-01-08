@@ -1,14 +1,15 @@
 .dashboard {
   $min-grid-row: 0;
-  $max-grid-row: 18rem;
+  $max-grid-row: 27rem;
   $top-grid-row: auto;
+  $second-grid-row: auto;
   $column-count: 3;
 
   display: grid;
   grid-auto-rows: minmax($min-grid-row, $max-grid-row);
   grid-gap: spacing(medium);
   grid-template-columns: repeat($column-count, 1fr);
-  grid-template-rows: $top-grid-row;
+  grid-template-rows: $top-grid-row $second-grid-row;
 
   @include element(panel) {
     background-color: var(--color-white);
