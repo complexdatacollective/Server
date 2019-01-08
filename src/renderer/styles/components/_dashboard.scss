@@ -39,6 +39,11 @@
     @include modifier(server-stats) {
       grid-area: 1 / span $column-count;
     }
+
+    &:not(:first-child) {
+      border-bottom: var(--dashboard-panel-accent-radius) solid var(--dashboard-panel-accent-color);
+      border-radius: 0 0 var(--dashboard-panel-accent-radius) var(--dashboard-panel-accent-radius);
+    }
   }
 
   @include element(chartContainer) {
@@ -48,6 +53,7 @@
   @include element(chartFooter) {
     color: var(--text-dark);
     flex: 0 0 auto;
+    padding: 0.5rem 0;
     text-align: center;
   }
 
