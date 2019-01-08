@@ -4,19 +4,29 @@ import PropTypes from 'prop-types';
 import { EmptyData, TimeSeriesChart } from '../components';
 import withApiClient from '../components/withApiClient';
 
-const pluckDataKeys = (timeSeriesKeys) => {
-  const allKeys = [];
+// Data series are keyed with node_[subtype] and edge_[subtype]; we can assume subtypes are
+// meaningfully unique and label with just the subtype
+const subtypeLabel = subtype => ({ key: subtype, label: `${subtype.split('_')[1]}` });
+
+// Based on the API response, determine which series to render.
+// If there's only one node subtype (e.g., 'person'), don't render it.
+const dataSeries = (timeSeriesKeys = []) => {
+  const series = [];
   const nodeSubtypes = timeSeriesKeys.filter(key => (/node_/).test(key));
   const edgeSubtypes = timeSeriesKeys.filter(key => (/edge_/).test(key));
-  if (timeSeriesKeys.includes('node')) { allKeys.push('node'); }
-  if (timeSeriesKeys.includes('edge')) { allKeys.push('edge'); }
+  if (timeSeriesKeys.includes('node')) {
+    series.push({ key: 'node', label: 'node' });
+  }
   if (nodeSubtypes.length > 1) {
-    allKeys.push(...nodeSubtypes);
+    series.push(...nodeSubtypes.map(subtypeLabel));
+  }
+  if (timeSeriesKeys.includes('edge')) {
+    series.push({ key: 'edge', label: 'edge' });
   }
   if (edgeSubtypes.length > 1) {
-    allKeys.push(...edgeSubtypes);
+    series.push(...edgeSubtypes.map(subtypeLabel));
   }
-  return allKeys;
+  return series;
 };
 
 /**
@@ -57,10 +67,10 @@ class EntityTimeSeriesPanel extends Component {
 
   render() {
     const { timeSeriesData, timeSeriesKeys } = this.state;
-    const dataKeys = pluckDataKeys(timeSeriesKeys);
     let content;
     if (timeSeriesData.length > 0) {
-      content = <TimeSeriesChart data={this.state.timeSeriesData} dataKeys={dataKeys} />;
+      const series = dataSeries(timeSeriesKeys);
+      content = <TimeSeriesChart data={this.state.timeSeriesData} series={series} />;
     } else {
       content = <EmptyData />;
     }

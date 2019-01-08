@@ -140,12 +140,9 @@ const Reportable = Super => class extends Super {
           return entries;
         }, []);
 
-
         const keys = [...entities.reduce((acc, entity) => {
           Object.keys(entity).forEach((key) => {
-            if (key !== 'time') {
-              acc.add(key);
-            }
+            if (key !== 'time') { acc.add(key); }
           });
           return acc;
         }, new Set())];

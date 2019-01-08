@@ -5,7 +5,7 @@ import TimeSeriesChart from '../TimeSeriesChart';
 
 describe('<TimeSeriesChart />', () => {
   it('defines a Line series', () => {
-    const wrapper = shallow(<TimeSeriesChart data={[{ value: 1 }]} dataKeys={['value']} />);
+    const wrapper = shallow(<TimeSeriesChart data={[{ value: 1 }]} series={[{ key: 'value' }]} />);
     expect(wrapper.find('Line').length).toBeGreaterThanOrEqual(1);
   });
 });
