@@ -42,7 +42,7 @@ const options = {
 };
 
 const destDir = path.join(paths.config, 'api');
-const destPath = path.join(destDir, `api-spec-${DeviceAPIConfig.version}.json`);
+const destPath = path.join(destDir, `api-spec-${DeviceAPIConfig.Version}.json`);
 const destFile = fs.openSync(destPath, 'w');
 
 const apiSpec = swaggerJSDoc(options);
