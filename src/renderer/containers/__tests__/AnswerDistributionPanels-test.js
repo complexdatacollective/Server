@@ -27,14 +27,12 @@ describe('AnswerDistributionPanels', () => {
   beforeEach(() => {
     props = {
       protocolId: '1',
-      variableRegistry: {
+      transposedRegistry: {
         node: {
           person: {
-            name: 'person',
             variables: {
               distributionVariable: {
                 label: '',
-                name: 'distributionVariable',
                 type: 'ordinal',
                 options: [
                   { label: 'a', value: 1 },

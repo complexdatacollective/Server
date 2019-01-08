@@ -20,7 +20,7 @@ const protocols = PropTypes.arrayOf(protocol);
 
 const variableDefinition = PropTypes.shape({
   label: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
+  name: PropTypes.string,
   options: PropTypes.arrayOf(PropTypes.oneOfType([
     PropTypes.number,
     PropTypes.string,

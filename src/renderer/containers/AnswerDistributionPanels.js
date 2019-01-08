@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 
 import withApiClient from '../components/withApiClient';
 import AnswerDistributionPanel from '../components/AnswerDistributionPanel';
-import { transposedRegistry } from '../../main/utils/formatters/network'; // TODO: move
 import Types from '../types';
 
 const hasData = bucket => bucket && Object.keys(bucket).length > 0;
@@ -19,7 +18,7 @@ const hasData = bucket => bucket && Object.keys(bucket).length > 0;
  *
  * @private
  *
- * @param {Object} transposedNodeRegistry `variableRegistry.node`, with transposed names
+ * @param {Object} transposedNodeRegistry `transposedRegistry.node`, with transposed names
  * @param {Object} buckets The API response from `option_buckets`
  * @return {Array} chartDefinitions
  */
@@ -78,8 +77,7 @@ class AnswerDistributionPanels extends Component {
   }
 
   loadData() {
-    const { variableRegistry } = this.props;
-    const nodeRegistry = transposedRegistry(variableRegistry).node || {};
+    const { transposedRegistry: { node: nodeRegistry = {} } } = this.props;
     const variableNames = Object.values(nodeRegistry).reduce((acc, nodeTypeDefinition) => {
       acc.push(...Object.keys(nodeTypeDefinition.variables || {}));
       return acc;
@@ -117,7 +115,7 @@ AnswerDistributionPanels.propTypes = {
   apiClient: PropTypes.object,
   protocolId: PropTypes.string.isRequired,
   sessionCount: PropTypes.number,
-  variableRegistry: Types.variableRegistry.isRequired,
+  transposedRegistry: Types.variableRegistry.isRequired,
 };
 
 export default withApiClient(AnswerDistributionPanels);

@@ -23,6 +23,7 @@ describe('<WorkspaceScreen />', () => {
       <WorkspaceScreen
         apiClient={mockApiClient}
         match={{ params: { id: 1 } }}
+        transposedRegistry={{ node: {} }}
       />
     ));
   });

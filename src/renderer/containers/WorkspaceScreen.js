@@ -102,7 +102,7 @@ class WorkspaceScreen extends Component {
   }
 
   render() {
-    const { protocol } = this.props;
+    const { protocol, transposedRegistry } = this.props;
     const { sessions, totalSessionsCount } = this.state;
     if (!protocol || !sessions) {
       return <div className="workspace--loading"><Spinner /></div>;
@@ -141,7 +141,7 @@ class WorkspaceScreen extends Component {
           <AnswerDistributionPanels
             protocolId={protocol.id}
             sessionCount={totalSessionsCount}
-            variableRegistry={protocol.variableRegistry}
+            transposedRegistry={transposedRegistry}
           />
         </div>
       </div>
@@ -151,6 +151,7 @@ class WorkspaceScreen extends Component {
 
 const mapStateToProps = (state, ownProps) => ({
   protocol: selectors.currentProtocol(state, ownProps),
+  transposedRegistry: selectors.transposedRegistry(state, ownProps),
 });
 
 WorkspaceScreen.defaultProps = {
@@ -160,6 +161,7 @@ WorkspaceScreen.defaultProps = {
 WorkspaceScreen.propTypes = {
   apiClient: PropTypes.object.isRequired,
   protocol: Types.protocol,
+  transposedRegistry: Types.variableRegistry.isRequired,
 };
 
 export default connect(mapStateToProps)(withApiClient(WorkspaceScreen));
