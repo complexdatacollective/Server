@@ -4,11 +4,30 @@ import PropTypes from 'prop-types';
 import { EmptyData, TimeSeriesChart } from '../components';
 import withApiClient from '../components/withApiClient';
 
+const pluckDataKeys = (timeSeriesKeys) => {
+  const allKeys = [];
+  const nodeSubtypes = timeSeriesKeys.filter(key => (/node_/).test(key));
+  const edgeSubtypes = timeSeriesKeys.filter(key => (/edge_/).test(key));
+  if (timeSeriesKeys.includes('node')) { allKeys.push('node'); }
+  if (timeSeriesKeys.includes('edge')) { allKeys.push('edge'); }
+  if (nodeSubtypes.length > 1) {
+    allKeys.push(...nodeSubtypes);
+  }
+  if (edgeSubtypes.length > 1) {
+    allKeys.push(...edgeSubtypes);
+  }
+  return allKeys;
+};
+
+/**
+ * Render a line chart with each entity type as a series
+ */
 class EntityTimeSeriesPanel extends Component {
   constructor(props) {
     super(props);
     this.state = {
       timeSeriesData: [],
+      timeSeriesKeys: [],
     };
   }
 
@@ -30,15 +49,15 @@ class EntityTimeSeriesPanel extends Component {
   loadData() {
     const route = `/protocols/${this.props.protocolId}/reports/entity_time_series`;
     this.props.apiClient.get(route)
-      .then(({ entities }) => entities && this.setState({
+      .then(({ entities, keys }) => entities && this.setState({
         timeSeriesData: entities,
+        timeSeriesKeys: keys,
       }));
   }
 
   render() {
-    // For now, just render node & edge counts
-    const dataKeys = ['node', 'edge'];
-    const { timeSeriesData } = this.state;
+    const { timeSeriesData, timeSeriesKeys } = this.state;
+    const dataKeys = pluckDataKeys(timeSeriesKeys);
     let content;
     if (timeSeriesData.length > 0) {
       content = <TimeSeriesChart data={this.state.timeSeriesData} dataKeys={dataKeys} />;

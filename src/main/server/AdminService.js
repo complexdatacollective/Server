@@ -205,7 +205,7 @@ class AdminService {
     // "entities": [{ time: 1546455484765, node: 20, edge: 0 }]
     api.get('/protocols/:id/reports/entity_time_series', (req, res, next) => {
       this.reportDb.entityTimeSeries(req.params.id)
-        .then(entities => res.send({ status: 'ok', entities }))
+        .then(({ entities, keys }) => res.send({ status: 'ok', entities, keys }))
         .then(() => next());
     });
 

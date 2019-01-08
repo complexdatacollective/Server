@@ -133,13 +133,28 @@ describe('Reportable', () => {
         });
       });
 
+      it('returns entities and keys', async () => {
+        await expect(reportDB.entityTimeSeries(mockData.protocolId)).resolves.toMatchObject({
+          entities: expect.any(Array),
+          keys: expect.any(Array),
+        });
+      });
+
       it('produces entity counts as a time series', async () => {
-        await expect(reportDB.entityTimeSeries(mockData.protocolId)).resolves.toContainEqual({
+        const result = await reportDB.entityTimeSeries(mockData.protocolId);
+        expect(result.entities).toContainEqual({
           time: expect.any(Number),
           edge: 0,
           node: 2,
           node_person: 2,
         });
+      });
+
+      it('produces keys for all entries in time series', async () => {
+        const result = await reportDB.entityTimeSeries(mockData.protocolId);
+        expect(result.keys).toContainEqual('node');
+        expect(result.keys).toContainEqual('node_person');
+        expect(result.keys).toContainEqual('edge');
       });
     });
   });

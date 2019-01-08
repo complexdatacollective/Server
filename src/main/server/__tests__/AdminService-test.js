@@ -269,13 +269,14 @@ describe('the AdminService', () => {
       describe('reports', () => {
         const countsResult = { nodes: 0, edges: 0 };
         const bucketsResult = { one: 4, two: 0 };
+        const timeSeriesResult = { entities: [], keys: [] };
 
         beforeAll(() => {
           ProtocolManager.mockImplementation(() => ({
             reportDb: {
               totalCounts: jest.fn().mockResolvedValue(countsResult),
               optionValueBuckets: jest.fn().mockResolvedValue(bucketsResult),
-              entityTimeSeries: jest.fn().mockResolvedValue([]),
+              entityTimeSeries: jest.fn().mockResolvedValue(timeSeriesResult),
             },
           }));
         });
@@ -298,7 +299,7 @@ describe('the AdminService', () => {
           const endpoint = makeUrl('protocols/1/reports/entity_time_series', apiBase);
           const res = await jsonClient.get(endpoint);
           expect(res.json.status).toBe('ok');
-          expect(res.json.entities).toMatchObject([]);
+          expect(res.json).toMatchObject(timeSeriesResult);
         });
       });
     });
