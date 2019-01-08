@@ -34,6 +34,7 @@ const TimeSeriesChart = ({ className, data, series }) => (
             dataKey={oneSeries.key}
             name={oneSeries.label || oneSeries.key}
             stroke={colors[(i % colors.length)]}
+            strokeWidth={2}
             connectNulls
           />
         ))
