@@ -74,7 +74,7 @@ describe('<SettingsScreen />', () => {
   describe('when connected', () => {
     it('sets protocol based on store state & URL match', () => {
       const mockStore = createStore(() => (
-        { protocols: [mockProtocol] }
+        { protocols: [mockProtocol], excludedChartVariables: {} }
       ));
       const subj = shallow((
         <ConnectedSettingsScreen

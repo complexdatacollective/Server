@@ -6,8 +6,8 @@ import { Redirect } from 'react-router-dom';
 
 import Types from '../types';
 import CheckboxGroup from '../ui/components/Fields/CheckboxGroup';
-import { actionCreators, selectors } from '../ducks/modules/protocols';
-import { actionCreators as chartActionCreators } from '../ducks/modules/excludedChartVariables';
+import { actionCreators, selectors as protocolSelectors } from '../ducks/modules/protocols';
+import { actionCreators as chartActionCreators, selectors as chartSelectors } from '../ducks/modules/excludedChartVariables';
 import { Button, Spinner } from '../ui';
 
 class SettingsScreen extends Component {
@@ -19,7 +19,7 @@ class SettingsScreen extends Component {
   }
 
   get chartConfigSection() {
-    const { distributionVariables, setExcludedVariables } = this.props;
+    const { distributionVariables, protocol, setExcludedVariables } = this.props;
     if (!Object.keys(distributionVariables).length) {
       return null;
     }
@@ -41,7 +41,8 @@ class SettingsScreen extends Component {
                 input={{
                   value: this.includedChartVariablesForSection(section),
                   onChange: (newValue) => {
-                    setExcludedVariables(section, vars.filter(v => !newValue.includes(v)));
+                    const newExcluded = vars.filter(v => !newValue.includes(v));
+                    setExcludedVariables(protocol.id, section, newExcluded);
                   },
                 }}
                 options={vars.map(v => ({ value: v, label: v }))}
@@ -103,10 +104,10 @@ class SettingsScreen extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  excludedChartVariables: state.excludedChartVariables,
-  protocolsHaveLoaded: selectors.protocolsHaveLoaded(state),
-  protocol: selectors.currentProtocol(state, ownProps),
-  distributionVariables: selectors.ordinalAndCategoricalVariables(state, ownProps),
+  excludedChartVariables: chartSelectors.excludedVariablesForCurrentProtocol(state, ownProps),
+  protocolsHaveLoaded: protocolSelectors.protocolsHaveLoaded(state),
+  protocol: protocolSelectors.currentProtocol(state, ownProps),
+  distributionVariables: protocolSelectors.ordinalAndCategoricalVariables(state, ownProps),
 });
 
 const mapDispatchToProps = dispatch => ({

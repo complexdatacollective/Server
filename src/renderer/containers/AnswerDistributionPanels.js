@@ -4,10 +4,12 @@ import { connect } from 'react-redux';
 
 import withApiClient from '../components/withApiClient';
 import AnswerDistributionPanel from '../components/AnswerDistributionPanel';
-import { selectors } from '../ducks/modules/protocols';
+import { selectors as protocolSelectors } from '../ducks/modules/protocols';
+import { selectors as variableSelectors } from '../ducks/modules/excludedChartVariables';
 import Types from '../types';
 
-const isDistributionVariable = selectors.isDistributionVariable;
+const { isDistributionVariable } = protocolSelectors;
+const { excludedVariablesForCurrentProtocol } = variableSelectors;
 
 const hasData = bucket => bucket && Object.keys(bucket).length > 0;
 
@@ -111,8 +113,8 @@ class AnswerDistributionPanels extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  excludedChartVariables: state.excludedChartVariables,
+const mapStateToProps = (state, ownProps) => ({
+  excludedChartVariables: excludedVariablesForCurrentProtocol(state, ownProps),
 });
 
 AnswerDistributionPanels.defaultProps = {

@@ -33,9 +33,10 @@ const reducer = (state = initialState, action = {}) => {
   }
 };
 
+// Select the current protocol based either on a `protocolId` prop or 'id' in the routing params
 const currentProtocol = (state, props) => {
   const protocols = state.protocols;
-  const id = props.match && props.match.params.id;
+  const id = props.protocolId || (props.match && props.match.params.id);
   return protocols && id && protocols.find(p => p.id === id);
 };
 

@@ -1,3 +1,5 @@
+import { selectors as protocolSelectors } from './protocols';
+
 /**
  * @module excludedChartVariables
  *
@@ -5,10 +7,12 @@
  * Allows the user to hide certain ordinal/variable charts from a protocol's Overview display.
  * These are user settings and should be persisted.
  *
- * State shape is sectioned by entity type:
+ * State shape is sectioned by protocol ID and entity type:
  * ```
  * {
- *   [entityType]: [variableName1, variableName2]
+ *   [protocolId]: {
+ *     [entityType]: [variableName1, variableName2]
+ *   }
  * }
  * ```
  */
@@ -19,8 +23,14 @@ const initialState = {};
 
 const reducer = (state = initialState, action = {}) => {
   switch (action.type) {
-    case SET_EXCLUDED_VARIABLES:
-      return { ...state, [action.section]: action.variables };
+    case SET_EXCLUDED_VARIABLES: {
+      const protocolId = action.protocolId;
+      if (!protocolId) {
+        return state;
+      }
+      const protocolState = { ...state[protocolId], [action.section]: action.variables };
+      return { ...state, [protocolId]: protocolState };
+    }
     default:
       return state;
   }
@@ -32,11 +42,17 @@ const reducer = (state = initialState, action = {}) => {
  * @param {Array} variables list of variable names to exclude
  * @return {Object} excluded variable names, sectioned by entity type
  */
-const setExcludedVariables = (section, variables) => ({
+const setExcludedVariables = (protocolId, section, variables) => ({
   type: SET_EXCLUDED_VARIABLES,
+  protocolId,
   section,
   variables,
 });
+
+const excludedVariablesForCurrentProtocol = (state, props) => {
+  const protocol = protocolSelectors.currentProtocol(state, props);
+  return protocol && state.excludedChartVariables[protocol.id];
+};
 
 const actionCreators = {
   setExcludedVariables,
@@ -46,9 +62,14 @@ const actionTypes = {
   SET_EXCLUDED_VARIABLES,
 };
 
+const selectors = {
+  excludedVariablesForCurrentProtocol,
+};
+
 export {
   actionCreators,
   actionTypes,
+  selectors,
 };
 
 export default reducer;
