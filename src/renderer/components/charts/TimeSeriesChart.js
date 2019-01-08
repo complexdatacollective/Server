@@ -11,16 +11,11 @@ import {
   YAxis,
 } from 'recharts';
 
-import { getCSSValueDict } from '../../utils/CSSVariables';
+import { getCSSValue, getCSSValueRange } from '../../utils/CSSVariables';
 import { formatDatetime } from '../../utils/formatters';
 
-const colorDict = getCSSValueDict(
-  '--graph-data-1',
-  '--graph-data-2',
-  '--graph-data-3',
-  '--graph-data-4',
-  '--graph-tooltip',
-);
+const colors = getCSSValueRange('--graph-data-', 1, 15);
+const tooltipColor = getCSSValue('--graph-tooltip');
 
 const timeFormatter = timestamp => formatDatetime(new Date(timestamp));
 
@@ -38,7 +33,7 @@ const TimeSeriesChart = ({ className, data, dataKeys }) => (
             key={dataKey}
             dataKey={dataKey}
             name={dataKey}
-            stroke={colorDict[`--graph-data-${(i % 4) + 1}`]}
+            stroke={colors[(i % colors.length)]}
             connectNulls
           />
         ))
@@ -56,7 +51,7 @@ const TimeSeriesChart = ({ className, data, dataKeys }) => (
       <Legend />
       <Tooltip
         labelFormatter={timeFormatter}
-        labelStyle={{ color: colorDict['--graph-tooltip'] }}
+        labelStyle={{ color: tooltipColor }}
       />
     </LineChart>
   </ResponsiveContainer>

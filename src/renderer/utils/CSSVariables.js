@@ -16,6 +16,16 @@ const getCSSVariableAsNumber = getCSSNumber;
 const getCSSValues = (...props) => props.map(prop => getCSSValue(prop));
 
 /**
+ * Produce a range of related values, e.g. for graph colors.
+ * @param {string} prefix beginning of the CSS variable name, e.g. '--graph-data-'
+ * @param {Number} fromIndex
+ * @param {Number} toIndex must be greater than fromIndex
+ * @return {Array} computed property values
+ */
+const getCSSValueRange = (prefix, fromIndex, toIndex) =>
+  Array.from(Array(toIndex - fromIndex + 1)).map((el, i) => getCSSValue(`${prefix}${i + fromIndex}`));
+
+/**
  * @param  {...string} props property names (example: '--color-1')
  * @return {object} CSS custom properties, keyed by property name
  */
@@ -32,4 +42,5 @@ export {
   getCSSVariableAsNumber,
   getCSSValues,
   getCSSValueDict,
+  getCSSValueRange,
 };
