@@ -15,7 +15,6 @@
     "preelectron:dev": "node scripts/build-electron-dev.js && node scripts/build-api-spec.js",
     "electron:dev": "cross-env NODE_ENV=development WEBPACK_DEV_SERVER_PORT=4000 electron electron-dev/",
     "build": "node scripts/build.js",
-    "server:dev": "NODE_ENV=development node ./scripts/server-starter",
     "lint": "eslint src",
     "sass-lint": "sass-lint -vc .sass-lint.yml",
     "test": "NODE_TLS_REJECT_UNAUTHORIZED=0 node scripts/test.js --env=jsdom",
