@@ -1,18 +1,25 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import logger from 'electron-log';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { ipcRenderer } from 'electron';
+import { arrayMove } from 'react-sortable-hoc';
 
 import Types from '../types';
 import InterviewStatsPanel from './InterviewStatsPanel';
 import ProtocolCountsPanel from './ProtocolCountsPanel';
-import AnswerDistributionPanels from './AnswerDistributionPanels';
+import withAnswerDistributionCharts from './withAnswerDistributionCharts';
+import AnswerDistributionPanel from '../components/AnswerDistributionPanel';
+
+import SortablePanels from '../components/SortablePanels';
+
 import EntityTimeSeriesPanel from './EntityTimeSeriesPanel';
-import withApiClient from '../components/withApiClient';
-import viewModelMapper from '../utils/baseViewModelMapper';
+import withSessions from './withSessions';
 import { Spinner } from '../ui';
-import { selectors } from '../ducks/modules/protocols';
+import { selectors as protocolSelectors } from '../ducks/modules/protocols';
+import {
+  actionCreators as layoutActionCreators,
+  selectors as layoutSelectors,
+} from '../ducks/modules/panelLayoutOrders';
 import {
   ProtocolPanel,
   ServerPanel,
@@ -21,149 +28,153 @@ import {
 } from '../components';
 
 class WorkspaceScreen extends Component {
-  static getDerivedStateFromProps(props, state) {
-    if (props.protocol && props.protocol.id !== state.prevProtocolId) {
-      // Protocol has changed; reset data to trigger new load
-      return {
-        prevProtocolId: props.protocol.id,
-        sessions: null,
-        totalSessionsCount: null,
-      };
+  /**
+   * Child components are defined here so that we can manage the sort order dynamically.
+   * @return {Array} panel components to be rendered. Not sorted.
+   */
+  get panels() {
+    const { answerDistributionCharts, protocol } = this.props;
+
+    if (!protocol) {
+      return [];
     }
-    return null;
+
+    // session-related props are provided by `withSessions`
+    const { deleteAllSessions, deleteSession, sessions, totalSessionsCount } = this.props;
+    return [
+      <ProtocolPanel
+        protocol={protocol}
+        key="ProtocolPanel"
+      />,
+      <ProtocolCountsPanel
+        key="ProtocolCountsPanel"
+        protocolId={protocol.id}
+        updatedAt={protocol.updatedAt}
+        sessionCount={totalSessionsCount}
+      />,
+      <InterviewStatsPanel
+        key="InterviewStatsPanel"
+        protocolId={protocol.id}
+        sessionCount={totalSessionsCount}
+      />,
+      <SessionPanel
+        key="SessionPanel"
+        sessions={sessions}
+        totalCount={totalSessionsCount}
+        deleteAllSessions={() => deleteAllSessions()}
+        deleteSession={sessionId => deleteSession(sessionId)}
+      />,
+      <SessionHistoryPanel
+        key="SessionHistoryPanel"
+        sessions={sessions}
+      />,
+      <EntityTimeSeriesPanel
+        key="EntityTimeSeriesPanel"
+        protocolId={protocol.id}
+        sessionCount={totalSessionsCount}
+      />,
+      ...answerDistributionCharts.map(chart => (
+        <AnswerDistributionPanel
+          key={`AnswerDistributionPanel-${chart.variableType}-${chart.entityType}-${chart.variableDefinition.name}`}
+          chartData={chart.chartData}
+          variableDefinition={chart.variableDefinition}
+        />
+      )),
+    ];
   }
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      sessions: null,
-      totalSessionsCount: null,
-    };
-  }
-
-  componentDidMount() {
-    this.loadSessions();
-    ipcRenderer.on('SESSIONS_IMPORTED', this.onSessionsImported);
-  }
-
-  componentDidUpdate() {
-    if (!this.state.sessions) {
-      this.loadSessions();
+  /**
+   * If a user sorts panels by dragging, the order of component keys is persisted in redux state
+   * under `panelLayoutOrder`. Because included charts may change, the defined order may not
+   * include all component keys, and may include keys that no longer correspond to rendered panels.
+   *
+   * @return {Array} panels sorted by key as specified by the user. Any additional panels
+   *                        (e.g., ones added after sort order was defined) are appended.
+   */
+  get sortedPanels() {
+    const { panelLayoutOrder } = this.props;
+    if (!panelLayoutOrder.length) {
+      return this.panels;
     }
-  }
 
-  componentWillUnmount() {
-    if (this.loadPromise) { this.loadPromise.cancelled = true; }
-    ipcRenderer.removeListener('SESSIONS_IMPORTED', this.onSessionsImported);
-  }
-
-  onSessionsImported = () => this.loadSessions()
-
-  get sessionsEndpoint() {
-    const id = this.props.protocol.id;
-    return id && `/protocols/${id}/sessions`;
-  }
-
-  sessionEndpoint(sessionId) {
-    const base = this.sessionsEndpoint;
-    return base && `${base}/${sessionId}`;
-  }
-
-  loadSessions() {
-    const { apiClient, protocol } = this.props;
-    if (!protocol || !apiClient || this.loadPromise) {
-      return;
-    }
-    this.loadPromise = apiClient.get(this.sessionsEndpoint)
-      .then((resp) => {
-        if (!this.loadPromise.cancelled) {
-          const sessions = resp.sessions.map(viewModelMapper);
-          this.setState({ sessions, totalSessionsCount: resp.totalSessions });
-        }
-      })
-      .catch((err) => {
-        if (!this.loadPromise.cancelled) {
-          logger.error(err);
-          this.setState({ sessions: [] });
-        }
-      })
-      .then(() => { this.loadPromise = null; });
-  }
-
-  deleteAllSessions() {
-    this.props.apiClient.delete(this.sessionsEndpoint)
-      .then(() => this.loadSessions());
-  }
-
-  deleteSession(sessionId) {
-    const { apiClient } = this.props;
-    apiClient.delete(this.sessionEndpoint(sessionId))
-      .then(() => this.loadSessions());
+    const unsorted = [];
+    const sorted = this.panels.reduce((acc, panel) => {
+      const index = panelLayoutOrder.indexOf(panel.key);
+      if (index >= 0) {
+        acc[index] = panel;
+      } else {
+        unsorted.push(panel);
+      }
+      return acc;
+    }, []);
+    return sorted.filter(Boolean).concat(unsorted);
   }
 
   render() {
-    const { protocol, transposedRegistry } = this.props;
-    const { sessions, totalSessionsCount } = this.state;
+    const { protocol, sessions, setPanelLayoutOrder } = this.props;
+
     if (!protocol || !sessions) {
       return <div className="workspace--loading"><Spinner /></div>;
     }
 
+    const sortedPanels = this.sortedPanels;
+    const sortedPanelKeys = sortedPanels.map(panel => panel.key);
+    const onSortEnd = ({ oldIndex, newIndex }) => {
+      if (oldIndex !== newIndex) {
+        setPanelLayoutOrder(protocol.id, arrayMove(sortedPanelKeys, oldIndex, newIndex));
+      }
+    };
+
     return (
       <div className="workspace">
-        <div className="dashboard">
-          <ServerPanel className="dashboard__panel dashboard__panel--server-stats" />
-          <ProtocolPanel protocol={protocol} />
-
-          <ProtocolCountsPanel
-            key={`protocol-counts-${protocol.id}`}
-            protocolId={protocol.id}
-            updatedAt={protocol.updatedAt}
-            sessionCount={totalSessionsCount}
-          />
-          {
-            sessions &&
-              <InterviewStatsPanel protocolId={protocol.id} sessionCount={totalSessionsCount} />
-          }
-          <SessionPanel
-            sessions={sessions}
-            totalCount={totalSessionsCount}
-            deleteAllSessions={() => this.deleteAllSessions()}
-            deleteSession={sessionId => this.deleteSession(sessionId)}
-          />
-          {
-            sessions && <SessionHistoryPanel sessions={sessions} />
-          }
-          {
-            sessions &&
-              <EntityTimeSeriesPanel protocolId={protocol.id} sessionCount={totalSessionsCount} />
-          }
-
-          <AnswerDistributionPanels
-            protocolId={protocol.id}
-            sessionCount={totalSessionsCount}
-            transposedRegistry={transposedRegistry}
-          />
-        </div>
+        <ServerPanel className="dashboard__panel dashboard__panel--server-stats" />
+        <SortablePanels
+          className="dashboard"
+          panels={sortedPanels}
+          axis="xy"
+          onSortEnd={onSortEnd}
+        />
       </div>
     );
   }
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  protocol: selectors.currentProtocol(state, ownProps),
-  transposedRegistry: selectors.transposedRegistry(state, ownProps),
+  protocol: protocolSelectors.currentProtocol(state, ownProps),
+  panelLayoutOrder: layoutSelectors.panelLayoutOrderForCurrentProtocol(state, ownProps),
+});
+
+const mapDispatchToProps = dispatch => ({
+  setPanelLayoutOrder: bindActionCreators(layoutActionCreators.setPanelLayoutOrder, dispatch),
 });
 
 WorkspaceScreen.defaultProps = {
+  answerDistributionCharts: [],
   protocol: null,
+  panelLayoutOrder: [],
+  sessions: null,
+  totalSessionsCount: null,
+  deleteSession: null,
+  deleteAllSessions: null,
 };
 
 WorkspaceScreen.propTypes = {
-  apiClient: PropTypes.object.isRequired,
+  answerDistributionCharts: PropTypes.array,
   protocol: Types.protocol,
-  transposedRegistry: Types.variableRegistry.isRequired,
+  panelLayoutOrder: PropTypes.array,
+  setPanelLayoutOrder: PropTypes.func.isRequired,
+  deleteAllSessions: PropTypes.func,
+  deleteSession: PropTypes.func,
+  sessions: PropTypes.array,
+  totalSessionsCount: PropTypes.number,
 };
 
-export default connect(mapStateToProps)(withApiClient(WorkspaceScreen));
+// withSessions & withAnswerDistributionCharts provide shared data for child components.
+// withSessions is at the top level, as it provides the totalSessionsCount which other containers
+// (including withAnswerDistributionCharts) use to drive updates. i.e., if a session is created or
+// deleted, all charts should re-render.
+const DataReadyWorkspaceScreen = withSessions(withAnswerDistributionCharts(WorkspaceScreen));
+
+export default connect(mapStateToProps, mapDispatchToProps)(DataReadyWorkspaceScreen);
 
 export { WorkspaceScreen as UnconnectedWorkspaceScreen };

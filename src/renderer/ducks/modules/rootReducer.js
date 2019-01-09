@@ -5,6 +5,7 @@ import connectionInfo from './connectionInfo';
 import devices from './devices';
 import excludedChartVariables from './excludedChartVariables';
 import pairingRequest from './pairingRequest';
+import panelLayoutOrders from './panelLayoutOrders';
 import protocols from './protocols';
 
 const appReducer = combineReducers({
@@ -13,6 +14,7 @@ const appReducer = combineReducers({
   devices,
   excludedChartVariables,
   pairingRequest,
+  panelLayoutOrders,
   protocols,
 });
 

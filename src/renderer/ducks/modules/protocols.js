@@ -34,10 +34,17 @@ const reducer = (state = initialState, action = {}) => {
 };
 
 // Select the current protocol based either on a `protocolId` prop or 'id' in the routing params
+// May return undefined
 const currentProtocol = (state, props) => {
   const protocols = state.protocols;
   const id = props.protocolId || (props.match && props.match.params.id);
   return protocols && id && protocols.find(p => p.id === id);
+};
+
+// Return the ID of the current protocol, only if it exists.
+const currentProtocolId = (state, props) => {
+  const protocol = currentProtocol(state, props);
+  return protocol && protocol.id;
 };
 
 // Transpose all types & variable IDs to names
@@ -130,6 +137,7 @@ const actionTypes = {
 
 const selectors = {
   currentProtocol,
+  currentProtocolId,
   isDistributionVariable,
   protocolsHaveLoaded,
   transposedRegistry,

@@ -1,4 +1,6 @@
 .panel-item {
+  margin: spacing(medium);
+
   @include element(placeholder) {
     font-style: italic;
   }

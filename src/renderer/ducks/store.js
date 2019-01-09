@@ -18,5 +18,5 @@ export const store = createStore(
 
 export const persistor = persistStore(
   store,
-  { whitelist: ['excludedChartVariables'] },
+  { whitelist: ['excludedChartVariables', 'panelLayoutOrders'] },
 );

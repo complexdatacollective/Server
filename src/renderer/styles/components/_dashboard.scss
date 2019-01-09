@@ -2,24 +2,28 @@
   $min-grid-row: 0;
   $max-grid-row: 27rem;
   $top-grid-row: auto;
-  $second-grid-row: auto;
+  // $second-grid-row: auto;
   $column-count: 3;
+  $grid-gap: spacing(medium);
 
   display: grid;
   grid-auto-rows: minmax($min-grid-row, $max-grid-row);
-  grid-gap: spacing(medium);
+  grid-gap: $grid-gap;
   grid-template-columns: repeat($column-count, 1fr);
-  grid-template-rows: $top-grid-row $second-grid-row;
+  grid-template-rows: $top-grid-row; // $second-grid-row
 
   @include element(panel) {
     background-color: var(--color-white);
+    height: 100%;
     padding: spacing(large);
     position: relative;
+    width: 100%;
 
     @include modifier(chart) {
       display: flex;
       flex-direction: column;
       justify-content: center;
+
     }
 
     @include modifier(scrollable) {
@@ -38,6 +42,7 @@
 
     @include modifier(server-stats) {
       grid-area: 1 / span $column-count;
+      margin-bottom: $grid-gap;
     }
 
     &:not(:first-child) {
