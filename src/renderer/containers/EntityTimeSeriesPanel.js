@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 import { EmptyData, TimeSeriesChart } from '../components';
@@ -32,7 +32,7 @@ const dataSeries = (timeSeriesKeys = []) => {
 /**
  * Render a line chart with each entity type as a series
  */
-class EntityTimeSeriesPanel extends Component {
+class EntityTimeSeriesPanel extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {

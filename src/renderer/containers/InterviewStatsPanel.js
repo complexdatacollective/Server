@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 import InterviewWidget from '../components/charts/InterviewWidget';
@@ -22,7 +22,7 @@ const shapeStatsData = ({ nodes = {}, edges = {} }) => ([
   },
 ]);
 
-class InterviewStatsPanel extends Component {
+class InterviewStatsPanel extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {

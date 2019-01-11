@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 import CountsWidget from '../components/charts/CountsWidget';
@@ -10,7 +10,7 @@ const shapeCountData = (nodeCount, edgeCount, sessionCount) => ([
   { name: 'Total Edges', count: edgeCount },
 ]);
 
-class ProtocolCountsPanel extends Component {
+class ProtocolCountsPanel extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
