@@ -125,7 +125,7 @@ class WorkspaceScreen extends Component {
 
     return (
       <div className="workspace" ref={this.myRef}>
-        <ServerPanel className="dashboard__panel dashboard__panel--server-stats" />
+        <ServerPanel />
         <SortablePanels
           getContainer={() => this.props.scrollContainerRef.current}
           className="dashboard"

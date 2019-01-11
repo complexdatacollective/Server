@@ -1,4 +1,6 @@
 .server-panel {
+  background-color: var(--color-white);
   display: flex;
+  margin-bottom: spacing(medium);
   justify-content: space-between;
 }
