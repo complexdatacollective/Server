@@ -124,9 +124,10 @@ class WorkspaceScreen extends Component {
     };
 
     return (
-      <div className="workspace">
+      <div className="workspace" ref={this.myRef}>
         <ServerPanel className="dashboard__panel dashboard__panel--server-stats" />
         <SortablePanels
+          getContainer={() => this.props.scrollContainerRef.current}
           className="dashboard"
           panels={sortedPanels}
           axis="xy"
@@ -154,6 +155,7 @@ WorkspaceScreen.defaultProps = {
   totalSessionsCount: null,
   deleteSession: null,
   deleteAllSessions: null,
+  scrollContainerRef: {},
 };
 
 WorkspaceScreen.propTypes = {
@@ -165,6 +167,7 @@ WorkspaceScreen.propTypes = {
   deleteSession: PropTypes.func,
   sessions: PropTypes.array,
   totalSessionsCount: PropTypes.number,
+  scrollContainerRef: PropTypes.object,
 };
 
 // withSessions & withAnswerDistributionCharts provide shared data for child components.

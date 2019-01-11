@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { SortableContainer } from 'react-sortable-hoc';
 
@@ -9,17 +9,22 @@ import SortablePanel from './SortablePanel';
  * Note: SortableContainer must render a containing DOM element (<div>) around the
  * SortableElement collection.
  */
-const Panels = ({ className, panels }) => (
-  <div className={className}>
-    {
-      panels.map((panel, index) => (
-        <SortablePanel key={`${panel.key}-panel`} index={index} disabled={panel.props.disabled || false}>
-          { panel }
-        </SortablePanel>
-      ))
-    }
-  </div>
-);
+class Panels extends PureComponent {
+  render() {
+    const { className, panels } = this.props;
+    return (
+      <div className={className}>
+        {
+          panels.map((panel, index) => (
+            <SortablePanel key={`${panel.key}-panel`} index={index} disabled={panel.props.disabled || false}>
+              { panel }
+            </SortablePanel>
+          ))
+        }
+      </div>
+    );
+  }
+}
 
 Panels.defaultProps = {
   className: '',
@@ -30,4 +35,4 @@ Panels.propTypes = {
   panels: PropTypes.arrayOf(PropTypes.node).isRequired,
 };
 
-export default SortableContainer(Panels);
+export default SortableContainer(Panels, { withRef: true });
