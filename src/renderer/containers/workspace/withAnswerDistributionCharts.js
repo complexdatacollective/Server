@@ -100,9 +100,7 @@ const withAnswerDistributionCharts = (WrappedComponent) => {
       // imported or deleted while on this workspace).
       if (newCount !== null && prevCount !== null && newCount !== prevCount) {
         this.loadData();
-      }
-
-      if (!prevProps.protocolId && this.props.protocolId) {
+      } else if (prevProps.protocolId !== this.props.protocolId) {
         this.loadData();
       }
     }
