@@ -4,28 +4,26 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { arrayMove } from 'react-sortable-hoc';
 
-import Types from '../types';
+import Types from '../../types';
 import InterviewStatsPanel from './InterviewStatsPanel';
 import ProtocolCountsPanel from './ProtocolCountsPanel';
-import withAnswerDistributionCharts from './withAnswerDistributionCharts';
-import AnswerDistributionPanel from '../components/AnswerDistributionPanel';
-
-import SortablePanels from '../components/SortablePanels';
-
 import EntityTimeSeriesPanel from './EntityTimeSeriesPanel';
+import withAnswerDistributionCharts from './withAnswerDistributionCharts';
 import withSessions from './withSessions';
-import { Spinner } from '../ui';
-import { selectors as protocolSelectors } from '../ducks/modules/protocols';
+import { Spinner } from '../../ui';
+import { selectors as protocolSelectors } from '../../ducks/modules/protocols';
 import {
   actionCreators as layoutActionCreators,
   selectors as layoutSelectors,
-} from '../ducks/modules/panelLayoutOrders';
+} from '../../ducks/modules/panelLayoutOrders';
 import {
+  AnswerDistributionPanel,
   ProtocolPanel,
   ServerPanel,
   SessionHistoryPanel,
   SessionPanel,
-} from '../components';
+  SortablePanels,
+} from '../../components';
 
 class WorkspaceScreen extends Component {
   /**

@@ -4,13 +4,12 @@ import { shallow } from 'enzyme';
 import { createStore } from 'redux';
 
 import ConnectedWorkspaceScreen, { UnconnectedWorkspaceScreen as WorkspaceScreen } from '../WorkspaceScreen';
-import { mockProtocol } from '../../../../config/jest/setupTestEnv';
+import { mockProtocol } from '../../../../../config/jest/setupTestEnv';
 
 jest.mock('electron-log');
 jest.mock('../withAnswerDistributionCharts', () => c => c);
 jest.mock('../withSessions', () => c => c);
-jest.mock('../../utils/adminApiClient');
-jest.mock('../../components/withApiClient', () => component => component);
+jest.mock('../../../components/withApiClient', () => component => component);
 
 describe('<WorkspaceScreen />', () => {
   let wrapper;

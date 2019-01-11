@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import AdminApiClient from '../utils/adminApiClient';
-import { selectors as protocolSelectors } from '../ducks/modules/protocols';
-import { selectors as variableSelectors } from '../ducks/modules/excludedChartVariables';
-import Types from '../types';
+import AdminApiClient from '../../utils/adminApiClient';
+import { selectors as protocolSelectors } from '../../ducks/modules/protocols';
+import { selectors as variableSelectors } from '../../ducks/modules/excludedChartVariables';
+import Types from '../../types';
 
 const { currentProtocolId, isDistributionVariable, transposedRegistry } = protocolSelectors;
 const { excludedVariablesForCurrentProtocol } = variableSelectors;

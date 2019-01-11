@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import BarChart from './charts/BarChart';
-import EmptyData from './charts/EmptyData';
+import BarChart from '../charts/BarChart';
+import EmptyData from '../charts/EmptyData';
 
 const buildChartContent = (sessions) => {
   if (!sessions.length) {

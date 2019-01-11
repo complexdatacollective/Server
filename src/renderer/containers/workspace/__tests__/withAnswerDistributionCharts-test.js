@@ -4,10 +4,10 @@ import { mount, shallow } from 'enzyme';
 import { createStore } from 'redux';
 
 import withAnswerDistributionCharts from '../withAnswerDistributionCharts';
-import AdminApiClient from '../../utils/adminApiClient';
-import { mockProtocol } from '../../../../config/jest/setupTestEnv';
+import AdminApiClient from '../../../utils/adminApiClient';
+import { mockProtocol } from '../../../../../config/jest/setupTestEnv';
 
-jest.mock('../../utils/adminApiClient', () => {
+jest.mock('../../../utils/adminApiClient', () => {
   function MockApiClient() {}
   MockApiClient.prototype.get = jest.fn().mockResolvedValue({
     buckets: { person: { distributionVariable: { 1: 4, 2: 5 } } },
@@ -15,7 +15,7 @@ jest.mock('../../utils/adminApiClient', () => {
   return MockApiClient;
 });
 
-jest.mock('../../ducks/modules/protocols', () => ({
+jest.mock('../../../ducks/modules/protocols', () => ({
   selectors: {
     currentProtocol: jest.fn(),
     currentProtocolId: jest.fn().mockReturnValue('1'),

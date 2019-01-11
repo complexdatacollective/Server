@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import logger from 'electron-log';
 import { ipcRenderer } from 'electron';
 
-import Types from '../types';
-import AdminApiClient from '../utils/adminApiClient';
-import viewModelMapper from '../utils/baseViewModelMapper';
+import Types from '../../types';
+import AdminApiClient from '../../utils/adminApiClient';
+import viewModelMapper from '../../utils/baseViewModelMapper';
 
 /**
  * HOC to provide session-related data and functionality to a workspace.

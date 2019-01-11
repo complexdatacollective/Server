@@ -3,11 +3,11 @@ import React from 'react';
 import { shallow } from 'enzyme';
 
 import withSessions from '../withSessions';
-import AdminApiClient from '../../utils/adminApiClient';
-import { mockProtocol } from '../../../../config/jest/setupTestEnv';
+import AdminApiClient from '../../../utils/adminApiClient';
+import { mockProtocol } from '../../../../../config/jest/setupTestEnv';
 
 jest.mock('electron-log');
-jest.mock('../../utils/adminApiClient');
+jest.mock('../../../utils/adminApiClient');
 
 describe('withSessions HOC', () => {
   let Wrapper;

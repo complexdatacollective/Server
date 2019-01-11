@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import CountsWidget from '../components/charts/CountsWidget';
-import withApiClient from '../components/withApiClient';
+import CountsWidget from '../../components/charts/CountsWidget';
+import withApiClient from '../../components/withApiClient';
 
 const shapeCountData = (nodeCount, edgeCount, sessionCount) => ([
   { name: 'Total Interviews', count: sessionCount },

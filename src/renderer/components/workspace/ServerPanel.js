@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { PanelItem } from '../components';
-import withApiClient from './withApiClient';
+import { PanelItem } from '../../components';
+import withApiClient from '../withApiClient';
 
 class ServerPanel extends Component {
   constructor() {

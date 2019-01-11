@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import { EmptyData, TimeSeriesChart } from '../components';
-import withApiClient from '../components/withApiClient';
+import { EmptyData, TimeSeriesChart } from '../../components';
+import withApiClient from '../../components/withApiClient';
 
 // Data series are keyed with node_[subtype] and edge_[subtype]; we can assume subtypes are
 // meaningfully unique and label with just the subtype

@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import Types from '../types';
-import { BarChart, EmptyData, PieChart } from '../components';
+import Types from '../../types';
+import { BarChart, EmptyData, PieChart } from '../../components';
 
 const sumValues = groups => groups.reduce((sum, group) => sum + group.value, 0);
 
