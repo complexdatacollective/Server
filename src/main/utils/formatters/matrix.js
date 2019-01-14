@@ -56,7 +56,8 @@ class AdjacencyMatrix {
     // TODO: Store a quote-escaped version?
     // Track only unique IDs (duplicates are discarded). The ordering here provides the ordering for
     // both header and data output.
-    const uniqueNodeIds = [...new Set(network.nodes.map(node => node[nodePrimaryKeyProperty]))];
+    const nodes = network.nodes || [];
+    const uniqueNodeIds = [...new Set(nodes.map(node => node[nodePrimaryKeyProperty]))];
     this.uniqueNodeIds = uniqueNodeIds;
 
     const dimension = uniqueNodeIds.length;
@@ -103,7 +104,7 @@ class AdjacencyMatrix {
       return acc;
     }, {});
 
-    this.network.edges.forEach(({ from, to }) => {
+    (this.network.edges || []).forEach(({ from, to }) => {
       this.setAdjacent(from, to);
       if (directed === false) {
         this.setAdjacent(to, from);

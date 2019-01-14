@@ -66,10 +66,10 @@ const toCSVStream = (nodes, outStream) => {
 
 class AttributeListFormatter {
   constructor(data, directed = false) {
-    this.list = asAttributeList(data, directed);
+    this.list = asAttributeList(data, directed) || [];
   }
   writeToStream(outStream) {
-    toCSVStream(this.list, outStream);
+    return toCSVStream(this.list, outStream);
   }
 }
 

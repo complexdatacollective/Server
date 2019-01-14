@@ -18,7 +18,6 @@ const { csvEOL } = require('./csv');
  * ```
  *
  * @param  {Object} network NC network containing edges
- * @param  {Array} network.edges
  * @param  {Boolean} directed if false, adjacencies are represented in both directions
  *                            default: false
  * @return {Object.<string, Set>} the adjacency list
@@ -80,7 +79,7 @@ class EdgeListFormatter {
     this.list = asEdgeList(data, directed);
   }
   writeToStream(outStream) {
-    toCSVStream(this.list, outStream);
+    return toCSVStream(this.list, outStream);
   }
 }
 

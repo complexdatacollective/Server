@@ -1,7 +1,7 @@
 /* eslint-env jest */
 
 import { makeWriteableStream } from '../../../../../config/jest/setupTestEnv';
-import { asAttributeList, toCSVStream } from '../attribute-list';
+import { asAttributeList, toCSVStream, AttributeListFormatter } from '../attribute-list';
 
 describe('asAttributeList', () => {
   it('transforms a network to nodes', () => {
@@ -57,5 +57,19 @@ describe('toCSVStream', () => {
     toCSVStream([{ _uid: 1, attributes: { prop: false } }], writable);
     const csv = await writable.asString();
     expect(csv).toEqual('_uid,prop\r\n1,false\r\n');
+  });
+});
+
+describe('AttributeListFormatter', () => {
+  let writable;
+
+  beforeEach(() => {
+    writable = makeWriteableStream();
+  });
+
+  it('writeToStream returns an abort controller', () => {
+    const formatter = new AttributeListFormatter({});
+    const controller = formatter.writeToStream(writable);
+    expect(controller.abort).toBeInstanceOf(Function);
   });
 });
