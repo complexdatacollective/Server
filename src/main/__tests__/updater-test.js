@@ -1,10 +1,13 @@
 /* eslint-env jest */
 
+const { app } = require('electron');
+
 const updater = require('../updater');
 const dialog = require('../dialog');
 
 jest.mock('electron');
 jest.mock('electron-updater');
+jest.mock('electron-log');
 jest.mock('../dialog');
 
 describe('updater', () => {
@@ -30,8 +33,22 @@ describe('updater', () => {
     expect(dialog.showMessageBox).toHaveBeenCalled();
   });
 
+  it('removes listeners & quits when download ready', (done) => {
+    updater.simulate('update-downloaded', {});
+    setImmediate(() => {
+      expect(app.removeAllListeners).toHaveBeenCalled();
+      expect(updater.quitAndInstall).toHaveBeenCalled();
+      done();
+    });
+  });
+
   it('shows a message when no update available', () => {
     updater.simulate('update-not-available', {});
     expect(dialog.showMessageBox).toHaveBeenCalled();
+  });
+
+  it('shows errors to the user', () => {
+    updater.simulate('error', new Error());
+    expect(dialog.showErrorBox).toHaveBeenCalled();
   });
 });

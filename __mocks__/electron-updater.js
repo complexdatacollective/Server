@@ -7,6 +7,7 @@ const autoUpdater = {
   checkForUpdatesAndNotify: jest.fn(),
   checkForUpdates: jest.fn().mockResolvedValue({}),
   on: jest.fn((name, cb) => { mockHandlers[name] = cb; }),
+  quitAndInstall: jest.fn(),
 };
 
 module.exports = { autoUpdater };
