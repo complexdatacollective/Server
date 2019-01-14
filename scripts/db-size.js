@@ -40,7 +40,7 @@ let db;
 function initDb() {
   const initDbTime = process.hrtime();
   return new Promise(resolve => {
-    db = new SessionDB(dbFile, false, { onload: (err) => {
+    db = new SessionDB(dbFile, { onload: (err) => {
       if (err) {
         console.error(err);
         process.exit(1);
