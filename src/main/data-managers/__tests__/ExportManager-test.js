@@ -3,11 +3,22 @@
 import ExportManager from '../ExportManager';
 import { ErrorMessages } from '../../errors/RequestError';
 
+jest.mock('nedb');
+jest.mock('electron-log');
+
 jest.mock('../SessionDB', () => (function MockSessionDB() {
   return {
     findAll: jest.fn().mockResolvedValue([]),
   };
 }));
+
+jest.mock('../../utils/formatters/graphml/GraphMLFormatter', () => class {
+  // Mock writer: close stream as soon as writing begins
+  writeToStream = jest.fn((writeStream) => {
+    writeStream.end();
+    writeStream.destroy();
+  })
+});
 
 jest.mock('../../utils/promised-fs', () => ({
   writeFile: jest.fn().mockResolvedValue(undefined),
@@ -38,12 +49,14 @@ describe('ExportManager', () => {
     };
   });
 
-  it('returns a promise', async () => {
-    await expect(manager.createExportFile(protocol, validOpts)).resolves.toAlwaysPass();
+  it('rejects when no data will be exported', async () => {
+    await expect(manager.createExportFile(protocol, validOpts))
+      .rejects.toMatchErrorMessage(ErrorMessages.NothingToExport);
   });
 
   it('rejects if protocol missing', async () => {
-    await expect(manager.createExportFile(null, validOpts)).rejects.toMatchErrorMessage('Not found');
+    await expect(manager.createExportFile(null, validOpts))
+      .rejects.toMatchErrorMessage(ErrorMessages.NotFound);
   });
 
   it('rejects if path missing', async () => {
@@ -65,7 +78,7 @@ describe('ExportManager', () => {
   });
 
   // TODO: make the stream interface more testable
-  describe.skip('with data', () => {
+  describe('with data', () => {
     beforeEach(() => {
       protocol.variableRegistry = {};
       manager.sessionDB = {
@@ -73,8 +86,14 @@ describe('ExportManager', () => {
       };
     });
 
-    it('exports a graphml file', async () => {
+    it('returns a promise', async () => {
       await expect(manager.createExportFile(protocol, validOpts)).resolves.toAlwaysPass();
+    });
+
+    it('can abort the export', () => {
+      const abortable = manager.createExportFile(protocol, validOpts);
+      expect(abortable.abort).toBeInstanceOf(Function);
+      abortable.abort();
     });
   });
 });

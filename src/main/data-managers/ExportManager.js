@@ -196,8 +196,12 @@ class ExportManager {
                   exportOpts)))));
         return Promise.all(promisedExports);
       })
-      // TODO: check length; if 0: reject, if 1: don't zip?
-      .then(exportedPaths => archive(exportedPaths, destinationFilepath))
+      .then((exportedPaths) => {
+        if (exportedPaths.length === 0) {
+          throw new RequestError(ErrorMessages.NothingToExport);
+        }
+        return archive(exportedPaths, destinationFilepath);
+      })
       .catch((err) => {
         cleanUp();
         logger.error(err);

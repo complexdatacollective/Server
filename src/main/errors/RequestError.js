@@ -24,6 +24,7 @@ const ErrorMessages = {
   InvalidExportOptions: 'Invalid export options',
   MissingProtocolFile: 'Missing protocol file',
   NotFound: 'Not found',
+  NothingToExport: 'No data available to export',
   ProtocolNotFoundForSession: 'The associated protocol does not exist on this server',
   VerificationFailed: 'Request verification failed',
 };
