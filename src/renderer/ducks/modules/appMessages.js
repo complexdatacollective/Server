@@ -84,7 +84,9 @@ const actionCreators = {
 
 const actionTypes = {
   DISMISS_MESSAGES,
+  DISMISS_MESSAGE,
   SHOW_MESSAGE,
+  UPDATE_MESSAGE_STATE,
 };
 
 export default reducer;
@@ -94,4 +96,5 @@ export {
   actionTypes,
   messageTypes,
   messages,
+  messageLifetimeMillis,
 };
