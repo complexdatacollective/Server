@@ -106,7 +106,8 @@ class ExportManager {
    * @async
    * @param {Object} protocol the saved protocol from DB
    * @param {string} options.destinationFilepath local FS path to output the final file
-   * @param {string} options.exportFormat "csv" or "graphml"
+   * @param {Array<string>} options.exportFormats
+   *        Possible values: "adjacencyMatrix", "attributeList", "edgeList", "graphml"
    * @param {Array} options.csvTypes if `exportFormat` is "csv", then include these types in output.
    *                                 Options: ["adjacencyMatrix", "attributeList", "edgeList"]
    * @param {boolean} options.exportNetworkUnion true if all interview networks should be merged
