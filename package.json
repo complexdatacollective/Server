@@ -153,6 +153,7 @@
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{js,jsx}",
+      "!src/main/components/loadDevToolsExtensions.js",
       "!src/renderer/ui/**",
       "!src/main/utils/network-query/**",
       "!src/renderer/components/Filter/**",
