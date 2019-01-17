@@ -7,11 +7,10 @@ import { ipcRenderer } from 'electron';
 import Types from '../types';
 import InterviewStatsPanel from './InterviewStatsPanel';
 import ProtocolCountsPanel from './ProtocolCountsPanel';
-import AnswerDistributionPanel from './AnswerDistributionPanel';
+import AnswerDistributionPanels from './AnswerDistributionPanels';
 import EntityTimeSeriesPanel from './EntityTimeSeriesPanel';
 import withApiClient from '../components/withApiClient';
 import viewModelMapper from '../utils/baseViewModelMapper';
-import { transposedRegistry } from '../../main/utils/formatters/network'; // TODO: move
 import { Spinner } from '../ui';
 import { selectors } from '../ducks/modules/protocols';
 import {
@@ -65,66 +64,6 @@ class WorkspaceScreen extends Component {
     return id && `/protocols/${id}/sessions`;
   }
 
-  get answerDistributionCharts() {
-    const content = [];
-    let categoricalDefinition = null;
-    let categoricalEntityType = null;
-    let ordinalDefinition = null;
-    let ordinalEntityType = null;
-
-    const { totalSessionsCount } = this.state;
-    const { protocol } = this.props;
-    const variableRegistry = transposedRegistry(protocol.variableRegistry);
-    const nodeDefinitions = Object.values(variableRegistry.node || {});
-
-    let entityType;
-    // Ordinal: default to the first ordinal variable found in the registry
-    // TODO: allow user to select entityType used
-    // TODO: select from edges as well, once supported by NC
-    entityType = nodeDefinitions.find((typeDefinition) => {
-      ordinalDefinition = Object.values(typeDefinition.variables)
-        .find(variable => variable.type === 'ordinal');
-      return !!ordinalDefinition;
-    });
-    ordinalEntityType = entityType && entityType.name;
-
-    // Categorical: default to the first categorical node variable
-    // TODO: allow user to select entityType used
-    entityType = nodeDefinitions.find((typeDefinition) => {
-      categoricalDefinition = Object.values(typeDefinition.variables)
-        .find(variable => variable.type === 'categorical');
-      return !!categoricalDefinition;
-    });
-    categoricalEntityType = entityType && entityType.name;
-
-    if (ordinalDefinition) {
-      content.push(
-        <AnswerDistributionPanel
-          variableType="ordinal"
-          key="ordinal-panel"
-          protocolId={protocol.id}
-          variableDefinition={ordinalDefinition}
-          entityName="node"
-          entityType={ordinalEntityType}
-          sessionCount={totalSessionsCount}
-        />);
-    }
-
-    if (categoricalDefinition) {
-      content.push(
-        <AnswerDistributionPanel
-          variableType="categorical"
-          key="cagtegorical-panel"
-          protocolId={protocol.id}
-          variableDefinition={categoricalDefinition}
-          entityType={categoricalEntityType}
-          sessionCount={totalSessionsCount}
-        />);
-    }
-
-    return content;
-  }
-
   sessionEndpoint(sessionId) {
     const base = this.sessionsEndpoint;
     return base && `${base}/${sessionId}`;
@@ -163,7 +102,7 @@ class WorkspaceScreen extends Component {
   }
 
   render() {
-    const { protocol } = this.props;
+    const { protocol, transposedRegistry } = this.props;
     const { sessions, totalSessionsCount } = this.state;
     if (!protocol || !sessions) {
       return <div className="workspace--loading"><Spinner /></div>;
@@ -174,8 +113,6 @@ class WorkspaceScreen extends Component {
         <div className="dashboard">
           <ServerPanel className="dashboard__panel dashboard__panel--server-stats" />
           <ProtocolPanel protocol={protocol} />
-
-          { this.answerDistributionCharts }
 
           <ProtocolCountsPanel
             key={`protocol-counts-${protocol.id}`}
@@ -200,6 +137,12 @@ class WorkspaceScreen extends Component {
             sessions &&
               <EntityTimeSeriesPanel protocolId={protocol.id} sessionCount={totalSessionsCount} />
           }
+
+          <AnswerDistributionPanels
+            protocolId={protocol.id}
+            sessionCount={totalSessionsCount}
+            transposedRegistry={transposedRegistry}
+          />
         </div>
       </div>
     );
@@ -208,6 +151,7 @@ class WorkspaceScreen extends Component {
 
 const mapStateToProps = (state, ownProps) => ({
   protocol: selectors.currentProtocol(state, ownProps),
+  transposedRegistry: selectors.transposedRegistry(state, ownProps),
 });
 
 WorkspaceScreen.defaultProps = {
@@ -217,6 +161,7 @@ WorkspaceScreen.defaultProps = {
 WorkspaceScreen.propTypes = {
   apiClient: PropTypes.object.isRequired,
   protocol: Types.protocol,
+  transposedRegistry: Types.variableRegistry.isRequired,
 };
 
 export default connect(mapStateToProps)(withApiClient(WorkspaceScreen));

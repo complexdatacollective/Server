@@ -8,6 +8,7 @@ import AdminApiClient from '../../utils/adminApiClient';
 import { mockProtocol } from '../../../../config/jest/setupTestEnv';
 
 jest.mock('electron-log');
+jest.mock('../AnswerDistributionPanels', () => 'AnswerDistributionPanels');
 jest.mock('../../utils/adminApiClient');
 jest.mock('../../components/withApiClient', () => component => component);
 
@@ -22,6 +23,7 @@ describe('<WorkspaceScreen />', () => {
       <WorkspaceScreen
         apiClient={mockApiClient}
         match={{ params: { id: 1 } }}
+        transposedRegistry={{ node: {} }}
       />
     ));
   });
@@ -111,6 +113,7 @@ describe('<WorkspaceScreen />', () => {
   });
 
   describe('with a distribution variable', () => {
+    const panelSelector = 'AnswerDistributionPanels';
     const protocol = {
       ...mockProtocol,
       variableRegistry: {
@@ -123,32 +126,28 @@ describe('<WorkspaceScreen />', () => {
       },
     };
 
-    it('renders an ordinal panel', () => {
+    it('renders a distribution panel if an ordinal is available', () => {
       protocol.variableRegistry.node.person.variables = {
         ord: { label: 'ord', name: 'ord', type: 'ordinal' },
       };
       wrapper.setState({ sessions: [{}] });
       wrapper.setProps({ protocol });
-      const panel = wrapper.find('AnswerDistributionPanel');
-      expect(panel).toHaveLength(1);
-      expect(panel.prop('variableType')).toEqual('ordinal');
+      expect(wrapper.find(panelSelector)).toHaveLength(1);
     });
 
-    it('renders a categorical panel', () => {
+    it('renders a distribution panel if a categorical is available', () => {
       protocol.variableRegistry.node.person.variables = {
         cat: { label: 'cat', name: 'cat', type: 'categorical' },
       };
       wrapper.setState({ sessions: [{}] });
       wrapper.setProps({ protocol });
-      const panel = wrapper.find('AnswerDistributionPanel');
-      expect(panel).toHaveLength(1);
-      expect(panel.prop('variableType')).toEqual('categorical');
+      expect(wrapper.find(panelSelector)).toHaveLength(1);
     });
 
     it('sets sessionCount to drive updates', () => {
       wrapper.setState({ sessions: [{}, {}], totalSessionsCount: 2 });
       wrapper.setProps({ protocol });
-      expect(wrapper.find('AnswerDistributionPanel').prop('sessionCount')).toEqual(2);
+      expect(wrapper.find(panelSelector).prop('sessionCount')).toEqual(2);
     });
   });
 

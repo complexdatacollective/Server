@@ -1,14 +1,15 @@
 .dashboard {
   $min-grid-row: 0;
-  $max-grid-row: 18rem;
+  $max-grid-row: 27rem;
   $top-grid-row: auto;
+  $second-grid-row: auto;
   $column-count: 3;
 
   display: grid;
   grid-auto-rows: minmax($min-grid-row, $max-grid-row);
   grid-gap: spacing(medium);
   grid-template-columns: repeat($column-count, 1fr);
-  grid-template-rows: $top-grid-row;
+  grid-template-rows: $top-grid-row $second-grid-row;
 
   @include element(panel) {
     background-color: var(--color-white);
@@ -38,10 +39,22 @@
     @include modifier(server-stats) {
       grid-area: 1 / span $column-count;
     }
+
+    &:not(:first-child) {
+      border-bottom: var(--dashboard-panel-accent-radius) solid var(--dashboard-panel-accent-color);
+      border-radius: 0 0 var(--dashboard-panel-accent-radius) var(--dashboard-panel-accent-radius);
+    }
   }
 
   @include element(chartContainer) {
     flex: 0 1 100%;
+  }
+
+  @include element(chartFooter) {
+    color: var(--text-dark);
+    flex: 0 0 auto;
+    padding-top: spacing(small);
+    text-align: center;
   }
 
   @include element(emptyData) {
@@ -55,5 +68,9 @@
 
   @include element(header-text) {
     white-space: nowrap;
+  }
+
+  @include element(header-subtext) {
+    display: block;
   }
 }

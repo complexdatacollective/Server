@@ -112,19 +112,49 @@ describe('Reportable', () => {
     describe('with node variables', () => {
       beforeAll(() => { mockData = NodeDataSession; });
       it('summarizes an ordinal variable', async () => {
-        await expect(reportDB.optionValueBuckets(mockData.protocolId, 'frequencyOrdinal')).resolves.toMatchObject({
-          1: 1,
-          2: 1,
+        await expect(reportDB.optionValueBuckets(mockData.protocolId, ['frequencyOrdinal'])).resolves.toMatchObject({
+          person: {
+            frequencyOrdinal: {
+              1: 1,
+              2: 1,
+            },
+          },
+        });
+      });
+
+      it('summarizes a categorical variable', async () => {
+        await expect(reportDB.optionValueBuckets(mockData.protocolId, ['preferenceCategorical'])).resolves.toMatchObject({
+          person: {
+            preferenceCategorical: {
+              a: 2,
+              b: 1,
+            },
+          },
+        });
+      });
+
+      it('returns entities and keys', async () => {
+        await expect(reportDB.entityTimeSeries(mockData.protocolId)).resolves.toMatchObject({
+          entities: expect.any(Array),
+          keys: expect.any(Array),
         });
       });
 
       it('produces entity counts as a time series', async () => {
-        await expect(reportDB.entityTimeSeries(mockData.protocolId)).resolves.toContainEqual({
+        const result = await reportDB.entityTimeSeries(mockData.protocolId);
+        expect(result.entities).toContainEqual({
           time: expect.any(Number),
           edge: 0,
           node: 2,
           node_person: 2,
         });
+      });
+
+      it('produces keys for all entries in time series', async () => {
+        const result = await reportDB.entityTimeSeries(mockData.protocolId);
+        expect(result.keys).toContainEqual('node');
+        expect(result.keys).toContainEqual('node_person');
+        expect(result.keys).toContainEqual('edge');
       });
     });
   });

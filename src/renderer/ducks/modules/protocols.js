@@ -33,9 +33,10 @@ const reducer = (state = initialState, action = {}) => {
   }
 };
 
+// Select the current protocol based either on a `protocolId` prop or 'id' in the routing params
 const currentProtocol = (state, props) => {
   const protocols = state.protocols;
-  const id = props.match && props.match.params.id;
+  const id = props.protocolId || (props.match && props.match.params.id);
   return protocols && id && protocols.find(p => p.id === id);
 };
 
@@ -44,7 +45,7 @@ const currentProtocol = (state, props) => {
 const transposedRegistry = (state, props) => {
   const protocol = currentProtocol(state, props);
   if (!protocol) {
-    return null;
+    return {};
   }
 
   const registry = protocol.variableRegistry || {};
@@ -52,6 +53,31 @@ const transposedRegistry = (state, props) => {
     edge: transposedRegistrySection(registry.edge),
     node: transposedRegistrySection(registry.node),
   };
+};
+
+const distributionVariableTypes = ['ordinal', 'categorical'];
+const isDistributionVariable = variable => distributionVariableTypes.includes(variable.type);
+
+/**
+ * @return {Object} all node ordinal & categorical variable names, sectioned by node type
+ */
+const ordinalAndCategoricalVariables = (state, props) => {
+  const registry = transposedRegistry(state, props);
+  if (!registry) {
+    return {};
+  }
+  return Object.entries(registry.node || {}).reduce((acc, [entityType, { variables }]) => {
+    const variableNames = Object.entries(variables).reduce((arr, [variableName, variable]) => {
+      if (isDistributionVariable(variable)) {
+        arr.push(variableName);
+      }
+      return arr;
+    }, []);
+    if (variableNames.length) {
+      acc[entityType] = variableNames;
+    }
+    return acc;
+  }, {});
 };
 
 const protocolsHaveLoaded = state => state.protocols !== initialState;
@@ -104,8 +130,10 @@ const actionTypes = {
 
 const selectors = {
   currentProtocol,
+  isDistributionVariable,
   protocolsHaveLoaded,
   transposedRegistry,
+  ordinalAndCategoricalVariables,
 };
 
 export {

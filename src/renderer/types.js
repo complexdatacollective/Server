@@ -20,11 +20,22 @@ const protocols = PropTypes.arrayOf(protocol);
 
 const variableDefinition = PropTypes.shape({
   label: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  options: PropTypes.arrayOf(PropTypes.shape({
-    label: PropTypes.string.isRequired,
-    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-  })),
+  name: PropTypes.string,
+  options: PropTypes.arrayOf(PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.string,
+    PropTypes.shape({
+      label: PropTypes.string.isRequired,
+      value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    }),
+  ])),
+});
+
+const entityType = PropTypes.shape({ variables: PropTypes.objectOf(variableDefinition) });
+
+const variableRegistry = PropTypes.shape({
+  node: PropTypes.objectOf(entityType),
+  edge: PropTypes.objectOf(entityType),
 });
 
 const entityName = PropTypes.oneOf(['node', 'edge']);
@@ -37,6 +48,7 @@ const Types = {
   protocol,
   protocols,
   variableDefinition,
+  variableRegistry,
 };
 
 export default Object.freeze(Types);

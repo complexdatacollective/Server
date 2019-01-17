@@ -2,14 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { PieChart as RechartPieChart, Pie, Cell, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-import { getCSSValues } from '../../utils/CSSVariables';
+import { getCSSValueRange } from '../../utils/CSSVariables';
 
-const colors = getCSSValues(
-  '--graph-data-1',
-  '--graph-data-2',
-  '--graph-data-3',
-  '--graph-data-4',
-);
+const colors = getCSSValueRange('--graph-data-', 1, 15);
 
 // 99% width to work around recharts problem with resizing
 const PieChart = ({ className, data }) => (

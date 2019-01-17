@@ -34,10 +34,10 @@ const entityKey = (entityName) => {
 };
 
 // Count entities by type, accumulating in an object.
-// See entityTimeSeries for the format of `types
+// See entityTimeSeries for the format of `types`
 const reduceEntityTypeCounts = (types = [], entityName = 'node') =>
   types.reduce((sumMap, type) => {
-    const typeKey = `node_${type}`;
+    const typeKey = `${entityName}_${type}`;
     sumMap[typeKey] = sumMap[typeKey] || 0;
     sumMap[typeKey] += 1;
     sumMap[entityName] += 1;
@@ -46,8 +46,24 @@ const reduceEntityTypeCounts = (types = [], entityName = 'node') =>
 
 /**
  * Mixin for report queries on a SessionDB.
+ * @class
  */
 const Reportable = Super => class extends Super {
+  /**
+   * Summary statistics: min, max, mean, sum
+   *
+   * @param {string} protocolId
+   * @return {Object} node & edge summary stats (see example)
+   *
+   * @example
+   * ```
+   * {
+   *   nodes: { sum: 0, min, max, mean },
+   *   edges: { sum: 0, min, max, mean },
+   * }
+   * ```
+   * @memberOf Reportable.prototype
+   */
   summaryStats(protocolId) {
     return Promise.all(
       [
@@ -87,7 +103,12 @@ const Reportable = Super => class extends Super {
    * Note that the render format requires a Number for the time value.
    *
    * @param {string} protocolId
-   * @return {Array} entries in the format described above
+   * @return {Object} `{ entries, keys }`: an array of entries in the format described above, and
+   *                    an array of keys, representing every available type in the data series.
+   *                    Not every time data point need have every type; `keys` can be used to
+   *                    undertand the layout as a whole.
+   *
+   * @memberOf Reportable.prototype
    */
   entityTimeSeries(protocolId) {
     return new Promise((resolve, reject) => {
@@ -95,7 +116,7 @@ const Reportable = Super => class extends Super {
       cursor = cursor.projection({ 'data.edges.type': 1, 'data.nodes.type': 1, createdAt: 1, _id: 0 });
       cursor = cursor.sort(leastRecent);
       cursor.exec(resolveOrReject(((records) => {
-        resolve(records.reduce((entries, record) => {
+        const entities = records.reduce((entries, record) => {
           const { edges: { type: edgeTypes } = {}, nodes: { type: nodeTypes } = {} } = record.data;
           const time = record.createdAt.getTime();
           const nodeTypeCounts = reduceEntityTypeCounts(nodeTypes, 'node');
@@ -117,11 +138,27 @@ const Reportable = Super => class extends Super {
             });
           }
           return entries;
-        }, []));
+        }, []);
+
+        const keys = [...entities.reduce((acc, entity) => {
+          Object.keys(entity).forEach((key) => {
+            if (key !== 'time') { acc.add(key); }
+          });
+          return acc;
+        }, new Set())];
+
+        resolve({ entities, keys });
       }), reject));
     });
   }
 
+  /**
+   * Return total counts for sessions, nodes and edges
+   * @param {string} protocolId
+   * @return {Object} { sessions, nodes, edges }
+   *
+   * @memberOf Reportable.prototype
+   */
   totalCounts(protocolId) {
     return Promise.all(
       [
@@ -138,28 +175,41 @@ const Reportable = Super => class extends Super {
 
   /**
    * Count occurences of ordinal or categorical values in the study for a histogram.
+   * Counts are returned for each variableName requested, regardless of entity type.
+   * variableNames are grouped by entityType, since names may conflict.
+   *
    * @param  {string} protocolId
-   * @param  {string} variableName the ordinal or categorial variabel name to count
+   * @param  {Array} variableNames the ordinal or categorial variable names to count
    * @param  {string} entityName='node' Possible values: 'node', 'edge'.
-   * @param  {string} entityType=null If given, filter all nodes by the given type first.
-   *                                  This may be needed if variable names overlap,
-   *                                  since variable IDs aren't exported.
    * @return {Object} buckets keyed by ordinal/cardinal value, with count values
+   *
+   * @example
+   * ```
+   * { person: { contactFrequency: { 1: 1, 2: 4 } } }
+   * ```
+   *
+   * @memberOf Reportable.prototype
    */
-  optionValueBuckets(protocolId, variableName, entityName = 'node', entityType = null) {
+  optionValueBuckets(protocolId, variableNames, entityName = 'node') {
     return new Promise((resolve, reject) => {
       const key = entityKey(entityName);
       this.db.find({ protocolId, [`data.${key}`]: { $exists: true } }, resolveOrReject((docs) => {
-        let entities = flatten(docs.map(doc => doc.data[key]));
-        if (entityType) {
-          entities = entities.filter(entity => entity.type === entityType);
-        }
+        const entities = flatten(docs.map(doc => doc.data[key]));
         const buckets = entities.reduce((acc, entity) => {
-          const optionValue = entity[attributesProperty][variableName];
-          if (optionValue !== undefined) {
-            acc[optionValue] = acc[optionValue] || 0;
-            acc[optionValue] += 1;
-          }
+          acc[entity.type] = acc[entity.type] || {};
+          variableNames.forEach((variableName) => {
+            acc[entity.type][variableName] = acc[entity.type][variableName] || {};
+            const optionValue = entity[attributesProperty][variableName];
+            if (optionValue !== undefined) {
+              // Categorical values are expressed as arrays of multiple options
+              const optionValues = (optionValue instanceof Array) ? optionValue : [optionValue];
+              const counts = acc[entity.type][variableName];
+              optionValues.forEach((value) => {
+                counts[value] = counts[value] || 0;
+                counts[value] += 1;
+              });
+            }
+          });
           return acc;
         }, {});
         resolve(buckets);

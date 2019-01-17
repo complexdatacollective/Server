@@ -27,7 +27,7 @@ const buildChartContent = (sessions) => {
     .map(([dateStr, count]) => ({ name: dateStr, [dataLabel]: count }))
     .reverse();
 
-  return <BarChart data={barData} dataKeys={[dataLabel]} />;
+  return <BarChart allowDecimals={false} data={barData} dataKeys={[dataLabel]} />;
 };
 
 /**
