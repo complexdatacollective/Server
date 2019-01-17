@@ -26,3 +26,5 @@ exports.createTray = (template) => {
 
   return tray;
 };
+
+exports.getTrayImage = getTrayImage;

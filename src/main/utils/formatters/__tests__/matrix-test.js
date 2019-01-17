@@ -1,6 +1,6 @@
 /* eslint-env jest */
 import { makeWriteableStream } from '../../../../../config/jest/setupTestEnv';
-import { asAdjacencyMatrix } from '../matrix';
+import { asAdjacencyMatrix, AdjacencyMatrixFormatter } from '../matrix';
 
 const mockNetwork = edges => ({
   edges,
@@ -124,5 +124,19 @@ describe('toCSVStream', () => {
       '10,0,0,0,0,0,0,0,0,1,0\r\n',
     ];
     expect(csv).toEqual(rows.join('\r\n'));
+  });
+});
+
+describe('AdjacencyMatrixFormatter', () => {
+  let writable;
+
+  beforeEach(() => {
+    writable = makeWriteableStream();
+  });
+
+  it('writeToStream returns an abort controller', () => {
+    const formatter = new AdjacencyMatrixFormatter({});
+    const controller = formatter.writeToStream(writable);
+    expect(controller.abort).toBeInstanceOf(Function);
   });
 });

@@ -1,5 +1,5 @@
 /* eslint-env jest */
-import reducer, { actionCreators, actionTypes, messageTypes } from '../appMessages';
+import reducer, { actionCreators, actionTypes, messageTypes, messageLifetimeMillis } from '../appMessages';
 
 jest.mock('../../../utils/adminApiClient');
 
@@ -17,6 +17,22 @@ describe('the appMessages module', () => {
 
     it('dismisses messages', () => {
       const state = reducer([{ text: '' }], { type: actionTypes.DISMISS_MESSAGES });
+      expect(state).toEqual([]);
+    });
+
+    it('dismisses one message', () => {
+      const timestamp = 1;
+      const state = reducer([{ text: '', timestamp }], { type: actionTypes.DISMISS_MESSAGE, messageTimestamp: timestamp });
+      expect(state).toEqual([]);
+    });
+
+    it('marks expired messages', () => {
+      const state = reducer([{ text: '', timestamp: 1 }], { type: actionTypes.UPDATE_MESSAGE_STATE });
+      expect(state).toEqual([{ text: '', timestamp: 1, isExpired: true }]);
+    });
+
+    it('filters expired messages', () => {
+      const state = reducer([{ text: '', isExpired: true }], { type: actionTypes.UPDATE_MESSAGE_STATE });
       expect(state).toEqual([]);
     });
   });
@@ -53,6 +69,16 @@ describe('the appMessages module', () => {
         messageType: messageTypes.Confirmation,
         type: actionTypes.SHOW_MESSAGE,
         text: 'testing',
+      }));
+    });
+
+    it('schedules message expiration', () => {
+      jest.useFakeTimers();
+      const dispatch = jest.fn();
+      actionCreators.showConfirmationMessage('testing')(dispatch);
+      jest.advanceTimersByTime(messageLifetimeMillis);
+      expect(dispatch).toHaveBeenLastCalledWith(expect.objectContaining({
+        type: actionTypes.UPDATE_MESSAGE_STATE,
       }));
     });
   });

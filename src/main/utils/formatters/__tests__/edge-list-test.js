@@ -1,6 +1,6 @@
 /* eslint-env jest */
 import { makeWriteableStream } from '../../../../../config/jest/setupTestEnv';
-import { asEdgeList, toCSVStream } from '../edge-list';
+import { asEdgeList, toCSVStream, EdgeListFormatter } from '../edge-list';
 
 const listFromEdges = (edges, directed) => asEdgeList({ edges }, directed);
 
@@ -65,5 +65,19 @@ describe('toCSVStream', () => {
     toCSVStream(list, writable);
     const csv = await writable.asString();
     expect(csv).toEqual('1,2\r\n2,1\r\n');
+  });
+});
+
+describe('EdgeListFormatter', () => {
+  let writable;
+
+  beforeEach(() => {
+    writable = makeWriteableStream();
+  });
+
+  it('writeToStream returns an abort controller', () => {
+    const formatter = new EdgeListFormatter({});
+    const controller = formatter.writeToStream(writable);
+    expect(controller.abort).toBeInstanceOf(Function);
   });
 });

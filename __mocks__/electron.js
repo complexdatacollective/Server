@@ -22,11 +22,16 @@ const app = {
   getPath: jest.fn(() => '.'),
   makeSingleInstance: jest.fn(),
   on: jest.fn(),
+  removeAllListeners: jest.fn(),
   quit: jest.fn(),
 };
 
 const dialog = {
-  showMessageBox: jest.fn(),
+  showErrorBox: jest.fn(),
+  showMessageBox: jest.fn().mockImplementation((browserWindow, options, callback) => {
+    const cb = typeof options === 'function' ? options : callback;
+    if (cb) { cb(); }
+  }),
   showOpenDialog: jest.fn(),
   showSaveDialog: jest.fn(),
 };
