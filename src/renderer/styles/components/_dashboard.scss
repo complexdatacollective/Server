@@ -6,13 +6,12 @@
 
   display: grid;
   grid-auto-rows: minmax($min-grid-row, $max-grid-row);
-  grid-gap: $grid-gap;
+  // Drag handles are rendered as bars below each panel; add extra vertical gap to accommodate:
+  grid-gap: calc(#{$grid-gap} + var(--draggable-height)) $grid-gap;
   grid-template-columns: repeat($column-count, 1fr);
 
   @include element(panel) {
     background-color: var(--color-white);
-    border-bottom: var(--dashboard-panel-accent-radius) solid var(--dashboard-panel-accent-color);
-    border-radius: 0 0 var(--dashboard-panel-accent-radius) var(--dashboard-panel-accent-radius);
     height: 100%;
     padding: spacing(large);
     position: relative;

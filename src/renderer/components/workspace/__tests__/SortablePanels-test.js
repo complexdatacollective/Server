@@ -5,8 +5,9 @@ import { shallow } from 'enzyme';
 import SortablePanels from '../SortablePanels';
 
 jest.mock('react-sortable-hoc', () => ({
-  SortableElement: jest.fn(component => component),
   SortableContainer: jest.fn(component => component),
+  SortableElement: jest.fn(component => component),
+  SortableHandle: jest.fn(component => component),
 }));
 
 describe('SortablePanel', () => {

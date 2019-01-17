@@ -132,6 +132,7 @@ class WorkspaceScreen extends Component {
           panels={sortedPanels}
           axis="xy"
           onSortEnd={onSortEnd}
+          useDragHandle
         />
       </div>
     );

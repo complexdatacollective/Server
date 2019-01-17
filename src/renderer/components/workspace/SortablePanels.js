@@ -16,7 +16,11 @@ class Panels extends PureComponent {
       <div className={className}>
         {
           panels.map((panel, index) => (
-            <SortablePanel key={`${panel.key}-panel`} index={index} disabled={panel.props.disabled || false}>
+            <SortablePanel
+              key={`${panel.key}-panel`}
+              index={index}
+              disabled={panel.props.disabled || false}
+            >
               { panel }
             </SortablePanel>
           ))

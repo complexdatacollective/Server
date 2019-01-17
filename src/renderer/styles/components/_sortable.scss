@@ -1,0 +1,9 @@
+.sortable {
+  @include element(handle) {
+    background-color: var(--draggable-color);
+    border-radius: var(--draggable-border-radius);
+    cursor: grab;
+    height: var(--draggable-height);
+    width: 100%;
+  }
+}

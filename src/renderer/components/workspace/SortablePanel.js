@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { SortableElement } from 'react-sortable-hoc';
+import { SortableElement, SortableHandle } from 'react-sortable-hoc';
+
+const DragHandle = SortableHandle(() => <div className="sortable__handle" />);
 
 class Panel extends PureComponent {
   render() {
@@ -8,6 +10,7 @@ class Panel extends PureComponent {
     return (
       <div>
         { children }
+        <DragHandle />
       </div>
     );
   }
