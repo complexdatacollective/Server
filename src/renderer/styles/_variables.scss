@@ -1,7 +1,10 @@
 :root {
+  $box-shadow-color: rgba(0, 0, 0, 0.3);
+
   // Colors
   --base-background-color: var(--color-platinum);
   --base-border-color: var(--color-platinum--dark);
+  --box-shadow-color: #{$box-shadow-color};
   --draggable-color: var(--color-sea-serpent);
   --inverse-background-color: var(--color-navy-taupe);
   --inverse-text-color: var(--color-white);

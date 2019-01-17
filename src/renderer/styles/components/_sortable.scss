@@ -1,4 +1,8 @@
 .sortable {
+  @include modifier(dragging) {
+    box-shadow: 0 1rem 1.5rem var(--box-shadow-color);
+  }
+
   @include element(handle) {
     background-color: var(--draggable-color);
     border-radius: var(--draggable-border-radius);

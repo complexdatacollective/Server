@@ -129,6 +129,7 @@ class WorkspaceScreen extends Component {
         <SortablePanels
           getContainer={() => this.props.scrollContainerRef.current}
           className="dashboard"
+          helperClass="sortable--dragging"
           panels={sortedPanels}
           axis="xy"
           onSortEnd={onSortEnd}
