@@ -8,7 +8,7 @@ class Panel extends PureComponent {
   render() {
     const { children } = this.props;
     return (
-      <div>
+      <div className="sortable">
         { children }
         <DragHandle />
       </div>
