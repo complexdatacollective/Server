@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Types from '../types';
+import Types from '../../types';
 import PanelItem from './PanelItem';
 
 const ProtocolPanel = ({ protocol }) => (

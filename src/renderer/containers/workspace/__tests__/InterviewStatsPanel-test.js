@@ -3,9 +3,9 @@ import React from 'react';
 import { mount, shallow } from 'enzyme';
 
 import InterviewStatsPanel from '../InterviewStatsPanel';
-import AdminApiClient from '../../utils/adminApiClient';
+import AdminApiClient from '../../../utils/adminApiClient';
 
-jest.mock('../../utils/adminApiClient');
+jest.mock('../../../utils/adminApiClient');
 
 describe('InterviewStatsPanel', () => {
   let mockApiClient;

@@ -6,6 +6,7 @@ const { jsonClient, makeUrl } = require('../../../../config/jest/setupTestEnv');
 const DeviceManager = require('../../data-managers/DeviceManager');
 const ProtocolManager = require('../../data-managers/ProtocolManager');
 
+jest.mock('nedb');
 jest.mock('electron-log');
 jest.mock('../../data-managers/DeviceManager');
 jest.mock('../../data-managers/ProtocolManager');

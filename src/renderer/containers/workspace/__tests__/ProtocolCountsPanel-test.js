@@ -3,9 +3,9 @@ import React from 'react';
 import { mount, shallow } from 'enzyme';
 
 import ConnectedProtocolCountsPanel, { UnconnectedProtocolCountsPanel } from '../ProtocolCountsPanel';
-import AdminApiClient from '../../utils/adminApiClient';
+import AdminApiClient from '../../../utils/adminApiClient';
 
-jest.mock('../../utils/adminApiClient');
+jest.mock('../../../utils/adminApiClient');
 
 const props = {
   protocolId: '1',

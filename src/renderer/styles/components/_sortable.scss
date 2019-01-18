@@ -1,0 +1,20 @@
+.sortable {
+  @include modifier(dragging) {
+    box-shadow: 0 1rem 1.5rem var(--box-shadow-color);
+
+    // Override inline pointer-events style to allow 'grabbing' cursor to display
+    pointer-events: auto !important; // sass-lint:disable-line no-important
+
+    .sortable__handle {
+      cursor: grabbing;
+    }
+  }
+
+  @include element(handle) {
+    background-color: var(--draggable-color);
+    border-radius: var(--draggable-border-radius);
+    cursor: grab;
+    height: var(--draggable-height);
+    width: 100%;
+  }
+}

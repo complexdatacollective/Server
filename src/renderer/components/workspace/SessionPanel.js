@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import { DismissButton, ScrollingPanelItem } from '../components';
-import { formatDate } from '../utils/formatters';
+import { DismissButton, ScrollingPanelItem } from '../../components';
+import { formatDate } from '../../utils/formatters';
 
 const emptyContent = (<p>Interviews you import from Network Canvas will appear here.</p>);
 

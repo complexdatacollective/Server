@@ -11,6 +11,6 @@ const mockNext = jest.fn();
 describe('API request logger', () => {
   it('logs requests as info', () => {
     apiRequestLogger()(mockReq, mockRes, mockNext);
-    expect(logger.info).toHaveBeenCalled();
+    expect(logger.debug).toHaveBeenCalled();
   });
 });

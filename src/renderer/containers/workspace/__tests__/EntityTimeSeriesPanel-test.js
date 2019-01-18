@@ -3,10 +3,10 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import EntityTimeSeriesPanel from '../EntityTimeSeriesPanel';
-import AdminApiClient from '../../utils/adminApiClient';
+import AdminApiClient from '../../../utils/adminApiClient';
 
 jest.mock('recharts');
-jest.mock('../../utils/adminApiClient', () => {
+jest.mock('../../../utils/adminApiClient', () => {
   function MockApiClient() {}
   MockApiClient.prototype.get = jest.fn().mockResolvedValue({
     entities: [{ time: 1546455484765, node: 20, edge: 0 }],

@@ -1,20 +1,21 @@
 .dashboard {
   $min-grid-row: 0;
   $max-grid-row: 27rem;
-  $top-grid-row: auto;
-  $second-grid-row: auto;
   $column-count: 3;
+  $grid-gap: spacing(medium);
 
   display: grid;
   grid-auto-rows: minmax($min-grid-row, $max-grid-row);
-  grid-gap: spacing(medium);
+  // Drag handles are rendered as bars below each panel; add extra vertical gap to accommodate:
+  grid-gap: calc(#{$grid-gap} + var(--draggable-height)) $grid-gap;
   grid-template-columns: repeat($column-count, 1fr);
-  grid-template-rows: $top-grid-row $second-grid-row;
 
   @include element(panel) {
     background-color: var(--color-white);
+    height: 100%;
     padding: spacing(large);
     position: relative;
+    width: 100%;
 
     @include modifier(chart) {
       display: flex;
@@ -34,15 +35,6 @@
         height: var(--scrolling-panel-header-height);
         margin-bottom: var(--scrolling-panel-header-margin);
       }
-    }
-
-    @include modifier(server-stats) {
-      grid-area: 1 / span $column-count;
-    }
-
-    &:not(:first-child) {
-      border-bottom: var(--dashboard-panel-accent-radius) solid var(--dashboard-panel-accent-color);
-      border-radius: 0 0 var(--dashboard-panel-accent-radius) var(--dashboard-panel-accent-radius);
     }
   }
 

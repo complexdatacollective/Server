@@ -1,8 +1,11 @@
 :root {
+  $box-shadow-color: rgba(0, 0, 0, 0.3);
+
   // Colors
   --base-background-color: var(--color-platinum);
   --base-border-color: var(--color-platinum--dark);
-  --dashboard-panel-accent-color: var(--color-sea-serpent);
+  --box-shadow-color: #{$box-shadow-color};
+  --draggable-color: var(--color-sea-serpent);
   --inverse-background-color: var(--color-navy-taupe);
   --inverse-text-color: var(--color-white);
   --message-background-color: var(--color-sea-green--dark);
@@ -22,6 +25,7 @@
   // Layout
   --app-sidebar-width: 9rem;
   --app-titlebar-height: 22px;
+  --draggable-height: 0.8rem;
+  --draggable-border-radius: 0 0 0.25rem 0.25rem;
   --modal-window-padding: #{spacing(huge)};
-  --dashboard-panel-accent-radius: 4px;
 }

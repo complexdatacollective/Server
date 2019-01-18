@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import InterviewWidget from '../components/charts/InterviewWidget';
-import withApiClient from '../components/withApiClient';
-import { formatDecimal } from '../utils/formatters';
+import InterviewWidget from '../../components/charts/InterviewWidget';
+import withApiClient from '../../components/withApiClient';
+import { formatDecimal } from '../../utils/formatters';
 
 const shapeStatsData = ({ nodes = {}, edges = {} }) => ([
   { name: 'Node count',
@@ -22,7 +22,7 @@ const shapeStatsData = ({ nodes = {}, edges = {} }) => ([
   },
 ]);
 
-class InterviewStatsPanel extends Component {
+class InterviewStatsPanel extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
