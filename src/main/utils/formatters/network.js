@@ -12,8 +12,9 @@ const unionOfNetworks = networks =>
   networks.reduce((union, network) => {
     union.nodes.push(...network.nodes);
     union.edges.push(...network.edges);
+    union.ego.push(network.ego); // TODO undefined is not a function
     return union;
-  }, { nodes: [], edges: [] });
+  }, { nodes: [], edges: [], ego: [] });
 
 /**
  * Run the query on each network; filter for those which meet the criteria (i.e., where the query
@@ -38,6 +39,18 @@ const filterNetworkEntities = (networks, filterConfig) => {
   const filter = getFilter(filterConfig);
   return networks.map(network => filter(network));
 };
+
+const insertNetworkEgo = network => (
+  {
+    nodes: network.nodes.map(node => ({ _egoID: network.ego[nodePrimaryKeyProperty], ...node })),
+    edges: network.edges.map(edge => ({ _egoID: network.ego[nodePrimaryKeyProperty], ...edge })),
+    ego: network.ego,
+  }
+);
+
+const insertEgoInNetworks = networks => (
+  networks.map(network => insertNetworkEgo(network))
+);
 
 const transposedRegistrySection = (section = {}) =>
   Object.values(section).reduce((sectionRegistry, definition) => {
@@ -69,6 +82,7 @@ module.exports = {
   filterNetworkEntities,
   filterNetworksWithQuery,
   getNodeAttributes,
+  insertEgoInNetworks,
   nodeAttributesProperty,
   nodePrimaryKeyProperty,
   transposedRegistry,

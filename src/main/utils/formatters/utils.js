@@ -5,6 +5,7 @@
 const {
   AdjacencyMatrixFormatter,
   AttributeListFormatter,
+  EgoListFormatter,
   EdgeListFormatter,
   GraphMLFormatter,
 } = require('./index');
@@ -19,6 +20,7 @@ const formats = {
   adjacencyMatrix: 'adjacencyMatrix',
   attributeList: 'attributeList',
   edgeList: 'edgeList',
+  ego: 'ego',
 };
 
 const extensions = {
@@ -48,6 +50,7 @@ const formatsAreValid = suppliedFormats =>
 const partitionByEdgeType = (network, format) => {
   switch (format) {
     case formats.graphml:
+    case formats.ego:
     case formats.attributeList:
       return [network];
     case formats.edgeList:
@@ -86,6 +89,7 @@ const getFileExtension = (formatterType) => {
     case formats.adjacencyMatrix:
     case formats.edgeList:
     case formats.attributeList:
+    case formats.ego:
       return extensions.csv;
     default:
       return null;
@@ -107,6 +111,8 @@ const getFormatterClass = (formatterType) => {
       return EdgeListFormatter;
     case formats.attributeList:
       return AttributeListFormatter;
+    case formats.ego:
+      return EgoListFormatter;
     default:
       return null;
   }

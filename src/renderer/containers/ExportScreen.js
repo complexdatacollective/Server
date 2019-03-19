@@ -34,9 +34,10 @@ class ExportScreen extends Component {
     this.state = {
       exportFormat: 'graphml',
       exportNetworkUnion: false,
-      csvTypes: new Set(Object.keys(availableCsvTypes)),
+      csvTypes: new Set([...Object.keys(availableCsvTypes), 'ego']),
       entityFilter: defaultFilter,
       useDirectedEdges: true,
+      useEgoData: true,
     };
   }
 
@@ -65,6 +66,10 @@ class ExportScreen extends Component {
 
   handleDirectedEdgesChange = (evt) => {
     this.setState({ useDirectedEdges: evt.target.checked });
+  }
+
+  handleEgoDataChange = (evt) => {
+    this.setState({ useEgoData: evt.target.checked });
   }
 
   handleExport = () => {
@@ -116,15 +121,21 @@ class ExportScreen extends Component {
       csvTypes,
       entityFilter,
       useDirectedEdges,
+      useEgoData,
     } = this.state;
+
+    const csvTypesNoEgo = new Set(this.state.csvTypes);
+    csvTypesNoEgo.delete('ego');
+    const exportCsvTypes = useEgoData ? csvTypes : csvTypesNoEgo;
 
     apiClient
       .post(`/protocols/${protocolId}/export_requests`, {
-        exportFormats: (exportFormat === 'csv' && [...csvTypes]) || [exportFormat],
+        exportFormats: (exportFormat === 'csv' && [...exportCsvTypes]) || [exportFormat],
         exportNetworkUnion,
         destinationFilepath,
         entityFilter,
         useDirectedEdges,
+        useEgoData,
       })
       .then(() => showConfirmation('Export complete'))
       .catch(err => showError(err.message))
@@ -201,11 +212,37 @@ class ExportScreen extends Component {
                       </div>
                     ))
                   }
+                  <DrawerTransition in={this.state.useEgoData}>
+                    <div key="export_csv_type_ego">
+                      <Checkbox
+                        label="Ego Attribute List"
+                        input={{
+                          name: 'export_ego_attributes',
+                          checked: this.state.csvTypes.has('ego'),
+                          value: 'ego',
+                          onChange: this.handleCsvTypeChange,
+                        }}
+                      />
+                    </div>
+                  </DrawerTransition>
                 </div>
               </div>
             </DrawerTransition>
           </div>
         </div>
+        <DrawerTransition in={showCsvOpts}>
+          <div className="export__section">
+            <h4>Ego</h4>
+            <Toggle
+              label="Include Ego data?"
+              input={{
+                name: 'export_ego_data',
+                onChange: this.handleEgoDataChange,
+                value: this.state.useEgoData,
+              }}
+            />
+          </div>
+        </DrawerTransition>
         <div className="export__section">
           <h4>Directed Edges</h4>
           <Toggle

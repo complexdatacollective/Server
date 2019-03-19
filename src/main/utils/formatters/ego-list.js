@@ -3,21 +3,20 @@ const { Readable } = require('stream');
 const { nodePrimaryKeyProperty } = require('./network');
 const { cellValue, csvEOL } = require('./csv');
 
-const asAttributeList = network => network.nodes;
+const asEgoList = network => (
+  Array.isArray(network.ego) ? network.ego : [network.ego]
+);
 
 /**
  * The output of this formatter will contain the primary key (_uid)
  * and all model data (inside the `attributes` property)
  */
-const attributeHeaders = (nodes, withEgo) => {
+const attributeHeaders = (egos) => {
   const initialHeaderSet = new Set([]);
-  if (withEgo) {
-    initialHeaderSet.add('_egoID');
-  }
   initialHeaderSet.add(nodePrimaryKeyProperty);
 
-  const headerSet = nodes.reduce((headers, node) => {
-    Object.keys(node.attributes).forEach((key) => {
+  const headerSet = egos.reduce((headers, ego) => {
+    Object.keys(ego.attributes).forEach((key) => {
       headers.add(key);
     });
     return headers;
@@ -28,13 +27,13 @@ const attributeHeaders = (nodes, withEgo) => {
 /**
  * @return {Object} an abort controller; call the attached abort() method as needed.
  */
-const toCSVStream = (nodes, withEgo, outStream) => {
-  const totalRows = nodes.length;
-  const attrNames = attributeHeaders(nodes, withEgo);
+const toCSVStream = (egos, outStream) => {
+  const totalRows = egos.length;
+  const attrNames = attributeHeaders(egos);
   let headerWritten = false;
   let rowIndex = 0;
   let rowContent;
-  let node;
+  let ego;
 
   const inStream = new Readable({
     read(/* size */) {
@@ -42,14 +41,14 @@ const toCSVStream = (nodes, withEgo, outStream) => {
         this.push(`${attrNames.map(attr => cellValue(attr)).join(',')}${csvEOL}`);
         headerWritten = true;
       } else if (rowIndex < totalRows) {
-        node = nodes[rowIndex];
+        ego = egos[rowIndex];
         const values = attrNames.map((attrName) => {
           // The primary key and ego id exist at the top-level; all others inside `.attributes`
           let value;
-          if (attrName === nodePrimaryKeyProperty || attrName === '_egoID') {
-            value = node[attrName];
+          if (attrName === nodePrimaryKeyProperty) {
+            value = ego[attrName];
           } else {
-            value = node.attributes[attrName];
+            value = ego.attributes[attrName];
           }
           return cellValue(value);
         });
@@ -70,19 +69,19 @@ const toCSVStream = (nodes, withEgo, outStream) => {
   };
 };
 
-class AttributeListFormatter {
+class EgoListFormatter {
   constructor(data, directed = false, includeEgo = false) {
-    this.list = asAttributeList(data, directed, includeEgo) || [];
-    this.includeEgo = includeEgo;
+    this.list = asEgoList(data, directed, includeEgo) || [];
   }
   writeToStream(outStream) {
-    return toCSVStream(this.list, this.includeEgo, outStream);
+    // TODO not a list here...somewhere else needs to compile the egos
+    return toCSVStream(this.list, outStream);
   }
 }
 
 
 module.exports = {
-  AttributeListFormatter,
-  asAttributeList,
+  EgoListFormatter,
+  asEgoList,
   toCSVStream,
 };

@@ -12,6 +12,7 @@ const { makeTempDir, removeTempDir } = require('../utils/formatters/dir');
 const {
   filterNetworkEntities,
   filterNetworksWithQuery,
+  insertEgoInNetworks,
   transposedRegistry,
   unionOfNetworks,
 } = require('../utils/formatters/network');
@@ -40,7 +41,7 @@ const makeFilename = (prefix, edgeType, exportFormat, extension) => {
  * @param  {string} namePrefix
  * @param  {formats} exportFormat
  * @param  {string} outDir directory where we should write the file
- * @param  {object} network NC-formatted network `({ nodes, edges })`
+ * @param  {object} network NC-formatted network `({ nodes, edges, ego })`
  * @param  {object} [options]
  * @param  {boolean} [options.useDirectedEdges=false] true to force directed edges
  * @param  {Object} [options.variableRegistry] needed for graphML export
@@ -54,7 +55,7 @@ const exportFile = (
   exportFormat,
   outDir,
   network,
-  { useDirectedEdges, variableRegistry } = {},
+  { useDirectedEdges, useEgoData, variableRegistry } = {},
 ) => {
   const Formatter = getFormatterClass(exportFormat);
   const extension = getFileExtension(exportFormat);
@@ -66,7 +67,7 @@ const exportFile = (
   let writeStream;
 
   const pathPromise = new Promise((resolve, reject) => {
-    const formatter = new Formatter(network, useDirectedEdges, variableRegistry);
+    const formatter = new Formatter(network, useDirectedEdges, useEgoData, variableRegistry);
     const outputName = makeFilename(namePrefix, edgeType, exportFormat, extension);
     const filepath = path.join(outDir, outputName);
     writeStream = fs.createWriteStream(filepath);
@@ -107,9 +108,9 @@ class ExportManager {
    * @param {Object} protocol the saved protocol from DB
    * @param {string} options.destinationFilepath local FS path to output the final file
    * @param {Array<string>} options.exportFormats
-   *        Possible values: "adjacencyMatrix", "attributeList", "edgeList", "graphml"
+   *        Possible values: "adjacencyMatrix", "attributeList", "edgeList", "ego", "graphml"
    * @param {Array} options.csvTypes if `exportFormat` is "csv", then include these types in output.
-   *                                 Options: ["adjacencyMatrix", "attributeList", "edgeList"]
+   *                                Options: ["adjacencyMatrix", "attributeList", "edgeList", "ego"]
    * @param {boolean} options.exportNetworkUnion true if all interview networks should be merged
    *                                             false if each interview network should be exported
    *                                             individually
@@ -137,6 +138,7 @@ class ExportManager {
       entityFilter,
       networkInclusionQuery,
       useDirectedEdges,
+      useEgoData,
     } = {},
   ) {
     if (!protocol) {
@@ -152,6 +154,7 @@ class ExportManager {
     let promisedExports;
     const exportOpts = {
       useDirectedEdges,
+      useEgoData,
       variableRegistry: transposedRegistry(protocol.variableRegistry),
     };
 
@@ -173,8 +176,9 @@ class ExportManager {
       .then(() => this.sessionDB.findAll(protocol._id, null, null))
       .then(sessions => sessions.map(session => session.data))
       .then(allNetworks => filterNetworksWithQuery(allNetworks, networkInclusionQuery))
+      .then(allNetworks => filterNetworkEntities(allNetworks, entityFilter))
+      .then(networks => (useEgoData ? insertEgoInNetworks(networks) : networks))
       .then(networks => (exportNetworkUnion ? [unionOfNetworks(networks)] : networks))
-      .then(networks => filterNetworkEntities(networks, entityFilter))
       .then((networks) => {
         promisedExports = flattenDeep(
           // Export every network
