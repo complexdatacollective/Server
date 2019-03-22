@@ -193,6 +193,8 @@ class ExportScreen extends Component {
                 onChange: this.handleFormatChange,
               }}
             />
+          </div>
+          <div>
             <DrawerTransition in={showCsvOpts}>
               <div className="export__subpanel">
                 <div className="export__subpanel-content">
