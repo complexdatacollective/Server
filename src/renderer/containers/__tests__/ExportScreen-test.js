@@ -98,6 +98,12 @@ describe('<ExportScreen />', () => {
       expect(subject.state('useDirectedEdges')).toBe(true);
     });
 
+    it('toggles ego setting', () => {
+      const radioWrapper = subject.findWhere(n => n.name() === 'Toggle' && (/Ego/).test(n.prop('label')));
+      radioWrapper.dive().find('input').simulate('change', { target: { checked: true } });
+      expect(subject.state('useEgoData')).toBe(true);
+    });
+
     it('prompts for output path before export', () => {
       subject.instance().handleExport();
       expect(remote.dialog.showSaveDialog).toHaveBeenCalled();

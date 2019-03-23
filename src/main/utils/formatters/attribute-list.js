@@ -17,7 +17,7 @@ const attributeHeaders = (nodes, withEgo) => {
   initialHeaderSet.add(nodePrimaryKeyProperty);
 
   const headerSet = nodes.reduce((headers, node) => {
-    Object.keys(node.attributes).forEach((key) => {
+    Object.keys(node.attributes || []).forEach((key) => {
       headers.add(key);
     });
     return headers;
@@ -28,7 +28,7 @@ const attributeHeaders = (nodes, withEgo) => {
 /**
  * @return {Object} an abort controller; call the attached abort() method as needed.
  */
-const toCSVStream = (nodes, withEgo, outStream) => {
+const toCSVStream = (nodes, outStream, withEgo = false) => {
   const totalRows = nodes.length;
   const attrNames = attributeHeaders(nodes, withEgo);
   let headerWritten = false;
@@ -76,7 +76,7 @@ class AttributeListFormatter {
     this.includeEgo = includeEgo;
   }
   writeToStream(outStream) {
-    return toCSVStream(this.list, this.includeEgo, outStream);
+    return toCSVStream(this.list, outStream, this.includeEgo);
   }
 }
 

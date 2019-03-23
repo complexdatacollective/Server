@@ -18,7 +18,7 @@ describe('toCSVStream', () => {
   });
 
   it('writes a simple CSV', async () => {
-    toCSVStream([{ _uid: 1, attributes: { name: 'Jane' } }], writable);
+    toCSVStream([{ _uid: 1, _egoID: 2, attributes: { name: 'Jane' } }], writable);
     const csv = await writable.asString();
     expect(csv).toEqual('_uid,name\r\n1,Jane\r\n');
   });
@@ -57,6 +57,12 @@ describe('toCSVStream', () => {
     toCSVStream([{ _uid: 1, attributes: { prop: false } }], writable);
     const csv = await writable.asString();
     expect(csv).toEqual('_uid,prop\r\n1,false\r\n');
+  });
+
+  it('exports egoID', async () => {
+    toCSVStream([{ _uid: 1, _egoID: 2, attributes: { prop: false } }], writable, true);
+    const csv = await writable.asString();
+    expect(csv).toEqual('_egoID,_uid,prop\r\n2,1,false\r\n');
   });
 });
 

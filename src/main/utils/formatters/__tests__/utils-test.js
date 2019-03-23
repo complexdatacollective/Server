@@ -16,6 +16,7 @@ describe('formatter utilities', () => {
       expect(getFileExtension(formats.adjacencyMatrix)).toEqual('.csv');
       expect(getFileExtension(formats.edgeList)).toEqual('.csv');
       expect(getFileExtension(formats.attributeList)).toEqual('.csv');
+      expect(getFileExtension(formats.ego)).toEqual('.csv');
     });
   });
 

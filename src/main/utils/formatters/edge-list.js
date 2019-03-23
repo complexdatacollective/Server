@@ -26,7 +26,7 @@ const { nodePrimaryKeyProperty } = require('./network');
 const asEdgeList = (network, directed = false) => {
   if (directed === false) {
     // this may change if we have support for directed vs undirected edges in NC
-    return network.edges.reduce((arr, edge) => (
+    return (network.edges || []).reduce((arr, edge) => (
       arr.concat(
         { ...edge, _source: edge.from, _target: edge.to },
         { ...edge, _source: edge.to, _target: edge.from },
@@ -50,7 +50,7 @@ const attributeHeaders = (edges, withEgo) => {
   initialHeaderSet.add('_target');
 
   const headerSet = edges.reduce((headers, edge) => {
-    Object.keys(edge.attributes).forEach((key) => {
+    Object.keys(edge.attributes || []).forEach((key) => {
       headers.add(key);
     });
     return headers;
@@ -71,7 +71,7 @@ const attributeHeaders = (edges, withEgo) => {
  *
  * @return {Object} an abort controller; call the attached abort() method as needed.
  */
-const toCSVStream = (edges, withEgo, outStream) => {
+const toCSVStream = (edges, outStream, withEgo = false) => {
   const totalChunks = edges.length;
   let chunkContent;
   let chunkIndex = 0;
@@ -120,7 +120,7 @@ class EdgeListFormatter {
     this.includeEgo = includeEgo;
   }
   writeToStream(outStream) {
-    return toCSVStream(this.list, this.includeEgo, outStream);
+    return toCSVStream(this.list, outStream, this.includeEgo);
   }
 }
 
