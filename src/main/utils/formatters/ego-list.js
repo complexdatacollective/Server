@@ -16,7 +16,7 @@ const attributeHeaders = (egos) => {
   initialHeaderSet.add(nodePrimaryKeyProperty);
 
   const headerSet = egos.reduce((headers, ego) => {
-    Object.keys(ego.attributes).forEach((key) => {
+    Object.keys((ego && ego.attributes) || {}).forEach((key) => {
       headers.add(key);
     });
     return headers;
@@ -41,7 +41,7 @@ const toCSVStream = (egos, outStream) => {
         this.push(`${attrNames.map(attr => cellValue(attr)).join(',')}${csvEOL}`);
         headerWritten = true;
       } else if (rowIndex < totalRows) {
-        ego = egos[rowIndex];
+        ego = egos[rowIndex] || {};
         const values = attrNames.map((attrName) => {
           // The primary key and ego id exist at the top-level; all others inside `.attributes`
           let value;
