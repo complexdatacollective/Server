@@ -44,7 +44,7 @@ const insertNetworkEgo = network => (
   {
     nodes: network.nodes.map(node => ({ _egoID: network.ego[nodePrimaryKeyProperty], ...node })),
     edges: network.edges.map(edge => ({ _egoID: network.ego[nodePrimaryKeyProperty], ...edge })),
-    ego: network.ego,
+    ego: { ...network.ego, attributes: { ...network.sessionVariables, ...network.ego.attributes } },
   }
 );
 
