@@ -77,6 +77,14 @@ describe('network format helpers', () => {
       expect(egoNetworks[0].edges).toEqual([{ _egoID: 1, id: 1 }, { _egoID: 1, id: 2 }]);
       expect(egoNetworks[1].edges).toEqual([{ _egoID: 2, id: a }]);
     });
+
+    it('inserts session variables in ego', () => {
+      const a = { nodes: [], edges: [], ego: { _uid: 1 }, sessionVariables: { _caseID: 'c' } };
+      const b = { nodes: [], edges: [], ego: { _uid: 2 }, sessionVariables: { _caseID: 1 } };
+      const egoNetworks = insertEgoInNetworks([a, b]);
+      expect(egoNetworks[0].ego).toEqual({ _uid: 1, attributes: { _caseID: 'c' } });
+      expect(egoNetworks[1].ego).toEqual({ _uid: 2, attributes: { _caseID: 1 } });
+    });
   });
 
   describe('getNodeAttributes', () => {
