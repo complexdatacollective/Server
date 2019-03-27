@@ -194,8 +194,16 @@ class ExportScreen extends Component {
               }}
             />
           </div>
-          <div>
-            <DrawerTransition in={showCsvOpts}>
+          <DrawerTransition in={showCsvOpts}>
+            <div className="export__csv-types">
+              <Toggle
+                label="Include Ego data?"
+                input={{
+                  name: 'export_ego_data',
+                  onChange: this.handleEgoDataChange,
+                  value: this.state.useEgoData,
+                }}
+              />
               <div className="export__subpanel">
                 <div className="export__subpanel-content">
                   <h4>Include the following files:</h4>
@@ -229,22 +237,9 @@ class ExportScreen extends Component {
                   </DrawerTransition>
                 </div>
               </div>
-            </DrawerTransition>
-          </div>
+            </div>
+          </DrawerTransition>
         </div>
-        <DrawerTransition in={showCsvOpts}>
-          <div className="export__section">
-            <h4>Ego</h4>
-            <Toggle
-              label="Include Ego data?"
-              input={{
-                name: 'export_ego_data',
-                onChange: this.handleEgoDataChange,
-                value: this.state.useEgoData,
-              }}
-            />
-          </div>
-        </DrawerTransition>
         <div className="export__section">
           <h4>Directed Edges</h4>
           <Toggle
