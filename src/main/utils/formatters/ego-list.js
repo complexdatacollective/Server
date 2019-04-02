@@ -13,16 +13,27 @@ const asEgoList = network => (
  */
 const attributeHeaders = (egos) => {
   const initialHeaderSet = new Set([]);
-  initialHeaderSet.add({ name: nodePrimaryKeyProperty, prettyPrint: 'networkCanvasEgoID' });
-  initialHeaderSet.add({ name: caseProperty, prettyPrint: 'networkCanvasCaseID' });
+  initialHeaderSet.add(nodePrimaryKeyProperty);
+  initialHeaderSet.add(caseProperty);
 
   const headerSet = egos.reduce((headers, ego) => {
     Object.keys((ego && ego[nodeAttributesProperty]) || {}).forEach((key) => {
-      headers.add({ name: key, prettyPrint: key });
+      headers.add(key);
     });
     return headers;
   }, initialHeaderSet);
   return [...headerSet];
+};
+
+const getPrintableAttribute = (attribute) => {
+  switch (attribute) {
+    case caseProperty:
+      return 'networkCanvasCaseID';
+    case nodePrimaryKeyProperty:
+      return 'networkCanvasEgoID';
+    default:
+      return attribute;
+  }
 };
 
 /**
@@ -39,17 +50,17 @@ const toCSVStream = (egos, outStream) => {
   const inStream = new Readable({
     read(/* size */) {
       if (!headerWritten) {
-        this.push(`${attrNames.map(attr => cellValue(attr.prettyPrint)).join(',')}${csvEOL}`);
+        this.push(`${attrNames.map(attr => cellValue(getPrintableAttribute(attr))).join(',')}${csvEOL}`);
         headerWritten = true;
       } else if (rowIndex < totalRows) {
         ego = egos[rowIndex] || {};
-        const values = attrNames.map((attr) => {
+        const values = attrNames.map((attrName) => {
           // The primary key and ego id exist at the top-level; all others inside `.attributes`
           let value;
-          if (attr.name === nodePrimaryKeyProperty || attr.name === caseProperty) {
-            value = ego[attr.name];
+          if (attrName === nodePrimaryKeyProperty || attrName === caseProperty) {
+            value = ego[attrName];
           } else {
-            value = ego[nodeAttributesProperty][attr.name];
+            value = ego[nodeAttributesProperty][attrName];
           }
           return cellValue(value);
         });

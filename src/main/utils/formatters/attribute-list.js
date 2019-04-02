@@ -12,17 +12,28 @@ const asAttributeList = network => network.nodes;
 const attributeHeaders = (nodes, withEgo) => {
   const initialHeaderSet = new Set([]);
   if (withEgo) {
-    initialHeaderSet.add({ name: egoProperty, prettyPrint: 'networkCanvasEgoID' });
+    initialHeaderSet.add(egoProperty);
   }
-  initialHeaderSet.add({ name: nodePrimaryKeyProperty, prettyPrint: 'networkCanvasAlterID' });
+  initialHeaderSet.add(nodePrimaryKeyProperty);
 
   const headerSet = nodes.reduce((headers, node) => {
     Object.keys(node[nodeAttributesProperty] || []).forEach((key) => {
-      headers.add({ name: key, prettyPrint: key });
+      headers.add(key);
     });
     return headers;
   }, initialHeaderSet);
   return [...headerSet];
+};
+
+const getPrintableAttribute = (attribute) => {
+  switch (attribute) {
+    case egoProperty:
+      return 'networkCanvasEgoID';
+    case nodePrimaryKeyProperty:
+      return 'networkCanvasAlterID';
+    default:
+      return attribute;
+  }
 };
 
 /**
@@ -39,17 +50,17 @@ const toCSVStream = (nodes, outStream, withEgo = false) => {
   const inStream = new Readable({
     read(/* size */) {
       if (!headerWritten) {
-        this.push(`${attrNames.map(attr => cellValue(attr.prettyPrint)).join(',')}${csvEOL}`);
+        this.push(`${attrNames.map(attr => cellValue(getPrintableAttribute(attr))).join(',')}${csvEOL}`);
         headerWritten = true;
       } else if (rowIndex < totalRows) {
         node = nodes[rowIndex];
-        const values = attrNames.map((attr) => {
+        const values = attrNames.map((attrName) => {
           // The primary key and ego id exist at the top-level; all others inside `.attributes`
           let value;
-          if (attr.name === nodePrimaryKeyProperty || attr.name === egoProperty) {
-            value = node[attr.name];
+          if (attrName === nodePrimaryKeyProperty || attrName === egoProperty) {
+            value = node[attrName];
           } else {
-            value = node[nodeAttributesProperty][attr.name];
+            value = node[nodeAttributesProperty][attrName];
           }
           return cellValue(value);
         });

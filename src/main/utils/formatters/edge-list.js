@@ -43,19 +43,34 @@ const asEdgeList = (network, directed = false) => {
 const attributeHeaders = (edges, withEgo) => {
   const initialHeaderSet = new Set([]);
   if (withEgo) {
-    initialHeaderSet.add({ name: egoProperty, prettyPrint: 'networkCanvasEgoID' });
+    initialHeaderSet.add(egoProperty);
   }
-  initialHeaderSet.add({ name: nodePrimaryKeyProperty, prettyPrint: 'networkCanvasEdgeID' });
-  initialHeaderSet.add({ name: 'from', prettyPrint: 'networkCanvasSource' });
-  initialHeaderSet.add({ name: 'to', prettyPrint: 'networkCanvasTarget' });
+  initialHeaderSet.add(nodePrimaryKeyProperty);
+  initialHeaderSet.add('from');
+  initialHeaderSet.add('to');
 
   const headerSet = edges.reduce((headers, edge) => {
     Object.keys(edge[nodeAttributesProperty] || []).forEach((key) => {
-      headers.add({ name: key, prettyPrint: key });
+      headers.add(key);
     });
     return headers;
   }, initialHeaderSet);
   return [...headerSet];
+};
+
+const getPrintableAttribute = (attribute) => {
+  switch (attribute) {
+    case egoProperty:
+      return 'networkCanvasEgoID';
+    case nodePrimaryKeyProperty:
+      return 'networkCanvasEdgeID';
+    case 'from':
+      return 'networkCanvasSource';
+    case 'to':
+      return 'networkCanvasTarget';
+    default:
+      return attribute;
+  }
 };
 
 /**
@@ -82,18 +97,18 @@ const toCSVStream = (edges, outStream, withEgo = false) => {
   const inStream = new Readable({
     read(/* size */) {
       if (!headerWritten) {
-        this.push(`${attrNames.map(attr => cellValue(attr.prettyPrint)).join(',')}${csvEOL}`);
+        this.push(`${attrNames.map(attr => cellValue(getPrintableAttribute(attr))).join(',')}${csvEOL}`);
         headerWritten = true;
       } else if (chunkIndex < totalChunks) {
         edge = edges[chunkIndex];
-        const values = attrNames.map((attr) => {
+        const values = attrNames.map((attrName) => {
           // primary key/ego id/to/from exist at the top-level; all others inside `.attributes`
           let value;
-          if (attr.name === nodePrimaryKeyProperty || attr.name === egoProperty ||
-            attr.name === 'to' || attr.name === 'from') {
-            value = edge[attr.name];
+          if (attrName === nodePrimaryKeyProperty || attrName === egoProperty ||
+            attrName === 'to' || attrName === 'from') {
+            value = edge[attrName];
           } else {
-            value = edge[nodeAttributesProperty][attr.name];
+            value = edge[nodeAttributesProperty][attrName];
           }
           return cellValue(value);
         });
