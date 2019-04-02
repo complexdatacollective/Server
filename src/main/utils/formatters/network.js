@@ -3,6 +3,8 @@ const getFilter = require('../network-query/filter').default;
 
 // TODO: share with other places this is defined
 const nodePrimaryKeyProperty = '_uid';
+const egoProperty = '_egoID';
+const caseProperty = '_caseID';
 
 const nodeAttributesProperty = 'attributes';
 
@@ -12,7 +14,7 @@ const unionOfNetworks = networks =>
   networks.reduce((union, network) => {
     union.nodes.push(...network.nodes);
     union.edges.push(...network.edges);
-    union.ego.push(network.ego); // TODO undefined is not a function
+    union.ego.push(network.ego);
     return union;
   }, { nodes: [], edges: [], ego: [] });
 
@@ -42,9 +44,13 @@ const filterNetworkEntities = (networks, filterConfig) => {
 
 const insertNetworkEgo = network => (
   {
-    nodes: network.nodes.map(node => ({ _egoID: network.ego[nodePrimaryKeyProperty], ...node })),
-    edges: network.edges.map(edge => ({ _egoID: network.ego[nodePrimaryKeyProperty], ...edge })),
-    ego: { ...network.ego, attributes: { ...network.sessionVariables, ...network.ego.attributes } },
+    nodes: network.nodes.map(node => (
+      { [egoProperty]: network.ego[nodePrimaryKeyProperty], ...node }
+    )),
+    edges: network.edges.map(edge => (
+      { [egoProperty]: network.ego[nodePrimaryKeyProperty], ...edge }
+    )),
+    ego: { ...network.sessionVariables, ...network.ego },
   }
 );
 
@@ -84,6 +90,8 @@ module.exports = {
   getNodeAttributes,
   insertEgoInNetworks,
   nodeAttributesProperty,
+  egoProperty,
+  caseProperty,
   nodePrimaryKeyProperty,
   transposedRegistry,
   transposedRegistrySection,

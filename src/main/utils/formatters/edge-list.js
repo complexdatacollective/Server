@@ -1,7 +1,7 @@
 const { Readable } = require('stream');
 
 const { cellValue, csvEOL } = require('./csv');
-const { nodePrimaryKeyProperty } = require('./network');
+const { nodePrimaryKeyProperty, egoProperty, nodeAttributesProperty } = require('./network');
 
 /**
  * Builds an edge list for a network, based only on its edges (it need
@@ -28,12 +28,12 @@ const asEdgeList = (network, directed = false) => {
     // this may change if we have support for directed vs undirected edges in NC
     return (network.edges || []).reduce((arr, edge) => (
       arr.concat(
-        { ...edge, _source: edge.from, _target: edge.to },
-        { ...edge, _source: edge.to, _target: edge.from },
+        { ...edge, to: edge.to, from: edge.from },
+        { ...edge, to: edge.from, from: edge.to },
       )
     ), []);
   }
-  return network.edges.map(edge => ({ ...edge, _source: edge.from, _target: edge.to }));
+  return network.edges;
 };
 
 /**
@@ -43,15 +43,15 @@ const asEdgeList = (network, directed = false) => {
 const attributeHeaders = (edges, withEgo) => {
   const initialHeaderSet = new Set([]);
   if (withEgo) {
-    initialHeaderSet.add('_egoID');
+    initialHeaderSet.add({ name: egoProperty, prettyPrint: 'networkCanvasEgoID' });
   }
-  initialHeaderSet.add(nodePrimaryKeyProperty);
-  initialHeaderSet.add('_source');
-  initialHeaderSet.add('_target');
+  initialHeaderSet.add({ name: nodePrimaryKeyProperty, prettyPrint: 'networkCanvasEdgeID' });
+  initialHeaderSet.add({ name: 'from', prettyPrint: 'networkCanvasSource' });
+  initialHeaderSet.add({ name: 'to', prettyPrint: 'networkCanvasTarget' });
 
   const headerSet = edges.reduce((headers, edge) => {
-    Object.keys(edge.attributes || []).forEach((key) => {
-      headers.add(key);
+    Object.keys(edge[nodeAttributesProperty] || []).forEach((key) => {
+      headers.add({ name: key, prettyPrint: key });
     });
     return headers;
   }, initialHeaderSet);
@@ -82,18 +82,18 @@ const toCSVStream = (edges, outStream, withEgo = false) => {
   const inStream = new Readable({
     read(/* size */) {
       if (!headerWritten) {
-        this.push(`${attrNames.map(attr => cellValue(attr)).join(',')}${csvEOL}`);
+        this.push(`${attrNames.map(attr => cellValue(attr.prettyPrint)).join(',')}${csvEOL}`);
         headerWritten = true;
       } else if (chunkIndex < totalChunks) {
         edge = edges[chunkIndex];
-        const values = attrNames.map((attrName) => {
+        const values = attrNames.map((attr) => {
           // primary key/ego id/to/from exist at the top-level; all others inside `.attributes`
           let value;
-          if (attrName === nodePrimaryKeyProperty || attrName === '_egoID' ||
-            attrName === '_source' || attrName === '_target') {
-            value = edge[attrName];
+          if (attr.name === nodePrimaryKeyProperty || attr.name === egoProperty ||
+            attr.name === 'to' || attr.name === 'from') {
+            value = edge[attr.name];
           } else {
-            value = edge.attributes[attrName];
+            value = edge[nodeAttributesProperty][attr.name];
           }
           return cellValue(value);
         });

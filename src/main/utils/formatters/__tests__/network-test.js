@@ -82,8 +82,8 @@ describe('network format helpers', () => {
       const a = { nodes: [], edges: [], ego: { _uid: 1 }, sessionVariables: { _caseID: 'c' } };
       const b = { nodes: [], edges: [], ego: { _uid: 2 }, sessionVariables: { _caseID: 1 } };
       const egoNetworks = insertEgoInNetworks([a, b]);
-      expect(egoNetworks[0].ego).toEqual({ _uid: 1, attributes: { _caseID: 'c' } });
-      expect(egoNetworks[1].ego).toEqual({ _uid: 2, attributes: { _caseID: 1 } });
+      expect(egoNetworks[0].ego).toEqual({ _uid: 1, _caseID: 'c' });
+      expect(egoNetworks[1].ego).toEqual({ _uid: 2, _caseID: 1 });
     });
   });
 

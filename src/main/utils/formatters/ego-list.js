@@ -1,6 +1,6 @@
 const { Readable } = require('stream');
 
-const { nodePrimaryKeyProperty } = require('./network');
+const { nodePrimaryKeyProperty, nodeAttributesProperty, caseProperty } = require('./network');
 const { cellValue, csvEOL } = require('./csv');
 
 const asEgoList = network => (
@@ -13,11 +13,12 @@ const asEgoList = network => (
  */
 const attributeHeaders = (egos) => {
   const initialHeaderSet = new Set([]);
-  initialHeaderSet.add(nodePrimaryKeyProperty);
+  initialHeaderSet.add({ name: nodePrimaryKeyProperty, prettyPrint: 'networkCanvasEgoID' });
+  initialHeaderSet.add({ name: caseProperty, prettyPrint: 'networkCanvasCaseID' });
 
   const headerSet = egos.reduce((headers, ego) => {
-    Object.keys((ego && ego.attributes) || {}).forEach((key) => {
-      headers.add(key);
+    Object.keys((ego && ego[nodeAttributesProperty]) || {}).forEach((key) => {
+      headers.add({ name: key, prettyPrint: key });
     });
     return headers;
   }, initialHeaderSet);
@@ -38,17 +39,17 @@ const toCSVStream = (egos, outStream) => {
   const inStream = new Readable({
     read(/* size */) {
       if (!headerWritten) {
-        this.push(`${attrNames.map(attr => cellValue(attr)).join(',')}${csvEOL}`);
+        this.push(`${attrNames.map(attr => cellValue(attr.prettyPrint)).join(',')}${csvEOL}`);
         headerWritten = true;
       } else if (rowIndex < totalRows) {
         ego = egos[rowIndex] || {};
-        const values = attrNames.map((attrName) => {
+        const values = attrNames.map((attr) => {
           // The primary key and ego id exist at the top-level; all others inside `.attributes`
           let value;
-          if (attrName === nodePrimaryKeyProperty) {
-            value = ego[attrName];
+          if (attr.name === nodePrimaryKeyProperty || attr.name === caseProperty) {
+            value = ego[attr.name];
           } else {
-            value = ego.attributes[attrName];
+            value = ego[nodeAttributesProperty][attr.name];
           }
           return cellValue(value);
         });
