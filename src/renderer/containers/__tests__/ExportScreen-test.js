@@ -108,12 +108,5 @@ describe('<ExportScreen />', () => {
       subject.instance().handleExport();
       expect(remote.dialog.showSaveDialog).toHaveBeenCalled();
     });
-
-    it('manages filter state', () => {
-      const filterInstance = subject.find('Connect(FilterGroup)');
-      const mockFilter = { join: null, rules: [{ mock: true }] };
-      filterInstance.simulate('change', mockFilter);
-      expect(subject.state('entityFilter')).toEqual(mockFilter);
-    });
   });
 });
