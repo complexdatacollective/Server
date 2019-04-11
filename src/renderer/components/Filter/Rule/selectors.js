@@ -2,7 +2,7 @@
 
 import { mapValues, reduce, isEqual } from 'lodash';
 import { defaultMemoize, createSelectorCreator } from 'reselect';
-// import { getVariableRegistry } from '../../../selectors/protocol';
+// import { getCodebook } from '../../../selectors/protocol';
 
 const createDeepEqualSelector = createSelectorCreator(
   defaultMemoize,
@@ -18,8 +18,8 @@ const validTypes = [
   'ordinal',
 ];
 
-// Registry is supplied as a prop to keep Filter contained & reusable
-const getVariableRegistry = (state, props) => props.variableRegistry;
+// Codebook is supplied as a prop to keep Filter contained & reusable
+const getCodebook = (state, props) => props.codebook;
 
 export const getVariableOptions = type =>
   mapValues(
@@ -50,10 +50,10 @@ export const getVariableOptions = type =>
  * }
  */
 export const getVariableTypes = createDeepEqualSelector(
-  getVariableRegistry,
-  registry =>
+  getCodebook,
+  codebook =>
     reduce(
-      registry,
+      codebook,
       (memo, entities, type) => ({
         ...memo,
         [type]: mapValues(

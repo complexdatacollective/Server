@@ -11,7 +11,7 @@ const { RequestError, ErrorMessages } = require('../errors/RequestError');
 const { makeTempDir, removeTempDir } = require('../utils/formatters/dir');
 const {
   insertEgoInNetworks,
-  transposedRegistry,
+  transposedCodebook,
   unionOfNetworks,
 } = require('../utils/formatters/network');
 const {
@@ -42,7 +42,7 @@ const makeFilename = (prefix, edgeType, exportFormat, extension) => {
  * @param  {object} network NC-formatted network `({ nodes, edges, ego })`
  * @param  {object} [options]
  * @param  {boolean} [options.useDirectedEdges=false] true to force directed edges
- * @param  {Object} [options.variableRegistry] needed for graphML export
+ * @param  {Object} [options.codebook] needed for graphML export
  * @return {Promise} promise decorated with an `abort` method.
  *                           If aborted, the returned promise will never settle.
  * @private
@@ -53,7 +53,7 @@ const exportFile = (
   exportFormat,
   outDir,
   network,
-  { useDirectedEdges, useEgoData, variableRegistry } = {},
+  { useDirectedEdges, useEgoData, codebook } = {},
 ) => {
   const Formatter = getFormatterClass(exportFormat);
   const extension = getFileExtension(exportFormat);
@@ -65,7 +65,7 @@ const exportFile = (
   let writeStream;
 
   const pathPromise = new Promise((resolve, reject) => {
-    const formatter = new Formatter(network, useDirectedEdges, useEgoData, variableRegistry);
+    const formatter = new Formatter(network, useDirectedEdges, useEgoData, codebook);
     const outputName = makeFilename(namePrefix, edgeType, exportFormat, extension);
     const filepath = path.join(outDir, outputName);
     writeStream = fs.createWriteStream(filepath);
@@ -143,7 +143,7 @@ class ExportManager {
     const exportOpts = {
       useDirectedEdges,
       useEgoData,
-      variableRegistry: transposedRegistry(protocol.variableRegistry),
+      codebook: transposedCodebook(protocol.codebook),
     };
 
     // Export flow:

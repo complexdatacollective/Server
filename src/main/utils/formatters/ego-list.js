@@ -3,9 +3,9 @@ const { Readable } = require('stream');
 const { convertUuidToDecimal, nodePrimaryKeyProperty, nodeAttributesProperty, caseProperty, processEntityVariables } = require('./network');
 const { cellValue, csvEOL } = require('./csv');
 
-const asEgoList = (network, _, variableRegistry) => {
+const asEgoList = (network, _, codebook) => {
   const egoList = Array.isArray(network.ego) ? network.ego : [network.ego];
-  const variables = variableRegistry && variableRegistry.ego ? variableRegistry.ego.variables : {};
+  const variables = codebook && codebook.ego ? codebook.ego.variables : {};
   const processedEgo = egoList.map(ego => (processEntityVariables(ego, variables)));
   return processedEgo;
 };
@@ -87,8 +87,8 @@ const toCSVStream = (egos, outStream) => {
 };
 
 class EgoListFormatter {
-  constructor(data, directed = false, _, variableRegistry) {
-    this.list = asEgoList(data, directed, variableRegistry) || [];
+  constructor(data, directed = false, _, codebook) {
+    this.list = asEgoList(data, directed, codebook) || [];
   }
   writeToStream(outStream) {
     // TODO not a list here...somewhere else needs to compile the egos

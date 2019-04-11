@@ -91,10 +91,10 @@ const insertEgoInNetworks = networks => (
   networks.map(network => insertNetworkEgo(network))
 );
 
-const transposedRegistryVariables = (sectionRegistry, definition) => {
+const transposedCodebookVariables = (sectionCodebook, definition) => {
   if (!definition.variables) { // not required for edges
-    sectionRegistry[definition.name] = definition; // eslint-disable-line no-param-reassign
-    return sectionRegistry;
+    sectionCodebook[definition.name] = definition; // eslint-disable-line no-param-reassign
+    return sectionCodebook;
   }
 
   const displayVariable = definition.variables[definition.displayVariable];
@@ -103,23 +103,23 @@ const transposedRegistryVariables = (sectionRegistry, definition) => {
     acc[variable.name] = variable;
     return acc;
   }, {});
-  sectionRegistry[definition.name] = { // eslint-disable-line no-param-reassign
+  sectionCodebook[definition.name] = { // eslint-disable-line no-param-reassign
     ...definition,
     displayVariable: displayVariable && displayVariable.name,
     variables,
   };
-  return sectionRegistry;
+  return sectionCodebook;
 };
 
-const transposedRegistrySection = (section = {}) =>
-  Object.values(section).reduce((sectionRegistry, definition) => (
-    transposedRegistryVariables(sectionRegistry, definition)
+const transposedCodebookSection = (section = {}) =>
+  Object.values(section).reduce((sectionCodebook, definition) => (
+    transposedCodebookVariables(sectionCodebook, definition)
   ), {});
 
-const transposedRegistry = (registry = {}) => ({
-  edge: transposedRegistrySection(registry.edge),
-  node: transposedRegistrySection(registry.node),
-  ego: transposedRegistryVariables({}, { ...registry.ego, name: 'ego' }).ego,
+const transposedCodebook = (codebook = {}) => ({
+  edge: transposedCodebookSection(codebook.edge),
+  node: transposedCodebookSection(codebook.node),
+  ego: transposedCodebookVariables({}, { ...codebook.ego, name: 'ego' }).ego,
 });
 
 module.exports = {
@@ -133,7 +133,7 @@ module.exports = {
   caseProperty,
   nodePrimaryKeyProperty,
   processEntityVariables,
-  transposedRegistry,
-  transposedRegistrySection,
+  transposedCodebook,
+  transposedCodebookSection,
   unionOfNetworks,
 };

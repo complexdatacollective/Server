@@ -31,8 +31,7 @@ const cellValue = (value) => {
     let escapedValue = value;
     if (value.indexOf('"') >= 0) {
       escapedValue = quoteValue(value);
-    }
-    if (escapedValue.indexOf(',') >= 0) {
+    } else if (escapedValue.indexOf(',') >= 0) {
       escapedValue = `"${escapedValue}"`; // values containing commas need quotes
     }
     return escapedValue;

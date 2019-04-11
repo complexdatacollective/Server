@@ -9,7 +9,7 @@ import DragHandle from './DragHandle';
 import DropDown from './DropDown';
 import Input from './Input';
 import { getVariableOptions } from './selectors';
-// import { getVariableRegistry } from '../../../selectors/protocol';
+// import { getCodebook } from '../../../selectors/protocol';
 import { getOperatorsForType } from './operators';
 
 class EgoRule extends PureComponent {
@@ -112,17 +112,17 @@ class EgoRule extends PureComponent {
 
 
 // TODO: person is an implicitly required node type
-function mapStateToProps(state, { options, variableRegistry }) {
-  // const variableRegistry = getVariableRegistry(state);
-  const personType = find(toPairs(variableRegistry.node), ([, node]) => node.name === 'person');
+function mapStateToProps(state, { options, codebook }) {
+  // const codebook = getCodebook(state);
+  const personType = find(toPairs(codebook.node), ([, node]) => node.name === 'person');
   const personId = personType && personType[0];
   const valueInputType = options ?
-    get(variableRegistry.node, [personId, 'variables', options.attribute, 'type']) :
+    get(codebook.node, [personId, 'variables', options.attribute, 'type']) :
     undefined;
 
   return {
     hasPersonType: !!personType,
-    nodeAttributes: getVariableOptions(variableRegistry.node)[personId],
+    nodeAttributes: getVariableOptions(codebook.node)[personId],
     valueInputType,
   };
 }

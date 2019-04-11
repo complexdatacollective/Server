@@ -18,10 +18,10 @@ describe('ProtocolDB', () => {
     expect(result).toMatchObject(mockProtocol);
   });
 
-  it('persists the variable registry', async () => {
-    const registry = { variableRegistry: { nodes: {} } };
-    const result = await db.save('a.netcanvas', Buffer.from([]), { ...mockProtocol, ...registry });
-    expect(result).toMatchObject(registry);
+  it('persists the codebook', async () => {
+    const codebook = { codebook: { nodes: {} } };
+    const result = await db.save('a.netcanvas', Buffer.from([]), { ...mockProtocol, ...codebook });
+    expect(result).toMatchObject(codebook);
   });
 
   it('inserts metadata with new name', async () => {

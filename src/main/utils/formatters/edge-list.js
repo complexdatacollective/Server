@@ -23,10 +23,10 @@ const { convertUuidToDecimal, nodePrimaryKeyProperty, egoProperty, nodeAttribute
  *                            default: false
  * @return {Array} the edges list
  */
-const asEdgeList = (network, directed = false, _, variableRegistry) => {
+const asEdgeList = (network, directed = false, _, codebook) => {
   const processedEdges = (network.edges || []).map((edge) => {
-    const variables = variableRegistry && variableRegistry.edge[edge.type] ?
-      variableRegistry.edge[edge.type].variables : {};
+    const variables = codebook && codebook.edge[edge.type] ?
+      codebook.edge[edge.type].variables : {};
     return processEntityVariables(edge, variables);
   });
   if (directed === false) {
@@ -135,8 +135,8 @@ const toCSVStream = (edges, outStream, withEgo = false) => {
 };
 
 class EdgeListFormatter {
-  constructor(data, directed = false, includeEgo = false, variableRegistry) {
-    this.list = asEdgeList(data, directed, includeEgo, variableRegistry);
+  constructor(data, directed = false, includeEgo = false, codebook) {
+    this.list = asEdgeList(data, directed, includeEgo, codebook);
     this.includeEgo = includeEgo;
   }
   writeToStream(outStream) {

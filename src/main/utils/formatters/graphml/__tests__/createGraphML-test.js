@@ -13,7 +13,7 @@ describe('buildGraphML', () => {
   };
   const edgeType = 'peer';
   let network;
-  let variableRegistry;
+  let codebook;
   let xml;
 
   beforeEach(() => {
@@ -26,7 +26,7 @@ describe('buildGraphML', () => {
         { from: '1', to: '2', type: 'mock-uuid-3' },
       ],
     };
-    variableRegistry = {
+    codebook = {
       node: {
         person: {
           variables: {
@@ -42,7 +42,7 @@ describe('buildGraphML', () => {
         },
       },
     };
-    xml = buildXML(network, variableRegistry);
+    xml = buildXML(network, codebook);
   });
 
   it('produces a graphml document', () => {
@@ -77,7 +77,7 @@ describe('buildGraphML', () => {
 
   describe('with directed edge option', () => {
     beforeEach(() => {
-      xml = buildXML(network, variableRegistry, true);
+      xml = buildXML(network, codebook, true);
     });
 
     it('specifies directed edges', () => {

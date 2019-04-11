@@ -19,8 +19,7 @@ const protocol = device;
 const protocols = PropTypes.arrayOf(protocol);
 
 const variableDefinition = PropTypes.shape({
-  label: PropTypes.string.isRequired,
-  name: PropTypes.string,
+  name: PropTypes.string.isRequired,
   options: PropTypes.arrayOf(PropTypes.oneOfType([
     PropTypes.number,
     PropTypes.string,
@@ -33,7 +32,7 @@ const variableDefinition = PropTypes.shape({
 
 const entityType = PropTypes.shape({ variables: PropTypes.objectOf(variableDefinition) });
 
-const variableRegistry = PropTypes.shape({
+const codebook = PropTypes.shape({
   node: PropTypes.objectOf(entityType),
   edge: PropTypes.objectOf(entityType),
 });
@@ -48,7 +47,7 @@ const Types = {
   protocol,
   protocols,
   variableDefinition,
-  variableRegistry,
+  codebook,
 };
 
 export default Object.freeze(Types);

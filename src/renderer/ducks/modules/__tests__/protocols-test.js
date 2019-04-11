@@ -102,7 +102,7 @@ describe('the protocols module', () => {
       isDistributionVariable,
       ordinalAndCategoricalVariables,
       protocolsHaveLoaded,
-      transposedRegistry,
+      transposedCodebook,
     } = selectors;
 
     describe('currentProtocol', () => {
@@ -129,25 +129,25 @@ describe('the protocols module', () => {
 
     describe('ordinalAndCategoricalVariables', () => {
       it('returns node variable names sectioned by entity type', () => {
-        const variableRegistry = {
+        const codebook = {
           node: { 'node-type-id': { name: 'person', variables: { 'var-id-1': { name: 'catVar', type: 'categorical' } } } },
         };
-        const state = { protocols: [{ id: '1', variableRegistry }] };
+        const state = { protocols: [{ id: '1', codebook }] };
         const props = { match: { params: { id: '1' } } };
         expect(ordinalAndCategoricalVariables(state, props)).toEqual({ person: ['catVar'] });
       });
 
       it('ignores sections without these variables', () => {
-        const variableRegistry = {
+        const codebook = {
           node: { 'node-type-id': { name: 'venue', variables: { 'var-id-1': { name: 'intVar', type: 'number' } } } },
         };
-        const state = { protocols: [{ id: '1', variableRegistry }] };
+        const state = { protocols: [{ id: '1', codebook }] };
         const props = { match: { params: { id: '1' } } };
         expect(ordinalAndCategoricalVariables(state, props)).not.toHaveProperty('venue');
       });
 
-      it('returns an empty object if node registry unavailable', () => {
-        const state = { protocols: [{ id: '1', variableRegistry: {} }] };
+      it('returns an empty object if node codebook unavailable', () => {
+        const state = { protocols: [{ id: '1', codebook: {} }] };
         const props = { match: { params: { id: '1' } } };
         expect(ordinalAndCategoricalVariables(state, props)).toEqual({});
       });
@@ -164,24 +164,24 @@ describe('the protocols module', () => {
       });
     });
 
-    describe('transposedRegistry', () => {
-      it('returns a modified registry', () => {
-        const variableRegistry = { node: { 'node-type-id': { name: 'person', variables: {} } } };
-        const state = { protocols: [{ id: '1', variableRegistry }] };
+    describe('transposedCodebook', () => {
+      it('returns a modified codebook', () => {
+        const codebook = { node: { 'node-type-id': { name: 'person', variables: {} } } };
+        const state = { protocols: [{ id: '1', codebook }] };
         const props = { match: { params: { id: '1' } } };
-        const transposed = transposedRegistry(state, props);
+        const transposed = transposedCodebook(state, props);
         expect(transposed).toHaveProperty('node');
         expect(transposed.node).toHaveProperty('person');
       });
 
       it('does not require edge variables', () => {
-        const variableRegistry = {
+        const codebook = {
           node: { 'node-type-id': { name: 'person', variables: {} } },
           edge: { 'edge-type-id': { name: 'edge-name' } },
         };
-        const state = { protocols: [{ id: '1', variableRegistry }] };
+        const state = { protocols: [{ id: '1', codebook }] };
         const props = { match: { params: { id: '1' } } };
-        const transposed = transposedRegistry(state, props);
+        const transposed = transposedCodebook(state, props);
         expect(transposed.edge).toEqual({ 'edge-name': { name: 'edge-name' } });
       });
     });

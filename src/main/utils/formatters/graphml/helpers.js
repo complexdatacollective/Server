@@ -37,20 +37,20 @@ const getGraphMLTypeForKey = (data, key) => (
     return 'string';
   }, ''));
 
-const getVariableInfo = (variableRegistry, type, element, key) => (
-  variableRegistry[type] &&
-  variableRegistry[type][element.type] &&
-  variableRegistry[type][element.type].variables &&
-  variableRegistry[type][element.type].variables[key]
+const getVariableInfo = (codebook, type, element, key) => (
+  codebook[type] &&
+  codebook[type][element.type] &&
+  codebook[type][element.type].variables &&
+  codebook[type][element.type].variables[key]
 );
 
-const variableRegistryExists = (variableRegistry, type, element, key) => {
-  const variableInfo = getVariableInfo(variableRegistry, type, element, key);
+const codebookExists = (codebook, type, element, key) => {
+  const variableInfo = getVariableInfo(codebook, type, element, key);
   return variableInfo && variableInfo.type && VariableTypeValues.includes(variableInfo.type);
 };
 
-const getTypeFromVariableRegistry = (variableRegistry, type, element, key, variableAttribute = 'type') => {
-  const variableInfo = getVariableInfo(variableRegistry, type, element, key);
+const getTypeFromCodebook = (codebook, type, element, key, variableAttribute = 'type') => {
+  const variableInfo = getVariableInfo(codebook, type, element, key);
   return variableInfo && variableInfo[variableAttribute];
 };
 
@@ -70,6 +70,6 @@ const createDataElement = (xmlDoc, key, text) =>
 
 exports.createDataElement = createDataElement;
 exports.getGraphMLTypeForKey = getGraphMLTypeForKey;
-exports.getTypeFromVariableRegistry = getTypeFromVariableRegistry;
-exports.variableRegistryExists = variableRegistryExists;
+exports.getTypeFromCodebook = getTypeFromCodebook;
+exports.codebookExists = codebookExists;
 exports.VariableType = VariableType;

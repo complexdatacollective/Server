@@ -41,7 +41,7 @@ class FilterGroup extends PureComponent {
   static propTypes = {
     filter: PropTypes.object,
     onChange: PropTypes.func,
-    variableRegistry: PropTypes.object.isRequired,
+    codebook: PropTypes.object.isRequired,
     variableTypes: PropTypes.object.isRequired,
   };
 
@@ -110,7 +110,7 @@ class FilterGroup extends PureComponent {
   };
 
   render() {
-    const { filter: { join, rules }, variableRegistry } = this.props;
+    const { filter: { join, rules }, codebook } = this.props;
 
     return (
       <div className={filterGroupClasses(join)}>
@@ -130,7 +130,7 @@ class FilterGroup extends PureComponent {
             onUpdateRule={this.onUpdateRule}
             onDeleteRule={this.onDeleteRule}
             onSortEnd={this.onMoveRule}
-            variableRegistry={variableRegistry}
+            codebook={codebook}
           />
 
           <div className="filter-group__add">

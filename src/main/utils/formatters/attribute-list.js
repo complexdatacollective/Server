@@ -3,10 +3,10 @@ const { Readable } = require('stream');
 const { convertUuidToDecimal, nodePrimaryKeyProperty, nodeAttributesProperty, egoProperty, processEntityVariables } = require('./network');
 const { cellValue, csvEOL } = require('./csv');
 
-const asAttributeList = (network, _, variableRegistry) => {
+const asAttributeList = (network, _, codebook) => {
   const processedNodes = (network.nodes || []).map((node) => {
-    if (variableRegistry && variableRegistry.node[node.type]) {
-      return processEntityVariables(node, variableRegistry.node[node.type].variables);
+    if (codebook && codebook.node[node.type]) {
+      return processEntityVariables(node, codebook.node[node.type].variables);
     }
     return node;
   });
@@ -90,8 +90,8 @@ const toCSVStream = (nodes, outStream, withEgo = false) => {
 };
 
 class AttributeListFormatter {
-  constructor(data, directed = false, includeEgo = false, variableRegistry) {
-    this.list = asAttributeList(data, directed, variableRegistry) || [];
+  constructor(data, directed = false, includeEgo = false, codebook) {
+    this.list = asAttributeList(data, directed, codebook) || [];
     this.includeEgo = includeEgo;
   }
   writeToStream(outStream) {
