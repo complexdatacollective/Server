@@ -1,3 +1,5 @@
+const { includes } = require('lodash');
+
 const getQuery = require('../network-query/query').default;
 const getFilter = require('../network-query/filter').default;
 
@@ -8,7 +10,7 @@ const caseProperty = '_caseID';
 
 const nodeAttributesProperty = 'attributes';
 
-const getNodeAttributes = node => node[nodeAttributesProperty] || {};
+const getEntityAttributes = node => (node && node[nodeAttributesProperty]) || {};
 
 const unionOfNetworks = networks =>
   networks.reduce((union, network) => {
@@ -17,6 +19,31 @@ const unionOfNetworks = networks =>
     union.ego.push(network.ego);
     return union;
   }, { nodes: [], edges: [], ego: [] });
+
+const processEntityVariables = (entity, variables) => ({
+  ...entity,
+  attributes: Object.keys(getEntityAttributes(entity)).reduce(
+    (accumulatedAttributes, attributeName) => {
+      const attributeData = getEntityAttributes(entity)[attributeName];
+      if (variables[attributeName] && variables[attributeName].type === 'categorical') {
+        const optionNames = variables[attributeName].options || [];
+        const optionData = optionNames.reduce((accumulatedOptions, optionName) => (
+          {
+            ...accumulatedOptions,
+            [`${attributeName}_${optionName.value}`]: !!attributeData && includes(attributeData, optionName.value),
+          }
+        ), {});
+        return { ...accumulatedAttributes, ...optionData };
+      } else if (variables[attributeName] && variables[attributeName].type === 'layout') {
+        const layoutAttrs = {
+          [`${attributeName}_x`]: attributeData && attributeData.x,
+          [`${attributeName}_y`]: attributeData && attributeData.y,
+        };
+        return { ...accumulatedAttributes, ...layoutAttrs };
+      }
+      return { ...accumulatedAttributes, [attributeName]: attributeData };
+    }, {}),
+});
 
 /**
  * Run the query on each network; filter for those which meet the criteria (i.e., where the query
@@ -58,41 +85,47 @@ const insertEgoInNetworks = networks => (
   networks.map(network => insertNetworkEgo(network))
 );
 
-const transposedRegistrySection = (section = {}) =>
-  Object.values(section).reduce((sectionRegistry, definition) => {
-    if (!definition.variables) { // not required for edges
-      sectionRegistry[definition.name] = definition; // eslint-disable-line no-param-reassign
-      return sectionRegistry;
-    }
-
-    const displayVariable = definition.variables[definition.displayVariable];
-
-    const variables = Object.values(definition.variables).reduce((acc, variable) => {
-      acc[variable.name] = variable;
-      return acc;
-    }, {});
-    sectionRegistry[definition.name] = { // eslint-disable-line no-param-reassign
-      ...definition,
-      displayVariable: displayVariable && displayVariable.name,
-      variables,
-    };
+const transposedRegistryVariables = (sectionRegistry, definition) => {
+  if (!definition.variables) { // not required for edges
+    sectionRegistry[definition.name] = definition; // eslint-disable-line no-param-reassign
     return sectionRegistry;
+  }
+
+  const displayVariable = definition.variables[definition.displayVariable];
+
+  const variables = Object.values(definition.variables).reduce((acc, variable) => {
+    acc[variable.name] = variable;
+    return acc;
   }, {});
+  sectionRegistry[definition.name] = { // eslint-disable-line no-param-reassign
+    ...definition,
+    displayVariable: displayVariable && displayVariable.name,
+    variables,
+  };
+  return sectionRegistry;
+};
+
+const transposedRegistrySection = (section = {}) =>
+  Object.values(section).reduce((sectionRegistry, definition) => (
+    transposedRegistryVariables(sectionRegistry, definition)
+  ), {});
 
 const transposedRegistry = (registry = {}) => ({
   edge: transposedRegistrySection(registry.edge),
   node: transposedRegistrySection(registry.node),
+  ego: transposedRegistryVariables({}, { ...registry.ego, name: 'ego' }).ego,
 });
 
 module.exports = {
   filterNetworkEntities,
   filterNetworksWithQuery,
-  getNodeAttributes,
+  getEntityAttributes,
   insertEgoInNetworks,
   nodeAttributesProperty,
   egoProperty,
   caseProperty,
   nodePrimaryKeyProperty,
+  processEntityVariables,
   transposedRegistry,
   transposedRegistrySection,
   unionOfNetworks,

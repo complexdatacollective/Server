@@ -22,20 +22,20 @@ describe('asEdgeList', () => {
 
   it('represents a single undirected edge', () => {
     expect(listFromEdges([{ from: 1, to: 2 }])).toEqual([
-      { from: 1, to: 2 },
-      { from: 2, to: 1 },
+      { from: 1, to: 2, attributes: {} },
+      { from: 2, to: 1, attributes: {} },
     ]);
   });
 
   it('represents a single directed edge', () => {
     expect(listFromEdges([{ from: 1, to: 2 }], true)).toEqual([
-      { from: 1, to: 2 },
+      { from: 1, to: 2, attributes: {} },
     ]);
   });
 
   it('include egoID', () => {
     expect(listFromEdges([{ _egoID: 123, from: 1, to: 2 }], true)).toEqual([
-      { _egoID: 123, from: 1, to: 2 },
+      { _egoID: 123, from: 1, to: 2, attributes: {} },
     ]);
   });
 });

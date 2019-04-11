@@ -5,7 +5,7 @@ import { asEgoList, toCSVStream, EgoListFormatter } from '../ego-list';
 
 describe('asEgoList', () => {
   it('transforms a network to ego', () => {
-    const network = { nodes: [], edges: [], ego: { id: 1 } };
+    const network = { nodes: [], edges: [], ego: { id: 1, attributes: {} } };
     expect(asEgoList(network)).toEqual([network.ego]);
   });
 });

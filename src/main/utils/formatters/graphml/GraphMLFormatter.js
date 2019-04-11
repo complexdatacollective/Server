@@ -3,7 +3,7 @@ const { Readable } = require('stream');
 const { graphMLGenerator } = require('./createGraphML');
 
 class GraphMLFormatter {
-  constructor(data, useDirectedEdges, variableRegistry) {
+  constructor(data, useDirectedEdges, _, variableRegistry) {
     this.network = data;
     this.variableRegistry = variableRegistry;
     this.useDirectedEdges = useDirectedEdges;

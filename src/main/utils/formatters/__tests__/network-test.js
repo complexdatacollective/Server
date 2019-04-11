@@ -2,7 +2,7 @@
 const {
   filterNetworkEntities,
   filterNetworksWithQuery,
-  getNodeAttributes,
+  getEntityAttributes,
   nodeAttributesProperty,
   unionOfNetworks,
   insertEgoInNetworks,
@@ -87,10 +87,10 @@ describe('network format helpers', () => {
     });
   });
 
-  describe('getNodeAttributes', () => {
+  describe('getEntityAttributes', () => {
     it('gets nested attributes', () => {
       const node = { id: 1, [nodeAttributesProperty]: { attr: 1 } };
-      expect(getNodeAttributes(node)).toEqual({ attr: 1 });
+      expect(getEntityAttributes(node)).toEqual({ attr: 1 });
     });
   });
 });

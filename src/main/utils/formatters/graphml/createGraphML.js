@@ -10,10 +10,10 @@
 //    - this affects variable type lookup for nodes and labels for edges
 // - [x] document is not global
 
-const { findKey, forInRight } = require('lodash');
+const { findKey, forInRight, includes } = require('lodash');
 const uuid = require('uuid');
 
-const { nodePrimaryKeyProperty, nodeAttributesProperty, getNodeAttributes } = require('../network');
+const { nodePrimaryKeyProperty, nodeAttributesProperty, getEntityAttributes } = require('../network');
 const {
   createDataElement,
   getGraphMLTypeForKey,
@@ -101,10 +101,8 @@ const generateKeyElements = (
 
   entities.forEach((element) => {
     let iterableElement = element;
-    if (type === 'node') {
-      iterableElement = getNodeAttributes(element);
-    }
-    // Node data model attributes are now stored under a specific propertyy
+    iterableElement = getEntityAttributes(element);
+    // Entity data model attributes are now stored under a specific property
 
     Object.keys(iterableElement).forEach((key) => {
       // transpose ids to names based on registry; fall back to the raw key
@@ -142,9 +140,26 @@ const generateKeyElements = (
             fragment.appendChild(keyElement2);
             break;
           }
+          case VariableType.categorical: {
+            const options = getTypeFromVariableRegistry(variableRegistry, type, element, key, 'options');
+            options.forEach((option, index) => {
+              if (index === options.length - 1) {
+                keyElement.setAttribute('id', `${keyName}_${option.value}`);
+                keyElement.setAttribute('attr.name', `${keyName}_${option.value}`);
+                keyElement.setAttribute('attr.type', 'boolean');
+              } else {
+                const keyElement2 = document.createElement('key');
+                keyElement2.setAttribute('id', `${keyName}_${option.value}`);
+                keyElement2.setAttribute('attr.name', `${keyName}_${option.value}`);
+                keyElement2.setAttribute('attr.type', 'boolean');
+                keyElement2.setAttribute('for', type);
+                fragment.appendChild(keyElement2);
+              }
+            });
+            break;
+          }
           case VariableType.text:
           case VariableType.datetime:
-          case VariableType.categorical:
           case VariableType.location: // TODO: special handling?
           default:
             keyElement.setAttribute('attr.type', 'string');
@@ -174,7 +189,7 @@ const generateDataElements = (
 
   dataList.forEach((dataElement) => {
     const domElement = document.createElement(type);
-    const nodeAttrs = getNodeAttributes(dataElement);
+    const nodeAttrs = getEntityAttributes(dataElement);
 
     if (dataElement[nodePrimaryKeyProperty]) {
       domElement.setAttribute('id', dataElement[nodePrimaryKeyProperty]);
@@ -212,23 +227,28 @@ const generateDataElements = (
       });
     }
 
-    // Add node attributes
-    if (type === 'node') {
-      Object.keys(nodeAttrs).forEach((key) => {
-        const keyName = getTypeFromVariableRegistry(variableRegistry, type, dataElement, key, 'name') || key;
-        if (!excludeList.includes(keyName)) {
-          if (typeof nodeAttrs[key] !== 'object') {
-            domElement.appendChild(createDataElement(document, keyName, nodeAttrs[key]));
-          } else if (getTypeFromVariableRegistry(variableRegistry, type, dataElement, key) === 'layout') {
-            domElement.appendChild(createDataElement(document, `${keyName}X`, nodeAttrs[key].x));
-            domElement.appendChild(createDataElement(document, `${keyName}Y`, nodeAttrs[key].y));
-          } else {
-            domElement.appendChild(
-              createDataElement(document, keyName, JSON.stringify(nodeAttrs[key])));
-          }
+    // Add entity attributes
+    Object.keys(nodeAttrs).forEach((key) => {
+      const keyName = getTypeFromVariableRegistry(variableRegistry, type, dataElement, key, 'name') || key;
+      if (!excludeList.includes(keyName) && !!nodeAttrs[key]) {
+        if (getTypeFromVariableRegistry(variableRegistry, type, dataElement, key) === 'categorical') {
+          const options = getTypeFromVariableRegistry(variableRegistry, type, dataElement, key, 'options');
+          options.forEach((option) => {
+            const optionKey = `${keyName}_${option.value}`;
+            domElement.appendChild(createDataElement(
+              document, optionKey, !!nodeAttrs[key] && includes(nodeAttrs[key], option.value)));
+          });
+        } else if (typeof nodeAttrs[key] !== 'object') {
+          domElement.appendChild(createDataElement(document, keyName, nodeAttrs[key]));
+        } else if (getTypeFromVariableRegistry(variableRegistry, type, dataElement, key) === 'layout') {
+          domElement.appendChild(createDataElement(document, `${keyName}X`, nodeAttrs[key].x));
+          domElement.appendChild(createDataElement(document, `${keyName}Y`, nodeAttrs[key].y));
+        } else {
+          domElement.appendChild(
+            createDataElement(document, keyName, JSON.stringify(nodeAttrs[key])));
         }
-      });
-    }
+      }
+    });
 
     // Add positions for gephi layout. Use window dimensions for scaling if available.
     if (layoutVariable && nodeAttrs[layoutVariable]) {
@@ -269,7 +289,7 @@ function* graphMLGenerator(networkData, variableRegistry, useDirectedEdges) {
     xmlDoc,
     edges,
     'edge',
-    ['from', 'to', 'type'],
+    [nodePrimaryKeyProperty, 'from', 'to', 'type'],
     variableRegistry,
   );
   const generateNodeElements = nodes => generateDataElements(
@@ -284,7 +304,7 @@ function* graphMLGenerator(networkData, variableRegistry, useDirectedEdges) {
     xmlDoc,
     edges,
     'edge',
-    ['from', 'to', 'type'],
+    [nodePrimaryKeyProperty, nodeAttributesProperty, 'from', 'to', 'type'],
     variableRegistry,
   );
 

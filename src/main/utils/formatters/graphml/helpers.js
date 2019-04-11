@@ -1,4 +1,4 @@
-const { getNodeAttributes } = require('../network');
+const { getEntityAttributes } = require('../network');
 const { isNil } = require('lodash');
 
 // TODO: VariableType[Values] is shared with 'protocol-consts' in NC
@@ -18,7 +18,7 @@ const VariableTypeValues = Object.freeze(Object.values(VariableType));
 // returns a graphml type
 const getGraphMLTypeForKey = (data, key) => (
   data.reduce((result, value) => {
-    const attrs = getNodeAttributes(value);
+    const attrs = getEntityAttributes(value);
     if (isNil(attrs[key])) return result;
     let currentType = typeof attrs[key];
     if (currentType === 'number') {

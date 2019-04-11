@@ -1,7 +1,7 @@
 const { Readable } = require('stream');
 
 const { cellValue, csvEOL } = require('./csv');
-const { nodePrimaryKeyProperty, egoProperty, nodeAttributesProperty } = require('./network');
+const { nodePrimaryKeyProperty, egoProperty, nodeAttributesProperty, processEntityVariables } = require('./network');
 
 /**
  * Builds an edge list for a network, based only on its edges (it need
@@ -23,17 +23,22 @@ const { nodePrimaryKeyProperty, egoProperty, nodeAttributesProperty } = require(
  *                            default: false
  * @return {Array} the edges list
  */
-const asEdgeList = (network, directed = false) => {
+const asEdgeList = (network, directed = false, _, variableRegistry) => {
+  const processedEdges = (network.edges || []).map((edge) => {
+    const variables = variableRegistry && variableRegistry.edge[edge.type] ?
+      variableRegistry.edge[edge.type].variables : {};
+    return processEntityVariables(edge, variables);
+  });
   if (directed === false) {
     // this may change if we have support for directed vs undirected edges in NC
-    return (network.edges || []).reduce((arr, edge) => (
+    return (processedEdges || []).reduce((arr, edge) => (
       arr.concat(
         { ...edge, to: edge.to, from: edge.from },
         { ...edge, to: edge.from, from: edge.to },
       )
     ), []);
   }
-  return network.edges;
+  return processedEdges;
 };
 
 /**
@@ -130,8 +135,8 @@ const toCSVStream = (edges, outStream, withEgo = false) => {
 };
 
 class EdgeListFormatter {
-  constructor(data, directed = false, includeEgo = false) {
-    this.list = asEdgeList(data, directed, includeEgo);
+  constructor(data, directed = false, includeEgo = false, variableRegistry) {
+    this.list = asEdgeList(data, directed, includeEgo, variableRegistry);
     this.includeEgo = includeEgo;
   }
   writeToStream(outStream) {

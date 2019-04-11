@@ -115,6 +115,7 @@ class ExportScreen extends Component {
     const csvTypesNoEgo = new Set(this.state.csvTypes);
     csvTypesNoEgo.delete('ego');
     const exportCsvTypes = useEgoData ? csvTypes : csvTypesNoEgo;
+    const showCsvOpts = exportFormat === 'csv';
 
     apiClient
       .post(`/protocols/${protocolId}/export_requests`, {
@@ -122,7 +123,7 @@ class ExportScreen extends Component {
         exportNetworkUnion,
         destinationFilepath,
         useDirectedEdges,
-        useEgoData,
+        useEgoData: useEgoData && showCsvOpts,
       })
       .then(() => showConfirmation('Export complete'))
       .catch(err => showError(err.message))

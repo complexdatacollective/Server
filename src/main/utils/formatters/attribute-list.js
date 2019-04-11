@@ -1,9 +1,17 @@
 const { Readable } = require('stream');
 
-const { nodePrimaryKeyProperty, nodeAttributesProperty, egoProperty } = require('./network');
+const { nodePrimaryKeyProperty, nodeAttributesProperty, egoProperty, processEntityVariables } = require('./network');
 const { cellValue, csvEOL } = require('./csv');
 
-const asAttributeList = network => network.nodes;
+const asAttributeList = (network, _, variableRegistry) => {
+  const processedNodes = (network.nodes || []).map((node) => {
+    if (variableRegistry && variableRegistry.node[node.type]) {
+      return processEntityVariables(node, variableRegistry.node[node.type].variables);
+    }
+    return node;
+  });
+  return processedNodes;
+};
 
 /**
  * The output of this formatter will contain the primary key (_uid)
@@ -82,8 +90,8 @@ const toCSVStream = (nodes, outStream, withEgo = false) => {
 };
 
 class AttributeListFormatter {
-  constructor(data, directed = false, includeEgo = false) {
-    this.list = asAttributeList(data, directed, includeEgo) || [];
+  constructor(data, directed = false, includeEgo = false, variableRegistry) {
+    this.list = asAttributeList(data, directed, variableRegistry) || [];
     this.includeEgo = includeEgo;
   }
   writeToStream(outStream) {
