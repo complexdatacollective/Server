@@ -1,4 +1,5 @@
 const { includes } = require('lodash');
+const bigInt = require('big-integer');
 
 const getQuery = require('../network-query/query').default;
 const getFilter = require('../network-query/filter').default;
@@ -11,6 +12,11 @@ const caseProperty = '_caseID';
 const nodeAttributesProperty = 'attributes';
 
 const getEntityAttributes = node => (node && node[nodeAttributesProperty]) || {};
+
+const convertUuidToDecimal = uuid => (
+  // BigInt support is in node 10.4, this poly-fills for now
+  uuid ? bigInt(uuid.toString().replace(/-/g, ''), 16).toString(10) : uuid
+);
 
 const unionOfNetworks = networks =>
   networks.reduce((union, network) => {
@@ -117,6 +123,7 @@ const transposedRegistry = (registry = {}) => ({
 });
 
 module.exports = {
+  convertUuidToDecimal,
   filterNetworkEntities,
   filterNetworksWithQuery,
   getEntityAttributes,

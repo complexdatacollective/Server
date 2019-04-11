@@ -1,6 +1,6 @@
 const { Readable } = require('stream');
 
-const { nodePrimaryKeyProperty, nodeAttributesProperty, caseProperty, processEntityVariables } = require('./network');
+const { convertUuidToDecimal, nodePrimaryKeyProperty, nodeAttributesProperty, caseProperty, processEntityVariables } = require('./network');
 const { cellValue, csvEOL } = require('./csv');
 
 const asEgoList = (network, _, variableRegistry) => {
@@ -60,7 +60,9 @@ const toCSVStream = (egos, outStream) => {
         const values = attrNames.map((attrName) => {
           // The primary key and ego id exist at the top-level; all others inside `.attributes`
           let value;
-          if (attrName === nodePrimaryKeyProperty || attrName === caseProperty) {
+          if (attrName === nodePrimaryKeyProperty) {
+            value = convertUuidToDecimal(ego[attrName]);
+          } else if (attrName === caseProperty) {
             value = ego[attrName];
           } else {
             value = ego[nodeAttributesProperty][attrName];

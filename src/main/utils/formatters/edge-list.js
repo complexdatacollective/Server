@@ -1,7 +1,7 @@
 const { Readable } = require('stream');
 
 const { cellValue, csvEOL } = require('./csv');
-const { nodePrimaryKeyProperty, egoProperty, nodeAttributesProperty, processEntityVariables } = require('./network');
+const { convertUuidToDecimal, nodePrimaryKeyProperty, egoProperty, nodeAttributesProperty, processEntityVariables } = require('./network');
 
 /**
  * Builds an edge list for a network, based only on its edges (it need
@@ -111,7 +111,7 @@ const toCSVStream = (edges, outStream, withEgo = false) => {
           let value;
           if (attrName === nodePrimaryKeyProperty || attrName === egoProperty ||
             attrName === 'to' || attrName === 'from') {
-            value = edge[attrName];
+            value = convertUuidToDecimal(edge[attrName]);
           } else {
             value = edge[nodeAttributesProperty][attrName];
           }

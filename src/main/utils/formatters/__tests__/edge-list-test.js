@@ -51,7 +51,7 @@ describe('toCSVStream', () => {
     const list = listFromEdges([{ _uid: 123, from: 1, to: 2 }]);
     toCSVStream(list, writable);
     const csv = await writable.asString();
-    expect(csv).toEqual('networkCanvasEdgeID,networkCanvasSource,networkCanvasTarget\r\n123,1,2\r\n123,2,1\r\n');
+    expect(csv).toEqual('networkCanvasEdgeID,networkCanvasSource,networkCanvasTarget\r\n291,1,2\r\n291,2,1\r\n');
   });
 
   it('Writes multiple edges', async () => {
@@ -82,7 +82,7 @@ describe('toCSVStream', () => {
     );
     toCSVStream(list, writable, true);
     const csv = await writable.asString();
-    expect(csv).toEqual('networkCanvasEgoID,networkCanvasEdgeID,networkCanvasSource,networkCanvasTarget\r\n123,,1,2\r\n456,,3,1\r\n');
+    expect(csv).toEqual('networkCanvasEgoID,networkCanvasEdgeID,networkCanvasSource,networkCanvasTarget\r\n291,,1,2\r\n1110,,3,1\r\n');
   });
 
   it('Writes a csv with attributes', async () => {
