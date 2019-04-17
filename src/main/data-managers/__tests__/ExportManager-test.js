@@ -80,7 +80,7 @@ describe('ExportManager', () => {
   // TODO: make the stream interface more testable
   describe('with data', () => {
     beforeEach(() => {
-      protocol.variableRegistry = {};
+      protocol.codebook = {};
       manager.sessionDB = {
         findAll: jest.fn().mockResolvedValue([{ data: { nodes: [], edges: [] } }]),
       };

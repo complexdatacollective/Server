@@ -7,9 +7,15 @@
     padding: spacing(large) 0;
   }
 
+  @include element(csv-types) {
+    .form-field-container {
+      margin-bottom: 0;
+    }
+  }
+
   @include element(subpanel) {
     transform-origin: top;
-    padding: 0 1rem;
+    padding: 0 1.5rem;
   }
 
   @include element(subpanel-content) {

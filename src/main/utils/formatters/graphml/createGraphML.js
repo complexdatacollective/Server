@@ -10,15 +10,15 @@
 //    - this affects variable type lookup for nodes and labels for edges
 // - [x] document is not global
 
-const { findKey, forInRight } = require('lodash');
+const { findKey, forInRight, includes } = require('lodash');
 const uuid = require('uuid');
 
-const { nodePrimaryKeyProperty, nodeAttributesProperty, getNodeAttributes } = require('../network');
+const { nodePrimaryKeyProperty, nodeAttributesProperty, getEntityAttributes } = require('../network');
 const {
   createDataElement,
   getGraphMLTypeForKey,
-  getTypeFromVariableRegistry,
-  variableRegistryExists,
+  getTypeFromCodebook,
+  codebookExists,
   VariableType,
 } = require('./helpers');
 
@@ -59,13 +59,13 @@ const setUpXml = (useDirectedEdges) => {
 
 // <key> elements provide the type definitions for GraphML data elements
 // @return {Object} a fragment to insert, and any variables that were missing from the variable
-//                  registry: `{ fragment: <DocumentFragment>, missingVariables: [] }`.
+//                  codebook: `{ fragment: <DocumentFragment>, missingVariables: [] }`.
 const generateKeyElements = (
   document, // the XML ownerDocument
   entities, // networkData.nodes or edges
   type, // 'node' or 'edge'
   excludeList, // Variables to exlude
-  variableRegistry, // variable registry
+  codebook, // codebook
   layoutVariable, // boolean value uses for edges?
 ) => {
   const fragment = document.createDocumentFragment();
@@ -101,24 +101,22 @@ const generateKeyElements = (
 
   entities.forEach((element) => {
     let iterableElement = element;
-    if (type === 'node') {
-      iterableElement = getNodeAttributes(element);
-    }
-    // Node data model attributes are now stored under a specific propertyy
+    iterableElement = getEntityAttributes(element);
+    // Entity data model attributes are now stored under a specific property
 
     Object.keys(iterableElement).forEach((key) => {
-      // transpose ids to names based on registry; fall back to the raw key
-      const keyName = getTypeFromVariableRegistry(variableRegistry, type, element, key, 'name') || key;
+      // transpose ids to names based on codebook; fall back to the raw key
+      const keyName = getTypeFromCodebook(codebook, type, element, key, 'name') || key;
       if (done.indexOf(keyName) === -1 && !excludeList.includes(keyName)) {
         const keyElement = document.createElement('key');
         keyElement.setAttribute('id', keyName);
         keyElement.setAttribute('attr.name', keyName);
 
-        if (!variableRegistryExists(variableRegistry, type, element, key)) {
+        if (!codebookExists(codebook, type, element, key)) {
           missingVariables.push(`"${key}" in ${type}.${element.type}`);
         }
 
-        const variableType = getTypeFromVariableRegistry(variableRegistry, type, element, key);
+        const variableType = getTypeFromCodebook(codebook, type, element, key);
         switch (variableType) {
           case VariableType.boolean:
             keyElement.setAttribute('attr.type', variableType);
@@ -142,9 +140,26 @@ const generateKeyElements = (
             fragment.appendChild(keyElement2);
             break;
           }
+          case VariableType.categorical: {
+            const options = getTypeFromCodebook(codebook, type, element, key, 'options');
+            options.forEach((option, index) => {
+              if (index === options.length - 1) {
+                keyElement.setAttribute('id', `${keyName}_${option.value}`);
+                keyElement.setAttribute('attr.name', `${keyName}_${option.value}`);
+                keyElement.setAttribute('attr.type', 'boolean');
+              } else {
+                const keyElement2 = document.createElement('key');
+                keyElement2.setAttribute('id', `${keyName}_${option.value}`);
+                keyElement2.setAttribute('attr.name', `${keyName}_${option.value}`);
+                keyElement2.setAttribute('attr.type', 'boolean');
+                keyElement2.setAttribute('for', type);
+                fragment.appendChild(keyElement2);
+              }
+            });
+            break;
+          }
           case VariableType.text:
           case VariableType.datetime:
-          case VariableType.categorical:
           case VariableType.location: // TODO: special handling?
           default:
             keyElement.setAttribute('attr.type', 'string');
@@ -166,15 +181,15 @@ const generateDataElements = (
   document, // the XML ownerDocument
   dataList, // List of nodes or edges
   type, // Element type to be created. "node" or "egde"
-  excludeList, // Attributes to exclude lookup of in variable registry
-  variableRegistry, // Copy of variable registry
+  excludeList, // Attributes to exclude lookup of in codebook
+  codebook, // Copy of codebook
   layoutVariable, // Primary layout variable. Null for edges
 ) => {
   const fragment = document.createDocumentFragment();
 
   dataList.forEach((dataElement) => {
     const domElement = document.createElement(type);
-    const nodeAttrs = getNodeAttributes(dataElement);
+    const nodeAttrs = getEntityAttributes(dataElement);
 
     if (dataElement[nodePrimaryKeyProperty]) {
       domElement.setAttribute('id', dataElement[nodePrimaryKeyProperty]);
@@ -189,18 +204,18 @@ const generateDataElements = (
     fragment.appendChild(domElement);
 
     if (type === 'edge') {
-      const label = variableRegistry && variableRegistry[type] &&
-        variableRegistry[type][dataElement.type] && (variableRegistry[type][dataElement.type].name
-          || variableRegistry[type][dataElement.type].label);
+      const label = codebook && codebook[type] &&
+        codebook[type][dataElement.type] && (codebook[type][dataElement.type].name
+          || codebook[type][dataElement.type].label);
 
       domElement.appendChild(createDataElement(document, 'label', label));
 
       Object.keys(dataElement).forEach((key) => {
-        const keyName = getTypeFromVariableRegistry(variableRegistry, type, dataElement, key, 'name') || key;
+        const keyName = getTypeFromCodebook(codebook, type, dataElement, key, 'name') || key;
         if (!excludeList.includes(keyName)) {
           if (typeof dataElement[key] !== 'object') {
             domElement.appendChild(createDataElement(document, keyName, dataElement[key]));
-          } else if (getTypeFromVariableRegistry(variableRegistry, type, dataElement, key) === 'layout') {
+          } else if (getTypeFromCodebook(codebook, type, dataElement, key) === 'layout') {
             domElement.appendChild(createDataElement(document, `${keyName}X`, dataElement[key].x));
             domElement.appendChild(createDataElement(document, `${keyName}Y`, dataElement[key].y));
           } else {
@@ -212,23 +227,28 @@ const generateDataElements = (
       });
     }
 
-    // Add node attributes
-    if (type === 'node') {
-      Object.keys(nodeAttrs).forEach((key) => {
-        const keyName = getTypeFromVariableRegistry(variableRegistry, type, dataElement, key, 'name') || key;
-        if (!excludeList.includes(keyName)) {
-          if (typeof nodeAttrs[key] !== 'object') {
-            domElement.appendChild(createDataElement(document, keyName, nodeAttrs[key]));
-          } else if (getTypeFromVariableRegistry(variableRegistry, type, dataElement, key) === 'layout') {
-            domElement.appendChild(createDataElement(document, `${keyName}X`, nodeAttrs[key].x));
-            domElement.appendChild(createDataElement(document, `${keyName}Y`, nodeAttrs[key].y));
-          } else {
-            domElement.appendChild(
-              createDataElement(document, keyName, JSON.stringify(nodeAttrs[key])));
-          }
+    // Add entity attributes
+    Object.keys(nodeAttrs).forEach((key) => {
+      const keyName = getTypeFromCodebook(codebook, type, dataElement, key, 'name') || key;
+      if (!excludeList.includes(keyName) && !!nodeAttrs[key]) {
+        if (getTypeFromCodebook(codebook, type, dataElement, key) === 'categorical') {
+          const options = getTypeFromCodebook(codebook, type, dataElement, key, 'options');
+          options.forEach((option) => {
+            const optionKey = `${keyName}_${option.value}`;
+            domElement.appendChild(createDataElement(
+              document, optionKey, !!nodeAttrs[key] && includes(nodeAttrs[key], option.value)));
+          });
+        } else if (typeof nodeAttrs[key] !== 'object') {
+          domElement.appendChild(createDataElement(document, keyName, nodeAttrs[key]));
+        } else if (getTypeFromCodebook(codebook, type, dataElement, key) === 'layout') {
+          domElement.appendChild(createDataElement(document, `${keyName}X`, nodeAttrs[key].x));
+          domElement.appendChild(createDataElement(document, `${keyName}Y`, nodeAttrs[key].y));
+        } else {
+          domElement.appendChild(
+            createDataElement(document, keyName, JSON.stringify(nodeAttrs[key])));
         }
-      });
-    }
+      }
+    });
 
     // Add positions for gephi layout. Use window dimensions for scaling if available.
     if (layoutVariable && nodeAttrs[layoutVariable]) {
@@ -243,7 +263,7 @@ const generateDataElements = (
 };
 
 // Generator to supply XML content in chunks to both string and stream producers
-function* graphMLGenerator(networkData, variableRegistry, useDirectedEdges) {
+function* graphMLGenerator(networkData, codebook, useDirectedEdges) {
   const serializer = new globalContext.XMLSerializer();
   const serialize = fragment => `${serializer.serializeToString(fragment)}${eol}`;
 
@@ -253,7 +273,7 @@ function* graphMLGenerator(networkData, variableRegistry, useDirectedEdges) {
 
   // find the first variable of type layout
   let layoutVariable;
-  forInRight(variableRegistry.node, (value) => {
+  forInRight(codebook.node, (value) => {
     layoutVariable = findKey(value.variables, { type: 'layout' });
   });
 
@@ -262,30 +282,30 @@ function* graphMLGenerator(networkData, variableRegistry, useDirectedEdges) {
     nodes,
     'node',
     [nodePrimaryKeyProperty],
-    variableRegistry,
+    codebook,
     layoutVariable,
   );
   const generateEdgeKeys = edges => generateKeyElements(
     xmlDoc,
     edges,
     'edge',
-    ['from', 'to', 'type'],
-    variableRegistry,
+    [nodePrimaryKeyProperty, 'from', 'to', 'type'],
+    codebook,
   );
   const generateNodeElements = nodes => generateDataElements(
     xmlDoc,
     nodes,
     'node',
     [nodePrimaryKeyProperty, nodeAttributesProperty],
-    variableRegistry,
+    codebook,
     layoutVariable,
   );
   const generateEdgeElements = edges => generateDataElements(
     xmlDoc,
     edges,
     'edge',
-    ['from', 'to', 'type'],
-    variableRegistry,
+    [nodePrimaryKeyProperty, nodeAttributesProperty, 'from', 'to', 'type'],
+    codebook,
   );
 
   // generate keys for nodes
@@ -304,9 +324,9 @@ function* graphMLGenerator(networkData, variableRegistry, useDirectedEdges) {
 
   const missingVariables = [...missingNodeVars, ...missingEdgeVars];
   if (missingVariables.length > 0) {
-    // hard fail if checking the registry fails
+    // hard fail if checking the codebook fails
     // remove this to fall back to using "text" for unknowns
-    // throw new Error(`The variable registry seems to be missing
+    // throw new Error(`The codebook seems to be missing
     // "type" of: ${join(missingVariables, ', ')}.`);
     // return null;
   }
@@ -330,15 +350,15 @@ function* graphMLGenerator(networkData, variableRegistry, useDirectedEdges) {
 /**
  * Network Canvas interface for ExportData
  * @param  {Object} networkData network from redux state
- * @param  {Object} variableRegistry from protocol in redux state
+ * @param  {Object} codebook from protocol in redux state
  * @param  {Function} onError
  * @param  {Function} saveFile injected SaveFile dependency (called with the xml contents)
  * @return {} the return value from saveFile
  */
-const createGraphML = (networkData, variableRegistry, onError, saveFile) => {
+const createGraphML = (networkData, codebook, onError, saveFile) => {
   let xmlString = '';
   try {
-    for (const chunk of graphMLGenerator(networkData, variableRegistry)) { // eslint-disable-line
+    for (const chunk of graphMLGenerator(networkData, codebook)) { // eslint-disable-line
       xmlString += chunk;
     }
   } catch (err) {

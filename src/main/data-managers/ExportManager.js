@@ -10,9 +10,8 @@ const { archive } = require('../utils/archive');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
 const { makeTempDir, removeTempDir } = require('../utils/formatters/dir');
 const {
-  filterNetworkEntities,
-  filterNetworksWithQuery,
-  transposedRegistry,
+  insertEgoInNetworks,
+  transposedCodebook,
   unionOfNetworks,
 } = require('../utils/formatters/network');
 const {
@@ -40,10 +39,10 @@ const makeFilename = (prefix, edgeType, exportFormat, extension) => {
  * @param  {string} namePrefix
  * @param  {formats} exportFormat
  * @param  {string} outDir directory where we should write the file
- * @param  {object} network NC-formatted network `({ nodes, edges })`
+ * @param  {object} network NC-formatted network `({ nodes, edges, ego })`
  * @param  {object} [options]
  * @param  {boolean} [options.useDirectedEdges=false] true to force directed edges
- * @param  {Object} [options.variableRegistry] needed for graphML export
+ * @param  {Object} [options.codebook] needed for graphML export
  * @return {Promise} promise decorated with an `abort` method.
  *                           If aborted, the returned promise will never settle.
  * @private
@@ -54,7 +53,7 @@ const exportFile = (
   exportFormat,
   outDir,
   network,
-  { useDirectedEdges, variableRegistry } = {},
+  { useDirectedEdges, useEgoData, codebook } = {},
 ) => {
   const Formatter = getFormatterClass(exportFormat);
   const extension = getFileExtension(exportFormat);
@@ -66,7 +65,7 @@ const exportFile = (
   let writeStream;
 
   const pathPromise = new Promise((resolve, reject) => {
-    const formatter = new Formatter(network, useDirectedEdges, variableRegistry);
+    const formatter = new Formatter(network, useDirectedEdges, useEgoData, codebook);
     const outputName = makeFilename(namePrefix, edgeType, exportFormat, extension);
     const filepath = path.join(outDir, outputName);
     writeStream = fs.createWriteStream(filepath);
@@ -107,20 +106,12 @@ class ExportManager {
    * @param {Object} protocol the saved protocol from DB
    * @param {string} options.destinationFilepath local FS path to output the final file
    * @param {Array<string>} options.exportFormats
-   *        Possible values: "adjacencyMatrix", "attributeList", "edgeList", "graphml"
+   *        Possible values: "adjacencyMatrix", "attributeList", "edgeList", "ego", "graphml"
    * @param {Array} options.csvTypes if `exportFormat` is "csv", then include these types in output.
-   *                                 Options: ["adjacencyMatrix", "attributeList", "edgeList"]
+   *                                Options: ["adjacencyMatrix", "attributeList", "edgeList", "ego"]
    * @param {boolean} options.exportNetworkUnion true if all interview networks should be merged
    *                                             false if each interview network should be exported
    *                                             individually
-   * @param {Object} options.filter before formatting, apply this filter to each network (if
-   *                                `exportNetworkUnion` is false) or the merged network (if
-   *                                `exportNetworkUnion` is true)
-   * @param {Object} networkFilter a user-supplied filter configuration which will be run on each
-   *                               member of each network, to filter out unwanted nodes & edges.
-   * @param {Object} networkInclusionQuery a user-supplied query configuration which will be run on
-   *                                       each interview's network to determine if it should be
-   *                                       exported
    * @param {boolean} options.useDirectedEdges used by the formatters. May be removed in the future
    *                                           if information is encapsulated in network.
    * @return {Promise} A `promise` that resloves to a filepath (string). The promise is decorated
@@ -134,9 +125,8 @@ class ExportManager {
       destinationFilepath,
       exportFormats,
       exportNetworkUnion,
-      entityFilter,
-      networkInclusionQuery,
       useDirectedEdges,
+      useEgoData,
     } = {},
   ) {
     if (!protocol) {
@@ -152,17 +142,16 @@ class ExportManager {
     let promisedExports;
     const exportOpts = {
       useDirectedEdges,
-      variableRegistry: transposedRegistry(protocol.variableRegistry),
+      useEgoData,
+      codebook: transposedCodebook(protocol.codebook),
     };
 
     // Export flow:
     // 1. fetch all networks produced for this protocol's interviews
-    // 2. optional: run user query to select networks are exported
+    // 2. optional: insert ego into each network
     // 3. optional: merge all networks into a single union for export
-    // 4. optional: filter each network based on user-supplied rules
-    // 5. [TODO: #199] optional: insert ego with edges into each network
-    // 6. export each format for each network
-    // 7. save ZIP file to requested location
+    // 4. export each format for each network
+    // 5. save ZIP file to requested location
     const exportPromise = makeTempDir()
       .then((dir) => {
         tmpDir = dir;
@@ -172,9 +161,8 @@ class ExportManager {
       })
       .then(() => this.sessionDB.findAll(protocol._id, null, null))
       .then(sessions => sessions.map(session => session.data))
-      .then(allNetworks => filterNetworksWithQuery(allNetworks, networkInclusionQuery))
+      .then(networks => (useEgoData ? insertEgoInNetworks(networks) : networks))
       .then(networks => (exportNetworkUnion ? [unionOfNetworks(networks)] : networks))
-      .then(networks => filterNetworkEntities(networks, entityFilter))
       .then((networks) => {
         promisedExports = flattenDeep(
           // Export every network

@@ -29,7 +29,7 @@ class AnswerDistributionPanel extends PureComponent {
     return (
       <div className="dashboard__panel dashboard__panel--chart">
         <h4 className="dashboard__header-text">
-          {variableDefinition.label}
+          {variableDefinition.name}
           <small className="dashboard__header-subtext">
             {headerLabel(variableDefinition.type)} distribution
           </small>

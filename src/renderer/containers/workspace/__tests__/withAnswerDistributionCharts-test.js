@@ -20,7 +20,7 @@ jest.mock('../../../ducks/modules/protocols', () => ({
     currentProtocol: jest.fn(),
     currentProtocolId: jest.fn().mockReturnValue('1'),
     isDistributionVariable: jest.fn().mockReturnValue(true),
-    transposedRegistry: jest.fn().mockReturnValue({
+    transposedCodebook: jest.fn().mockReturnValue({
       node: {
         person: {
           variables: {

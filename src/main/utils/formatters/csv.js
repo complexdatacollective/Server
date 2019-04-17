@@ -27,8 +27,14 @@ const cellValue = (value) => {
       serialized = value.toString(); // value will never be null here
     }
     return quoteValue(serialized);
-  } else if (typeof value === 'string' && value.indexOf('"') >= 0) {
-    return quoteValue(value);
+  } else if (typeof value === 'string') {
+    let escapedValue = value;
+    if (value.indexOf('"') >= 0) {
+      escapedValue = quoteValue(value);
+    } else if (escapedValue.indexOf(',') >= 0) {
+      escapedValue = `"${escapedValue}"`; // values containing commas need quotes
+    }
+    return escapedValue;
   }
   return value;
 };

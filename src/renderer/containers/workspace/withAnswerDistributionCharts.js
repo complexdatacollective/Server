@@ -7,7 +7,7 @@ import { selectors as protocolSelectors } from '../../ducks/modules/protocols';
 import { selectors as variableSelectors } from '../../ducks/modules/excludedChartVariables';
 import Types from '../../types';
 
-const { currentProtocolId, isDistributionVariable, transposedRegistry } = protocolSelectors;
+const { currentProtocolId, isDistributionVariable, transposedCodebook } = protocolSelectors;
 const { excludedVariablesForCurrentProtocol } = variableSelectors;
 
 const hasData = bucket => bucket && Object.keys(bucket).length > 0;
@@ -23,12 +23,12 @@ const hasData = bucket => bucket && Object.keys(bucket).length > 0;
  *
  * @private
  *
- * @param {Object} transposedNodeRegistry `transposedRegistry.node`, with transposed names
+ * @param {Object} transposedNodeCodebook `transposedCodebook.node`, with transposed names
  * @param {Object} buckets The API response from `option_buckets`
  * @return {Array} chartDefinitions
  */
-const shapeBucketData = (transposedNodeRegistry, buckets, excludedChartVariables) =>
-  Object.entries(transposedNodeRegistry).reduce((acc, [entityType, { variables }]) => {
+const shapeBucketData = (transposedNodeCodebook, buckets, excludedChartVariables) =>
+  Object.entries(transposedNodeCodebook).reduce((acc, [entityType, { variables }]) => {
     const excludedSectionVariables = excludedChartVariables[entityType] || [];
     Object.entries(variables).forEach(([variableName, def]) => {
       if (!isDistributionVariable(def) || excludedSectionVariables.includes(def.name)) {
@@ -77,7 +77,7 @@ const withAnswerDistributionCharts = (WrappedComponent) => {
       excludedChartVariables: PropTypes.object,
       protocolId: PropTypes.string,
       totalSessionsCount: PropTypes.number,
-      transposedRegistry: Types.variableRegistry.isRequired,
+      transposedCodebook: Types.codebook.isRequired,
     }
 
     constructor(props) {
@@ -109,14 +109,14 @@ const withAnswerDistributionCharts = (WrappedComponent) => {
       const {
         excludedChartVariables,
         protocolId,
-        transposedRegistry: { node: nodeRegistry = {} },
+        transposedCodebook: { node: nodeCodebook = {} },
       } = this.props;
 
       if (!protocolId) {
         return;
       }
 
-      const variableNames = Object.values(nodeRegistry).reduce((acc, nodeTypeDefinition) => {
+      const variableNames = Object.values(nodeCodebook).reduce((acc, nodeTypeDefinition) => {
         acc.push(...Object.keys(nodeTypeDefinition.variables || {}));
         return acc;
       }, []);
@@ -127,7 +127,7 @@ const withAnswerDistributionCharts = (WrappedComponent) => {
       this.apiClient.get(route, query)
         .then(({ buckets }) => {
           this.setState({
-            charts: shapeBucketData(nodeRegistry, buckets, excludedChartVariables),
+            charts: shapeBucketData(nodeCodebook, buckets, excludedChartVariables),
           });
         });
     }
@@ -140,7 +140,7 @@ const withAnswerDistributionCharts = (WrappedComponent) => {
   const mapStateToProps = (state, ownProps) => ({
     excludedChartVariables: excludedVariablesForCurrentProtocol(state, ownProps),
     protocolId: currentProtocolId(state, ownProps),
-    transposedRegistry: transposedRegistry(state, ownProps),
+    transposedCodebook: transposedCodebook(state, ownProps),
   });
 
   return connect(mapStateToProps)(AnswerDistributionPanels);

@@ -1,7 +1,7 @@
 import AdminApiClient from '../../utils/adminApiClient';
 import viewModelMapper from '../../utils/baseViewModelMapper';
 import { actionCreators as messageActionCreators } from './appMessages';
-import { transposedRegistrySection } from '../../../main/utils/formatters/network'; // TODO: move
+import { transposedCodebookSection } from '../../../main/utils/formatters/network'; // TODO: move
 
 const LOAD_PROTOCOLS = 'LOAD_PROTOCOLS';
 const PROTOCOLS_LOADED = 'PROTOCOLS_LOADED';
@@ -49,16 +49,16 @@ const currentProtocolId = (state, props) => {
 
 // Transpose all types & variable IDs to names
 // Imported data is transposed; this allows utility components from Architect to work as-is.
-const transposedRegistry = (state, props) => {
+const transposedCodebook = (state, props) => {
   const protocol = currentProtocol(state, props);
   if (!protocol) {
     return {};
   }
 
-  const registry = protocol.variableRegistry || {};
+  const codebook = protocol.codebook || {};
   return {
-    edge: transposedRegistrySection(registry.edge),
-    node: transposedRegistrySection(registry.node),
+    edge: transposedCodebookSection(codebook.edge),
+    node: transposedCodebookSection(codebook.node),
   };
 };
 
@@ -69,11 +69,11 @@ const isDistributionVariable = variable => distributionVariableTypes.includes(va
  * @return {Object} all node ordinal & categorical variable names, sectioned by node type
  */
 const ordinalAndCategoricalVariables = (state, props) => {
-  const registry = transposedRegistry(state, props);
-  if (!registry) {
+  const codebook = transposedCodebook(state, props);
+  if (!codebook) {
     return {};
   }
-  return Object.entries(registry.node || {}).reduce((acc, [entityType, { variables }]) => {
+  return Object.entries(codebook.node || {}).reduce((acc, [entityType, { variables }]) => {
     const variableNames = Object.entries(variables).reduce((arr, [variableName, variable]) => {
       if (isDistributionVariable(variable)) {
         arr.push(variableName);
@@ -140,7 +140,7 @@ const selectors = {
   currentProtocolId,
   isDistributionVariable,
   protocolsHaveLoaded,
-  transposedRegistry,
+  transposedCodebook,
   ordinalAndCategoricalVariables,
 };
 

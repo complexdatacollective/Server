@@ -6,7 +6,6 @@ import { Redirect } from 'react-router-dom';
 import { remote } from 'electron';
 
 import Types from '../types';
-import Filter from '../components/Filter'; // eslint-disable-line import/no-named-as-default
 import DrawerTransition from '../components/Transitions/Drawer';
 import Checkbox from '../ui/components/Fields/Checkbox';
 import Radio from '../ui/components/Fields/Radio';
@@ -16,11 +15,6 @@ import withApiClient from '../components/withApiClient';
 import { selectors } from '../ducks/modules/protocols';
 import { Button, Spinner } from '../ui';
 import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
-
-const defaultFilter = {
-  join: '',
-  rules: [],
-};
 
 const availableCsvTypes = {
   adjacencyMatrix: 'Adjacency Matrix',
@@ -34,14 +28,10 @@ class ExportScreen extends Component {
     this.state = {
       exportFormat: 'graphml',
       exportNetworkUnion: false,
-      csvTypes: new Set(Object.keys(availableCsvTypes)),
-      entityFilter: defaultFilter,
+      csvTypes: new Set([...Object.keys(availableCsvTypes), 'ego']),
       useDirectedEdges: true,
+      useEgoData: true,
     };
-  }
-
-  handleFilterChange = (entityFilter) => {
-    this.setState({ entityFilter });
   }
 
   handleFormatChange = (evt) => {
@@ -65,6 +55,10 @@ class ExportScreen extends Component {
 
   handleDirectedEdgesChange = (evt) => {
     this.setState({ useDirectedEdges: evt.target.checked });
+  }
+
+  handleEgoDataChange = (evt) => {
+    this.setState({ useEgoData: evt.target.checked });
   }
 
   handleExport = () => {
@@ -114,17 +108,22 @@ class ExportScreen extends Component {
       exportFormat,
       exportNetworkUnion,
       csvTypes,
-      entityFilter,
       useDirectedEdges,
+      useEgoData,
     } = this.state;
+
+    const csvTypesNoEgo = new Set(this.state.csvTypes);
+    csvTypesNoEgo.delete('ego');
+    const exportCsvTypes = useEgoData ? csvTypes : csvTypesNoEgo;
+    const showCsvOpts = exportFormat === 'csv';
 
     apiClient
       .post(`/protocols/${protocolId}/export_requests`, {
-        exportFormats: (exportFormat === 'csv' && [...csvTypes]) || [exportFormat],
+        exportFormats: (exportFormat === 'csv' && [...exportCsvTypes]) || [exportFormat],
         exportNetworkUnion,
         destinationFilepath,
-        entityFilter,
         useDirectedEdges,
+        useEgoData: useEgoData && showCsvOpts,
       })
       .then(() => showConfirmation('Export complete'))
       .catch(err => showError(err.message))
@@ -132,7 +131,7 @@ class ExportScreen extends Component {
   }
 
   render() {
-    const { protocol, protocolsHaveLoaded, variableRegistry } = this.props;
+    const { protocol, protocolsHaveLoaded } = this.props;
 
     if (protocolsHaveLoaded && !protocol) { // This protocol doesn't exist
       return <Redirect to="/" />;
@@ -182,7 +181,17 @@ class ExportScreen extends Component {
                 onChange: this.handleFormatChange,
               }}
             />
-            <DrawerTransition in={showCsvOpts}>
+          </div>
+          <DrawerTransition in={showCsvOpts}>
+            <div className="export__csv-types">
+              <Toggle
+                label="Include Ego data?"
+                input={{
+                  name: 'export_ego_data',
+                  onChange: this.handleEgoDataChange,
+                  value: this.state.useEgoData,
+                }}
+              />
               <div className="export__subpanel">
                 <div className="export__subpanel-content">
                   <h4>Include the following files:</h4>
@@ -201,10 +210,23 @@ class ExportScreen extends Component {
                       </div>
                     ))
                   }
+                  <DrawerTransition in={this.state.useEgoData}>
+                    <div key="export_csv_type_ego">
+                      <Checkbox
+                        label="Ego Attribute List"
+                        input={{
+                          name: 'export_ego_attributes',
+                          checked: this.state.csvTypes.has('ego'),
+                          value: 'ego',
+                          onChange: this.handleCsvTypeChange,
+                        }}
+                      />
+                    </div>
+                  </DrawerTransition>
                 </div>
               </div>
-            </DrawerTransition>
-          </div>
+            </div>
+          </DrawerTransition>
         </div>
         <div className="export__section">
           <h4>Directed Edges</h4>
@@ -246,15 +268,6 @@ class ExportScreen extends Component {
             />
           </div>
         </div>
-        <div className="export__section">
-          <h3>Filtering</h3>
-          <p>Include nodes and edges that meet the following criteria:</p>
-          <Filter
-            filter={this.state.entityFilter}
-            onChange={this.handleFilterChange}
-            variableRegistry={variableRegistry}
-          />
-        </div>
         <Button type="submit" disabled={exportInProgress}>Export</Button>
       </form>
     );
@@ -267,19 +280,16 @@ ExportScreen.propTypes = {
   protocolsHaveLoaded: PropTypes.bool.isRequired,
   showConfirmation: PropTypes.func.isRequired,
   showError: PropTypes.func.isRequired,
-  variableRegistry: PropTypes.object,
 };
 
 ExportScreen.defaultProps = {
   apiClient: null,
   protocol: null,
-  variableRegistry: null,
 };
 
 const mapStateToProps = (state, ownProps) => ({
   protocolsHaveLoaded: selectors.protocolsHaveLoaded(state),
   protocol: selectors.currentProtocol(state, ownProps),
-  variableRegistry: selectors.transposedRegistry(state, ownProps),
 });
 
 const mapDispatchToProps = dispatch => ({

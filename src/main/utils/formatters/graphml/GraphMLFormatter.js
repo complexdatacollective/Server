@@ -3,15 +3,15 @@ const { Readable } = require('stream');
 const { graphMLGenerator } = require('./createGraphML');
 
 class GraphMLFormatter {
-  constructor(data, useDirectedEdges, variableRegistry) {
+  constructor(data, useDirectedEdges, _, codebook) {
     this.network = data;
-    this.variableRegistry = variableRegistry;
+    this.codebook = codebook;
     this.useDirectedEdges = useDirectedEdges;
   }
   writeToStream(outStream) {
     const generator = graphMLGenerator(
       this.network,
-      this.variableRegistry,
+      this.codebook,
       this.useDirectedEdges,
     );
     const inStream = new Readable({

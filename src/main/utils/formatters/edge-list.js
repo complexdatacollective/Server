@@ -1,6 +1,7 @@
 const { Readable } = require('stream');
 
-const { csvEOL } = require('./csv');
+const { cellValue, csvEOL } = require('./csv');
+const { convertUuidToDecimal, nodePrimaryKeyProperty, egoProperty, nodeAttributesProperty, processEntityVariables } = require('./network');
 
 /**
  * Builds an edge list for a network, based only on its edges (it need
@@ -20,18 +21,62 @@ const { csvEOL } = require('./csv');
  * @param  {Object} network NC network containing edges
  * @param  {Boolean} directed if false, adjacencies are represented in both directions
  *                            default: false
- * @return {Object.<string, Set>} the adjacency list
+ * @return {Array} the edges list
  */
-const asEdgeList = (network, directed = false) =>
-  (network.edges || []).reduce((acc, val) => {
-    acc[val.from] = acc[val.from] || new Set();
-    acc[val.from].add(val.to);
-    if (directed === false) {
-      acc[val.to] = acc[val.to] || new Set();
-      acc[val.to].add(val.from);
-    }
-    return acc;
-  }, {});
+const asEdgeList = (network, directed = false, _, codebook) => {
+  const processedEdges = (network.edges || []).map((edge) => {
+    const variables = codebook && codebook.edge[edge.type] ?
+      codebook.edge[edge.type].variables : {};
+    return processEntityVariables(edge, variables);
+  });
+  if (directed === false) {
+    // this may change if we have support for directed vs undirected edges in NC
+    return (processedEdges || []).reduce((arr, edge) => (
+      arr.concat(
+        { ...edge, to: edge.to, from: edge.from },
+        { ...edge, to: edge.from, from: edge.to },
+      )
+    ), []);
+  }
+  return processedEdges;
+};
+
+/**
+ * The output of this formatter will contain the primary key (_uid)
+ * and all model data (inside the `attributes` property)
+ */
+const attributeHeaders = (edges, withEgo) => {
+  const initialHeaderSet = new Set([]);
+  if (withEgo) {
+    initialHeaderSet.add(egoProperty);
+  }
+  initialHeaderSet.add(nodePrimaryKeyProperty);
+  initialHeaderSet.add('from');
+  initialHeaderSet.add('to');
+
+  const headerSet = edges.reduce((headers, edge) => {
+    Object.keys(edge[nodeAttributesProperty] || []).forEach((key) => {
+      headers.add(key);
+    });
+    return headers;
+  }, initialHeaderSet);
+  return [...headerSet];
+};
+
+const getPrintableAttribute = (attribute) => {
+  switch (attribute) {
+    case egoProperty:
+      return 'networkCanvasEgoID';
+    case nodePrimaryKeyProperty:
+      return 'networkCanvasEdgeID';
+    case 'from':
+      return 'networkCanvasSource';
+    case 'to':
+      return 'networkCanvasTarget';
+    default:
+      return attribute;
+  }
+};
 
 /**
  * Write a CSV reprensentation of the list to the given Writable stream.
@@ -46,19 +91,34 @@ const asEdgeList = (network, directed = false) =>
  *
  * @return {Object} an abort controller; call the attached abort() method as needed.
  */
-// TODO: quoting/escaping (not needed while we're only using UUIDs)
-const toCSVStream = (edgeList, outStream) => {
-  const adjacencies = Object.entries(edgeList);
-  const totalChunks = adjacencies.length;
+const toCSVStream = (edges, outStream, withEgo = false) => {
+  const totalChunks = edges.length;
   let chunkContent;
   let chunkIndex = 0;
+  const attrNames = attributeHeaders(edges, withEgo);
+  let headerWritten = false;
+  let edge;
 
   const inStream = new Readable({
     read(/* size */) {
-      if (chunkIndex < totalChunks) {
-        const [fromId, destinations] = adjacencies[chunkIndex];
-        chunkContent = [...destinations].map(toId => `${fromId},${toId}`).join(csvEOL);
-        this.push(`${chunkContent}${csvEOL}`);
+      if (!headerWritten) {
+        this.push(`${attrNames.map(attr => cellValue(getPrintableAttribute(attr))).join(',')}${csvEOL}`);
+        headerWritten = true;
+      } else if (chunkIndex < totalChunks) {
+        edge = edges[chunkIndex];
+        const values = attrNames.map((attrName) => {
+          // primary key/ego id/to/from exist at the top-level; all others inside `.attributes`
+          let value;
+          if (attrName === nodePrimaryKeyProperty || attrName === egoProperty ||
+            attrName === 'to' || attrName === 'from') {
+            value = convertUuidToDecimal(edge[attrName]);
+          } else {
+            value = edge[nodeAttributesProperty][attrName];
+          }
+          return cellValue(value);
+        });
+        chunkContent = `${values.join(',')}${csvEOL}`;
+        this.push(chunkContent);
         chunkIndex += 1;
       } else {
         this.push(null);
@@ -75,11 +135,12 @@ const toCSVStream = (edgeList, outStream) => {
 };
 
 class EdgeListFormatter {
-  constructor(data, directed = false) {
-    this.list = asEdgeList(data, directed);
+  constructor(data, directed = false, includeEgo = false, codebook) {
+    this.list = asEdgeList(data, directed, includeEgo, codebook);
+    this.includeEgo = includeEgo;
   }
   writeToStream(outStream) {
-    return toCSVStream(this.list, outStream);
+    return toCSVStream(this.list, outStream, this.includeEgo);
   }
 }
 
