@@ -72,6 +72,12 @@
     font-size: 0.9rem;
     left: 0.5rem;
     position: absolute;
+    text-align: center;
+
+    img {
+      width: 7rem;
+      margin-bottom: 1rem;
+    }
   }
 
   @include element(codename) {

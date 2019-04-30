@@ -8,6 +8,7 @@ const codenames = {
   '4.0.0-alpha.9': 'Arrakis',
   '4.0.0-alpha.10': 'Porthleven',
   '4.0.0-alpha.11': 'Cascades',
+  '4.0.0-beta.1': '',
 };
 
 const appVersion = remote.app.getVersion();
