@@ -10,6 +10,7 @@ import AppRoutes from './AppRoutes';
 import ProtocolNav from './ProtocolNav';
 import AdminApiClient from '../utils/adminApiClient';
 import { appVersion, codename } from '../utils/appVersion';
+import NCLogo from '../images/NC-Mark.svg';
 import { AppMessage } from '../components';
 import { AnimatedPairPrompt } from '../components/pairing/PairPrompt';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
@@ -129,11 +130,8 @@ class App extends Component {
           }
         </div>
         <div className="app__version">
-          <div>{versionParts[0]}</div>
-          {
-            versionParts[1] &&
-            <div>{versionParts[1]}</div>
-          }
+          <img src={NCLogo} alt="" />
+          <div>{versionParts[0]} {versionParts[1]}</div>
           {
             codename &&
             <div className="app__codename">{codename}</div>
