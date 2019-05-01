@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "archiver": "^2.1.1",
+    "big-integer": "^1.6.43",
     "detect-port": "^1.2.3",
     "electron-log": "^2.2.16",
     "electron-updater": "~3.0.4",
