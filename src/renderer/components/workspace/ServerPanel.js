@@ -64,11 +64,14 @@ class ServerPanel extends Component {
     const uptimeDisplay = overview.uptime && `${parseInt(overview.uptime / 1000 / 60, 10)}m`;
     return (
       <div className={`server-panel ${className}`}>
-        <PanelItem label="Local Server Address" value={overview.publicAddresses || 'Offline'} />
-        <PanelItem label="Pairing Port" value={overview.deviceApiPort || '-'} />
-        <PanelItem label="Uptime" value={uptimeDisplay || '-'} />
-        <PanelItem label="Hostname" value={overview.hostname || '-'} />
-        <PanelItem label="Service Advertising" value={overview.mdnsStatus || '-'} />
+        <h2 className="server-panel__header">Network Status</h2>
+        <div className="server-panel__wrapper">
+          <PanelItem label="Local Server Address" value={overview.publicAddresses || 'Offline'} />
+          <PanelItem label="Pairing Port" value={overview.deviceApiPort || '-'} />
+          <PanelItem label="Uptime" value={uptimeDisplay || '-'} />
+          <PanelItem label="Hostname" value={overview.hostname || '-'} />
+          <PanelItem label="Service Advertising" value={overview.mdnsStatus || '-'} />
+        </div>
       </div>
     );
   }

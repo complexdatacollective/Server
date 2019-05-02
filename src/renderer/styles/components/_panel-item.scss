@@ -1,5 +1,9 @@
 .panel-item {
   margin: spacing(medium);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 
   @include element(placeholder) {
     font-style: italic;

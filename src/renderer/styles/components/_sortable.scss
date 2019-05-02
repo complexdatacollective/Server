@@ -10,11 +10,18 @@
     }
   }
 
+  border-radius: var(--border-radius);
+  position: relative;
+  overflow: hidden;
+
   @include element(handle) {
     background-color: var(--draggable-color);
     border-radius: var(--draggable-border-radius);
     cursor: grab;
     height: var(--draggable-height);
     width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
   }
 }

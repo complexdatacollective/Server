@@ -1,6 +1,17 @@
 .server-panel {
-  background-color: var(--color-white);
-  display: flex;
-  margin-bottom: spacing(medium);
-  justify-content: space-between;
+  background-color: var(--color-cyber-grape);
+  padding: spacing(medium);
+  margin-bottom: 1.2rem;
+  border-radius: var(--border-radius);
+  color: var(--text-light);
+
+  &__header {
+    margin: spacing(medium);
+  }
+
+  &__wrapper {
+    display: flex;
+    justify-content: space-between;
+  }
+
 }

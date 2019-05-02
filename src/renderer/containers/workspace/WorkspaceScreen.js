@@ -125,6 +125,14 @@ class WorkspaceScreen extends Component {
 
     return (
       <div className="workspace" ref={this.myRef}>
+        <div className="welcome-panel">
+          <h1>Welcome to Server!</h1>
+          <p>
+            This is your overview dashboard. It summarizes the data associated
+            with this protocol. Below you will find connection details for
+            pairing your Network Canvas devices.
+          </p>
+        </div>
         <ServerPanel />
         <SortablePanels
           getContainer={() => this.props.scrollContainerRef.current}

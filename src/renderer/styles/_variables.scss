@@ -2,7 +2,7 @@
   $box-shadow-color: rgba(0, 0, 0, 0.3);
 
   // Colors
-  --base-background-color: var(--color-platinum);
+  --base-background-color: var(--color-white);
   --base-border-color: var(--color-platinum--dark);
   --box-shadow-color: #{$box-shadow-color};
   --draggable-color: var(--color-sea-serpent);
@@ -28,4 +28,5 @@
   --draggable-height: 0.8rem;
   --draggable-border-radius: 0 0 0.25rem 0.25rem;
   --modal-window-padding: #{spacing(huge)};
+  --border-radius: 0.75rem;
 }
