@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { ipcRenderer } from 'electron';
 import { withRouter } from 'react-router-dom';
-
+import DialogManager from '../components/DialogManager';
 import AppRoutes from './AppRoutes';
 import ProtocolNav from './ProtocolNav';
 import AdminApiClient from '../utils/adminApiClient';
@@ -137,6 +137,7 @@ class App extends Component {
             <div className="app__codename">{codename}</div>
           }
         </div>
+        <DialogManager />
       </div>
     );
   }

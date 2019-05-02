@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
-
+import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 import Types from '../types';
 import CheckboxGroup from '../ui/components/Fields/CheckboxGroup';
 import { actionCreators, selectors as protocolSelectors } from '../ducks/modules/protocols';
@@ -55,10 +55,16 @@ class SettingsScreen extends Component {
   }
 
   deleteProtocol = () => {
-    const { deleteProtocol, match } = this.props;
+    const { deleteProtocol, match, openDialog } = this.props;
     // eslint-disable-next-line no-alert
-    if (match.params.id && confirm('Destroy this protocol and all related data?')) {
-      deleteProtocol(match.params.id);
+    if (match.params.id) {
+      openDialog({
+        type: 'Warning',
+        title: 'Remove this protocol from Server?',
+        confirmLabel: 'Remove protocol',
+        onConfirm: () => deleteProtocol(match.params.id),
+        message: 'Remove this protocol (and all associated data) from Server? This will also remove all interview session data. This action cannot be undone!',
+      });
     }
   }
 
@@ -113,6 +119,7 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = dispatch => ({
   deleteProtocol: bindActionCreators(actionCreators.deleteProtocol, dispatch),
   setExcludedVariables: bindActionCreators(chartActionCreators.setExcludedVariables, dispatch),
+  openDialog: bindActionCreators(dialogActions.openDialog, dispatch),
 });
 
 SettingsScreen.defaultProps = {
@@ -130,6 +137,7 @@ SettingsScreen.propTypes = {
   protocol: Types.protocol,
   protocolsHaveLoaded: PropTypes.bool.isRequired,
   setExcludedVariables: PropTypes.func.isRequired,
+  openDialog: PropTypes.func.isRequired,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SettingsScreen);

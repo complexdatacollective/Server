@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
 import { DismissButton, ScrollingPanelItem } from '../../components';
 import { formatDate } from '../../utils/formatters';
 
@@ -29,18 +31,27 @@ class SessionPanel extends Component {
   }
 
   deleteAllSessions() {
-    if (confirm('Delete all sessions for this protocol?')) { // eslint-disable-line no-alert
-      this.props.deleteAllSessions();
-    }
+    this.props.openDialog({
+      type: 'Warning',
+      title: 'Delete all interview sessions?',
+      confirmLabel: 'Delete all sessions',
+      onConfirm: () => this.props.deleteAllSessions(),
+      message: 'Are you sure you want to delete all interview sessions? This action cannot be undone!',
+    });
   }
 
   deleteSession(sessionId) {
     if (!sessionId) {
       return;
     }
-    if (confirm('Delete this session?')) { // eslint-disable-line no-alert
-      this.props.deleteSession(sessionId);
-    }
+
+    this.props.openDialog({
+      type: 'Confirm',
+      title: 'Delete this interview session?',
+      confirmLabel: 'Delete this session',
+      onConfirm: () => this.props.deleteSession(sessionId),
+      message: 'Are you sure you want to delete this interview session? This action cannot be undone!',
+    });
   }
 
   render() {
@@ -77,6 +88,13 @@ SessionPanel.propTypes = {
   deleteAllSessions: PropTypes.func.isRequired,
   sessions: PropTypes.array,
   totalCount: PropTypes.number,
+  openDialog: PropTypes.func.isRequired,
 };
 
-export default SessionPanel;
+function mapDispatchToProps(dispatch) {
+  return {
+    openDialog: bindActionCreators(dialogActions.openDialog, dispatch),
+  };
+}
+
+export default connect(null, mapDispatchToProps)(SessionPanel);
