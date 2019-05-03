@@ -9,6 +9,7 @@ export { default as EmptyData } from './charts/EmptyData';
 export { default as GetStarted } from './GetStarted';
 export { default as Instructions } from './Instructions';
 export { default as InterviewWidget } from './charts/InterviewWidget';
+export { default as LinkButton } from './LinkButton';
 export { default as TimeSeriesChart } from './charts/TimeSeriesChart';
 export { default as Modal } from './Modal';
 export { default as Overflow } from './Overflow';
@@ -25,4 +26,3 @@ export { default as SessionHistoryPanel } from './workspace/SessionHistoryPanel'
 export { default as SessionPanel } from './workspace/SessionPanel';
 export { default as SortablePanel } from './workspace/SortablePanel';
 export { default as SortablePanels } from './workspace/SortablePanels';
-export { default as TabBar } from './TabBar';

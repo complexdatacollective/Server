@@ -46,15 +46,13 @@ const Instructions = ({ compact, apiInfo, showPairingInstructions, showImportIns
             <Icon name="info" />
             <div>
               <p>
-                <em>If this Server is not automatically discovered by your device,
-                you may enter the connection information manually:</em>
+                If this Server is not automatically discovered by your device,
+                you may enter the connection information manually, using the
+                details at the top of this screen.
               </p>
-              <dl className="instructions__definition-list">
-                <dt>Addresses</dt>
-                <dd>{apiInfo.publicAddresses.join(', ')}</dd>
-                <dt>Port</dt>
-                <dd>{apiInfo.httpPort}</dd>
-              </dl>
+              <p>
+                Please see our <a href="https://documentation.networkcanvas.com" className="external-link">documentation</a> for further information on pairing and networking setup.
+              </p>
             </div>
           </section>
         }

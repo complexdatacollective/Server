@@ -32,7 +32,7 @@ class ProtocolDB extends DatabaseAdapter {
    * @param  {Object} metadata parsed properties form the protocol JSON file
    * @param  {string} metadata.name required and used as a unique key
    * @param  {string?} metadata.description
-   * @param  {string?} metadata.networkCanvasVersion
+   * @param  {string?} metadata.schemaVersion
    * @param  {Object?} opts
    * @param  {boolean} [opts.returnOldDoc=false] if true, returns both the old doc and new doc.
    * @async
@@ -58,7 +58,7 @@ class ProtocolDB extends DatabaseAdapter {
         return;
       }
 
-      const { description, codebook, networkCanvasVersion } = metadata;
+      const { description, codebook, schemaVersion } = metadata;
       const lastModified = validatedModifyTime(metadata);
 
       let oldDoc;
@@ -74,7 +74,7 @@ class ProtocolDB extends DatabaseAdapter {
         filename,
         description,
         lastModified,
-        networkCanvasVersion,
+        schemaVersion,
         codebook,
         sha256Digest: contentsDigest,
       }, {

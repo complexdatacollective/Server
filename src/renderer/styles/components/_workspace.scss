@@ -8,4 +8,23 @@
     display: flex;
     justify-content: center;
   }
+
+  .workspace-panel {
+    padding: 2.2rem;
+    margin-bottom: 1.2rem;
+    border-radius: var(--border-radius);
+
+    &__buttons {
+      text-align: right;
+    }
+
+    &.welcome-panel {
+      background-color: var(--color-mustard);
+      color: var(--text-light);
+    }
+
+    &.overview-panel {
+      background-color: var(--color-platinum--dark);
+    }
+  }
 }

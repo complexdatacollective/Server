@@ -11,7 +11,7 @@
   grid-template-columns: repeat($column-count, 1fr);
 
   @include element(panel) {
-    background-color: var(--color-white);
+    background-color: var(--color-platinum);
     height: 100%;
     padding: spacing(large);
     position: relative;

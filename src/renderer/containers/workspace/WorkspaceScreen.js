@@ -3,14 +3,13 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { arrayMove } from 'react-sortable-hoc';
-
 import Types from '../../types';
 import InterviewStatsPanel from './InterviewStatsPanel';
 import ProtocolCountsPanel from './ProtocolCountsPanel';
 import EntityTimeSeriesPanel from './EntityTimeSeriesPanel';
 import withAnswerDistributionCharts from './withAnswerDistributionCharts';
 import withSessions from './withSessions';
-import { Spinner } from '../../ui';
+import { Spinner, Button } from '../../ui';
 import { selectors as protocolSelectors } from '../../ducks/modules/protocols';
 import {
   actionCreators as layoutActionCreators,
@@ -19,10 +18,10 @@ import {
 import {
   AnswerDistributionPanel,
   ProtocolPanel,
-  ServerPanel,
   SessionHistoryPanel,
   SessionPanel,
   SortablePanels,
+  LinkButton,
 } from '../../components';
 
 class WorkspaceScreen extends Component {
@@ -40,10 +39,6 @@ class WorkspaceScreen extends Component {
     // session-related props are provided by `withSessions`
     const { deleteAllSessions, deleteSession, sessions, totalSessionsCount } = this.props;
     return [
-      <ProtocolPanel
-        protocol={protocol}
-        key="ProtocolPanel"
-      />,
       <ProtocolCountsPanel
         key="ProtocolCountsPanel"
         protocolId={protocol.id}
@@ -109,7 +104,8 @@ class WorkspaceScreen extends Component {
   }
 
   render() {
-    const { protocol, sessions, setPanelLayoutOrder } = this.props;
+    const { protocol, sessions, setPanelLayoutOrder, match } = this.props;
+    const workspaceId = match.params.id;
 
     if (!protocol || !sessions) {
       return <div className="workspace--loading"><Spinner /></div>;
@@ -125,15 +121,37 @@ class WorkspaceScreen extends Component {
 
     return (
       <div className="workspace" ref={this.myRef}>
-        <div className="welcome-panel">
-          <h1>Welcome to Server!</h1>
+        <div className="workspace-panel welcome-panel">
+          <h1>Welcome to your protocol!</h1>
           <p>
-            This is your overview dashboard. It summarizes the data associated
-            with this protocol. Below you will find connection details for
-            pairing your Network Canvas devices.
+            This is the overview dashboard for this protocol. It summarizes the data you
+            have collected so far, and generates charts for each variable (tip: try dragging
+            the charts to rearrange them). Use the buttons in the panel below to export data, or
+            access settings associated with this protocol.
           </p>
+          <p>
+            At the top of the screen you will find connection details for pairing this installation
+            of Server with your Network Canvas devices, so that you can deploy your protocol
+            and start uploading data.
+          </p>
+          <p>
+            To learn more about using Server, please visit our <a href="https://documentation.networkcanvas.com" className="external-link">documentation website</a>.
+          </p>
+          <div className="workspace-panel__buttons">
+            <Button color="platinum">Dismiss message</Button>
+          </div>
         </div>
-        <ServerPanel />
+        <div className="workspace-panel overview-panel">
+          <h1>{protocol.name}</h1>
+          <ProtocolPanel
+            protocol={protocol}
+            key="ProtocolPanel"
+          />
+          <div className="workspace-panel__buttons">
+            <LinkButton to={`/workspaces/${workspaceId}/settings`} color="mustard">Settings</LinkButton>&nbsp;
+            <LinkButton to={`/workspaces/${workspaceId}/export`} color="primary">Export data</LinkButton>
+          </div>
+        </div>
         <SortablePanels
           getContainer={() => this.props.scrollContainerRef.current}
           className="dashboard"
@@ -178,6 +196,11 @@ WorkspaceScreen.propTypes = {
   sessions: PropTypes.array,
   totalSessionsCount: PropTypes.number,
   scrollContainerRef: PropTypes.object,
+  match: PropTypes.shape({
+    params: PropTypes.shape({
+      id: PropTypes.string.isRequired,
+    }).isRequired,
+  }).isRequired,
 };
 
 // withSessions & withAnswerDistributionCharts provide shared data for child components.
