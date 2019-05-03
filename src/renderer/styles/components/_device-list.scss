@@ -1,8 +1,20 @@
 .device-list {
   @include element(device) {
-    align-items: flex-start;
+    align-items: center;
     display: flex;
     justify-content: space-between;
     margin-bottom: 2rem;
+    background: var(--color-cyber-grape);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    color: var(--text);
+    width: 550px;
+    margin: 0 auto 2rem;
+
+    .device {
+      h3 {
+        margin: 0;
+      }
+    }
   }
 }

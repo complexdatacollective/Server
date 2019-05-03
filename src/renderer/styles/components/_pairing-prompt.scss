@@ -12,9 +12,12 @@
   min-height: $estimated-height;
   padding: spacing(medium);
   position: fixed;
-  top: 0;
+  bottom: 40px;
+  border-radius: var(--border-radius);
   width: $width;
   z-index: 1;
+  box-shadow: 0 1rem 1rem rgba(0, 0, 0, 0.5);
+
 
   @include element(icon-wrapper) {
     margin: spacing(large);

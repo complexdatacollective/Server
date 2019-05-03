@@ -25,8 +25,8 @@ const iconName = type => (type === messageTypes.Error ? 'error' : 'info');
 const AppMessage = ({ text, type, isExpired, timestamp, handleDismissal }) => (
   <Notify in={!isExpired}>
     <div className={`${baseCssClass} ${modifierClass(type)}`}>
+      <Icon className="app-message__icon" name={iconName(type)} size="small" />
       <div className="app-message__text">
-        <Icon className="app-message__icon" name={iconName(type)} size="small" />
         <span>{text}</span>
       </div>
       <button onClick={() => handleDismissal(timestamp)} className="app-message__button">

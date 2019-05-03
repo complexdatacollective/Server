@@ -1,23 +1,19 @@
 .app-message {
-  background-color: var(--message-background-color);
+  background-color: var(--color-cyber-grape);
+  border-bottom: 5px solid var(--message-background-color);
   border-radius: var(--border-radius);
   color: var(--message-color);
   font-size: 1.2rem;
   padding: 1rem;
-  text-align: center;
   z-index: var(--z-index-app-messages);
   display: flex;
   justify-content: space-between;
   box-shadow: 0 1rem 1rem rgba(0, 0, 0, 0.5);
-  position: absolute;
-  bottom: 40px;
-  left: calc(50% - 250px);
-  width: 500px;
+  width: 650px;
+  margin: 0 auto;
 
   @include modifier(error) {
-    background-color: var(--error-message-background-color);
-    border-color: var(--error-message-border-color);
-    color: var(--error-message-color);
+    border-color: var(--error);
   }
 
   @keyframes bounceIn {
@@ -50,18 +46,19 @@
   }
 
   @include element(icon) {
-    margin-right: 1rem;
 
     &[name] { // needed to match NC-UI specificity
-      height: 70px;
-      width: 70px;
+      flex-basis: 150px;
+      height: 100px;
+      width: 100px;
     }
   }
 
   @include element(text) {
     display: flex;
     align-items: center;
-    justify-content: center;
+    flex-grow: 1;
+    flex-basis: 400px;
   }
 
   @include element(button) {

@@ -6,7 +6,8 @@ import { connect } from 'react-redux';
 import withApiClient from '../components/withApiClient';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
 import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
-import { Modal, PairPin } from '../components';
+import { PairPin } from '../components';
+import { Modal } from '../ui/components';
 
 const DefaultExpiredCheckInterval = 1000;
 
@@ -38,6 +39,11 @@ class PairDevice extends Component {
       clearTimeout(this.timer);
       this.timer = null;
     }
+
+    if (this.props.pairingRequest.status === PairingStatus.Complete) {
+      this.props.showConfirmationMessage('Your device is now paired with this installation of Server. You can access interview protocols stored on Server and upload data securely from this device.');
+      this.props.dismissPairingRequest();
+    }
   }
 
   componentWillUnmount() {
@@ -49,24 +55,16 @@ class PairDevice extends Component {
     return (
       <div>
         <Modal
-          closeWhenBackgroundClicked
-          show={pairingRequest.status === PairingStatus.Complete}
-          title="All Set!"
-          onComplete={dismissPairingRequest}
-          className="modal--pairing-confirmation"
-        >
-          <p>
-            Your device is now paired with this installation of Server.
-            You can now access interview protocols stored on Server and upload data from the field.
-          </p>
-        </Modal>
-        <Modal
           show={(pairingRequest.status === PairingStatus.Acknowledged)}
           title="Pair a Device"
-          onCancel={dismissPairingRequest}
           unmountOnExit
         >
-          <PairPin code={pairingRequest.pairingCode} />
+          <React.Fragment>
+            <PairPin
+              code={pairingRequest.pairingCode}
+              dismissPairingRequest={dismissPairingRequest}
+            />
+          </React.Fragment>
         </Modal>
       </div>
     );
@@ -82,11 +80,14 @@ PairDevice.propTypes = {
     status: PropTypes.string,
   }).isRequired,
   showErrorMessage: PropTypes.func.isRequired,
+  showConfirmationMessage: PropTypes.func.isRequired,
 };
 
 const mapDispatchToProps = dispatch => ({
   dismissPairingRequest: bindActionCreators(actionCreators.dismissPairingRequest, dispatch),
   showErrorMessage: bindActionCreators(messageActionCreators.showErrorMessage, dispatch),
+  showConfirmationMessage:
+    bindActionCreators(messageActionCreators.showConfirmationMessage, dispatch),
 });
 
 const mapStateToProps = ({ pairingRequest }) => ({
