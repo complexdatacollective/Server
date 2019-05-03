@@ -21,7 +21,6 @@ import {
   SessionHistoryPanel,
   SessionPanel,
   SortablePanels,
-  LinkButton,
 } from '../../components';
 
 class WorkspaceScreen extends Component {
@@ -141,17 +140,7 @@ class WorkspaceScreen extends Component {
             <Button color="platinum">Dismiss message</Button>
           </div>
         </div>
-        <div className="workspace-panel overview-panel">
-          <h1>{protocol.name}</h1>
-          <ProtocolPanel
-            protocol={protocol}
-            key="ProtocolPanel"
-          />
-          <div className="workspace-panel__buttons">
-            <LinkButton to={`/workspaces/${workspaceId}/settings`} color="mustard">Settings</LinkButton>&nbsp;
-            <LinkButton to={`/workspaces/${workspaceId}/export`} color="primary">Export data</LinkButton>
-          </div>
-        </div>
+        <ProtocolPanel protocol={protocol} workspaceId={workspaceId} />
         <SortablePanels
           getContainer={() => this.props.scrollContainerRef.current}
           className="dashboard"

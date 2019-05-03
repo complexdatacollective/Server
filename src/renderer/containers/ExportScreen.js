@@ -6,7 +6,7 @@ import { Redirect } from 'react-router-dom';
 import { remote } from 'electron';
 
 import Types from '../types';
-import DrawerTransition from '../components/Transitions/Drawer';
+import DrawerTransition from '../ui/components/Transitions/Drawer';
 import Checkbox from '../ui/components/Fields/Checkbox';
 import Radio from '../ui/components/Fields/Radio';
 import Toggle from '../ui/components/Fields/Toggle';

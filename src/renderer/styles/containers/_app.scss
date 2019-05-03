@@ -1,5 +1,5 @@
 .app {
-  background-color: var(--recessed-background-color);
+  background-color: var(--color-white);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -55,10 +55,11 @@
   }
 
   @include element(main) {
-    background-color: var(--base-background-color);
     flex: auto;
     overflow: auto;
     padding: spacing(3);
+    max-width: 1800px;
+    margin: 0 auto;
   }
 
   @include element(version) {
