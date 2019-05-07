@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
+import { Redirect, withRouter } from 'react-router-dom';
+import { compose } from 'recompose';
 import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 import Types from '../types';
 import CheckboxGroup from '../ui/components/Fields/CheckboxGroup';
@@ -76,7 +77,7 @@ class SettingsScreen extends Component {
   }
 
   render() {
-    const { protocol, protocolsHaveLoaded } = this.props;
+    const { protocol, protocolsHaveLoaded, history } = this.props;
 
     if (protocolsHaveLoaded && !protocol) { // This protocol doesn't exist
       return <Redirect to="/" />;
@@ -88,7 +89,7 @@ class SettingsScreen extends Component {
 
     return (
       <div className="settings">
-        <h1>{protocol.name}</h1>
+        <h1>Settings</h1>
         <div className="settings__section">
           <div className="settings__description">
             <h3>Delete this protocol</h3>
@@ -104,6 +105,9 @@ class SettingsScreen extends Component {
           </div>
         </div>
         { this.chartConfigSection }
+        <div className="settings__footer">
+          <Button color="primary" onClick={() => history.goBack()}>Finished</Button>
+        </div>
       </div>
     );
   }
@@ -138,9 +142,13 @@ SettingsScreen.propTypes = {
   protocolsHaveLoaded: PropTypes.bool.isRequired,
   setExcludedVariables: PropTypes.func.isRequired,
   openDialog: PropTypes.func.isRequired,
+  history: PropTypes.object.isRequired,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(SettingsScreen);
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  withRouter,
+)(SettingsScreen);
 
 export {
   SettingsScreen as UnconnectedSettingsScreen,

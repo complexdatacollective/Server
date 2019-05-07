@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Redirect } from 'react-router-dom';
+import { Redirect, withRouter } from 'react-router-dom';
 import { remote } from 'electron';
-
+import { compose } from 'recompose';
 import Types from '../types';
 import DrawerTransition from '../ui/components/Transitions/Drawer';
 import Checkbox from '../ui/components/Fields/Checkbox';
@@ -131,7 +131,7 @@ class ExportScreen extends Component {
   }
 
   render() {
-    const { protocol, protocolsHaveLoaded } = this.props;
+    const { protocol, protocolsHaveLoaded, history } = this.props;
 
     if (protocolsHaveLoaded && !protocol) { // This protocol doesn't exist
       return <Redirect to="/" />;
@@ -153,7 +153,7 @@ class ExportScreen extends Component {
             handleCancel={this.handleCancel}
           />
         }
-        <h1>{protocol.name}</h1>
+        <h1>Export Data</h1>
         <div className="export__section">
           <h3>File Type</h3>
           <p>
@@ -268,7 +268,10 @@ class ExportScreen extends Component {
             />
           </div>
         </div>
-        <Button type="submit" disabled={exportInProgress}>Export</Button>
+        <div className="export__footer">
+          <Button color="platinum" onClick={() => history.goBack()}>Cancel</Button>&nbsp;
+          <Button type="submit" disabled={exportInProgress}>Export</Button>
+        </div>
       </form>
     );
   }
@@ -280,6 +283,7 @@ ExportScreen.propTypes = {
   protocolsHaveLoaded: PropTypes.bool.isRequired,
   showConfirmation: PropTypes.func.isRequired,
   showError: PropTypes.func.isRequired,
+  history: PropTypes.object.isRequired,
 };
 
 ExportScreen.defaultProps = {
@@ -297,7 +301,11 @@ const mapDispatchToProps = dispatch => ({
   showError: bindActionCreators(messageActionCreators.showErrorMessage, dispatch),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(withApiClient(ExportScreen));
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  withApiClient,
+  withRouter,
+)(ExportScreen);
 
 export {
   ExportScreen,

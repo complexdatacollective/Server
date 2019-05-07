@@ -19,12 +19,18 @@
     }
 
     &.welcome-panel {
-      background-color: var(--color-mustard);
+      background-color: var(--primary);
       color: var(--text-light);
+
+      a {
+        color: var(--color-cyber-grape);
+      }
     }
 
     &.overview-panel {
-      background-color: var(--color-platinum--dark);
+      background-color: var(--color-platinum);
+      border-bottom: 0.8rem solid var(--primary);
+
     }
   }
 }

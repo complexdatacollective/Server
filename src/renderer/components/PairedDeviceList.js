@@ -9,10 +9,6 @@ const PairedDeviceList = ({ deleteDevice, devices }) => (
   <div className="paired-device-list">
     <div className="paired-device-list__header">
       <h1>Paired Devices</h1>
-      <p>
-        Below you can find a list of all devices currently paired with this installation
-        of Server.
-      </p>
     </div>
     <DeviceList deleteDevice={deleteDevice} devices={devices} />
   </div>
