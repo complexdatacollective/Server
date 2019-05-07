@@ -120,7 +120,7 @@ class WorkspaceScreen extends Component {
 
     return (
       <div className="workspace" ref={this.myRef}>
-        <div className="workspace-panel welcome-panel">
+        {/* <div className="workspace-panel welcome-panel">
           <h1>Welcome to your protocol!</h1>
           <p>
             This is the overview dashboard for this protocol. It summarizes the data you
@@ -139,7 +139,7 @@ class WorkspaceScreen extends Component {
           <div className="workspace-panel__buttons">
             <Button color="platinum">Dismiss message</Button>
           </div>
-        </div>
+        </div> */}
         <ProtocolPanel protocol={protocol} workspaceId={workspaceId} />
         <SortablePanels
           getContainer={() => this.props.scrollContainerRef.current}

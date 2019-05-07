@@ -18,7 +18,6 @@ const appReducer = combineReducers({
   pairingRequest,
   panelLayoutOrders,
   protocols,
-  ui,
 });
 
 const rootReducer = (state, action) => appReducer(state, action);
