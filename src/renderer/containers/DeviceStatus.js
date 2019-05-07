@@ -56,6 +56,7 @@ DeviceStatus.propTypes = {
   dark: PropTypes.bool,
   devices: Types.devices,
   loadDevices: PropTypes.func,
+  history: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({

@@ -9,7 +9,7 @@ import ProtocolCountsPanel from './ProtocolCountsPanel';
 import EntityTimeSeriesPanel from './EntityTimeSeriesPanel';
 import withAnswerDistributionCharts from './withAnswerDistributionCharts';
 import withSessions from './withSessions';
-import { Spinner, Button } from '../../ui';
+import { Spinner } from '../../ui';
 import { selectors as protocolSelectors } from '../../ducks/modules/protocols';
 import {
   actionCreators as layoutActionCreators,

@@ -5,7 +5,6 @@ import { MemoryRouter, Redirect } from 'react-router';
 
 import AppRoutes from '../AppRoutes';
 
-jest.mock('../../components/TabBar', () => () => null);
 jest.mock('../PairDevice');
 jest.mock('../OverviewScreen');
 jest.mock('../SettingsScreen');

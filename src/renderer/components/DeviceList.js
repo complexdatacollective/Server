@@ -32,7 +32,6 @@ const DeviceList = ({ deleteDevice, devices, openDialog }) => {
     return <EmptyDeviceList />;
   }
 
-  console.log(devices);
   return devices.map(device => (
     <div className="device-list__device" key={device.id}>
       <div className="device-icon" />
