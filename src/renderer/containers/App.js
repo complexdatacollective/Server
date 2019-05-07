@@ -46,7 +46,7 @@ const preventGlobalDragDrop = () => {
 const enableExternalLinks = () => {
   // Open all links in external browser
   document.addEventListener('click', (event) => {
-    if (event.target.tagName === 'A' && event.target.classList.contains('external-link')) {
+    if (event.target && event.target.tagName === 'A' && event.target.classList.contains('external-link')) {
       event.preventDefault();
       shell.openExternal(event.target.href);
     }

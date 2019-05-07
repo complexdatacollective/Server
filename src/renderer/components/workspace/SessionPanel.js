@@ -98,3 +98,7 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default connect(null, mapDispatchToProps)(SessionPanel);
+
+export {
+  SessionPanel as UnconnectedSessionPanel,
+};

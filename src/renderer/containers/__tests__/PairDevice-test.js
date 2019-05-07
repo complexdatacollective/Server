@@ -12,6 +12,7 @@ const makeProps = status => ({
   apiClient: {
     checkPairingCodeExpired: jest.fn().mockResolvedValue({}),
   },
+  showConfirmationMessage: jest.fn(),
   showErrorMessage: jest.fn(),
   dismissPairingRequest: jest.fn(),
   pairingRequest: {
@@ -31,16 +32,6 @@ describe('<PairDevice />', () => {
   it('should render a PIN prompt once acknowledged', () => {
     const subject = shallow(<PairDevice {...makeProps(PairingStatus.Acknowledged)} />);
     expect(subject.find('PairPin').prop('code')).toEqual(mockPin);
-  });
-
-  it('should render in a Modal', () => {
-    const subject = shallow(<PairDevice {...makeProps(PairingStatus.Acknowledged)} />);
-    expect(subject.find('Modal.modal--pairing-confirmation')).toHaveLength(1);
-  });
-
-  it('render a completion message', () => {
-    const subject = shallow(<PairDevice {...makeProps(PairingStatus.Complete)} />);
-    expect(subject.find('p').text()).toMatch(/device is now paired/);
   });
 
   it('checks for updates', () => {

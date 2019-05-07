@@ -7,6 +7,8 @@ import ConnectedSettingsScreen, { UnconnectedSettingsScreen as SettingsScreen } 
 
 describe('<SettingsScreen />', () => {
   const deleteProtocol = jest.fn();
+  const openDialog = jest.fn();
+  const history = {};
   const setExcludedVariables = jest.fn();
   const mockProtocol = { id: '1', name: '1', createdAt: new Date() };
   let subject;
@@ -18,6 +20,8 @@ describe('<SettingsScreen />', () => {
       deleteProtocol,
       protocolsHaveLoaded: true,
       setExcludedVariables,
+      openDialog,
+      history,
     };
     subject = shallow(<SettingsScreen {...props} />);
   });
@@ -34,7 +38,7 @@ describe('<SettingsScreen />', () => {
 
   it('renders a delete button', () => {
     subject.setProps({ protocol: mockProtocol });
-    expect(subject.find('Button')).toHaveLength(1);
+    expect(subject.find({ color: 'tomato' })).toHaveLength(1);
   });
 
   it('renders checkboxes for chart variable selection', () => {
@@ -51,24 +55,6 @@ describe('<SettingsScreen />', () => {
     const input = checkboxes.dive().find('Checkbox').dive().find('input');
     input.simulate('change', []);
     expect(setExcludedVariables).toHaveBeenCalled();
-  });
-
-  describe('clicking delete', () => {
-    afterEach(() => { deleteProtocol.mockClear(); });
-
-    it('should delete a protocol', () => {
-      global.confirm = jest.fn().mockReturnValue(true);
-      subject.setProps({ protocol: mockProtocol });
-      subject.find('Button').simulate('click');
-      expect(deleteProtocol).toHaveBeenCalled();
-    });
-
-    it('requires user confirmation', () => {
-      global.confirm = jest.fn().mockReturnValue(false);
-      subject.setProps({ protocol: mockProtocol });
-      subject.find('Button').simulate('click');
-      expect(deleteProtocol).not.toHaveBeenCalled();
-    });
   });
 
   describe('when connected', () => {

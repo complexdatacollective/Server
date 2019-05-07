@@ -29,7 +29,7 @@ class SettingsScreen extends Component {
         <div className="settings__description">
           <h3>Chart Variable Distributions</h3>
           <p>
-            Display an Overview chart for distributions of the following ordinal &
+            Display an Overview chart for distributions of the following ordinal and
             categorical variables
           </p>
           {

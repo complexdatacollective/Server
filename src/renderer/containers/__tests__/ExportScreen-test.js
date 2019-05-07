@@ -23,7 +23,7 @@ describe('<ExportScreen />', () => {
   let props;
 
   beforeEach(() => {
-    props = { protocol: null, showConfirmation: jest.fn(), showError: jest.fn() };
+    props = { history: {}, protocol: null, showConfirmation: jest.fn(), showError: jest.fn() };
   });
 
   it('should render a spinner before protocol loaded', () => {
@@ -53,15 +53,15 @@ describe('<ExportScreen />', () => {
 
     beforeEach(() => {
       const protocol = { id: '1', name: 'mock', createdAt };
-      props = { protocol, showConfirmation: jest.fn(), showError: jest.fn() };
+      props = { history: {}, protocol, showConfirmation: jest.fn(), showError: jest.fn() };
       subject = shallow((
         <ExportScreen {...props} protocolsHaveLoaded />
       ));
     });
 
     it('renders an export button', () => {
-      expect(subject.find('Button')).toHaveLength(1);
-      expect(subject.find('Button').html()).toMatch(/export/i);
+      expect(subject.find('Button[type="submit"]')).toHaveLength(1);
+      expect(subject.find('Button[type="submit"]').html()).toMatch(/export/i);
     });
 
     it('selects CSV format', () => {

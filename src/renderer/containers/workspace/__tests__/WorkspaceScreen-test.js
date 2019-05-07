@@ -17,7 +17,7 @@ describe('<WorkspaceScreen />', () => {
   beforeEach(() => {
     wrapper = shallow((
       <WorkspaceScreen
-        match={{ params: { id: 1 } }}
+        match={{ params: { id: 'one' } }}
         setPanelLayoutOrder={jest.fn()}
       />
     ));
@@ -39,7 +39,6 @@ describe('<WorkspaceScreen />', () => {
 
     it('renders dashboard panels once loaded', () => {
       expect(wrapper.find('Spinner')).toHaveLength(0);
-      expect(wrapper.find('ServerPanel').length).toBeGreaterThan(0);
     });
 
     it('renders a sortable list of panels once loaded', () => {
