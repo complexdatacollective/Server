@@ -1,6 +1,23 @@
 .pairing-pin {
-  border: 1px solid transparent; // force container top for description
+  min-width: 60vw;
+  background: var(--modal-background);
+  color: var(--text-light);
+  box-shadow: 0 0 4rem 0 var(--modal-window-box-shadow);
   position: relative;
+  border-color: var(--primary);
+  border-style: solid;
+  border-width: 0;
+  border-left-width: 0.5rem;
+  border-radius: 0.75rem;
+  max-height: 80vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 2rem;
+  margin: 2rem;
+
+  .button-footer {
+    text-align: right;
+  }
 
   @include element(description) {
     // Layout of window: dynamic width driven by code length. A long ¶ here
@@ -28,6 +45,7 @@
     font-size: 4rem;
     margin: spacing(tiny) 0.1rem;
     padding: spacing(small);
+    color: var(--text-dark);
 
     &:nth-of-type(4n) {
       margin-right: 1rem;

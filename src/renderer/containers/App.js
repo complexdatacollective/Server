@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import logger from 'electron-log';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { ipcRenderer } from 'electron';
+import { ipcRenderer, shell } from 'electron';
 import { withRouter } from 'react-router-dom';
-
+import DialogManager from '../components/DialogManager';
 import AppRoutes from './AppRoutes';
 import ProtocolNav from './ProtocolNav';
 import AdminApiClient from '../utils/adminApiClient';
@@ -18,6 +18,7 @@ import { actionCreators as connectionInfoActionCreators } from '../ducks/modules
 import { actionCreators as deviceActionCreators } from '../ducks/modules/devices';
 import { actionCreators as messageActionCreators, messages } from '../ducks/modules/appMessages';
 import { isFrameless } from '../utils/environment';
+
 
 const IPC = {
   REQUEST_API_INFO: 'REQUEST_API_INFO',
@@ -42,6 +43,16 @@ const preventGlobalDragDrop = () => {
   });
 };
 
+const enableExternalLinks = () => {
+  // Open all links in external browser
+  document.addEventListener('click', (event) => {
+    if (event.target && event.target.tagName === 'A' && event.target.classList.contains('external-link')) {
+      event.preventDefault();
+      shell.openExternal(event.target.href);
+    }
+  });
+};
+
 /**
  * Main app container.
  */
@@ -52,6 +63,7 @@ class App extends Component {
     this.state = { apiReady: false };
 
     preventGlobalDragDrop();
+    enableExternalLinks();
 
     ipcRenderer.send(IPC.REQUEST_API_INFO);
     ipcRenderer.once(IPC.API_INFO, (event, connectionInfo) => {
@@ -137,6 +149,7 @@ class App extends Component {
             <div className="app__codename">{codename}</div>
           }
         </div>
+        <DialogManager />
       </div>
     );
   }

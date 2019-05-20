@@ -6,7 +6,8 @@ import {
 } from 'react-router-dom';
 
 import { PairDevice, OverviewScreen, SettingsScreen, ExportScreen, WorkspaceScreen } from './';
-import { TabBar } from '../components';
+import PairedDeviceList from '../components/PairedDeviceList';
+import { ServerPanel } from '../components';
 
 class AppRoutes extends Component {
   constructor(props) {
@@ -22,13 +23,14 @@ class AppRoutes extends Component {
 
     return (
       <React.Fragment>
-        <Route path="/workspaces/:id" component={TabBar} />
+        <ServerPanel />
         <main className="app__main" ref={this.scrollContainerRef}>
           <Switch>
             <Route path="/overview" component={OverviewScreen} />
             <Route exact path="/workspaces/:id/" render={workspaceRenderer} />
             <Route exact path="/workspaces/:id/settings" component={SettingsScreen} />
             <Route exact path="/workspaces/:id/export" component={ExportScreen} />
+            <Route exact path="/devices" component={PairedDeviceList} />
             <Route>
               <Redirect to="/overview" />
             </Route>

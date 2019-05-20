@@ -13,12 +13,16 @@ $block: instructions;
   }
 
   @include element(section) {
-    margin-top: 2rem;
+    margin-top: 1rem;
     width: 80%;
+    background: var(--color-platinum);
+    padding: spacing(large);
+    border-radius: var(--border-radius);
   }
 
   @include element(steps) {
     list-style-type: decimal;
+    margin-bottom: 2rem;
   }
 
   @include element(step) {
@@ -50,7 +54,15 @@ $block: instructions;
 
   @include element(subsection) {
     border: 1px solid var(--color-platinum--dark);
-    padding: 2rem 2rem 1rem;
+    border-radius: var(--border-radius);
+    padding: 1rem 2rem;
+    background-color: var(--color-platinum--dark);
+    display: flex;
+    align-items: center;
+
+    svg {
+      margin: 2rem 2rem 2rem 0;
+    }
   }
 
   @include modifier(compact) {

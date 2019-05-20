@@ -5,11 +5,13 @@ import connectionInfo from './connectionInfo';
 import devices from './devices';
 import excludedChartVariables from './excludedChartVariables';
 import pairingRequest from './pairingRequest';
+import dialogs from './dialogs';
 import panelLayoutOrders from './panelLayoutOrders';
 import protocols from './protocols';
 
 const appReducer = combineReducers({
   appMessages,
+  dialogs,
   connectionInfo,
   devices,
   excludedChartVariables,

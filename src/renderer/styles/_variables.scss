@@ -2,20 +2,16 @@
   $box-shadow-color: rgba(0, 0, 0, 0.3);
 
   // Colors
-  --base-background-color: var(--color-platinum);
+  --base-background-color: var(--color-white);
   --base-border-color: var(--color-platinum--dark);
   --box-shadow-color: #{$box-shadow-color};
   --draggable-color: var(--color-sea-serpent);
   --inverse-background-color: var(--color-navy-taupe);
   --inverse-text-color: var(--color-white);
-  --message-background-color: var(--color-sea-green--dark);
-  --message-border-color: var(--color-sea-green);
+  --message-background-color: var(--color-sea-green);
   --message-color: var(--color-white);
-  --error-message-background-color: var(--color-tomato--dark);
-  --error-message-border-color: var(--color-tomato);
+  --error-message-background-color: var(--color-tomato);
   --error-message-color: var(--message-color);
-  --recessed-background-color: var(--color-platinum--dark);
-  --recessed-border-color: var(--color-platinum);
   --input-text: var(--color-rich-black);
 
   // Type
@@ -27,5 +23,5 @@
   --app-titlebar-height: 22px;
   --draggable-height: 0.8rem;
   --draggable-border-radius: 0 0 0.25rem 0.25rem;
-  --modal-window-padding: #{spacing(huge)};
+  --border-radius: 0.75rem;
 }

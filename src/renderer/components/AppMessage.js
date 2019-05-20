@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import Fade from './Transitions/Fade';
+import Notify from '../ui/components/Transitions/Notify';
 import { Icon } from '../ui/components';
 import { messageTypes } from '../ducks/modules/appMessages';
 import { isFrameless } from '../utils/environment';
@@ -23,8 +23,12 @@ const modifierClass = (messageType) => {
 const iconName = type => (type === messageTypes.Error ? 'error' : 'info');
 
 const AppMessage = ({ text, type, isExpired, timestamp, handleDismissal }) => (
-  <Fade transitionIn={!isExpired}>
+  <Notify in={!isExpired}>
     <div className={`${baseCssClass} ${modifierClass(type)}`}>
+      <Icon className="app-message__icon" name={iconName(type)} size="small" />
+      <div className="app-message__text">
+        <span>{text}</span>
+      </div>
       <button onClick={() => handleDismissal(timestamp)} className="app-message__button">
         <Icon
           className="app-message__close"
@@ -33,12 +37,8 @@ const AppMessage = ({ text, type, isExpired, timestamp, handleDismissal }) => (
           color="red"
         />
       </button>
-      <div className="app-message__text">
-        <Icon className="app-message__icon" name={iconName(type)} size="small" />
-        <span>{text}</span>
-      </div>
     </div>
-  </Fade>
+  </Notify>
 );
 
 AppMessage.propTypes = {

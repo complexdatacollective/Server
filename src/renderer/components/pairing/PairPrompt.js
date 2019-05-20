@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Icon } from '../../ui/components';
 
-import SlideDown from '../Transitions/SlideDown';
+import Notify from '../../ui/components/Transitions/Notify';
 
 const PairPrompt = ({ onDismiss, onAcknowledge }) => (
   <div className="pairing-prompt">
@@ -34,7 +34,7 @@ PairPrompt.propTypes = {
 };
 
 const AnimatedPairPrompt = ({ show, onAcknowledge, onDismiss }) => (
-  <SlideDown
+  <Notify
     in={show}
     appear
     unmountOnExit
@@ -43,7 +43,7 @@ const AnimatedPairPrompt = ({ show, onAcknowledge, onDismiss }) => (
       onAcknowledge={onAcknowledge}
       onDismiss={onDismiss}
     />
-  </SlideDown>
+  </Notify>
 );
 
 AnimatedPairPrompt.propTypes = {

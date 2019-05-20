@@ -1,10 +1,13 @@
 .panel-item {
   margin: spacing(medium);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 
   @include element(placeholder) {
     font-style: italic;
   }
-  @include element(value) {
+  @include element(label) {
     font-weight: bold;
   }
 }

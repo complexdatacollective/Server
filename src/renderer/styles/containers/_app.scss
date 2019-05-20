@@ -1,5 +1,5 @@
 .app {
-  background-color: var(--recessed-background-color);
+  background-color: var(--color-white);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -10,6 +10,14 @@
     justify-content: center;
     width: 100%;
   }
+
+  &__flash {
+    position: fixed;
+    bottom: 40px;
+    z-index: 99;
+    width: 100%;
+  }
+
 
   @include modifier(frameless) {
     .app__titlebar {
@@ -22,11 +30,6 @@
       top: 0;
       visibility: visible;
       width: 100%;
-    }
-
-    .app__sidebar,
-    .app__screen {
-      padding-top: var(--app-titlebar-height);
     }
   }
 
@@ -57,13 +60,20 @@
     display: flex;
     flex: auto;
     flex-direction: column;
+    align-items: center;
   }
 
   @include element(main) {
-    background-color: var(--base-background-color);
     flex: auto;
     overflow: auto;
-    padding: spacing(3);
+    padding: spacing(1) spacing(3);
+    width: 100%;
+
+    .workspace,
+    .paired-device-list {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
   }
 
   @include element(version) {
@@ -91,4 +101,11 @@
       content: '”';
     }
   }
+}
+
+code {
+  background: var(--color-cerulean-blue);
+  color: var(--text-light);
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
 }

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { PanelItem } from '../../components';
 import withApiClient from '../withApiClient';
+import DeviceStatus from '../../containers/DeviceStatus';
 
 class ServerPanel extends Component {
   constructor() {
@@ -64,11 +65,14 @@ class ServerPanel extends Component {
     const uptimeDisplay = overview.uptime && `${parseInt(overview.uptime / 1000 / 60, 10)}m`;
     return (
       <div className={`server-panel ${className}`}>
-        <PanelItem label="Local Server Address" value={overview.publicAddresses || 'Offline'} />
-        <PanelItem label="Pairing Port" value={overview.deviceApiPort || '-'} />
-        <PanelItem label="Uptime" value={uptimeDisplay || '-'} />
-        <PanelItem label="Hostname" value={overview.hostname || '-'} />
-        <PanelItem label="Service Advertising" value={overview.mdnsStatus || '-'} />
+        <div className="server-panel__wrapper">
+          <PanelItem label="Server IP Address" value={overview.publicAddresses || 'Offline'} />
+          <PanelItem label="Pairing Port" value={overview.deviceApiPort || '-'} />
+          <PanelItem label="Uptime" value={uptimeDisplay || '-'} />
+          <PanelItem label="Hostname" value={overview.hostname || '-'} />
+          <PanelItem label="Service Advertising" value={overview.mdnsStatus || '-'} />
+          <DeviceStatus />
+        </div>
       </div>
     );
   }

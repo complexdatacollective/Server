@@ -1,39 +1,64 @@
 .app-message {
-  --margin: #{spacing(medium)};
-  background-color: var(--message-background-color);
-  border-color: var(--message-border-color);
-  border-style: solid;
-  border-width: 4px;
-  border-radius: 1rem;
-  bottom: 0;
+  background-color: var(--color-cyber-grape);
+  border-bottom: 5px solid var(--message-background-color);
+  border-radius: var(--border-radius);
   color: var(--message-color);
   font-size: 1.2rem;
-  margin: spacing(medium);
-  padding: spacing(medium);
-  position: fixed;
-  text-align: center;
-  width: calc(100% - 2 * var(--margin));
+  padding: 1rem;
   z-index: var(--z-index-app-messages);
+  display: flex;
+  justify-content: space-between;
+  box-shadow: 0 1rem 1rem rgba(0, 0, 0, 0.5);
+  width: 650px;
+  margin: 0 auto;
 
   @include modifier(error) {
-    background-color: var(--error-message-background-color);
-    border-color: var(--error-message-border-color);
-    color: var(--error-message-color);
+    border-color: var(--error);
+  }
+
+  @keyframes bounceIn {
+    0% {
+      opacity: 0;
+      transform: scale(0.3);
+    }
+
+    50% {
+      opacity: 0.9;
+      transform: scale(1.1);
+    }
+
+    80% {
+      opacity: 1;
+      transform: scale(0.89);
+    }
+
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @include modifier(show) {
+    animation-name: bounceIn;
+    animation-duration: var(--animation-duration-standard);
+    animation-timing-function: var(--animation-easing);
+    transform: translateY(0);
   }
 
   @include element(icon) {
-    margin-right: 1rem;
 
     &[name] { // needed to match NC-UI specificity
-      height: 35px;
-      width: 35px;
+      flex-basis: 150px;
+      height: 100px;
+      width: 100px;
     }
   }
 
   @include element(text) {
     display: flex;
     align-items: center;
-    justify-content: center;
+    flex-grow: 1;
+    flex-basis: 400px;
   }
 
   @include element(button) {

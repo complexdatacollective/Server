@@ -2,6 +2,7 @@
 import React from 'react';
 import { mount, shallow } from 'enzyme';
 import { createStore } from 'redux';
+import { Provider } from 'react-redux';
 import { ipcRenderer } from 'electron';
 
 import AdminApiClient from '../../utils/adminApiClient';
@@ -33,7 +34,7 @@ describe('<App />', () => {
   const mockPairRequest = {};
   const mockMsg = { timestamp: 1529338487695, text: 'ok' };
   const mockStore = createStore(() => (
-    { appMessages: [mockMsg], pairingRequest: mockPairRequest }
+    { appMessages: [mockMsg], pairingRequest: mockPairRequest, dialogs: { dialogs: [] } }
   ));
 
   it('does not render routes before API is ready', () => {
@@ -53,12 +54,12 @@ describe('<App />', () => {
   });
 
   it('renders device pairing prompt when a pending request exists', () => {
-    const wrapper = mount(<App {...mockDispatched} pairingRequest={{ status: 'pending' }} />);
+    const wrapper = mount(<Provider store={mockStore}><App {...mockDispatched} pairingRequest={{ status: 'pending' }} /></Provider>);
     expect(wrapper.find('PairPrompt')).toHaveLength(1);
   });
 
   it('does not render device pairing prompt after request acked', () => {
-    const wrapper = mount(<App {...mockDispatched} pairingRequest={{ status: 'acknowledged' }} />);
+    const wrapper = mount(<Provider store={mockStore}><App {...mockDispatched} pairingRequest={{ status: 'acknowledged' }} /></Provider>);
     expect(wrapper.find('PairPrompt')).toHaveLength(0);
   });
 

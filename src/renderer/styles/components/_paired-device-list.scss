@@ -1,3 +1,7 @@
 .paired-device-list {
-  min-width: 50vw;
+
+  &__header {
+    margin-bottom: 2rem;
+  }
+
 }

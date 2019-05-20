@@ -94,10 +94,10 @@ const Schema = {
    *         type: datetime
    *         description: Modification date of the protocol, as defined in protocol.json
    *         example: 2018-01-01T12:00:00.000Z
-   *       networkCanvasVersion:
+   *       schemaVersion:
    *         type: string
    *         description: Version as defined in protocol.json
-   *         example: "~4.0.0"
+   *         example: "4.0.0"
    *       downloadPath:
    *         type: string
    *         description: URL for direct download of the .netcanvas file from this server.|
@@ -112,7 +112,7 @@ const Schema = {
     name: protocol.name,
     description: protocol.description,
     lastModified: protocol.lastModified,
-    networkCanvasVersion: protocol.networkCanvasVersion,
+    schemaVersion: protocol.schemaVersion,
     downloadPath: `/protocols/${protocol.filename}`,
     sha256Digest: protocol.sha256Digest,
   }),

@@ -25,7 +25,7 @@ jest.mock('../../../ducks/modules/protocols', () => ({
         person: {
           variables: {
             distributionVariable: {
-              label: '',
+              name: '',
               type: 'ordinal',
               options: [
                 { label: 'a', value: 1 },

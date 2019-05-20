@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import Types from '../types';
+import { Icon } from '../ui/components';
 
 const Instructions = ({ compact, apiInfo, showPairingInstructions, showImportInstructions }) => (
   <div className={`instructions ${compact ? 'instructions--compact' : ''}`}>
@@ -43,16 +43,17 @@ const Instructions = ({ compact, apiInfo, showPairingInstructions, showImportIns
         {
           apiInfo &&
           <section className="instructions__subsection">
-            <p>
-              <em>If this Server is not automatically discovered by your device,
-              you may enter the connection information manually:</em>
-            </p>
-            <dl className="instructions__definition-list">
-              <dt>Addresses</dt>
-              <dd>{apiInfo.publicAddresses.join(', ')}</dd>
-              <dt>Port</dt>
-              <dd>{apiInfo.httpPort}</dd>
-            </dl>
+            <Icon name="info" />
+            <div>
+              <p>
+                If this Server is not automatically discovered by your device,
+                you may enter the connection information manually, using the
+                details at the top of this screen.
+              </p>
+              <p>
+                Please see our <a href="https://documentation.networkcanvas.com" className="external-link">documentation</a> for further information on pairing and networking setup.
+              </p>
+            </div>
           </section>
         }
 

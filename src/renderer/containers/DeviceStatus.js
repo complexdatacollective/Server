@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { compose } from 'recompose';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-
+import { withRouter } from 'react-router';
 import Types from '../types';
-import PairedDeviceModal from '../components/PairedDeviceModal';
 import { actionCreators } from '../ducks/modules/devices';
 import { selectors } from '../ducks/modules/pairingRequest';
 
@@ -26,29 +26,19 @@ class DeviceStatus extends Component {
     this.props.loadDevices();
   }
 
-  toggleShow = () => {
-    this.setState({ showModal: !this.state.showModal });
-  }
-
   render() {
-    const { dark, deleteDevice, devices, hasPendingRequest } = this.props;
+    const { dark, devices, history } = this.props;
     let buttonClass = 'device-icon';
     if (dark) {
       buttonClass += ` ${buttonClass}--dark`;
     }
     return (
       <React.Fragment>
-        <button className={buttonClass} onClick={this.toggleShow}>
+        <button className={buttonClass} onClick={() => history.push('/devices')}>
           <span className="device-icon__badge">
             {devices ? devices.length : ''}
           </span>
         </button>
-        <PairedDeviceModal
-          devices={devices}
-          show={this.state.showModal && !hasPendingRequest}
-          onComplete={this.toggleShow}
-          deleteDevice={deleteDevice}
-        />
       </React.Fragment>
     );
   }
@@ -64,10 +54,9 @@ DeviceStatus.defaultProps = {
 
 DeviceStatus.propTypes = {
   dark: PropTypes.bool,
-  deleteDevice: PropTypes.func,
   devices: Types.devices,
-  hasPendingRequest: PropTypes.bool,
   loadDevices: PropTypes.func,
+  history: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -80,7 +69,10 @@ const mapDispatchToProps = dispatch => ({
   loadDevices: bindActionCreators(actionCreators.loadDevices, dispatch),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(DeviceStatus);
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  withRouter,
+)(DeviceStatus);
 
 export {
   DeviceStatus as UnconnectedDeviceStatus,

@@ -1,5 +1,7 @@
 .settings {
-  @include element(section) {
+  margin-bottom: 6rem; // height of footer
+
+  &__section {
     align-items: center;
     border-top: 1px solid var(--base-border-color);
     display: flex;
@@ -21,5 +23,19 @@
       grid-template-columns: repeat(3, 1fr);
       justify-items: left;
     }
+  }
+
+  &__footer {
+    position: fixed;
+    bottom: 0;
+    width: calc(100% - var(--app-sidebar-width));
+    right: 0;
+    background: var(--color-cyber-grape);
+    margin-left: -3.6rem;
+    height: 6rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 spacing(large);
   }
 }
