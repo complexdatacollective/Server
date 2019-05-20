@@ -14,7 +14,7 @@
     "big-integer": "^1.6.43",
     "detect-port": "^1.2.3",
     "electron-log": "^2.2.16",
-    "electron-updater": "^4.0.0",
+    "electron-updater": "^3.2.3",
     "jszip": "^3.1.5",
     "libsodium-wrappers": "^0.7.3",
     "lodash": "^4.17.11",
