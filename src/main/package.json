@@ -6,15 +6,15 @@
   "private": true,
   "author": "Complex Data Collective",
   "engines": {
-    "node": "8.9.3",
-    "npm": "6.1.0"
+    "node": "8.16.0",
+    "npm": "6.4.1"
   },
   "dependencies": {
     "archiver": "^2.1.1",
     "big-integer": "^1.6.43",
     "detect-port": "^1.2.3",
     "electron-log": "^2.2.16",
-    "electron-updater": "~3.0.4",
+    "electron-updater": "^4.0.0",
     "jszip": "^3.1.5",
     "libsodium-wrappers": "^0.7.3",
     "lodash": "^4.17.11",
