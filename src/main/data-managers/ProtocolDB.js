@@ -35,12 +35,13 @@ class ProtocolDB extends DatabaseAdapter {
    * @param  {string?} metadata.schemaVersion
    * @param  {Object?} opts
    * @param  {boolean} [opts.returnOldDoc=false] if true, returns both the old doc and new doc.
+   * @param  {boolean} [opts.allowOverwriting=true] if false, disallows updating protocols.
    * @async
    * @return {Object} Resolve with the persisted metadata. If opts.returnOldDoc was true, this is
    *                          an object of the shape { prev: {}, curr: {} }.
    * @throws If DB save fails
    */
-  save(filename, contentsDigest, metadata, { returnOldDoc = false } = {}) {
+  save(filename, contentsDigest, metadata, { allowOverwriting = true, returnOldDoc = false } = {}) {
     return new Promise(async (resolve, reject) => {
       if (!filename || !contentsDigest) {
         reject(new RequestError(ErrorMessages.InvalidContainerFile));
@@ -62,8 +63,12 @@ class ProtocolDB extends DatabaseAdapter {
       const lastModified = validatedModifyTime(metadata);
 
       let oldDoc;
-      if (returnOldDoc) {
+      if (returnOldDoc || !allowOverwriting) {
         oldDoc = await this.first({ name });
+        if (!allowOverwriting && oldDoc) {
+          reject(new RequestError(`${ErrorMessages.ProtocolAlreadyExists}: "${name}" already exists`));
+          return;
+        }
       }
 
       this.db.update({

@@ -186,9 +186,12 @@ class ProtocolManager {
     try {
       // If an identical, valid protocol file already exists, no need to update
       if (fs.existsSync(destFilepath)) {
-        return Promise.resolve(destFilename);
+        throw new RequestError(ErrorMessages.FileNotChanged);
       }
     } catch (fsErr) {
+      if (fsErr instanceof RequestError) {
+        throw fsErr;
+      }
       logger.debug('existsSync error; continuing.', fsErr);
     }
 
@@ -231,7 +234,8 @@ class ProtocolManager {
     let prev;
     let curr;
     try {
-      ({ prev, curr } = await this.db.save(destFilename, digest, json, { returnOldDoc: true }));
+      ({ prev, curr } = await this.db.save(destFilename, digest, json,
+        { allowOverwriting: false, returnOldDoc: true }));
     } catch (dbErr) {
       return cleanUpAndThrow(dbErr);
     }
