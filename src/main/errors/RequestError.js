@@ -25,7 +25,7 @@ const ErrorMessages = {
   MissingProtocolFile: 'Missing protocol file',
   NotFound: 'Not found',
   NothingToExport: 'No data available to export',
-  ProtocolAlreadyExists: 'Cannot overwrite previously imported protocols. Rename or remove from the app, and try again',
+  ProtocolAlreadyExists: 'This protocol has already been imported, and cannot be overwritten. If you have changed your protocol since importing it, either rename it to create a new workspace, or remove the existing protocol.',
   ProtocolNotFoundForSession: 'The associated protocol does not exist on this server',
   VerificationFailed: 'Request verification failed',
 };

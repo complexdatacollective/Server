@@ -4,13 +4,13 @@
   border-radius: var(--border-radius);
   color: var(--message-color);
   font-size: 1.2rem;
-  padding: 1rem;
   z-index: var(--z-index-app-messages);
   display: flex;
   justify-content: space-between;
   box-shadow: 0 1rem 1rem rgba(0, 0, 0, 0.5);
   width: 650px;
   margin: 0 auto;
+  align-items: center;
 
   @include modifier(error) {
     border-color: var(--error);
@@ -59,6 +59,7 @@
     align-items: center;
     flex-grow: 1;
     flex-basis: 400px;
+    padding: 4rem 1rem;
   }
 
   @include element(button) {
