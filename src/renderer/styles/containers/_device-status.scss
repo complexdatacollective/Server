@@ -1,7 +1,7 @@
 .device-icon {
   @include reset-button;
 
-  background: center / contain no-repeat url('../images/devices.png');
+  background: center / contain no-repeat url('../images/devices-dark.png');
   cursor: pointer;
   height: 3.4rem;
   margin: 0.5rem spacing('medium');
@@ -16,16 +16,18 @@
     --badge-offset: -0.4rem;
     --badge-size: 1.4rem;
     background-color: var(--color-sea-green);
-    border: 2px solid var(--color-white);
     border-radius: calc(var(--badge-size) * 0.5);
     bottom: var(--badge-offset);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: var(--color-white);
-    display: block;
     font-size: 0.9rem;
     height: var(--badge-size);
     line-height: 1.2;
     position: absolute;
     right: var(--badge-offset);
     width: var(--badge-size);
+
   }
 }

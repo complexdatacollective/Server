@@ -42,6 +42,7 @@ class ProtocolDB extends DatabaseAdapter {
    * @throws If DB save fails
    */
   save(filename, contentsDigest, metadata, { returnOldDoc = false } = {}) {
+    console.log('save', filename);
     return new Promise(async (resolve, reject) => {
       if (!filename || !contentsDigest) {
         reject(new RequestError(ErrorMessages.InvalidContainerFile));

@@ -134,14 +134,14 @@ class ProtocolManager {
   importFile(localFilepath = '') {
     return new Promise((resolve, reject) => {
       const parsedPath = path.parse(localFilepath);
+
       if (!parsedPath.base) {
         reject(new RequestError(ErrorMessages.InvalidContainerFile));
         return;
       }
 
       const protocolName = parsedPath.name;
-      const hexName = hexDigest(protocolName);
-      const destPath = this.pathToProtocolFile(`${hexName}${parsedPath.ext}`);
+      const destPath = this.pathToProtocolFile(`${parsedPath.base}`);
       try {
         // If protocol file already exists in Server, do not allow update
         if (fs.existsSync(destPath)) {
