@@ -92,21 +92,21 @@ class ProtocolManager {
       return Promise.reject(new RequestError(ErrorMessages.InvalidContainerFileExtension));
     }
 
-    let tmpFilepath;
+    let tempFilepath;
     return this.ensureDataDir()
       .then(() => this.importFile(userFilepath))
-      .then((filepath) => {
-        tmpFilepath = filepath;
-        return this.processFile(filepath);
+      .then(({ tempPath, destPath, protocolName }) => {
+        tempFilepath = tempPath;
+        return this.processFile(tempPath, destPath, protocolName);
       })
       .catch((err) => {
         // Clean up tmp file on error
-        tryUnlink(tmpFilepath);
+        if (tempFilepath) tryUnlink(tempFilepath);
         throw err;
       })
       .then(() => {
         // Clean up tmp file if update was a no-op
-        tryUnlink(tmpFilepath);
+        if (tempFilepath) tryUnlink(tempFilepath);
       })
       .then(() => path.basename(userFilepath));
   }
@@ -139,13 +139,29 @@ class ProtocolManager {
         return;
       }
 
-      const tmpName = `${uuid()}${parsedPath.ext}`;
-      const tmpPath = this.pathToProtocolFile(tmpName);
-      fs.copyFile(localFilepath, tmpPath, (err) => {
+      const protocolName = parsedPath.name;
+      const hexName = hexDigest(protocolName);
+      const destPath = this.pathToProtocolFile(`${hexName}${parsedPath.ext}`);
+      try {
+        // If protocol file already exists in Server, do not allow update
+        if (fs.existsSync(destPath)) {
+          throw new RequestError(ErrorMessages.ProtocolAlreadyExists);
+        }
+      } catch (fsErr) {
+        if (fsErr instanceof RequestError) {
+          logger.debug(`Protocol already imported to Server: ${protocolName}`);
+          throw fsErr;
+        }
+      }
+
+      const tempName = `${uuid()}${parsedPath.ext}`;
+      const tempPath = this.pathToProtocolFile(tempName);
+
+      fs.copyFile(localFilepath, tempPath, (err) => {
         if (err) {
           reject(err);
         }
-        resolve(tmpPath);
+        resolve({ tempPath, destPath, protocolName });
       });
     });
   }
@@ -163,9 +179,8 @@ class ProtocolManager {
    * @return {string} Resolves with the base name of the persisted file
    * @throws Rejects if the file is not saved or protocol is invalid
    */
-  async processFile(tmpFilepath) {
+  async processFile(tmpFilepath, destFilepath, protocolName) {
     let fileContents;
-    let destFilepath;
     const cleanUpAndThrow = err => tryUnlink(destFilepath).then(() => { throw err; });
 
     try {
@@ -179,21 +194,8 @@ class ProtocolManager {
       return cleanUpAndThrow(new RequestError(ErrorMessages.InvalidContainerFile));
     }
 
-    const digest = hexDigest(fileContents);
-    destFilepath = this.pathToProtocolFile(`${digest}${path.extname(tmpFilepath)}`);
     const destFilename = path.basename(destFilepath);
-
-    try {
-      // If an identical, valid protocol file already exists, no need to update
-      if (fs.existsSync(destFilepath)) {
-        throw new RequestError(ErrorMessages.FileNotChanged);
-      }
-    } catch (fsErr) {
-      if (fsErr instanceof RequestError) {
-        throw fsErr;
-      }
-      logger.debug('existsSync error; continuing.', fsErr);
-    }
+    const digest = hexDigest(fileContents);
 
     let protocolContents;
     let zip;
@@ -217,6 +219,7 @@ class ProtocolManager {
     let json;
     try {
       json = JSON.parse(protocolContents);
+      json = { ...json, name: protocolName }; // file name becomes protocol name
     } catch (parseErr) {
       return cleanUpAndThrow(new Error(`${ErrorMessages.InvalidProtocolFormat}: could not parse JSON`));
     }
@@ -231,18 +234,10 @@ class ProtocolManager {
     }
 
     // Persist metadata.
-    let prev;
-    let curr;
     try {
-      ({ prev, curr } = await this.db.save(destFilename, digest, json,
-        { allowOverwriting: false, returnOldDoc: true }));
+      await this.db.save(destFilename, digest, json);
     } catch (dbErr) {
       return cleanUpAndThrow(dbErr);
-    }
-
-    // If this was an update, then delete the previously saved file (best-effort)
-    if (prev && prev.filename && prev.filename !== curr.filename) {
-      tryUnlink(this.pathToProtocolFile(prev.filename));
     }
 
     return destFilename;

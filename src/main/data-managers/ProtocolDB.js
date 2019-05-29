@@ -41,7 +41,7 @@ class ProtocolDB extends DatabaseAdapter {
    *                          an object of the shape { prev: {}, curr: {} }.
    * @throws If DB save fails
    */
-  save(filename, contentsDigest, metadata, { allowOverwriting = true, returnOldDoc = false } = {}) {
+  save(filename, contentsDigest, metadata, { returnOldDoc = false } = {}) {
     return new Promise(async (resolve, reject) => {
       if (!filename || !contentsDigest) {
         reject(new RequestError(ErrorMessages.InvalidContainerFile));
@@ -63,12 +63,8 @@ class ProtocolDB extends DatabaseAdapter {
       const lastModified = validatedModifyTime(metadata);
 
       let oldDoc;
-      if (returnOldDoc || !allowOverwriting) {
+      if (returnOldDoc) {
         oldDoc = await this.first({ name });
-        if (!allowOverwriting && oldDoc) {
-          reject(new RequestError(`${ErrorMessages.ProtocolAlreadyExists}: "${name}" already exists`));
-          return;
-        }
       }
 
       this.db.update({

@@ -15,7 +15,6 @@ class RequestError extends Error {
 const ErrorMessages = {
   EmptyFilelist: 'Empty filelist',
   FilelistNotSingular: 'Multiple files must be uploaded separately',
-  FileNotChanged: 'No need to update - file has not been changed',
   InvalidContainerFile: 'Invalid file',
   InvalidContainerFileExtension: 'File must have a ".netcanvas" extension',
   InvalidPairingCode: 'Incorrect pairing code',
