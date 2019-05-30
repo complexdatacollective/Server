@@ -35,12 +35,14 @@ class ProtocolDB extends DatabaseAdapter {
    * @param  {string?} metadata.schemaVersion
    * @param  {Object?} opts
    * @param  {boolean} [opts.returnOldDoc=false] if true, returns both the old doc and new doc.
+   * @param  {boolean} [opts.allowOverwriting=true] if false, disallows updating protocols.
    * @async
    * @return {Object} Resolve with the persisted metadata. If opts.returnOldDoc was true, this is
    *                          an object of the shape { prev: {}, curr: {} }.
    * @throws If DB save fails
    */
   save(filename, contentsDigest, metadata, { returnOldDoc = false } = {}) {
+    console.log('save', filename);
     return new Promise(async (resolve, reject) => {
       if (!filename || !contentsDigest) {
         reject(new RequestError(ErrorMessages.InvalidContainerFile));

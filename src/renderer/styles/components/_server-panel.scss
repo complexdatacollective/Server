@@ -1,8 +1,9 @@
 .server-panel {
-  background-color: var(--color-cyber-grape);
+  background-color: var(--color-platinum--dark);
   padding: spacing(medium);
-  color: var(--text-light);
   width: 100%;
+  border-bottom: 0.8rem solid var(--primary);
+  color: var(--server-panel-text);
 
   &__header {
     margin: spacing(medium);

@@ -18,6 +18,10 @@ $block: instructions;
     background: var(--color-platinum);
     padding: spacing(large);
     border-radius: var(--border-radius);
+
+    p {
+      line-height: 2;
+    }
   }
 
   @include element(steps) {
