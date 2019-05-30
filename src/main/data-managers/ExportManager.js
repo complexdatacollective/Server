@@ -26,10 +26,11 @@ const escapeFilePart = part => part.replace(/\W/g, '');
 const makeFilename = (prefix, edgeType, exportFormat, extension) => {
   let name = prefix;
   if (extension !== `.${exportFormat}`) {
-    name += `.${exportFormat}`;
+    name += name ? '_' : '';
+    name += exportFormat;
   }
   if (edgeType) {
-    name += `.${escapeFilePart(edgeType)}`;
+    name += `_${escapeFilePart(edgeType)}`;
   }
   return `${name}${extension}`;
 };
@@ -160,29 +161,32 @@ class ExportManager {
         }
       })
       .then(() => this.sessionDB.findAll(protocol._id, null, null))
-      .then(sessions => sessions.map(session => session.data))
+      .then(sessions => sessions.map(session =>
+        ({ ...session.data, _id: session._id, _caseID: session.data.sessionVariables._caseID })))
       .then(networks => (useEgoData ? insertEgoInNetworks(networks) : networks))
       .then(networks => (exportNetworkUnion ? [unionOfNetworks(networks)] : networks))
       .then((networks) => {
         promisedExports = flattenDeep(
           // Export every network
           // => [n1, n2]
-          networks.map((network, i) =>
+          networks.map(network =>
             // ...in every file format requested
             // => [[n1.matrix.csv, n1.attrs.csv], [n2.matrix.csv, n2.attrs.csv]]
             exportFormats.map(format =>
               // ...partitioning martrix & edge-list output based on edge type
               // => [ [[n1.matrix.knows.csv, n1.matrix.likes.csv], [n1.attrs.csv]],
               //      [[n2.matrix.knows.csv, n2.matrix.likes.csv], [n2.attrs.csv]]]
-              partitionByEdgeType(network, format).map(partitionedNetwork =>
+              partitionByEdgeType(network, format).map((partitionedNetwork) => {
+                const prefix = network._id ? `${network._caseID}_${network._id}` : protocol.name;
                 // gather one promise for each exported file
-                exportFile(
-                  `${i + 1}`,
+                return exportFile(
+                  prefix,
                   partitionedNetwork.edgeType,
                   format,
                   tmpDir,
                   partitionedNetwork,
-                  exportOpts)))));
+                  exportOpts);
+              }))));
         return Promise.all(promisedExports);
       })
       .then((exportedPaths) => {
