@@ -3,7 +3,7 @@
 
 const { Readable } = require('stream');
 
-const { nodePrimaryKeyProperty } = require('./network');
+const { convertUuidToDecimal, nodePrimaryKeyProperty } = require('./network');
 const { csvEOL } = require('./csv');
 
 /**
@@ -125,7 +125,8 @@ class AdjacencyMatrix {
     // cannot be used directly to index into arrayViews.
     let matrixIndex = 0;
 
-    const headerRowContent = `,${uniqueNodeIds.join(',')}${csvEOL}`;
+    const decimals = uniqueNodeIds.map(id => convertUuidToDecimal(id));
+    const headerRowContent = `,${decimals.join(',')}${csvEOL}`;
 
     // TODO: escape headerLabels (if not already) & quote
     const dataRowContent = (headerLabel, matrix) => {
@@ -183,7 +184,7 @@ class AdjacencyMatrix {
           this.push(headerRowContent);
           headerWritten = true;
         } else if (rowNum < dataColumnCount) {
-          row = dataRowContent(uniqueNodeIds[rowNum], truncatingView);
+          row = dataRowContent(convertUuidToDecimal(uniqueNodeIds[rowNum]), truncatingView);
           this.push(row);
           rowNum += 1;
 
