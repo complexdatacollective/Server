@@ -124,7 +124,7 @@ const generateKeyElements = (
           case VariableType.ordinal:
           case VariableType.number: {
             const keyType = getGraphMLTypeForKey(entities, key);
-            keyElement.setAttribute('attr.type', keyType);
+            keyElement.setAttribute('attr.type', keyType || 'string');
             break;
           }
           case VariableType.layout: {
