@@ -58,8 +58,8 @@ class Updater {
     dialog.showErrorBox('Error', 'There was an error checking for updates. You may need to update this app manually.');
   }
 
-  on(...args) {
-    this.events.on(...args);
+  simulate(event, handler) {
+    autoUpdater.simulate(event, handler);
   }
 
   checkForUpdates(notifyOnNoUpdates = true) {

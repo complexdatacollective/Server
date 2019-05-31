@@ -1,8 +1,5 @@
 /* eslint-env jest */
-
-const { app } = require('electron');
-
-const updater = require('../Updater');
+const Updater = require('../Updater');
 const dialog = require('../dialog');
 
 jest.mock('electron');
@@ -10,17 +7,12 @@ jest.mock('electron-updater');
 jest.mock('electron-log');
 jest.mock('../dialog');
 
+let updater;
+
 describe('updater', () => {
   beforeEach(() => {
     dialog.showMessageBox.mockClear();
-  });
-
-  it('provides an update hook', async () => {
-    await expect(updater.checkForUpdates()).resolves.toEqual(expect.anything());
-  });
-
-  it('does not download automatically', () => {
-    expect(updater.autoDownload).toBe(false);
+    updater = new Updater();
   });
 
   it('shows a message when update available', () => {
@@ -33,16 +25,8 @@ describe('updater', () => {
     expect(dialog.showMessageBox).toHaveBeenCalled();
   });
 
-  it('removes listeners & quits when download ready', (done) => {
-    updater.simulate('update-downloaded', {});
-    setImmediate(() => {
-      expect(app.removeAllListeners).toHaveBeenCalled();
-      expect(updater.quitAndInstall).toHaveBeenCalled();
-      done();
-    });
-  });
-
   it('shows a message when no update available', () => {
+    updater.checkForUpdates();
     updater.simulate('update-not-available', {});
     expect(dialog.showMessageBox).toHaveBeenCalled();
   });
