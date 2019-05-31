@@ -161,8 +161,12 @@ class ExportManager {
         }
       })
       .then(() => this.sessionDB.findAll(protocol._id, null, null))
-      .then(sessions => sessions.map(session =>
-        ({ ...session.data, _id: session._id, _caseID: session.data.sessionVariables._caseID })))
+      .then(sessions => sessions.map((session) => {
+        const id = session && session._id;
+        const caseID = session && session.data && session.data.sessionVariables &&
+          session.data.sessionVariables._caseID;
+        return { ...session.data, _id: id, _caseID: caseID };
+      }))
       .then(networks => (useEgoData ? insertEgoInNetworks(networks) : networks))
       .then(networks => (exportNetworkUnion ? [unionOfNetworks(networks)] : networks))
       .then((networks) => {

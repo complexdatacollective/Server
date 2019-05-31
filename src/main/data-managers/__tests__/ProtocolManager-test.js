@@ -1,6 +1,7 @@
 /* eslint-env jest */
 import fs from 'fs';
 import JSZip from 'jszip';
+import path from 'path';
 
 import ProtocolManager from '../ProtocolManager';
 import promisedFs from '../../utils/promised-fs';
@@ -171,7 +172,7 @@ describe('ProtocolManager', () => {
 
     it('resolves with the destination filename', async () => {
       fs.copyFile.mockImplementation((src, dest, cb) => { cb(); });
-      const response = { destPath: 'protocols/foo.netcanvas', protocolName: 'foo' };
+      const response = { destPath: path.join('protocols', 'foo.netcanvas'), protocolName: 'foo' };
       await expect(manager.importFile('foo.netcanvas')).resolves.toMatchObject(response);
     });
 
