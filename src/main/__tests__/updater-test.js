@@ -2,7 +2,7 @@
 
 const { app } = require('electron');
 
-const updater = require('../updater');
+const updater = require('../Updater');
 const dialog = require('../dialog');
 
 jest.mock('electron');

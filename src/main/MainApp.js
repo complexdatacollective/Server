@@ -6,7 +6,8 @@ const { isWindows } = require('./utils/environment');
 const { createTray } = require('./components/tray');
 
 const guiProxy = require('./guiProxy');
-const updater = require('./updater');
+const Updater = require('./Updater');
+
 const dialog = require('./dialog');
 
 // TODO: move/centralize
@@ -23,6 +24,11 @@ const createApp = () => {
 
   const openMainWindow = () => mainWindow.open();
   const reloadHomeScreen = () => mainWindow.open('/overview');
+
+  // Instantiate the updater class, and check for update once on startup.
+  // Do not notify the user if there are no updates.
+  const updater = new Updater();
+  updater.checkForUpdates(false);
 
   const resetAppData = () => {
     const responseNum = dialog.showMessageBox(mainWindow.window, {
