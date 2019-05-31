@@ -35,7 +35,7 @@ class Updater {
     if (this.notifyOnNoUpdates) {
       dialog.showMessageBox({
         title: 'No Updates Available',
-        message: 'Network Canvas is up-to-date.',
+        message: 'Server is up-to-date.',
       });
     } else {
       log.info('No updates available (did not notify user).');
