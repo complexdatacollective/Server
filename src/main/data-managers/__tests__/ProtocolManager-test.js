@@ -319,21 +319,21 @@ describe('ProtocolManager', () => {
     it('rejects when unlink errors if ensureFileDeleted is requested', async () => {
       const mockProtocol = { filename: 'a.netcanvas' };
       const mockError = new Error('mock error');
-      fs.unlink.mockImplementation((path, cb) => { cb(mockError); });
+      fs.unlink.mockImplementation((filepath, cb) => { cb(mockError); });
       await expect(manager.destroyProtocol(mockProtocol, true)).rejects.toEqual(mockError);
     });
 
     it('rejects when db errors', async () => {
       const mockProtocol = { filename: 'a.netcanvas' };
       const mockError = new Error('mock error');
-      fs.unlink.mockImplementation((path, cb) => { cb(); });
+      fs.unlink.mockImplementation((filepath, cb) => { cb(); });
       manager.db.destroy.mockRejectedValue(mockError);
       await expect(manager.destroyProtocol(mockProtocol, true)).rejects.toEqual(mockError);
     });
 
     it('removes a protocol from DB', async () => {
       const mockProtocol = { filename: 'a.netcanvas' };
-      fs.unlink.mockImplementation((path, cb) => { cb(); });
+      fs.unlink.mockImplementation((filepath, cb) => { cb(); });
       manager.db.destroy.mockResolvedValue({});
       await manager.destroyProtocol(mockProtocol);
       expect(manager.db.destroy).toHaveBeenCalledWith(mockProtocol);
