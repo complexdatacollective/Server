@@ -1,3 +1,5 @@
+/* eslint no-underscore-dangle: ["error", { "allow": ["_caseID"] }] */
+
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
@@ -67,6 +69,8 @@ class SessionPanel extends Component {
                 <DismissButton small inline onClick={() => this.deleteSession(s.id)} />
                 <span>{formatDate(s.updatedAt)}</span>
                 <span className="session-panel__id">
+                  {s.data && s.data.sessionVariables && s.data.sessionVariables._caseID}
+                  {' - '}
                   {s.id && s.id.substring(0, 13)}
                 </span>
               </p>
