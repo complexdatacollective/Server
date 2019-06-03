@@ -86,11 +86,11 @@ describe('toCSVStream', () => {
     expect(csv).toEqual(',1,2\r\n1,0,1\r\n2,1,0\r\n');
   });
 
-  it('Works with string UIDs', async () => {
+  it('Converts hex UIDs to decimal', async () => {
     const matrix = mockMatrix([{ from: 'a', to: 'b' }]);
     matrix.toCSVStream(writable);
     const csv = await writable.asString();
-    expect(csv).toEqual(',a,b\r\na,0,1\r\nb,1,0\r\n');
+    expect(csv).toEqual(',10,11\r\n10,0,1\r\n11,1,0\r\n');
   });
 
   it('Handles duplicate edges', async () => {
@@ -111,7 +111,7 @@ describe('toCSVStream', () => {
     matrix.toCSVStream(writable);
     const csv = await writable.asString();
     const rows = [
-      ',1,2,3,4,5,6,7,8,9,10',
+      ',1,2,3,4,5,6,7,8,9,16',
       '1,0,1,0,0,0,0,0,0,0,0',
       '2,1,0,0,0,0,0,0,0,0,0',
       '3,0,0,0,1,0,0,0,0,0,0',
@@ -121,7 +121,7 @@ describe('toCSVStream', () => {
       '7,0,0,0,0,0,0,0,1,0,0',
       '8,0,0,0,0,0,0,1,0,0,0',
       '9,0,0,0,0,0,0,0,0,0,1',
-      '10,0,0,0,0,0,0,0,0,1,0\r\n',
+      '16,0,0,0,0,0,0,0,0,1,0\r\n',
     ];
     expect(csv).toEqual(rows.join('\r\n'));
   });

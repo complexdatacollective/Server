@@ -24,7 +24,7 @@ const unionOfNetworks = networks =>
     union.edges.push(...network.edges);
     union.ego.push(network.ego);
     return union;
-  }, { nodes: [], edges: [], ego: [] });
+  }, { nodes: [], edges: [], ego: [], _id: '' });
 
 const processEntityVariables = (entity, variables) => ({
   ...entity,
@@ -77,6 +77,7 @@ const filterNetworkEntities = (networks, filterConfig) => {
 
 const insertNetworkEgo = network => (
   {
+    ...network,
     nodes: network.nodes.map(node => (
       { [egoProperty]: network.ego[nodePrimaryKeyProperty], ...node }
     )),
