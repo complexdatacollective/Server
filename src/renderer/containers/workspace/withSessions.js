@@ -50,6 +50,7 @@ const withSessions = WrappedComponent =>
 
     componentDidMount() {
       this.loadSessions();
+      ipcRenderer.on('SESSIONS_IMPORTED', this.onSessionsImported);
     }
 
     componentDidUpdate() {
