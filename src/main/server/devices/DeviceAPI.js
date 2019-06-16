@@ -97,7 +97,7 @@ const Schema = {
    *       schemaVersion:
    *         type: string
    *         description: Version as defined in protocol.json
-   *         example: "4.0.0"
+   *         example: "4.0.1"
    *       downloadPath:
    *         type: string
    *         description: URL for direct download of the .netcanvas file from this server.|
