@@ -99,6 +99,23 @@ const generateKeyElements = (
     fragment.appendChild(label);
   }
 
+  // add type
+  if (type === 'edge') {
+    const edgeType = document.createElement('key');
+    edgeType.setAttribute('id', 'networkCanvasEdgeType');
+    edgeType.setAttribute('attr.name', 'networkCanvasEdgeType');
+    edgeType.setAttribute('attr.type', 'string');
+    edgeType.setAttribute('for', type);
+    fragment.appendChild(edgeType);
+  } else {
+    const nodeType = document.createElement('key');
+    nodeType.setAttribute('id', 'networkCanvasNodeType');
+    nodeType.setAttribute('attr.name', 'networkCanvasNodeType');
+    nodeType.setAttribute('attr.type', 'string');
+    nodeType.setAttribute('for', type);
+    fragment.appendChild(nodeType);
+  }
+
   entities.forEach((element) => {
     let iterableElement = element;
     iterableElement = getEntityAttributes(element);
@@ -209,6 +226,7 @@ const generateDataElements = (
           || codebook[type][dataElement.type].label);
 
       domElement.appendChild(createDataElement(document, 'label', label));
+      domElement.appendChild(createDataElement(document, 'networkCanvasEdgeType', dataElement.type));
 
       Object.keys(dataElement).forEach((key) => {
         const keyName = getTypeFromCodebook(codebook, type, dataElement, key, 'name') || key;
@@ -225,6 +243,8 @@ const generateDataElements = (
           }
         }
       });
+    } else {
+      domElement.appendChild(createDataElement(document, 'networkCanvasNodeType', dataElement.type));
     }
 
     // Add entity attributes

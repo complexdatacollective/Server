@@ -1,7 +1,7 @@
 const { Readable } = require('stream');
 
 const { cellValue, csvEOL } = require('./csv');
-const { convertUuidToDecimal, nodePrimaryKeyProperty, egoProperty, nodeAttributesProperty, processEntityVariables } = require('./network');
+const { convertUuidToDecimal, nodePrimaryKeyProperty, entityTypeProperty, egoProperty, nodeAttributesProperty, processEntityVariables } = require('./network');
 
 /**
  * Builds an edge list for a network, based only on its edges (it need
@@ -51,6 +51,7 @@ const attributeHeaders = (edges, withEgo) => {
     initialHeaderSet.add(egoProperty);
   }
   initialHeaderSet.add(nodePrimaryKeyProperty);
+  initialHeaderSet.add(entityTypeProperty);
   initialHeaderSet.add('from');
   initialHeaderSet.add('to');
 
@@ -73,6 +74,8 @@ const getPrintableAttribute = (attribute) => {
       return 'networkCanvasSource';
     case 'to':
       return 'networkCanvasTarget';
+    case entityTypeProperty:
+      return 'networkCanvasEdgeType';
     default:
       return attribute;
   }
@@ -112,6 +115,8 @@ const toCSVStream = (edges, outStream, withEgo = false) => {
           if (attrName === nodePrimaryKeyProperty || attrName === egoProperty ||
             attrName === 'to' || attrName === 'from') {
             value = convertUuidToDecimal(edge[attrName]);
+          } else if (attrName === entityTypeProperty) {
+            value = edge.type;
           } else {
             value = edge[nodeAttributesProperty][attrName];
           }

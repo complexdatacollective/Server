@@ -1,6 +1,6 @@
 const { Readable } = require('stream');
 
-const { convertUuidToDecimal, nodePrimaryKeyProperty, nodeAttributesProperty, egoProperty, processEntityVariables } = require('./network');
+const { convertUuidToDecimal, nodePrimaryKeyProperty, nodeAttributesProperty, entityTypeProperty, egoProperty, processEntityVariables } = require('./network');
 const { cellValue, csvEOL } = require('./csv');
 
 const asAttributeList = (network, _, codebook) => {
@@ -23,6 +23,7 @@ const attributeHeaders = (nodes, withEgo) => {
     initialHeaderSet.add(egoProperty);
   }
   initialHeaderSet.add(nodePrimaryKeyProperty);
+  initialHeaderSet.add(entityTypeProperty);
 
   const headerSet = nodes.reduce((headers, node) => {
     Object.keys(node[nodeAttributesProperty] || []).forEach((key) => {
@@ -39,6 +40,8 @@ const getPrintableAttribute = (attribute) => {
       return 'networkCanvasEgoID';
     case nodePrimaryKeyProperty:
       return 'networkCanvasAlterID';
+    case entityTypeProperty:
+      return 'networkCanvasNodeType';
     default:
       return attribute;
   }
@@ -67,6 +70,8 @@ const toCSVStream = (nodes, outStream, withEgo = false) => {
           let value;
           if (attrName === nodePrimaryKeyProperty || attrName === egoProperty) {
             value = convertUuidToDecimal(node[attrName]);
+          } else if (attrName === entityTypeProperty) {
+            value = node.type;
           } else {
             value = node[nodeAttributesProperty][attrName];
           }
