@@ -27,8 +27,8 @@ const createApp = () => {
 
   // Instantiate the updater class, and check for update once on startup.
   // Do not notify the user if there are no updates.
-  const updater = new Updater();
-  updater.checkForUpdates(false);
+  const updater = Updater();
+  updater.checkForUpdates(true);
 
   const resetAppData = () => {
     const responseNum = dialog.showMessageBox(mainWindow.window, {
