@@ -8,6 +8,7 @@ const getFilter = require('../network-query/filter').default;
 const nodePrimaryKeyProperty = '_uid';
 const egoProperty = '_egoID';
 const caseProperty = '_caseID';
+const entityTypeProperty = '_type'; // NC sends as 'type' at the top level, but this will allow us to also look for a user attribute named type
 
 const nodeAttributesProperty = 'attributes';
 
@@ -130,6 +131,7 @@ module.exports = {
   getEntityAttributes,
   insertEgoInNetworks,
   nodeAttributesProperty,
+  entityTypeProperty,
   egoProperty,
   caseProperty,
   nodePrimaryKeyProperty,

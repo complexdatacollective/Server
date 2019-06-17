@@ -57,6 +57,16 @@ describe('buildGraphML', () => {
     expect(xml.getElementsByTagName('node')).toHaveLength(2);
   });
 
+  it('adds node type', () => {
+    const node = xml.getElementsByTagName('node')[0];
+    expect(node.getElementsByTagName('data')[0].textContent).toEqual('person');
+  });
+
+  it('adds edge type', () => {
+    const edge = xml.getElementsByTagName('edge')[0];
+    expect(edge.getElementsByTagName('data')[1].textContent).toEqual('mock-uuid-3');
+  });
+
   it('adds edges', () => {
     expect(xml.getElementsByTagName('edge')).toHaveLength(1);
   });
