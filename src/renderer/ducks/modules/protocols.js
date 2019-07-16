@@ -1,7 +1,7 @@
 import AdminApiClient from '../../utils/adminApiClient';
 import viewModelMapper from '../../utils/baseViewModelMapper';
 import { actionCreators as messageActionCreators } from './appMessages';
-import { transposedCodebookSection } from '../../../main/utils/formatters/network'; // TODO: move
+import { transposedCodebook as networkTransposedCodebook } from '../../../main/utils/formatters/network'; // TODO: move
 
 const LOAD_PROTOCOLS = 'LOAD_PROTOCOLS';
 const PROTOCOLS_LOADED = 'PROTOCOLS_LOADED';
@@ -56,10 +56,7 @@ const transposedCodebook = (state, props) => {
   }
 
   const codebook = protocol.codebook || {};
-  return {
-    edge: transposedCodebookSection(codebook.edge),
-    node: transposedCodebookSection(codebook.node),
-  };
+  return networkTransposedCodebook(codebook);
 };
 
 const distributionVariableTypes = ['ordinal', 'categorical'];

@@ -27,14 +27,15 @@ const hasData = bucket => bucket && Object.keys(bucket).length > 0;
  * @param {Object} buckets The API response from `option_buckets`
  * @return {Array} chartDefinitions
  */
-const shapeBucketData = (transposedNodeCodebook, buckets, excludedChartVariables) =>
+const shapeBucketDataByType = (
+  transposedNodeCodebook, buckets, excludedChartVariables, entityKey) =>
   Object.entries(transposedNodeCodebook).reduce((acc, [entityType, { variables }]) => {
     const excludedSectionVariables = excludedChartVariables[entityType] || [];
-    Object.entries(variables).forEach(([variableName, def]) => {
+    Object.entries(variables || []).forEach(([variableName, def]) => {
       if (!isDistributionVariable(def) || excludedSectionVariables.includes(def.name)) {
         return;
       }
-      const data = buckets[entityType] && buckets[entityType][variableName];
+      const data = entityKey === 'ego' ? buckets && buckets[variableName] : buckets[entityType] && buckets[entityType][variableName];
       const values = hasData(data) && def.options.map((option) => {
         // Option defs are usually in the format { label, value }, however:
         // - options may be strings or numerics instead of objects
@@ -48,6 +49,7 @@ const shapeBucketData = (transposedNodeCodebook, buckets, excludedChartVariables
         };
       });
       acc.push({
+        entityKey,
         entityType,
         variableType: def.type,
         variableDefinition: def,
@@ -55,6 +57,15 @@ const shapeBucketData = (transposedNodeCodebook, buckets, excludedChartVariables
       });
     });
     return acc;
+  }, []);
+
+const shapeBucketData = (codebook, buckets, excludedChartVariables) =>
+  Object.entries(buckets).reduce((acc, [entityKey]) => {
+    const entityCodebook = entityKey === 'ego' ? { ego: codebook[entityKey] } : codebook[entityKey];
+    const bucketsByType = entityKey === 'ego' ? buckets[entityKey] : buckets[entityKey];
+    const shapeData = shapeBucketDataByType(
+      entityCodebook, bucketsByType, excludedChartVariables, entityKey);
+    return acc.concat(shapeData);
   }, []);
 
 /**
@@ -109,25 +120,39 @@ const withAnswerDistributionCharts = (WrappedComponent) => {
       const {
         excludedChartVariables,
         protocolId,
-        transposedCodebook: { node: nodeCodebook = {} },
+        transposedCodebook: {
+          node: nodeCodebook = {},
+          edge: edgeCodebook = {},
+          ego: egoCodebook = {},
+        },
       } = this.props;
+
+      const nodeNames = Object.values(nodeCodebook).reduce((acc, nodeTypeDefinition) => (
+        {
+          ...acc,
+          [nodeTypeDefinition.name]: Object.keys(nodeTypeDefinition.variables || {}),
+        }
+      ), {});
+      const edgeNames = Object.values(edgeCodebook).reduce((acc, edgeTypeDefinition) => (
+        {
+          ...acc,
+          [edgeTypeDefinition.name]: Object.keys(edgeTypeDefinition.variables || {}),
+        }
+      ), {});
+      const egoNames = Object.keys(egoCodebook.variables || {});
 
       if (!protocolId) {
         return;
       }
 
-      const variableNames = Object.values(nodeCodebook).reduce((acc, nodeTypeDefinition) => {
-        acc.push(...Object.keys(nodeTypeDefinition.variables || {}));
-        return acc;
-      }, []);
-
+      const variableNames = { nodes: nodeCodebook, edges: edgeCodebook, ego: egoCodebook };
       const route = `/protocols/${this.props.protocolId}/reports/option_buckets`;
-      const query = { variableNames };
+      const query = { nodeNames, edgeNames, egoNames };
 
-      this.apiClient.get(route, query)
+      this.apiClient.post(route, query)
         .then(({ buckets }) => {
           this.setState({
-            charts: shapeBucketData(nodeCodebook, buckets, excludedChartVariables),
+            charts: shapeBucketData(variableNames, buckets, excludedChartVariables),
           });
         });
     }
