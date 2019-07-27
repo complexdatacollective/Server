@@ -62,7 +62,7 @@ const shapeBucketDataByType = (
 const shapeBucketData = (codebook, buckets, excludedChartVariables) =>
   Object.entries(buckets).reduce((acc, [entityKey]) => {
     const entityCodebook = entityKey === 'ego' ? { ego: codebook[entityKey] } : codebook[entityKey];
-    const bucketsByType = entityKey === 'ego' ? buckets[entityKey] : buckets[entityKey];
+    const bucketsByType = buckets[entityKey];
     const shapeData = shapeBucketDataByType(
       entityCodebook, bucketsByType, excludedChartVariables, entityKey);
     return acc.concat(shapeData);
