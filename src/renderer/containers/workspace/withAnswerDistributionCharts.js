@@ -30,7 +30,8 @@ const hasData = bucket => bucket && Object.keys(bucket).length > 0;
 const shapeBucketDataByType = (
   transposedNodeCodebook, buckets, excludedChartVariables, entityKey) =>
   Object.entries(transposedNodeCodebook).reduce((acc, [entityType, { variables }]) => {
-    const excludedSectionVariables = excludedChartVariables[entityType] || [];
+    const excludedSectionVariables = (excludedChartVariables[entityKey] &&
+      excludedChartVariables[entityKey][entityType]) || [];
     Object.entries(variables || []).forEach(([variableName, def]) => {
       if (!isDistributionVariable(def) || excludedSectionVariables.includes(def.name)) {
         return;

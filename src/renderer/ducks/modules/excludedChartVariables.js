@@ -11,7 +11,9 @@ import { selectors as protocolSelectors } from './protocols';
  * ```
  * {
  *   [protocolId]: {
- *     [entityType]: [variableName1, variableName2]
+ *     [entity]: {
+ *       [entityType]: [variableName1, variableName2]
+ *     }
  *   }
  * }
  * ```
@@ -28,7 +30,12 @@ const reducer = (state = initialState, action = {}) => {
       if (!protocolId) {
         return state;
       }
-      const protocolState = { ...state[protocolId], [action.section]: action.variables };
+      const protocolState = { ...state[protocolId],
+        [action.entity]: {
+          ...state[protocolId][action.entity],
+          [action.section]: action.variables,
+        },
+      };
       return { ...state, [protocolId]: protocolState };
     }
     default:
@@ -38,13 +45,15 @@ const reducer = (state = initialState, action = {}) => {
 
 /**
  * @memberof module:excludedChartVariables
+ * @param {string} entity corresponds to an entity (e.g. node, edge, ego)
  * @param {string} section corresponds to an entity (node) type
  * @param {Array} variables list of variable names to exclude
  * @return {Object} excluded variable names, sectioned by entity type
  */
-const setExcludedVariables = (protocolId, section, variables) => ({
+const setExcludedVariables = (protocolId, entity, section, variables) => ({
   type: SET_EXCLUDED_VARIABLES,
   protocolId,
+  entity,
   section,
   variables,
 });

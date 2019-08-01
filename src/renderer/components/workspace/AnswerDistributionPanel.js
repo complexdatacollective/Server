@@ -10,7 +10,7 @@ const chartComponent = variableType => ((variableType === 'categorical') ? PieCh
 
 const headerLabel = variableType => ((variableType === 'categorical') ? 'Categorical' : 'Ordinal');
 
-const entityLabel = (entityKey, entityType) => {
+export const entityLabel = (entityKey, entityType) => {
   if (entityKey === 'nodes') return `Node (${entityType})`;
   if (entityKey === 'edges') return `Edge (${entityType})`;
   if (entityKey === 'ego') return 'Ego';
