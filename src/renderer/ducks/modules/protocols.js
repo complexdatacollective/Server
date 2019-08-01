@@ -63,7 +63,7 @@ const distributionVariableTypes = ['ordinal', 'categorical'];
 const isDistributionVariable = variable => distributionVariableTypes.includes(variable.type);
 
 const getDistributionVariableNames = variables => (
-  Object.entries(variables).reduce((arr, [variableName, variable]) => {
+  Object.entries(variables || {}).reduce((arr, [variableName, variable]) => {
     if (isDistributionVariable(variable)) {
       arr.push(variableName);
     }

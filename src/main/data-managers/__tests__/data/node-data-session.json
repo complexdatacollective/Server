@@ -1,6 +1,37 @@
 {
     "data": {
-        "edges": [],
+        "ego": [
+            {
+                "_uid": "31980bde-1cc1-4681-b482-8a6ede07c2c8",
+                "type": "ego",
+                "attributes": {
+                    "ordVariable": 2
+                }
+            },
+            {
+                "_uid": "35fb6341-91a0-4674-b615-039280c9c212",
+                "type": "person",
+                "attributes": {
+                    "ordVariable": 2
+                }
+            }
+        ],
+        "edges": [
+            {
+                "_uid": "61980bde-1cc1-4681-b482-8a6ede07c2c8",
+                "type": "friend",
+                "attributes": {
+                    "catVariable": 1
+                }
+            },
+            {
+                "_uid": "f5fb6341-91a0-4674-b615-039280c9c212",
+                "type": "friend",
+                "attributes": {
+                    "catVariable": 2
+                }
+            }
+        ],
         "nodes": [
             {
                 "_uid": "91980bde-1cc1-4681-b482-8a6ede07c2c8",

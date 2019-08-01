@@ -32,7 +32,7 @@ const reducer = (state = initialState, action = {}) => {
       }
       const protocolState = { ...state[protocolId],
         [action.entity]: {
-          ...state[protocolId][action.entity],
+          ...(state[protocolId] || {})[action.entity],
           [action.section]: action.variables,
         },
       };
