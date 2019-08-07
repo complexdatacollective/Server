@@ -194,8 +194,15 @@ class AdminService {
     });
 
     // nodeNames: { type1: [var1, var2], type2: [var1, var3] },
-    //   edgeNames: { type1: [var1] }, egoNames: [var1, var2]
-    // "buckets": { "person": { "var1": { "val1": 0, "val2": 0 }, "var2": {} } }
+    //   edgeNames: { type1: [var1] }, egoNames: [var1, var2],
+    //   egoNames: [var1, var2]
+    // "buckets": {
+    //      nodes: { "person": { "var1": { "val1": 0, "val2": 0 }, "var2": {} } }
+    //      edges: { "friend": { "var1": { "val1": 0, "val2": 0} } }
+    //      ego: { "var1": { "val1": 0 } }
+    //   }
+    // We use post here, instead of get, because the data is more complicated than just a list
+    // of variables, it's organized by entity and type.
     api.post('/protocols/:id/reports/option_buckets', (req, res, next) => {
       const { nodeNames = '', edgeNames = '', egoNames = '' } = req.body;
       this.reportDb.optionValueBuckets(req.params.id, nodeNames, edgeNames, egoNames)

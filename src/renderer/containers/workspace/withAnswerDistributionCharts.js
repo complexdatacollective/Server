@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { get } from 'lodash';
 
 import AdminApiClient from '../../utils/adminApiClient';
 import { selectors as protocolSelectors } from '../../ducks/modules/protocols';
@@ -36,7 +37,8 @@ const shapeBucketDataByType = (
       if (!isDistributionVariable(def) || excludedSectionVariables.includes(def.name)) {
         return;
       }
-      const data = entityKey === 'ego' ? buckets && buckets[variableName] : buckets[entityType] && buckets[entityType][variableName];
+      const dataPath = entityKey === 'ego' ? [variableName] : [entityType, variableName];
+      const data = get(buckets, dataPath);
       const values = hasData(data) && def.options.map((option) => {
         // Option defs are usually in the format { label, value }, however:
         // - options may be strings or numerics instead of objects
