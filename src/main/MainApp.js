@@ -172,9 +172,11 @@ const createApp = () => {
   app.on('activate', openMainWindow);
 
   // Windows (and mac CLI): show GUI when re-opened
-  const isSecondInstance = app.makeSingleInstance(openMainWindow);
-  if (isSecondInstance) {
+  const gotTheLock = app.requestSingleInstanceLock();
+  if (!gotTheLock) {
     app.quit();
+  } else {
+    app.on('second-instance', openMainWindow);
   }
 
   return {

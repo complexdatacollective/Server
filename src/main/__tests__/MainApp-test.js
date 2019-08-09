@@ -66,6 +66,7 @@ describe('the created app', () => {
       it('lets a user quit', () => {
         mainWindow.open = jest.fn();
         readyCallback();
+        app.quit.mockReset();
         trayMenu[1].click();
         expect(app.quit).toHaveBeenCalledTimes(1);
         app.quit.mockReset();

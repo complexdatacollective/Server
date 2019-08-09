@@ -20,7 +20,7 @@ const app = {
   getVersion: jest.fn(() => ''),
   getName: jest.fn(() => 'test'),
   getPath: jest.fn(() => '.'),
-  makeSingleInstance: jest.fn(),
+  requestSingleInstanceLock: jest.fn(),
   on: jest.fn(),
   removeAllListeners: jest.fn(),
   quit: jest.fn(),
