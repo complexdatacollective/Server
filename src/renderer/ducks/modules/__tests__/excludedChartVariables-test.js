@@ -18,6 +18,7 @@ describe('excludedChartVariables', () => {
       const action = {
         type: actionTypes.SET_EXCLUDED_VARIABLES,
         protocolId: 'protocol1',
+        entity: 'nodes',
         section: 'person',
         variables: ['someVar'],
       };
@@ -27,6 +28,7 @@ describe('excludedChartVariables', () => {
     it('returns current state if no protocol ID given', () => {
       const action = {
         type: actionTypes.SET_EXCLUDED_VARIABLES,
+        entity: 'nodes',
         section: 'person',
         variables: ['someVar'],
       };
@@ -37,21 +39,23 @@ describe('excludedChartVariables', () => {
       const action = {
         type: actionTypes.SET_EXCLUDED_VARIABLES,
         protocolId: '1',
+        entity: 'nodes',
         section: 'person',
         variables: ['someVar'],
       };
       expect(reducer({}, action)).toEqual({
-        1: { person: ['someVar'] },
+        1: { nodes: { person: ['someVar'] } },
       });
     });
   });
 
   describe('setExcludedVariables action creator', () => {
     it('produces an exclude action', () => {
-      const action = actionCreators.setExcludedVariables('1', 'person', ['someVar']);
+      const action = actionCreators.setExcludedVariables('1', 'nodes', 'person', ['someVar']);
       expect(action).toEqual({
         type: actionTypes.SET_EXCLUDED_VARIABLES,
         protocolId: '1',
+        entity: 'nodes',
         section: 'person',
         variables: ['someVar'],
       });
@@ -61,10 +65,10 @@ describe('excludedChartVariables', () => {
   describe('excludedVariablesForCurrentProtocol selector', () => {
     const { excludedVariablesForCurrentProtocol } = selectors;
     it('returns variables for the protocol', () => {
-      const excludedChartVariables = { 1: { person: ['someVar'] } };
+      const excludedChartVariables = { 1: { nodes: { person: ['someVar'] } } };
       const state = { protocols: [{ id: '1' }], excludedChartVariables };
       const props = { match: { params: { id: '1' } } };
-      expect(excludedVariablesForCurrentProtocol(state, props)).toEqual({ person: ['someVar'] });
+      expect(excludedVariablesForCurrentProtocol(state, props)).toEqual({ nodes: { person: ['someVar'] } });
     });
   });
 });

@@ -42,13 +42,17 @@ describe('<SettingsScreen />', () => {
   });
 
   it('renders checkboxes for chart variable selection', () => {
-    const distributionVariables = { person: ['catVar'] };
+    const distributionVariables = {
+      nodes: { person: ['catVar'] },
+      edges: { friend: ['catVar'] },
+      ego: { ego: ['catVar'] },
+    };
     subject.setProps({ protocol: mockProtocol, distributionVariables });
-    expect(subject.find('CheckboxGroup')).toHaveLength(1);
+    expect(subject.find('CheckboxGroup')).toHaveLength(3);
   });
 
   it('updates excluded variables from checkbox input', () => {
-    const distributionVariables = { person: ['catVar'] };
+    const distributionVariables = { nodes: { person: ['catVar'] } };
     subject.setProps({ protocol: mockProtocol, distributionVariables });
     expect(setExcludedVariables).not.toHaveBeenCalled();
     const checkboxes = subject.find('CheckboxGroup');

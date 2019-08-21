@@ -30,6 +30,7 @@ const flatten = shallowArrays => [].concat(...shallowArrays);
 const entityKey = (entityName) => {
   if (entityName === 'node') return 'nodes';
   if (entityName === 'edge') return 'edges';
+  if (entityName === 'ego') return 'ego';
   return null;
 };
 
@@ -190,26 +191,57 @@ const Reportable = Super => class extends Super {
    *
    * @memberOf Reportable.prototype
    */
-  optionValueBuckets(protocolId, variableNames, entityName = 'node') {
+  optionValueBuckets(protocolId, nodeNames, edgeNames, egoNames) {
+    let allBuckets;
+    return this.optionValueBucketsByEntity(protocolId, nodeNames, 'node')
+      .then((nodeBuckets) => {
+        allBuckets = { ...allBuckets, nodes: nodeBuckets };
+        return this.optionValueBucketsByEntity(protocolId, edgeNames, 'edge');
+      })
+      .then((edgeBuckets) => {
+        allBuckets = { ...allBuckets, edges: edgeBuckets };
+        return this.optionValueBucketsByEntity(protocolId, egoNames, 'ego');
+      })
+      .then(egoBuckets => ({ ...allBuckets, ego: egoBuckets }));
+  }
+
+  optionValueBucketsByEntity(protocolId, variableNames, entityName) {
     return new Promise((resolve, reject) => {
       const key = entityKey(entityName);
       this.db.find({ protocolId, [`data.${key}`]: { $exists: true } }, resolveOrReject((docs) => {
         const entities = flatten(docs.map(doc => doc.data[key]));
         const buckets = entities.reduce((acc, entity) => {
-          acc[entity.type] = acc[entity.type] || {};
-          variableNames.forEach((variableName) => {
-            acc[entity.type][variableName] = acc[entity.type][variableName] || {};
-            const optionValue = entity[attributesProperty][variableName];
-            if (optionValue !== undefined) {
-              // Categorical values are expressed as arrays of multiple options
-              const optionValues = (optionValue instanceof Array) ? optionValue : [optionValue];
-              const counts = acc[entity.type][variableName];
-              optionValues.forEach((value) => {
-                counts[value] = counts[value] || 0;
-                counts[value] += 1;
-              });
-            }
-          });
+          if (entityName === 'ego') {
+            acc = acc || {};
+            (variableNames || []).forEach((variableName) => {
+              acc[variableName] = acc[variableName] || {};
+              const optionValue = entity[attributesProperty][variableName];
+              if (optionValue !== undefined) {
+                // Categorical values are expressed as arrays of multiple options
+                const optionValues = (optionValue instanceof Array) ? optionValue : [optionValue];
+                const counts = acc[variableName];
+                optionValues.forEach((value) => {
+                  counts[value] = counts[value] || 0;
+                  counts[value] += 1;
+                });
+              }
+            });
+          } else {
+            acc[entity.type] = acc[entity.type] || {};
+            (variableNames[entity.type] || []).forEach((variableName) => {
+              acc[entity.type][variableName] = acc[entity.type][variableName] || {};
+              const optionValue = entity[attributesProperty][variableName];
+              if (optionValue !== undefined) {
+                // Categorical values are expressed as arrays of multiple options
+                const optionValues = (optionValue instanceof Array) ? optionValue : [optionValue];
+                const counts = acc[entity.type][variableName];
+                optionValues.forEach((value) => {
+                  counts[value] = counts[value] || 0;
+                  counts[value] += 1;
+                });
+              }
+            });
+          }
           return acc;
         }, {});
         resolve(buckets);

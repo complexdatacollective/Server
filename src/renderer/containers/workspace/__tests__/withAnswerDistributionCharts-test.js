@@ -9,8 +9,12 @@ import { mockProtocol } from '../../../../../config/jest/setupTestEnv';
 
 jest.mock('../../../utils/adminApiClient', () => {
   function MockApiClient() {}
-  MockApiClient.prototype.get = jest.fn().mockResolvedValue({
-    buckets: { person: { distributionVariable: { 1: 4, 2: 5 } } },
+  MockApiClient.prototype.post = jest.fn().mockResolvedValue({
+    buckets: {
+      nodes: { person: { distributionVariable: { 1: 4, 2: 5 } } },
+      edges: { friend: { catVariable: { 1: 3 } } },
+      ego: { ordVariable: { 1: 2 } },
+    },
   });
   return MockApiClient;
 });
@@ -36,6 +40,34 @@ jest.mock('../../../ducks/modules/protocols', () => ({
           },
         },
       },
+      edge: {
+        friend: {
+          variables: {
+            catVariable: {
+              name: '',
+              type: 'categorical',
+              options: [
+                { label: 'a', value: 1 },
+                { label: 'b', value: 2 },
+                { label: 'c', value: 3 },
+              ],
+            },
+          },
+        },
+      },
+      ego: {
+        variables: {
+          ordVariable: {
+            name: '',
+            type: 'ordinal',
+            options: [
+              { label: 'a', value: 1 },
+              { label: 'b', value: 2 },
+              { label: 'c', value: 3 },
+            ],
+          },
+        },
+      },
     }),
   },
 }));
@@ -54,24 +86,24 @@ describe('AnswerDistributionPanels', () => {
   });
 
   it('loads data', () => {
-    expect(mockApiClient.get).toHaveBeenCalled();
+    expect(mockApiClient.post).toHaveBeenCalled();
   });
 
   it('loads data from API when totalSessionsCount changes', () => {
     wrapper.setProps({ totalSessionsCount: 1 });
-    mockApiClient.get.mockClear();
-    expect(mockApiClient.get).toHaveBeenCalledTimes(0);
+    mockApiClient.post.mockClear();
+    expect(mockApiClient.post).toHaveBeenCalledTimes(0);
     wrapper.setProps({ totalSessionsCount: 2 });
-    expect(mockApiClient.get).toHaveBeenCalledTimes(1);
+    expect(mockApiClient.post).toHaveBeenCalledTimes(1);
   });
 
   it('loads data when protocolId changes', () => {
     // shallow to bypass mapStateToProps
     const wrapped = shallow(<Wrapper store={createStore(() => state)} />).dive();
     wrapped.setProps({ protocolId: null });
-    mockApiClient.get.mockClear();
+    mockApiClient.post.mockClear();
     wrapped.setProps({ protocolId: '2' });
-    expect(mockApiClient.get).toHaveBeenCalled();
+    expect(mockApiClient.post).toHaveBeenCalled();
   });
 
   describe('API handler', () => {
@@ -81,17 +113,25 @@ describe('AnswerDistributionPanels', () => {
     });
 
     it('renders one chart per variable', () => {
-      expect(wrapper.state('charts')).toHaveLength(1);
+      expect(wrapper.state('charts')).toHaveLength(3);
     });
 
     it('sets correct data format', async () => {
-      const chart = wrapper.state('charts')[0];
-      expect(chart.chartData).toContainEqual({ name: 'a', value: 4 });
-      expect(chart.chartData).toContainEqual({ name: 'b', value: 5 });
+      const nodeChart = wrapper.state('charts')[0];
+      const edgeChart = wrapper.state('charts')[1];
+      const egoChart = wrapper.state('charts')[2];
+      expect(nodeChart.chartData).toContainEqual({ name: 'a', value: 4 });
+      expect(nodeChart.chartData).toContainEqual({ name: 'b', value: 5 });
+      expect(edgeChart.chartData).toContainEqual({ name: 'a', value: 3 });
+      expect(egoChart.chartData).toContainEqual({ name: 'a', value: 2 });
     });
 
     it('sets zeros for missing values', async () => {
       expect(wrapper.state('charts')[0].chartData).toContainEqual({ name: 'c', value: 0 });
+      expect(wrapper.state('charts')[1].chartData).toContainEqual({ name: 'c', value: 0 });
+      expect(wrapper.state('charts')[1].chartData).toContainEqual({ name: 'b', value: 0 });
+      expect(wrapper.state('charts')[2].chartData).toContainEqual({ name: 'c', value: 0 });
+      expect(wrapper.state('charts')[2].chartData).toContainEqual({ name: 'b', value: 0 });
     });
   });
 });
