@@ -3,7 +3,7 @@ branches:
   only:
     - master
 node_js:
-  - "8.9.3"
+  - "12.8.0"
 cache:
   directories:
     - node_modules
@@ -11,8 +11,6 @@ install:
   - sudo apt-get -qq update
   - sudo apt-get install -y libavahi-compat-libdnssd-dev
   - npm install
-before_install:
-  - npm install -g npm@6.1.0
 jobs:
   include:
     - stage: test
