@@ -4,6 +4,8 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Redirect, withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
+
+import { entityLabel } from '../components/workspace/AnswerDistributionPanel';
 import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 import Types from '../types';
 import CheckboxGroup from '../ui/components/Fields/CheckboxGroup';
@@ -34,21 +36,22 @@ class SettingsScreen extends Component {
           </p>
           {
             distributionVariables &&
-            Object.entries(distributionVariables).map(([section, vars]) => (
-              <CheckboxGroup
-                key={section}
-                className="settings__checkbox-group"
-                label={`Type: ${section}`}
-                input={{
-                  value: this.includedChartVariablesForSection(section),
-                  onChange: (newValue) => {
-                    const newExcluded = vars.filter(v => !newValue.includes(v));
-                    setExcludedVariables(protocol.id, section, newExcluded);
-                  },
-                }}
-                options={vars.map(v => ({ value: v, label: v }))}
-              />
-            ))
+            Object.entries(distributionVariables).map(([entity, varsWithTypes]) => (
+              Object.entries(varsWithTypes).map(([section, vars]) => (
+                <CheckboxGroup
+                  key={section}
+                  className="settings__checkbox-group"
+                  label={entityLabel(entity, section)}
+                  input={{
+                    value: this.includedChartVariablesForSection(entity, section),
+                    onChange: (newValue) => {
+                      const newExcluded = vars.filter(v => !newValue.includes(v));
+                      setExcludedVariables(protocol.id, entity, section, newExcluded);
+                    },
+                  }}
+                  options={vars.map(v => ({ value: v, label: v }))}
+                />
+              ))))
           }
         </div>
       </div>
@@ -69,10 +72,11 @@ class SettingsScreen extends Component {
     }
   }
 
-  includedChartVariablesForSection = (section) => {
+  includedChartVariablesForSection = (entity, section) => {
     const { excludedChartVariables, distributionVariables } = this.props;
-    const excludeSection = excludedChartVariables[section];
-    return distributionVariables[section].filter(
+    const excludeSection = excludedChartVariables[entity] &&
+      excludedChartVariables[entity][section];
+    return distributionVariables[entity][section].filter(
       variable => !excludeSection || !excludeSection.includes(variable));
   }
 

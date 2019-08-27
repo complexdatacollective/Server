@@ -294,7 +294,7 @@ describe('the AdminService', () => {
 
         it('fetches bucketed categorical/ordinal data', async () => {
           const endpoint = makeUrl('protocols/1/reports/option_buckets', apiBase);
-          const res = await jsonClient.get(endpoint);
+          const res = await jsonClient.post(endpoint, { nodeNames: '', edgeNames: '', egoNames: '' });
           expect(res.json.status).toBe('ok');
           expect(res.json.buckets).toMatchObject(bucketsResult);
         });

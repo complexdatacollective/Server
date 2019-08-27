@@ -68,6 +68,8 @@ class WorkspaceScreen extends Component {
       ...answerDistributionCharts.map(chart => (
         <AnswerDistributionPanel
           key={`AnswerDistributionPanel-${chart.variableType}-${chart.entityType}-${chart.variableDefinition.name}`}
+          entityKey={chart.entityKey}
+          entityType={chart.entityType}
           chartData={chart.chartData}
           variableDefinition={chart.variableDefinition}
         />

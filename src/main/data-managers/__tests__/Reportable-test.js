@@ -109,27 +109,62 @@ describe('Reportable', () => {
       });
     });
 
-    describe('with node variables', () => {
+    describe('with variables', () => {
       beforeAll(() => { mockData = NodeDataSession; });
       it('summarizes an ordinal variable', async () => {
-        await expect(reportDB.optionValueBuckets(mockData.protocolId, ['frequencyOrdinal'])).resolves.toMatchObject({
-          person: {
-            frequencyOrdinal: {
-              1: 1,
-              2: 1,
+        await expect(reportDB.optionValueBuckets(mockData.protocolId, { person: ['frequencyOrdinal'] }, {}, [])).resolves.toMatchObject({
+          nodes: {
+            person: {
+              frequencyOrdinal: {
+                1: 1,
+                2: 1,
+              },
             },
           },
+          edges: {},
+          ego: {},
         });
       });
 
       it('summarizes a categorical variable', async () => {
-        await expect(reportDB.optionValueBuckets(mockData.protocolId, ['preferenceCategorical'])).resolves.toMatchObject({
-          person: {
-            preferenceCategorical: {
-              a: 2,
-              b: 1,
+        await expect(reportDB.optionValueBuckets(mockData.protocolId, { person: ['preferenceCategorical'] }, {}, [])).resolves.toMatchObject({
+          nodes: {
+            person: {
+              preferenceCategorical: {
+                a: 2,
+                b: 1,
+              },
             },
           },
+          edges: {},
+          ego: {},
+        });
+      });
+
+      it('summarizes an edge variable', async () => {
+        await expect(reportDB.optionValueBuckets(mockData.protocolId, {}, { friend: ['catVariable'] }, [])).resolves.toMatchObject({
+          edges: {
+            friend: {
+              catVariable: {
+                1: 1,
+                2: 1,
+              },
+            },
+          },
+          nodes: {},
+          ego: {},
+        });
+      });
+
+      it('summarizes an ego variable', async () => {
+        await expect(reportDB.optionValueBuckets(mockData.protocolId, {}, {}, ['ordVariable'])).resolves.toMatchObject({
+          ego: {
+            ordVariable: {
+              2: 2,
+            },
+          },
+          edges: { friend: {} },
+          nodes: { person: {} },
         });
       });
 
@@ -144,7 +179,8 @@ describe('Reportable', () => {
         const result = await reportDB.entityTimeSeries(mockData.protocolId);
         expect(result.entities).toContainEqual({
           time: expect.any(Number),
-          edge: 0,
+          edge: 2,
+          edge_friend: 2,
           node: 2,
           node_person: 2,
         });

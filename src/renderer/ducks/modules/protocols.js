@@ -1,7 +1,7 @@
 import AdminApiClient from '../../utils/adminApiClient';
 import viewModelMapper from '../../utils/baseViewModelMapper';
 import { actionCreators as messageActionCreators } from './appMessages';
-import { transposedCodebookSection } from '../../../main/utils/formatters/network'; // TODO: move
+import { transposedCodebook as networkTransposedCodebook } from '../../../main/utils/formatters/network'; // TODO: move
 
 const LOAD_PROTOCOLS = 'LOAD_PROTOCOLS';
 const PROTOCOLS_LOADED = 'PROTOCOLS_LOADED';
@@ -56,14 +56,38 @@ const transposedCodebook = (state, props) => {
   }
 
   const codebook = protocol.codebook || {};
-  return {
-    edge: transposedCodebookSection(codebook.edge),
-    node: transposedCodebookSection(codebook.node),
-  };
+  return networkTransposedCodebook(codebook);
 };
 
 const distributionVariableTypes = ['ordinal', 'categorical'];
 const isDistributionVariable = variable => distributionVariableTypes.includes(variable.type);
+
+const getDistributionVariableNames = variables => (
+  Object.entries(variables || {}).reduce((arr, [variableName, variable]) => {
+    if (isDistributionVariable(variable)) {
+      arr.push(variableName);
+    }
+    return arr;
+  }, [])
+);
+
+const ordinalAndCategoricalVariablesByEntity = (entities) => {
+  if ((entities || {}).name === 'ego') {
+    const variableNames = getDistributionVariableNames(entities.variables);
+    if (variableNames.length) {
+      return { ego: variableNames };
+    }
+    return {};
+  }
+
+  return Object.entries(entities || {}).reduce((acc, [entityType, { variables }]) => {
+    const variableNames = getDistributionVariableNames(variables);
+    if (variableNames.length) {
+      acc[entityType] = variableNames;
+    }
+    return acc;
+  }, {});
+};
 
 /**
  * @return {Object} all node ordinal & categorical variable names, sectioned by node type
@@ -73,18 +97,10 @@ const ordinalAndCategoricalVariables = (state, props) => {
   if (!codebook) {
     return {};
   }
-  return Object.entries(codebook.node || {}).reduce((acc, [entityType, { variables }]) => {
-    const variableNames = Object.entries(variables).reduce((arr, [variableName, variable]) => {
-      if (isDistributionVariable(variable)) {
-        arr.push(variableName);
-      }
-      return arr;
-    }, []);
-    if (variableNames.length) {
-      acc[entityType] = variableNames;
-    }
-    return acc;
-  }, {});
+
+  return { nodes: ordinalAndCategoricalVariablesByEntity(codebook.node),
+    edges: ordinalAndCategoricalVariablesByEntity(codebook.edge),
+    ego: ordinalAndCategoricalVariablesByEntity(codebook.ego) };
 };
 
 const protocolsHaveLoaded = state => state.protocols !== initialState;

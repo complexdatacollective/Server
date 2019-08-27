@@ -10,6 +10,13 @@ const chartComponent = variableType => ((variableType === 'categorical') ? PieCh
 
 const headerLabel = variableType => ((variableType === 'categorical') ? 'Categorical' : 'Ordinal');
 
+export const entityLabel = (entityKey, entityType) => {
+  if (entityKey === 'nodes') return `Node (${entityType})`;
+  if (entityKey === 'edges') return `Edge (${entityType})`;
+  if (entityKey === 'ego') return 'Ego';
+  return null;
+};
+
 const content = (chartData, variableType) => {
   const Chart = chartComponent(variableType);
   if (chartData.length) {
@@ -24,12 +31,12 @@ const content = (chartData, variableType) => {
  */
 class AnswerDistributionPanel extends PureComponent {
   render() {
-    const { chartData, variableDefinition } = this.props;
+    const { chartData, entityKey, entityType, variableDefinition } = this.props;
     const totalObservations = sumValues(chartData);
     return (
       <div className="dashboard__panel dashboard__panel--chart">
         <h4 className="dashboard__header-text">
-          {variableDefinition.name}
+          {entityLabel(entityKey, entityType)}: {variableDefinition.name}
           <small className="dashboard__header-subtext">
             {headerLabel(variableDefinition.type)} distribution
           </small>
@@ -50,10 +57,14 @@ class AnswerDistributionPanel extends PureComponent {
 
 AnswerDistributionPanel.defaultProps = {
   chartData: [],
+  entityType: '',
+  entityKey: '',
 };
 
 AnswerDistributionPanel.propTypes = {
   chartData: PropTypes.array,
+  entityKey: PropTypes.string,
+  entityType: PropTypes.string,
   variableDefinition: Types.variableDefinition.isRequired,
 };
 
