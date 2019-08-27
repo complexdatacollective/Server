@@ -167,6 +167,8 @@ App.propTypes = {
     status: PropTypes.string,
   }),
   setConnectionInfo: PropTypes.func.isRequired,
+  showConfirmationMessage: PropTypes.func.isRequired,
+  dismissAppMessages: PropTypes.func.isRequired,
 };
 
 App.defaultProps = {
