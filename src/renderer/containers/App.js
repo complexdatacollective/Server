@@ -167,13 +167,14 @@ App.propTypes = {
     status: PropTypes.string,
   }),
   setConnectionInfo: PropTypes.func.isRequired,
-  showConfirmationMessage: PropTypes.func.isRequired,
+  showConfirmationMessage: PropTypes.func,
   dismissAppMessages: PropTypes.func.isRequired,
 };
 
 App.defaultProps = {
   appMessages: [],
   pairingRequest: {},
+  showConfirmationMessage: () => {},
 };
 
 const mapStateToProps = ({ pairingRequest, appMessages }) => ({
