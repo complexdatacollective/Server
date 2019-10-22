@@ -38,7 +38,7 @@ const removeTempDir = (tmpDir) => {
   };
 
   return readdir(tmpDir, { withFileTypes: true })
-    .then(fileNames => Promise.all(fileNames.map(removeFile)))
+    .then(fileNames => Promise.all(fileNames.map(fileName => removeFile(fileName.name))))
     .then(() => rmdir(tmpDir))
     .catch(ignoreError);
 };

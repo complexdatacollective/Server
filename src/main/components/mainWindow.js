@@ -45,6 +45,9 @@ class MainWindow {
       height: 900,
       title: 'Network Canvas Server',
       width: 1440,
+      webPreferences: {
+        nodeIntegration: true,
+      },
     };
 
     if (process.platform === 'darwin') {
