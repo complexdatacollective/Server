@@ -70,6 +70,7 @@ const createApp = () => {
   ];
 
   const appMenu = {
+    label: 'App',
     submenu: [
       { role: 'about' },
       {
