@@ -61,7 +61,7 @@ describe('<FileDropTarget />', () => {
     });
 
     it('displays a success confirmation', () => {
-      wrapper.simulate('drop', { dataTransfer: { files: {} } });
+      wrapper.simulate('drop', { dataTransfer: { files: {}, getData: () => '' } });
       expect(mockClient.post).toHaveBeenCalled();
       expect(mockProps.showConfirmationMessage).toHaveBeenCalled();
       expect(mockProps.showErrorMessage).not.toHaveBeenCalled();
@@ -78,8 +78,18 @@ describe('<FileDropTarget />', () => {
       AdminApiClient.mockImplementation(() => mockErrorClient);
     });
 
-    it('displays an error', (done) => {
-      wrapper.simulate('drop', { dataTransfer: { files: {} } });
+    it('displays an error on empty file', (done) => {
+      wrapper.simulate('drop', { dataTransfer: { files: {}, getData: () => '' } });
+      // process on next loop, to allow callback to have been called
+      setImmediate(() => {
+        expect(mockErrorClient.post).toHaveBeenCalled();
+        expect(mockProps.showErrorMessage).toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it('displays an error on url', (done) => {
+      wrapper.simulate('drop', { dataTransfer: { files: {}, getData: () => 'some-url' } });
       // process on next loop, to allow callback to have been called
       setImmediate(() => {
         expect(mockErrorClient.post).toHaveBeenCalled();

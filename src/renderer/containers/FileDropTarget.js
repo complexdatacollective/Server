@@ -47,6 +47,13 @@ class FileDropTarget extends Component {
       files.push(fileList[i].path);
     }
 
+    if (!files || files.length < 1) {
+      const urlName = evt.dataTransfer.getData && evt.dataTransfer.getData('URL');
+      if (urlName) {
+        files.push(urlName);
+      }
+    }
+
     const { loadProtocols, showConfirmationMessage, showErrorMessage } = this.props;
     this.setState({ draggingOver: false });
     this.apiClient
