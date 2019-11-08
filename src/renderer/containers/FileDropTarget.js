@@ -47,17 +47,19 @@ class FileDropTarget extends Component {
       files.push(fileList[i].path);
     }
 
+    const urls = [];
+    // If the user drags a file attachment from a browser, we get a url instead of a file
     if (!files || files.length < 1) {
       const urlName = evt.dataTransfer.getData && evt.dataTransfer.getData('URL');
       if (urlName) {
-        files.push(urlName);
+        urls.push(urlName);
       }
     }
 
     const { loadProtocols, showConfirmationMessage, showErrorMessage } = this.props;
     this.setState({ draggingOver: false });
     this.apiClient
-      .post('/protocols', { files })
+      .post('/protocols', { files, urls })
       .then(resp => resp.protocols)
       .then(() => showConfirmationMessage(messages.protocolImportSuccess))
       .then(() => loadProtocols())

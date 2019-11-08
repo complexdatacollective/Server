@@ -74,11 +74,15 @@ class ProtocolManager {
    * Primary interface for render-side API.
    * @async
    * @param  {FileList} fileList
+   * @param  {urlList} urlList
    * @return {string} Resolves with the original requested filename
    * @throws {RequestError|Error} Rejects if there is a problem saving, or on invalid input
    */
-  validateAndImport(fileList) {
+  validateAndImport(fileList, urlList = []) {
     if (!fileList || fileList.length < 1) {
+      if (urlList && urlList.length > 0) {
+        return Promise.reject(new RequestError(ErrorMessages.UrlNotSupported));
+      }
       return Promise.reject(new RequestError(ErrorMessages.EmptyFilelist));
     }
 
