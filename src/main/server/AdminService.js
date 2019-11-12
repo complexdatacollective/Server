@@ -149,8 +149,7 @@ class AdminService {
 
     api.post('/protocols', (req, res, next) => {
       const files = req.body.files;
-      const urls = req.body.urls;
-      this.protocolManager.validateAndImport(files, urls)
+      this.protocolManager.validateAndImport(files)
         .then(saved => res.send({ status: 'ok', protocols: saved }))
         .catch((err) => {
           logger.error(err);

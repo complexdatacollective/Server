@@ -70,11 +70,6 @@ describe('ProtocolManager', () => {
         .rejects.toMatchErrorMessage(errorMessages.EmptyFilelist);
     });
 
-    it('rejects url list', async () => {
-      await expect(manager.validateAndImport([], ['http://foo']))
-        .rejects.toMatchErrorMessage(errorMessages.UrlNotSupported);
-    });
-
     it('makes a directory if needed', () => {
       manager.validateAndImport(['foo.netcanvas']);
       expect(fs.mkdir).toHaveBeenCalledWith(manager.protocolDir, expect.any(Function));

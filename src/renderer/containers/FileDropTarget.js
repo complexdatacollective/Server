@@ -40,6 +40,7 @@ class FileDropTarget extends Component {
   onDrop(evt) {
     evt.preventDefault();
     evt.stopPropagation();
+    const { loadProtocols, showConfirmationMessage, showErrorMessage } = this.props;
 
     const fileList = evt.dataTransfer.files;
     const files = [];
@@ -47,19 +48,19 @@ class FileDropTarget extends Component {
       files.push(fileList[i].path);
     }
 
-    const urls = [];
     // If the user drags a file attachment from a browser, we get a url instead of a file
     if (!files || files.length < 1) {
       const urlName = evt.dataTransfer.getData && evt.dataTransfer.getData('URL');
       if (urlName) {
-        urls.push(urlName);
+        this.setState({ draggingOver: false });
+        showErrorMessage('Url not supported - download the file to your computer and try again.');
+        return;
       }
     }
 
-    const { loadProtocols, showConfirmationMessage, showErrorMessage } = this.props;
     this.setState({ draggingOver: false });
     this.apiClient
-      .post('/protocols', { files, urls })
+      .post('/protocols', { files })
       .then(resp => resp.protocols)
       .then(() => showConfirmationMessage(messages.protocolImportSuccess))
       .then(() => loadProtocols())
