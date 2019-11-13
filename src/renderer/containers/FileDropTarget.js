@@ -53,7 +53,7 @@ class FileDropTarget extends Component {
       const urlName = evt.dataTransfer.getData && evt.dataTransfer.getData('URL');
       if (urlName) {
         this.setState({ draggingOver: false });
-        showErrorMessage('Url not supported - download the file to your computer and try again.');
+        showErrorMessage('Dragging protocol files into Server from this source is not currently supported. Please download the file to your computer and try again.');
         return;
       }
     }
