@@ -131,13 +131,16 @@
     "build": {
         "extends": null,
         "appId": "NetworkCanvasServer",
+        "afterSign": "./build-resources/scripts/afterSignHook.js",
         "directories": {
             "app": "./www",
             "buildResources": "build-resources",
             "output": "release-builds"
         },
         "mac": {
-            "category": "public.app-category.education"
+            "category": "public.app-category.education",
+            "hardenedRuntime": true,
+            "entitlements": "./build-resources/entitlements.mac.inherit.plist"
         },
         "win": {
             "target": "nsis",
