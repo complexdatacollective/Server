@@ -78,7 +78,7 @@ class ProtocolManager {
    * @throws {RequestError|Error} Rejects if there is a problem saving, or on invalid input
    */
   validateAndImport(fileList) {
-    if (!fileList) {
+    if (!fileList || fileList.length < 1) {
       return Promise.reject(new RequestError(ErrorMessages.EmptyFilelist));
     }
 
