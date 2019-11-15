@@ -1,5 +1,7 @@
 import React, { PureComponent } from 'react';
 import { NavLink } from 'react-router-dom';
+import cx from 'classnames';
+import { replace } from 'lodash';
 
 import Types from '../types';
 
@@ -11,11 +13,27 @@ class ProtocolThumbnail extends PureComponent {
     this.state = { hover: false };
   }
 
+  getSchemaColorIndex = (version) => {
+    const parsedVersion = parseInt(replace(version, /\./g, ''), 10);
+    if (isNaN(parsedVersion)) {
+      return 0;
+    }
+    return (parsedVersion % 9) + 1;
+  }
+
   render() {
     const { protocol } = this.props;
+    const schemaColorIndex = this.getSchemaColorIndex(protocol.schemaVersion);
+    const protocolColorClasses = cx(
+      'protocol-thumbnail',
+      {
+        [`protocol-thumbnail__cat-color-seq-${schemaColorIndex}`]: schemaColorIndex,
+      },
+    );
+
     return (
       <NavLink
-        className="protocol-thumbnail"
+        className={protocolColorClasses}
         activeClassName="protocol-thumbnail--active"
         to={`/workspaces/${protocol.id}`}
       >
