@@ -27,7 +27,7 @@ class ProtocolThumbnail extends PureComponent {
     const protocolColorClasses = cx(
       'protocol-thumbnail',
       {
-        [`protocol-thumbnail__cat-color-seq-${schemaColorIndex}`]: schemaColorIndex,
+        [`protocol-thumbnail__schema-color-seq-${schemaColorIndex}`]: schemaColorIndex,
       },
     );
 

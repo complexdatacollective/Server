@@ -11,8 +11,8 @@
 
   background-color: var(--color-cyber-grape);
   @for $i from 1 through 9 {
-    &.protocol-thumbnail__cat-color-seq-#{$i} {
-      background-color: var(--cat-color-seq-#{$i});
+    &.protocol-thumbnail__schema-color-seq-#{$i} {
+      background-color: var(--schema-color-seq-#{$i});
     }
   }
 
