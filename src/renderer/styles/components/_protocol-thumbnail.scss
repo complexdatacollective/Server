@@ -1,13 +1,21 @@
 .protocol-thumbnail {
-  $protocol-border-highlight: rgba(255, 255, 255, 0.15);
+  $protocol-border-selected: rgba(255, 255, 255, 0.5);
+  $protocol-border-highlight: rgba(255, 255, 255, 0.2);
   $protocol-border-transparent: rgba(255, 255, 255, 0);
 
+  --border-selected: #{$protocol-border-selected};
   --border-highlight: #{$protocol-border-highlight};
   --border-transparent: #{$protocol-border-transparent};
   --border-width: 6px;
   --thumbnail-size: calc(var(--app-sidebar-width) * 0.6);
 
   background-color: var(--color-cyber-grape);
+  @for $i from 1 through 9 {
+    &.protocol-thumbnail__schema-color-seq-#{$i} {
+      background-color: var(--schema-color-seq-#{$i});
+    }
+  }
+
   border: var(--border-width) solid var(--border-transparent);
   border-radius: 0.75rem;
   color: var(--color-white);
@@ -26,7 +34,7 @@
   width: var(--thumbnail-size);
 
   @include modifier(active) {
-    background-color: var(--color-sea-green);
+    border-color: var(--border-selected);
   }
 
   @include modifier(add) {
@@ -39,7 +47,7 @@
     }
   }
 
-  &:hover {
+  &:hover:not(.protocol-thumbnail--active) {
     border-color: var(--border-highlight);
   }
 }
