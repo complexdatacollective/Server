@@ -63,6 +63,7 @@ class ServerPanel extends Component {
     const { className } = this.props;
     const overview = { ...serverOverview };
     const uptimeDisplay = overview.uptime && `${parseInt(overview.uptime / 1000 / 60, 10)}m`;
+
     return (
       <div className={`server-panel ${className}`}>
         <div className="server-panel__wrapper">

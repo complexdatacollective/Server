@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const { app } = require('electron');
 
 const { PairingCodeLength, CharacterSet } = require('../../utils/shared-api/pairingCodeConfig');
 
@@ -31,6 +32,12 @@ const generatePairingCodeAsync = () => new Promise((resolve, reject) => {
   const maxValidByte = 256 - (256 % charSet.length) - 1;
 
   let passcode = '';
+
+  if (app.commandLine.hasSwitch('unsafe-pairing-code')) {
+    const unsafePairingCode = app.commandLine.getSwitchValue('unsafe-pairing-code');
+    resolve(unsafePairingCode);
+    return;
+  }
 
   crypto.randomBytes(256, (err, buf) => {
     if (err) {

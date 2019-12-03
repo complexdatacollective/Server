@@ -5,6 +5,8 @@ const Factory = require('../PairingCodeFactory');
 
 const { PairingCodeLength } = require('../../../utils/shared-api/pairingCodeConfig');
 
+jest.mock('electron');
+
 describe('the PairingCodeFactory', () => {
   it('can generate a pairing code', async () => {
     const code = await Factory.generatePairingCodeAsync();

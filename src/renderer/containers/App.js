@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import logger from 'electron-log';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { ipcRenderer, shell } from 'electron';
+import { ipcRenderer, shell, remote } from 'electron';
 import { withRouter } from 'react-router-dom';
 import DialogManager from '../components/DialogManager';
 import AppRoutes from './AppRoutes';
@@ -60,7 +60,10 @@ class App extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { apiReady: false };
+    this.state = {
+      apiReady: false,
+      insecure: remote.app.commandLine.hasSwitch('unsafe-pairing-code'),
+    };
 
     preventGlobalDragDrop();
     enableExternalLinks();
@@ -107,6 +110,7 @@ class App extends Component {
 
     const {
       apiReady,
+      insecure,
     } = this.state;
 
     const appClass = isFrameless() ? 'app app--frameless' : 'app';
@@ -135,6 +139,17 @@ class App extends Component {
               <React.Fragment>
                 <ProtocolNav className="app__sidebar" />
                 <div className="app__screen">
+                  { insecure &&
+                    <div className="unsafe-pairing-warning">
+                      <h3>Warning: Unsafe Pairing Enabled!</h3>
+                      <p>
+                        You have started Server with the <code>unsafe-pairing-code</code>
+                        option set. This option severely undermines the security of Server,
+                        and should <strong>not be used when conducting a study under any
+                        circumstances</strong>.
+                      </p>
+                    </div>
+                  }
                   <AppRoutes />
                 </div>
               </React.Fragment>
