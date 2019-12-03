@@ -13,6 +13,10 @@ const ipcMain = {
 };
 
 const app = {
+  commandLine: {
+    hasSwitch: jest.fn(),
+    getSwitchValue: jest.fn(() => 'aaaaaaaaaaaaaaaa'),
+  },
   dock: {
     hide: jest.fn(),
     show: jest.fn(),
@@ -37,7 +41,13 @@ const dialog = {
 };
 
 const remote = {
-  app,
+  app: {
+    commandLine: {
+      hasSwitch: jest.fn(),
+      getSwitchValue: jest.fn(() => 'aaaaaaaaaaaaaaaa'),
+    },
+    getVersion: jest.fn(() => '1.0.0'),
+  },
   dialog,
   process: {
     platform: '',

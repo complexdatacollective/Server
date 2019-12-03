@@ -18,6 +18,12 @@
     width: 100%;
   }
 
+  .unsafe-pairing-warning {
+    background: var(--error);
+    color: var(--text-light);
+    padding: unit(2);
+  }
+
 
   @include modifier(frameless) {
     .app__titlebar {
