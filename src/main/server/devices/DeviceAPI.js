@@ -617,7 +617,7 @@ class DeviceAPI extends EventEmitter {
             },
           });
         };
-        
+
         this.requestService.createRequest()
           .then((pairingRequest) => {
             // Shortcut pairing acknowledgement if unsafe-pairing-code is set
