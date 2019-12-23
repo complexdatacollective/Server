@@ -7,3 +7,6 @@
 [submodule "src/main/utils/network-query"]
 	path = src/main/utils/network-query
 	url = https://github.com/codaco/networkQuery.git
+[submodule "src/main/utils/network-exporters"]
+	path = src/main/utils/network-exporters
+	url = https://github.com/codaco/network-exporters

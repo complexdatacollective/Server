@@ -1,4 +1,4 @@
-const GraphMLFormatter = require('./graphml/GraphMLFormatter');
+const GraphMLFormatter = require('../network-exporters/graphml/GraphMLFormatter');
 const { AdjacencyMatrixFormatter } = require('./matrix');
 const { AttributeListFormatter } = require('./attribute-list');
 const { EgoListFormatter } = require('./ego-list');
