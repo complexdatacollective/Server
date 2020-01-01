@@ -70,10 +70,24 @@ describe('<ExportScreen />', () => {
       expect(subject.state('exportFormat')).toEqual('csv');
     });
 
+    it('does not warn about ego data for csv export', () => {
+      const radioWrapper = subject.findWhere(n => n.name() === 'Radio' && n.prop('label') === 'CSV');
+      radioWrapper.dive().find('input').simulate('change', { target: { value: 'csv' } });
+      const toggleWrapper = subject.find('Toggle').at(0);
+      expect(toggleWrapper.dive().find('.form-field-toggle').at(0).hasClass('form-field-toggle--disabled')).toBe(false);
+    });
+
     it('selects graphml format', () => {
       const radioWrapper = subject.findWhere(n => n.name() === 'Radio' && n.prop('label') === 'GraphML');
       radioWrapper.dive().find('input').simulate('change', { target: { value: 'graphml' } });
       expect(subject.state('exportFormat')).toEqual('graphml');
+    });
+
+    it('warns about ego data not downloading', () => {
+      const radioWrapper = subject.findWhere(n => n.name() === 'Radio' && n.prop('label') === 'GraphML');
+      radioWrapper.dive().find('input').simulate('change', { target: { value: 'graphml' } });
+      const toggleWrapper = subject.find('Toggle').at(0);
+      expect(toggleWrapper.dive().find('.form-field-toggle').at(0).hasClass('form-field-toggle--disabled')).toBe(true);
     });
 
     it('selects a csv type', () => {
