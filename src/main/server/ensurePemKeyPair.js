@@ -1,4 +1,5 @@
 const path = require('path');
+const os = require('os');
 const selfsigned = require('selfsigned');
 const logger = require('electron-log');
 const { app } = require('electron');
@@ -21,6 +22,13 @@ const fingerprintFile = path.join(certDir, 'device-api-fingerprint.txt');
  * @throws {Error} If files already exist
  */
 const generatePemKeyPair = () => {
+  const isLinkLocal = addr => /^(fe80::|169\.254)/.test(addr);
+  const interfaces = Object.values(os.networkInterfaces());
+  const IPAddress = [].concat(...interfaces)
+    .filter(iface => iface.internal === false && !isLinkLocal(iface.address))
+    .map(iface => iface.address);
+
+  const hostName = os.hostname();
   const AltNameTypeDNS = 2;
   const AltNameTypeIP = 7;
   const attrs = [{ name: 'commonName', value: commonName }];
@@ -46,11 +54,23 @@ const generatePemKeyPair = () => {
       altNames: [
         {
           type: AltNameTypeDNS,
-          value: 'networkcanvas.com',
+          value: hostName,
+        },
+        {
+          type: AltNameTypeDNS,
+          value: 'localhost',
         },
         {
           type: AltNameTypeIP,
-          ip: '185.101.98.135',
+          ip: IPAddress[0],
+        },
+        {
+          type: AltNameTypeIP,
+          ip: '127.0.0.1',
+        },
+        {
+          type: AltNameTypeIP,
+          ip: '::',
         },
       ],
     },
