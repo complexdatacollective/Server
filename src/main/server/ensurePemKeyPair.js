@@ -38,19 +38,19 @@ const generatePemKeyPair = () => {
       dataEncipherment: true,
     },
     {
+      name: 'extKeyUsage',
+      serverAuth: true,
+    },
+    {
       name: 'subjectAltName',
       altNames: [
         {
           type: AltNameTypeDNS,
-          value: 'localhost',
+          value: 'networkcanvas.com',
         },
         {
           type: AltNameTypeIP,
-          ip: '127.0.0.1',
-        },
-        {
-          type: AltNameTypeIP,
-          ip: '::',
+          ip: '185.101.98.135',
         },
       ],
     },
@@ -59,7 +59,7 @@ const generatePemKeyPair = () => {
   // TODO: Ed25519 and/or native implementation
   const pems = selfsigned.generate(attrs, {
     algorithm: 'sha256',
-    days: 365 * 10,
+    days: 365 * 1,
     keySize: 2048,
     extensions,
   });
