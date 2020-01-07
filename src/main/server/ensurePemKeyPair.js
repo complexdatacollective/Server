@@ -1,5 +1,4 @@
 const path = require('path');
-const os = require('os');
 const selfsigned = require('selfsigned');
 const logger = require('electron-log');
 const { app } = require('electron');
@@ -22,13 +21,6 @@ const fingerprintFile = path.join(certDir, 'device-api-fingerprint.txt');
  * @throws {Error} If files already exist
  */
 const generatePemKeyPair = () => {
-  const isLinkLocal = addr => /^(fe80::|169\.254)/.test(addr);
-  const interfaces = Object.values(os.networkInterfaces());
-  const IPAddress = [].concat(...interfaces)
-    .filter(iface => iface.internal === false && !isLinkLocal(iface.address))
-    .map(iface => iface.address);
-
-  const hostName = os.hostname();
   const AltNameTypeDNS = 2;
   const AltNameTypeIP = 7;
   const attrs = [{ name: 'commonName', value: commonName }];
@@ -54,15 +46,7 @@ const generatePemKeyPair = () => {
       altNames: [
         {
           type: AltNameTypeDNS,
-          value: hostName,
-        },
-        {
-          type: AltNameTypeDNS,
           value: 'localhost',
-        },
-        {
-          type: AltNameTypeIP,
-          ip: IPAddress[0],
         },
         {
           type: AltNameTypeIP,
@@ -79,7 +63,7 @@ const generatePemKeyPair = () => {
   // TODO: Ed25519 and/or native implementation
   const pems = selfsigned.generate(attrs, {
     algorithm: 'sha256',
-    days: 365 * 1,
+    days: 365 * 2,
     keySize: 2048,
     extensions,
   });
