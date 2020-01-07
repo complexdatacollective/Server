@@ -26,7 +26,7 @@ class ExportScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      exportFormat: 'graphml',
+      exportFormat: 'csv',
       exportNetworkUnion: false,
       csvTypes: new Set([...Object.keys(availableCsvTypes), 'ego']),
       useDirectedEdges: true,
@@ -182,48 +182,52 @@ class ExportScreen extends Component {
               }}
             />
           </div>
+          <div className="export__csv-types">
+            <Toggle
+              disabled={this.state.exportFormat === 'graphml'}
+              label="Include Ego data?"
+              input={{
+                name: 'export_ego_data',
+                onChange: this.handleEgoDataChange,
+                value: this.state.exportFormat === 'csv' && this.state.useEgoData,
+              }}
+            />
+            <DrawerTransition in={!showCsvOpts}>
+              <div className="export__ego-info">* Ego data not supported for this export format. See <a className="external-link" href="https://documentation.networkcanvas.com/docs/tutorials/server-workflows/#managing-and-exporting-data-in-server">documentation</a>.</div>
+            </DrawerTransition>
+          </div>
           <DrawerTransition in={showCsvOpts}>
-            <div className="export__csv-types">
-              <Toggle
-                label="Include Ego data?"
-                input={{
-                  name: 'export_ego_data',
-                  onChange: this.handleEgoDataChange,
-                  value: this.state.useEgoData,
-                }}
-              />
-              <div className="export__subpanel">
-                <div className="export__subpanel-content">
-                  <h4>Include the following files:</h4>
-                  {
-                    Object.entries(availableCsvTypes).map(([csvType, label]) => (
-                      <div key={`export_csv_type_${csvType}`}>
-                        <Checkbox
-                          label={label}
-                          input={{
-                            name: 'export_csv_types',
-                            checked: this.state.csvTypes.has(csvType),
-                            value: csvType,
-                            onChange: this.handleCsvTypeChange,
-                          }}
-                        />
-                      </div>
-                    ))
-                  }
-                  <DrawerTransition in={this.state.useEgoData}>
-                    <div key="export_csv_type_ego">
+            <div className="export__subpanel">
+              <div className="export__subpanel-content">
+                <h4>Include the following files:</h4>
+                {
+                  Object.entries(availableCsvTypes).map(([csvType, label]) => (
+                    <div key={`export_csv_type_${csvType}`}>
                       <Checkbox
-                        label="Ego Attribute List"
+                        label={label}
                         input={{
-                          name: 'export_ego_attributes',
-                          checked: this.state.csvTypes.has('ego'),
-                          value: 'ego',
+                          name: 'export_csv_types',
+                          checked: this.state.csvTypes.has(csvType),
+                          value: csvType,
                           onChange: this.handleCsvTypeChange,
                         }}
                       />
                     </div>
-                  </DrawerTransition>
-                </div>
+                  ))
+                }
+                <DrawerTransition in={this.state.useEgoData}>
+                  <div key="export_csv_type_ego">
+                    <Checkbox
+                      label="Ego Attribute List"
+                      input={{
+                        name: 'export_ego_attributes',
+                        checked: this.state.csvTypes.has('ego'),
+                        value: 'ego',
+                        onChange: this.handleCsvTypeChange,
+                      }}
+                    />
+                  </div>
+                </DrawerTransition>
               </div>
             </div>
           </DrawerTransition>
