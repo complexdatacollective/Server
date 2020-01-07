@@ -109,4 +109,21 @@ const ensurePemKeyPair = () => (
     })
 );
 
-module.exports = ensurePemKeyPair;
+const resetPemKeyPair = () => (
+  Promise.all([
+    promisedFs.tryUnlink(certPem),
+    promisedFs.tryUnlink(privatePem),
+    promisedFs.tryUnlink(publicPem),
+    promisedFs.tryUnlink(fingerprintFile),
+  ])
+    .then(generatePemKeyPair)
+    .catch((err) => {
+      logger.error(err);
+      throw err;
+    })
+);
+
+module.exports = {
+  ensurePemKeyPair,
+  resetPemKeyPair,
+};

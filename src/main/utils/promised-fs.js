@@ -68,6 +68,7 @@ const unlink = path => (new Promise((resolve, reject) => {
   } catch (err) { reject(err); }
 }));
 
+// Ignore "file/directory doesn't exist" errors.
 const tryUnlink = path => unlink(path).catch((err) => {
   if (err.code !== 'ENOENT') { throw err; }
 });

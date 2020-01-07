@@ -1,5 +1,5 @@
 const Server = require('./Server');
-const ensurePemKeyPair = require('./ensurePemKeyPair');
+const { ensurePemKeyPair } = require('./ensurePemKeyPair');
 const { ready: cipherReady } = require('../utils/shared-api/cipher');
 const { deviceServiceEvents } = require('./devices/DeviceService');
 
