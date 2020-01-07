@@ -2,7 +2,7 @@ const { app, Menu } = require('electron');
 const ProtocolManager = require('./data-managers/ProtocolManager');
 const MainWindow = require('./components/mainWindow');
 const { AdminService } = require('./server/AdminService');
-const { resetPemKeyPair } = require('./server/ensurePemKeyPair');
+const { resetPemKeyPair } = require('./server/certificateManager');
 const { isWindows } = require('./utils/environment');
 const { createTray } = require('./components/tray');
 

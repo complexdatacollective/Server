@@ -7,7 +7,7 @@ const apiRequestLogger = require('./apiRequestLogger');
 const DeviceManager = require('../data-managers/DeviceManager');
 const ProtocolManager = require('../data-managers/ProtocolManager');
 const ExportManager = require('../data-managers/ExportManager');
-const { resetPemKeyPair } = require('../server/ensurePemKeyPair');
+const { resetPemKeyPair } = require('./certificateManager');
 const { PairingRequestService } = require('./devices/PairingRequestService');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
 
