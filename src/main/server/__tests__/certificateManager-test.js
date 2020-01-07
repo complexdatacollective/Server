@@ -1,7 +1,7 @@
 /* eslint-env jest */
 const selfsigned = require('selfsigned');
 
-const { ensurePemKeyPair } = require('../ensurePemKeyPair');
+const { ensurePemKeyPair } = require('../certificateManager');
 const promisedFs = require('../../utils/promised-fs');
 
 jest.mock('selfsigned');
