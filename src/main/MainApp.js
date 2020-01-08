@@ -2,6 +2,7 @@ const { app, Menu } = require('electron');
 const ProtocolManager = require('./data-managers/ProtocolManager');
 const MainWindow = require('./components/mainWindow');
 const { AdminService } = require('./server/AdminService');
+const { resetPemKeyPair } = require('./server/certificateManager');
 const { isWindows } = require('./utils/environment');
 const { createTray } = require('./components/tray');
 
@@ -30,10 +31,23 @@ const createApp = () => {
   const updater = Updater();
   updater.checkForUpdates(true);
 
+  const regenerateCertificates = () => {
+    const responseNum = dialog.showMessageBox(mainWindow.window, {
+      message: 'Regenerate certificates?',
+      detail: 'Regenerating security certificates will require you to re-pair all of your devices. Do you want to continue?',
+      buttons: ['Regenerate Certificates', 'Cancel'],
+      cancelId: 1,
+      defaultId: 0,
+    });
+    if (responseNum === 0) {
+      resetPemKeyPair().then(adminService.resetDevices()).then(reloadHomeScreen);
+    }
+  };
+
   const resetAppData = () => {
     const responseNum = dialog.showMessageBox(mainWindow.window, {
       message: 'Destroy all application files and data?',
-      detail: 'This includes all imported protocols and paired devices',
+      detail: 'This will delete ALL existing data, including interview data, imported protocols and paired devices. Do you want to continue?',
       buttons: ['Reset Data', 'Cancel'],
       cancelId: 1,
       defaultId: 0,
@@ -91,6 +105,10 @@ const createApp = () => {
           click: showImportProtocolDialog,
         },
         { type: 'separator' },
+        {
+          label: 'Regenerate Certificates...',
+          click: regenerateCertificates,
+        },
         {
           label: 'Reset Data...',
           click: resetAppData,
