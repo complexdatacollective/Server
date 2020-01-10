@@ -1,3 +1,3 @@
 /* eslint-env jest */
 
-jest.mock('../../src/renderer/ui/utils/CSSVariables');
+jest.mock('@codaco/ui/lib/utils/CSSVariables');
