@@ -1,6 +1,6 @@
-$font-path: '../ui/assets/fonts'; // relative to here
+$font-path: '~@codaco/ui/lib/assets/fonts'; // relative to here
 
-@import '../ui/styles/all';
+@import '~@codaco/ui/lib/styles/all';
 @import 'architect/all'; // contains theming; import first so we can override
 
 @import 'mixins/all';

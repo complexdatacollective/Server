@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Spinner, Modal } from '../ui/components';
+import { Spinner, Modal } from '@codaco/ui';
 
 const ExportModal = ({ className, handleCancel, show }) => (
   <Modal className={className} title="Exporting..." show={show} onCancel={handleCancel}>

@@ -38,6 +38,7 @@
         "url": "https://github.com/codaco/Server.git"
     },
     "devDependencies": {
+        "@codaco/ui": "^3.0.4",
         "autoprefixer": "^8.6.5",
         "babel-core": "^6.26.3",
         "babel-eslint": "^8.2.5",

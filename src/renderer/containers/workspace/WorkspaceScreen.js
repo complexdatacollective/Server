@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { arrayMove } from 'react-sortable-hoc';
+import { Spinner } from '@codaco/ui';
 import Types from '../../types';
 import InterviewStatsPanel from './InterviewStatsPanel';
 import ProtocolCountsPanel from './ProtocolCountsPanel';
 import EntityTimeSeriesPanel from './EntityTimeSeriesPanel';
 import withAnswerDistributionCharts from './withAnswerDistributionCharts';
 import withSessions from './withSessions';
-import { Spinner } from '../../ui';
 import { selectors as protocolSelectors } from '../../ducks/modules/protocols';
 import {
   actionCreators as layoutActionCreators,
