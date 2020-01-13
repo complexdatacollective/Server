@@ -141,7 +141,6 @@
             "category": "public.app-category.education",
             "hardenedRuntime": true,
             "entitlements": "./build-resources/entitlements.mac.inherit.plist",
-            "target": "dmg"
         },
         "win": {
             "target": "nsis",
