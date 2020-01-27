@@ -38,6 +38,10 @@ const generatePemKeyPair = () => {
       dataEncipherment: true,
     },
     {
+      name: 'extKeyUsage',
+      serverAuth: true,
+    },
+    {
       name: 'subjectAltName',
       altNames: [
         {
@@ -59,7 +63,7 @@ const generatePemKeyPair = () => {
   // TODO: Ed25519 and/or native implementation
   const pems = selfsigned.generate(attrs, {
     algorithm: 'sha256',
-    days: 365 * 10,
+    days: 365 * 2,
     keySize: 2048,
     extensions,
   });
@@ -105,4 +109,21 @@ const ensurePemKeyPair = () => (
     })
 );
 
-module.exports = ensurePemKeyPair;
+const resetPemKeyPair = () => (
+  Promise.all([
+    promisedFs.tryUnlink(certPem),
+    promisedFs.tryUnlink(privatePem),
+    promisedFs.tryUnlink(publicPem),
+    promisedFs.tryUnlink(fingerprintFile),
+  ])
+    .then(generatePemKeyPair)
+    .catch((err) => {
+      logger.error(err);
+      throw err;
+    })
+);
+
+module.exports = {
+  ensurePemKeyPair,
+  resetPemKeyPair,
+};

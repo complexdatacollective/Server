@@ -7,6 +7,7 @@ const apiRequestLogger = require('./apiRequestLogger');
 const DeviceManager = require('../data-managers/DeviceManager');
 const ProtocolManager = require('../data-managers/ProtocolManager');
 const ExportManager = require('../data-managers/ExportManager');
+const { resetPemKeyPair } = require('./certificateManager');
 const { PairingRequestService } = require('./devices/PairingRequestService');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
 
@@ -300,9 +301,13 @@ class AdminService {
     return api;
   }
 
-  // TODO: Probably remove after alpha testing
+  resetDevices() {
+    return this.deviceManager.destroyAllDevices();
+  }
+
   resetData() {
     return Promise.all([
+      resetPemKeyPair(),
       this.deviceManager.destroyAllDevices(),
       this.protocolManager.destroyAllProtocols(),
       this.protocolManager.destroyAllSessions(),

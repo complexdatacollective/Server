@@ -3,7 +3,7 @@
 const path = require('path');
 const { createServer } = require('../ServerFactory');
 
-jest.mock('../ensurePemKeyPair');
+jest.mock('../certificateManager');
 
 const mockServerMethods = {
   close: jest.fn(),

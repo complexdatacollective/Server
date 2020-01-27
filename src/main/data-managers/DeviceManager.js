@@ -25,7 +25,6 @@ class DeviceManager {
     return this.db.all();
   }
 
-  // TODO: Probably remove after alpha testing
   destroyAllDevices() {
     return this.db.destroyAll();
   }
