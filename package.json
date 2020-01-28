@@ -38,7 +38,7 @@
         "url": "https://github.com/codaco/Server.git"
     },
     "devDependencies": {
-        "@codaco/ui": "^3.0.4",
+        "@codaco/ui": "^3.1.0",
         "autoprefixer": "^8.6.5",
         "babel-core": "^6.26.3",
         "babel-eslint": "^8.2.5",
@@ -191,7 +191,7 @@
             "^(?!.*\\.(js|jsx|css|json)$)": "<rootDir>/config/jest/fileTransform.js"
         },
         "transformIgnorePatterns": [
-          "/node_modules/(?!@codaco/ui).+\\.js$"
+            "/node_modules/(?!@codaco/ui).+\\.js$"
         ],
         "moduleNameMapper": {
             "^react-native$": "react-native-web"
