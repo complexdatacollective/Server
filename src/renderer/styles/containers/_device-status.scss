@@ -1,13 +1,5 @@
 .device-icon {
   @include reset-button;
-
-  background: center / contain no-repeat url('../images/devices-dark.png');
-  cursor: pointer;
-  height: 3.4rem;
-  margin: 0.5rem spacing('medium');
-  position: relative;
-  width: 3.4rem;
-
   @include modifier(dark) {
     background-image: url('../images/devices-dark.png');
   }
@@ -28,6 +20,12 @@
     position: absolute;
     right: var(--badge-offset);
     width: var(--badge-size);
-
   }
+
+  background: center / contain no-repeat url('../images/devices-dark.png');
+  cursor: pointer;
+  height: 3.4rem;
+  margin: 0.5rem spacing('medium');
+  position: relative;
+  width: 3.4rem;
 }

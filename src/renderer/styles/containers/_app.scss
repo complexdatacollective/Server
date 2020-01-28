@@ -1,15 +1,15 @@
 .app {
-  background-color: var(--color-white);
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-
   @include modifier(loading) {
     align-items: center;
     display: flex;
     justify-content: center;
     width: 100%;
   }
+
+  background-color: var(--color-white);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 
   &__flash {
     position: fixed;

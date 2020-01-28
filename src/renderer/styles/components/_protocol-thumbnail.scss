@@ -3,6 +3,20 @@
   $protocol-border-highlight: rgba(255, 255, 255, 0.2);
   $protocol-border-transparent: rgba(255, 255, 255, 0);
 
+  @include modifier(active) {
+    border-color: var(--border-selected);
+  }
+
+  @include modifier(add) {
+    background: transparent center / 50% no-repeat url('../images/plus.png');
+    border: var(--border-width) solid var(--color-cyber-grape);
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--color-cyber-grape);
+    }
+  }
+
   --border-selected: #{$protocol-border-selected};
   --border-highlight: #{$protocol-border-highlight};
   --border-transparent: #{$protocol-border-transparent};
@@ -30,24 +44,11 @@
   text-decoration: none;
   transition-duration: var(--animation-duration-fast);
   transition-property: border-color, background-color;
-  vertical-align: middle;
   width: var(--thumbnail-size);
 
-  @include modifier(active) {
-    border-color: var(--border-selected);
-  }
-
-  @include modifier(add) {
-    background: transparent center / 50% no-repeat url('../images/plus.png');
-    border: var(--border-width) solid var(--color-cyber-grape);
-    cursor: pointer;
-
-    &:hover {
-      background-color: var(--color-cyber-grape);
+  &:hover {
+    &:not(.protocol-thumbnail--active) {
+      border-color: var(--border-highlight);
     }
-  }
-
-  &:hover:not(.protocol-thumbnail--active) {
-    border-color: var(--border-highlight);
   }
 }
