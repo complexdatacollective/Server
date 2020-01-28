@@ -1,14 +1,14 @@
 .panel-item {
-  margin: spacing(medium) 0;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-
   @include element(placeholder) {
     font-style: italic;
   }
   @include element(label) {
     font-weight: bold;
   }
+
+  margin: spacing(medium) 0;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }

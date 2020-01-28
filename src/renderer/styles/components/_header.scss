@@ -1,12 +1,4 @@
 .header {
-  align-items: center;
-  background-color: var(--color-cyber-grape);
-  border-bottom: 0.25rem solid var(--color-mustard);
-  color: var(--color-white);
-  display: flex;
-  flex-direction: row;
-  padding: spacing(small);
-
   @include element(title) {
     @include typography(title-1);
     margin: 0;
@@ -32,4 +24,12 @@
       width: auto;
     }
   }
+
+  align-items: center;
+  background-color: var(--color-cyber-grape);
+  border-bottom: 0.25rem solid var(--color-mustard);
+  color: var(--color-white);
+  display: flex;
+  flex-direction: row;
+  padding: spacing(small);
 }

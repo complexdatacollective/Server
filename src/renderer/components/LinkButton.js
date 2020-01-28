@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import { Button } from '../ui/components';
+import { Button } from '@codaco/ui';
 
 const LinkButton = (props) => {
   const {

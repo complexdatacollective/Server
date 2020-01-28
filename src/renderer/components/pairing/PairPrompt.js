@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Icon } from '../../ui/components';
-
-import Notify from '../../ui/components/Transitions/Notify';
+import Notify from '@codaco/ui/lib/components/Transitions/Notify';
+import { Button, Icon } from '@codaco/ui';
 
 const PairPrompt = ({ onDismiss, onAcknowledge }) => (
   <div className="pairing-prompt">

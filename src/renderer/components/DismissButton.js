@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Icon } from '../ui/components';
+import { Icon } from '@codaco/ui';
 
 const DismissButton = ({ children, className, inline, onClick, small, title }) => {
   let baseClass = 'dismiss-button';
