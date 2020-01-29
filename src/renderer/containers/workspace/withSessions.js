@@ -19,12 +19,12 @@ import viewModelMapper from '../../utils/baseViewModelMapper';
  */
 const withSessions = WrappedComponent =>
   class extends Component {
-    static defaultProps = {
-      protocol: null,
-    };
-
     static propTypes = {
       protocol: Types.protocol,
+    };
+
+    static defaultProps = {
+      protocol: null,
     };
 
     static getDerivedStateFromProps(props, state) {

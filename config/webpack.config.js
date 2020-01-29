@@ -153,6 +153,7 @@ const loaderRules = Object.freeze([
             options: {
               compact: isProduction,
               cacheDirectory: !isProduction,
+              configFile: path.resolve(__dirname, '../babel.config.js'),
             },
           },
         ],
