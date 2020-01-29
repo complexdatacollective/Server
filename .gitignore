@@ -8,6 +8,7 @@
 /www
 /electron-dev
 /docs
+/nc_certificates
 
 config/api/api-spec-*.json
 .eslintcache

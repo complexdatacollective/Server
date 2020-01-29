@@ -1,24 +1,9 @@
 .pairing-prompt {
   $estimated-height: 15rem;
   $width: 50vw;
+  $opaque: rgba(0, 0, 0, 0.5);
 
   @include slide-down-transition($estimated-height);
-
-  background-color: var(--color-cyber-grape);
-  border-bottom: 0.5rem solid var(--color-mustard);
-  color: var(--color-white);
-  display: flex;
-  left: calc(50% - #{$width / 2});
-  min-height: $estimated-height;
-  padding: spacing(medium);
-  position: fixed;
-  bottom: 40px;
-  border-radius: var(--border-radius);
-  width: $width;
-  z-index: 1;
-  box-shadow: 0 1rem 1rem rgba(0, 0, 0, 0.5);
-
-
   @include element(icon-wrapper) {
     margin: spacing(large);
   }
@@ -38,11 +23,25 @@
   }
 
   @include breakpoint('narrow') {
-    left: 0;
-    width: 100%;
-
     @include element(icon-wrapper) {
       display: none;
     }
+
+    left: 0;
+    width: 100%;
   }
+
+  background-color: var(--color-cyber-grape);
+  border-bottom: 0.5rem solid var(--color-mustard);
+  color: var(--color-white);
+  display: flex;
+  left: calc(50% - #{$width / 2});
+  min-height: $estimated-height;
+  padding: spacing(medium);
+  position: fixed;
+  bottom: 40px;
+  border-radius: var(--border-radius);
+  width: $width;
+  z-index: 1;
+  box-shadow: 0 1rem 1rem $opaque;
 }

@@ -1,6 +1,6 @@
 {
     "name": "network-canvas-server",
-    "version": "5.0.0",
+    "version": "5.1.0",
     "productName": "Network Canvas Server",
     "description": "A tool for storing, analyzing, and exporting Network Canvas interview data.",
     "private": true,
@@ -38,6 +38,7 @@
         "url": "https://github.com/codaco/Server.git"
     },
     "devDependencies": {
+        "@codaco/ui": "^3.1.0",
         "autoprefixer": "^8.6.5",
         "babel-core": "^6.26.3",
         "babel-eslint": "^8.2.5",
@@ -83,6 +84,7 @@
         "react-scripts": "^2.1.1",
         "sass-lint": "^1.12.1",
         "sass-loader": "^7.0.3",
+        "sass-svg": "^1.0.1",
         "style-loader": "^0.21.0",
         "swagger-jsdoc": "^3.0.2",
         "url-loader": "^1.0.1",
@@ -140,8 +142,7 @@
         "mac": {
             "category": "public.app-category.education",
             "hardenedRuntime": true,
-            "entitlements": "./build-resources/entitlements.mac.inherit.plist",
-            "target": "dmg"
+            "entitlements": "./build-resources/entitlements.mac.inherit.plist"
         },
         "win": {
             "target": "nsis",
@@ -191,7 +192,7 @@
             "^(?!.*\\.(js|jsx|css|json)$)": "<rootDir>/config/jest/fileTransform.js"
         },
         "transformIgnorePatterns": [
-            "[/\\\\]node_modules[/\\\\].+\\.(js|jsx)$"
+            "/node_modules/(?!@codaco/ui).+\\.js$"
         ],
         "moduleNameMapper": {
             "^react-native$": "react-native-web"

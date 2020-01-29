@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
-import Notify from '../ui/components/Transitions/Notify';
-import { Icon } from '../ui/components';
+import Notify from '@codaco/ui/lib/components/Transitions/Notify';
+import { Icon } from '@codaco/ui';
 import { messageTypes } from '../ducks/modules/appMessages';
 import { isFrameless } from '../utils/environment';
 

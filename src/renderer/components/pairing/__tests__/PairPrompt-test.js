@@ -1,7 +1,7 @@
 /* eslint-env jest */
 import React from 'react';
 import { mount, shallow } from 'enzyme';
-import { Button } from '../../../ui/components';
+import { Button } from '@codaco/ui';
 
 import PairPrompt from '../PairPrompt';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from '../../ui/components';
+import { Button } from '@codaco/ui';
 
 const PinChar = ({ char }) => (<div className="pairing-pin__char">{char}</div>);
 

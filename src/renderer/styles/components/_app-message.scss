@@ -1,41 +1,6 @@
 .app-message {
-  background-color: var(--color-cyber-grape);
-  border-bottom: 5px solid var(--message-background-color);
-  border-radius: var(--border-radius);
-  color: var(--message-color);
-  font-size: 1.2rem;
-  z-index: var(--z-index-app-messages);
-  display: flex;
-  justify-content: space-between;
-  box-shadow: 0 1rem 1rem rgba(0, 0, 0, 0.5);
-  width: 650px;
-  margin: 0 auto;
-  align-items: center;
-
   @include modifier(error) {
     border-color: var(--error);
-  }
-
-  @keyframes bounceIn {
-    0% {
-      opacity: 0;
-      transform: scale(0.3);
-    }
-
-    50% {
-      opacity: 0.9;
-      transform: scale(1.1);
-    }
-
-    80% {
-      opacity: 1;
-      transform: scale(0.89);
-    }
-
-    100% {
-      opacity: 1;
-      transform: scale(1);
-    }
   }
 
   @include modifier(show) {
@@ -73,6 +38,42 @@
 
     &[name] { // needed to match NC-UI specificity
       height: 1rem;
+    }
+  }
+
+  $opaque: rgba(0, 0, 0, 0.5);
+  background-color: var(--color-cyber-grape);
+  border-bottom: 5px solid var(--message-background-color);
+  border-radius: var(--border-radius);
+  color: var(--message-color);
+  font-size: 1.2rem;
+  z-index: var(--z-index-app-messages);
+  display: flex;
+  justify-content: space-between;
+  box-shadow: 0 1rem 1rem $opaque;
+  width: 650px;
+  margin: 0 auto;
+  align-items: center;
+
+  @keyframes bounceIn {
+    0% {
+      opacity: 0;
+      transform: scale(0.3);
+    }
+
+    50% {
+      opacity: 0.9;
+      transform: scale(1.1);
+    }
+
+    80% {
+      opacity: 1;
+      transform: scale(0.89);
+    }
+
+    100% {
+      opacity: 1;
+      transform: scale(1);
     }
   }
 }

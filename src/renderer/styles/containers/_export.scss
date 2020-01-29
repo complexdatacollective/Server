@@ -1,6 +1,4 @@
 .export {
-  margin-bottom: 6rem; // height of footer
-
   @include element(section) {
     align-items: stretch;
     border-top: 1px solid var(--base-border-color);
@@ -23,6 +21,8 @@
   @include element(subpanel-content) {
     padding: 1rem 0;
   }
+
+  margin-bottom: 6rem; // height of footer
 
   &__footer {
     position: fixed;

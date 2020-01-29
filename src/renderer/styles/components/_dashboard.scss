@@ -4,19 +4,7 @@
   $column-count: 3;
   $grid-gap: spacing(medium);
 
-  display: grid;
-  grid-auto-rows: minmax($min-grid-row, $max-grid-row);
-  // Drag handles are rendered as bars below each panel; add extra vertical gap to accommodate:
-  grid-gap: calc(#{$grid-gap} + var(--draggable-height)) $grid-gap;
-  grid-template-columns: repeat($column-count, 1fr);
-
   @include element(panel) {
-    background-color: var(--color-platinum);
-    height: 100%;
-    padding: spacing(large);
-    position: relative;
-    width: 100%;
-
     @include modifier(chart) {
       display: flex;
       flex-direction: column;
@@ -36,6 +24,12 @@
         margin-bottom: var(--scrolling-panel-header-margin);
       }
     }
+
+    background-color: var(--color-platinum);
+    height: 100%;
+    padding: spacing(large);
+    position: relative;
+    width: 100%;
   }
 
   @include element(chartContainer) {
@@ -65,4 +59,10 @@
   @include element(header-subtext) {
     display: block;
   }
+
+  display: grid;
+  grid-auto-rows: minmax($min-grid-row, $max-grid-row);
+  // Drag handles are rendered as bars below each panel; add extra vertical gap to accommodate:
+  grid-gap: calc(#{$grid-gap} + var(--draggable-height)) $grid-gap;
+  grid-template-columns: repeat($column-count, 1fr);
 }

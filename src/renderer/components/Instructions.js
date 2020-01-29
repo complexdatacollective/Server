@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Icon } from '@codaco/ui';
 import Types from '../types';
-import { Icon } from '../ui/components';
 
 const Instructions = ({ compact, apiInfo, showPairingInstructions, showImportInstructions }) => (
   <div className={`instructions ${compact ? 'instructions--compact' : ''}`}>

@@ -4,14 +4,13 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Redirect, withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
-
+import { Button, Spinner } from '@codaco/ui';
+import CheckboxGroup from '@codaco/ui/lib/components/Fields/CheckboxGroup';
 import { entityLabel } from '../components/workspace/AnswerDistributionPanel';
 import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 import Types from '../types';
-import CheckboxGroup from '../ui/components/Fields/CheckboxGroup';
 import { actionCreators, selectors as protocolSelectors } from '../ducks/modules/protocols';
 import { actionCreators as chartActionCreators, selectors as chartSelectors } from '../ducks/modules/excludedChartVariables';
-import { Button, Spinner } from '../ui';
 
 class SettingsScreen extends Component {
   constructor(props) {

@@ -2,12 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-
+import { Modal } from '@codaco/ui';
 import withApiClient from '../components/withApiClient';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
 import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
 import { PairPin } from '../components';
-import { Modal } from '../ui/components';
 
 const DefaultExpiredCheckInterval = 1000;
 
