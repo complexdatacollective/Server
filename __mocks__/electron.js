@@ -47,6 +47,7 @@ const remote = {
       getSwitchValue: jest.fn(() => 'aaaaaaaaaaaaaaaa'),
     },
     getVersion: jest.fn(() => '1.0.0'),
+    getPath: jest.fn(() => '.'),
   },
   dialog,
   process: {

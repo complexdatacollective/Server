@@ -4,6 +4,7 @@ const loadDevToolsExtensions = () => {
   if (process.env.NODE_ENV !== 'development') {
     return;
   }
+
   Promise.all([
     installExtension(REACT_DEVELOPER_TOOLS),
     installExtension(REDUX_DEVTOOLS),
