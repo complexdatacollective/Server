@@ -7,6 +7,7 @@ const apiRequestLogger = require('./apiRequestLogger');
 const DeviceManager = require('../data-managers/DeviceManager');
 const ProtocolManager = require('../data-managers/ProtocolManager');
 const ExportManager = require('../data-managers/ExportManager');
+const ResolverManager = require('../data-managers/ResolverManager');
 const { resetPemKeyPair } = require('./certificateManager');
 const { PairingRequestService } = require('./devices/PairingRequestService');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
@@ -39,6 +40,7 @@ class AdminService {
     this.deviceManager = new DeviceManager(dataDir);
     this.protocolManager = new ProtocolManager(dataDir);
     this.exportManager = new ExportManager(dataDir);
+    this.resolverManager = new ResolverManager(dataDir);
     this.pairingRequestService = new PairingRequestService();
     this.reportDb = this.protocolManager.reportDb;
   }
@@ -231,6 +233,39 @@ class AdminService {
         .catch((err) => {
           logger.error(err);
           res.send(500, { status: 'error' });
+        })
+        .then(() => next());
+    });
+
+    // See ExportManager#createExportFile for possible req body params
+    // Handles export in a single, long-lived http request
+    api.post('/protocols/:protocolId/resolve_requests', (req, res, next) => {
+      apiRequestLogger('AdminAPI')(req, { statusCode: 0 }); // log request start
+
+      let abortRequest;
+      req.on('aborted', () => {
+        if (abortRequest) {
+          logger.debug('Resolve request aborted');
+          abortRequest();
+        }
+      });
+
+      req.setTimeout(0);
+      res.setTimeout(0);
+
+      this.protocolManager.getProtocol(req.params.protocolId)
+        .then((protocol) => {
+          const resolveRequest = this.resolverManager.resolveNetwork(protocol, req.body);
+          abortRequest = resolveRequest.abort;
+          return resolveRequest;
+        })
+        .then((result) => {
+          // TODO: Request user feedback on borderline resolutions...
+          return res.send({ status: 'ok' });
+        })
+        .catch((err) => {
+          logger.error(err);
+          res.send(codeForError(err), { status: 'error', message: err.message });
         })
         .then(() => next());
     });
