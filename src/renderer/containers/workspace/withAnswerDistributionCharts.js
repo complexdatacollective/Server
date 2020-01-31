@@ -81,17 +81,17 @@ const withAnswerDistributionCharts = (WrappedComponent) => {
    * Renders a collection of ordinal & categorical distribution panels
    */
   const AnswerDistributionPanels = class extends Component {
-    static defaultProps = {
-      excludedChartVariables: {},
-      protocolId: null,
-      totalSessionsCount: null,
-    }
-
     static propTypes = {
       excludedChartVariables: PropTypes.object,
       protocolId: PropTypes.string,
       totalSessionsCount: PropTypes.number,
       transposedCodebook: Types.codebook.isRequired,
+    }
+
+    static defaultProps = {
+      excludedChartVariables: {},
+      protocolId: null,
+      totalSessionsCount: null,
     }
 
     constructor(props) {

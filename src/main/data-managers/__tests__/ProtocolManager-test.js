@@ -302,7 +302,7 @@ describe('ProtocolManager', () => {
       it('rejects', async () => {
         JSZip.loadAsync.mockResolvedValue(mockZipContents);
         manager.db.save.mockRejectedValueOnce(mockError);
-        await expect(manager.processFile('')).rejects.toThrow(mockError);
+        await expect(manager.processFile('', '', '')).rejects.toThrow(mockError);
       });
     });
   });

@@ -12,7 +12,7 @@ jest.mock('../SessionDB', () => (function MockSessionDB() {
   };
 }));
 
-jest.mock('../../utils/formatters/graphml/GraphMLFormatter', () => class {
+jest.mock('../../utils/network-exporters/graphml/GraphMLFormatter', () => class {
   // Mock writer: close stream as soon as writing begins
   writeToStream = jest.fn((writeStream) => {
     writeStream.end();
