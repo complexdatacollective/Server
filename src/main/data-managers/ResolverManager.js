@@ -2,7 +2,7 @@
 
 const path = require('path');
 const ResolverDB = require('./ResolverDB');
-const promiseSpawn = require('../utils/promiseSpawn');
+const CommandRunner = require('../utils/commandRunner');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
 
 /**
@@ -15,10 +15,8 @@ class ResolverManager {
   }
 
   resolveNetwork(
-    protocol, {
-      destinationFilepath,
-      exportFormats,
-      exportNetworkUnion,
+    protocol,
+    {
       useDirectedEdges,
       useEgoData,
       command,
@@ -27,10 +25,10 @@ class ResolverManager {
     if (!protocol) {
       return Promise.reject(new RequestError(ErrorMessages.NotFound));
     }
+    // TODO: we don't need 'this.'
+    this.commandRunner = new CommandRunner(command);
 
-    const data = 'hello world';
-
-    return promiseSpawn(command, data);
+    commandRunnner.write();
   }
 }
 

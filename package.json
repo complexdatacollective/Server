@@ -105,6 +105,7 @@
         "big-integer": "^1.6.43",
         "classnames": "^2.2.6",
         "detect-port": "^1.2.3",
+        "duplex-child-process": "^1.0.0",
         "jszip": "^3.1.5",
         "libsodium-wrappers": "^0.7.3",
         "lodash": "^4.17.11",
@@ -129,6 +130,7 @@
         "restify": "^7.2.1",
         "restify-cors-middleware": "^1.1.1",
         "selfsigned": "^1.10.7",
+        "split": "^1.0.1",
         "thread-loader": "^1.1.5",
         "uuid": "^3.3.2",
         "xmldom": "^0.1.27"
