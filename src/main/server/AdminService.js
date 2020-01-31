@@ -260,8 +260,9 @@ class AdminService {
           return resolveRequest;
         })
         .then((result) => {
+          console.log({ result });
           // TODO: Request user feedback on borderline resolutions...
-          return res.send({ status: 'ok' });
+          return res.send({ status: 'ok', result });
         })
         .catch((err) => {
           logger.error(err);

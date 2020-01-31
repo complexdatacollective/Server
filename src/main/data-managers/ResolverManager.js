@@ -2,6 +2,8 @@
 
 const path = require('path');
 const ResolverDB = require('./ResolverDB');
+const promiseSpawn = require('../utils/promiseSpawn');
+const { RequestError, ErrorMessages } = require('../errors/RequestError');
 
 /**
  * Interface for data resolution
@@ -19,9 +21,16 @@ class ResolverManager {
       exportNetworkUnion,
       useDirectedEdges,
       useEgoData,
+      command,
     } = {},
   ) {
-    return Promise.resolve(null);
+    if (!protocol) {
+      return Promise.reject(new RequestError(ErrorMessages.NotFound));
+    }
+
+    const data = 'hello world';
+
+    return promiseSpawn(command, data);
   }
 }
 
