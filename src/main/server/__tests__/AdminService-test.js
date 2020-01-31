@@ -347,7 +347,7 @@ describe('the AdminService', () => {
 
         it('reponds to a POST request', async () => {
           const endpoint = makeUrl('protocols/1/resolve_requests', apiBase);
-          const res = await jsonClient.post(endpoint, {  });
+          const res = await jsonClient.post(endpoint, {});
           expect(res.json.status).toBe('ok');
         });
       });
