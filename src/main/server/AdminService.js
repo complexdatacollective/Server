@@ -2,7 +2,7 @@ const restify = require('restify');
 const logger = require('electron-log');
 const corsMiddleware = require('restify-cors-middleware');
 const detectPort = require('detect-port');
-
+const split = require('split');
 const apiRequestLogger = require('./apiRequestLogger');
 const DeviceManager = require('../data-managers/DeviceManager');
 const ProtocolManager = require('../data-managers/ProtocolManager');
@@ -237,8 +237,7 @@ class AdminService {
         .then(() => next());
     });
 
-    // See ExportManager#createExportFile for possible req body params
-    // Handles export in a single, long-lived http request
+    // Handles resolution in a single, long-lived http request
     api.post('/protocols/:protocolId/resolve_requests', (req, res, next) => {
       apiRequestLogger('AdminAPI')(req, { statusCode: 0 }); // log request start
 
@@ -253,17 +252,32 @@ class AdminService {
       req.setTimeout(0);
       res.setTimeout(0);
 
+      // TODO: command must be fetched from local system! not req.body!
+      const resolveOptions = {
+        ...req.body,
+        command: req.body.command,
+      };
+
       this.protocolManager.getProtocol(req.params.protocolId)
-        .then((protocol) => {
-          const resolveRequest = this.resolverManager.resolveNetwork(protocol, req.body);
-          abortRequest = resolveRequest.abort;
-          return resolveRequest;
-        })
-        .then((result) => {
-          console.log({ result });
-          // TODO: Request user feedback on borderline resolutions...
-          return res.send({ status: 'ok', result });
-        })
+        .then(protocol =>
+          new Promise((resolve, reject) => {
+            this.resolverManager.resolveNetwork(protocol, resolveOptions)
+              .then((resolverStream) => {
+                resolverStream.on('error', (err) => {
+                  reject(err);
+                });
+
+                resolverStream.on('data', (data) => {
+                  res.write(data);
+                });
+
+                resolverStream.on('end', () => {
+                  res.end();
+                  resolve();
+                });
+              });
+          }),
+        )
         .catch((err) => {
           logger.error(err);
           res.send(codeForError(err), { status: 'error', message: err.message });

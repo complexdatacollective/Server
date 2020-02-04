@@ -29,7 +29,10 @@ const createApp = () => {
   // Instantiate the updater class, and check for update once on startup.
   // Do not notify the user if there are no updates.
   const updater = Updater();
-  updater.checkForUpdates(true);
+
+  if (!process.env.NODE_ENV === 'development') {
+    updater.checkForUpdates(true);
+  }
 
   const regenerateCertificates = () => {
     const responseNum = dialog.showMessageBox(mainWindow.window, {

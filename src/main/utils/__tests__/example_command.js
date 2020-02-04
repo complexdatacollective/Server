@@ -2,6 +2,10 @@ const split = require('split');
 
 const args = process.argv.slice(2);
 
+const doThing = input =>
+  // input.split('').reverse().join('');
+  ['<line>', input.toUpperCase(), '</line>'].join('');
+
 if (args[0] === '--buffered') {
   // BUFFER MODE
   let buffer = '';
@@ -12,7 +16,7 @@ if (args[0] === '--buffered') {
   process.stdin.on('end', () => {
     // imaginary latency
     setTimeout(() => {
-      process.stdout.write(`BUFFERED:${buffer.split('').reverse().join('')}`);
+      process.stdout.write(`BUFFERED:${doThing(buffer)}`);
       process.exit(0);
     }, 1);
   });
@@ -21,7 +25,7 @@ if (args[0] === '--buffered') {
   process.stdin
     .pipe(split())
     .on('data', (data) => {
-      const reversed = data.toString().split('').reverse().join('');
+      const reversed = doThing(data.toString());
 
       // imaginary latency
       setTimeout(() => {
