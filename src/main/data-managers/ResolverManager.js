@@ -1,6 +1,10 @@
 /* eslint-disable no-underscore-dangle */
 
 const path = require('path');
+const split = require('split');
+const { Transform } = require('stream');
+const TransformCsvToJson = require('../utils/TransformCsvToJson');
+const { convertUuidToDecimal, nodePrimaryKeyProperty, nodeAttributesProperty } = require('../utils/formatters/network');
 const ResolverDB = require('./ResolverDB');
 const SessionDB = require('./SessionDB');
 const commandRunner = require('../utils/commandRunner');
@@ -14,6 +18,17 @@ const {
   AttributeListFormatter,
 } = require('../utils/formatters/index');
 
+class StreamMapper extends Transform {
+  constructor(mapFunc, options) {
+    super(options);
+    this._mapFunc = mapFunc;
+  }
+
+  _transform(data, encoding, callback) {
+    callback(null, this._mapFunc(data));
+  }
+}
+
 const networkResolver = ({
   command,
   codebook,
@@ -26,6 +41,23 @@ const networkResolver = ({
       formatter.writeToStream(resolver); // does this need to happen later?
       resolve(resolver);
     });
+
+const findNode = findId =>
+  (node) => {
+    const id = convertUuidToDecimal(node[nodePrimaryKeyProperty]);
+    return id === findId;
+  };
+
+const getAttributesForNode = (network, id) => {
+  const node = network.nodes.find(findNode(id));
+
+  if (!node) { return id; }
+
+  return {
+    id,
+    [nodeAttributesProperty]: node[nodeAttributesProperty],
+  };
+};
 
 /**
  * Interface for data resolution
@@ -68,7 +100,33 @@ class ResolverManager {
     const codebook = transposedCodebook(protocol.codebook);
 
     return this.getNetwork(protocol, { useEgoData })
-      .then(networkResolver({ useEgoData, command, codebook }));
+      .then(network =>
+        networkResolver({ useEgoData, command, codebook })(network)
+          .then((resolverStream) => {
+            const jsonStream = new TransformCsvToJson();
+            const networkMapper = new StreamMapper((pair) => {
+              const obj = JSON.parse(pair);
+
+              const a = getAttributesForNode(network, obj.networkCanvasAlterID_1);
+              const b = getAttributesForNode(network, obj.networkCanvasAlterID_2);
+
+              const r = {
+                a,
+                b,
+                prob: parseFloat(obj.prob),
+              };
+
+              return JSON.stringify(r);
+            });
+
+            resolverStream
+              .pipe(split())
+              .pipe(jsonStream)
+              .pipe(networkMapper);
+
+            return networkMapper;
+          }),
+      );
   }
 }
 
