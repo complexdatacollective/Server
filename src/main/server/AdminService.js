@@ -2,7 +2,6 @@ const restify = require('restify');
 const logger = require('electron-log');
 const corsMiddleware = require('restify-cors-middleware');
 const detectPort = require('detect-port');
-const split = require('split');
 const apiRequestLogger = require('./apiRequestLogger');
 const DeviceManager = require('../data-managers/DeviceManager');
 const ProtocolManager = require('../data-managers/ProtocolManager');
@@ -268,7 +267,9 @@ class AdminService {
                 });
 
                 resolverStream.on('data', (data) => {
+                  console.log(`DATA: "${data.toString()}"`);
                   res.write(data);
+                  res.write('\n');
                 });
 
                 resolverStream.on('end', () => {
