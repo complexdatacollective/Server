@@ -1,6 +1,10 @@
+/* eslint-disable no-underscore-dangle */
 const { Transform } = require('stream');
 
-class TransformCsvToJson extends Transform {
+const trim = string =>
+  string.trim().replace(/^"(.+)"$/g, '$1');
+
+class CsvAsJsonStream extends Transform {
   constructor(options) {
     super(options);
     this._firstLine = true;
@@ -18,14 +22,14 @@ class TransformCsvToJson extends Transform {
     if (this._firstLine === true) {
       const keys = data.toString()
         .split(',')
-        .map(key => key.trim());
+        .map(trim);
       this._keys = keys;
       this._firstLine = false;
       callback();
       return;
     }
 
-    const values = data.toString().split(',');
+    const values = data.toString().split(',').map(trim);
 
     // Length of values must match length of headings
     if (values.length !== this._keys.length) {
@@ -36,7 +40,7 @@ class TransformCsvToJson extends Transform {
     const obj = this._keys
       .reduce(
         (memo, key, index) =>
-          ({ ...memo, [key]: values[index].trim() }),
+          ({ ...memo, [key]: values[index] }),
         {},
       );
 
@@ -45,4 +49,4 @@ class TransformCsvToJson extends Transform {
   }
 }
 
-module.exports = TransformCsvToJson;
+module.exports = CsvAsJsonStream;
