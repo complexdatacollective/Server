@@ -2,8 +2,8 @@
 
 const path = require('path');
 const split = require('split');
-const { Transform } = require('stream');
-const TransformCsvToJson = require('../utils/TransformCsvToJson');
+const CsvAsJsonStream = require('../utils/streams/CsvAsJsonStream');
+const MapStream = require('../utils/streams/MapStream');
 const { convertUuidToDecimal, nodePrimaryKeyProperty, nodeAttributesProperty } = require('../utils/formatters/network');
 const ResolverDB = require('./ResolverDB');
 const SessionDB = require('./SessionDB');
@@ -18,16 +18,6 @@ const {
   AttributeListFormatter,
 } = require('../utils/formatters/index');
 
-class StreamMapper extends Transform {
-  constructor(mapFunc, options) {
-    super(options);
-    this._mapFunc = mapFunc;
-  }
-
-  _transform(data, encoding, callback) {
-    callback(null, this._mapFunc(data));
-  }
-}
 
 const networkResolver = ({
   command,
@@ -54,7 +44,7 @@ const getAttributesForNode = (network, id) => {
   if (!node) { return id; }
 
   return {
-    id,
+    id: node[nodePrimaryKeyProperty],
     [nodeAttributesProperty]: node[nodeAttributesProperty],
   };
 };
@@ -103,8 +93,8 @@ class ResolverManager {
       .then(network =>
         networkResolver({ useEgoData, command, codebook })(network)
           .then((resolverStream) => {
-            const jsonStream = new TransformCsvToJson();
-            const networkMapper = new StreamMapper((pair) => {
+            const jsonStream = new CsvAsJsonStream();
+            const networkMapper = new MapStream((pair, callback) => {
               const obj = JSON.parse(pair);
 
               const a = getAttributesForNode(network, obj.networkCanvasAlterID_1);
@@ -116,7 +106,7 @@ class ResolverManager {
                 prob: parseFloat(obj.prob),
               };
 
-              return JSON.stringify(r);
+              callback(null, JSON.stringify(r));
             });
 
             resolverStream
