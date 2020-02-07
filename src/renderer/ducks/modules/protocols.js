@@ -59,6 +59,44 @@ const transposedCodebook = (state, props) => {
   return networkTransposedCodebook(codebook);
 };
 
+const getProtocolVariableNames = variables => (
+  Object.entries(variables || {}).reduce((arr, [variableName]) => {
+    arr.push(variableName);
+    return arr;
+  }, [])
+);
+
+const getProtocolVariablesByEntity = (entities) => {
+  if ((entities || {}).name === 'ego') {
+    const variableNames = getProtocolVariableNames(entities.variables);
+    if (variableNames.length) {
+      return variableNames;
+    }
+    return [];
+  }
+
+  return Object.entries(entities || {}).reduce((acc, [, { variables }]) => {
+    const variableNames = getProtocolVariableNames(variables);
+    if (variableNames.length) {
+      acc.push(...variableNames);
+    }
+    return acc;
+  }, []);
+};
+
+/**
+ * @return {Object} all node variable names, sorted alphabetically
+ */
+const getProtocolVariables = (state, props) => {
+  const codebook = transposedCodebook(state, props);
+  if (!codebook) {
+    return [];
+  }
+
+  return getProtocolVariablesByEntity(codebook.node).sort()
+    .filter((x, i, a) => !i || x !== a[i - 1]);
+};
+
 const distributionVariableTypes = ['ordinal', 'categorical'];
 const isDistributionVariable = variable => distributionVariableTypes.includes(variable.type);
 
@@ -158,6 +196,7 @@ const selectors = {
   protocolsHaveLoaded,
   transposedCodebook,
   ordinalAndCategoricalVariables,
+  getProtocolVariables,
 };
 
 export {

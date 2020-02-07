@@ -30,6 +30,7 @@ class ExportScreen extends Component {
       exportNetworkUnion: false,
       csvTypes: new Set([...Object.keys(availableCsvTypes), 'ego']),
       useDirectedEdges: true,
+      createLabelColumn: false,
       useEgoData: true,
     };
   }
@@ -55,6 +56,10 @@ class ExportScreen extends Component {
 
   handleDirectedEdgesChange = (evt) => {
     this.setState({ useDirectedEdges: evt.target.checked });
+  }
+
+  handleLabelColumnChange = (evt) => {
+    this.setState({ createLabelColumn: evt.target.checked });
   }
 
   handleEgoDataChange = (evt) => {
@@ -131,7 +136,7 @@ class ExportScreen extends Component {
   }
 
   render() {
-    const { protocol, protocolsHaveLoaded, history } = this.props;
+    const { protocol, protocolsHaveLoaded, history, protocolVariables } = this.props;
 
     if (protocolsHaveLoaded && !protocol) { // This protocol doesn't exist
       return <Redirect to="/" />;
@@ -244,6 +249,20 @@ class ExportScreen extends Component {
           />
         </div>
         <div className="export__section">
+          <h4>Label Column</h4>
+          <Toggle
+            label="Create 'label' column?"
+            input={{
+              name: 'export_create_label_column',
+              onChange: this.handleLabelColumnChange,
+              value: this.state.createLabelColumn,
+            }}
+          />
+          <DrawerTransition in={this.state.createLabelColumn}>
+            <div>{protocolVariables}</div>
+          </DrawerTransition>
+        </div>
+        <div className="export__section">
           <h3>Interview Networks</h3>
           <p>
             Choose whether to export all networks separately, or to merge them
@@ -285,6 +304,7 @@ ExportScreen.propTypes = {
   apiClient: PropTypes.object,
   protocol: Types.protocol,
   protocolsHaveLoaded: PropTypes.bool.isRequired,
+  protocolVariables: PropTypes.array.isRequired,
   showConfirmation: PropTypes.func.isRequired,
   showError: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
@@ -296,6 +316,7 @@ ExportScreen.defaultProps = {
 };
 
 const mapStateToProps = (state, ownProps) => ({
+  protocolVariables: selectors.getProtocolVariables(state, ownProps),
   protocolsHaveLoaded: selectors.protocolsHaveLoaded(state),
   protocol: selectors.currentProtocol(state, ownProps),
 });
