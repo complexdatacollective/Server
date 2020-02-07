@@ -16,6 +16,7 @@ import withApiClient from '../components/withApiClient';
 import { selectors } from '../ducks/modules/protocols';
 import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
 import EntityResolution from './EntityResolution';
+import Resolver from './Resolver';
 
 const availableCsvTypes = {
   adjacencyMatrix: 'Adjacency Matrix',
@@ -274,6 +275,10 @@ class ExportScreen extends Component {
           </div>
         </div>
         <EntityResolution show={this.state.exportNetworkUnion} />
+        <Resolver entityCount={30} matches={[]} />
+        <div className="export__section">
+          <br />
+        </div>
         <div className="export__footer">
           <Button color="platinum" onClick={() => history.goBack()}>Cancel</Button>&nbsp;
           <Button type="submit" disabled={exportInProgress}>Export</Button>
