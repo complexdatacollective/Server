@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import uuid from 'uuid';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Redirect, withRouter } from 'react-router-dom';
@@ -17,6 +18,23 @@ import { selectors } from '../ducks/modules/protocols';
 import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
 import EntityResolution from './EntityResolution';
 import Resolver from './Resolver';
+
+const mockMatch = (a, b) => ({
+  a: { id: uuid(), attributes: a },
+  b: { id: uuid(), attributes: b },
+  prob: Math.random(),
+});
+
+const rAge = () => Math.ceil(Math.random() * 100);
+
+const matches = [
+  mockMatch({ name: 'bar', age: rAge() }, { name: 'foo', age: rAge() }),
+  mockMatch({ name: 'hello', age: rAge() }, { name: 'hell', age: rAge() }),
+  mockMatch({ name: 'wyh', age: rAge() }, { name: 'why', age: rAge() }),
+  mockMatch({ name: 'bar', age: rAge() }, { name: 'bazz', age: rAge() }),
+];
+
+const entityCount = 7;
 
 const availableCsvTypes = {
   adjacencyMatrix: 'Adjacency Matrix',
@@ -275,7 +293,10 @@ class ExportScreen extends Component {
           </div>
         </div>
         <EntityResolution show={this.state.exportNetworkUnion} />
-        <Resolver entityCount={30} matches={[]} />
+        <Resolver
+          entityCount={entityCount}
+          matches={matches}
+        />
         <div className="export__section">
           <br />
         </div>

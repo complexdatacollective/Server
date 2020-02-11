@@ -1,10 +1,11 @@
 import React from 'react';
-import Checkbox from '../../ui/components/Fields/Checkbox';
+import PropTypes from 'prop-types';
+import Checkbox from '@codaco/ui/lib/components/Fields/Checkbox';
 import Snapshot from './Snapshot';
 import useEntityResolutionState, { actionCreators } from './useEntityResolutionState';
 import NewSnapshot from './NewSnapshot';
 
-const EntityResolution = ({ show }) => {
+const EntityResolution = () => {
   const [state, dispatch] = useEntityResolutionState();
 
   const snapshots = [
@@ -60,6 +61,10 @@ const EntityResolution = ({ show }) => {
       </div>
     </React.Fragment>
   );
+};
+
+EntityResolution.propTypes = {
+  show: PropTypes.bool.isRequired,
 };
 
 export default EntityResolution;

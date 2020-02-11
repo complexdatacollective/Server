@@ -1,6 +1,7 @@
 import React from 'react';
-import Radio from '../../ui/components/Fields/Radio';
-import Text from '../../ui/components/Fields/Text';
+import PropTypes from 'prop-types';
+import Radio from '@codaco/ui/lib/components/Fields/Radio';
+import Text from '@codaco/ui/lib/components/Fields/Text';
 
 const NewSnapshot = ({ onSelectCreateNewSnapshot, isSelected }) => (
   <div
@@ -44,5 +45,10 @@ const NewSnapshot = ({ onSelectCreateNewSnapshot, isSelected }) => (
     </table>
   </div>
 );
+
+NewSnapshot.propTypes = {
+  onSelectCreateNewSnapshot: PropTypes.func.isRequired,
+  isSelected: PropTypes.bool.isRequired,
+};
 
 export default NewSnapshot;

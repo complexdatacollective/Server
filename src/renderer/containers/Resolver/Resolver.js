@@ -1,29 +1,18 @@
-import React, { useReducer } from 'react';
-import Progress from '../../ui/components/Progress';
-import { Modal } from '../../ui/components';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Modal, Progress, Spinner } from '@codaco/ui';
 import EntityDiff from './EntityDiff';
+import useResolverState from './useResolverState';
 import './Resolver.scss';
 
-const initialState = {
-  currentEntityIndex: 4,
-};
-
-const diffReducer = (state, action) => {
-  switch (action.type) {
-    default:
-      throw new Error();
-  }
-};
-
 const Resolver = ({ entityCount, isLoadingMatches, matches, show }) => {
-  const [state, dispatch] = useReducer(diffReducer, initialState);
-
+  const [state, onResolve, onNext, onPrevious] = useResolverState();
 
   const currentEntity = matches.length > state.currentEntityIndex + 1 &&
     matches[state.currentEntityIndex];
 
   return (
-    <Modal show>
+    <Modal show={show}>
       <div className="resolver">
         <Progress
           value={state.currentEntityIndex}
@@ -31,14 +20,32 @@ const Resolver = ({ entityCount, isLoadingMatches, matches, show }) => {
           active={isLoadingMatches}
         />
         { !currentEntity &&
-          <div>LOADING</div>
+          <Spinner />
         }
         { currentEntity &&
-          <EntityDiff a={currentEntity.a} b={currentEntity.b} />
+          <EntityDiff
+            entityA={currentEntity.a}
+            entityB={currentEntity.b}
+            onResolve={onResolve}
+            onNext={onNext}
+            onPrevious={onPrevious}
+          />
         }
       </div>
     </Modal>
   );
+};
+
+Resolver.propTypes = {
+  entityCount: PropTypes.number.isRequired,
+  isLoadingMatches: PropTypes.bool,
+  matches: PropTypes.array.isRequired,
+  show: PropTypes.bool,
+};
+
+Resolver.defaultProps = {
+  isLoadingMatches: true,
+  show: true,
 };
 
 export default Resolver;
