@@ -5,27 +5,34 @@ import EntityDiff from './EntityDiff';
 import useResolverState from './useResolverState';
 import './Resolver.scss';
 
+const getMatch = (matches, index) => {
+  if (matches.length < index + 1) { return null; }
+
+  return {
+    ...matches[index],
+    index,
+  };
+};
+
 const Resolver = ({ entityCount, isLoadingMatches, matches, show }) => {
   const [state, onResolve, onNext, onPrevious] = useResolverState();
 
-  const currentEntity = matches.length > state.currentEntityIndex + 1 &&
-    matches[state.currentEntityIndex];
+  const currentMatch = getMatch(matches, state.currentMatchIndex);
 
   return (
     <Modal show={show}>
       <div className="resolver">
         <Progress
-          value={state.currentEntityIndex}
+          value={state.currentMatchIndex}
           max={entityCount}
           active={isLoadingMatches}
         />
-        { !currentEntity &&
+        { !currentMatch &&
           <Spinner />
         }
-        { currentEntity &&
+        { currentMatch &&
           <EntityDiff
-            entityA={currentEntity.a}
-            entityB={currentEntity.b}
+            match={currentMatch}
             onResolve={onResolve}
             onNext={onNext}
             onPrevious={onPrevious}

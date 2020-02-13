@@ -5,15 +5,19 @@ import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import useEntityState from './useEntityState';
 
 const EntityDiff = ({
-  entityA,
-  entityB,
+  match,
   onResolve,
   onNext,
   onPrevious,
 }) => {
   const [resolvedEntity, handleSet, handleSetAll] = useEntityState();
 
-  if (!entityA || !entityB) { return null; }
+  if (!match) { return null; }
+
+  const {
+    a: entityA,
+    b: entityB,
+  } = match;
 
   const rows = Object.keys(entityA.attributes)
     .map(variable => ({
@@ -34,9 +38,11 @@ const EntityDiff = ({
   };
 
   const handleResolve = useCallback(
-    () => onResolve(resolvedEntity),
+    () => onResolve(match, 'resolve', resolvedEntity),
     [resolvedEntity],
   );
+
+  const handleSkip = useCallback(() => onResolve(match, 'skip'));
 
   return (
     <div>
@@ -92,8 +98,8 @@ const EntityDiff = ({
       </table>
 
       <div>
-        <button type="button" onClick={onPrevious}>Previous</button>
-        <button type="button" onClick={onNext}>Skip</button>
+        {/* <button type="button" onClick={onPrevious}>Previous</button> */}
+        <button type="button" onClick={handleSkip}>Skip</button>
         <button type="button" onClick={handleResolve}>Resolve</button>
       </div>
     </div>
@@ -106,16 +112,19 @@ const EntityPropTypes = PropTypes.shape({
 });
 
 EntityDiff.propTypes = {
-  entityA: EntityPropTypes,
-  entityB: EntityPropTypes,
+  match: PropTypes.shape({
+    a: EntityPropTypes.isRequired,
+    b: EntityPropTypes.isRequired,
+    prob: PropTypes.number.isRequired,
+    index: PropTypes.number.isRequired,
+  }),
   onResolve: PropTypes.func.isRequired,
   onNext: PropTypes.func.isRequired,
   onPrevious: PropTypes.func.isRequired,
 };
 
 EntityDiff.defaultProps = {
-  entityA: null,
-  entityB: null,
+  match: null,
 };
 
 export default EntityDiff;
