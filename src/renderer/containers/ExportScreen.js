@@ -12,6 +12,7 @@ import Checkbox from '@codaco/ui/lib/components/Fields/Checkbox';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import Toggle from '@codaco/ui/lib/components/Fields/Toggle';
 import Types from '../types';
+import ErrorBoundary from '../components/ErrorBoundary';
 import ExportModal from '../components/ExportModal';
 import withApiClient from '../components/withApiClient';
 import { selectors } from '../ducks/modules/protocols';
@@ -32,9 +33,11 @@ const matches = [
   mockMatch({ name: 'hello', age: rAge() }, { name: 'hell', age: rAge() }),
   mockMatch({ name: 'wyh', age: rAge() }, { name: 'why', age: rAge() }),
   mockMatch({ name: 'bar', age: rAge() }, { name: 'bazz', age: rAge() }),
+  mockMatch({ name: 'test', age: rAge() }, { name: 'teeest', age: rAge() }),
+  mockMatch({ name: 'hi', age: rAge() }, { name: 'hey', age: rAge() }),
 ];
 
-const entityCount = 7;
+const entityCount = matches.length + 3;
 
 const availableCsvTypes = {
   adjacencyMatrix: 'Adjacency Matrix',
@@ -293,11 +296,13 @@ class ExportScreen extends Component {
             />
           </div>
         </div>
-        <EntityResolution show={this.state.exportNetworkUnion} />
-        <Resolver
-          entityCount={entityCount}
-          matches={matches}
-        />
+        <ErrorBoundary>
+          <EntityResolution show={this.state.exportNetworkUnion} />
+          <Resolver
+            entityCount={entityCount}
+            matches={matches}
+          />
+        </ErrorBoundary>
         <div className="export__section">
           <br />
         </div>
