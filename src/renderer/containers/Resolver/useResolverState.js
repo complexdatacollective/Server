@@ -5,7 +5,7 @@ import { uniq } from 'lodash';
 
 const resolveMatch = createAction(
   'RESOLVE_ENTITY', (match, action, attributes = {}) => ({
-    match,
+    match: { ...match, nodes: [match.nodes[0].id, match.nodes[1].id] },
     action,
     attributes,
   }),
@@ -60,23 +60,27 @@ const initialState = {
   currentMatchIndex: 0,
 };
 
+export const resolveReducer = (state, { payload: { match, action, attributes } }) => {
+  const matches = matchesReducer(state.matches, { payload: { match, action } });
+  const currentMatchIndex = matches[matches.length - 1].index + 1;
+  const resolutions = resolutionsReducer(
+    state.resolutions,
+    { payload: { match, action, attributes } },
+  );
+
+  const newState = {
+    ...state,
+    currentMatchIndex,
+    matches,
+    resolutions,
+  };
+
+  return newState;
+};
+
 const entityResolutionReducer = handleActions(
   {
-    [resolveMatch]: (state, { payload: { match, action, attributes } }) => {
-      const matches = matchesReducer(state.matches, { payload: { match, action } });
-      const currentMatchIndex = matches[matches.length - 1].index;
-      const resolutions = resolutionsReducer(
-        state.matches,
-        { payload: { match, action, attributes } },
-      );
-
-      return {
-        ...state,
-        currentMatchIndex,
-        matches,
-        resolutions,
-      };
-    },
+    [resolveMatch]: resolveReducer,
     [previousEntity]: state => ({
       ...state,
       currentMatchIndex: state.currentMatchIndex - 1,

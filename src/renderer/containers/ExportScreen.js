@@ -20,21 +20,21 @@ import { actionCreators as messageActionCreators } from '../ducks/modules/appMes
 import EntityResolution from './EntityResolution';
 import Resolver from './Resolver';
 
-const mockMatch = (a, b) => ({
-  a: { id: uuid(), attributes: a },
-  b: { id: uuid(), attributes: b },
+const mockMatch = ({ id: idA, ...a }, { id: idB, ...b }) => ({
+  nodes: [
+    { id: idA, attributes: a },
+    { id: idB, attributes: b },
+  ],
   prob: Math.random(),
 });
 
 const rAge = () => Math.ceil(Math.random() * 100);
 
 const matches = [
-  mockMatch({ name: 'bar', age: rAge() }, { name: 'foo', age: rAge() }),
-  mockMatch({ name: 'hello', age: rAge() }, { name: 'hell', age: rAge() }),
-  mockMatch({ name: 'wyh', age: rAge() }, { name: 'why', age: rAge() }),
-  mockMatch({ name: 'bar', age: rAge() }, { name: 'bazz', age: rAge() }),
-  mockMatch({ name: 'test', age: rAge() }, { name: 'teeest', age: rAge() }),
-  mockMatch({ name: 'hi', age: rAge() }, { name: 'hey', age: rAge() }),
+  mockMatch({ id: '1', name: 'bar', age: rAge() }, { id: '2', name: 'baarrr', age: rAge() }),
+  mockMatch({ id: '3', name: 'bazz', age: rAge() }, { id: '4', name: 'bye', age: rAge() }),
+  mockMatch({ id: '1', name: 'bar', age: rAge() }, { id: '3', name: 'bazz', age: rAge() }), // relies on blend of first two
+  mockMatch({ id: '1', name: 'bar', age: rAge() }, { id: '5', name: 'buzz', age: rAge() }), // relies on blend of first 3 AND a new match
 ];
 
 const entityCount = matches.length + 3;

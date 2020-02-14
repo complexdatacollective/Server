@@ -14,10 +14,32 @@ const getMatch = (matches, index) => {
   };
 };
 
-const Resolver = ({ entityCount, isLoadingMatches, matches, show }) => {
-  const [state, onResolve, onNext, onPrevious] = useResolverState();
+const getMatchOrResolved = (match, resolutions) => {
+  if (!match) { return match; }
 
-  const currentMatch = getMatch(matches, state.currentMatchIndex);
+  const nodes = match.nodes.map((node) => {
+    const resolution = resolutions.reverse()
+      .find(r => r.nodes.includes(node.id));
+
+    if (!resolution) { return node; }
+
+    return {
+      ...node,
+      attributes: resolution.attributes,
+    };
+  });
+
+  return {
+    ...match,
+    nodes,
+  };
+};
+
+const Resolver = ({ entityCount, isLoadingMatches, matches, show }) => {
+  const [state, onResolve] = useResolverState();
+
+  const match = getMatch(matches, state.currentMatchIndex);
+  const matchOrResolved = getMatchOrResolved(match, state.resolutions);
 
   return (
     <Modal show={show}>
@@ -27,15 +49,13 @@ const Resolver = ({ entityCount, isLoadingMatches, matches, show }) => {
           max={entityCount}
           active={isLoadingMatches}
         />
-        { !currentMatch &&
+        { !matchOrResolved &&
           <Spinner />
         }
-        { currentMatch &&
+        { matchOrResolved &&
           <EntityDiff
-            match={currentMatch}
+            match={matchOrResolved}
             onResolve={onResolve}
-            onNext={onNext}
-            onPrevious={onPrevious}
           />
         }
       </div>
