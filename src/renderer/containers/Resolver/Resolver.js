@@ -35,43 +35,43 @@ const getMatchOrResolved = (match, resolutions) => {
   };
 };
 
-const Resolver = ({ entityCount, isLoadingMatches, matches, show }) => {
+const Resolver = ({ isLoadingMatches, matches, show }) => {
   const [state, onResolve] = useResolverState();
 
   const match = getMatch(matches, state.currentMatchIndex);
   const matchOrResolved = getMatchOrResolved(match, state.resolutions);
+
+  const isComplete = !isLoadingMatches && state.currentMatchIndex >= matches.length;
 
   return (
     <Modal show={show}>
       <div className="resolver">
         <Progress
           value={state.currentMatchIndex}
-          max={entityCount}
+          max={matches.length}
           active={isLoadingMatches}
         />
-        { !matchOrResolved &&
-          <Spinner />
-        }
-        { matchOrResolved &&
+        { !isComplete && !matchOrResolved && <Spinner /> }
+        { !isComplete && matchOrResolved &&
           <EntityDiff
             match={matchOrResolved}
             onResolve={onResolve}
           />
         }
+        { isComplete && <button>Save</button> }
       </div>
     </Modal>
   );
 };
 
 Resolver.propTypes = {
-  entityCount: PropTypes.number.isRequired,
   isLoadingMatches: PropTypes.bool,
   matches: PropTypes.array.isRequired,
   show: PropTypes.bool,
 };
 
 Resolver.defaultProps = {
-  isLoadingMatches: true,
+  isLoadingMatches: false, // TODO: true
   show: true,
 };
 
