@@ -37,8 +37,6 @@ const matches = [
   mockMatch({ id: '1', name: 'bar', age: rAge() }, { id: '5', name: 'buzz', age: rAge() }), // relies on blend of first 3 AND a new match
 ];
 
-const entityCount = matches.length + 3;
-
 const availableCsvTypes = {
   adjacencyMatrix: 'Adjacency Matrix',
   attributeList: 'Attribute List',
@@ -298,7 +296,6 @@ class ExportScreen extends Component {
         <ErrorBoundary>
           <EntityResolution show={this.state.exportNetworkUnion} />
           <Resolver
-            entityCount={entityCount}
             matches={matches}
           />
         </ErrorBoundary>
