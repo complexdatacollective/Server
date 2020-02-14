@@ -1,36 +1,36 @@
 import { useReducer } from 'react';
-import { createActions, handleActions } from 'redux-actions';
+import { createAction, handleActions } from 'redux-actions';
 
 const initialState = {};
 
-const actionCreators = createActions({
-  SET_ALL: entity => ({ entity }),
-  SET: (attribute, value) => ({ attribute, value }),
-});
+const actionCreators = {
+  set: createAction('SET', attributes => ({ attributes })),
+  reset: createAction('RESET'),
+};
 
 const entityDiffReducer = handleActions({
-  [actionCreators.setAll]: (state, { payload }) => ({
-    ...payload.entity,
-  }),
   [actionCreators.set]: (state, { payload }) => ({
     ...state,
-    [payload.attribute]: payload.value,
+    ...payload.attributes,
+  }),
+  [actionCreators.reset]: () => ({
+    ...initialState,
   }),
 }, initialState);
 
 const useEntityDiffState = () => {
   const [state, dispatch] = useReducer(entityDiffReducer, initialState);
 
-  const handleSetAll = attributes =>
-    dispatch(actionCreators.setAll(attributes));
+  const set = attributes =>
+    dispatch(actionCreators.set(attributes));
 
-  const handleSet = (variable, value) =>
-    dispatch(actionCreators.set(variable, value));
+  const reset = () =>
+    dispatch(actionCreators.reset());
 
   return [
     state,
-    handleSet,
-    handleSetAll,
+    set,
+    reset,
   ];
 };
 

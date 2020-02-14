@@ -34,14 +34,13 @@ describe('useResolverState', () => {
       );
 
       const expectedResult = [
-        ...initialState,
         {
           index: 3,
           action: 'resolve',
         },
       ];
 
-      const subject = matchesReducer(initialState, skipMatchAction);
+      const subject = matchesReducer([], skipMatchAction);
 
       expect(subject).toEqual(expectedResult);
     });
@@ -71,10 +70,9 @@ describe('useResolverState', () => {
         'resolve',
       );
 
-      const subject = matchesReducer(initialState, skipResolutionAction);
+      const subject = matchesReducer([], skipResolutionAction);
 
       const expectedResult = [
-        ...initialState,
         {
           index: 3,
           action: 'resolve',

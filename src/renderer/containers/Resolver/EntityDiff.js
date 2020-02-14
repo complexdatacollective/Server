@@ -7,45 +7,43 @@ import useEntityState from './useEntityState';
 const EntityDiff = ({
   match,
   onResolve,
-  onNext,
-  onPrevious,
 }) => {
-  const [resolvedEntity, handleSet, handleSetAll] = useEntityState();
+  const [resolvedAttributes, setAttributes, resetAttributes] = useEntityState();
 
   if (!match) { return null; }
 
-  const {
-    a: entityA,
-    b: entityB,
-  } = match;
+  const [a, b] = match.nodes;
 
-  const rows = Object.keys(entityA.attributes)
+  const rows = Object.keys(a.attributes)
     .map(variable => ({
       variable,
-      values: {
-        a: entityA.attributes[variable],
-        b: entityB.attributes[variable],
-      },
-      checked: {
-        a: resolvedEntity[variable] && resolvedEntity[variable] === entityA.attributes[variable],
-        b: resolvedEntity[variable] && resolvedEntity[variable] === entityB.attributes[variable],
-      },
+      values: [
+        a.attributes[variable],
+        b.attributes[variable],
+      ],
+      checked: [
+        resolvedAttributes[variable] && resolvedAttributes[variable] === a.attributes[variable],
+        resolvedAttributes[variable] && resolvedAttributes[variable] === b.attributes[variable],
+      ],
     }));
 
-  const allChecked = {
-    a: isEqual(entityA.attributes, resolvedEntity),
-    b: isEqual(entityB.attributes, resolvedEntity),
-  };
+  const allChecked = [
+    isEqual(a.attributes, resolvedAttributes),
+    isEqual(b.attributes, resolvedAttributes),
+  ];
 
   const handleResolve = useCallback(
-    () => onResolve(match, 'resolve', resolvedEntity),
-    [resolvedEntity],
+    () => {
+      onResolve(match, 'resolve', resolvedAttributes);
+      resetAttributes();
+    },
+    [onResolve, resolvedAttributes, resetAttributes, match],
   );
 
   const handleSkip = useCallback(() => onResolve(match, 'skip'));
 
   return (
-    <div>
+    <div key={match.index}>
       <table>
         <thead>
           <tr>
@@ -53,18 +51,18 @@ const EntityDiff = ({
             <th>
               <Radio
                 label="A"
-                checked={allChecked.a}
+                checked={allChecked[0]}
                 input={{
-                  onChange: () => handleSetAll(entityA.attributes),
+                  onChange: () => setAttributes(match.nodes[0].attributes),
                 }}
               />
             </th>
             <th>
               <Radio
                 label="B"
-                checked={allChecked.b}
+                checked={allChecked[1]}
                 input={{
-                  onChange: () => handleSetAll(entityB.attributes),
+                  onChange: () => setAttributes(match.nodes[1].attributes),
                 }}
               />
             </th>
@@ -76,19 +74,19 @@ const EntityDiff = ({
               <td>{ variable }</td>
               <td>
                 <Radio
-                  label={values.a}
-                  checked={checked.a}
+                  label={values[0]}
+                  checked={checked[0]}
                   input={{
-                    onChange: () => handleSet(variable, values.a),
+                    onChange: () => setAttributes({ [variable]: values[0] }),
                   }}
                 />
               </td>
               <td>
                 <Radio
-                  label={values.b}
-                  checked={checked.b}
+                  label={values[1]}
+                  checked={checked[1]}
                   input={{
-                    onChange: () => handleSet(variable, values.b),
+                    onChange: () => setAttributes({ [variable]: values[1] }),
                   }}
                 />
               </td>
@@ -98,7 +96,6 @@ const EntityDiff = ({
       </table>
 
       <div>
-        {/* <button type="button" onClick={onPrevious}>Previous</button> */}
         <button type="button" onClick={handleSkip}>Skip</button>
         <button type="button" onClick={handleResolve}>Resolve</button>
       </div>
@@ -113,14 +110,11 @@ const EntityPropTypes = PropTypes.shape({
 
 EntityDiff.propTypes = {
   match: PropTypes.shape({
-    a: EntityPropTypes.isRequired,
-    b: EntityPropTypes.isRequired,
+    nodes: PropTypes.arrayOf(EntityPropTypes).isRequired,
     prob: PropTypes.number.isRequired,
     index: PropTypes.number.isRequired,
   }),
   onResolve: PropTypes.func.isRequired,
-  onNext: PropTypes.func.isRequired,
-  onPrevious: PropTypes.func.isRequired,
 };
 
 EntityDiff.defaultProps = {
