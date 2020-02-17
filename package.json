@@ -87,6 +87,7 @@
         "react-dev-utils": "^6.1.1",
         "react-scripts": "^2.1.1",
         "regenerator-runtime": "^0.13.3",
+        "rosie": "^2.0.1",
         "sass-lint": "^1.12.1",
         "sass-loader": "^7.0.3",
         "sass-svg": "^1.0.1",
