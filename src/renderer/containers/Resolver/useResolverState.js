@@ -2,9 +2,8 @@ import { useReducer } from 'react';
 import { createAction, handleActions } from 'redux-actions';
 import { uniq } from 'lodash';
 
-
 const resolveMatch = createAction(
-  'RESOLVE_ENTITY', (match, action, attributes = {}) => ({
+  'RESOLVE_MATCH', (match, action, attributes = {}) => ({
     match: { ...match, nodes: [match.nodes[0].id, match.nodes[1].id] },
     action,
     attributes,
