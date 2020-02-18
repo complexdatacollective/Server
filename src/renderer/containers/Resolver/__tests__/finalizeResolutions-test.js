@@ -12,6 +12,7 @@ const HISTORY = [
 
 describe('finalizeResolutions', () => {
   it('converts a list of historical resolutions in a list of end-changes', () => {
+    // TODO: add lock
     const mockDraftResolutions = HISTORY.map(item => Factory.build('resolutionEntry', item));
     const subject = finalizeResolutions(mockDraftResolutions);
     expect(subject.length).toBe(2);
