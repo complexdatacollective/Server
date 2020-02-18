@@ -4,6 +4,7 @@ import { Modal, Progress, Spinner } from '@codaco/ui';
 import EntityDiff from './EntityDiff';
 import useResolverState from './useResolverState';
 import './Resolver.scss';
+import finializeResolutions from './finalizeResolutions';
 
 const getMatch = (matches, index) => {
   if (matches.length < index + 1) { return null; }
@@ -43,6 +44,11 @@ const Resolver = ({ isLoadingMatches, matches, show }) => {
 
   const isComplete = !isLoadingMatches && state.currentMatchIndex >= matches.length;
 
+  const handleSave = () => {
+    const resolutions = finializeResolutions(state.resolutions);
+    console.log(JSON.stringify({ state, resolutions }, null, 2));
+  };
+
   return (
     <Modal show={show}>
       <div className="resolver">
@@ -58,7 +64,7 @@ const Resolver = ({ isLoadingMatches, matches, show }) => {
             onResolve={onResolve}
           />
         }
-        { isComplete && <button>Save</button> }
+        { isComplete && <button onClick={handleSave}>Save</button> }
       </div>
     </Modal>
   );

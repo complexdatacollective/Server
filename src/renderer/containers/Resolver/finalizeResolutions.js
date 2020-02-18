@@ -1,3 +1,5 @@
+import { reduceRight } from 'lodash';
+
 /**
  * Reduce a draft list of resolutions into a list containing only
  * the latest changes
@@ -5,8 +7,9 @@
  * @param {Object[]} resolutions list of draft resolutions
  */
 const finializeResolutions = (resolutions) => {
-  const result = resolutions.reverse()
-    .reduce((acc, resolution) => {
+  const result = reduceRight(
+    resolutions,
+    (acc, resolution) => {
       // if any of the nodes in this resolution are accounted for, this resolution is complete
       if (resolution.nodes.some(node => acc.nodes.includes(node))) { return acc; }
 
@@ -15,9 +18,11 @@ const finializeResolutions = (resolutions) => {
         nodes: [...acc.nodes, ...resolution.nodes],
         resolutions: [...acc.resolutions, resolution],
       };
-    }, { nodes: [], resolutions: [] });
+    },
+    { nodes: [], resolutions: [] },
+  );
 
-  return result.resolutions.reverse();
+  return result.resolutions;
 };
 
 export default finializeResolutions;

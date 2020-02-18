@@ -1,6 +1,6 @@
 import { useReducer } from 'react';
 import { createAction, handleActions } from 'redux-actions';
-import { uniq } from 'lodash';
+import { uniq, findLast } from 'lodash';
 
 const resolveMatch = createAction(
   'RESOLVE_MATCH', (match, action, attributes = {}) => ({
@@ -21,8 +21,10 @@ export const matchesReducer = (state, { payload: { match, action } }) => {
 };
 
 const getLatestXorResolutionNodes = (state, includeEntity, excludeEntity) => {
-  const resolution = state.reverse()
-    .find(({ nodes }) => nodes.includes(includeEntity) && !nodes.includes(excludeEntity));
+  const resolution = findLast(
+    state,
+    ({ nodes }) => nodes.includes(includeEntity) && !nodes.includes(excludeEntity),
+  );
 
   return resolution ? resolution.nodes : [];
 };
