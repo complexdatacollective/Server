@@ -15,11 +15,17 @@ const EntityDiff = ({
   const [a, b] = match.nodes;
 
   const rows = Object.keys(a.attributes)
+    // remove matching values
+    .filter(variable => a.attributes[variable] !== b.attributes[variable])
     .map(variable => ({
       variable,
       values: [
         a.attributes[variable],
         b.attributes[variable],
+      ],
+      displayValues: [
+        a.attributes[variable] ? a.attributes[variable].toString() : 'undefined',
+        b.attributes[variable] ? b.attributes[variable].toString() : 'undefined',
       ],
       checked: [
         resolvedAttributes[variable] && resolvedAttributes[variable] === a.attributes[variable],
@@ -34,7 +40,11 @@ const EntityDiff = ({
 
   const handleResolve = useCallback(
     () => {
-      onResolve(match, 'resolve', resolvedAttributes);
+      const fullResolvedAttributes = {
+        ...match.nodes[0], // include values we filtered out (ones that were equal)
+        ...resolvedAttributes,
+      };
+      onResolve(match, 'resolve', fullResolvedAttributes);
       resetAttributes();
     },
     [onResolve, resolvedAttributes, resetAttributes, match],
@@ -69,12 +79,12 @@ const EntityDiff = ({
           </tr>
         </thead>
         <tbody>
-          {rows.map(({ variable, values, checked }) => (
+          {rows.map(({ variable, values, displayValues, checked }) => (
             <tr>
               <td>{ variable }</td>
               <td>
                 <Radio
-                  label={values[0]}
+                  label={displayValues[0]}
                   checked={checked[0]}
                   input={{
                     onChange: () => setAttributes({ [variable]: values[0] }),
@@ -83,7 +93,7 @@ const EntityDiff = ({
               </td>
               <td>
                 <Radio
-                  label={values[1]}
+                  label={displayValues[1]}
                   checked={checked[1]}
                   input={{
                     onChange: () => setAttributes({ [variable]: values[1] }),

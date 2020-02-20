@@ -107,6 +107,7 @@
         "classnames": "^2.2.6",
         "detect-port": "^1.2.3",
         "duplex-child-process": "^1.0.0",
+        "electron-ipc-stream": "^0.2.0",
         "jszip": "^3.1.5",
         "libsodium-wrappers": "^0.7.3",
         "lodash": "^4.17.11",
