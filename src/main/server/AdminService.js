@@ -236,56 +236,6 @@ class AdminService {
         .then(() => next());
     });
 
-    // Handles resolution in a single, long-lived http request
-    api.post('/protocols/:protocolId/resolve_requests', (req, res, next) => {
-      apiRequestLogger('AdminAPI')(req, { statusCode: 0 }); // log request start
-
-      let abortRequest;
-      req.on('aborted', () => {
-        if (abortRequest) {
-          logger.debug('Resolve request aborted');
-          abortRequest();
-        }
-      });
-
-      req.setTimeout(0);
-      res.setTimeout(0);
-
-      // TODO: command must be fetched from local system! not req.body!
-      const resolveOptions = {
-        ...req.body,
-        command: req.body.command,
-      };
-
-      this.protocolManager.getProtocol(req.params.protocolId)
-        .then(protocol =>
-          new Promise((resolve, reject) => {
-            this.resolverManager.resolveNetwork(protocol, resolveOptions)
-              .then((resolverStream) => {
-                resolverStream.on('error', (err) => {
-                  reject(err);
-                });
-
-                resolverStream.on('data', (data) => {
-                  console.log(`DATA: "${data.toString()}"`);
-                  res.write(data);
-                  res.write('\n');
-                });
-
-                resolverStream.on('end', () => {
-                  res.end();
-                  resolve();
-                });
-              });
-          }),
-        )
-        .catch((err) => {
-          logger.error(err);
-          res.send(codeForError(err), { status: 'error', message: err.message });
-        })
-        .then(() => next());
-    });
-
     // See ExportManager#createExportFile for possible req body params
     // Handles export in a single, long-lived http request
     api.post('/protocols/:protocolId/export_requests', (req, res, next) => {

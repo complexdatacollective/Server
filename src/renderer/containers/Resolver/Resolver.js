@@ -78,7 +78,7 @@ Resolver.propTypes = {
 
 Resolver.defaultProps = {
   isLoadingMatches: false, // TODO: true
-  show: true,
+  show: false,
 };
 
 export default Resolver;

@@ -101,8 +101,7 @@ class ResolverManager {
               const b = getAttributesForNode(network, obj.networkCanvasAlterID_2);
 
               const r = {
-                a,
-                b,
+                nodes: [a, b],
                 prob: parseFloat(obj.prob),
               };
 

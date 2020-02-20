@@ -15,6 +15,7 @@ import Types from '../types';
 import ErrorBoundary from '../components/ErrorBoundary';
 import ExportModal from '../components/ExportModal';
 import withApiClient from '../components/withApiClient';
+import withResolverClient from '../components/withResolverClient';
 import { selectors } from '../ducks/modules/protocols';
 import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
 import EntityResolution from './EntityResolution';
@@ -52,6 +53,8 @@ class ExportScreen extends Component {
       csvTypes: new Set([...Object.keys(availableCsvTypes), 'ego']),
       useDirectedEdges: true,
       useEgoData: true,
+      matches: [],
+      loadingMatches: false,
     };
   }
 
@@ -88,6 +91,9 @@ class ExportScreen extends Component {
       return;
     }
 
+    this.resolve();
+    return;
+
     const defaultName = this.props.protocol.name || 'network-canvas-data';
     const exportDialog = {
       title: 'Export ',
@@ -118,6 +124,53 @@ class ExportScreen extends Component {
 
   formatsAreValid() {
     return this.state.exportFormat === 'graphml' || this.state.csvTypes.size > 0;
+  }
+
+  resolve = () => {
+    const { resolverClient, protocol: { id: protocolId } } = this.props;
+    if (!resolverClient) { return Promise.reject(); }
+
+    const {
+      exportFormat,
+      exportNetworkUnion,
+      csvTypes,
+      useDirectedEdges,
+      useEgoData,
+    } = this.state;
+
+    const csvTypesNoEgo = new Set(this.state.csvTypes);
+    csvTypesNoEgo.delete('ego');
+    const exportCsvTypes = useEgoData ? csvTypes : csvTypesNoEgo;
+    const showCsvOpts = exportFormat === 'csv';
+
+    return resolverClient.request(
+      protocolId,
+      {
+        command: '/Users/steve/Projects/teamgarlic/codaco/network-canvas-er/EntityResolution',
+        exportFormats: (exportFormat === 'csv' && [...exportCsvTypes]) || [exportFormat],
+        exportNetworkUnion,
+        useDirectedEdges,
+        useEgoData: useEgoData && showCsvOpts,
+      },
+    )
+      .then(resolverStream => new Promise((resolve, reject) => {
+        this.setState(state => ({ ...state, matches: [], isLoadingMatches: true }));
+
+        resolverStream.on('error', (err) => {
+          reject(err);
+        });
+
+        resolverStream.on('data', (data) => {
+          const match = JSON.parse(data.toString());
+          console.log(match);
+          this.setState(state => ({ ...state, matches: [...state.matches, match] }));
+        });
+
+        resolverStream.on('end', () => {
+          this.setState(state => ({ ...state, isLoadingMatches: false }));
+          resolve();
+        });
+      }));
   }
 
   exportToFile = (destinationFilepath) => {
@@ -297,7 +350,9 @@ class ExportScreen extends Component {
         <ErrorBoundary>
           <EntityResolution show={this.state.exportNetworkUnion} />
           <Resolver
-            matches={matches}
+            matches={this.state.matches}
+            isLoadingMatches={this.state.loadingMatches}
+            show={this.state.matches.length > 0}
           />
         </ErrorBoundary>
         <div className="export__section">
@@ -339,6 +394,7 @@ const mapDispatchToProps = dispatch => ({
 export default compose(
   connect(mapStateToProps, mapDispatchToProps),
   withApiClient,
+  withResolverClient,
   withRouter,
 )(ExportScreen);
 
