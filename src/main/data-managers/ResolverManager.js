@@ -2,6 +2,7 @@
 
 const path = require('path');
 const split = require('split');
+const miss = require('mississippi');
 const CsvAsJsonStream = require('../utils/streams/CsvAsJsonStream');
 const MapStream = require('../utils/streams/MapStream');
 const { convertUuidToDecimal, nodePrimaryKeyProperty, nodeAttributesProperty } = require('../utils/formatters/network');
@@ -24,12 +25,11 @@ const networkResolver = ({
   codebook,
 } = {}) =>
   network =>
-    new Promise((resolve, reject) => {
+    new Promise((resolve) => {
       const formatter = new AttributeListFormatter(network, false, false, codebook);
       const resolver = commandRunner(command);
-      resolver.on('error', (err) => { reject(err); });
-      formatter.writeToStream(resolver); // does this need to happen later?
       resolve(resolver);
+      formatter.writeToStream(resolver); // does this need to happen later?
     });
 
 const findNode = findId =>
@@ -94,6 +94,7 @@ class ResolverManager {
         networkResolver({ useEgoData, command, codebook })(network)
           .then((resolverStream) => {
             const jsonStream = new CsvAsJsonStream();
+            // use mississippi mapper
             const networkMapper = new MapStream((pair, callback) => {
               const obj = JSON.parse(pair);
 
@@ -108,12 +109,14 @@ class ResolverManager {
               callback(null, JSON.stringify(r));
             });
 
-            resolverStream
-              .pipe(split())
-              .pipe(jsonStream)
-              .pipe(networkMapper);
+            const s = miss.pipeline(
+              resolverStream,
+              split(),
+              jsonStream,
+              networkMapper,
+            );
 
-            return networkMapper;
+            return s;
           }),
       );
   }

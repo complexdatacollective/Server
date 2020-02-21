@@ -1,8 +1,11 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { isEqual } from 'lodash';
+import { isEqual, isNil } from 'lodash';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import useEntityState from './useEntityState';
+
+const formatVariable = variable =>
+  (isNil(variable) ? 'not set' : variable.toString());
 
 const EntityDiff = ({
   match,
@@ -15,21 +18,17 @@ const EntityDiff = ({
   const [a, b] = match.nodes;
 
   const rows = Object.keys(a.attributes)
-    // remove matching values
-    .filter(variable => a.attributes[variable] !== b.attributes[variable])
     .map(variable => ({
       variable,
+      notSet: isNil(a.attributes[variable]) && isNil(b.attributes[variable]),
+      matching: a.attributes[variable] === b.attributes[variable],
       values: [
         a.attributes[variable],
         b.attributes[variable],
       ],
-      displayValues: [
-        a.attributes[variable] ? a.attributes[variable].toString() : 'undefined',
-        b.attributes[variable] ? b.attributes[variable].toString() : 'undefined',
-      ],
       checked: [
-        resolvedAttributes[variable] && resolvedAttributes[variable] === a.attributes[variable],
-        resolvedAttributes[variable] && resolvedAttributes[variable] === b.attributes[variable],
+        Object.prototype.hasOwnProperty.call(resolvedAttributes, variable) && resolvedAttributes[variable] === a.attributes[variable],
+        Object.prototype.hasOwnProperty.call(resolvedAttributes, variable) && resolvedAttributes[variable] === b.attributes[variable],
       ],
     }));
 
@@ -41,7 +40,7 @@ const EntityDiff = ({
   const handleResolve = useCallback(
     () => {
       const fullResolvedAttributes = {
-        ...match.nodes[0], // include values we filtered out (ones that were equal)
+        ...match.nodes[0].attributes, // include values we filtered out (ones that were equal)
         ...resolvedAttributes,
       };
       onResolve(match, 'resolve', fullResolvedAttributes);
@@ -79,31 +78,37 @@ const EntityDiff = ({
           </tr>
         </thead>
         <tbody>
-          {rows.map(({ variable, values, displayValues, checked }) => (
-            <tr>
-              <td>{ variable }</td>
-              <td>
-                <Radio
-                  label={displayValues[0]}
-                  checked={checked[0]}
-                  input={{
-                    onChange: () => setAttributes({ [variable]: values[0] }),
-                  }}
-                />
-              </td>
-              <td>
-                <Radio
-                  label={displayValues[1]}
-                  checked={checked[1]}
-                  input={{
-                    onChange: () => setAttributes({ [variable]: values[1] }),
-                  }}
-                />
-              </td>
-            </tr>
-          ))}
+          {rows
+            .filter(({ matching }) => !matching)
+            .map(({ variable, values, checked }) => (
+              <tr>
+                <td>{ variable }</td>
+                <td>
+                  <Radio
+                    label={formatVariable(values[0])}
+                    checked={checked[0]}
+                    input={{
+                      onChange: () => setAttributes({ [variable]: values[0] }),
+                    }}
+                  />
+                </td>
+                <td>
+                  <Radio
+                    label={formatVariable(values[1])}
+                    checked={checked[1]}
+                    input={{
+                      onChange: () => setAttributes({ [variable]: values[1] }),
+                    }}
+                  />
+                </td>
+              </tr>
+            ))}
         </tbody>
       </table>
+
+      <div>
+        <p>{rows.filter(({ matching }) => matching).length} matching rows auto merged.</p>
+      </div>
 
       <div>
         <button type="button" onClick={handleSkip}>Skip</button>

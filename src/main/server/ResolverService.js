@@ -1,7 +1,7 @@
 const { ipcMain } = require('electron');
 const logger = require('electron-log');
 const IPCStream = require('electron-ipc-stream');
-const apiRequestLogger = require('./apiRequestLogger');
+const miss = require('mississippi');
 const ProtocolManager = require('../data-managers/ProtocolManager');
 const ResolverManager = require('../data-managers/ResolverManager');
 
@@ -39,18 +39,19 @@ class ResolverService {
 
     this.request(protocolId, options)
       .then((resolverStream) => {
+        resolverStream.on('error', (err) => {
+          // IPCStream is not a true stream and does not support errors, perhaps consider
+          // using plain IPC messages?
+          ipcs.write(JSON.stringify({ error: err.stack }));
+          ipcs.destroy();
+        });
         resolverStream.pipe(ipcs);
       });
   }
 
   request(protocolId, options) {
     return this.protocolManager.getProtocol(protocolId)
-      .then(protocol =>
-        this.resolverManager.resolveNetwork(protocol, options),
-      )
-      .catch((err) => {
-        logger.error(err);
-      });
+      .then(protocol => this.resolverManager.resolveNetwork(protocol, options));
   }
 }
 
