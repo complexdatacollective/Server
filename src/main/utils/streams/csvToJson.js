@@ -49,4 +49,4 @@ class CsvAsJsonStream extends Transform {
   }
 }
 
-module.exports = CsvAsJsonStream;
+module.exports = () => new CsvAsJsonStream();

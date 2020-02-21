@@ -93,7 +93,9 @@ class ExportScreen extends Component {
 
     // for debugging
     this.resolve()
-      .catch(console.log);
+      .catch((e) => {
+        remote.dialog.showMessageBox({ type: 'error', message: e });
+      });
 
     return;
 
@@ -167,17 +169,17 @@ class ExportScreen extends Component {
             return;
           }
 
-          console.log('data', data);
-
           this.setState(state => ({ ...state, matches: [...state.matches, data] }));
         });
 
         resolverStream.on('end', () => {
-          console.log('stream ended');
           this.setState(state => ({ ...state, isLoadingMatches: false }));
           resolve();
         });
-      }));
+      }))
+      .catch((e) => {
+        this.setState(state => ({ ...state, isLoadingMatches: false, matchLoadingError: e }));
+      });
   }
 
   exportToFile = (destinationFilepath) => {

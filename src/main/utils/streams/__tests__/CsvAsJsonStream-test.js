@@ -1,8 +1,8 @@
 /* eslint-env jest */
 
-const CsvAsJsonStream = require('../CsvAsJsonStream');
+const csvToJson = require('../csvToJson');
 
-describe('CsvAsJsonStream', () => {
+describe('csvToJson', () => {
   it('converts a csv table into a stream of json objects using the first chuck as the headings', (done) => {
     const streamData = [
       'first_name,last_name, value0',
@@ -16,7 +16,7 @@ describe('CsvAsJsonStream', () => {
       { first_name: 'Nick"', last_name: 'Carraway', value0: '7' },
       { first_name: 'Don', last_name: 'Quixote', value0: '3' },
     ];
-    const csvAsJsonStream = new CsvAsJsonStream();
+    const csvAsJsonStream = csvToJson();
     const streamOutput = [];
 
     csvAsJsonStream.on('data', (data) => {
@@ -42,7 +42,7 @@ describe('CsvAsJsonStream', () => {
       'Nick, Carraway',
     ];
 
-    const csvAsJsonStream = new CsvAsJsonStream();
+    const csvAsJsonStream = csvToJson();
 
     csvAsJsonStream.on('error', (err) => {
       expect(err).toEqual('Length values does not match length of headings (in first row).');

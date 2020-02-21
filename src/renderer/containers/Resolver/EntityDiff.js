@@ -79,7 +79,11 @@ const EntityDiff = ({
         </thead>
         <tbody>
           {rows
-            .filter(({ matching }) => !matching)
+            // hide rows that match, except 'name'
+            .filter(
+              ({ matching, variable }) =>
+                !matching || variable === 'name',
+            )
             .map(({ variable, values, checked }) => (
               <tr>
                 <td>{ variable }</td>
