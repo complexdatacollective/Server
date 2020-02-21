@@ -1,7 +1,6 @@
 const { ipcMain } = require('electron');
 const logger = require('electron-log');
 const IPCStream = require('electron-ipc-stream');
-const miss = require('mississippi');
 const ProtocolManager = require('../data-managers/ProtocolManager');
 const ResolverManager = require('../data-managers/ResolverManager');
 
