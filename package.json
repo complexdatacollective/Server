@@ -112,6 +112,7 @@
         "libsodium-wrappers": "^0.7.3",
         "lodash": "^4.17.11",
         "mdns": "^2.5.1",
+        "mississippi": "^4.0.0",
         "nedb": "^1.8.0",
         "prop-types": "^15.6.2",
         "react": "^16.4.1",

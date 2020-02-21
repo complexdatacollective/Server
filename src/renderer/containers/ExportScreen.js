@@ -91,7 +91,10 @@ class ExportScreen extends Component {
       return;
     }
 
-    this.resolve();
+    // for debugging
+    this.resolve()
+      .catch(console.log);
+
     return;
 
     const defaultName = this.props.protocol.name || 'network-canvas-data';
@@ -155,17 +158,22 @@ class ExportScreen extends Component {
       .then(resolverStream => new Promise((resolve, reject) => {
         this.setState(state => ({ ...state, matches: [], isLoadingMatches: true }));
 
-        resolverStream.on('error', (err) => {
-          reject(err);
-        });
+        resolverStream.on('data', (d) => {
+          const data = JSON.parse(d.toString());
+          // IPC streams aren't real streams so we use a custom error message
+          if (data.error) {
+            resolverStream.destroy();
+            reject(data.error);
+            return;
+          }
 
-        resolverStream.on('data', (data) => {
-          const match = JSON.parse(data.toString());
-          console.log(match);
-          this.setState(state => ({ ...state, matches: [...state.matches, match] }));
+          console.log('data', data);
+
+          this.setState(state => ({ ...state, matches: [...state.matches, data] }));
         });
 
         resolverStream.on('end', () => {
+          console.log('stream ended');
           this.setState(state => ({ ...state, isLoadingMatches: false }));
           resolve();
         });
