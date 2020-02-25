@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import uuid from 'uuid';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Redirect, withRouter } from 'react-router-dom';
@@ -20,23 +19,6 @@ import { selectors } from '../ducks/modules/protocols';
 import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
 import EntityResolution from './EntityResolution';
 import Resolver from './Resolver';
-
-const mockMatch = ({ id: idA, ...a }, { id: idB, ...b }) => ({
-  nodes: [
-    { id: idA, attributes: a },
-    { id: idB, attributes: b },
-  ],
-  prob: Math.random(),
-});
-
-const rAge = () => Math.ceil(Math.random() * 100);
-
-const matches = [
-  mockMatch({ id: '1', name: 'bar', age: rAge() }, { id: '2', name: 'baarrr', age: rAge() }),
-  mockMatch({ id: '3', name: 'bazz', age: rAge() }, { id: '4', name: 'bye', age: rAge() }),
-  mockMatch({ id: '1', name: 'bar', age: rAge() }, { id: '3', name: 'bazz', age: rAge() }), // relies on blend of first two
-  mockMatch({ id: '1', name: 'bar', age: rAge() }, { id: '5', name: 'buzz', age: rAge() }), // relies on blend of first 3 AND a new match
-];
 
 const availableCsvTypes = {
   adjacencyMatrix: 'Adjacency Matrix',
@@ -252,13 +234,19 @@ class ExportScreen extends Component {
 
     return (
       <form className="export" onSubmit={this.handleSubmit}>
-        {
-          <ExportModal
-            className="modal--export"
-            show={exportInProgress}
-            handleCancel={this.handleCancel}
+        <ExportModal
+          className="modal--export"
+          show={exportInProgress}
+          handleCancel={this.handleCancel}
+        />
+        <ErrorBoundary>
+          <Resolver
+            matches={this.state.matches}
+            isLoadingMatches={this.state.loadingMatches}
+            show={this.state.matches.length > 0}
+            onResolved={this.handleResolved}
           />
-        }
+        </ErrorBoundary>
         <h1>Export Data</h1>
         <div className="export__section">
           <h3>File Type</h3>
@@ -379,17 +367,12 @@ class ExportScreen extends Component {
           </div>
         </div>
         <ErrorBoundary>
-          <EntityResolution show={this.state.exportNetworkUnion} />
-          <Resolver
-            matches={this.state.matches}
-            isLoadingMatches={this.state.loadingMatches}
-            show={this.state.matches.length > 0}
-            onResolved={this.handleResolved}
+          <EntityResolution
+            show={this.state.exportNetworkUnion}
+            showError={this.props.showError}
+            protocolId={protocol.id}
           />
         </ErrorBoundary>
-        <div className="export__section">
-          <br />
-        </div>
         <div className="export__footer">
           <Button color="platinum" onClick={() => history.goBack()}>Cancel</Button>&nbsp;
           <Button type="submit" disabled={exportInProgress}>Export</Button>

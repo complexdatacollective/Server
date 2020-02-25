@@ -1,7 +1,6 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
 const { DateTime } = require('luxon');
 const DatabaseAdapter = require('./DatabaseAdapter');
-const Reportable = require('./Reportable');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
 
 // protocolID
@@ -14,7 +13,7 @@ const { ErrorMessages, RequestError } = require('../errors/RequestError');
 /**
  * @extends DatabaseAdapter
  */
-class ResolverDB extends Reportable(DatabaseAdapter) {
+class ResolverDB extends DatabaseAdapter {
   /**
    *
    * @param {Object} protocol (known to exist in DB) containing an _id
@@ -50,6 +49,11 @@ class ResolverDB extends Reportable(DatabaseAdapter) {
         }
       });
     });
+  }
+
+  getResolutions(protocolId) {
+    // TODO: filter by id
+    return this.all();
   }
 }
 

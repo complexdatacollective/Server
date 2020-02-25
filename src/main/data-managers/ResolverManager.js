@@ -132,6 +132,10 @@ class ResolverManager {
       .then(networks => unionOfNetworks(networks));
   }
 
+  getResolutions(protocolId) {
+    return this.resolverDB.getResolutions(protocolId);
+  }
+
   saveResolutions(protocolId, resolverPath, resolverParams, resolutions) {
     return this.resolverDB.insertResolutions(protocolId, resolverPath, resolverParams, resolutions);
   }
