@@ -1,17 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import Checkbox from '@codaco/ui/lib/components/Fields/Checkbox';
+import withApiClient from '../../components/withApiClient';
 import Snapshot from './Snapshot';
 import useEntityResolutionState, { actionCreators } from './useEntityResolutionState';
 import NewSnapshot from './NewSnapshot';
 
-const EntityResolution = () => {
+const EntityResolution = ({ apiClient, showError, protocolId }) => {
   const [state, dispatch] = useEntityResolutionState();
 
-  const snapshots = [
+  const [resolutionHistory, setResolutionHistory] = useState([
     { id: 1, date: '06/02/2020', sessions: 10, settings: { path: 'fwpwfp wfpwfp' } },
     { id: 2, date: '07/02/2020', sessions: 10, settings: { path: 'rstf pwfpwfp' } },
-  ];
+  ]);
+
+  console.log(resolutionHistory);
+
+  useEffect(() => {
+    if (!protocolId) { return; }
+    apiClient
+      .get(`/protocols/${protocolId}/resolutions`)
+      .then(({ resolutions }) => setResolutionHistory(resolutions))
+      .catch(err => showError(err.message));
+  }, [protocolId]);
 
   const handleToggleEntityResolution = () =>
     dispatch(actionCreators.toggleEntityResolution());
@@ -42,12 +53,12 @@ const EntityResolution = () => {
         <div className="export__subpanel">
           <h4>Select resolution:</h4>
           <div className="export__subpanel-content">
-            {snapshots.map((snapshot, index) => (
+            {resolutionHistory.map((snapshot, index) => (
               <Snapshot
                 key={snapshot.id}
                 onSelect={handleSelectSnapshot}
                 onRollback={() => {}}
-                canRollback={snapshots.length !== index + 1}
+                canRollback={resolutionHistory.length !== index + 1}
                 isSelected={state.selectedSnapshot === snapshot.id}
                 {...snapshot}
               />
@@ -67,4 +78,4 @@ EntityResolution.propTypes = {
   show: PropTypes.bool.isRequired,
 };
 
-export default EntityResolution;
+export default withApiClient(EntityResolution);

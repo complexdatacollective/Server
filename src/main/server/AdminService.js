@@ -236,6 +236,18 @@ class AdminService {
         .then(() => next());
     });
 
+    api.get('/protocols/:protocolId/resolutions', (req, res, next) => {
+      apiRequestLogger('AdminAPI')(req, { statusCode: 0 }); // log request start
+
+      this.resolverManager.getResolutions(req.params.protocolId)
+        .then(resolutions => res.send({ status: 'ok', resolutions }))
+        .catch((err) => {
+          logger.error(err);
+          res.send(500, { status: 'error' });
+        })
+        .then(() => next());
+    });
+
     api.post('/protocols/:protocolId/save_resolutions', (req, res, next) => {
       apiRequestLogger('AdminAPI')(req, { statusCode: 0 }); // log request start
 
