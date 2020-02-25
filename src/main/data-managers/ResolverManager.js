@@ -112,6 +112,7 @@ class ResolverManager {
   constructor(dataDir) {
     const resolverDBFile = path.join(dataDir, 'db', 'resolver.db');
     this.resolverDB = new ResolverDB(resolverDBFile);
+    console.log(resolverDBFile);
     const sessionDbFile = path.join(dataDir, 'db', 'sessions.db');
     this.sessionDB = new SessionDB(sessionDbFile);
   }
@@ -136,8 +137,8 @@ class ResolverManager {
     return this.resolverDB.getResolutions(protocolId);
   }
 
-  saveResolutions(protocolId, resolverPath, resolverParams, resolutions) {
-    return this.resolverDB.insertResolutions(protocolId, resolverPath, resolverParams, resolutions);
+  saveResolution(protocolId, options, resolutions) {
+    return this.resolverDB.insertResolutions(protocolId, options, resolutions);
   }
 
   resolveProtocol(

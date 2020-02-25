@@ -6,7 +6,6 @@ import Radio from '@codaco/ui/lib/components/Fields/Radio';
 
 const Snapshot = ({
   date,
-  sessions,
   settings,
   id,
   isSelected,
@@ -27,13 +26,12 @@ const Snapshot = ({
             onChange: () => onSelect(id),
           }}
         />
-        {/* {sessions} */}
-        {/* { canRollback &&
+        { canRollback &&
           <button type="button">rollback</button>
-        } */}
+        }
       </div>
       <div>
-        {/* {settings.path} */}
+        {settings.path}
       </div>
     </div>
   );

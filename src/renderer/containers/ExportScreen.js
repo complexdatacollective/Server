@@ -37,6 +37,7 @@ class ExportScreen extends Component {
       useEgoData: true,
       matches: [],
       loadingMatches: false,
+      entityResolutionOptions: {},
     };
   }
 
@@ -67,6 +68,9 @@ class ExportScreen extends Component {
     this.setState({ useEgoData: evt.target.checked });
   }
 
+  handleUpdateEntityResolutionOptions = (entityResolutionOptions) => {
+    this.setState({ entityResolutionOptions });
+  }
 
   handleResolved = (resolutions) => {
     this.saveResolutions(resolutions);
@@ -182,7 +186,7 @@ class ExportScreen extends Component {
     }
 
     apiClient
-      .post(`/protocols/${protocolId}/save_resolutions`, { resolutions })
+      .post(`/protocols/${protocolId}/resolutions`, { options: {}, resolutions })
       .catch(err => showError(err.message))
       .then(() => this.setState({ exportInProgress: false }));
   }
@@ -372,6 +376,7 @@ class ExportScreen extends Component {
             show={this.state.exportNetworkUnion}
             showError={this.props.showError}
             protocolId={protocol.id}
+            onUpdateOptions={this.handleUpdateEntityResolutionOptions}
           />
         </ErrorBoundary>
         <div className="export__footer">
