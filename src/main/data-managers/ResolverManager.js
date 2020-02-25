@@ -132,7 +132,11 @@ class ResolverManager {
       .then(networks => unionOfNetworks(networks));
   }
 
-  resolveNetwork(
+  saveResolutions(protocolId, resolverPath, resolverParams, resolutions) {
+    return this.resolverDB.insertResolutions(protocolId, resolverPath, resolverParams, resolutions);
+  }
+
+  resolveProtocol(
     protocol,
     {
       useEgoData,

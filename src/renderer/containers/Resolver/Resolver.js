@@ -36,7 +36,7 @@ const getMatchOrResolved = (match, resolutions) => {
   };
 };
 
-const Resolver = ({ isLoadingMatches, matches, show }) => {
+const Resolver = ({ isLoadingMatches, matches, show, onResolved }) => {
   const [state, onResolve] = useResolverState();
 
   const match = getMatch(matches, state.currentMatchIndex);
@@ -44,9 +44,9 @@ const Resolver = ({ isLoadingMatches, matches, show }) => {
 
   const isComplete = !isLoadingMatches && state.currentMatchIndex >= matches.length;
 
-  const handleSave = () => {
+  const handleFinish = () => {
     const resolutions = finializeResolutions(state.resolutions);
-    console.log(JSON.stringify({ state, resolutions }, null, 2));
+    onResolved(resolutions);
   };
 
   return (
@@ -64,7 +64,7 @@ const Resolver = ({ isLoadingMatches, matches, show }) => {
             onResolve={onResolve}
           />
         }
-        { isComplete && <button onClick={handleSave}>Save</button> }
+        { isComplete && <button onClick={handleFinish}>Save</button> }
       </div>
     </Modal>
   );

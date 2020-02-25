@@ -10,7 +10,7 @@ const eventTypes = {
  * Provides an IPC API for resolution clients on the same machine.
  */
 class resolverClient {
-  static request(protocolId, options) {
+  static resolveProtocol(protocolId, options) {
     const requestId = `resolve-request-${uuid()}`;
 
     return new Promise((resolve) => {

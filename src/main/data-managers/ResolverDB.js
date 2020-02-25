@@ -1,4 +1,5 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
+const { DateTime } = require('luxon');
 const DatabaseAdapter = require('./DatabaseAdapter');
 const Reportable = require('./Reportable');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
@@ -25,19 +26,22 @@ class ResolverDB extends Reportable(DatabaseAdapter) {
    * @return {Array} saved sessions
    * @throws {RequestError|Error}
    */
-  insertSnapshot(protocolId, resolverPath, resolverParams, result, transforms) {
+  insertResolutions(protocolId, command, params, resolutions) {
     return new Promise((resolve, reject) => {
       if (!protocolId) {
         reject(new RequestError(ErrorMessages.NotFound));
         return;
       }
 
+      // save current date
+      const date = DateTime.local().toISO();
+
       this.db.insert({
         protocolId,
-        resolverPath,
-        resolverParams,
-        result,
-        transforms,
+        date,
+        command,
+        params,
+        resolutions,
       }, (err, docs) => {
         if (err) {
           reject(err);
