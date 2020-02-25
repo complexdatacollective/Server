@@ -236,6 +236,25 @@ class AdminService {
         .then(() => next());
     });
 
+    api.post('/protocols/:protocolId/save_resolutions', (req, res, next) => {
+      apiRequestLogger('AdminAPI')(req, { statusCode: 0 }); // log request start
+
+      const { command, params, resolutions } = req.body;
+
+      this.resolverManager.saveResolutions(
+        req.params.protocolId,
+        command,
+        params,
+        resolutions,
+      )
+        .then(() => res.send({ status: 'ok' }))
+        .catch((err) => {
+          logger.error(err);
+          res.send(codeForError(err), { status: 'error', message: err.message });
+        })
+        .then(() => next());
+    });
+
     // See ExportManager#createExportFile for possible req body params
     // Handles export in a single, long-lived http request
     api.post('/protocols/:protocolId/export_requests', (req, res, next) => {

@@ -36,7 +36,7 @@ class ResolverService {
     logger.debug('[ResoverService]', eventTypes.RESOLVE_REQUEST, protocolId, requestId, JSON.stringify(options));
     const ipcs = new IPCStream(requestId, event.sender);
 
-    this.request(protocolId, options)
+    this.resolveProtocol(protocolId, options)
       .then((resolverStream) => {
         resolverStream.on('error', (err) => {
           // IPCStream is not a true stream and does not support errors, perhaps consider
@@ -48,9 +48,9 @@ class ResolverService {
       });
   }
 
-  request(protocolId, options) {
+  resolveProtocol(protocolId, options) {
     return this.protocolManager.getProtocol(protocolId)
-      .then(protocol => this.resolverManager.resolveNetwork(protocol, options));
+      .then(protocol => this.resolverManager.resolveProtocol(protocol, options));
   }
 }
 

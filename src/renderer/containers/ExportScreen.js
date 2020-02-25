@@ -85,20 +85,37 @@ class ExportScreen extends Component {
     this.setState({ useEgoData: evt.target.checked });
   }
 
-  handleExport = () => {
+
+  handleResolved = (resolutions) => {
+    this.saveResolutions(resolutions);
+      // .then(this.promptAndExport);
+  }
+
+  handleSubmit = () => {
     if (!this.formatsAreValid()) {
       this.props.showError('Please select at least one file type to export');
       return;
     }
 
     // for debugging
-    this.resolve()
+    this.resolveProtocol()
       .catch((e) => {
         remote.dialog.showMessageBox({ type: 'error', message: e });
       });
 
     return;
 
+    this.promptAndExport();
+  }
+
+  handleCancel = () => {
+    // this.setState({ exportInProgress: false });
+    // TODO: cancel underlying requests with an AbortController (requires Electron 3+)
+    // Temporary workaround:
+    remote.getCurrentWindow().reload();
+  }
+
+  promptAndExport = () => {
     const defaultName = this.props.protocol.name || 'network-canvas-data';
     const exportDialog = {
       title: 'Export ',
@@ -119,18 +136,11 @@ class ExportScreen extends Component {
     });
   }
 
-  handleCancel = () => {
-    // this.setState({ exportInProgress: false });
-    // TODO: cancel underlying requests with an AbortController (requires Electron 3+)
-    // Temporary workaround:
-    remote.getCurrentWindow().reload();
-  }
-
   formatsAreValid() {
     return this.state.exportFormat === 'graphml' || this.state.csvTypes.size > 0;
   }
 
-  resolve = () => {
+  resolveProtocol = () => {
     const { resolverClient, protocol: { id: protocolId } } = this.props;
     if (!resolverClient) { return Promise.reject(); }
 
@@ -147,7 +157,7 @@ class ExportScreen extends Component {
     const exportCsvTypes = useEgoData ? csvTypes : csvTypesNoEgo;
     const showCsvOpts = exportFormat === 'csv';
 
-    return resolverClient.request(
+    return resolverClient.resolveProtocol(
       protocolId,
       {
         command: '/Users/steve/Projects/teamgarlic/codaco/network-canvas-er/EntityResolution',
@@ -180,6 +190,18 @@ class ExportScreen extends Component {
       .catch((e) => {
         this.setState(state => ({ ...state, isLoadingMatches: false, matchLoadingError: e }));
       });
+  }
+
+  saveResolutions = (resolutions) => {
+    const { apiClient, showError, protocol: { id: protocolId } } = this.props;
+    if (!apiClient) {
+      return;
+    }
+
+    apiClient
+      .post(`/protocols/${protocolId}/save_resolutions`, { resolutions })
+      .catch(err => showError(err.message))
+      .then(() => this.setState({ exportInProgress: false }));
   }
 
   exportToFile = (destinationFilepath) => {
@@ -229,7 +251,7 @@ class ExportScreen extends Component {
     const { exportInProgress } = this.state;
 
     return (
-      <form className="export" onSubmit={this.handleExport}>
+      <form className="export" onSubmit={this.handleSubmit}>
         {
           <ExportModal
             className="modal--export"
@@ -362,6 +384,7 @@ class ExportScreen extends Component {
             matches={this.state.matches}
             isLoadingMatches={this.state.loadingMatches}
             show={this.state.matches.length > 0}
+            onResolved={this.handleResolved}
           />
         </ErrorBoundary>
         <div className="export__section">

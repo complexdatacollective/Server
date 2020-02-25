@@ -19,6 +19,7 @@
         "libsodium-wrappers": "^0.7.3",
         "electron-ipc-stream": "^0.2.0",
         "lodash": "^4.17.11",
+        "luxon": "^1.22.0",
         "mdns": "^2.5.1",
         "nedb": "^1.8.0",
         "prop-types": "^15.6.2",
