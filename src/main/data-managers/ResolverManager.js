@@ -88,22 +88,28 @@ const getNetworkResolver = ({
   command,
   codebook,
 } = {}) =>
-  network =>
-    new Promise((resolve) => { // TODO: is there any need for this to be a promise?
-      const formatter = new AttributeListFormatter(network, false, false, codebook);
-      const resolver = commandRunner(command);
+  (network) => {
+    const formatter = new AttributeListFormatter(network, false, false, codebook);
 
-      const pipeline = miss.pipeline(
-        resolver,
-        split(),
-        csvToJson(),
-        appendNodeNetworkData(network),
-      );
+    return commandRunner(command)
+      .then((resolver) => {
+        const pipeline = miss.pipeline(
+          resolver(),
+          split(),
+          csvToJson(),
+          appendNodeNetworkData(network),
+        );
 
-      resolve(pipeline);
+        formatter.writeToStream(pipeline);
+        return pipeline;
+      });
+  };
 
-      formatter.writeToStream(resolver);
-    });
+const mapResolutions = resolutions =>
+  resolutions.map(resolution => ({
+    ...resolution,
+    id: resolution._id,
+  }));
 
 /**
  * Interface for data resolution
@@ -112,7 +118,6 @@ class ResolverManager {
   constructor(dataDir) {
     const resolverDBFile = path.join(dataDir, 'db', 'resolver.db');
     this.resolverDB = new ResolverDB(resolverDBFile);
-    console.log(resolverDBFile);
     const sessionDbFile = path.join(dataDir, 'db', 'sessions.db');
     this.sessionDB = new SessionDB(sessionDbFile);
   }
@@ -134,11 +139,12 @@ class ResolverManager {
   }
 
   getResolutions(protocolId) {
-    return this.resolverDB.getResolutions(protocolId);
+    return this.resolverDB.getResolutions(protocolId)
+      .then(mapResolutions);
   }
 
   saveResolution(protocolId, options, resolutions) {
-    return this.resolverDB.insertResolutions(protocolId, options, resolutions);
+    return this.resolverDB.insertResolution(protocolId, options, resolutions);
   }
 
   resolveProtocol(

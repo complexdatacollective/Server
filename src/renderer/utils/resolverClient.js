@@ -1,6 +1,19 @@
 const { ipcRenderer } = require('electron');
 const uuid = require('uuid');
+const { through, pipeline } = require('mississippi');
 const IPCStream = require('electron-ipc-stream');
+
+// Make our IPCStream emit events
+const IPCErrorTranform = through((chunk, encoding, callback) => {
+  const data = JSON.parse(chunk.toString());
+  // IPC streams aren't real streams so we use a custom error message
+  if (data.error) {
+    callback(data.error);
+    return;
+  }
+
+  callback(null, chunk);
+});
 
 const eventTypes = {
   RESOLVE_REQUEST: 'RESOLVE_REQUEST',
@@ -16,7 +29,7 @@ class resolverClient {
     return new Promise((resolve) => {
       const ipcs = new IPCStream(requestId);
 
-      resolve(ipcs);
+      resolve(pipeline(ipcs, IPCErrorTranform));
 
       ipcRenderer.send(eventTypes.RESOLVE_REQUEST, requestId, protocolId, options);
     });

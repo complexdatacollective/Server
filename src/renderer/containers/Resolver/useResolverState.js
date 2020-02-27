@@ -1,10 +1,17 @@
 import { useReducer } from 'react';
 import { createAction, handleActions } from 'redux-actions';
 import { uniq, findLast } from 'lodash';
+import { nodePrimaryKeyProperty } from '../../../main/utils/formatters/network';
 
 const resolveMatch = createAction(
   'RESOLVE_MATCH', (match, action, attributes = {}) => ({
-    match: { ...match, nodes: [match.nodes[0].id, match.nodes[1].id] },
+    match: {
+      ...match,
+      nodes: [
+        match.nodes[0][nodePrimaryKeyProperty],
+        match.nodes[1][nodePrimaryKeyProperty],
+      ],
+    },
     action,
     attributes,
   }),
@@ -12,7 +19,7 @@ const resolveMatch = createAction(
 const nextEntity = createAction('NEXT_ENTITY');
 const previousEntity = createAction('PREVIOUS_ENTITY');
 
-export const matchesReducer = (state, { payload: { match, action } }) => {
+export const matchActionReducer = (state, { payload: { match, action } }) => {
   const newEntry = { index: match.index, action };
   const matchIndex = state.findIndex(({ index }) => index === match.index);
   const priorMatches = matchIndex !== -1 ? state.slice(0, matchIndex) : state;
@@ -56,14 +63,14 @@ export const resolutionsReducer = (state, { payload: { match, action, attributes
 };
 
 const initialState = {
-  matches: [],
+  actions: [],
   resolutions: [],
   currentMatchIndex: 0,
 };
 
 export const resolveReducer = (state, { payload: { match, action, attributes } }) => {
-  const matches = matchesReducer(state.matches, { payload: { match, action } });
-  const currentMatchIndex = matches[matches.length - 1].index + 1;
+  const matchActions = matchActionReducer(state.actions, { payload: { match, action } });
+  const currentMatchIndex = matchActions[matchActions.length - 1].index + 1;
   const resolutions = resolutionsReducer(
     state.resolutions,
     { payload: { match, action, attributes } },
@@ -72,7 +79,7 @@ export const resolveReducer = (state, { payload: { match, action, attributes } }
   const newState = {
     ...state,
     currentMatchIndex,
-    matches,
+    actions: matchActions,
     resolutions,
   };
 

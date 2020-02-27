@@ -1,7 +1,7 @@
 import { Factory } from 'rosie';
 
 Factory.define('node')
-  .sequence('id')
+  .sequence('_uid')
   .attr('attributes', {});
 
 Factory.define('match')

@@ -28,23 +28,26 @@ const NewSnapshot = ({
           }}
         />
       </div>
-      <table>
-        <tbody>
-          <tr>
-            <td>
-              Entity resolver path
-            </td>
-            <td>
-              <Text
-                input={{
-                  value: entityResolutionPath,
-                  onChange: handleChangeEntityResolutionPath,
-                }}
-              />
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      { isSelected &&
+        <table>
+          <tbody>
+            <tr>
+              <td>
+                Entity resolver path
+              </td>
+              <td>
+                <Text
+                  input={{
+                    value: entityResolutionPath,
+                    onChange: handleChangeEntityResolutionPath,
+                    disabled: !isSelected,
+                  }}
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      }
     </div>
   );
 }

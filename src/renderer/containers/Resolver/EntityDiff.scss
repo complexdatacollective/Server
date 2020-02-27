@@ -1,0 +1,47 @@
+.entity-diff {
+  &__controls {
+    margin-top: 2rem;
+    text-align: right;
+  }
+
+  &__table {
+    width: 100%;
+
+    th {
+      padding: 1rem;
+      background-color: var(--inverse-background-color);
+      color: var(--inverse-text-color);
+    }
+
+    td {
+      background-color: white;
+      color: var(--input-text);
+    }
+
+    tr:nth-child(2n) td {
+      background-color: silver;
+    }
+
+    th,
+    td {
+      height: 4rem;
+      padding-left: 5rem;
+      // padding: 1rem;
+      vertical-align: center;
+
+      &.entity-diff__table-clickable {
+        padding: 0;
+
+        .form-field-radio {
+          display: block;
+          padding-left: 1rem;
+        }
+      }
+
+      &.entity-diff__table-hidden-count {
+        text-align: center;
+        padding: 0;
+      }
+    }
+  }
+}

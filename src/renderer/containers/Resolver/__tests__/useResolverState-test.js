@@ -1,19 +1,10 @@
 /* eslint-env jest */
 
-import { resolutionsReducer, matchesReducer, actionCreators } from '../useResolverState';
-import { times } from 'lodash';
+import { resolutionsReducer, matchActionReducer, actionCreators } from '../useResolverState';
 import Factory from './factory';
 
-// const getAction = (match, action, attributes) => ({
-//   payload: {
-//     match: match || { nodes: ['1234', '5678'], index: 0 },
-//     action: action || 'skip',
-//     attributes: attributes || {},
-//   },
-// });
-
 describe('useResolverState', () => {
-  describe('matchesReducer', () => {
+  describe('matchActionReducer', () => {
     const initialState = Factory.buildList('matchEntry', 3);
 
     it('Skip appends new matches', () => {
@@ -29,7 +20,7 @@ describe('useResolverState', () => {
         },
       ];
 
-      const subject = matchesReducer([], resolveMatchAction);
+      const subject = matchActionReducer([], resolveMatchAction);
 
       expect(subject).toEqual(expectedResult);
     });
@@ -48,7 +39,7 @@ describe('useResolverState', () => {
         },
       ];
 
-      const subject = matchesReducer(initialState, resolveMatchAction);
+      const subject = matchActionReducer(initialState, resolveMatchAction);
 
       expect(subject).toEqual(expectedResult);
     });
@@ -59,7 +50,7 @@ describe('useResolverState', () => {
         'resolve',
       );
 
-      const subject = matchesReducer([], resolveMatchAction);
+      const subject = matchActionReducer([], resolveMatchAction);
 
       const expectedResult = [
         {
@@ -77,7 +68,7 @@ describe('useResolverState', () => {
         'resolve',
       );
 
-      const subject = matchesReducer(initialState, resolveMatchAction);
+      const subject = matchActionReducer(initialState, resolveMatchAction);
 
       const expectedResult = [
         ...initialState.slice(0, 1),
@@ -118,7 +109,7 @@ describe('useResolverState', () => {
         ...initialState,
         {
           matchIndex: 100,
-          nodes: match.nodes.map(({ id }) => id),
+          nodes: match.nodes.map(({ _uid }) => _uid),
           attributes: { foo: 'bar' },
         },
       ];

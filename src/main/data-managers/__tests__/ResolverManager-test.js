@@ -3,7 +3,7 @@
 import ResolverManager from '../ResolverManager';
 import { ErrorMessages } from '../../errors/RequestError';
 
-import mockProtocol from '../../../../__mocks__/protocol.json';
+// import mockProtocol from '../../../../__mocks__/protocol.json';
 
 jest.mock('nedb');
 jest.mock('electron-log');
@@ -27,7 +27,7 @@ describe('ResolverManager', () => {
 
   beforeEach(() => {
     manager = new ResolverManager('.');
-    protocol = mockProtocol; // { id: '1', name: '1', createdAt: new Date(), };
+    protocol = { id: '1', name: '1', createdAt: new Date() };
     validOpts = {
       command: 'reverse_string',
     };
