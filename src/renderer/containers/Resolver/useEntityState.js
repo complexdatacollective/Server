@@ -1,36 +1,43 @@
 import { useReducer } from 'react';
+import { bindActionCreators } from 'redux';
 import { createAction, handleActions } from 'redux-actions';
 
-const initialState = {};
+const initialState = {
+  showHidden: false,
+  resolvedAttributes: {},
+};
 
 const actionCreators = {
   set: createAction('SET', attributes => ({ attributes })),
   reset: createAction('RESET'),
+  toggleHidden: createAction('TOGGLE_HIDDEN'),
 };
 
 const entityDiffReducer = handleActions({
   [actionCreators.set]: (state, { payload }) => ({
     ...state,
-    ...payload.attributes,
+    resolvedAttributes: {
+      ...state.resolvedAttributes,
+      ...payload.attributes,
+    },
   }),
   [actionCreators.reset]: () => ({
     ...initialState,
+  }),
+  [actionCreators.toggleHidden]: state => ({
+    ...state,
+    showHidden: !state.showHidden,
   }),
 }, initialState);
 
 const useEntityDiffState = () => {
   const [state, dispatch] = useReducer(entityDiffReducer, initialState);
 
-  const set = attributes =>
-    dispatch(actionCreators.set(attributes));
-
-  const reset = () =>
-    dispatch(actionCreators.reset());
+  const handlers = bindActionCreators(actionCreators, dispatch);
 
   return [
     state,
-    set,
-    reset,
+    handlers,
   ];
 };
 

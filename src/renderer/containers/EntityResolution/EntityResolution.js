@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import { DateTime } from 'luxon';
+import { get, last } from 'lodash';
 import Checkbox from '@codaco/ui/lib/components/Fields/Checkbox';
 import withApiClient from '../../components/withApiClient';
 import Snapshot from './Snapshot';
 import useEntityResolutionState from './useEntityResolutionState';
 import NewSnapshot from './NewSnapshot';
+
+const compareCreatedAt = (a, b) =>
+  DateTime.fromISO(a.createdAt) - DateTime.fromISO(b.createdAt);
 
 const EntityResolution = ({ apiClient, showError, protocolId, onUpdateOptions }) => {
   const [state, handlers] = useEntityResolutionState();
@@ -31,8 +36,14 @@ const EntityResolution = ({ apiClient, showError, protocolId, onUpdateOptions })
     apiClient
       .get(`/protocols/${protocolId}/resolutions`)
       .then(({ resolutions }) => {
-        setResolutionHistory(resolutions);
+        const sortedResolutions = [...resolutions].sort(compareCreatedAt);
+        setResolutionHistory(sortedResolutions);
         selectSnapshot(null);
+        // if path has been changed skip this
+        if (entityResolutionPath.length === 0) {
+          const path = get(last(sortedResolutions), 'options.entityResolutionPath', '');
+          changeEntityResolutionPath(path);
+        }
       })
       .catch(err => showError(err.message));
   }, [protocolId]);
@@ -73,16 +84,19 @@ const EntityResolution = ({ apiClient, showError, protocolId, onUpdateOptions })
       <div className="export__subpanel">
         <h4>Select resolution:</h4>
         <div className="export__subpanel-content">
-          {/* {resolutionHistory.map((snapshot, index) => (
-            <Snapshot
-              key={snapshot._id}
-              onSelect={selectSnapshot}
-              onRollback={() => {}}
-              canRollback={resolutionHistory.length !== index + 1}
-              isSelected={state.selectedSnapshot === snapshot.id}
-              {...snapshot}
-            />
-          ))} */}
+          {
+            resolutionHistory
+              .map((snapshot, index) => (
+                <Snapshot
+                  key={snapshot.id}
+                  onSelect={selectSnapshot}
+                  onRollback={() => {}}
+                  canRollback={resolutionHistory.length !== index + 1}
+                  isSelected={state.selectedSnapshot === snapshot.id}
+                  {...snapshot}
+                />
+              ))
+          }
           <NewSnapshot
             onSelectCreateNewSnapshot={setCreateNewSnapshot}
             isSelected={createNewSnapshot}

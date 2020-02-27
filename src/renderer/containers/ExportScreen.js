@@ -19,6 +19,7 @@ import { selectors } from '../ducks/modules/protocols';
 import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
 import EntityResolution from './EntityResolution';
 import Resolver from './Resolver';
+import testMatches from './Resolver/testMatches.json';
 
 const availableCsvTypes = {
   adjacencyMatrix: 'Adjacency Matrix',
@@ -35,8 +36,10 @@ class ExportScreen extends Component {
       csvTypes: new Set([...Object.keys(availableCsvTypes), 'ego']),
       useDirectedEdges: true,
       useEgoData: true,
-      matches: [],
-      loadingMatches: false,
+      // matches: [],
+      matches: testMatches,
+      isLoadingMatches: false,
+      errorLoadingMatches: null,
       entityResolutionOptions: {},
     };
   }
@@ -73,8 +76,9 @@ class ExportScreen extends Component {
   }
 
   handleResolved = (resolutions) => {
-    this.saveResolutions(resolutions);
-      // .then(this.promptAndExport);
+    this.saveResolution(resolutions)
+      .then(() => { this.setState({ matches: [] }); });
+    // .then(this.promptAndExport);
   }
 
   handleSubmit = () => {
@@ -137,6 +141,9 @@ class ExportScreen extends Component {
       csvTypes,
       useDirectedEdges,
       useEgoData,
+      entityResolutionOptions: {
+        entityResolutionPath,
+      },
     } = this.state;
 
     const csvTypesNoEgo = new Set(this.state.csvTypes);
@@ -147,7 +154,7 @@ class ExportScreen extends Component {
     return resolverClient.resolveProtocol(
       protocolId,
       {
-        command: '/Users/steve/Projects/teamgarlic/codaco/network-canvas-er/EntityResolution',
+        command: entityResolutionPath,
         exportFormats: (exportFormat === 'csv' && [...exportCsvTypes]) || [exportFormat],
         exportNetworkUnion,
         useDirectedEdges,
@@ -155,40 +162,55 @@ class ExportScreen extends Component {
       },
     )
       .then(resolverStream => new Promise((resolve, reject) => {
-        this.setState(state => ({ ...state, matches: [], isLoadingMatches: true }));
+        this.setState(state => ({
+          ...state,
+          matches: [],
+          isLoadingMatches: true,
+          errorLoadingMatches: null,
+        }));
 
         resolverStream.on('data', (d) => {
           const data = JSON.parse(d.toString());
-          // IPC streams aren't real streams so we use a custom error message
-          if (data.error) {
-            resolverStream.destroy();
-            reject(data.error);
-            return;
-          }
-
           this.setState(state => ({ ...state, matches: [...state.matches, data] }));
         });
 
         resolverStream.on('end', () => {
+          console.log(JSON.stringify(this.state.matches));
           this.setState(state => ({ ...state, isLoadingMatches: false }));
           resolve();
         });
+
+        resolverStream.on('error', reject);
       }))
-      .catch((e) => {
-        this.setState(state => ({ ...state, isLoadingMatches: false, matchLoadingError: e }));
+      .catch((error) => {
+        this.props.showError(error.message);
+        console.error(error.stack);
+        this.setState(state => ({ ...state, isLoadingMatches: false, errorLoadingMatches: error }));
       });
   }
 
-  saveResolutions = (resolutions) => {
-    const { apiClient, showError, protocol: { id: protocolId } } = this.props;
+  saveResolution = (resolution) => {
+    const {
+      apiClient,
+      showError,
+      protocol: { id: protocolId },
+    } = this.props;
+
+    const {
+      entityResolutionOptions: { entityResolutionPath },
+    } = this.state;
+
     if (!apiClient) {
-      return;
+      return Promise.reject();
     }
 
-    apiClient
-      .post(`/protocols/${protocolId}/resolutions`, { options: {}, resolutions })
-      .catch(err => showError(err.message))
-      .then(() => this.setState({ exportInProgress: false }));
+    const options = {
+      entityResolutionPath,
+    };
+
+    return apiClient
+      .post(`/protocols/${protocolId}/resolutions`, { options, resolution })
+      .catch(err => showError(err.message));
   }
 
   exportToFile = (destinationFilepath) => {
@@ -247,7 +269,7 @@ class ExportScreen extends Component {
         <ErrorBoundary>
           <Resolver
             matches={this.state.matches}
-            isLoadingMatches={this.state.loadingMatches}
+            isLoadingMatches={this.state.isLoadingMatches}
             show={this.state.matches.length > 0}
             onResolved={this.handleResolved}
           />

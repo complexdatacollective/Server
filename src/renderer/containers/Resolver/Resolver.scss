@@ -1,9 +1,40 @@
 .resolver {
   width: 80vw;
-  height: 50vh;
-  background: red;
-  padding: 2rem;
+  min-height: 70vh;
+  background: var(--color-cyber-grape);
+  color: var(--inverse-text-color);
+  border-radius: 2rem;
+  padding: 4rem;
   overflow-y: scroll;
+
+  &__heading {
+    margin: 0 0 1rem;
+    text-align: center;
+  }
+
+  &__progress {
+    margin: 1rem 0;
+  }
+
+  &__loading,
+  &__diff,
+  &__review {
+    margin: 1rem 0;
+  }
+
+  &__loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+  }
+
+  &__diff {
+  }
+
+  &__review {
+  }
 }
 
 .automatch {

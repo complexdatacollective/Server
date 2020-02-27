@@ -1,4 +1,3 @@
-const { DateTime } = require('luxon');
 const DatabaseAdapter = require('./DatabaseAdapter');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
 
@@ -15,22 +14,21 @@ class ResolverDB extends DatabaseAdapter {
    * @return {Array} saved resolutions
    * @throws {RequestError|Error}
    */
-  insertResolutions(protocolId, options, resolutions) {
+  insertResolution(protocolId, options, resolutions) {
     return new Promise((resolve, reject) => {
       if (!protocolId) {
         reject(new RequestError(ErrorMessages.NotFound));
         return;
       }
 
-      // save current date
-      const date = DateTime.local().toISO();
-
-      this.db.insert({
+      const doc = {
         protocolId,
-        date,
         options,
+        params: options,
         resolutions,
-      }, (err, docs) => {
+      };
+
+      this.db.insert(doc, (err, docs) => {
         if (err) {
           reject(err);
         } else {
