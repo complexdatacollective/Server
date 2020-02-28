@@ -1,9 +1,10 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { isEqual, isNil, reduce, get } from 'lodash';
+import { isEqual, isNil, reduce, get, round } from 'lodash';
 import { Button } from '@codaco/ui';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import useEntityState from './useEntityState';
+import { nodePrimaryKeyProperty } from '../../../main/utils/formatters/network';
 import './EntityDiff.scss';
 
 const formatVariable = variable =>
@@ -12,6 +13,7 @@ const formatVariable = variable =>
 const EntityDiff = ({
   match,
   onResolve,
+  onSkip,
 }) => {
   const [
     { resolvedAttributes, showHidden },
@@ -44,7 +46,7 @@ const EntityDiff = ({
         ...resolved,
       };
 
-      onResolve(match, 'resolve', fullResolvedAttributes);
+      onResolve(match, fullResolvedAttributes);
       reset();
     },
     [onResolve, resolvedAttributes, reset, match],
@@ -53,12 +55,12 @@ const EntityDiff = ({
   const handleSkip = useCallback(() => {
     if (!(
       Object.keys(resolvedAttributes).length === 0 ||
-      window.confirm('Looks like you have set attributes, are you sure?')
+      window.confirm('Looks like you have set some attributes, are you sure?')
     )) {
       return;
     }
 
-    onResolve(match, 'skip');
+    onSkip(match);
     reset();
   }, [onResolve, reset]);
 
@@ -86,13 +88,15 @@ const EntityDiff = ({
 
   return (
     <div key={match.index} className="entity-diff">
+      <h2 className="entity-diff__heading">Match score: {round(match.prob, 2)}</h2>
+
       <table className="entity-diff__table">
         <thead>
           <tr>
             <th>Variable</th>
-            <th className="entity-diff__table-clickable">
+            <th className="entity-diff__table-clickable" title={a[nodePrimaryKeyProperty]}>
               <Radio
-                label="A"
+                label={a[nodePrimaryKeyProperty].slice(0, 7)}
                 checked={allChecked[0]}
                 input={{
                   onChange: () => setAttributes(
@@ -101,9 +105,9 @@ const EntityDiff = ({
                 }}
               />
             </th>
-            <th className="entity-diff__table-clickable">
+            <th className="entity-diff__table-clickable" title={b[nodePrimaryKeyProperty]}>
               <Radio
-                label="B"
+                label={b[nodePrimaryKeyProperty].slice(0, 7)}
                 checked={allChecked[1]}
                 input={{
                   onChange: () => setAttributes(
@@ -142,7 +146,8 @@ const EntityDiff = ({
             ))}
           { !showHidden &&
             <tr>
-              <td colSpan="3" className="entity-diff__table-hidden-count">
+              <th />
+              <td colSpan="2" className="entity-diff__table-hidden-count">
                 <Button onClick={toggleHidden} size="small" color="platinum">
                   {rows.filter(({ required }) => !required).length} hidden matching rows...
                 </Button>
@@ -175,7 +180,7 @@ const EntityDiff = ({
 
 const EntityPropTypes = PropTypes.shape({
   attributes: PropTypes.object.isRequired,
-  id: PropTypes.string.isRequired,
+  [nodePrimaryKeyProperty]: PropTypes.string.isRequired,
 });
 
 EntityDiff.propTypes = {
@@ -185,6 +190,7 @@ EntityDiff.propTypes = {
     index: PropTypes.number.isRequired,
   }),
   onResolve: PropTypes.func.isRequired,
+  onSkip: PropTypes.func.isRequired,
 };
 
 EntityDiff.defaultProps = {
