@@ -19,7 +19,7 @@ import { selectors } from '../ducks/modules/protocols';
 import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
 import EntityResolution from './EntityResolution';
 import Resolver from './Resolver';
-import testMatches from './Resolver/testMatches.json';
+// import testMatches from './Resolver/testMatches.json';
 
 const availableCsvTypes = {
   adjacencyMatrix: 'Adjacency Matrix',
@@ -36,8 +36,8 @@ class ExportScreen extends Component {
       csvTypes: new Set([...Object.keys(availableCsvTypes), 'ego']),
       useDirectedEdges: true,
       useEgoData: true,
-      // matches: [],
-      matches: testMatches,
+      matches: [],
+      // matches: testMatches,
       isLoadingMatches: false,
       errorLoadingMatches: null,
       entityResolutionOptions: {},

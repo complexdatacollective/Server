@@ -1,0 +1,37 @@
+.review-table {
+  &__controls {
+    margin-top: 2rem;
+    text-align: right;
+  }
+
+  &__table {
+    width: 100%;
+
+    th {
+      padding: 1rem;
+      background-color: var(--inverse-background-color);
+      color: var(--inverse-text-color);
+    }
+
+    td {
+      background-color: var(--base-background-color);
+      color: var(--input-text);
+    }
+
+    tr {
+      &:nth-child(2n) {
+        td {
+          background-color: var(--color-platinum);
+        }
+      }
+
+      th,
+      td {
+        height: 4rem;
+        padding-left: 5rem;
+        width: 33%;
+        vertical-align: center;
+      }
+    }
+  }
+}

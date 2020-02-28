@@ -26,9 +26,12 @@ const Resolver = ({ isLoadingMatches, matches, show, onResolved }) => {
   return (
     <Modal show={show}>
       <div className="resolver">
-        <h1 className="resolver__heading">
-          Match {state.currentMatchIndex + 1} of {matches.length}
-        </h1>
+        { !isComplete &&
+          <h1 className="resolver__heading">
+            Match {state.currentMatchIndex + 1} of {matches.length}
+          </h1>
+        }
+        { isComplete && <h1 className="resolver__heading">Review Actions</h1> }
         <div className="resolver__progress">
           <Progress
             value={state.currentMatchIndex}
@@ -52,8 +55,11 @@ const Resolver = ({ isLoadingMatches, matches, show, onResolved }) => {
         }
         { isComplete &&
           <div className="resolver__review">
-            <ReviewTable matches={matches} actions={state.actions} />
-            <button onClick={handleFinish}>Save</button>
+            <ReviewTable
+              matches={matches}
+              actions={state.actions}
+              onConfirm={handleFinish}
+            />
           </div>
         }
       </div>

@@ -1,14 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { get } from 'lodash';
+import { Button } from '@codaco/ui';
 import { nodePrimaryKeyProperty, nodeAttributesProperty } from '../../../main/utils/formatters/network';
+import './ReviewTable.scss';
 
 const renderNodeCell = node =>
   (<td title={`ID: ${get(node, nodePrimaryKeyProperty)}`}>{get(node, [nodeAttributesProperty, 'name'])}</td>);
 
-const ReviewTable = ({ matches, actions }) => (
-  <div>
-    <table>
+const ReviewTable = ({ matches, actions, onConfirm }) => (
+  <div className="review-table">
+    <table className="review-table__table">
       <thead>
         <tr>
           <th colSpan="2">Nodes</th>
@@ -30,12 +32,17 @@ const ReviewTable = ({ matches, actions }) => (
         })}
       </tbody>
     </table>
+
+    <div className="review-table__controls">
+      <Button onClick={onConfirm}>Save</Button>
+    </div>
   </div>
 );
 
 ReviewTable.propTypes = {
   matches: PropTypes.array,
   actions: PropTypes.array,
+  onConfirm: PropTypes.func.isRequired,
 };
 
 ReviewTable.defaultProps = {
