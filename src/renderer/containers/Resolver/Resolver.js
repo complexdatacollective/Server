@@ -9,7 +9,9 @@ import finializeResolutions from './finalizeResolutions';
 import { getMatch, getMatchOrResolved } from './helpers';
 
 const Resolver = ({ isLoadingMatches, matches, show, onResolved }) => {
-  const [state, onResolve] = useResolverState();
+  const [state, handlers] = useResolverState();
+
+  const { resolveMatch, skipMatch } = handlers;
 
   const match = getMatch(matches, state.currentMatchIndex);
   const matchOrResolved = getMatchOrResolved(match, state.resolutions);
@@ -43,13 +45,14 @@ const Resolver = ({ isLoadingMatches, matches, show, onResolved }) => {
           <div className="resolver__diff">
             <EntityDiff
               match={matchOrResolved}
-              onResolve={onResolve}
+              onResolve={resolveMatch}
+              onSkip={skipMatch}
             />
           </div>
         }
         { isComplete &&
           <div className="resolver__review">
-            <ReviewTable matches={matches} actions={state.matches} />
+            <ReviewTable matches={matches} actions={state.actions} />
             <button onClick={handleFinish}>Save</button>
           </div>
         }
@@ -62,6 +65,7 @@ Resolver.propTypes = {
   isLoadingMatches: PropTypes.bool,
   matches: PropTypes.array.isRequired,
   show: PropTypes.bool,
+  onResolved: PropTypes.func.isRequired,
 };
 
 Resolver.defaultProps = {

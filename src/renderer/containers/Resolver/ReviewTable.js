@@ -1,11 +1,12 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { get } from 'lodash';
 import { nodePrimaryKeyProperty, nodeAttributesProperty } from '../../../main/utils/formatters/network';
 
 const renderNodeCell = node =>
   (<td title={`ID: ${get(node, nodePrimaryKeyProperty)}`}>{get(node, [nodeAttributesProperty, 'name'])}</td>);
 
-const ReviewTable = (matches, actions) => (
+const ReviewTable = ({ matches, actions }) => (
   <div>
     <table>
       <thead>
@@ -15,23 +16,31 @@ const ReviewTable = (matches, actions) => (
         </tr>
       </thead>
       <tbody>
-        {matches.map(
-          ({ nodes }, index) => {
-            // This is inefficient:
-            const { action } = actions
-              .find(r => r.index === index) || { action: null };
-            return (
-              <tr key={index}>
-                {renderNodeCell(nodes[0])}
-                {renderNodeCell(nodes[1])}
-                <td>{action}</td>
-              </tr>
-            );
-          }
-        )}
+        {matches.map(({ nodes }, index) => {
+          // This is inefficient:
+          const { action } = actions
+            .find(r => r.index === index) || { action: null };
+          return (
+            <tr key={index}>
+              {renderNodeCell(nodes[0])}
+              {renderNodeCell(nodes[1])}
+              <td>{action}</td>
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   </div>
 );
+
+ReviewTable.propTypes = {
+  matches: PropTypes.array,
+  actions: PropTypes.array,
+};
+
+ReviewTable.defaultProps = {
+  matches: [],
+  actions: [],
+};
 
 export default ReviewTable;

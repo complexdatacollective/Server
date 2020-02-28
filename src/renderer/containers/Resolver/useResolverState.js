@@ -2,8 +2,9 @@ import { useReducer } from 'react';
 import { createAction, handleActions } from 'redux-actions';
 import { uniq, findLast } from 'lodash';
 import { nodePrimaryKeyProperty } from '../../../main/utils/formatters/network';
+import { bindActionCreators } from 'redux';
 
-const resolveMatch = createAction(
+const resolveMatchAction = createAction(
   'RESOLVE_MATCH', (match, action, attributes = {}) => ({
     match: {
       ...match,
@@ -16,8 +17,18 @@ const resolveMatch = createAction(
     attributes,
   }),
 );
+
+const resolveMatch = (match, attributes) => resolveMatchAction(match, 'RESOLVE', attributes);
+const skipMatch = match => resolveMatchAction(match, 'SKIP');
 const nextEntity = createAction('NEXT_ENTITY');
 const previousEntity = createAction('PREVIOUS_ENTITY');
+
+export const actionCreators = {
+  resolveMatch,
+  skipMatch,
+  nextMatch: nextEntity,
+  previousMatch: previousEntity,
+};
 
 export const matchActionReducer = (state, { payload: { match, action } }) => {
   const newEntry = { index: match.index, action };
@@ -40,7 +51,7 @@ export const resolutionsReducer = (state, { payload: { match, action, attributes
   const resolutionIndex = state.findIndex(({ matchIndex }) => matchIndex === match.index);
   const priorResolutions = resolutionIndex !== -1 ? state.slice(0, resolutionIndex) : state;
 
-  if (action === 'skip') { return priorResolutions; }
+  if (action === 'SKIP') { return priorResolutions; }
 
   const [entityA, entityB] = match.nodes;
 
@@ -88,7 +99,7 @@ export const resolveReducer = (state, { payload: { match, action, attributes } }
 
 const entityResolutionReducer = handleActions(
   {
-    [resolveMatch]: resolveReducer,
+    [resolveMatchAction]: resolveReducer,
     [previousEntity]: state => ({
       ...state,
       currentMatchIndex: state.currentMatchIndex - 1,
@@ -104,22 +115,9 @@ const entityResolutionReducer = handleActions(
 const useEntityResolutionState = () => {
   const [state, dispatch] = useReducer(entityResolutionReducer, initialState);
 
-  const resolve = (match, action, entity) =>
-    dispatch(resolveMatch(match, action, entity));
+  const handlers = bindActionCreators(actionCreators, dispatch);
 
-  const next = () => dispatch(nextEntity());
-
-  const previous = () => dispatch(previousEntity());
-
-  return [state, resolve, next, previous];
+  return [state, handlers];
 };
-
-const actionCreators = {
-  resolveMatch,
-  nextEntity,
-  previousEntity,
-};
-
-export { actionCreators };
 
 export default useEntityResolutionState;

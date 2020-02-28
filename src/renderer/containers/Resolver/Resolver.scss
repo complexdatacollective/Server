@@ -1,7 +1,8 @@
 .resolver {
   width: 80vw;
-  min-height: 70vh;
-  background: var(--color-cyber-grape);
+  min-height: 60vh;
+  max-height: 90vh;
+  background-color: var(--color-cyber-grape);
   color: var(--inverse-text-color);
   border-radius: 2rem;
   padding: 4rem;
