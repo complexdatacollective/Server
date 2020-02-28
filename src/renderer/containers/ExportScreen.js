@@ -175,7 +175,6 @@ class ExportScreen extends Component {
         });
 
         resolverStream.on('end', () => {
-          console.log(JSON.stringify(this.state.matches));
           this.setState(state => ({ ...state, isLoadingMatches: false }));
           resolve();
         });
@@ -184,7 +183,6 @@ class ExportScreen extends Component {
       }))
       .catch((error) => {
         this.props.showError(error.message);
-        console.error(error.stack);
         this.setState(state => ({ ...state, isLoadingMatches: false, errorLoadingMatches: error }));
       });
   }
@@ -399,6 +397,7 @@ class ExportScreen extends Component {
             showError={this.props.showError}
             protocolId={protocol.id}
             onUpdateOptions={this.handleUpdateEntityResolutionOptions}
+            disabled={!this.state.exportNetworkUnion}
           />
         </ErrorBoundary>
         <div className="export__footer">
