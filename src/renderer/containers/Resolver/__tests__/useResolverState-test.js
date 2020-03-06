@@ -2,15 +2,17 @@
 
 import { resolutionsReducer, matchActionReducer, actionCreators } from '../useResolverState';
 import { nodePrimaryKeyProperty } from '../../../../main/utils/formatters/network';
-import Factory from './factory';
+import MatchFactory from '../__factories__/match';
+import MatchEntryFactory from '../__factories__/matchEntry';
+import ResolutionEntryFactory from '../__factories__/resolutionEntry';
 
 describe('useResolverState', () => {
   describe('matchActionReducer', () => {
-    const initialState = Factory.buildList('matchEntry', 3);
+    const initialState = MatchEntryFactory.buildList(3);
 
     it('SKIP appends new matches', () => {
       const skipMatchAction = actionCreators.skipMatch(
-        Factory.build('match', { index: 100 }),
+        MatchFactory.build({ index: 100 }),
       );
 
       const expectedResult = [
@@ -27,7 +29,7 @@ describe('useResolverState', () => {
 
     it('SKIP deletes match entries beyond the match index', () => {
       const skipMatchAction = actionCreators.skipMatch(
-        Factory.build('match', { index: 2 }),
+        MatchFactory.build({ index: 2 }),
       );
 
       const expectedResult = [
@@ -45,7 +47,7 @@ describe('useResolverState', () => {
 
     it('RESOLVE appends new matches', () => {
       const resolveMatchAction = actionCreators.resolveMatch(
-        Factory.build('match', { index: 100 }),
+        MatchFactory.build({ index: 100 }),
       );
 
       const subject = matchActionReducer([], resolveMatchAction);
@@ -62,7 +64,7 @@ describe('useResolverState', () => {
 
     it('RESOLVE deletes match entries beyond the match index', () => {
       const resolveMatchAction = actionCreators.resolveMatch(
-        Factory.build('match', { index: 2 }),
+        MatchFactory.build({ index: 2 }),
       );
 
       const subject = matchActionReducer(initialState, resolveMatchAction);
@@ -80,10 +82,10 @@ describe('useResolverState', () => {
   });
 
   describe('resolutionsReducer', () => {
-    const initialState = Factory.buildList('resolutionEntry', 3);
+    const initialState = ResolutionEntryFactory.buildList(3);
     it('SKIP deletes resolutions beyond and including the match index', () => {
       const skipMatchAction = actionCreators.skipMatch(
-        Factory.build('match', { index: 2 }),
+        MatchFactory.build({ index: 2 }),
       );
 
       const subject = resolutionsReducer(initialState, skipMatchAction);
@@ -92,7 +94,7 @@ describe('useResolverState', () => {
     });
 
     it('RESOLVE appends new resolutions', () => {
-      const match = Factory.build('match', { index: 100 });
+      const match = MatchFactory.build({ index: 100 });
       const resolveMatchAction = actionCreators.resolveMatch(
         match,
         { foo: 'bar' },
@@ -114,8 +116,7 @@ describe('useResolverState', () => {
 
     it('RESOLVE deletes resolutions beyond the match index', () => {
       const nodeIds = ['abc', 'def'];
-      const match = Factory.build(
-        'match',
+      const match = MatchFactory.build(
         { index: 2, nodes: nodeIds.map(id => ({ [nodePrimaryKeyProperty]: id })) },
       );
       const resolveMatchAction = actionCreators.resolveMatch(
@@ -140,13 +141,12 @@ describe('useResolverState', () => {
     it('RESOLVE combines prior node references', () => {
       const nodesForExistingEntries = [['a', 'b'], ['c', 'd'], ['e', 'f']];
       const combineInitialState = nodesForExistingEntries.map(nodes =>
-        Factory.build('resolutionEntry', { nodes }),
+        ResolutionEntryFactory.build({ nodes }),
       );
 
       const nodeIds = ['d', 'f'];
 
-      const match = Factory.build(
-        'match',
+      const match = MatchFactory.build(
         { index: 100, nodes: nodeIds.map(id => ({ [nodePrimaryKeyProperty]: id })) },
       );
       const resolveMatchAction = actionCreators.resolveMatch(

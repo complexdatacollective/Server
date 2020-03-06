@@ -3,6 +3,8 @@
 const path = require('path');
 const split = require('split');
 const miss = require('mississippi');
+const { DateTime } = require('luxon');
+const { get, find, findIndex, reduce } = require('lodash');
 const csvToJson = require('../utils/streams/csvToJson');
 const { convertUuidToDecimal, nodePrimaryKeyProperty, nodeAttributesProperty } = require('../utils/formatters/network');
 const ResolverDB = require('./ResolverDB');
@@ -105,11 +107,105 @@ const getNetworkResolver = ({
       });
   };
 
-const mapResolutions = resolutions =>
-  resolutions.map(resolution => ({
-    ...resolution,
-    id: resolution._id,
+const formatResolution = resolution => ({
+  ...resolution,
+  id: resolution._id,
+});
+
+const formatSession = (session) => {
+  const id = session && session._id;
+  const caseID = session && session.data && session.data.sessionVariables &&
+    session.data.sessionVariables._caseID;
+  return { ...session.data, _id: id, _caseID: caseID };
+};
+
+const getPriorResolutions = (resolutions, resolutionId) => {
+  if (!resolutionId) { return resolutions; }
+
+  const lastResolution = findIndex(resolutions, ['id', resolutionId]);
+
+  if (lastResolution === -1) {
+    throw new Error(`Resolution "${resolutionId}" could not be found`);
+  }
+
+  return resolutions.slice(0, lastResolution + 1);
+};
+
+// 1. chunk sessions by resolutions
+// Maybe resolutions should include references to included sessions rather than
+// calculating it?
+const getSessionsByResolution = (resolutions, sessions) =>
+  sessions.reduce((memo, session) => {
+    const sessionDate = DateTime.fromISO(session.date);
+
+    const resolution = find(
+      resolutions,
+      ({ date }) =>
+        sessionDate < DateTime.fromISO(date),
+    );
+
+    const resolutionId = (resolution && resolution.id) || '_unresolved';
+
+    const group = get(memo, [resolutionId], []);
+
+    return {
+      ...memo,
+      [resolutionId]: [...group, session],
+    };
+  }, {});
+
+const applyTransform = (network, transform) => {
+  const nodes = network.nodes.filter(
+    node => !transform.nodes.includes(node[nodePrimaryKeyProperty]),
+  ).concat([{
+    [nodePrimaryKeyProperty]: transform.id,
+    [nodeAttributesProperty]: transform.attributes,
+  }]);
+
+  const edges = network.edges.map(edge => ({
+    ...edge,
+    from: transform.nodes.includes(edge.from) ? transform.id : edge.from,
+    to: transform.nodes.includes(edge.to) ? transform.id : edge.to,
   }));
+
+  return {
+    ...network,
+    nodes,
+    edges,
+  };
+};
+
+const transformSessions = (sessions, resolutions, { useEgoData, fromResolution }) => {
+  const priorResolutions = getPriorResolutions(resolutions, fromResolution);
+  const sessionsByResolution = getSessionsByResolution(priorResolutions, sessions);
+
+  // 2. for each chunk (and according to settings) do resolution
+  // 3. return final network
+  const resultNetwork = reduce(
+    sessionsByResolution,
+    (accNetwork, sessionNetworks, resolutionId) => {
+      const withEgoData = (useEgoData ? insertEgoInNetworks(sessionNetworks) : sessionNetworks);
+      const unifiedNetwork = unionOfNetworks(withEgoData);
+      // do resolution
+
+      // skip unresolved for now
+      if (resolutionId === '_unresolved') {
+        return unionOfNetworks([accNetwork, unifiedNetwork]);
+      }
+
+      const resolution = resolutions.find(({ id }) => id === resolutionId);
+
+      const resolvedNetwork = resolution.transforms
+        // TODO: make sure this still contains _egoID for 'new' nodes
+        .reduce(applyTransform, unifiedNetwork);
+
+      return unionOfNetworks([accNetwork, resolvedNetwork]);
+    },
+    { nodes: [], edges: [], ego: [] },
+  );
+
+  return resultNetwork;
+};
 
 /**
  * Interface for data resolution
@@ -124,27 +220,45 @@ class ResolverManager {
 
   getNetwork(
     protocol,
-    { useEgoData } = {},
+    { useEgoData, entityResolutionOptions } = {},
   ) {
-    return this.sessionDB
-      .findAll(protocol._id, null, null)
-      .then(sessions => sessions.map((session) => {
-        const id = session && session._id;
-        const caseID = session && session.data && session.data.sessionVariables &&
-          session.data.sessionVariables._caseID;
-        return { ...session.data, _id: id, _caseID: caseID };
-      }))
-      .then(networks => (useEgoData ? insertEgoInNetworks(networks) : networks))
-      .then(networks => unionOfNetworks(networks));
+    const {
+      enableEntityResolution,
+      resolutionId,
+    } = entityResolutionOptions;
+
+    const protocolId = protocol._id;
+
+    if (!enableEntityResolution) {
+      return this.getSessions(protocolId)
+        .then(networks => (useEgoData ? insertEgoInNetworks(networks) : networks))
+        .then(networks => unionOfNetworks(networks));
+    }
+
+    const transformOptions = { useEgoData, resolutionId };
+
+    return Promise.all([
+      this.getSessions(protocolId),
+      this.getResolutions(protocolId),
+    ])
+      .then(
+        ([sessions, resolutions]) =>
+          transformSessions(sessions, resolutions, transformOptions),
+      );
+  }
+
+  getSessions(protocolId) {
+    return this.sessionDB.findAll(protocolId, null, null)
+      .then(sessions => sessions.map(formatSession));
   }
 
   getResolutions(protocolId) {
     return this.resolverDB.getResolutions(protocolId)
-      .then(mapResolutions);
+      .then(resolutions => resolutions.map(formatResolution));
   }
 
-  saveResolution(protocolId, options, resolutions) {
-    return this.resolverDB.insertResolution(protocolId, options, resolutions);
+  saveResolution(protocolId, options, transforms) {
+    return this.resolverDB.insertResolution(protocolId, options, transforms);
   }
 
   resolveProtocol(
@@ -166,4 +280,11 @@ class ResolverManager {
   }
 }
 
-module.exports = ResolverManager;
+module.exports = {
+  getPriorResolutions,
+  getSessionsByResolution,
+  applyTransform,
+  transformSessions,
+  ResolverManager,
+  default: ResolverManager,
+};

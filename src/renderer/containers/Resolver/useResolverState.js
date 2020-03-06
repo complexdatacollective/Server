@@ -1,8 +1,9 @@
 import { useReducer } from 'react';
 import { createAction, handleActions } from 'redux-actions';
 import { uniq, findLast } from 'lodash';
-import { nodePrimaryKeyProperty } from '../../../main/utils/formatters/network';
 import { bindActionCreators } from 'redux';
+import uuid from 'uuid';
+import { nodePrimaryKeyProperty } from '../../../main/utils/formatters/network';
 
 const resolveMatchAction = createAction(
   'RESOLVE_MATCH', (match, action, attributes = {}) => ({
@@ -66,6 +67,7 @@ export const resolutionsReducer = (state, { payload: { match, action, attributes
 
   const newEntry = {
     matchIndex: match.index,
+    id: uuid(),
     nodes,
     attributes,
   };
