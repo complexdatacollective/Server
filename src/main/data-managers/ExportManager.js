@@ -6,14 +6,11 @@ const logger = require('electron-log');
 const { flattenDeep } = require('lodash');
 
 const SessionDB = require('./SessionDB');
+const ResolverManager = require('./ResolverManager');
 const { archive } = require('../utils/archive');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
 const { makeTempDir, removeTempDir } = require('../utils/formatters/dir');
-const {
-  insertEgoInNetworks,
-  transposedCodebook,
-  unionOfNetworks,
-} = require('../utils/formatters/network');
+const { transposedCodebook } = require('../utils/formatters/network');
 const {
   formatsAreValid,
   getFileExtension,
@@ -97,6 +94,7 @@ class ExportManager {
     // TODO: path is duplicated in ProtocolManager
     const sessionDbFile = path.join(sessionDataDir, 'db', 'sessions.db');
     this.sessionDB = new SessionDB(sessionDbFile);
+    this.resolverManager = new ResolverManager(sessionDataDir);
   }
 
   /**
@@ -160,15 +158,16 @@ class ExportManager {
           throw new Error('Temporary directory unavailable');
         }
       })
-      .then(() => this.sessionDB.findAll(protocol._id, null, null))
-      .then(sessions => sessions.map((session) => {
-        const id = session && session._id;
-        const caseID = session && session.data && session.data.sessionVariables &&
-          session.data.sessionVariables._caseID;
-        return { ...session.data, _id: id, _caseID: caseID };
-      }))
-      .then(networks => (useEgoData ? insertEgoInNetworks(networks) : networks))
-      .then(networks => (exportNetworkUnion ? [unionOfNetworks(networks)] : networks))
+      .then(this.resolverManager.getNetwork(
+        protocol,
+        {
+          destinationFilepath,
+          exportFormats,
+          exportNetworkUnion,
+          useDirectedEdges,
+          useEgoData,
+        }),
+      )
       .then((networks) => {
         promisedExports = flattenDeep(
           // Export every network

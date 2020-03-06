@@ -9,12 +9,12 @@ class ResolverDB extends DatabaseAdapter {
    *
    * @param {Object} protocol (known to exist in DB) containing an _id
    * @param {object} options resolver and export params
-   * @param {Array} resolutions selected transforms (based on result + user input)
+   * @param {Array} transforms selected transforms (based on result + user input)
    * @async
    * @return {Array} saved resolutions
    * @throws {RequestError|Error}
    */
-  insertResolution(protocolId, options, resolutions) {
+  insertResolution(protocolId, options, transforms) {
     return new Promise((resolve, reject) => {
       if (!protocolId) {
         reject(new RequestError(ErrorMessages.NotFound));
@@ -25,7 +25,7 @@ class ResolverDB extends DatabaseAdapter {
         protocolId,
         options,
         params: options,
-        resolutions,
+        transforms,
       };
 
       this.db.insert(doc, (err, docs) => {
