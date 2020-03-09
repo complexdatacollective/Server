@@ -5,15 +5,15 @@ const { transform } = require('./transform');
 
 const resolution = new Factory()
   .option('network', null)
-  .option('transforms', null)
+  .option('transformCount', null)
   .option('attributes', {})
   .attr('id', () => uuid())
   .sequence('date', i => DateTime.local().minus({ days: i }).toISO())
   .attr(
     'transforms',
-    ['transforms', 'network', 'attributes'],
-    (transforms, network, attributes) => {
-      const size = transforms || Math.ceil(network.nodes.length * 0.3);
+    ['transformCount', 'network', 'attributes'],
+    (transformCount, network, attributes) => {
+      const size = transformCount || Math.ceil(network.nodes.length * 0.3);
       return transform.buildList(size, { attributes }, { network });
     },
   );

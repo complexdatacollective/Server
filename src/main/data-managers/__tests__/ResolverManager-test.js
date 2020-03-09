@@ -87,17 +87,21 @@ expect.extend({
       return { pass: true };
     }
 
-    const differences = difference(node[nodeAttributesProperty], attributes);
-
     return {
       pass: false,
-      message: () => `Node with id ${id} found but attributes differ: ${JSON.stringify(differences)}`,
+      message: () => `Node with id ${id} found but attributes differ:
+
+got:
+${JSON.stringify(node[nodeAttributesProperty], null, 2)}
+
+expected:
+${JSON.stringify(attributes, null, 2)}`,
     };
   },
 });
 
 
-describe('getPriorResolutions', () => {
+describe.only('getPriorResolutions', () => {
   const resolutions = Object.freeze([
     { id: 'foo', transforms: [], nodes: [] },
     { id: 'bar', transforms: [], nodes: [] },
@@ -192,14 +196,14 @@ describe('applyTransform', () => {
   });
 });
 
-describe('transformSessions', () => {
+describe.only('transformSessions', () => {
   it('applies a resolution to a session', () => {
     // Set up a single session with a resolution with a single transform
     const sessions = [Factory.session.build(null, { size: 5 })];
     const resolutions = [
       Factory.resolution.build(
         { date: DateTime.fromISO(sessions[0].date).plus({ days: 1 }).toISO() },
-        { network: sessions[0], transforms: 1, attributes: { foo: 'bar' } },
+        { network: sessions[0], transformCount: 1, attributes: { foo: 'bar' } },
       ),
     ];
     const options = {
@@ -252,6 +256,50 @@ describe('transformSessions', () => {
     // transformation because transform was not run
     expect(transformedNetwork).not
       .networkHasNode(resolutions[0].transforms[0].id, resolutions[0].transforms[0].attributes);
+  });
+
+  // blends sessions
+  it('applies resolutions prior to resolution id', () => {
+    // Set up a single session and a matching resolution with matching nodes, but a date
+    // before that session
+    const sessions = Factory.session.buildList(1, null, { size: 5 });
+
+    const transform = Factory.transform.build(null, sessions[0]);
+
+    const resolutions = [
+      Factory.resolution.build({
+        date: DateTime.fromISO(sessions[0].date).plus({ minutes: 3 }).toISO(),
+        transforms: [{ ...transform, attributes: { foo: 'bar' } }],
+      }),
+      Factory.resolution.build({
+        date: DateTime.fromISO(sessions[0].date).plus({ minutes: 2 }).toISO(),
+        transforms: [{ ...transform, attributes: { foo: 'bazz' } }],
+      }),
+      Factory.resolution.build({
+        date: DateTime.fromISO(sessions[0].date).plus({ minutes: 1 }).toISO(),
+        transforms: [{ ...transform, attributes: { foo: 'buzz' } }],
+      }),
+    ];
+
+    const options = {
+      fromResolution: resolutions[1].id,
+      useEgoData: true,
+    };
+
+    const transformedNetwork = transformSessions(sessions, resolutions, options);
+
+    // Nodes exist in network prior to resolution
+    expect(sessions[0]).networkIncludesNodes(resolutions[0].transforms[0].nodes);
+    expect(sessions[0]).networkIncludesNodes(resolutions[1].transforms[0].nodes);
+    expect(sessions[0]).networkIncludesNodes(resolutions[2].transforms[0].nodes);
+
+    // Transformed network does not contain transformed nodes
+    expect(transformedNetwork).networkExcludesNodes(resolutions[0].transforms[0].nodes);
+    expect(transformedNetwork).networkExcludesNodes(resolutions[1].transforms[0].nodes);
+
+    // most recent resolution should take precidence
+    expect(transformedNetwork)
+      .networkHasNode(resolutions[0].transforms[0].id, resolutions[1].transforms[0].attributes);
   });
 });
 

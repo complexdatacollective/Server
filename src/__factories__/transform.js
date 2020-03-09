@@ -5,7 +5,9 @@ const uuid = require('uuid');
 const transform = new Factory()
   .attr('id', () => uuid())
   .option('network', null)
+  // .option('nodes', null)
   .attr('nodes', ['network'], (network) => {
+    // if(nodes) { return nodes; }
     if (!network) { return []; }
 
     const nodeCount = Math.ceil((network.nodes.length * 0.2 * Math.random()) + 1);
