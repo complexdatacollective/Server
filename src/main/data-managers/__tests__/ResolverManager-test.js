@@ -1,7 +1,10 @@
 /* eslint-env jest */
 const {
   intersection,
+  difference,
+  isEqual,
 } = require('lodash');
+const { DateTime } = require('luxon');
 const {
   ResolverManager,
   getPriorResolutions,
@@ -13,6 +16,8 @@ const { nodePrimaryKeyProperty, nodeAttributesProperty } = require('../../utils/
 const { ErrorMessages } = require('../../errors/RequestError');
 const { Factory } = require('../../../__factories__/Factory');
 // import mockProtocol from '../../../../__mocks__/protocol.json';
+
+const debug = (attrs, name = '') => console.log(name, JSON.stringify(attrs, null, 2));
 
 jest.mock('nedb');
 jest.mock('electron-log');
@@ -28,6 +33,69 @@ jest.mock('../ResolverDB', () => (function MockResolverDB() {
     findAll: jest.fn().mockResolvedValue([]),
   };
 }));
+
+expect.extend({
+  networkIncludesNodes(network, nodeIds) {
+    const networkNodeIds = network.nodes.map(node => node[nodePrimaryKeyProperty]);
+
+    const both = intersection(networkNodeIds, nodeIds);
+
+    if (both.length === nodeIds.length) {
+      return { pass: true };
+    }
+
+    const missing = difference(nodeIds, both);
+
+    return {
+      pass: false,
+      message: () => `Network does not include all nodes [${missing}]`,
+    };
+  },
+});
+
+expect.extend({
+  networkExcludesNodes(network, nodeIds) {
+    const networkNodeIds = network.nodes.map(node => node[nodePrimaryKeyProperty]);
+
+    const both = intersection(networkNodeIds, nodeIds);
+
+    if (both.length === 0) {
+      return { pass: true };
+    }
+
+    return {
+      pass: false,
+      message: () => `Network contains nodes [${both}]`,
+    };
+  },
+});
+
+expect.extend({
+  networkHasNode(network, id, attributes) {
+    const node = network.nodes.find(n => n[nodePrimaryKeyProperty] === id);
+
+    if (!node) {
+      return {
+        pass: false,
+        message: () => `Node ${id} not found`,
+      };
+    }
+
+    const equal = isEqual(node[nodeAttributesProperty], attributes);
+
+    if (equal) {
+      return { pass: true };
+    }
+
+    const differences = difference(node[nodeAttributesProperty], attributes);
+
+    return {
+      pass: false,
+      message: () => `Node with id ${id} found but attributes differ: ${JSON.stringify(differences)}`,
+    };
+  },
+});
+
 
 describe('getPriorResolutions', () => {
   const resolutions = Object.freeze([
@@ -100,20 +168,18 @@ describe('applyTransform', () => {
   const transform = Factory.transform.build({ attributes: { foo: 'bar' } }, { network });
 
   it("each node should be replaced with it's transform", () => {
-    const { nodes } = applyTransform(network, transform); // resultant network
-    const networkNodeIds = network.nodes.map(node => node[nodePrimaryKeyProperty]);
-    const transformedNetworkNodeIds = nodes.map(node => node[nodePrimaryKeyProperty]);
+    const newNetwork = applyTransform(network, transform); // resultant network
 
-    // nodes were in original network
-    expect(intersection(networkNodeIds, transform.nodes).length).toBe(transform.nodes.length);
-    // nodes were removed from network
-    expect(intersection(transformedNetworkNodeIds, transform.nodes).length).toBe(0);
-    // transformed node was added to network
-    expect(nodes.find(node => node[nodePrimaryKeyProperty] === transform.id))
-      .toEqual({
-        [nodePrimaryKeyProperty]: transform.id,
-        [nodeAttributesProperty]: transform.attributes,
-      });
+    // Nodes exist in network prior to resolution
+    expect(network).networkIncludesNodes(transform.nodes);
+
+    // Nodes are removed from the transformed network
+    expect(newNetwork).networkExcludesNodes(transform.nodes);
+
+
+    // Tranformed node has been added to the transformed network
+    expect(newNetwork)
+      .networkHasNode(transform.id, transform.attributes);
   });
 
   it('each edge should be updated with the new ids', () => {
@@ -126,25 +192,66 @@ describe('applyTransform', () => {
   });
 });
 
-describe.only('transformSessions', () => {
-  // const transformSessions = (sessions, resolutions, { resolution, useEgoData }) => {
-  it('applies resolutions to sessions before selected snapshot', () => {
-    const sessions = Factory.session.buildList(3);
+describe('transformSessions', () => {
+  it('applies a resolution to a session', () => {
+    // Set up a single session with a resolution with a single transform
+    const sessions = [Factory.session.build(null, { size: 5 })];
     const resolutions = [
       Factory.resolution.build(
-        { date: sessions[1].date },
-        { network: sessions[1], attributes: { foo: 'bar' } },
+        { date: DateTime.fromISO(sessions[0].date).plus({ days: 1 }).toISO() },
+        { network: sessions[0], transforms: 1, attributes: { foo: 'bar' } },
       ),
     ];
-    // console.log(sessions, resolutions);
     const options = {
       fromResolution: resolutions[0].id,
       useEgoData: true,
     };
 
-    const transformed = transformSessions(sessions, resolutions, options);
+    const transformedNetwork = transformSessions(sessions, resolutions, options);
 
-    console.log(JSON.stringify(transformed.ego));
+    // Nodes exist in network prior to resolution
+    expect(sessions[0]).networkIncludesNodes(resolutions[0].transforms[0].nodes);
+
+    // Nodes are removed from the transformed network
+    expect(transformedNetwork).networkExcludesNodes(resolutions[0].transforms[0].nodes);
+
+    // Tranformed node has been added to the transformed network
+    expect(transformedNetwork)
+      .networkHasNode(resolutions[0].transforms[0].id, resolutions[0].transforms[0].attributes);
+  });
+
+  it('leaves sessions later than resolutions unresolved', () => {
+    // Set up a single session and a matching resolution with matching nodes, but a date
+    // before that session
+    const sessions = Factory.session.buildList(1, null, { size: 3 });
+    const resolutions = [
+      Factory.resolution.build(
+        { date: DateTime.fromISO(sessions[0].date).minus({ days: 1 }).toISO() },
+        { network: sessions[0], attributes: { foo: 'bar' } },
+      ),
+    ];
+
+    const options = {
+      fromResolution: resolutions[0].id,
+      useEgoData: true,
+    };
+
+    const transformedNetwork = transformSessions(sessions, resolutions, options);
+
+    // Nodes exist in network prior to resolution
+    expect(sessions[0]).networkIncludesNodes(resolutions[0].transforms[0].nodes);
+
+    // Transformed network contains the original nodes because transform was not run
+    expect(transformedNetwork)
+      .networkIncludesNodes(sessions[0].nodes.map(node => node[nodePrimaryKeyProperty]));
+
+    // Transformed network contains the resolution nodes because transform was not run
+    expect(transformedNetwork).networkIncludesNodes(resolutions[0].transforms[0].nodes);
+
+    // Transformed network does not contains the resolution
+    // transformation because transform was not run
+    expect(transformedNetwork).not
+      .networkHasNode(resolutions[0].transforms[0].id, resolutions[0].transforms[0].attributes);
   });
 });
 
