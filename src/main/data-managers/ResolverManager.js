@@ -122,13 +122,15 @@ const formatSession = (session) => {
 const getPriorResolutions = (resolutions, resolutionId) => {
   if (!resolutionId) { return resolutions; }
 
-  const lastResolution = findIndex(resolutions, ['id', resolutionId]);
+  const sortedResolutions = resolutions.sort((a, b) => DateTime.fromISO(a) - DateTime.fromISO(b));
+
+  const lastResolution = findIndex(sortedResolutions, ['id', resolutionId]);
 
   if (lastResolution === -1) {
     throw new Error(`Resolution "${resolutionId}" could not be found`);
   }
 
-  return resolutions.slice(0, lastResolution + 1);
+  return sortedResolutions.slice(0, lastResolution + 1);
 };
 
 // 1. chunk sessions by resolutions
@@ -154,6 +156,7 @@ const getSessionsByResolution = (resolutions, sessions) =>
     };
   }, {});
 
+// TODO: make sure this still contains _egoID for 'new' nodes
 const applyTransform = (network, transform) => {
   const nodes = network.nodes.filter(
     node => !transform.nodes.includes(node[nodePrimaryKeyProperty]),
@@ -182,27 +185,23 @@ const transformSessions = (sessions, resolutions, { useEgoData, fromResolution }
   // 2. for each chunk (and according to settings) do resolution
   // 3. return final network
   const resultNetwork = reduce(
-    sessionsByResolution,
-    (accNetwork, sessionNetworks, resolutionId) => {
-      const withEgoData = (useEgoData ? insertEgoInNetworks(sessionNetworks) : sessionNetworks);
-      const unifiedNetwork = unionOfNetworks(withEgoData);
-      // do resolution
+    priorResolutions,
+    (accNetwork, resolution) => {
+      const sessionNetworks = sessionsByResolution[resolution.id]; // array of networks
 
-      // skip unresolved for now
-      if (resolutionId === '_unresolved') {
-        return unionOfNetworks([accNetwork, unifiedNetwork]);
-      }
+      if (!sessionNetworks) { return accNetwork; }
 
-      const resolution = resolutions.find(({ id }) => id === resolutionId);
+      const withEgoData = useEgoData ? insertEgoInNetworks(sessionNetworks) : sessionNetworks;
+      const unifiedNetwork = unionOfNetworks([accNetwork, ...withEgoData]);
 
-      const resolvedNetwork = resolution.transforms
-        // TODO: make sure this still contains _egoID for 'new' nodes
-        .reduce(applyTransform, unifiedNetwork);
-
-      return unionOfNetworks([accNetwork, resolvedNetwork]);
+      return resolution.transforms.reduce(applyTransform, unifiedNetwork);
     },
     { nodes: [], edges: [], ego: [] },
   );
+
+  if (sessionsByResolution._unresolved) {
+    return unionOfNetworks([resultNetwork, ...sessionsByResolution._unresolved]);
+  }
 
   return resultNetwork;
 };
