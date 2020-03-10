@@ -101,17 +101,29 @@ ${JSON.stringify(attributes, null, 2)}`,
 });
 
 
-describe.only('getPriorResolutions', () => {
+describe('getPriorResolutions', () => {
   const resolutions = Object.freeze([
-    { id: 'foo', transforms: [], nodes: [] },
-    { id: 'bar', transforms: [], nodes: [] },
-    { id: 'bazz', transforms: [], nodes: [] },
-    { id: 'buzz', transforms: [], nodes: [] },
+    { id: 'foo', transforms: [], nodes: [], date: DateTime.local() },
+    { id: 'bar', transforms: [], nodes: [], date: DateTime.local().minus({ hours: 1 }) },
+    { id: 'bazz', transforms: [], nodes: [], date: DateTime.local().plus({ hours: 5 }) },
+    { id: 'buzz', transforms: [], nodes: [], date: DateTime.local().minus({ hours: 5 }) },
   ]);
+
+  it('sorts resolutions by date (oldest to newest)', () => {
+    expect(getPriorResolutions(resolutions, null))
+      .toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: 'buzz' }),
+          expect.objectContaining({ id: 'bar' }),
+          expect.objectContaining({ id: 'foo' }),
+          expect.objectContaining({ id: 'bazz' }),
+        ]),
+      );
+  });
 
   it('returns resolutions if no resolutionsId', () => {
     expect(getPriorResolutions(resolutions, null))
-      .toBe(resolutions);
+      .toHaveLength(4);
   });
 
   it('throws if resolution id is missing', () => {
@@ -122,7 +134,12 @@ describe.only('getPriorResolutions', () => {
 
   it('returns resolutions before and including resolution id', () => {
     expect(getPriorResolutions(resolutions, 'bar'))
-      .toEqual(resolutions.slice(0, 2));
+      .toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: 'buzz' }),
+          expect.objectContaining({ id: 'bar' }),
+        ]),
+      );
   });
 });
 
@@ -230,7 +247,7 @@ describe.only('transformSessions', () => {
     const sessions = Factory.session.buildList(1, null, { size: 3 });
     const resolutions = [
       Factory.resolution.build(
-        { date: DateTime.fromISO(sessions[0].date).minus({ days: 1 }).toISO() },
+        { date: DateTime.local().minus({ days: 10 }).toISO() },
         { network: sessions[0], attributes: { foo: 'bar' } },
       ),
     ];
@@ -242,20 +259,7 @@ describe.only('transformSessions', () => {
 
     const transformedNetwork = transformSessions(sessions, resolutions, options);
 
-    // Nodes exist in network prior to resolution
-    expect(sessions[0]).networkIncludesNodes(resolutions[0].transforms[0].nodes);
-
-    // Transformed network contains the original nodes because transform was not run
-    expect(transformedNetwork)
-      .networkIncludesNodes(sessions[0].nodes.map(node => node[nodePrimaryKeyProperty]));
-
-    // Transformed network contains the resolution nodes because transform was not run
-    expect(transformedNetwork).networkIncludesNodes(resolutions[0].transforms[0].nodes);
-
-    // Transformed network does not contains the resolution
-    // transformation because transform was not run
-    expect(transformedNetwork).not
-      .networkHasNode(resolutions[0].transforms[0].id, resolutions[0].transforms[0].attributes);
+    expect(transformedNetwork.nodes).toEqual(sessions[0].nodes);
   });
 
   // blends sessions
@@ -264,22 +268,32 @@ describe.only('transformSessions', () => {
     // before that session
     const sessions = Factory.session.buildList(1, null, { size: 5 });
 
-    const transform = Factory.transform.build(null, sessions[0]);
+    const resolutions = [];
 
-    const resolutions = [
-      Factory.resolution.build({
-        date: DateTime.fromISO(sessions[0].date).plus({ minutes: 3 }).toISO(),
-        transforms: [{ ...transform, attributes: { foo: 'bar' } }],
-      }),
-      Factory.resolution.build({
-        date: DateTime.fromISO(sessions[0].date).plus({ minutes: 2 }).toISO(),
-        transforms: [{ ...transform, attributes: { foo: 'bazz' } }],
-      }),
+    resolutions.push(
       Factory.resolution.build({
         date: DateTime.fromISO(sessions[0].date).plus({ minutes: 1 }).toISO(),
-        transforms: [{ ...transform, attributes: { foo: 'buzz' } }],
+        transforms: [Factory.transform.build({ attributes: { foo: 'bar' } }, { network: sessions[0] })],
       }),
-    ];
+    );
+
+    resolutions.push(
+      Factory.resolution.build({
+        date: DateTime.fromISO(sessions[0].date).plus({ minutes: 2 }).toISO(),
+        transforms: [
+          Factory.transform.build({ attributes: { foo: 'bazz' } }, { nodes: [resolutions[0].transforms[0].id] }),
+        ],
+      }),
+    );
+
+    resolutions.push(
+      Factory.resolution.build({
+        date: DateTime.fromISO(sessions[0].date).plus({ minutes: 2 }).toISO(),
+        transforms: [
+          Factory.transform.build({ attributes: { foo: 'buzz' } }, { nodes: [resolutions[1].transforms[0].id] }),
+        ],
+      }),
+    );
 
     const options = {
       fromResolution: resolutions[1].id,
@@ -288,18 +302,13 @@ describe.only('transformSessions', () => {
 
     const transformedNetwork = transformSessions(sessions, resolutions, options);
 
-    // Nodes exist in network prior to resolution
-    expect(sessions[0]).networkIncludesNodes(resolutions[0].transforms[0].nodes);
-    expect(sessions[0]).networkIncludesNodes(resolutions[1].transforms[0].nodes);
-    expect(sessions[0]).networkIncludesNodes(resolutions[2].transforms[0].nodes);
-
     // Transformed network does not contain transformed nodes
     expect(transformedNetwork).networkExcludesNodes(resolutions[0].transforms[0].nodes);
     expect(transformedNetwork).networkExcludesNodes(resolutions[1].transforms[0].nodes);
 
     // most recent resolution should take precidence
     expect(transformedNetwork)
-      .networkHasNode(resolutions[0].transforms[0].id, resolutions[1].transforms[0].attributes);
+      .networkHasNode(resolutions[1].transforms[0].id, resolutions[1].transforms[0].attributes);
   });
 });
 
