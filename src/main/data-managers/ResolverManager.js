@@ -120,9 +120,12 @@ const formatSession = (session) => {
 };
 
 const getPriorResolutions = (resolutions, resolutionId) => {
-  if (!resolutionId) { return resolutions; }
+  // from oldest to newest
+  const sortedResolutions = [...resolutions]
+    .sort((a, b) => DateTime.fromISO(a.date) - DateTime.fromISO(b.date));
 
-  const sortedResolutions = resolutions.sort((a, b) => DateTime.fromISO(a) - DateTime.fromISO(b));
+
+  if (!resolutionId) { return sortedResolutions; }
 
   const lastResolution = findIndex(sortedResolutions, ['id', resolutionId]);
 
@@ -158,9 +161,16 @@ const getSessionsByResolution = (resolutions, sessions) =>
 
 // TODO: make sure this still contains _egoID for 'new' nodes
 const applyTransform = (network, transform) => {
-  const nodes = network.nodes.filter(
+  const withTransformNodesRemoved = network.nodes.filter(
     node => !transform.nodes.includes(node[nodePrimaryKeyProperty]),
-  ).concat([{
+  );
+
+  // nodes weren't found return original network
+  if (withTransformNodesRemoved.length !== network.nodes.length - transform.nodes.length) {
+    return network;
+  }
+
+  const nodes = withTransformNodesRemoved.concat([{
     [nodePrimaryKeyProperty]: transform.id,
     [nodeAttributesProperty]: transform.attributes,
   }]);
@@ -182,14 +192,16 @@ const transformSessions = (sessions, resolutions, { useEgoData, fromResolution }
   const priorResolutions = getPriorResolutions(resolutions, fromResolution);
   const sessionsByResolution = getSessionsByResolution(priorResolutions, sessions);
 
-  // 2. for each chunk (and according to settings) do resolution
-  // 3. return final network
+  // For each resolution merge sessions and apply resolution
   const resultNetwork = reduce(
     priorResolutions,
     (accNetwork, resolution) => {
       const sessionNetworks = sessionsByResolution[resolution.id]; // array of networks
 
-      if (!sessionNetworks) { return accNetwork; }
+      if (!sessionNetworks) {
+        // if no new sessions, operate on existing
+        return resolution.transforms.reduce(applyTransform, accNetwork);
+      }
 
       const withEgoData = useEgoData ? insertEgoInNetworks(sessionNetworks) : sessionNetworks;
       const unifiedNetwork = unionOfNetworks([accNetwork, ...withEgoData]);
