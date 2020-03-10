@@ -1,4 +1,5 @@
-const ChildProcess = require('duplex-child-process');
+const child = require('child_process');
+const miss = require('mississippi');
 const fs = require('fs');
 
 const getArgs = command => new Promise((resolve, reject) => {
@@ -13,7 +14,10 @@ const spawnCommand = ({ executable, args }) =>
     fs.access(executable, fs.constants.R_OK, (error) => {
       if (error) { reject(new Error('could not find command')); }
 
-      resolve(() => ChildProcess.spawn(executable, args));
+      resolve(() => {
+        const command = child.spawn(executable, args);
+        return miss.duplex(command.stdin, command.stdout);
+      });
     });
   });
 
