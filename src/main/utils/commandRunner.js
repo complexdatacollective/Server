@@ -15,8 +15,22 @@ const spawnCommand = ({ executable, args }) =>
       if (error) { reject(new Error('could not find command')); }
 
       resolve(() => {
-        const command = child.spawn(executable, args);
-        return miss.duplex(command.stdin, command.stdout);
+        const spawnedProcess = child.spawn(executable, args);
+        const processStream = miss.duplex(
+          spawnedProcess.stdin, // readable
+          spawnedProcess.stdout, // writeable
+          { allowHalfOpen: false },
+        );
+        // processStream.exit = (code = 0) => {
+        //   throw new Error();
+        //   spawnedProcess.exit(code);
+        // };
+        processStream.kill = () => spawnedProcess.kill();
+        // processStream.end = () => {
+        //   console.log('happened');
+        //   process.stdin.end();
+        // };
+        return processStream;
       });
     });
   });
