@@ -2,7 +2,7 @@ const { ipcMain } = require('electron');
 const logger = require('electron-log');
 const IPCStream = require('electron-ipc-stream');
 const ProtocolManager = require('../data-managers/ProtocolManager');
-const ResolverManager = require('../data-managers/ResolverManager');
+const { ResolverManager } = require('../data-managers/ResolverManager');
 
 const eventTypes = {
   RESOLVE_REQUEST: 'RESOLVE_REQUEST',

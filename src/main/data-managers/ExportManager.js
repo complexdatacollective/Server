@@ -6,7 +6,7 @@ const logger = require('electron-log');
 const { flattenDeep } = require('lodash');
 
 const SessionDB = require('./SessionDB');
-const ResolverManager = require('./ResolverManager');
+const { ResolverManager } = require('./ResolverManager');
 const { archive } = require('../utils/archive');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
 const { makeTempDir, removeTempDir } = require('../utils/formatters/dir');
