@@ -14,8 +14,15 @@ jest.mock('../devices/PairingRequestService');
 jest.mock('../../data-managers/ExportManager', () => class {
   createExportFile = jest.fn().mockResolvedValue({ abort: jest.fn() })
 });
-jest.mock('../../data-managers/ResolverManager', () => class {
-  resolveNetwork = jest.fn().mockResolvedValue({ abort: jest.fn() })
+jest.mock('../../data-managers/ResolverManager', () => {
+  class ResolverManager {
+    resolveNetwork = jest.fn().mockResolvedValue({ abort: jest.fn() })
+  }
+
+  return {
+    ResolverManager,
+    default: ResolverManager,
+  };
 });
 
 const testPortNumber = 52001;
