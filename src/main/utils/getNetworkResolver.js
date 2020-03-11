@@ -25,7 +25,7 @@ const getNode = (network, id) => {
 
   if (!node) {
     throw new Error(
-      `Corresponding node data for '${id}' (convertUuidToDecimal) could not be found in network object.`
+      `Corresponding node data for '${id}' (convertUuidToDecimal) could not be found in network object.`,
     );
   }
 
@@ -52,11 +52,11 @@ const appendNodeNetworkData = network =>
         getNode(network, obj.networkCanvasAlterID_2),
       ];
 
-      const prob = parseFloat(obj.prob);
+      const probability = parseFloat(obj.prob);
 
       const result = JSON.stringify({
         nodes,
-        prob,
+        probability,
       });
 
       callback(null, result);
@@ -80,12 +80,13 @@ const getNetworkResolver = ({
   codebook,
 } = {}) =>
   (network) => {
+    // TODO: what happens when network is empty?
     const formatter = new AttributeListFormatter(network, false, false, codebook);
 
     return commandRunner(command)
-      .then((resolver) => {
+      .then((resolverProcess) => {
         const pipeline = miss.pipeline(
-          resolver(),
+          resolverProcess(),
           split(),
           csvToJson(),
           appendNodeNetworkData(network),
