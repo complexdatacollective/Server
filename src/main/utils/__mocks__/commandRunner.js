@@ -32,7 +32,7 @@ const commandRunner = () =>
         miss.from((size, next) => {
           if (!complete) {
             // wait a bit
-            setTimeout(() => next(null, ''), 100);
+            setTimeout(() => next(null, ''), 5);
             return null;
           }
 

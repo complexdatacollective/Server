@@ -61,6 +61,27 @@ describe('getNetworkResolver()', () => {
       expect(networkResolver(network)).toBeInstanceOf(Promise);
     });
 
+    it('when network is empty it returns an empty array', (done) => {
+      const networkResolver = getNetworkResolver({
+        command: '/dev/null',
+        codebook,
+      });
+
+      networkResolver({ nodes: [] })
+        .then((resolver) => {
+          const result = [];
+
+          resolver.on('data', (data) => {
+            result.push(JSON.parse(data));
+          });
+
+          resolver.on('finish', () => {
+            expect(result).toEqual([]);
+            done();
+          });
+        });
+    });
+
     it('promise resolves to a stream of json objects', (done) => {
       const networkResolver = getNetworkResolver({
         command: '/dev/null',
