@@ -22,15 +22,20 @@ describe('getNetworkResolver()', () => {
       {
         _uid: 'abc1',
         type: 'foo',
-        attributes: { foo: 'bar' },
+        attributes: { foo: 'foo' },
       },
       {
         _uid: 'abc2',
         type: 'foo',
-        attributes: { foo: 'bazz' },
+        attributes: { foo: 'bar' },
       },
       {
         _uid: 'abc3',
+        type: 'foo',
+        attributes: { foo: 'bazz' },
+      },
+      {
+        _uid: 'abc4',
         type: 'foo',
         attributes: { foo: 'buzz' },
       },
@@ -75,28 +80,28 @@ describe('getNetworkResolver()', () => {
               {
                 nodes: [
                   {
-                    _uid: 'abc2',
-                    attributes: { foo: 'bazz' },
+                    _uid: 'abc1',
+                    attributes: { foo: 'foo' },
                   },
                   {
-                    _uid: 'abc1',
+                    _uid: 'abc2',
                     attributes: { foo: 'bar' },
                   },
                 ],
-                probability: 0.25,
+                probability: 0.5,
               },
               {
                 nodes: [
                   {
                     _uid: 'abc3',
-                    attributes: { foo: 'buzz' },
+                    attributes: { foo: 'bazz' },
                   },
                   {
-                    _uid: 'abc1',
-                    attributes: { foo: 'bar' },
+                    _uid: 'abc4',
+                    attributes: { foo: 'buzz' },
                   },
                 ],
-                probability: 0.8,
+                probability: 0.5,
               },
             ]);
             done();

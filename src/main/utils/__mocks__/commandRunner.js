@@ -1,33 +1,57 @@
 const miss = require('mississippi');
 
-const fromString = (string) => {
-  let source = string;
-  return miss.from((size, next) => {
-    // if there's no more content
-    // left in the string, close the stream.
-    if (source.length <= 0) {
-      return next(null, null);
-    }
+const mockResolve = (buffer) => {
+  const ids = buffer.split('\n').slice(1).map(line => line.split(',')[0]);
 
-    // Pull in a new chunk of text,
-    // removing it from the source.
-    const chunk = source.slice(0, size);
-    source = source.slice(size);
+  const matches = [];
 
-    // Emit "chunk" from the stream.
-    return next(null, chunk);
-  });
+  while (ids.length > 2) {
+    const [id1, id2] = ids.splice(0, 2);
+    matches.push(`${id1}, ${id2}, 0.5`);
+  }
+
+  return `networkCanvasAlterID_1,networkCanvasAlterID_2,prob\n${matches.join('\n')}`;
 };
-
-const source =
-`networkCanvasAlterID_1,networkCanvasAlterID_2,prob
-43970,43969,0.25
-43971,43969,0.8`;
 
 const commandRunner = () =>
   Promise.resolve(
-    () =>
-      miss.duplex(miss.to((data, enc, cb) => cb()), fromString(source)),
+    () => {
+      let buffer = '';
+      let complete = false;
+
+      return miss.duplex(
+        miss.to((data, enc, cb) => {
+          if (!data) { cb(null); }
+          buffer += data;
+          cb();
+        }, (cb) => {
+          buffer = mockResolve(buffer);
+          complete = true;
+          cb();
+        }),
+        miss.from((size, next) => {
+          if (!complete) {
+            // wait a bit
+            setTimeout(() => next(null, ''), 100);
+            return null;
+          }
+
+          // if there's no more content
+          // left in the string, close the stream.
+          if (buffer.length <= 0) {
+            return next(null, null);
+          }
+
+          // Pull in a new chunk of text,
+          // removing it from the source.
+          const chunk = buffer.slice(0, size);
+          buffer = buffer.slice(size);
+
+          // Emit "chunk" from the stream.
+          return next(null, chunk);
+        }),
+      );
+    },
   );
 
 module.exports = commandRunner;
