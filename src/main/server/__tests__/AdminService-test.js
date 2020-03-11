@@ -337,27 +337,6 @@ describe('the AdminService', () => {
           expect(res.json.status).toBe('ok');
         });
       });
-
-      describe('resolve', () => {
-        beforeEach(() => {
-          adminService.protocolManager.getProtocol = jest.fn().mockResolvedValue({});
-        });
-
-        it('requires valid resolve options', async () => {
-          const endpoint = makeUrl('protocols/1/resolve_requests', apiBase);
-          const error = new Error('Mock Invalid Options');
-          adminService.resolverManager.resolveNetwork.mockRejectedValueOnce(error);
-          await expect(jsonClient.post(endpoint, {})).rejects.toMatchObject({
-            json: { message: error.message },
-          });
-        });
-
-        it('reponds to a POST request', async () => {
-          const endpoint = makeUrl('protocols/1/resolve_requests', apiBase);
-          const res = await jsonClient.post(endpoint, {});
-          expect(res.json.status).toBe('ok');
-        });
-      });
     });
   });
 
