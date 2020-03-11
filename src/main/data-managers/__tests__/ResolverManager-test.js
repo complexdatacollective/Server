@@ -22,7 +22,6 @@ jest.mock('../ResolverDB', () => (function MockResolverDB() {
 jest.mock('../../utils/commandRunner');
 
 describe('resolveProtocol()', () => {
-  const protocol = { id: '1', name: '1', createdAt: new Date() };
   const validOpts = {
     command: 'reverse_string',
   };
@@ -35,29 +34,5 @@ describe('resolveProtocol()', () => {
   it('rejects if protocol missing', async () => {
     await expect(manager.resolveProtocol(null, validOpts))
       .rejects.toMatchErrorMessage(ErrorMessages.NotFound);
-  });
-
-  describe('with data', () => {
-    beforeEach(() => {
-      // protocol.codebook = {};
-      manager.sessionDB = {
-        findAll: jest.fn().mockResolvedValue([{ data: { nodes: [], edges: [] } }]),
-      };
-    });
-
-    it('returns a promise', async () => {
-      await expect(manager.resolveProtocol(protocol, validOpts)).resolves.toAlwaysPass();
-    });
-
-    // it.only('can abort the process', () => {
-    //   const abortable = manager.resolveProtocol(protocol, validOpts);
-    //   expect(abortable.abort).toBeInstanceOf(Function);
-    //   abortable.abort();
-    // });
-
-    it.only('promise resolves to the stdout of script (commandRunner)', async () => {
-      await expect(manager.resolveProtocol(protocol, validOpts))
-        .resolves.toEqual('dlrow olleh');
-    });
   });
 });
