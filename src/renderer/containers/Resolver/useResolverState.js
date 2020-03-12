@@ -52,7 +52,9 @@ export const resolutionsReducer = (state, { payload: { match, action, attributes
   const resolutionIndex = state.findIndex(({ matchIndex }) => matchIndex === match.index);
   const priorResolutions = resolutionIndex !== -1 ? state.slice(0, resolutionIndex) : state;
 
-  if (action === 'SKIP') { return priorResolutions; }
+  if (action === 'SKIP') {
+    return priorResolutions;
+  }
 
   const [entityA, entityB] = match.nodes;
 
