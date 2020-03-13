@@ -158,15 +158,17 @@ class ExportManager {
           throw new Error('Temporary directory unavailable');
         }
       })
-      .then(this.resolverManager.getNetwork(
-        protocol,
-        {
-          destinationFilepath,
-          exportFormats,
-          exportNetworkUnion,
-          useDirectedEdges,
-          useEgoData,
-        }),
+      .then(() =>
+        this.resolverManager.getNetwork(
+          protocol,
+          {
+            destinationFilepath,
+            exportFormats,
+            exportNetworkUnion,
+            useDirectedEdges,
+            useEgoData,
+          },
+        ),
       )
       .then((networks) => {
         promisedExports = flattenDeep(

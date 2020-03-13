@@ -37,7 +37,11 @@ class ResolverManager {
 
   getNetwork(
     protocol,
-    { useEgoData, entityResolutionOptions } = {},
+    {
+      useEgoData,
+      exportNetworkUnion,
+      entityResolutionOptions,
+    } = {},
   ) {
     const {
       enableEntityResolution,
@@ -52,7 +56,7 @@ class ResolverManager {
     if (!enableEntityResolution) {
       return this.getSessions(protocolId)
         .then(networks => (useEgoData ? insertEgoInNetworks(networks) : networks))
-        .then(networks => unionOfNetworks(networks));
+        .then(networks => (exportNetworkUnion ? [unionOfNetworks(networks)] : networks));
     }
 
     const transformOptions = { useEgoData, resolutionId };
