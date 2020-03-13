@@ -84,10 +84,12 @@ describe('ExportManager', () => {
       manager.sessionDB = {
         findAll: jest.fn().mockResolvedValue([{ data: { nodes: [], edges: [] } }]),
       };
+      manager.resolverManager.sessionDB = {
+        findAll: jest.fn().mockResolvedValue([{ data: { nodes: [], edges: [] } }]),
+      };
     });
 
-    // TODO: should this still work?
-    it.skip('returns a promise', async () => {
+    it('returns a promise', async () => {
       await expect(manager.createExportFile(protocol, validOpts)).resolves.toAlwaysPass();
     });
 
