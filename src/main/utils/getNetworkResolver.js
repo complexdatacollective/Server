@@ -9,6 +9,16 @@ const {
   AttributeListFormatter,
 } = require('./formatters/index');
 
+const debugStream = prefix => miss.through(
+  (chunk, enc, cb) => {
+    console.log(`[stream: ${prefix}]`, chunk.toString());
+    cb(null, chunk);
+  },
+  (cb) => {
+    cb(null);
+  },
+);
+
 /**
  * nodes are transmitted to the resolver as numerical ids generated
  * by convertUuidToDecimal, this find method handles that additional
@@ -86,10 +96,12 @@ const getNetworkResolver = ({
     return commandRunner(command)
       .then((resolverProcess) => {
         const pipeline = miss.pipeline(
+          // debugStream('input'),
           resolverProcess(),
           split(),
           csvToJson(),
           appendNodeNetworkData(network),
+          // debugStream('output'),
         );
 
         formatter.writeToStream(pipeline);

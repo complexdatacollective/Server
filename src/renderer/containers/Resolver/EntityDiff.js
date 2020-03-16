@@ -88,7 +88,7 @@ const EntityDiff = ({
 
   return (
     <div key={match.index} className="entity-diff">
-      <h2 className="entity-diff__heading">Match score: {round(match.prob, 2)}</h2>
+      <h2 className="entity-diff__heading">Match score: {round(match.probability, 2)}</h2>
 
       <table className="entity-diff__table">
         <thead>
@@ -186,7 +186,7 @@ const EntityPropTypes = PropTypes.shape({
 EntityDiff.propTypes = {
   match: PropTypes.shape({
     nodes: PropTypes.arrayOf(EntityPropTypes).isRequired,
-    prob: PropTypes.number.isRequired,
+    probability: PropTypes.number.isRequired,
     index: PropTypes.number.isRequired,
   }),
   onResolve: PropTypes.func.isRequired,

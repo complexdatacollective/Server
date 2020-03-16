@@ -14,14 +14,24 @@ const SessionDB = require('./SessionDB');
 
 const formatResolution = resolution => ({
   ...resolution,
-  id: resolution._id,
+  _meta: {
+    id: resolution._id,
+    date: resolution.createdAt,
+  },
 });
 
-const formatSession = (session) => {
+const formatSessionAsNetwork = (session) => {
   const id = session && session._id;
   const caseID = session && session.data && session.data.sessionVariables &&
     session.data.sessionVariables._caseID;
-  return { ...session.data, _id: id, _caseID: caseID };
+  return ({
+    ...session.data,
+    _meta: {
+      caseID,
+      id,
+      date: session.createdAt,
+    },
+  });
 };
 
 /**
@@ -47,14 +57,15 @@ class ResolverManager {
       enableEntityResolution,
       resolutionId,
     } = entityResolutionOptions || {
-      enableEntityResolution: false,
+      // enableEntityResolution: false,
+      enableEntityResolution: true,
       resolutionId: null,
     };
 
     const protocolId = protocol._id;
 
     if (!enableEntityResolution) {
-      return this.getSessions(protocolId)
+      return this.getSessionNetworks(protocolId)
         .then(networks => (useEgoData ? insertEgoInNetworks(networks) : networks))
         .then(networks => (exportNetworkUnion ? [unionOfNetworks(networks)] : networks));
     }
@@ -62,7 +73,7 @@ class ResolverManager {
     const transformOptions = { useEgoData, resolutionId };
 
     return Promise.all([
-      this.getSessions(protocolId),
+      this.getSessionNetworks(protocolId),
       this.getResolutions(protocolId),
     ])
       .then(
@@ -71,9 +82,9 @@ class ResolverManager {
       );
   }
 
-  getSessions(protocolId) {
+  getSessionNetworks(protocolId) {
     return this.sessionDB.findAll(protocolId, null, null)
-      .then(sessions => sessions.map(formatSession));
+      .then(sessions => sessions.map(formatSessionAsNetwork));
   }
 
   getResolutions(protocolId) {

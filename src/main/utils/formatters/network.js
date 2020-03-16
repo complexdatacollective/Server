@@ -19,6 +19,7 @@ const convertUuidToDecimal = uuid => (
   uuid ? bigInt(uuid.toString().replace(/-/g, ''), 16).toString(10) : uuid
 );
 
+// TODO: _meta: { id, caseID }
 const unionOfNetworks = networks =>
   networks.reduce((union, network) => ({
     nodes: [...union.nodes, ...network.nodes],

@@ -18,7 +18,7 @@ const initialState = {
   enableEntityResolution: false,
   selectedSnapshot: null,
   createNewSnapshot: false,
-  entityResolutionPath: '',
+  entityResolutionPath: '/Users/steve/Projects/teamgarlic/codaco/network-canvas-er/EntityResolution',
 };
 
 const entityResolutionReducer = handleActions(
