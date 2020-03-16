@@ -15,7 +15,7 @@ const getPriorResolutions = (resolutions, resolutionId) => {
 
   if (!resolutionId) { return sortedResolutions; }
 
-  const lastResolution = findIndex(sortedResolutions, ['id', resolutionId]);
+  const lastResolution = findIndex(sortedResolutions, ['_meta.id', resolutionId]);
 
   if (lastResolution === -1) {
     throw new Error(`Resolution "${resolutionId}" could not be found`);
@@ -75,15 +75,15 @@ const applyTransform = (network, transform) => {
   };
 };
 
-const transformSessions = (sessions, resolutions, { useEgoData, fromResolution }) => {
-  const priorResolutions = getPriorResolutions(resolutions, fromResolution);
+const transformSessions = (sessions, resolutions, { useEgoData, resolutionId }) => {
+  const priorResolutions = getPriorResolutions(resolutions, resolutionId);
   const sessionsByResolution = getSessionsByResolution(priorResolutions, sessions);
 
   // For each resolution merge sessions and apply resolution
   const resultNetwork = reduce(
     priorResolutions,
-    (accNetwork, { transforms, _meta: { id: resolutionId } }) => {
-      const sessionNetworks = sessionsByResolution[resolutionId]; // array of networks
+    (accNetwork, { transforms, _meta }) => {
+      const sessionNetworks = sessionsByResolution[_meta.id]; // array of networks
 
       if (!sessionNetworks) {
         // if no new sessions, operate on existing

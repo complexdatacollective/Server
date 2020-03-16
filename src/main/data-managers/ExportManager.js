@@ -126,6 +126,7 @@ class ExportManager {
       exportNetworkUnion,
       useDirectedEdges,
       useEgoData,
+      entityResolutionOptions,
     } = {},
   ) {
     if (!protocol) {
@@ -139,10 +140,17 @@ class ExportManager {
     const cleanUp = () => removeTempDir(tmpDir);
 
     let promisedExports;
+
     const exportOpts = {
       useDirectedEdges,
       useEgoData,
       codebook: transposedCodebook(protocol.codebook),
+    };
+
+    const networkOpts = {
+      exportNetworkUnion,
+      useEgoData,
+      entityResolutionOptions,
     };
 
     // Export flow:
@@ -164,13 +172,7 @@ class ExportManager {
       .then(() =>
         this.resolverManager.getNetwork(
           protocol,
-          {
-            destinationFilepath,
-            exportFormats,
-            exportNetworkUnion,
-            useDirectedEdges,
-            useEgoData,
-          },
+          networkOpts,
         ),
       )
       .then((networks) => {

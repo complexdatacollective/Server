@@ -88,12 +88,12 @@ class ExportScreen extends Component {
     }
 
     // TODO: for debugging
-    this.resolveProtocol()
-      .catch((e) => {
-        remote.dialog.showMessageBox({ type: 'error', message: e });
-      });
+    // this.resolveProtocol()
+    //   .catch((e) => {
+    //     remote.dialog.showMessageBox({ type: 'error', message: e });
+    //   });
 
-    return;
+    // return;
 
     this.promptAndExport();
   }
@@ -141,9 +141,7 @@ class ExportScreen extends Component {
       csvTypes,
       useDirectedEdges,
       useEgoData,
-      entityResolutionOptions: {
-        entityResolutionPath,
-      },
+      entityResolutionOptions,
     } = this.state;
 
     const csvTypesNoEgo = new Set(this.state.csvTypes);
@@ -161,7 +159,7 @@ class ExportScreen extends Component {
     return resolverClient.resolveProtocol(
       protocolId,
       {
-        command: entityResolutionPath,
+        entityResolutionOptions,
         exportFormats: (exportFormat === 'csv' && [...exportCsvTypes]) || [exportFormat],
         exportNetworkUnion,
         useDirectedEdges,
@@ -223,6 +221,7 @@ class ExportScreen extends Component {
       csvTypes,
       useDirectedEdges,
       useEgoData,
+      entityResolutionOptions,
     } = this.state;
 
     const csvTypesNoEgo = new Set(this.state.csvTypes);
@@ -232,6 +231,7 @@ class ExportScreen extends Component {
 
     apiClient
       .post(`/protocols/${protocolId}/export_requests`, {
+        entityResolutionOptions,
         exportFormats: (exportFormat === 'csv' && [...exportCsvTypes]) || [exportFormat],
         exportNetworkUnion,
         destinationFilepath,

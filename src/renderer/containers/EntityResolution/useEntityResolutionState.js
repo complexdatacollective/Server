@@ -1,23 +1,24 @@
 import { useReducer } from 'react';
 import { bindActionCreators } from 'redux';
 import { createAction, handleActions } from 'redux-actions';
+import { pick } from 'lodash';
 
 const toggleEntityResolution = createAction('TOGGLE_ENTITY_RESOLUTION');
-const selectSnapshot = createAction('SELECT_SNAPSHOT');
-const setCreateNewSnapshot = createAction('SET_CREATE_NEW_SNAPSHOT');
+const selectResolution = createAction('SELECT_RESOLUTION');
+const setCreateNewResolution = createAction('SET_CREATE_NEW_RESOLUTION');
 const changeEntityResolutionPath = createAction('CHANGE_ENTITY_RESOLUTION_PATH');
 
 export const actionCreators = {
   toggleEntityResolution,
-  selectSnapshot,
-  setCreateNewSnapshot,
+  selectResolution,
+  setCreateNewResolution,
   changeEntityResolutionPath,
 };
 
 const initialState = {
   enableEntityResolution: false,
-  selectedSnapshot: null,
-  createNewSnapshot: false,
+  resolutionId: null,
+  createNewResolution: true,
   entityResolutionPath: '/Users/steve/Projects/teamgarlic/codaco/network-canvas-er/EntityResolution',
 };
 
@@ -27,20 +28,24 @@ const entityResolutionReducer = handleActions(
       if (state.enableEntityResolution) {
         return {
           ...state,
-          enableEntityResolution: false,
-          selectedSnapshot: null,
-          createNewSnapshot: false,
+          // TODO: is this necessary or can we reset path too?
+          ...pick(initialState, [
+            'enableEntityResolution',
+            'resolutionId',
+            'createNewResolution',
+          ]),
         };
       }
       return { ...state, enableEntityResolution: true };
     },
-    [selectSnapshot]: (state, { payload }) => {
+    [selectResolution]: (state, { payload }) => {
       // if (!state.enableEntityResolution) { return state; }
-      return { ...state, selectedSnapshot: payload, createNewSnapshot: false };
+      console.log(payload);
+      return { ...state, resolutionId: payload, createNewResolution: false };
     },
-    [setCreateNewSnapshot]: (state) => {
+    [setCreateNewResolution]: (state) => {
       // if (!state.enableEntityResolution) { return state; }
-      return { ...state, selectedSnapshot: null, createNewSnapshot: true };
+      return { ...state, resolutionId: null, createNewResolution: true };
     },
     [changeEntityResolutionPath]: (state, { payload }) => {
       // if (!state.enableEntityResolution) { return state; }
