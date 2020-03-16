@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { DateTime } from 'luxon';
@@ -20,14 +21,14 @@ const EntityResolution = ({ apiClient, showError, protocolId, onUpdateOptions, d
   const {
     enableEntityResolution,
     entityResolutionPath,
-    selectedSnapshot,
-    createNewSnapshot,
+    resolutionId,
+    createNewResolution,
   } = state;
 
   const {
     toggleEntityResolution,
-    selectSnapshot,
-    setCreateNewSnapshot,
+    selectResolution,
+    setCreateNewResolution,
     changeEntityResolutionPath,
   } = handlers;
 
@@ -41,7 +42,7 @@ const EntityResolution = ({ apiClient, showError, protocolId, onUpdateOptions, d
       .then(({ resolutions }) => {
         const sortedResolutions = [...resolutions].sort(compareCreatedAt);
         setResolutionHistory(sortedResolutions);
-        selectSnapshot(null);
+        selectResolution(null);
         // if path has been changed skip this
         if (entityResolutionPath.length === 0) {
           const path = get(last(sortedResolutions), 'options.entityResolutionPath', '');
@@ -57,14 +58,14 @@ const EntityResolution = ({ apiClient, showError, protocolId, onUpdateOptions, d
     onUpdateOptions({
       enableEntityResolution,
       entityResolutionPath,
-      selectedSnapshot,
-      createNewSnapshot,
+      resolutionId,
+      createNewResolution,
     });
   }, [
     enableEntityResolution,
     entityResolutionPath,
-    selectedSnapshot,
-    createNewSnapshot,
+    resolutionId,
+    createNewResolution,
     onUpdateOptions,
   ]);
 
@@ -90,20 +91,20 @@ const EntityResolution = ({ apiClient, showError, protocolId, onUpdateOptions, d
             <div className="export__subpanel-content">
               {
                 resolutionHistory
-                  .map((snapshot, index) => (
+                  .map((resolution, index) => (
                     <Snapshot
-                      key={snapshot.id}
-                      onSelect={selectSnapshot}
+                      key={resolution._meta.id}
+                      onSelect={selectResolution}
                       onRollback={() => {}}
                       canRollback={resolutionHistory.length !== index + 1}
-                      isSelected={state.selectedSnapshot === snapshot.id}
-                      {...snapshot}
+                      isSelected={state.resolutionId === resolution._meta.id}
+                      {...resolution._meta}
                     />
                   ))
               }
               <NewSnapshot
-                onSelectCreateNewSnapshot={setCreateNewSnapshot}
-                isSelected={createNewSnapshot}
+                onSelectCreateNewSnapshot={setCreateNewResolution}
+                isSelected={createNewResolution}
                 onChangeEntityResolutionPath={changeEntityResolutionPath}
                 entityResolutionPath={entityResolutionPath}
               />

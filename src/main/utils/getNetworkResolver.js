@@ -85,10 +85,10 @@ const appendNodeNetworkData = network =>
  * will be closed automatically, and the error can be captured on the last
  * stream with `.on('error', () => {});`
  */
-const getNetworkResolver = ({
+const getNetworkResolver = (
   command,
-  codebook,
-} = {}) =>
+  { codebook },
+) =>
   (network) => {
     // TODO: what happens when network is empty?
     const formatter = new AttributeListFormatter(network, false, false, codebook);

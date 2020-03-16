@@ -12,6 +12,14 @@ const { transformSessions } = require('../utils/transformSessions');
 const ResolverDB = require('./ResolverDB');
 const SessionDB = require('./SessionDB');
 
+const defaultNetworkOptions = {};
+
+const defaultEntityResolutionOptions = {
+  // enableEntityResolution: false,
+  enableEntityResolution: true,
+  resolutionId: null,
+};
+
 const formatResolution = resolution => ({
   ...resolution,
   _meta: {
@@ -51,16 +59,12 @@ class ResolverManager {
       useEgoData,
       exportNetworkUnion,
       entityResolutionOptions,
-    } = {},
+    } = defaultNetworkOptions,
   ) {
     const {
       enableEntityResolution,
       resolutionId,
-    } = entityResolutionOptions || {
-      // enableEntityResolution: false,
-      enableEntityResolution: true,
-      resolutionId: null,
-    };
+    } = entityResolutionOptions || defaultEntityResolutionOptions;
 
     const protocolId = protocol._id;
 
@@ -79,7 +83,8 @@ class ResolverManager {
       .then(
         ([sessions, resolutions]) =>
           transformSessions(sessions, resolutions, transformOptions),
-      );
+      )
+      .then(network => ([network]));
   }
 
   getSessionNetworks(protocolId) {
@@ -98,20 +103,21 @@ class ResolverManager {
 
   resolveProtocol(
     protocol,
-    {
-      useEgoData,
-      command,
-    } = {},
+    options,
   ) {
     if (!protocol) {
       return Promise.reject(new RequestError(ErrorMessages.NotFound));
     }
 
     const codebook = transposedCodebook(protocol.codebook);
-    const networkResolver = getNetworkResolver({ useEgoData, command, codebook });
 
-    return this.getNetwork(protocol, { useEgoData })
-      .then(networkResolver);
+    const command = options.entityResolutionOptions.entityResolutionPath;
+    const resolverOptions = { codebook };
+
+    const networkResolver = getNetworkResolver(command, resolverOptions);
+
+    return this.getNetwork(protocol, options)
+      .then(([network]) => networkResolver(network));
   }
 }
 

@@ -4,13 +4,13 @@ import PropTypes from 'prop-types';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 
 const Snapshot = ({
-  createdAt,
   id,
+  date,
   isSelected,
   canRollback,
   onSelect,
 }) => {
-  const displayDate = DateTime.fromISO(createdAt).toHTTP();
+  const displayDate = DateTime.fromISO(date).toHTTP();
 
   return (
     <div className="snapshot">
@@ -25,7 +25,8 @@ const Snapshot = ({
           }}
         />
         {/* { canRollback &&
-          <button type="button">rollback</button>
+          <button type="button">delete?</button>
+          <button type="button">rollback?</button>
         } */}
       </div>
       <div>
@@ -39,7 +40,7 @@ Snapshot.propTypes = {
   // date: PropTypes.string.isRequired,
   // sessions: PropTypes.number.isRequired,
   // settings: PropTypes.object.isRequired,
-  // id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   // isSelected: PropTypes.bool,
   // canRollback: PropTypes.bool,
   // onSelect: PropTypes.func.isRequired,
