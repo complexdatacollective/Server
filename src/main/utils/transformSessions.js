@@ -11,8 +11,7 @@ const {
 const getPriorResolutions = (resolutions, resolutionId) => {
   // from oldest to newest
   const sortedResolutions = [...resolutions]
-    .sort((a, b) => DateTime.fromISO(a.date) - DateTime.fromISO(b.date));
-
+    .sort((a, b) => DateTime.fromISO(a._meta.date) - DateTime.fromISO(b._meta.date));
 
   if (!resolutionId) { return sortedResolutions; }
 
@@ -30,15 +29,14 @@ const getPriorResolutions = (resolutions, resolutionId) => {
 // calculating it?
 const getSessionsByResolution = (resolutions, sessions) =>
   sessions.reduce((memo, session) => {
-    const sessionDate = DateTime.fromISO(session.date);
+    const sessionDate = DateTime.fromJSDate(session._meta.date);
 
     const resolution = find(
       resolutions,
-      ({ date }) =>
-        sessionDate < DateTime.fromISO(date),
+      ({ _meta }) => sessionDate < DateTime.fromJSDate(_meta.date),
     );
 
-    const resolutionId = (resolution && resolution.id) || '_unresolved';
+    const resolutionId = (resolution && resolution._meta.id) || '_unresolved';
 
     const group = get(memo, [resolutionId], []);
 
@@ -84,18 +82,18 @@ const transformSessions = (sessions, resolutions, { useEgoData, fromResolution }
   // For each resolution merge sessions and apply resolution
   const resultNetwork = reduce(
     priorResolutions,
-    (accNetwork, resolution) => {
-      const sessionNetworks = sessionsByResolution[resolution.id]; // array of networks
+    (accNetwork, { transforms, _meta: { id: resolutionId } }) => {
+      const sessionNetworks = sessionsByResolution[resolutionId]; // array of networks
 
       if (!sessionNetworks) {
         // if no new sessions, operate on existing
-        return resolution.transforms.reduce(applyTransform, accNetwork);
+        return transforms.reduce(applyTransform, accNetwork);
       }
 
       const withEgoData = useEgoData ? insertEgoInNetworks(sessionNetworks) : sessionNetworks;
       const unifiedNetwork = unionOfNetworks([accNetwork, ...withEgoData]);
 
-      return resolution.transforms.reduce(applyTransform, unifiedNetwork);
+      return transforms.reduce(applyTransform, unifiedNetwork);
     },
     { nodes: [], edges: [], ego: [] },
   );

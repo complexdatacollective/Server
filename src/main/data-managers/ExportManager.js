@@ -158,6 +158,9 @@ class ExportManager {
           throw new Error('Temporary directory unavailable');
         }
       })
+      // TODO: ensure this works
+      // _CaseID may need to change to _meta.CaseID
+      // _id _meta.id
       .then(() =>
         this.resolverManager.getNetwork(
           protocol,

@@ -87,7 +87,7 @@ class ExportScreen extends Component {
       return;
     }
 
-    // for debugging
+    // TODO: for debugging
     this.resolveProtocol()
       .catch((e) => {
         remote.dialog.showMessageBox({ type: 'error', message: e });
@@ -151,6 +151,13 @@ class ExportScreen extends Component {
     const exportCsvTypes = useEgoData ? csvTypes : csvTypesNoEgo;
     const showCsvOpts = exportFormat === 'csv';
 
+    this.setState(state => ({
+      ...state,
+      matches: [],
+      isLoadingMatches: true,
+      errorLoadingMatches: null,
+    }));
+
     return resolverClient.resolveProtocol(
       protocolId,
       {
@@ -162,13 +169,6 @@ class ExportScreen extends Component {
       },
     )
       .then(resolverStream => new Promise((resolve, reject) => {
-        this.setState(state => ({
-          ...state,
-          matches: [],
-          isLoadingMatches: true,
-          errorLoadingMatches: null,
-        }));
-
         resolverStream.on('data', (d) => {
           const data = JSON.parse(d.toString());
           this.setState(state => ({ ...state, matches: [...state.matches, data] }));
