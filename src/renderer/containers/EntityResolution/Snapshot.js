@@ -7,7 +7,6 @@ const Snapshot = ({
   id,
   date,
   isSelected,
-  canRollback,
   onSelect,
 }) => {
   const displayDate = DateTime.fromISO(date).toHTTP();
@@ -24,31 +23,20 @@ const Snapshot = ({
             onChange: () => onSelect(id),
           }}
         />
-        {/* { canRollback &&
-          <button type="button">delete?</button>
-          <button type="button">rollback?</button>
-        } */}
-      </div>
-      <div>
-        {/* {JSON.stringify(rest)} */}
       </div>
     </div>
   );
 };
 
 Snapshot.propTypes = {
-  // date: PropTypes.string.isRequired,
-  // sessions: PropTypes.number.isRequired,
-  // settings: PropTypes.object.isRequired,
+  date: PropTypes.string.isRequired,
   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-  // isSelected: PropTypes.bool,
-  // canRollback: PropTypes.bool,
-  // onSelect: PropTypes.func.isRequired,
+  isSelected: PropTypes.bool,
+  onSelect: PropTypes.func.isRequired,
 };
 
 Snapshot.defaultProps = {
   isSelected: false,
-  canRollback: false,
 };
 
 export default Snapshot;

@@ -416,6 +416,9 @@ ExportScreen.propTypes = {
   showConfirmation: PropTypes.func.isRequired,
   showError: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
+  resolverClient: PropTypes.shape({
+    resolveProtocol: PropTypes.func.isRequired,
+  }).isRequired,
 };
 
 ExportScreen.defaultProps = {

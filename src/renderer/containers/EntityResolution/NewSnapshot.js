@@ -10,14 +10,11 @@ const NewSnapshot = ({
   onChangeEntityResolutionPath,
   entityResolutionPath,
 }) => {
-  const handleChangeEntityResolutionPath = (e) =>
+  const handleChangeEntityResolutionPath = e =>
     onChangeEntityResolutionPath(e.target.value);
 
   return (
-    <div
-      className="snapshot"
-      isSelected={isSelected}
-    >
+    <div className="snapshot">
       <div>
         <Radio
           label={`Resolve new sessions (${newSessionCount})`}
@@ -50,7 +47,7 @@ const NewSnapshot = ({
       }
     </div>
   );
-}
+};
 
 NewSnapshot.propTypes = {
   onSelectCreateNewSnapshot: PropTypes.func.isRequired,

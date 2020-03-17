@@ -55,7 +55,7 @@ const EntityDiff = ({
   const handleSkip = useCallback(() => {
     if (!(
       Object.keys(resolvedAttributes).length === 0 ||
-      window.confirm('Looks like you have set some attributes, are you sure?')
+      window.confirm('Looks like you have set some attributes, are you sure?') // eslint-disable-line
     )) {
       return;
     }
@@ -156,7 +156,7 @@ const EntityDiff = ({
           }
           {showHidden && rows
             .filter(({ required }) => !required)
-            .map(({ variable, values, checked }) => (
+            .map(({ variable, values }) => (
               <tr key={`${match.index}_${variable}`}>
                 <th>{ variable }</th>
                 <td>
