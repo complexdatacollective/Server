@@ -7,15 +7,21 @@ import cx from 'classnames';
 import Checkbox from '@codaco/ui/lib/components/Fields/Checkbox';
 import DrawerTransition from '@codaco/ui/lib/components/Transitions/Drawer';
 import withApiClient from '../../components/withApiClient';
-import Snapshot from './Snapshot';
 import useEntityResolutionState from './useEntityResolutionState';
+import Snapshot from './Snapshot';
 import NewSnapshot from './NewSnapshot';
 import './EntityResolution.scss';
 
 const compareCreatedAt = (a, b) =>
   DateTime.fromISO(a.createdAt) - DateTime.fromISO(b.createdAt);
 
-const EntityResolution = ({ apiClient, showError, protocolId, onUpdateOptions, disabled }) => {
+const EntityResolution = ({
+  apiClient,
+  showError,
+  protocolId,
+  onUpdateOptions,
+  disabled,
+}) => {
   const [state, handlers] = useEntityResolutionState();
 
   const {
@@ -117,8 +123,16 @@ const EntityResolution = ({ apiClient, showError, protocolId, onUpdateOptions, d
 };
 
 EntityResolution.propTypes = {
-  show: PropTypes.bool.isRequired,
-  enabled: PropTypes.bool.isRequired,
+  apiClient: PropTypes.object.isRequired,
+  showError: PropTypes.func.isRequired,
+  protocolId: PropTypes.string,
+  onUpdateOptions: PropTypes.func.isRequired,
+  disabled: PropTypes.bool,
+};
+
+EntityResolution.defaultProps = {
+  protocolId: null,
+  disabled: false,
 };
 
 export default withApiClient(EntityResolution);

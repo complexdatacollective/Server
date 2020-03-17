@@ -38,19 +38,20 @@ const entityResolutionReducer = handleActions(
       }
       return { ...state, enableEntityResolution: true };
     },
-    [selectResolution]: (state, { payload }) => {
-      // if (!state.enableEntityResolution) { return state; }
-      console.log(payload);
-      return { ...state, resolutionId: payload, createNewResolution: false };
-    },
-    [setCreateNewResolution]: (state) => {
-      // if (!state.enableEntityResolution) { return state; }
-      return { ...state, resolutionId: null, createNewResolution: true };
-    },
-    [changeEntityResolutionPath]: (state, { payload }) => {
-      // if (!state.enableEntityResolution) { return state; }
-      return { ...state, entityResolutionPath: payload };
-    },
+    [selectResolution]: (state, { payload }) => ({
+      ...state,
+      resolutionId: payload,
+      createNewResolution: false,
+    }),
+    [setCreateNewResolution]: state => ({
+      ...state,
+      resolutionId: null,
+      createNewResolution: true,
+    }),
+    [changeEntityResolutionPath]: (state, { payload }) => ({
+      ...state,
+      entityResolutionPath: payload,
+    }),
   },
   initialState,
 );
