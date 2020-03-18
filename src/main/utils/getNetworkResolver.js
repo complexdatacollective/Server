@@ -96,13 +96,17 @@ const getNetworkResolver = (
     return commandRunner(command)
       .then((resolverProcess) => {
         const pipeline = miss.pipeline(
-          // debugStream('input'),
+          debugStream('input'),
           resolverProcess(),
           split(),
           csvToJson(),
           appendNodeNetworkData(network),
-          // debugStream('output'),
+          debugStream('output'),
         );
+
+        pipeline.on('close', () => console.log('stream closed'));
+        pipeline.on('end', () => console.log('stream ended'));
+        pipeline.on('error', e => console.log('stream err', e));
 
         formatter.writeToStream(pipeline);
         return pipeline;
