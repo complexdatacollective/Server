@@ -5,6 +5,8 @@ import { bindActionCreators } from 'redux';
 import { Redirect, withRouter } from 'react-router-dom';
 import { remote } from 'electron';
 import { compose } from 'recompose';
+import { get } from 'lodash';
+import uuid from 'uuid';
 import { Button, Spinner } from '@codaco/ui';
 import DrawerTransition from '@codaco/ui/lib/components/Transitions/Drawer';
 import Checkbox from '@codaco/ui/lib/components/Fields/Checkbox';
@@ -26,7 +28,6 @@ const availableCsvTypes = {
   attributeList: 'Attribute List',
   edgeList: 'Edge List',
 };
-
 class ExportScreen extends Component {
   constructor(props) {
     super(props);
@@ -36,8 +37,9 @@ class ExportScreen extends Component {
       csvTypes: new Set([...Object.keys(availableCsvTypes), 'ego']),
       useDirectedEdges: true,
       useEgoData: true,
+      resolveRequestId: null,
       matches: [],
-      // matches: testMatches,
+      showResolver: false,
       isLoadingMatches: false,
       errorLoadingMatches: null,
       entityResolutionOptions: {},
@@ -81,19 +83,37 @@ class ExportScreen extends Component {
     // .then(this.promptAndExport);
   }
 
+  handleCloseResolver = () => {
+    // Abort request if still on-going.
+    if (this.state.resolverStream) {
+      this.state.resolverStream.destroy();
+    }
+    this.setState(state => ({
+      ...state,
+      showResolver: false,
+      matches: [],
+      isLoadingMatches: false,
+      errorLoadingMatches: null,
+      resolverStream: null,
+    }));
+  }
+
   handleSubmit = () => {
     if (!this.formatsAreValid()) {
       this.props.showError('Please select at least one file type to export');
       return;
     }
 
-    // TODO: for debugging
-    // this.resolveProtocol()
-    //   .catch((e) => {
-    //     remote.dialog.showMessageBox({ type: 'error', message: e });
-    //   });
+    const createNewResolution = get(
+      this.state,
+      'entityResolutionOptions.createNewResolution',
+      false,
+    );
 
-    // return;
+    if (createNewResolution) {
+      this.resolveProtocol();
+      return;
+    }
 
     this.promptAndExport();
   }
@@ -135,6 +155,8 @@ class ExportScreen extends Component {
     const { resolverClient, protocol: { id: protocolId } } = this.props;
     if (!resolverClient) { return Promise.reject(); }
 
+    const requestId = uuid();
+
     const {
       exportFormat,
       exportNetworkUnion,
@@ -151,9 +173,12 @@ class ExportScreen extends Component {
 
     this.setState(state => ({
       ...state,
+      showResolver: true,
+      resolveRequestId: requestId,
       matches: [],
       isLoadingMatches: true,
       errorLoadingMatches: null,
+      resolverStream: null,
     }));
 
     return resolverClient.resolveProtocol(
@@ -167,21 +192,40 @@ class ExportScreen extends Component {
       },
     )
       .then(resolverStream => new Promise((resolve, reject) => {
+        this._resolverStream = resolverStream;
+
         resolverStream.on('data', (d) => {
           const data = JSON.parse(d.toString());
           this.setState(state => ({ ...state, matches: [...state.matches, data] }));
         });
 
-        resolverStream.on('end', () => {
-          this.setState(state => ({ ...state, isLoadingMatches: false }));
-          resolve();
-        });
+        resolverStream.on('end', resolve);
 
         resolverStream.on('error', reject);
       }))
+      .then(() => {
+        this.setState(state => ({
+          ...state,
+          isLoadingMatches: false,
+          resolverStream: null,
+        }));
+      })
       .catch((error) => {
         this.props.showError(error.message);
-        this.setState(state => ({ ...state, isLoadingMatches: false, errorLoadingMatches: error }));
+
+        this.setState(state => ({
+          ...state,
+          isLoadingMatches: false,
+          resolverStream: null,
+          errorLoadingMatches: error,
+          showResolver: false,
+        }));
+      })
+      .finally(() => {
+        if (this._resolverStream) {
+          this._resolverStream.destroy();
+          this._resolverStream = null;
+        }
       });
   }
 
@@ -257,6 +301,8 @@ class ExportScreen extends Component {
     const showCsvOpts = this.state.exportFormat === 'csv';
     const { exportInProgress } = this.state;
 
+    // console.log('render', this.state);
+
     return (
       <form className="export" onSubmit={this.handleSubmit}>
         <ExportModal
@@ -266,13 +312,15 @@ class ExportScreen extends Component {
         />
         <ErrorBoundary>
           <Resolver
+            key={this.state.resolveRequestId}
             matches={this.state.matches}
             isLoadingMatches={this.state.isLoadingMatches}
-            show={this.state.matches.length > 0}
+            show={this.state.showResolver}
+            onClose={this.handleCloseResolver}
             onResolved={this.handleResolved}
           />
         </ErrorBoundary>
-        <h1>Export Data</h1>
+        <h1>Export Data {this.state.resolveRequestId}</h1>
         <div className="export__section">
           <h3>File Type</h3>
           <p>
