@@ -23,12 +23,14 @@ const resolveMatch = (match, attributes) => resolveMatchAction(match, 'RESOLVE',
 const skipMatch = match => resolveMatchAction(match, 'SKIP');
 const nextEntity = createAction('NEXT_ENTITY');
 const previousEntity = createAction('PREVIOUS_ENTITY');
+const reset = createAction('RESET');
 
 export const actionCreators = {
   resolveMatch,
   skipMatch,
   nextMatch: nextEntity,
   previousMatch: previousEntity,
+  reset,
 };
 
 export const matchActionReducer = (state, { payload: { match, action } }) => {
@@ -83,7 +85,11 @@ const initialState = {
   currentMatchIndex: 0,
 };
 
-export const resolveReducer = (state, { payload: { match, action, attributes } }) => {
+export const resolveReducer = (state, { type, payload: { match, action, attributes } }) => {
+  if (type === reset) {
+    return initialState;
+  }
+
   const matchActions = matchActionReducer(state.actions, { payload: { match, action } });
   const currentMatchIndex = matchActions[matchActions.length - 1].index + 1;
   const resolutions = resolutionsReducer(
