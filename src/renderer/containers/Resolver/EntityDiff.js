@@ -34,7 +34,10 @@ const EntityDiff = ({
       const isComplete = isEqual(requiredAttributes, Object.keys(resolvedAttributes));
 
       // TODO: set error state
-      if (!isComplete) { return; }
+      if (!isComplete) {
+        window.confirm("Looks like you haven't chosen all the attributes yet?") // eslint-disable-line
+        return;
+      }
 
       const resolved = reduce(resolvedAttributes, (obj, resolution, variable) => ({
         ...obj,
@@ -53,6 +56,7 @@ const EntityDiff = ({
   );
 
   const handleSkip = useCallback(() => {
+    // TODO: better in app warning?
     if (!(
       Object.keys(resolvedAttributes).length === 0 ||
       window.confirm('Looks like you have set some attributes, are you sure?') // eslint-disable-line
