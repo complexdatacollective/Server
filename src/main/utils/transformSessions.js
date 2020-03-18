@@ -6,6 +6,7 @@ const {
   unionOfNetworks,
   nodePrimaryKeyProperty,
   nodeAttributesProperty,
+  egoProperty,
 } = require('../utils/formatters/network');
 
 const getPriorResolutions = (resolutions, resolutionId) => {
@@ -46,11 +47,26 @@ const getSessionsByResolution = (resolutions, sessions) =>
     };
   }, {});
 
-// TODO: make sure this still contains _egoID for 'new' nodes
 const applyTransform = (network, transform) => {
-  const withTransformNodesRemoved = network.nodes.filter(
-    node => !transform.nodes.includes(node[nodePrimaryKeyProperty]),
-  );
+  const [withTransformNodesRemoved, collectedProps] = network.nodes
+    .reduce(
+      ([nodes, props], node) => {
+        if (!transform.nodes.includes(node[nodePrimaryKeyProperty])) {
+          return [[...nodes, node], props];
+        }
+
+        // TODO: do we need any other props? Can we do this automatically? eg. `omit()`?
+        return [
+          nodes,
+          {
+            ...props,
+            [egoProperty]: [...props[egoProperty], node[egoProperty]],
+            type: node.type,
+          },
+        ];
+      },
+      [[], { [egoProperty]: [] }],
+    );
 
   // nodes weren't found return original network
   if (withTransformNodesRemoved.length !== network.nodes.length - transform.nodes.length) {
@@ -58,6 +74,9 @@ const applyTransform = (network, transform) => {
   }
 
   const nodes = withTransformNodesRemoved.concat([{
+    ...collectedProps, // egoIds, type, etc.
+    // TODO: this can be removed when exporter can handle arrays
+    [egoProperty]: collectedProps[egoProperty][0],
     [nodePrimaryKeyProperty]: transform.id,
     [nodeAttributesProperty]: transform.attributes,
   }]);
