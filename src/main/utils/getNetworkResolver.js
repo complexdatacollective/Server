@@ -96,15 +96,21 @@ const getNetworkResolver = (
     const formatter = new AttributeListFormatter(network, false, false, codebook);
 
     return commandRunner(command)
-      .then((resolverProcess) => {
+      .then((runResolverProcess) => {
+        const resolverProcess = runResolverProcess();
+
         const pipeline = miss.pipeline(
           debugStream('input'),
-          resolverProcess(),
+          resolverProcess,
           split(),
           csvToJson(),
           appendNodeNetworkData(network),
           debugStream('output'),
         );
+
+        pipeline.abort = () => {
+          resolverProcess.kill();
+        };
 
         formatter.writeToStream(pipeline);
 

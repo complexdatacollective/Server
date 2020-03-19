@@ -79,24 +79,25 @@ class ExportScreen extends Component {
 
   handleResolved = (resolutions) => {
     this.saveResolution(resolutions)
-      .then(() => { this.setState({ matches: [] }); });
-    // .then(this.promptAndExport);
+      .then(this.resetResolver);
   }
 
   handleCloseResolver = () => {
-    // Abort request if still on-going.
-    if (this.state.resolverStream) {
-      this.state.resolverStream.destroy();
-    }
+    this.resetResolver();
+  }
+
+  resetResolver = () => {
     this.setState(state => ({
       ...state,
-      showResolver: false,
       matches: [],
       isLoadingMatches: false,
+      showResolver: false,
       errorLoadingMatches: null,
       resolverStream: null,
     }));
-  }
+
+    this.cleanupResolverStream();
+  };
 
   handleSubmit = () => {
     if (!this.formatsAreValid()) {
@@ -149,6 +150,13 @@ class ExportScreen extends Component {
 
   formatsAreValid() {
     return this.state.exportFormat === 'graphml' || this.state.csvTypes.size > 0;
+  }
+
+  cleanupResolverStream = () => {
+    if (this._resolverStream) {
+      this._resolverStream.abort();
+      this._resolverStream = null;
+    }
   }
 
   resolveProtocol = () => {
@@ -221,12 +229,7 @@ class ExportScreen extends Component {
           showResolver: false,
         }));
       })
-      .finally(() => {
-        if (this._resolverStream) {
-          this._resolverStream.destroy();
-          this._resolverStream = null;
-        }
-      });
+      .finally(this.cleanupResolverStream);
   }
 
   saveResolution = (resolution) => {

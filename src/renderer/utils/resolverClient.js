@@ -31,6 +31,11 @@ class resolverClient {
 
       const stream = pipeline(ipcStream(), IPCErrorTranform());
 
+      stream.abort = () => {
+        stream.end();
+        stream.destroy();
+      };
+
       ipcRenderer.send(eventTypes.RESOLVE_REQUEST, requestId, protocolId, options);
 
       resolve(stream);

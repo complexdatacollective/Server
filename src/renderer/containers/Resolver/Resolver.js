@@ -32,7 +32,6 @@ const Resolver = ({ isLoadingMatches, matches, show, onClose, onResolved, resolv
   };
 
   useEffect(() => {
-    console.log('did reset');
     reset();
   }, [resolveRequestId]);
 
