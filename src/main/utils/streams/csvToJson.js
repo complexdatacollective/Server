@@ -44,8 +44,8 @@ class CsvAsJsonStream extends Transform {
         {},
       );
 
-    const result = JSON.stringify(obj);
-    callback(null, result);
+    const output = JSON.stringify(obj);
+    callback(null, output);
   }
 }
 

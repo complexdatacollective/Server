@@ -64,12 +64,14 @@ const appendNodeNetworkData = network =>
 
       const probability = parseFloat(obj.prob);
 
-      const result = JSON.stringify({
+      const result = {
         nodes,
         probability,
-      });
+      };
 
-      callback(null, result);
+      const output = JSON.stringify(result);
+
+      callback(null, output);
     } catch (err) {
       callback(err);
     }
@@ -104,11 +106,8 @@ const getNetworkResolver = (
           debugStream('output'),
         );
 
-        pipeline.on('close', () => console.log('stream closed'));
-        pipeline.on('end', () => console.log('stream ended'));
-        pipeline.on('error', e => console.log('stream err', e));
-
         formatter.writeToStream(pipeline);
+
         return pipeline;
       });
   };
