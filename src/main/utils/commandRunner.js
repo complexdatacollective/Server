@@ -1,5 +1,6 @@
-const child = require('child_process');
-const miss = require('mississippi');
+// const child = require('child_process');
+// const miss = require('mississippi');
+const child = require('duplex-child-process');
 const fs = require('fs');
 
 const getArgs = command => new Promise((resolve, reject) => {
@@ -16,21 +17,7 @@ const spawnCommand = ({ executable, args }) =>
 
       resolve(() => {
         const spawnedProcess = child.spawn(executable, args);
-        const processStream = miss.duplex(
-          spawnedProcess.stdin, // readable
-          spawnedProcess.stdout, // writeable
-          { allowHalfOpen: false },
-        );
-        // processStream.exit = (code = 0) => {
-        //   throw new Error();
-        //   spawnedProcess.exit(code);
-        // };
-        processStream.kill = () => spawnedProcess.kill();
-        // processStream.end = () => {
-        //   console.log('happened');
-        //   process.stdin.end();
-        // };
-        return processStream;
+        return spawnedProcess;
       });
     });
   });

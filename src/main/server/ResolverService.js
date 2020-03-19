@@ -36,14 +36,14 @@ class ResolverService {
     logger.debug('[ResoverService]', eventTypes.RESOLVE_REQUEST, protocolId, requestId, JSON.stringify(options));
     const ipcs = new IPCStream(requestId, event.sender);
 
-    const handleResolverError = (error) => {
-      logger.debug('[ResolverService:resolver]', `Error: ${error.message}`);
+    const handleStreamError = (error) => {
+      logger.debug('[ResolverService:stream]', `Error: ${error.message}`);
       ipcs.write(JSON.stringify({ error: { message: error.message, stack: error.stack } }));
       ipcs.destroy();
     };
 
     const handleError = (error) => {
-      logger.debug('[ResolverService:stream]', `Error: ${error.message}`);
+      logger.debug('[ResolverService]', `Error: ${error.message}`);
       ipcs.destroy();
     };
 
@@ -51,10 +51,10 @@ class ResolverService {
       .then((resolverStream) => {
         // IPCStream is not a true stream and does not support errors, perhaps consider
         // using plain IPC messages?
-        resolverStream.on('error', handleError);
+        resolverStream.on('error', handleStreamError);
         resolverStream.pipe(ipcs);
       })
-      .catch(handleResolverError);
+      .catch(handleError);
   }
 
   resolveProtocol(protocolId, options) {
