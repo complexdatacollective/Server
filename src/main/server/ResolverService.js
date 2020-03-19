@@ -34,24 +34,37 @@ class ResolverService {
 
   onResolveRequest(event, requestId, protocolId, options) {
     logger.debug('[ResoverService]', eventTypes.RESOLVE_REQUEST, protocolId, requestId, JSON.stringify(options));
-    const ipcs = new IPCStream(requestId, event.sender);
+    const ipcs = new IPCStream(requestId, event.sender, { emitClose: true });
 
     const handleStreamError = (error) => {
       logger.debug('[ResolverService:stream]', `Error: ${error.message}`);
       ipcs.write(JSON.stringify({ error: { message: error.message, stack: error.stack } }));
-      ipcs.destroy();
+      ipcs.abort();
     };
 
     const handleError = (error) => {
       logger.debug('[ResolverService]', `Error: ${error.message}`);
-      ipcs.destroy();
+      ipcs.abort();
     };
 
     this.resolveProtocol(protocolId, options)
       .then((resolverStream) => {
+        // This is a requirement of the 'end' event, all data must be processed before
+        // 'end' is emitted.
+        ipcs.on('data', () => {
+          // noop
+          logger.debug('[ResolverService:data]');
+        });
+
+        ipcs.on('end', () => {
+          logger.debug('[ResolverService]', 'Killing process');
+          resolverStream.abort();
+        });
+
         // IPCStream is not a true stream and does not support errors, perhaps consider
         // using plain IPC messages?
         resolverStream.on('error', handleStreamError);
+
         resolverStream.pipe(ipcs);
       })
       .catch(handleError);
