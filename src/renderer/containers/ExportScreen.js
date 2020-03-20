@@ -82,7 +82,7 @@ class ExportScreen extends Component {
       .then(this.resetResolver);
   }
 
-  handleCloseResolver = () => {
+  handleCancelResolver = () => {
     this.resetResolver();
   }
 
@@ -318,7 +318,7 @@ class ExportScreen extends Component {
             matches={this.state.matches}
             isLoadingMatches={this.state.isLoadingMatches}
             show={this.state.showResolver}
-            onClose={this.handleCloseResolver}
+            onCancel={this.handleCancelResolver}
             onResolved={this.handleResolved}
           />
         </ErrorBoundary>

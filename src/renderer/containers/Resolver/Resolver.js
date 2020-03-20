@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Progress, Spinner, Icon } from '@codaco/ui';
+import { Modal, Progress, Spinner, Icon, Button } from '@codaco/ui';
 import ReviewTable from './ReviewTable';
 import EntityDiff from './EntityDiff';
 import useResolverState from './useResolverState';
@@ -8,7 +8,14 @@ import './Resolver.scss';
 import finializeResolutions from './finalizeResolutions';
 import { getMatch, getMatchOrResolved } from './helpers';
 
-const Resolver = ({ isLoadingMatches, matches, show, onClose, onResolved, resolveRequestId }) => {
+const Resolver = ({
+  isLoadingMatches,
+  matches,
+  show,
+  onCancel,
+  onResolved,
+  resolveRequestId,
+}) => {
   const [state, handlers] = useResolverState();
 
   const { resolveMatch, skipMatch, reset } = handlers;
@@ -26,69 +33,95 @@ const Resolver = ({ isLoadingMatches, matches, show, onClose, onResolved, resolv
     reset();
   };
 
-  const handleClose = () => {
-    reset();
-    onClose();
+  const handleCancel = () => {
+    if (window.confirm('You will loose any progress, are you sure?')) {
+      reset();
+      onCancel();
+    }
   };
 
   useEffect(() => {
     reset();
   }, [resolveRequestId]);
 
-  // console.log('props', { isLoadingMatches, matches, show, onClose, onResolved, resolveRequestId });
+  const renderHeading = () => {
+    if (!hasData && isLoadingMatches) {
+      return 'Running resolver script...';
+    }
+
+    if (!hasData && !isLoadingMatches) {
+      return 'No data';
+    }
+
+    if (isComplete) {
+      return 'Review Actions';
+    }
+
+    if (!matchOrResolved) {
+      return 'Waiting for next match...';
+    }
+
+    return `Match ${state.currentMatchIndex + 1} of ${matches.length}`;
+  };
+
+  const renderContent = () => {
+    if (!hasData && !isLoadingMatches) {
+      return (
+        <div className="resolver__error">
+          <Icon name="error" /> No match data (and no pending match data).
+        </div>
+      );
+    }
+
+    if (isComplete) {
+      return (
+        <div className="resolver__review">
+          <ReviewTable
+            matches={matches}
+            actions={state.actions}
+            onConfirm={handleFinish}
+            onCancel={handleCancel}
+          />
+        </div>
+      );
+    }
+
+    if (!matchOrResolved) {
+      return (
+        <div className="resolver__loading">
+          <Spinner />
+          <Button color="white" onClick={handleCancel}>Cancel</Button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="resolver__diff">
+        <EntityDiff
+          match={matchOrResolved}
+          onResolve={resolveMatch}
+          onSkip={skipMatch}
+          onCancel={handleCancel}
+        />
+      </div>
+    );
+  };
 
   return (
-    <Modal show={show} onBlur={handleClose}>
+    <Modal show={show}>
       <div className="resolver">
-        <div
-          className="resolver__close"
-          onClick={handleClose}
-        >
-          <Icon name="close" size="small" />
-        </div>
         <div className="resolver__content">
-          { !isComplete &&
-            <h1 className="resolver__heading">
-              Match
-              {hasData && ` ${state.currentMatchIndex + 1} of ${matches.length}`}
-            </h1>
-          }
-          { isComplete && <h1 className="resolver__heading">Review Actions</h1> }
-          <div className="resolver__progress">
-            <Progress
-              value={state.currentMatchIndex}
-              max={matches.length}
-              active={isLoadingMatches}
-            />
-          </div>
-          { !isComplete && !matchOrResolved &&
-            <div className="resolver__loading">
-              <Spinner />
-            </div>
-          }
-          { !isComplete && matchOrResolved &&
-            <div className="resolver__diff">
-              <EntityDiff
-                match={matchOrResolved}
-                onResolve={resolveMatch}
-                onSkip={skipMatch}
+          <h1 className="resolver__heading">{renderHeading()}</h1>
+          { hasData &&
+            <div className="resolver__progress">
+              <Progress
+                value={state.currentMatchIndex}
+                max={matches.length}
+                active={isLoadingMatches}
               />
             </div>
           }
-          { isComplete &&
-            <div className="resolver__review">
-              <ReviewTable
-                matches={matches}
-                actions={state.actions}
-                onConfirm={handleFinish}
-              />
-            </div>
-          }
-          { !hasData && !isLoadingMatches &&
-            <div>
-              <Icon name="error" /> No data
-            </div>
-          }
+          {renderContent()}
         </div>
       </div>
     </Modal>
@@ -99,7 +132,7 @@ Resolver.propTypes = {
   isLoadingMatches: PropTypes.bool,
   matches: PropTypes.array.isRequired,
   show: PropTypes.bool,
-  onClose: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
   onResolved: PropTypes.func.isRequired,
   resolveRequestId: PropTypes.string,
 };
