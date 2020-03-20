@@ -8,7 +8,12 @@ import './ReviewTable.scss';
 const renderNodeCell = node =>
   (<td title={`ID: ${get(node, nodePrimaryKeyProperty)}`}>{get(node, [nodeAttributesProperty, 'name'])}</td>);
 
-const ReviewTable = ({ matches, actions, onConfirm }) => (
+const ReviewTable = ({
+  matches,
+  actions,
+  onConfirm,
+  onCancel,
+}) => (
   <div className="review-table">
     <table className="review-table__table">
       <thead>
@@ -34,6 +39,7 @@ const ReviewTable = ({ matches, actions, onConfirm }) => (
     </table>
 
     <div className="review-table__controls">
+      <Button onClick={onCancel} color="white">Cancel all</Button>
       <Button onClick={onConfirm}>Save</Button>
     </div>
   </div>
@@ -43,6 +49,7 @@ ReviewTable.propTypes = {
   matches: PropTypes.array,
   actions: PropTypes.array,
   onConfirm: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
 };
 
 ReviewTable.defaultProps = {

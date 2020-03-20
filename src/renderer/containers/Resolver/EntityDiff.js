@@ -14,6 +14,7 @@ const EntityDiff = ({
   match,
   onResolve,
   onSkip,
+  onCancel,
 }) => {
   const [
     { resolvedAttributes, showHidden },
@@ -175,8 +176,9 @@ const EntityDiff = ({
       </table>
 
       <div className="entity-diff__controls">
-        <Button color="white" onClick={handleSkip}>Skip</Button>
-        <Button onClick={handleResolve}>Resolve</Button>
+        <Button color="white" onClick={onCancel}>Cancel all</Button>
+        <Button color="sea-serpent" onClick={handleSkip}>Skip</Button>
+        <Button color="kiwi" onClick={handleResolve}>Resolve</Button>
       </div>
     </div>
   );
@@ -195,6 +197,7 @@ EntityDiff.propTypes = {
   }),
   onResolve: PropTypes.func.isRequired,
   onSkip: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
 };
 
 EntityDiff.defaultProps = {
