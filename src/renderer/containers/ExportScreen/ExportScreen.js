@@ -19,7 +19,7 @@ import withApiClient from '%components/withApiClient';
 import withResolverClient from '%components/withResolverClient';
 import { selectors } from '%modules/protocols';
 import { actionCreators as messageActionCreators } from '%modules/appMessages';
-import EntityResolution from './EntityResolution';
+import EntityResolutionOptions from './EntityResolutionOptions';
 import Resolver from './Resolver';
 // import testMatches from './Resolver/testMatches.json';
 
@@ -93,7 +93,6 @@ class ExportScreen extends Component {
       isLoadingMatches: false,
       showResolver: false,
       errorLoadingMatches: null,
-      resolverStream: null,
     }));
 
     this.cleanupResolverStream();
@@ -186,7 +185,6 @@ class ExportScreen extends Component {
       matches: [],
       isLoadingMatches: true,
       errorLoadingMatches: null,
-      resolverStream: null,
     }));
 
     return resolverClient.resolveProtocol(
@@ -215,7 +213,6 @@ class ExportScreen extends Component {
         this.setState(state => ({
           ...state,
           isLoadingMatches: false,
-          resolverStream: null,
         }));
       })
       .catch((error) => {
@@ -224,7 +221,6 @@ class ExportScreen extends Component {
         this.setState(state => ({
           ...state,
           isLoadingMatches: false,
-          resolverStream: null,
           errorLoadingMatches: error,
           showResolver: false,
         }));
@@ -253,6 +249,12 @@ class ExportScreen extends Component {
 
     return apiClient
       .post(`/protocols/${protocolId}/resolutions`, { options, resolution })
+      .then(() => {
+        this.setState(state => ({
+          ...state,
+          resolveRequestId: null,
+        }));
+      })
       .catch(err => showError(err.message));
   }
 
@@ -443,7 +445,8 @@ class ExportScreen extends Component {
           </div>
         </div>
         <ErrorBoundary>
-          <EntityResolution
+          <EntityResolutionOptions
+            resolveRequestId={this.state.resolveRequestId}
             show={this.state.exportNetworkUnion}
             showError={this.props.showError}
             protocolId={protocol.id}

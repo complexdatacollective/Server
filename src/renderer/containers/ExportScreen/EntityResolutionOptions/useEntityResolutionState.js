@@ -6,19 +6,20 @@ import { pick } from 'lodash';
 const toggleEntityResolution = createAction('TOGGLE_ENTITY_RESOLUTION');
 const selectResolution = createAction('SELECT_RESOLUTION');
 const setCreateNewResolution = createAction('SET_CREATE_NEW_RESOLUTION');
-const changeEntityResolutionPath = createAction('CHANGE_ENTITY_RESOLUTION_PATH');
+const changeResolutionOptions = createAction('CHANGE_ENTITY_RESOLUTION_OPTIONS');
 
 export const actionCreators = {
   toggleEntityResolution,
   selectResolution,
   setCreateNewResolution,
-  changeEntityResolutionPath,
+  changeResolutionOptions,
 };
 
 const initialState = {
   enableEntityResolution: false,
   resolutionId: null,
   createNewResolution: true,
+  minimumThreshold: 0,
   entityResolutionPath: '/Users/steve/Projects/teamgarlic/codaco/network-canvas-er/EntityResolution',
 };
 
@@ -33,6 +34,7 @@ const entityResolutionReducer = handleActions(
             'enableEntityResolution',
             'resolutionId',
             'createNewResolution',
+            'minimumThreshold',
           ]),
         };
       }
@@ -48,9 +50,9 @@ const entityResolutionReducer = handleActions(
       resolutionId: null,
       createNewResolution: true,
     }),
-    [changeEntityResolutionPath]: (state, { payload }) => ({
+    [changeResolutionOptions]: (state, { payload }) => ({
       ...state,
-      entityResolutionPath: payload,
+      ...payload,
     }),
   },
   initialState,

@@ -19,6 +19,7 @@ const EntityResolution = ({
   apiClient,
   showError,
   protocolId,
+  resolveRequestId,
   onUpdateOptions,
   disabled,
 }) => {
@@ -27,6 +28,7 @@ const EntityResolution = ({
   const {
     enableEntityResolution,
     entityResolutionPath,
+    minimumThreshold,
     resolutionId,
     createNewResolution,
   } = state;
@@ -35,7 +37,7 @@ const EntityResolution = ({
     toggleEntityResolution,
     selectResolution,
     setCreateNewResolution,
-    changeEntityResolutionPath,
+    changeResolutionOptions,
   } = handlers;
 
   const [resolutionHistory, setResolutionHistory] = useState([]);
@@ -52,11 +54,11 @@ const EntityResolution = ({
         // if path has been changed skip this
         if (entityResolutionPath.length === 0) {
           const path = get(last(sortedResolutions), 'options.entityResolutionPath', '');
-          changeEntityResolutionPath(path);
+          changeResolutionOptions({ entityResolutionPath: path });
         }
       })
       .catch(err => showError(err.message));
-  }, [protocolId]);
+  }, [protocolId, resolveRequestId]);
 
   useEffect(() => {
     if (!onUpdateOptions) { return; }
@@ -64,12 +66,14 @@ const EntityResolution = ({
     onUpdateOptions({
       enableEntityResolution,
       entityResolutionPath,
+      minimumThreshold,
       resolutionId,
       createNewResolution,
     });
   }, [
     enableEntityResolution,
     entityResolutionPath,
+    minimumThreshold,
     resolutionId,
     createNewResolution,
     onUpdateOptions,
@@ -91,7 +95,7 @@ const EntityResolution = ({
             }}
           />
         </div>
-        <DrawerTransition in={enableEntityResolution}>
+        { enableEntityResolution &&
           <div className="export__subpanel">
             <h4>Select resolution:</h4>
             <div className="export__subpanel-content">
@@ -111,12 +115,15 @@ const EntityResolution = ({
               <NewSnapshot
                 onSelectCreateNewSnapshot={setCreateNewResolution}
                 isSelected={createNewResolution}
-                onChangeEntityResolutionPath={changeEntityResolutionPath}
-                entityResolutionPath={entityResolutionPath}
+                onChangeOptions={changeResolutionOptions}
+                options={{
+                  entityResolutionPath,
+                  minimumThreshold,
+                }}
               />
             </div>
           </div>
-        </DrawerTransition>
+        }
       </div>
     </div>
   );
@@ -126,12 +133,14 @@ EntityResolution.propTypes = {
   apiClient: PropTypes.object.isRequired,
   showError: PropTypes.func.isRequired,
   protocolId: PropTypes.string,
+  resolveRequestId: PropTypes.string,
   onUpdateOptions: PropTypes.func.isRequired,
   disabled: PropTypes.bool,
 };
 
 EntityResolution.defaultProps = {
   protocolId: null,
+  resolveRequestId: null,
   disabled: false,
 };
 
