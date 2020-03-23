@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { get } from 'lodash';
 import { Button } from '@codaco/ui';
@@ -13,37 +13,46 @@ const ReviewTable = ({
   actions,
   onConfirm,
   onCancel,
-}) => (
-  <div className="review-table">
-    <table className="review-table__table">
-      <thead>
-        <tr>
-          <th colSpan="2">Nodes</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {matches.map(({ nodes }, index) => {
-          // This is inefficient:
-          const { action } = actions
-            .find(r => r.index === index) || { action: null };
-          return (
-            <tr key={index}>
-              {renderNodeCell(nodes[0])}
-              {renderNodeCell(nodes[1])}
-              <td>{action}</td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
+}) => {
+  const [{ disabled }, setState] = useState({ disabled: false });
 
-    <div className="review-table__controls">
-      <Button onClick={onCancel} color="white">Cancel all</Button>
-      <Button onClick={onConfirm}>Save</Button>
+  const handleConfirm = () => {
+    setState({ disabled: true });
+    onConfirm();
+  };
+
+  return (
+    <div className="review-table">
+      <table className="review-table__table">
+        <thead>
+          <tr>
+            <th colSpan="2">Nodes</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {matches.map(({ nodes }, index) => {
+            // This is inefficient:
+            const { action } = actions
+              .find(r => r.index === index) || { action: null };
+            return (
+              <tr key={index}>
+                {renderNodeCell(nodes[0])}
+                {renderNodeCell(nodes[1])}
+                <td>{action}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+
+      <div className="review-table__controls">
+        <Button disabled={disabled} onClick={onCancel} color="white">Cancel all</Button>
+        <Button disabled={disabled} onClick={handleConfirm}>Save and export</Button>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 ReviewTable.propTypes = {
   matches: PropTypes.array,

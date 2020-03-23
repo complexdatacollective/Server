@@ -115,7 +115,7 @@ const Resolver = ({
           { hasData &&
             <div className="resolver__progress">
               <Progress
-                value={state.currentMatchIndex}
+                value={state.currentMatchIndex + 1}
                 max={matches.length}
                 active={isLoadingMatches}
               />
