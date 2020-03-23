@@ -236,7 +236,14 @@ module.exports = {
       // It is guaranteed to exist because we tweak it in `env.js`
       process.env.NODE_PATH.split(path.delimiter).filter(Boolean),
     ),
-    alias: {},
+    alias: {
+      '%components': path.join(paths.appSrc, 'renderer', 'components'),
+      '%containers': path.join(paths.appSrc, 'renderer', 'containers'),
+      '%utils': path.join(paths.appSrc, 'renderer', 'utils'),
+      '%modules': path.join(paths.appSrc, 'renderer', 'ducks', 'modules'),
+      '%main': path.join(paths.appSrc, 'main'),
+      '%renderer': path.join(paths.appSrc, 'renderer'),
+    },
     plugins: [
       // Prevents users from importing files from outside of src/ (or node_modules/).
       // This often causes confusion because we only process files within src/ with babel.
