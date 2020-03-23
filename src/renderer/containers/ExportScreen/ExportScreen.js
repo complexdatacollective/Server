@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -21,112 +21,100 @@ import { selectors } from '%modules/protocols';
 import { actionCreators as messageActionCreators } from '%modules/appMessages';
 import EntityResolutionOptions from './EntityResolutionOptions';
 import Resolver from './Resolver';
-// import testMatches from './Resolver/testMatches.json';
 
 const availableCsvTypes = {
   adjacencyMatrix: 'Adjacency Matrix',
   attributeList: 'Attribute List',
   edgeList: 'Edge List',
 };
-class ExportScreen extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      exportFormat: 'csv',
-      exportNetworkUnion: false,
-      csvTypes: new Set([...Object.keys(availableCsvTypes), 'ego']),
-      useDirectedEdges: true,
-      useEgoData: true,
-      resolveRequestId: null,
-      matches: [],
-      showResolver: false,
-      isLoadingMatches: false,
-      errorLoadingMatches: null,
-      entityResolutionOptions: {},
-    };
-  }
 
-  handleFormatChange = (evt) => {
-    const exportFormat = evt.target.value;
-    this.setState({ exportFormat });
-  }
+const initialState = {
+  exportFormat: 'csv',
+  exportNetworkUnion: false,
+  csvTypes: new Set([...Object.keys(availableCsvTypes), 'ego']),
+  useDirectedEdges: true,
+  useEgoData: true,
+  resolveRequestId: null,
+  matches: [],
+  showResolver: false,
+  isLoadingMatches: false,
+  errorLoadingMatches: null,
+  entityResolutionOptions: {},
+};
 
-  handleCsvTypeChange = (evt) => {
-    const csvTypes = new Set(this.state.csvTypes);
-    if (evt.target.checked) {
-      csvTypes.add(evt.target.value);
-    } else {
-      csvTypes.delete(evt.target.value);
+const ExportScreen = ({
+  apiClient,
+  resolverClient,
+  protocol,
+  protocolsHaveLoaded,
+  history,
+  showConfirmation,
+  showError,
+}) => {
+  const resolverStream = useRef();
+
+  const [state, setState] = useState(initialState);
+
+  const mergeState = props => setState(s => ({ ...s, ...props }));
+
+  if (!protocol) { return null; }
+
+  const { id: protocolId } = protocol;
+
+  const cleanupResolverStream = () => {
+    if (resolverStream.current) {
+      resolverStream.current.abort();
+      resolverStream.current = null;
     }
-    this.setState({ csvTypes });
-  }
+  };
 
-  handleUnionChange = (evt) => {
-    this.setState({ exportNetworkUnion: evt.target.value === 'true' });
-  }
-
-  handleDirectedEdgesChange = (evt) => {
-    this.setState({ useDirectedEdges: evt.target.checked });
-  }
-
-  handleEgoDataChange = (evt) => {
-    this.setState({ useEgoData: evt.target.checked });
-  }
-
-  handleUpdateEntityResolutionOptions = (entityResolutionOptions) => {
-    this.setState({ entityResolutionOptions });
-  }
-
-  handleResolved = (resolutions) => {
-    this.saveResolution(resolutions)
-      .then(this.resetResolver);
-  }
-
-  handleCancelResolver = () => {
-    this.resetResolver();
-  }
-
-  resetResolver = () => {
-    this.setState(state => ({
-      ...state,
+  const resetResolver = () => {
+    setState(s => ({
+      ...s,
       matches: [],
       isLoadingMatches: false,
       showResolver: false,
       errorLoadingMatches: null,
     }));
 
-    this.cleanupResolverStream();
+    cleanupResolverStream();
   };
 
-  handleSubmit = () => {
-    if (!this.formatsAreValid()) {
-      this.props.showError('Please select at least one file type to export');
+  const exportToFile = (destinationFilepath) => {
+    if (!apiClient) {
       return;
     }
 
-    const createNewResolution = get(
-      this.state,
-      'entityResolutionOptions.createNewResolution',
-      false,
-    );
+    const {
+      exportFormat,
+      exportNetworkUnion,
+      csvTypes,
+      useDirectedEdges,
+      useEgoData,
+      entityResolutionOptions,
+    } = state;
 
-    if (createNewResolution) {
-      this.resolveProtocol();
-      return;
-    }
+    const csvTypesNoEgo = new Set(state.csvTypes);
+    csvTypesNoEgo.delete('ego');
+    const exportCsvTypes = useEgoData ? csvTypes : csvTypesNoEgo;
+    const showCsvOpts = exportFormat === 'csv';
 
-    this.promptAndExport();
-  }
+    apiClient
+      .post(`/protocols/${protocolId}/export_requests`, {
+        entityResolutionOptions,
+        exportFormats: (exportFormat === 'csv' && [...exportCsvTypes]) || [exportFormat],
+        exportNetworkUnion,
+        destinationFilepath,
+        useDirectedEdges,
+        useEgoData: useEgoData && showCsvOpts,
+      })
+      .then(() => showConfirmation('Export complete'))
+      .catch(err => showError(err.message))
+      .then(() => mergeState({ exportInProgress: false }));
+  };
 
-  handleCancel = () => {
-    // this.setState({ exportInProgress: false });
-    // TODO: cancel underlying requests with an AbortController (requires Electron 3+)
-    // Temporary workaround:
-    remote.getCurrentWindow().reload();
-  }
-
-  promptAndExport = () => {
-    const defaultName = this.props.protocol.name || 'network-canvas-data';
+  const promptAndExport = () => {
+    const defaultName = protocol.name || 'network-canvas-data';
     const exportDialog = {
       title: 'Export ',
       filters: [{
@@ -138,27 +126,18 @@ class ExportScreen extends Component {
 
     remote.dialog.showSaveDialog(exportDialog, (filepath) => {
       if (filepath) {
-        this.setState(
+        mergeState(
           { exportInProgress: true },
-          () => this.exportToFile(filepath),
+          () => exportToFile(filepath),
         );
       }
     });
-  }
+  };
 
-  formatsAreValid() {
-    return this.state.exportFormat === 'graphml' || this.state.csvTypes.size > 0;
-  }
+  const formatsAreValid = () =>
+    state.exportFormat === 'graphml' || state.csvTypes.size > 0;
 
-  cleanupResolverStream = () => {
-    if (this.resolverStream) {
-      this.resolverStream.abort();
-      this.resolverStream = null;
-    }
-  }
-
-  resolveProtocol = () => {
-    const { resolverClient, protocol: { id: protocolId } } = this.props;
+  const resolveProtocol = () => {
     if (!resolverClient) { return Promise.reject(); }
 
     const requestId = uuid();
@@ -170,15 +149,15 @@ class ExportScreen extends Component {
       useDirectedEdges,
       useEgoData,
       entityResolutionOptions,
-    } = this.state;
+    } = state;
 
-    const csvTypesNoEgo = new Set(this.state.csvTypes);
+    const csvTypesNoEgo = new Set(state.csvTypes);
     csvTypesNoEgo.delete('ego');
     const exportCsvTypes = useEgoData ? csvTypes : csvTypesNoEgo;
     const showCsvOpts = exportFormat === 'csv';
 
-    this.setState(state => ({
-      ...state,
+    setState(s => ({
+      ...s,
       showResolver: true,
       resolveRequestId: requestId,
       matches: [],
@@ -196,47 +175,41 @@ class ExportScreen extends Component {
         useEgoData: useEgoData && showCsvOpts,
       },
     )
-      .then(resolverStream => new Promise((resolve, reject) => {
-        this.resolverStream = resolverStream;
+      .then(newResolverStream => new Promise((resolve, reject) => {
+        resolverStream.current = newResolverStream;
 
-        resolverStream.on('data', (d) => {
+        newResolverStream.on('data', (d) => {
           const data = JSON.parse(d.toString());
-          this.setState(state => ({ ...state, matches: [...state.matches, data] }));
+          setState(s => ({ ...s, matches: [...s.matches, data] }));
         });
 
-        resolverStream.on('end', resolve);
+        newResolverStream.on('end', resolve);
 
-        resolverStream.on('error', reject);
+        newResolverStream.on('error', reject);
       }))
       .then(() => {
-        this.setState(state => ({
-          ...state,
+        setState(s => ({
+          ...s,
           isLoadingMatches: false,
         }));
       })
       .catch((error) => {
-        this.props.showError(error.message);
+        showError(error.message);
 
-        this.setState(state => ({
-          ...state,
+        setState(s => ({
+          ...s,
           isLoadingMatches: false,
           errorLoadingMatches: error,
           showResolver: false,
         }));
       })
-      .finally(this.cleanupResolverStream);
-  }
+      .finally(cleanupResolverStream);
+  };
 
-  saveResolution = (resolution) => {
-    const {
-      apiClient,
-      showError,
-      protocol: { id: protocolId },
-    } = this.props;
-
+  const saveResolution = (resolution) => {
     const {
       entityResolutionOptions: { entityResolutionPath },
-    } = this.state;
+    } = state;
 
     if (!apiClient) {
       return Promise.reject();
@@ -249,8 +222,8 @@ class ExportScreen extends Component {
     return apiClient
       .post(`/protocols/${protocolId}/resolutions`, { options, resolution })
       .then(({ resolutionId }) => {
-        this.setState(state => ({
-          ...state,
+        setState(s => ({
+          ...s,
           resolveRequestId: null,
           entityResolutionOptions: {
             ...state.entityResolutionOptions,
@@ -259,216 +232,242 @@ class ExportScreen extends Component {
           },
         }));
       })
-      .then(() => {
-        this.promptAndExport();
-      })
+      .then(() => promptAndExport())
       .catch(err => showError(err.message));
-  }
+  };
 
-  exportToFile = (destinationFilepath) => {
-    const { apiClient, showError, showConfirmation, protocol: { id: protocolId } } = this.props;
-    if (!apiClient) {
+
+  const handleFormatChange = (evt) => {
+    const exportFormat = evt.target.value;
+    mergeState({ exportFormat });
+  };
+
+  const handleCsvTypeChange = (evt) => {
+    const csvTypes = new Set(state.csvTypes);
+    if (evt.target.checked) {
+      csvTypes.add(evt.target.value);
+    } else {
+      csvTypes.delete(evt.target.value);
+    }
+    mergeState({ csvTypes });
+  };
+
+  const handleUnionChange = (evt) => {
+    mergeState({ exportNetworkUnion: evt.target.value === 'true' });
+  };
+
+  const handleDirectedEdgesChange = (evt) => {
+    mergeState({ useDirectedEdges: evt.target.checked });
+  };
+
+  const handleEgoDataChange = (evt) => {
+    mergeState({ useEgoData: evt.target.checked });
+  };
+
+  const handleUpdateEntityResolutionOptions = (entityResolutionOptions) => {
+    setState(s => ({ ...s, entityResolutionOptions }));
+  };
+
+  const handleResolved = (resolutions) => {
+    saveResolution(resolutions)
+      .then(resetResolver);
+  };
+
+  const handleCancelResolver = () => {
+    resetResolver();
+  };
+
+  const handleSubmit = () => {
+    if (!formatsAreValid()) {
+      showError('Please select at least one file type to export');
       return;
     }
 
-    const {
-      exportFormat,
-      exportNetworkUnion,
-      csvTypes,
-      useDirectedEdges,
-      useEgoData,
-      entityResolutionOptions,
-    } = this.state;
+    const createNewResolution = get(
+      state,
+      'entityResolutionOptions.createNewResolution',
+      false,
+    );
 
-    const csvTypesNoEgo = new Set(this.state.csvTypes);
-    csvTypesNoEgo.delete('ego');
-    const exportCsvTypes = useEgoData ? csvTypes : csvTypesNoEgo;
-    const showCsvOpts = exportFormat === 'csv';
+    if (createNewResolution) {
+      resolveProtocol();
+      return;
+    }
 
-    apiClient
-      .post(`/protocols/${protocolId}/export_requests`, {
-        entityResolutionOptions,
-        exportFormats: (exportFormat === 'csv' && [...exportCsvTypes]) || [exportFormat],
-        exportNetworkUnion,
-        destinationFilepath,
-        useDirectedEdges,
-        useEgoData: useEgoData && showCsvOpts,
-      })
-      .then(() => showConfirmation('Export complete'))
-      .catch(err => showError(err.message))
-      .then(() => this.setState({ exportInProgress: false }));
+    promptAndExport();
+  };
+
+  const handleCancel = () => {
+    // setState({ exportInProgress: false });
+    // TODO: cancel underlying requests with an AbortController (requires Electron 3+)
+    // Temporary workaround:
+    remote.getCurrentWindow().reload();
+  };
+
+  if (protocolsHaveLoaded && !protocol) { // This protocol doesn't exist
+    return <Redirect to="/" />;
   }
 
-  render() {
-    const { protocol, protocolsHaveLoaded, history } = this.props;
+  if (!protocol) { // This protocol hasn't loaded yet
+    return <div className="settings--loading"><Spinner /></div>;
+  }
 
-    if (protocolsHaveLoaded && !protocol) { // This protocol doesn't exist
-      return <Redirect to="/" />;
-    }
+  const showCsvOpts = state.exportFormat === 'csv';
+  const { exportInProgress } = state;
 
-    if (!protocol) { // This protocol hasn't loaded yet
-      return <div className="settings--loading"><Spinner /></div>;
-    }
-
-    const showCsvOpts = this.state.exportFormat === 'csv';
-    const { exportInProgress } = this.state;
-
-    // console.log('render', this.state);
-
-    return (
-      <form className="export" onSubmit={this.handleSubmit}>
-        <ExportModal
-          className="modal--export"
-          show={exportInProgress}
-          handleCancel={this.handleCancel}
+  return (
+    <form className="export" onSubmit={handleSubmit}>
+      <ExportModal
+        className="modal--export"
+        show={exportInProgress}
+        handleCancel={handleCancel}
+      />
+      {/* <ErrorBoundary>
+        <Resolver
+          key={state.resolveRequestId}
+          matches={state.matches}
+          isLoadingMatches={state.isLoadingMatches}
+          show={state.showResolver}
+          onCancel={handleCancelResolver}
+          onResolved={handleResolved}
         />
-        <ErrorBoundary>
-          <Resolver
-            key={this.state.resolveRequestId}
-            matches={this.state.matches}
-            isLoadingMatches={this.state.isLoadingMatches}
-            show={this.state.showResolver}
-            onCancel={this.handleCancelResolver}
-            onResolved={this.handleResolved}
-          />
-        </ErrorBoundary>
-        <h1>Export Data {this.state.resolveRequestId}</h1>
-        <div className="export__section">
-          <h3>File Type</h3>
-          <p>
-            Choose an export format. If multiple files are produced, they’ll be archived in a ZIP
-            for download.
-          </p>
-          <div>
-            <Radio
-              label="GraphML"
-              input={{
-                name: 'export_format',
-                checked: this.state.exportFormat === 'graphml',
-                value: 'graphml',
-                onChange: this.handleFormatChange,
-              }}
-            />
-          </div>
-          <div>
-            <Radio
-              label="CSV"
-              input={{
-                name: 'export_format',
-                checked: this.state.exportFormat === 'csv',
-                value: 'csv',
-                onChange: this.handleFormatChange,
-              }}
-            />
-          </div>
-          <div className="export__csv-types">
-            <Toggle
-              disabled={this.state.exportFormat === 'graphml'}
-              label="Include Ego data?"
-              input={{
-                name: 'export_ego_data',
-                onChange: this.handleEgoDataChange,
-                value: this.state.exportFormat === 'csv' && this.state.useEgoData,
-              }}
-            />
-            <DrawerTransition in={!showCsvOpts}>
-              <div className="export__ego-info">* Ego data not supported for this export format. See <a className="external-link" href="https://documentation.networkcanvas.com/docs/tutorials/server-workflows/#managing-and-exporting-data-in-server">documentation</a>.</div>
-            </DrawerTransition>
-          </div>
-          <DrawerTransition in={showCsvOpts}>
-            <div className="export__subpanel">
-              <div className="export__subpanel-content">
-                <h4>Include the following files:</h4>
-                {
-                  Object.entries(availableCsvTypes).map(([csvType, label]) => (
-                    <div key={`export_csv_type_${csvType}`}>
-                      <Checkbox
-                        label={label}
-                        input={{
-                          name: 'export_csv_types',
-                          checked: this.state.csvTypes.has(csvType),
-                          value: csvType,
-                          onChange: this.handleCsvTypeChange,
-                        }}
-                      />
-                    </div>
-                  ))
-                }
-                <DrawerTransition in={this.state.useEgoData}>
-                  <div key="export_csv_type_ego">
-                    <Checkbox
-                      label="Ego Attribute List"
-                      input={{
-                        name: 'export_ego_attributes',
-                        checked: this.state.csvTypes.has('ego'),
-                        value: 'ego',
-                        onChange: this.handleCsvTypeChange,
-                      }}
-                    />
-                  </div>
-                </DrawerTransition>
-              </div>
-            </div>
-          </DrawerTransition>
-        </div>
-        <div className="export__section">
-          <h4>Directed Edges</h4>
-          <Toggle
-            label="Treat edges as directed"
+      </ErrorBoundary> */}
+      <h1>Export Data {state.resolveRequestId}</h1>
+      <div className="export__section">
+        <h3>File Type</h3>
+        <p>
+          Choose an export format. If multiple files are produced, they’ll be archived in a ZIP
+          for download.
+        </p>
+        <div>
+          <Radio
+            label="GraphML"
             input={{
-              name: 'export_use_directed_edges',
-              onChange: this.handleDirectedEdgesChange,
-              value: this.state.useDirectedEdges,
+              name: 'export_format',
+              checked: state.exportFormat === 'graphml',
+              value: 'graphml',
+              onChange: handleFormatChange,
             }}
           />
         </div>
-        <div className="export__section">
-          <h3>Interview Networks</h3>
-          <p>
-            Choose whether to export all networks separately, or to merge them
-            before exporting.
-          </p>
-          <div>
-            <Radio
-              label="Export the network from each interview separately"
-              input={{
-                name: 'export_network_union',
-                checked: this.state.exportNetworkUnion === false,
-                value: 'false',
-                onChange: this.handleUnionChange,
-              }}
-            />
-          </div>
-          <div>
-            <Radio
-              label="Export the union of all interview networks"
-              input={{
-                name: 'export_network_union',
-                checked: this.state.exportNetworkUnion === true,
-                value: 'true',
-                onChange: this.handleUnionChange,
-              }}
-            />
-          </div>
-        </div>
-        <ErrorBoundary>
-          <EntityResolutionOptions
-            resolveRequestId={this.state.resolveRequestId}
-            show={this.state.exportNetworkUnion}
-            showError={this.props.showError}
-            protocolId={protocol.id}
-            onUpdateOptions={this.handleUpdateEntityResolutionOptions}
-            disabled={!this.state.exportNetworkUnion}
+        <div>
+          <Radio
+            label="CSV"
+            input={{
+              name: 'export_format',
+              checked: state.exportFormat === 'csv',
+              value: 'csv',
+              onChange: handleFormatChange,
+            }}
           />
-        </ErrorBoundary>
-        <div className="export__footer">
-          <Button color="platinum" onClick={() => history.goBack()}>Cancel</Button>&nbsp;
-          <Button type="submit" disabled={exportInProgress}>Export</Button>
         </div>
-      </form>
-    );
-  }
-}
+        <div className="export__csv-types">
+          <Toggle
+            disabled={state.exportFormat === 'graphml'}
+            label="Include Ego data?"
+            input={{
+              name: 'export_ego_data',
+              onChange: handleEgoDataChange,
+              value: state.exportFormat === 'csv' && state.useEgoData,
+            }}
+          />
+          <DrawerTransition in={!showCsvOpts}>
+            <div className="export__ego-info">* Ego data not supported for this export format. See <a className="external-link" href="https://documentation.networkcanvas.com/docs/tutorials/server-workflows/#managing-and-exporting-data-in-server">documentation</a>.</div>
+          </DrawerTransition>
+        </div>
+        <DrawerTransition in={showCsvOpts}>
+          <div className="export__subpanel">
+            <div className="export__subpanel-content">
+              <h4>Include the following files:</h4>
+              {
+                Object.entries(availableCsvTypes).map(([csvType, label]) => (
+                  <div key={`export_csv_type_${csvType}`}>
+                    <Checkbox
+                      label={label}
+                      input={{
+                        name: 'export_csv_types',
+                        checked: state.csvTypes.has(csvType),
+                        value: csvType,
+                        onChange: handleCsvTypeChange,
+                      }}
+                    />
+                  </div>
+                ))
+              }
+              <DrawerTransition in={state.useEgoData}>
+                <div key="export_csv_type_ego">
+                  <Checkbox
+                    label="Ego Attribute List"
+                    input={{
+                      name: 'export_ego_attributes',
+                      checked: state.csvTypes.has('ego'),
+                      value: 'ego',
+                      onChange: handleCsvTypeChange,
+                    }}
+                  />
+                </div>
+              </DrawerTransition>
+            </div>
+          </div>
+        </DrawerTransition>
+      </div>
+      <div className="export__section">
+        <h4>Directed Edges</h4>
+        <Toggle
+          label="Treat edges as directed"
+          input={{
+            name: 'export_use_directed_edges',
+            onChange: handleDirectedEdgesChange,
+            value: state.useDirectedEdges,
+          }}
+        />
+      </div>
+      <div className="export__section">
+        <h3>Interview Networks</h3>
+        <p>
+          Choose whether to export all networks separately, or to merge them
+          before exporting.
+        </p>
+        <div>
+          <Radio
+            label="Export the network from each interview separately"
+            input={{
+              name: 'export_network_union',
+              checked: state.exportNetworkUnion === false,
+              value: 'false',
+              onChange: handleUnionChange,
+            }}
+          />
+        </div>
+        <div>
+          <Radio
+            label="Export the union of all interview networks"
+            input={{
+              name: 'export_network_union',
+              checked: state.exportNetworkUnion === true,
+              value: 'true',
+              onChange: handleUnionChange,
+            }}
+          />
+        </div>
+      </div>
+      {/* <ErrorBoundary>
+        <EntityResolutionOptions
+          resolveRequestId={state.resolveRequestId}
+          show={state.exportNetworkUnion}
+          showError={showError}
+          protocolId={protocol.id}
+          onUpdateOptions={handleUpdateEntityResolutionOptions}
+          disabled={!state.exportNetworkUnion}
+        />
+      </ErrorBoundary> */}
+      <div className="export__footer">
+        <Button color="platinum" onClick={() => history.goBack()}>Cancel</Button>&nbsp;
+        <Button type="submit" disabled={exportInProgress}>Export</Button>
+      </div>
+    </form>
+  );
+};
 
 ExportScreen.propTypes = {
   apiClient: PropTypes.object,
@@ -477,9 +476,10 @@ ExportScreen.propTypes = {
   showConfirmation: PropTypes.func.isRequired,
   showError: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
-  resolverClient: PropTypes.shape({
-    resolveProtocol: PropTypes.func.isRequired,
-  }).isRequired,
+  resolverClient: PropTypes.any.isRequired,
+  // resolverClient: PropTypes.shape({
+  //   resolveProtocol: PropTypes.func.isRequired,
+  // }).isRequired,
 };
 
 ExportScreen.defaultProps = {

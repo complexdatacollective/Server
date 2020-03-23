@@ -107,6 +107,10 @@ const Resolver = ({
     );
   };
 
+  if (matches === null) {
+    return null;
+  }
+
   return (
     <Modal show={show}>
       <div className="resolver">
@@ -130,7 +134,6 @@ const Resolver = ({
 
 Resolver.propTypes = {
   isLoadingMatches: PropTypes.bool,
-  matches: PropTypes.array.isRequired,
   show: PropTypes.bool,
   onCancel: PropTypes.func.isRequired,
   onResolved: PropTypes.func.isRequired,
@@ -140,6 +143,7 @@ Resolver.propTypes = {
 Resolver.defaultProps = {
   isLoadingMatches: true,
   show: false,
+  matches: null,
   resolveRequestId: null,
 };
 
