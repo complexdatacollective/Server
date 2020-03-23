@@ -253,14 +253,14 @@ class AdminService {
 
       const { options, resolution } = req.body;
 
-      console.log('body', req.body, options);
-
       this.resolverManager.saveResolution(
         req.params.protocolId,
         options,
         resolution,
       )
-        .then(() => res.send({ status: 'ok' }))
+        .then(({ _id: resolutionId }) =>
+          res.send({ status: 'ok', resolutionId }),
+        )
         .catch((err) => {
           logger.error(err);
           res.send(codeForError(err), { status: 'error', message: err.message });
