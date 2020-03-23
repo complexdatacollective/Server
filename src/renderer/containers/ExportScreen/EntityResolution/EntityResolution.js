@@ -6,7 +6,7 @@ import { get, last } from 'lodash';
 import cx from 'classnames';
 import Checkbox from '@codaco/ui/lib/components/Fields/Checkbox';
 import DrawerTransition from '@codaco/ui/lib/components/Transitions/Drawer';
-import withApiClient from '../../components/withApiClient';
+import withApiClient from '%components/withApiClient';
 import useEntityResolutionState from './useEntityResolutionState';
 import Snapshot from './Snapshot';
 import NewSnapshot from './NewSnapshot';
