@@ -93,7 +93,7 @@ const EntityDiff = ({
 
   return (
     <div key={match.index} className="entity-diff">
-      <h2 className="entity-diff__heading">Match score: {round(match.probability, 2)}</h2>
+      <h2 className="entity-diff__heading">Match score: {round(match.probability, 2).toFixed(2)}</h2>
 
       <table className="entity-diff__table">
         <thead>

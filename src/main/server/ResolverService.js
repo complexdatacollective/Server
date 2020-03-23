@@ -36,19 +36,18 @@ class ResolverService {
     logger.debug('[ResoverService]', eventTypes.RESOLVE_REQUEST, protocolId, requestId, JSON.stringify(options));
     const ipcs = new IPCStream(requestId, event.sender, { emitClose: true });
 
-    const handleStreamError = (error) => {
-      logger.debug('[ResolverService:stream]', `Error: ${error.message}`);
-      ipcs.write(JSON.stringify({ error: { message: error.message, stack: error.stack } }));
-      ipcs.abort();
-    };
-
     const handleError = (error) => {
       logger.debug('[ResolverService]', `Error: ${error.message}`);
-      ipcs.abort();
     };
 
     this.resolveProtocol(protocolId, options)
       .then((resolverStream) => {
+        const handleStreamError = (error) => {
+          logger.debug('[ResolverService:stream]', `Error: ${error.message}`);
+          ipcs.write(JSON.stringify({ error: { message: error.message, stack: error.stack } }));
+          resolverStream.abort();
+        };
+
         // This is a requirement of the 'end' event, all data must be processed before
         // 'end' is emitted.
         ipcs.on('data', () => {
