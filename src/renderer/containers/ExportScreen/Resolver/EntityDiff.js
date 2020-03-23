@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { isEqual, isNil, reduce, get, round } from 'lodash';
 import { Button } from '@codaco/ui';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
+import { nodePrimaryKeyProperty } from '%main/utils/formatters/network';
 import useEntityState from './useEntityState';
-import { nodePrimaryKeyProperty } from '../../../main/utils/formatters/network';
 import './EntityDiff.scss';
 
 const formatVariable = variable =>

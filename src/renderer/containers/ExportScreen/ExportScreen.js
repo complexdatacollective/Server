@@ -12,13 +12,13 @@ import DrawerTransition from '@codaco/ui/lib/components/Transitions/Drawer';
 import Checkbox from '@codaco/ui/lib/components/Fields/Checkbox';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import Toggle from '@codaco/ui/lib/components/Fields/Toggle';
-import Types from '../types';
-import ErrorBoundary from '../components/ErrorBoundary';
-import ExportModal from '../components/ExportModal';
-import withApiClient from '../components/withApiClient';
-import withResolverClient from '../components/withResolverClient';
-import { selectors } from '../ducks/modules/protocols';
-import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
+import Types from '%renderer/types';
+import ErrorBoundary from '%components/ErrorBoundary';
+import ExportModal from '%components/ExportModal';
+import withApiClient from '%components/withApiClient';
+import withResolverClient from '%components/withResolverClient';
+import { selectors } from '%modules/protocols';
+import { actionCreators as messageActionCreators } from '%modules/appMessages';
 import EntityResolution from './EntityResolution';
 import Resolver from './Resolver';
 // import testMatches from './Resolver/testMatches.json';
@@ -152,9 +152,9 @@ class ExportScreen extends Component {
   }
 
   cleanupResolverStream = () => {
-    if (this._resolverStream) {
-      this._resolverStream.abort();
-      this._resolverStream = null;
+    if (this.resolverStream) {
+      this.resolverStream.abort();
+      this.resolverStream = null;
     }
   }
 
@@ -199,7 +199,7 @@ class ExportScreen extends Component {
       },
     )
       .then(resolverStream => new Promise((resolve, reject) => {
-        this._resolverStream = resolverStream;
+        this.resolverStream = resolverStream;
 
         resolverStream.on('data', (d) => {
           const data = JSON.parse(d.toString());

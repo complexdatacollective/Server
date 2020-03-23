@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { get } from 'lodash';
 import { Button } from '@codaco/ui';
-import { nodePrimaryKeyProperty, nodeAttributesProperty } from '../../../main/utils/formatters/network';
+import { nodePrimaryKeyProperty, nodeAttributesProperty } from '%main/utils/formatters/network';
 import './ReviewTable.scss';
 
 const renderNodeCell = node =>
