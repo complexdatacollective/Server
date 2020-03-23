@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import Text from '@codaco/ui/lib/components/Fields/Text';
@@ -7,11 +7,14 @@ const NewSnapshot = ({
   onSelectCreateNewSnapshot,
   isSelected,
   newSessionCount,
-  onChangeEntityResolutionPath,
-  entityResolutionPath,
+  onChangeOptions,
+  options: {
+    entityResolutionPath,
+    minimumThreshold,
+  },
 }) => {
-  const handleChangeEntityResolutionPath = e =>
-    onChangeEntityResolutionPath(e.target.value);
+  const handleChange = useCallback((e, property) =>
+    onChangeOptions({ [property]: e.target.value }));
 
   return (
     <div className="snapshot">
@@ -36,7 +39,23 @@ const NewSnapshot = ({
                 <Text
                   input={{
                     value: entityResolutionPath,
-                    onChange: handleChangeEntityResolutionPath,
+                    onChange: e => handleChange(e, 'entityResolutionPath'),
+                    disabled: !isSelected,
+                  }}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Minimum threshold for matches
+              </td>
+              <td>
+                <Text
+                  input={{
+                    inputmode: 'numeric',
+                    pattern: '[0-9]*.[0-9]*',
+                    value: minimumThreshold,
+                    onChange: e => handleChange(e, 'minimumThreshold'),
                     disabled: !isSelected,
                   }}
                 />
@@ -52,13 +71,19 @@ const NewSnapshot = ({
 NewSnapshot.propTypes = {
   onSelectCreateNewSnapshot: PropTypes.func.isRequired,
   isSelected: PropTypes.bool.isRequired,
-  onChangeEntityResolutionPath: PropTypes.func.isRequired,
-  entityResolutionPath: PropTypes.string,
+  onChangeOptions: PropTypes.func.isRequired,
   newSessionCount: PropTypes.number,
+  options: PropTypes.shape({
+    entityResolutionPath: PropTypes.string,
+    minimumThreshold: PropTypes.string,
+  }).isRequired,
 };
 
 NewSnapshot.defaultProps = {
-  entityResolutionPath: '',
+  options: {
+    entityResolutionPath: '',
+    minimumThreshold: 0,
+  },
   newSessionCount: 0,
 };
 
