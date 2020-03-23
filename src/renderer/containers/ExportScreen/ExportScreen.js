@@ -249,11 +249,19 @@ class ExportScreen extends Component {
 
     return apiClient
       .post(`/protocols/${protocolId}/resolutions`, { options, resolution })
-      .then(() => {
+      .then(({ resolutionId }) => {
         this.setState(state => ({
           ...state,
           resolveRequestId: null,
+          entityResolutionOptions: {
+            ...state.entityResolutionOptions,
+            resolutionId,
+            createNewResolution: false,
+          },
         }));
+      })
+      .then(() => {
+        this.promptAndExport();
       })
       .catch(err => showError(err.message));
   }

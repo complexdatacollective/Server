@@ -57,6 +57,7 @@ const entityResolutionReducer = handleActions(
   },
   initialState,
 );
+
 const useEntityResolutionState = () => {
   const [state, dispatch] = useReducer(entityResolutionReducer, initialState);
 
