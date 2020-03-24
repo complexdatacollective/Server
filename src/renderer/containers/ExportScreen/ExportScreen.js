@@ -38,6 +38,7 @@ const ExportScreen = ({
       selectResolution,
       selectCreateNewResolution,
       updateSetting,
+      updateSettings,
       csvTypeChange,
     },
   ] = useExportSettingsState();
@@ -50,7 +51,7 @@ const ExportScreen = ({
     } = protocol;
 
     const {
-      entityResolutionOptions: { entityResolutionPath },
+      entityResolutionPath,
     } = exportSettings;
 
     if (!apiClient) {
@@ -64,15 +65,12 @@ const ExportScreen = ({
     return apiClient
       .post(`/protocols/${protocolId}/resolutions`, { options, resolution })
       .then(({ resolutionId }) => {
-        setState({
-          ...resolverState,
-          resolveRequestId: null,
-          entityResolutionOptions: {
-            ...resolverState.entityResolutionOptions,
-            resolutionId,
-            createNewResolution: false,
-          },
+        updateSettings({
+          resolutionId,
+          enableEntityResolution: true,
+          createNewResolution: false,
         });
+        resetResolver();
       })
       .then(() => promptAndExport())
       .catch(err => showError(err.message));
@@ -93,7 +91,8 @@ const ExportScreen = ({
       csvTypes,
       useDirectedEdges,
       useEgoData,
-      entityResolutionOptions,
+      enableEntityResolution,
+      resolutionId,
     } = exportSettings;
 
     const csvTypesNoEgo = new Set(exportSettings.csvTypes);
@@ -103,7 +102,8 @@ const ExportScreen = ({
 
     apiClient
       .post(`/protocols/${protocolId}/export_requests`, {
-        entityResolutionOptions,
+        enableEntityResolution,
+        resolutionId,
         exportFormats: (exportFormat === 'csv' && [...exportCsvTypes]) || [exportFormat],
         exportNetworkUnion,
         destinationFilepath,
@@ -129,10 +129,8 @@ const ExportScreen = ({
     remote.dialog.showSaveDialog(exportDialog)
       .then(({ canceled, filePath }) => {
         if (canceled || !filePath) { return; }
-        setState(
-          { exportInProgress: true },
-          () => exportToFile(filePath),
-        );
+        setState({ exportInProgress: true });
+        exportToFile(filePath);
       });
   };
 
@@ -181,8 +179,6 @@ const ExportScreen = ({
   const showCsvOpts = exportSettings.exportFormat === 'csv';
   const { exportInProgress } = state;
 
-  console.log({ resolverState });
-
   return (
     <form className="export" onSubmit={handleSubmit}>
       <ExportModal
@@ -192,7 +188,7 @@ const ExportScreen = ({
       />
       <ErrorBoundary>
         <Resolver
-          // key={resolverState.resolveRequestId}
+          key={resolverState.resolveRequestId}
           matches={resolverState.matches}
           isLoadingMatches={resolverState.isLoadingMatches}
           show={resolverState.showResolver}

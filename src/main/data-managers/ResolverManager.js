@@ -81,6 +81,7 @@ class ResolverManager {
   }
 
   getSessionNetworks(protocolId) {
+    // TODO: should this filter by data for performance?
     return this.sessionDB.findAll(protocolId, null, null)
       .then(sessions => sessions.map(formatSessionAsNetwork));
   }

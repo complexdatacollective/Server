@@ -6,6 +6,7 @@ const selectResolution = createAction('SELECT_RESOLUTION');
 const selectCreateNewResolution = createAction('SELECT_CREATE_NEW_RESOLUTION');
 const toggleSetting = createAction('TOGGLE_SETTING', (name, checked) => ({ name, checked }));
 const updateSetting = createAction('UPDATE_SETTING', (name, value) => ({ name, value }));
+const updateSettings = createAction('UPDATE_SETTINGS');
 const csvTypeChange = createAction('CSV_TYPE_CHANGE', (type, checked) => ({ checked, type }));
 
 export const actionCreators = {
@@ -13,6 +14,7 @@ export const actionCreators = {
   selectCreateNewResolution,
   toggleSetting,
   updateSetting,
+  updateSettings,
   csvTypeChange,
 };
 
@@ -40,6 +42,10 @@ const entityResolutionReducer = handleActions(
     [updateSetting]: (state, { payload: { name, value } }) => ({
       ...state,
       [name]: value,
+    }),
+    [updateSettings]: (state, { payload }) => ({
+      ...state,
+      ...payload,
     }),
     [toggleSetting]: (state, { payload: { name } }) => ({
       ...state,
