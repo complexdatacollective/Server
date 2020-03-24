@@ -1,8 +1,9 @@
-import { useState, useRef } from 'react';
+import { useRef, useReducer } from 'react';
 import uuid from 'uuid';
 import resolverClient from '%utils/resolverClient';
 
 const initialState = {
+  initialState: true,
   resolveRequestId: null,
   matches: [],
   showResolver: false,
@@ -10,13 +11,33 @@ const initialState = {
   errorLoadingMatches: null,
 };
 
-const useResolver = () => {
+function stateReducer(state, action) {
+  switch (action.type) {
+    case 'UPDATE':
+      return {
+        ...state,
+        ...action.payload,
+      };
+    case 'ADD_MATCH':
+      return {
+        ...state,
+        matches: [...state.matches, action.payload],
+      };
+    default:
+      throw new Error();
+  }
+}
+
+const useResolver = (showError) => {
   const resolverStream = useRef(null);
   const client = useRef(resolverClient);
-  const [state, setState] = useState(initialState);
-  const [matches, setMatches] = useState([]);
+  const [state, dispatch] = useReducer(stateReducer, initialState);
 
-  const appendMatch = match => setMatches([...matches, match]);
+  const addMatch = data =>
+    dispatch({ type: 'ADD_MATCH', payload: data });
+
+  const updateState = props =>
+    dispatch({ type: 'UPDATE', payload: props });
 
   const cleanupResolverStream = () => {
     if (resolverStream.current) {
@@ -26,23 +47,14 @@ const useResolver = () => {
   };
 
   const reset = () => {
-    setState({
-      matches: [],
+    updateState({
       isLoadingMatches: false,
       showResolver: false,
       errorLoadingMatches: null,
+      matches: [],
     });
 
     cleanupResolverStream();
-  };
-
-  const handleData = (d) => {
-    const data = JSON.parse(d.toString());
-    // // matches.push(data);
-    // appendMatch(data);
-    // console.log(matches);
-    setState({ ...state, matches: [...state.matches, data] });
-    console.log(matches);
   };
 
   const resolveProtocol = (protocol, exportSettings) => {
@@ -71,19 +83,14 @@ const useResolver = () => {
     const exportCsvTypes = useEgoData ? csvTypes : csvTypesNoEgo;
     const showCsvOpts = exportFormat === 'csv';
 
-    const newState = {
-      ...state,
+    updateState({
+      initialState: false,
       showResolver: true,
       resolveRequestId: requestId,
-      matches: [],
       isLoadingMatches: true,
       errorLoadingMatches: null,
-    };
-
-    console.log(state, newState);
-
-    setState(newState);
-
+      matches: [],
+    });
 
     return client.current.resolveProtocol(
       protocolId,
@@ -101,36 +108,38 @@ const useResolver = () => {
       .then(newResolverStream => new Promise((resolve, reject) => {
         resolverStream.current = newResolverStream;
 
-        // const matches = [];
-
-        newResolverStream.on('data', handleData);
+        newResolverStream.on('data', (d) => {
+          const data = JSON.parse(d.toString());
+          addMatch(data);
+        });
 
         newResolverStream.on('end', resolve);
 
         newResolverStream.on('error', reject);
-      }));
-  //     .then(() => {
-  //       console.log('DONE', state);
+      }))
+      .then(() => {
+        updateState({
+          isLoadingMatches: false,
+        });
+      })
+      .catch((error) => {
+        showError(error.message);
 
-  //       setState(({
-  //         ...state,
-  //         isLoadingMatches: false,
-  //       }));
-  //     })
-  //     .catch((error) => {
-  //       showError(error.message);
-
-  //       setState(({
-  //         ...state,
-  //         isLoadingMatches: false,
-  //         errorLoadingMatches: error,
-  //         // showResolver: false,
-  //       }));
-  //     })
-  //     .finally(cleanupResolverStream);
+        updateState({
+          isLoadingMatches: false,
+          errorLoadingMatches: error,
+          showResolver: false,
+          matches: [],
+        });
+      })
+      .finally(cleanupResolverStream);
   };
 
-  return [state, resolveProtocol, reset];
+  return [
+    state,
+    resolveProtocol,
+    reset,
+  ];
 };
 
 export default useResolver;
