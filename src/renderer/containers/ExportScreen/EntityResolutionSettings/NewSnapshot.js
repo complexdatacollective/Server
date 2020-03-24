@@ -1,21 +1,16 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import Text from '@codaco/ui/lib/components/Fields/Text';
 
 const NewSnapshot = ({
-  onSelectCreateNewSnapshot,
   isSelected,
   newSessionCount,
-  onChangeOptions,
-  options: {
-    entityResolutionPath,
-    minimumThreshold,
-  },
+  onSelectCreateNewResolution,
+  onUpdateSetting,
+  entityResolutionPath,
+  minimumThreshold,
 }) => {
-  const handleChange = useCallback((e, property) =>
-    onChangeOptions({ [property]: e.target.value }));
-
   return (
     <div className="snapshot">
       <div>
@@ -24,7 +19,7 @@ const NewSnapshot = ({
           input={{
             name: 'create_new_snapshot',
             checked: isSelected,
-            onChange: onSelectCreateNewSnapshot,
+            onChange: onSelectCreateNewResolution,
           }}
         />
       </div>
@@ -39,7 +34,7 @@ const NewSnapshot = ({
                 <Text
                   input={{
                     value: entityResolutionPath,
-                    onChange: e => handleChange(e, 'entityResolutionPath'),
+                    onChange: e => onUpdateSetting('entityResolutionPath', e.target.value),
                     disabled: !isSelected,
                   }}
                 />
@@ -55,7 +50,7 @@ const NewSnapshot = ({
                     inputMode: 'numeric',
                     pattern: '[0-9]*.[0-9]*',
                     value: minimumThreshold,
-                    onChange: e => handleChange(e, 'minimumThreshold'),
+                    onChange: e => onUpdateSetting('minimumThreshold', e.target.value),
                     disabled: !isSelected,
                   }}
                 />
@@ -69,9 +64,8 @@ const NewSnapshot = ({
 };
 
 NewSnapshot.propTypes = {
-  onSelectCreateNewSnapshot: PropTypes.func.isRequired,
+  onSelectCreateNewResolution: PropTypes.func.isRequired,
   isSelected: PropTypes.bool.isRequired,
-  onChangeOptions: PropTypes.func.isRequired,
   newSessionCount: PropTypes.number,
   options: PropTypes.shape({
     entityResolutionPath: PropTypes.string,

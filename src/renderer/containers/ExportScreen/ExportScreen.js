@@ -12,16 +12,16 @@ import Checkbox from '@codaco/ui/lib/components/Fields/Checkbox';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import Toggle from '@codaco/ui/lib/components/Fields/Toggle';
 import Types from '%renderer/types';
-// import ErrorBoundary from '%components/ErrorBoundary';
+import ErrorBoundary from '%components/ErrorBoundary';
 import ExportModal from '%components/ExportModal';
 import withApiClient from '%components/withApiClient';
 import withResolverClient from '%components/withResolverClient';
 import { selectors } from '%modules/protocols';
 import { actionCreators as messageActionCreators } from '%modules/appMessages';
-// import EntityResolutionOptions from './EntityResolutionOptions';
-// import Resolver from './Resolver';
+import EntityResolutionSettings from './EntityResolutionSettings';
+import Resolver from './Resolver';
 import useExportSettingsState, { availableCsvTypes } from './useExportSettingsState';
-import useResolverState from './useResolverState';
+import useResolver from './useResolver';
 
 const ExportScreen = ({
   apiClient,
@@ -33,17 +33,52 @@ const ExportScreen = ({
   showError,
 }) => {
   const [state, setState] = useState({ exportInProgress: false });
+
   const [
     exportSettings,
     {
       selectResolution,
-      setCreateNewResolution,
+      selectCreateNewResolution,
       updateSetting,
-      toggleSetting,
       csvTypeChange,
     },
   ] = useExportSettingsState();
-  const [resolverState] = useResolverState();
+
+  const [resolverState, resolveProtocol, resetResolver] = useResolver({ showError });
+
+  const saveResolution = (resolution) => {
+    const {
+      id: protocolId,
+    } = protocol;
+
+    const {
+      entityResolutionOptions: { entityResolutionPath },
+    } = exportSettings;
+
+    if (!apiClient) {
+      return Promise.reject();
+    }
+
+    const options = {
+      entityResolutionPath,
+    };
+
+    return apiClient
+      .post(`/protocols/${protocolId}/resolutions`, { options, resolution })
+      .then(({ resolutionId }) => {
+        setState({
+          ...resolverState,
+          resolveRequestId: null,
+          entityResolutionOptions: {
+            ...resolverState.entityResolutionOptions,
+            resolutionId,
+            createNewResolution: false,
+          },
+        });
+      })
+      .then(() => promptAndExport())
+      .catch(err => showError(err.message));
+  };
 
   const exportToFile = (destinationFilepath) => {
     if (!apiClient) {
@@ -113,12 +148,21 @@ const ExportScreen = ({
       return;
     }
 
-    // if (createNewResolution) {
-    //   resolveProtocol();
-    //   return;
-    // }
+    if (createNewResolution) {
+      resolveProtocol();
+      return;
+    }
 
     promptAndExport();
+  };
+
+  const handleResolved = (resolutions) => {
+    saveResolution(resolutions)
+      .then(resetResolver);
+  };
+
+  const handleCancelResolver = () => {
+    resetResolver();
   };
 
   const handleCancel = () => {
@@ -146,7 +190,7 @@ const ExportScreen = ({
         show={exportInProgress}
         handleCancel={handleCancel}
       />
-      {/* <ErrorBoundary>
+      <ErrorBoundary>
         <Resolver
           key={resolverState.resolveRequestId}
           matches={resolverState.matches}
@@ -155,7 +199,7 @@ const ExportScreen = ({
           onCancel={handleCancelResolver}
           onResolved={handleResolved}
         />
-      </ErrorBoundary> */}
+      </ErrorBoundary>
       <h1>Export Data {resolverState.resolveRequestId}</h1>
       <div className="export__section">
         <h3>File Type</h3>
@@ -275,16 +319,23 @@ const ExportScreen = ({
           />
         </div>
       </div>
-      {/* <ErrorBoundary>
-        <EntityResolutionOptions
+      <ErrorBoundary>
+        <EntityResolutionSettings
           resolveRequestId={resolverState.resolveRequestId}
           show={exportSettings.exportNetworkUnion}
           showError={showError}
           protocolId={protocol.id}
-          onUpdateOptions={handleUpdateEntityResolutionOptions}
+          enableEntityResolution={exportSettings.enableEntityResolution}
+          resolutionId={exportSettings.resolutionId}
+          createNewResolution={exportSettings.createNewResolution}
+          minimumThreshold={exportSettings.minimumThreshold}
+          entityResolutionPath={exportSettings.entityResolutionPath}
+          onUpdateSetting={updateSetting}
+          onSelectResolution={selectResolution}
+          onSelectCreateNewResolution={selectCreateNewResolution}
           disabled={!exportSettings.exportNetworkUnion}
         />
-      </ErrorBoundary> */}
+      </ErrorBoundary>
       <div className="export__footer">
         <Button color="platinum" onClick={() => history.goBack()}>Cancel</Button>&nbsp;
         <Button type="submit" disabled={exportInProgress}>Export</Button>
