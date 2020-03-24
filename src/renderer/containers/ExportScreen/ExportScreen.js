@@ -100,16 +100,20 @@ const ExportScreen = ({
     const exportCsvTypes = useEgoData ? csvTypes : csvTypesNoEgo;
     const showCsvOpts = exportFormat === 'csv';
 
+    const postBody = {
+      enableEntityResolution,
+      resolutionId,
+      exportFormats: (exportFormat === 'csv' && [...exportCsvTypes]) || [exportFormat],
+      exportNetworkUnion,
+      destinationFilepath,
+      useDirectedEdges,
+      useEgoData: useEgoData && showCsvOpts,
+    };
+
+    // throw new Error(JSON.stringify(postBody));
+
     apiClient
-      .post(`/protocols/${protocolId}/export_requests`, {
-        enableEntityResolution,
-        resolutionId,
-        exportFormats: (exportFormat === 'csv' && [...exportCsvTypes]) || [exportFormat],
-        exportNetworkUnion,
-        destinationFilepath,
-        useDirectedEdges,
-        useEgoData: useEgoData && showCsvOpts,
-      })
+      .post(`/protocols/${protocolId}/export_requests`, postBody)
       .then(() => showConfirmation('Export complete'))
       .catch(err => showError(err.message))
       .then(() => setState({ exportInProgress: false }));
@@ -347,7 +351,6 @@ ExportScreen.propTypes = {
   showConfirmation: PropTypes.func.isRequired,
   showError: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
-  resolverClient: PropTypes.any.isRequired,
 };
 
 ExportScreen.defaultProps = {

@@ -32,7 +32,7 @@ const initialState = {
   useEgoData: true,
   enableEntityResolution: false,
   resolutionId: null,
-  createNewResolution: true,
+  createNewResolution: false,
   minimumThreshold: '0.0',
   entityResolutionPath: '/Users/steve/Projects/teamgarlic/codaco/network-canvas-er/EntityResolution',
 };
