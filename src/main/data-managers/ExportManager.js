@@ -153,6 +153,7 @@ class ExportManager {
       useEgoData,
       enableEntityResolution,
       resolutionId,
+      unresolved: false,
     };
 
     // Export flow:

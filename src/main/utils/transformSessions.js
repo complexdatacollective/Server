@@ -94,11 +94,9 @@ const applyTransform = (network, transform) => {
   };
 };
 
-const transformSessions = (sessions, resolutions, { useEgoData, resolutionId }) => {
+const transformSessions = (sessions, resolutions, { useEgoData, resolutionId, unresolved }) => {
   const priorResolutions = getPriorResolutions(resolutions, resolutionId);
   const sessionsByResolution = getSessionsByResolution(priorResolutions, sessions);
-
-  console.log('TRANSFORM', JSON.stringify(priorResolutions, null, 2));
 
   // For each resolution merge sessions and apply resolution
   const resultNetwork = reduce(
@@ -119,7 +117,7 @@ const transformSessions = (sessions, resolutions, { useEgoData, resolutionId }) 
     { nodes: [], edges: [], ego: [] },
   );
 
-  if (sessionsByResolution._unresolved) {
+  if (unresolved && sessionsByResolution._unresolved) {
     return unionOfNetworks([resultNetwork, ...sessionsByResolution._unresolved]);
   }
 
