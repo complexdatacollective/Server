@@ -12,10 +12,7 @@ const { transformSessions } = require('../utils/transformSessions');
 const ResolverDB = require('./ResolverDB');
 const SessionDB = require('./SessionDB');
 
-const defaultNetworkOptions = {};
-
-const defaultEntityResolutionOptions = {
-  // enableEntityResolution: false,
+const defaultNetworkOptions = {
   enableEntityResolution: true,
   resolutionId: null,
 };
@@ -58,14 +55,10 @@ class ResolverManager {
     {
       useEgoData,
       exportNetworkUnion,
-      entityResolutionOptions,
-    } = defaultNetworkOptions,
-  ) {
-    const {
       enableEntityResolution,
       resolutionId,
-    } = entityResolutionOptions || defaultEntityResolutionOptions;
-
+    } = defaultNetworkOptions,
+  ) {
     const protocolId = protocol._id;
 
     if (!enableEntityResolution) {
@@ -111,7 +104,7 @@ class ResolverManager {
 
     const codebook = transposedCodebook(protocol.codebook);
 
-    const command = options.entityResolutionOptions.entityResolutionPath;
+    const command = options.entityResolutionPath;
     const resolverOptions = { codebook };
 
     const networkResolver = getNetworkResolver(command, resolverOptions);
