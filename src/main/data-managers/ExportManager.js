@@ -126,7 +126,8 @@ class ExportManager {
       exportNetworkUnion,
       useDirectedEdges,
       useEgoData,
-      entityResolutionOptions,
+      enableEntityResolution,
+      resolutionId,
     } = {},
   ) {
     if (!protocol) {
@@ -150,7 +151,8 @@ class ExportManager {
     const networkOpts = {
       exportNetworkUnion,
       useEgoData,
-      entityResolutionOptions,
+      enableEntityResolution,
+      resolutionId,
     };
 
     // Export flow:

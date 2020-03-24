@@ -12,7 +12,7 @@ const {
 const getPriorResolutions = (resolutions, resolutionId) => {
   // from oldest to newest
   const sortedResolutions = [...resolutions]
-    .sort((a, b) => DateTime.fromISO(a._meta.date) - DateTime.fromISO(b._meta.date));
+    .sort((a, b) => DateTime.fromJSDate(a._meta.date) - DateTime.fromJSDate(b._meta.date));
 
   if (!resolutionId) { return sortedResolutions; }
 
@@ -97,6 +97,8 @@ const applyTransform = (network, transform) => {
 const transformSessions = (sessions, resolutions, { useEgoData, resolutionId }) => {
   const priorResolutions = getPriorResolutions(resolutions, resolutionId);
   const sessionsByResolution = getSessionsByResolution(priorResolutions, sessions);
+
+  console.log('TRANSFORM', JSON.stringify(priorResolutions, null, 2));
 
   // For each resolution merge sessions and apply resolution
   const resultNetwork = reduce(
