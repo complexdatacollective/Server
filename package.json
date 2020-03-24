@@ -216,7 +216,13 @@
             "/node_modules/(?!@codaco/ui).+\\.js$"
         ],
         "moduleNameMapper": {
-            "^react-native$": "react-native-web"
+            "^react-native$": "react-native-web",
+            "%components/(.*)$": "<rootDir>/src/renderer/components/$1",
+            "%containers/(.*)$": "<rootDir>/src/renderer/containers/$1",
+            "%utils/(.*)$": "<rootDir>/src/renderer/utils/$1",
+            "%modules/(.*)$": "<rootDir>/src/renderer/ducks/modules/$1",
+            "%main/(.*)$": "<rootDir>/src/main/$1",
+            "%renderer/(.*)$": "<rootDir>/src/renderer/$1"
         }
     },
     "eslintConfig": {

@@ -14,7 +14,7 @@ const SessionDB = require('./SessionDB');
 
 const defaultNetworkOptions = {
   enableEntityResolution: true,
-  unresolved: true,
+  includeUnresolved: true,
   resolutionId: null,
 };
 
@@ -53,15 +53,17 @@ class ResolverManager {
 
   getNetwork(
     protocol,
-    {
+    networkOptions,
+  ) {
+    const protocolId = protocol._id;
+
+    const {
       useEgoData,
       exportNetworkUnion,
       enableEntityResolution,
       resolutionId,
-      unresolved,
-    } = defaultNetworkOptions,
-  ) {
-    const protocolId = protocol._id;
+      includeUnresolved,
+    } = { ...defaultNetworkOptions, ...networkOptions };
 
     if (!enableEntityResolution) {
       return this.getSessionNetworks(protocolId)
@@ -69,7 +71,7 @@ class ResolverManager {
         .then(networks => (exportNetworkUnion ? [unionOfNetworks(networks)] : networks));
     }
 
-    const transformOptions = { useEgoData, resolutionId, unresolved };
+    const transformOptions = { useEgoData, resolutionId, includeUnresolved };
 
     return Promise.all([
       this.getSessionNetworks(protocolId),

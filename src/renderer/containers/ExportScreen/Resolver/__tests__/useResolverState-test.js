@@ -1,7 +1,7 @@
 /* eslint-env jest */
 
+import { nodePrimaryKeyProperty } from '%main/utils/formatters/network';
 import { resolutionsReducer, matchActionReducer, actionCreators } from '../useResolverState';
-import { nodePrimaryKeyProperty } from '../../../../main/utils/formatters/network';
 import Factory from '../__factories__';
 
 describe('useResolverState', () => {

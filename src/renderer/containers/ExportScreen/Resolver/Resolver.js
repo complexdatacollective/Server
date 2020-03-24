@@ -34,6 +34,7 @@ const Resolver = ({
   };
 
   const handleCancel = () => {
+    // eslint-disable-next-line no-alert
     if (window.confirm('You will loose any progress, are you sure?')) {
       reset();
       onCancel();
@@ -136,7 +137,8 @@ Resolver.propTypes = {
   isLoadingMatches: PropTypes.bool,
   show: PropTypes.bool,
   onCancel: PropTypes.func.isRequired,
-  onResolved: PropTypes.func.isRequired,
+  onResolve: PropTypes.func.isRequired,
+  matches: PropTypes.array,
   resolveRequestId: PropTypes.string,
 };
 

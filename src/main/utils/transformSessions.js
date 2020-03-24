@@ -94,7 +94,11 @@ const applyTransform = (network, transform) => {
   };
 };
 
-const transformSessions = (sessions, resolutions, { useEgoData, resolutionId, unresolved }) => {
+const transformSessions = (
+  sessions,
+  resolutions,
+  { useEgoData, resolutionId, includeUnresolved },
+) => {
   const priorResolutions = getPriorResolutions(resolutions, resolutionId);
   const sessionsByResolution = getSessionsByResolution(priorResolutions, sessions);
 
@@ -117,7 +121,10 @@ const transformSessions = (sessions, resolutions, { useEgoData, resolutionId, un
     { nodes: [], edges: [], ego: [] },
   );
 
-  if (unresolved && sessionsByResolution._unresolved) {
+  console.log(includeUnresolved && 'UNRESOLVED');
+  console.log(!includeUnresolved && 'NOT UNRESOLVED');
+
+  if (includeUnresolved && sessionsByResolution._unresolved) {
     return unionOfNetworks([resultNetwork, ...sessionsByResolution._unresolved]);
   }
 

@@ -101,7 +101,14 @@ EntityResolutionSettings.propTypes = {
   showError: PropTypes.func.isRequired,
   protocolId: PropTypes.string,
   resolveRequestId: PropTypes.string,
-  onUpdateOptions: PropTypes.func.isRequired,
+  enableEntityResolution: PropTypes.bool,
+  resolutionId: PropTypes.string,
+  createNewResolution: PropTypes.bool,
+  minimumThreshold: PropTypes.string,
+  entityResolutionPath: PropTypes.string,
+  onUpdateSetting: PropTypes.func.isRequired,
+  onSelectResolution: PropTypes.func.isRequired,
+  onSelectCreateNewResolution: PropTypes.func.isRequired,
   disabled: PropTypes.bool,
 };
 
@@ -109,6 +116,11 @@ EntityResolutionSettings.defaultProps = {
   protocolId: null,
   resolveRequestId: null,
   disabled: false,
+  resolutionId: null,
+  enableEntityResolution: false,
+  createNewResolution: false,
+  minimumThreshold: '',
+  entityResolutionPath: '',
 };
 
 export default withApiClient(EntityResolutionSettings);
