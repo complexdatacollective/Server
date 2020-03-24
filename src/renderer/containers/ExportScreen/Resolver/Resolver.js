@@ -13,7 +13,7 @@ const Resolver = ({
   matches,
   show,
   onCancel,
-  onResolved,
+  onResolve,
   resolveRequestId,
 }) => {
   const [state, handlers] = useResolverState();
@@ -29,7 +29,7 @@ const Resolver = ({
 
   const handleFinish = () => {
     const resolutions = finializeResolutions(state.resolutions);
-    onResolved(resolutions);
+    onResolve(resolutions);
     reset();
   };
 

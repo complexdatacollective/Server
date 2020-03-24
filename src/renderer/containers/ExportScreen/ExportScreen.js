@@ -42,7 +42,7 @@ const ExportScreen = ({
     },
   ] = useExportSettingsState();
 
-  const [resolverState, resolveProtocol, resetResolver] = useResolver({ showError });
+  const [resolverState, resolveProtocol, resetResolver] = useResolver();
 
   const saveResolution = (resolution) => {
     const {
@@ -154,12 +154,12 @@ const ExportScreen = ({
     promptAndExport();
   };
 
-  const handleResolved = (resolutions) => {
+  const handleResolve = (resolutions) => {
     saveResolution(resolutions)
       .then(resetResolver);
   };
 
-  const handleCancelResolver = () => {
+  const handleCancelResolve = () => {
     resetResolver();
   };
 
@@ -181,6 +181,8 @@ const ExportScreen = ({
   const showCsvOpts = exportSettings.exportFormat === 'csv';
   const { exportInProgress } = state;
 
+  console.log({ resolverState });
+
   return (
     <form className="export" onSubmit={handleSubmit}>
       <ExportModal
@@ -190,12 +192,12 @@ const ExportScreen = ({
       />
       <ErrorBoundary>
         <Resolver
-          key={resolverState.resolveRequestId}
+          // key={resolverState.resolveRequestId}
           matches={resolverState.matches}
           isLoadingMatches={resolverState.isLoadingMatches}
           show={resolverState.showResolver}
-          onCancel={handleCancelResolver}
-          onResolved={handleResolved}
+          onCancel={handleCancelResolve}
+          onResolve={handleResolve}
         />
       </ErrorBoundary>
       <h1>Export Data {resolverState.resolveRequestId}</h1>
