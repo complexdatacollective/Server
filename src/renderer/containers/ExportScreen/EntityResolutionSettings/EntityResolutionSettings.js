@@ -6,7 +6,6 @@ import { get, last } from 'lodash';
 import cx from 'classnames';
 import Checkbox from '@codaco/ui/lib/components/Fields/Checkbox';
 import withApiClient from '%components/withApiClient';
-import useEntityResolutionState from './useEntityResolutionState';
 import Snapshot from './Snapshot';
 import NewSnapshot from './NewSnapshot';
 import './EntityResolution.scss';
@@ -14,31 +13,21 @@ import './EntityResolution.scss';
 const compareCreatedAt = (a, b) =>
   DateTime.fromISO(a.createdAt) - DateTime.fromISO(b.createdAt);
 
-const EntityResolution = ({
+const EntityResolutionSettings = ({
   apiClient,
   showError,
   protocolId,
   resolveRequestId,
-  onUpdateOptions,
+  enableEntityResolution,
+  resolutionId,
+  createNewResolution,
+  minimumThreshold,
+  entityResolutionPath,
+  onUpdateSetting,
+  onSelectResolution,
+  onSelectCreateNewResolution,
   disabled,
 }) => {
-  const [state, handlers] = useEntityResolutionState();
-
-  const {
-    enableEntityResolution,
-    entityResolutionPath,
-    minimumThreshold,
-    resolutionId,
-    createNewResolution,
-  } = state;
-
-  const {
-    toggleEntityResolution,
-    selectResolution,
-    setCreateNewResolution,
-    changeResolutionOptions,
-  } = handlers;
-
   const [resolutionHistory, setResolutionHistory] = useState([]);
 
   useEffect(() => {
@@ -49,34 +38,15 @@ const EntityResolution = ({
       .then(({ resolutions }) => {
         const sortedResolutions = [...resolutions].sort(compareCreatedAt);
         setResolutionHistory(sortedResolutions);
-        selectResolution(null);
+        onSelectResolution(null);
         // if path has been changed skip this
         if (entityResolutionPath.length === 0) {
           const path = get(last(sortedResolutions), 'options.entityResolutionPath', '');
-          changeResolutionOptions({ entityResolutionPath: path });
+          onUpdateSetting('entityResolutionPath', path);
         }
       })
       .catch(err => showError(err.message));
   }, [protocolId, resolveRequestId]);
-
-  useEffect(() => {
-    if (!onUpdateOptions) { return; }
-
-    onUpdateOptions({
-      enableEntityResolution,
-      entityResolutionPath,
-      minimumThreshold,
-      resolutionId,
-      createNewResolution,
-    });
-  }, [
-    enableEntityResolution,
-    entityResolutionPath,
-    minimumThreshold,
-    resolutionId,
-    createNewResolution,
-    onUpdateOptions,
-  ]);
 
   return (
     <div className={cx('entity-resolution', { 'entity-resolution--disabled': disabled })}>
@@ -89,7 +59,7 @@ const EntityResolution = ({
             input={{
               name: 'enable_entity_resolution', // TODO: is this necessary?
               checked: enableEntityResolution,
-              onChange: toggleEntityResolution,
+              onChange: () => onUpdateSetting('enableEntityResolution', !enableEntityResolution),
               disabled,
             }}
           />
@@ -103,22 +73,20 @@ const EntityResolution = ({
                   .map((resolution, index) => (
                     <Snapshot
                       key={resolution._meta.id}
-                      onSelect={selectResolution}
+                      onSelect={onSelectResolution}
                       onRollback={() => {}}
                       canRollback={resolutionHistory.length !== index + 1}
-                      isSelected={state.resolutionId === resolution._meta.id}
+                      isSelected={resolutionId === resolution._meta.id}
                       {...resolution._meta}
                     />
                   ))
               }
               <NewSnapshot
-                onSelectCreateNewSnapshot={setCreateNewResolution}
+                onSelectCreateNewResolution={onSelectCreateNewResolution}
                 isSelected={createNewResolution}
-                onChangeOptions={changeResolutionOptions}
-                options={{
-                  entityResolutionPath,
-                  minimumThreshold,
-                }}
+                onUpdateSetting={onUpdateSetting}
+                entityResolutionPath={entityResolutionPath}
+                minimumThreshold={minimumThreshold}
               />
             </div>
           </div>
@@ -128,7 +96,7 @@ const EntityResolution = ({
   );
 };
 
-EntityResolution.propTypes = {
+EntityResolutionSettings.propTypes = {
   apiClient: PropTypes.object.isRequired,
   showError: PropTypes.func.isRequired,
   protocolId: PropTypes.string,
@@ -137,10 +105,10 @@ EntityResolution.propTypes = {
   disabled: PropTypes.bool,
 };
 
-EntityResolution.defaultProps = {
+EntityResolutionSettings.defaultProps = {
   protocolId: null,
   resolveRequestId: null,
   disabled: false,
 };
 
-export default withApiClient(EntityResolution);
+export default withApiClient(EntityResolutionSettings);
