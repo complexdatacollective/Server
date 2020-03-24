@@ -121,7 +121,7 @@ const Resolver = ({
               <Progress
                 value={state.currentMatchIndex + 1}
                 max={matches.length}
-                active={isLoadingMatches}
+                // active={isLoadingMatches}
               />
             </div>
           }
