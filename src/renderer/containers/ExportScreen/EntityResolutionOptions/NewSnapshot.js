@@ -52,7 +52,7 @@ const NewSnapshot = ({
               <td>
                 <Text
                   input={{
-                    inputmode: 'numeric',
+                    inputMode: 'numeric',
                     pattern: '[0-9]*.[0-9]*',
                     value: minimumThreshold,
                     onChange: e => handleChange(e, 'minimumThreshold'),
