@@ -15,7 +15,6 @@ import Types from '%renderer/types';
 import ErrorBoundary from '%components/ErrorBoundary';
 import ExportModal from '%components/ExportModal';
 import withApiClient from '%components/withApiClient';
-import withResolverClient from '%components/withResolverClient';
 import { selectors } from '%modules/protocols';
 import { actionCreators as messageActionCreators } from '%modules/appMessages';
 import EntityResolutionSettings from './EntityResolutionSettings';
@@ -25,7 +24,6 @@ import useResolver from './useResolver';
 
 const ExportScreen = ({
   apiClient,
-  resolverClient,
   protocol,
   protocolsHaveLoaded,
   history,
@@ -149,7 +147,7 @@ const ExportScreen = ({
     }
 
     if (createNewResolution) {
-      resolveProtocol();
+      resolveProtocol(protocol, exportSettings);
       return;
     }
 
@@ -352,9 +350,6 @@ ExportScreen.propTypes = {
   showError: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
   resolverClient: PropTypes.any.isRequired,
-  // resolverClient: PropTypes.shape({
-  //   resolveProtocol: PropTypes.func.isRequired,
-  // }).isRequired,
 };
 
 ExportScreen.defaultProps = {
@@ -375,7 +370,6 @@ const mapDispatchToProps = dispatch => ({
 export default compose(
   connect(mapStateToProps, mapDispatchToProps),
   withApiClient,
-  withResolverClient,
   withRouter,
 )(ExportScreen);
 

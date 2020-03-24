@@ -10,9 +10,13 @@ const initialState = {
   errorLoadingMatches: null,
 };
 
-const useResolver = ({ showError }) => {
-  const resolverStream = useRef();
+const useResolver = () => {
+  const resolverStream = useRef(null);
+  const client = useRef(resolverClient);
   const [state, setState] = useState(initialState);
+  const [matches, setMatches] = useState([]);
+
+  const appendMatch = match => setMatches([...matches, match]);
 
   const cleanupResolverStream = () => {
     if (resolverStream.current) {
@@ -32,8 +36,17 @@ const useResolver = ({ showError }) => {
     cleanupResolverStream();
   };
 
+  const handleData = (d) => {
+    const data = JSON.parse(d.toString());
+    // // matches.push(data);
+    // appendMatch(data);
+    // console.log(matches);
+    setState({ ...state, matches: [...state.matches, data] });
+    console.log(matches);
+  };
+
   const resolveProtocol = (protocol, exportSettings) => {
-    if (!resolverClient) { return Promise.reject(); }
+    if (!client) { return Promise.reject(); }
 
     const requestId = uuid();
 
@@ -47,7 +60,10 @@ const useResolver = ({ showError }) => {
       csvTypes,
       useDirectedEdges,
       useEgoData,
-      entityResolutionOptions,
+      resolutionId,
+      createNewResolution,
+      minimumThreshold,
+      entityResolutionPath,
     } = exportSettings;
 
     const csvTypesNoEgo = new Set(exportSettings.csvTypes);
@@ -55,19 +71,27 @@ const useResolver = ({ showError }) => {
     const exportCsvTypes = useEgoData ? csvTypes : csvTypesNoEgo;
     const showCsvOpts = exportFormat === 'csv';
 
-    setState(({
+    const newState = {
       ...state,
       showResolver: true,
       resolveRequestId: requestId,
       matches: [],
       isLoadingMatches: true,
       errorLoadingMatches: null,
-    }));
+    };
 
-    return resolverClient.resolveProtocol(
+    console.log(state, newState);
+
+    setState(newState);
+
+
+    return client.current.resolveProtocol(
       protocolId,
       {
-        entityResolutionOptions,
+        resolutionId,
+        createNewResolution,
+        minimumThreshold,
+        entityResolutionPath,
         exportFormats: (exportFormat === 'csv' && [...exportCsvTypes]) || [exportFormat],
         exportNetworkUnion,
         useDirectedEdges,
@@ -77,32 +101,33 @@ const useResolver = ({ showError }) => {
       .then(newResolverStream => new Promise((resolve, reject) => {
         resolverStream.current = newResolverStream;
 
-        newResolverStream.on('data', (d) => {
-          const data = JSON.parse(d.toString());
-          setState({ ...state, matches: [...state.matches, data] });
-        });
+        // const matches = [];
+
+        newResolverStream.on('data', handleData);
 
         newResolverStream.on('end', resolve);
 
         newResolverStream.on('error', reject);
-      }))
-      .then(() => {
-        setState(({
-          ...state,
-          isLoadingMatches: false,
-        }));
-      })
-      .catch((error) => {
-        showError(error.message);
+      }));
+  //     .then(() => {
+  //       console.log('DONE', state);
 
-        setState(({
-          ...state,
-          isLoadingMatches: false,
-          errorLoadingMatches: error,
-          showResolver: false,
-        }));
-      })
-      .finally(cleanupResolverStream);
+  //       setState(({
+  //         ...state,
+  //         isLoadingMatches: false,
+  //       }));
+  //     })
+  //     .catch((error) => {
+  //       showError(error.message);
+
+  //       setState(({
+  //         ...state,
+  //         isLoadingMatches: false,
+  //         errorLoadingMatches: error,
+  //         // showResolver: false,
+  //       }));
+  //     })
+  //     .finally(cleanupResolverStream);
   };
 
   return [state, resolveProtocol, reset];
