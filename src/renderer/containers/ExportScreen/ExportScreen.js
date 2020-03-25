@@ -14,23 +14,25 @@ import Toggle from '@codaco/ui/lib/components/Fields/Toggle';
 import Types from '%renderer/types';
 import ErrorBoundary from '%components/ErrorBoundary';
 import ExportModal from '%components/ExportModal';
-import withApiClient from '%components/withApiClient';
 import { selectors } from '%modules/protocols';
 import { actionCreators as messageActionCreators } from '%modules/appMessages';
 import EntityResolutionSettings from './EntityResolutionSettings';
 import Resolver from './Resolver';
 import useExportSettingsState, { availableCsvTypes } from './useExportSettingsState';
 import useResolver from './useResolver';
+import useAdminClient from './useAdminClient';
 
 const ExportScreen = ({
-  apiClient,
   protocol,
   protocolsHaveLoaded,
   history,
   showConfirmation,
   showError,
 }) => {
-  const [state, setState] = useState({ exportInProgress: false });
+  const [state, setState] = useState({
+    exportInProgress: false,
+    resolutionsKey: null,
+  });
 
   const [
     exportSettings,
@@ -43,81 +45,9 @@ const ExportScreen = ({
     },
   ] = useExportSettingsState();
 
-  const [resolverState, resolveProtocol, resetResolver] = useResolver();
+  const [resolverState, resolveProtocol, resetResolver] = useResolver(showConfirmation, showError);
 
-  const saveResolution = (resolution) => {
-    const {
-      id: protocolId,
-    } = protocol;
-
-    const {
-      entityResolutionPath,
-    } = exportSettings;
-
-    if (!apiClient) {
-      return Promise.reject();
-    }
-
-    const options = {
-      entityResolutionPath,
-    };
-
-    return apiClient
-      .post(`/protocols/${protocolId}/resolutions`, { options, resolution })
-      .then(({ resolutionId }) => {
-        updateSettings({
-          resolutionId,
-          enableEntityResolution: true,
-          createNewResolution: false,
-        });
-        resetResolver();
-      })
-      .then(() => promptAndExport())
-      .catch(err => showError(err.message));
-  };
-
-  const exportToFile = (destinationFilepath) => {
-    if (!apiClient) {
-      return;
-    }
-
-    const {
-      id: protocolId,
-    } = protocol;
-
-    const {
-      exportFormat,
-      exportNetworkUnion,
-      csvTypes,
-      useDirectedEdges,
-      useEgoData,
-      enableEntityResolution,
-      resolutionId,
-    } = exportSettings;
-
-    const csvTypesNoEgo = new Set(exportSettings.csvTypes);
-    csvTypesNoEgo.delete('ego');
-    const exportCsvTypes = useEgoData ? csvTypes : csvTypesNoEgo;
-    const showCsvOpts = exportFormat === 'csv';
-
-    const postBody = {
-      enableEntityResolution,
-      resolutionId,
-      exportFormats: (exportFormat === 'csv' && [...exportCsvTypes]) || [exportFormat],
-      exportNetworkUnion,
-      destinationFilepath,
-      useDirectedEdges,
-      useEgoData: useEgoData && showCsvOpts,
-    };
-
-    // throw new Error(JSON.stringify(postBody));
-
-    apiClient
-      .post(`/protocols/${protocolId}/export_requests`, postBody)
-      .then(() => showConfirmation('Export complete'))
-      .catch(err => showError(err.message))
-      .then(() => setState({ exportInProgress: false }));
-  };
+  const [exportToFile, saveResolution] = useAdminClient(showConfirmation, showError);
 
   const promptAndExport = () => {
     const defaultName = protocol.name || 'network-canvas-data';
@@ -134,7 +64,9 @@ const ExportScreen = ({
       .then(({ canceled, filePath }) => {
         if (canceled || !filePath) { return; }
         setState({ exportInProgress: true });
-        exportToFile(filePath);
+
+        return exportToFile(protocol, exportSettings, filePath)
+          .finally(() => setState({ exportInProgress: false }));
       });
   };
 
@@ -157,8 +89,17 @@ const ExportScreen = ({
   };
 
   const handleResolve = (resolutions) => {
-    saveResolution(resolutions)
-      .then(resetResolver);
+    saveResolution(protocol, exportSettings, resolutions)
+      .then(({ resolutionId }) => {
+        updateSettings({
+          resolutionId,
+          enableEntityResolution: true,
+          createNewResolution: false,
+          resolutionsKey: resolutionId, // trigger reload of resolutions
+        });
+      })
+      .then(resetResolver)
+      .then(promptAndExport);
   };
 
   const handleCancelResolve = () => {
@@ -321,6 +262,7 @@ const ExportScreen = ({
       </div>
       <ErrorBoundary>
         <EntityResolutionSettings
+          // key={state.resolutionsKey}
           resolveRequestId={resolverState.resolveRequestId}
           show={exportSettings.exportNetworkUnion}
           showError={showError}
@@ -354,7 +296,6 @@ ExportScreen.propTypes = {
 };
 
 ExportScreen.defaultProps = {
-  apiClient: null,
   protocol: null,
 };
 
@@ -370,7 +311,6 @@ const mapDispatchToProps = dispatch => ({
 
 export default compose(
   connect(mapStateToProps, mapDispatchToProps),
-  withApiClient,
   withRouter,
 )(ExportScreen);
 

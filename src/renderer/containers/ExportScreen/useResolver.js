@@ -50,6 +50,7 @@ const useResolver = (showError) => {
     updateState({
       isLoadingMatches: false,
       showResolver: false,
+      resolveRequestId: null,
       errorLoadingMatches: null,
       matches: [],
     });
@@ -58,7 +59,9 @@ const useResolver = (showError) => {
   };
 
   const resolveProtocol = (protocol, exportSettings) => {
-    if (!client) { return Promise.reject(); }
+    if (!client.current) { return Promise.reject(); }
+
+    if (state.resolveRequestId) { return Promise.reject(); }
 
     const requestId = uuid();
 
@@ -116,19 +119,17 @@ const useResolver = (showError) => {
 
         newResolverStream.on('error', reject);
       }))
-      .then(() => {
-        updateState({
-          isLoadingMatches: false,
-        });
-      })
+      .then(() => updateState({
+        isLoadingMatches: false,
+      }))
       .catch((error) => {
         showError(error.message);
 
         updateState({
-          isLoadingMatches: false,
           errorLoadingMatches: error,
-          showResolver: false,
           matches: [],
+          showResolver: false,
+          resolveRequestId: null,
         });
       })
       .finally(cleanupResolverStream);
