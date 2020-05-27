@@ -66,29 +66,38 @@ const EntityResolutionSettings = ({
         </div>
         { enableEntityResolution &&
           <div className="export__subpanel">
-            <h4>Select resolution:</h4>
-            <div className="export__subpanel-content">
-              {
-                resolutionHistory
-                  .map((resolution, index) => (
-                    <Snapshot
-                      key={resolution._meta.id}
-                      onSelect={onSelectResolution}
-                      onRollback={() => {}}
-                      canRollback={resolutionHistory.length !== index + 1}
-                      isSelected={resolutionId === resolution._meta.id}
-                      {...resolution._meta}
-                    />
-                  ))
-              }
-              <NewSnapshot
-                onSelectCreateNewResolution={onSelectCreateNewResolution}
-                isSelected={createNewResolution}
-                onUpdateSetting={onUpdateSetting}
-                entityResolutionPath={entityResolutionPath}
-                minimumThreshold={minimumThreshold}
-              />
-            </div>
+            <table className="snapshots">
+              <thead>
+                <tr>
+                  <th>Resolution</th>
+                  <th>Sessions</th>
+                  <th>Resolutions</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {
+                  resolutionHistory
+                    .map((resolution, index) => (
+                      <Snapshot
+                        key={resolution._meta.id}
+                        onSelect={onSelectResolution}
+                        onRollback={() => {}}
+                        canRollback={resolutionHistory.length !== index + 1}
+                        isSelected={resolutionId === resolution._meta.id}
+                        {...resolution._meta}
+                      />
+                    ))
+                }
+                <NewSnapshot
+                  onSelectCreateNewResolution={onSelectCreateNewResolution}
+                  isSelected={createNewResolution}
+                  onUpdateSetting={onUpdateSetting}
+                  entityResolutionPath={entityResolutionPath}
+                  minimumThreshold={minimumThreshold}
+                />
+              </tbody>
+            </table>
           </div>
         }
       </div>

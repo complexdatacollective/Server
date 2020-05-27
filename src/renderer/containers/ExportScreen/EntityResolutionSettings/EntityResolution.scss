@@ -1,3 +1,51 @@
 .entity-resolution {
   margin-bottom: 4rem;
+
+  .form-field-radio {
+    position: relative;
+
+    input {
+      position: absolute;
+      z-index: 0;
+    }
+  }
+
+  .snapshots {
+    th {
+      text-align: left;
+      padding: 2rem;
+      border-bottom: 2px solid rgb(242, 246, 247);
+      font-family: var(--heading-font-family);
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.05rem;
+      line-height: 1.1;
+    }
+
+    td {
+      padding: 1rem 2rem;
+    }
+
+    tbody {
+      tr {
+        &:nth-child(2n + 1) {
+          td {
+            background: rgba(242, 246, 247, .5);
+          }
+        }
+      }
+    }
+
+    .snapshots__row--no-padding {
+      padding: 0;
+    }
+
+    .new-snapshot {
+      width: 100%;
+      border-top: 2px solid rgb(242, 246, 247);
+      td {
+        background: rgba(242, 246, 247, .5);
+      }
+    }
+  }
 }
