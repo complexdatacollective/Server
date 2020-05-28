@@ -99,6 +99,22 @@ class ResolverManager {
     return this.resolverDB.insertResolution(protocolId, options, transforms);
   }
 
+  // Delete all resolutions ater and including resolutionId
+  deleteResolutionsFromId(protocolId, resolutionId) {
+    return this.getResolutions(protocolId)
+      // Get all resolutions up to and including resolutionId
+      .then((resolutions) => {
+        const resolutionIndex = resolutions
+          .findIndex(resolution => resolution._id === resolutionId);
+        return resolutions.slice(0, resolutionIndex + 1);
+      })
+      .then(resolutions => resolutions.map(({ _id }) => _id))
+      .then(resolutionIds =>
+        this.resolverDB.deleteResolutions(resolutionIds)
+          .then(() => resolutionIds),
+      );
+  }
+
   resolveProtocol(
     protocol,
     options,

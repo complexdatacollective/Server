@@ -3,9 +3,12 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { DateTime } from 'luxon';
 import { get, last } from 'lodash';
+import { connect } from 'react-redux';
+import { compose } from 'redux';
 import cx from 'classnames';
 import Checkbox from '@codaco/ui/lib/components/Fields/Checkbox';
 import withApiClient from '%components/withApiClient';
+import { actionCreators as dialogActions } from '%modules/dialogs';
 import Snapshot from './Snapshot';
 import NewSnapshot from './NewSnapshot';
 import './EntityResolution.scss';
@@ -19,7 +22,7 @@ const EntityResolutionSettings = ({
   protocolId,
   resolveRequestId,
   enableEntityResolution,
-  resolutionId,
+  resolutionId, // TODO: what is this?
   createNewResolution,
   minimumThreshold,
   entityResolutionPath,
@@ -27,10 +30,11 @@ const EntityResolutionSettings = ({
   onSelectResolution,
   onSelectCreateNewResolution,
   disabled,
+  openDialog,
 }) => {
   const [resolutionHistory, setResolutionHistory] = useState([]);
 
-  useEffect(() => {
+  const getResolutions = () => {
     if (!protocolId) { return; }
 
     apiClient
@@ -46,7 +50,39 @@ const EntityResolutionSettings = ({
         }
       })
       .catch(err => showError(err.message));
+  };
+
+  useEffect(() => {
+    getResolutions();
   }, [protocolId, resolveRequestId]);
+
+  const deleteResolution = (id) => {
+    apiClient
+      .delete(`/protocols/${protocolId}/resolutions/${id}`)
+      .then((result) => {
+        getResolutions();
+        return result;
+      })
+      .then(({ ids }) => {
+        openDialog({
+          type: 'Notice',
+          title: 'Resolution removed',
+          confirmLabel: 'OK',
+          message: `${ids.length} resolutions were removed.`,
+        });
+      })
+      .catch(err => showError(err.message));
+  };
+
+  const handleDelete = (rId) => {
+    openDialog({
+      type: 'Confirm',
+      title: 'Remove Resolution(s)?',
+      confirmLabel: 'Remove Resolution(s)',
+      onConfirm: () => deleteResolution(rId),
+      message: 'This will remove this resolution and also remove all subsequent resolutions.',
+    });
+  };
 
   return (
     <div className={cx('entity-resolution', { 'entity-resolution--disabled': disabled })}>
@@ -78,12 +114,12 @@ const EntityResolutionSettings = ({
               <tbody>
                 {
                   resolutionHistory
-                    .map((resolution, index) => (
+                    .map(resolution => (
                       <Snapshot
                         key={resolution._meta.id}
                         onSelect={onSelectResolution}
-                        onRollback={() => {}}
-                        canRollback={resolutionHistory.length !== index + 1}
+                        onDelete={handleDelete}
+                        canDelete
                         isSelected={resolutionId === resolution._meta.id}
                         {...resolution._meta}
                       />
@@ -132,4 +168,11 @@ EntityResolutionSettings.defaultProps = {
   entityResolutionPath: '',
 };
 
-export default withApiClient(EntityResolutionSettings);
+const mapDispatchToProps = {
+  openDialog: dialogActions.openDialog,
+};
+
+export default compose(
+  connect(null, mapDispatchToProps),
+  withApiClient,
+)(EntityResolutionSettings);

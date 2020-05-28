@@ -9,8 +9,8 @@ const Snapshot = ({
   date,
   isSelected,
   onSelect,
-  onRollback,
-  canRollback,
+  onDelete,
+  canDelete,
 }) => {
   const displayDate = DateTime.fromISO(date).toHTTP();
 
@@ -30,9 +30,9 @@ const Snapshot = ({
       <td />
       <td />
       <td>
-        { canRollback &&
+        { canDelete &&
           <div className="snapshot__delete">
-            <Button onClick={() => onRollback(id)} size="small">Rollback</Button>
+            <Button onClick={() => onDelete(id)} size="small" color="coral">Delete</Button>
           </div>
         }
       </td>
@@ -45,13 +45,13 @@ Snapshot.propTypes = {
   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   isSelected: PropTypes.bool,
   onSelect: PropTypes.func.isRequired,
-  onRollback: PropTypes.func.isRequired,
-  canRollback: PropTypes.bool,
+  onDelete: PropTypes.func.isRequired,
+  canDelete: PropTypes.bool,
 };
 
 Snapshot.defaultProps = {
   isSelected: false,
-  canRollback: false,
+  canDelete: false,
 };
 
 export default Snapshot;

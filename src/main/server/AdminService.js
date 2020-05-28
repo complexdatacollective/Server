@@ -268,6 +268,21 @@ class AdminService {
         .then(() => next());
     });
 
+    api.del('/protocols/:protocolId/resolutions/:resolutionId', (req, res, next) => {
+      apiRequestLogger('AdminAPI')(req, { statusCode: 0 }); // log request start
+
+      this.resolverManager.deleteResolutionsFromId(
+        req.params.protocolId,
+        req.params.resolutionId,
+      )
+        .then(ids => res.send({ status: 'ok', ids }))
+        .catch((err) => {
+          logger.error(err);
+          res.send(codeForError(err), { status: 'error', message: err.message });
+        })
+        .finally(next);
+    });
+
     // See ExportManager#createExportFile for possible req body params
     // Handles export in a single, long-lived http request
     api.post('/protocols/:protocolId/export_requests', (req, res, next) => {

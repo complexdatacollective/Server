@@ -1,5 +1,8 @@
 const DatabaseAdapter = require('./DatabaseAdapter');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
+const { resolveOrReject } = require('../utils/db');
+
+const missingRequiredIdMessage = 'Cannot delete resolution without a protocol id and resolution id';
 
 /**
  * @extends DatabaseAdapter
@@ -41,6 +44,28 @@ class ResolverDB extends DatabaseAdapter {
   getResolutions(protocolId) {
     // TODO: filter by id
     return this.all();
+  }
+
+  deleteResolution(resolutionId) {
+    return new Promise((resolve, reject) => {
+      if (!resolutionId) { reject(new Error(missingRequiredIdMessage)); }
+      this.db.remove(
+        { _id: resolutionId },
+        { multi: false },
+        resolveOrReject(resolve, reject),
+      );
+    });
+  }
+
+  deleteResolutions(resolutionIds) {
+    return new Promise((resolve, reject) => {
+      if (!resolutionIds) { reject(new Error(missingRequiredIdMessage)); }
+      this.db.remove(
+        { $or: resolutionIds.map(_id => ({ _id })) },
+        { multi: true },
+        resolveOrReject(resolve, reject),
+      );
+    });
   }
 }
 
