@@ -24,7 +24,7 @@ const EntityResolutionSettings = ({
   enableEntityResolution,
   resolutionId, // TODO: what is this?
   createNewResolution,
-  minimumThreshold,
+  entityResolutionArguments,
   entityResolutionPath,
   onUpdateSetting,
   onSelectResolution,
@@ -130,7 +130,7 @@ const EntityResolutionSettings = ({
                   isSelected={createNewResolution}
                   onUpdateSetting={onUpdateSetting}
                   entityResolutionPath={entityResolutionPath}
-                  minimumThreshold={minimumThreshold}
+                  entityResolutionArguments={entityResolutionArguments}
                 />
               </tbody>
             </table>
@@ -149,12 +149,13 @@ EntityResolutionSettings.propTypes = {
   enableEntityResolution: PropTypes.bool,
   resolutionId: PropTypes.string,
   createNewResolution: PropTypes.bool,
-  minimumThreshold: PropTypes.string,
+  entityResolutionArguments: PropTypes.string,
   entityResolutionPath: PropTypes.string,
   onUpdateSetting: PropTypes.func.isRequired,
   onSelectResolution: PropTypes.func.isRequired,
   onSelectCreateNewResolution: PropTypes.func.isRequired,
   disabled: PropTypes.bool,
+  openDialog: PropTypes.func.isRequired,
 };
 
 EntityResolutionSettings.defaultProps = {
@@ -164,7 +165,7 @@ EntityResolutionSettings.defaultProps = {
   resolutionId: null,
   enableEntityResolution: false,
   createNewResolution: false,
-  minimumThreshold: '',
+  entityResolutionArguments: '',
   entityResolutionPath: '',
 };
 

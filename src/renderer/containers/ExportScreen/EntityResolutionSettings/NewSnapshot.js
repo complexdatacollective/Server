@@ -4,13 +4,18 @@ import { motion } from 'framer-motion';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import Text from '@codaco/ui/lib/components/Fields/Text';
 
+const variants = {
+  hidden: { height: 0, opacity: 0 },
+  show: { height: 'auto', opacity: 1 },
+};
+
 const NewSnapshot = ({
   isSelected,
   newSessionCount,
   onSelectCreateNewResolution,
   onUpdateSetting,
   entityResolutionPath,
-  minimumThreshold,
+  entityResolutionArguments,
 }) => (
   <React.Fragment>
     <tr>
@@ -28,43 +33,45 @@ const NewSnapshot = ({
     <tr>
       <td colSpan="4" className="snapshots__row--no-padding">
         <motion.div
-          initial={{ height: 0, opacity: 0 }}
-          animate={isSelected ? { height: 'auto', opacity: 1 } : { height: 0, opacity: 0 }}
+          variants={variants}
+          initial="hide"
+          animate={isSelected ? 'show' : 'hide'}
         >
-          <table className="new-snapshot">
-            <tbody>
-              <tr>
-                <td>
-                  Entity resolver path
-                </td>
-                <td>
-                  <Text
-                    input={{
-                      value: entityResolutionPath,
-                      onChange: e => onUpdateSetting('entityResolutionPath', e.target.value),
-                      disabled: !isSelected,
-                    }}
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  Minimum threshold for matches
-                </td>
-                <td>
-                  <Text
-                    input={{
-                      inputMode: 'numeric',
-                      pattern: '[0-9]*.[0-9]*',
-                      value: minimumThreshold,
-                      onChange: e => onUpdateSetting('minimumThreshold', e.target.value),
-                      disabled: !isSelected,
-                    }}
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div className="new-snapshot">
+            <h4>Entity Resolver</h4>
+            <table className="new-snapshot__options">
+              <tbody>
+                <tr>
+                  <th>
+                    Script path
+                  </th>
+                  <td>
+                    <Text
+                      input={{
+                        value: entityResolutionPath,
+                        onChange: e => onUpdateSetting('entityResolutionPath', e.target.value),
+                        disabled: !isSelected,
+                      }}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    Script arguments
+                  </th>
+                  <td>
+                    <Text
+                      input={{
+                        value: entityResolutionArguments,
+                        onChange: e => onUpdateSetting('entityResolutionArguments', e.target.value),
+                        disabled: !isSelected,
+                      }}
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </motion.div>
       </td>
     </tr>
@@ -77,12 +84,12 @@ NewSnapshot.propTypes = {
   newSessionCount: PropTypes.number,
   onUpdateSetting: PropTypes.func.isRequired,
   entityResolutionPath: PropTypes.string,
-  minimumThreshold: PropTypes.string,
+  entityResolutionArguments: PropTypes.string,
 };
 
 NewSnapshot.defaultProps = {
   entityResolutionPath: '',
-  minimumThreshold: 0,
+  entityResolutionArguments: '',
   newSessionCount: 0,
 };
 

@@ -11,7 +11,9 @@
   }
 
   .snapshots {
-    th {
+    width: 100%;
+
+    & > thead > tr > th {
       text-align: left;
       padding: 2rem;
       border-bottom: 2px solid rgb(242, 246, 247);
@@ -22,16 +24,14 @@
       line-height: 1.1;
     }
 
-    td {
-      padding: 1rem 2rem;
-    }
+    & > tbody > tr {
+      & > td {
+        padding: 1rem 2rem;
+      }
 
-    tbody {
-      tr {
-        &:nth-child(2n + 1) {
-          td {
-            background: rgba(242, 246, 247, .5);
-          }
+      &:nth-child(2n + 1) {
+        td {
+          background: rgba(242, 246, 247, .5);
         }
       }
     }
@@ -39,12 +39,28 @@
     .snapshots__row--no-padding {
       padding: 0;
     }
+  }
 
-    .new-snapshot {
+
+  .new-snapshot {
+    width: 100%;
+    border-top: 2px solid rgb(242, 246, 247);
+    background: rgba(242, 246, 247, .5);
+    padding: 1rem 2rem;
+
+    &__options {
       width: 100%;
-      border-top: 2px solid rgb(242, 246, 247);
+
+      th {
+        text-align: left;
+        width: 150px;
+      }
+
       td {
-        background: rgba(242, 246, 247, .5);
+        .form-field-container,
+        .form-field {
+          margin: 0;
+        }
       }
     }
   }

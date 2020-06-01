@@ -33,7 +33,7 @@ const initialState = {
   enableEntityResolution: false,
   resolutionId: null,
   createNewResolution: false,
-  minimumThreshold: '0.0',
+  entityResolutionArguments: '--minimumThreshold=0.5',
   entityResolutionPath: '/Users/steve/Projects/teamgarlic/codaco/network-canvas-er/EntityResolution',
 };
 

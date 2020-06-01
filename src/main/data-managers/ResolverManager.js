@@ -125,7 +125,7 @@ class ResolverManager {
 
     const codebook = transposedCodebook(protocol.codebook);
 
-    const command = options.entityResolutionPath;
+    const command = `${options.entityResolutionPath} ${options.entityResolutionArguments}`;
     const resolverOptions = { codebook };
 
     const networkResolver = getNetworkResolver(command, resolverOptions);
