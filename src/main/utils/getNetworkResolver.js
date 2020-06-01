@@ -2,6 +2,7 @@
 
 const split = require('split');
 const miss = require('mississippi');
+const { has } = require('lodash');
 const csvToJson = require('./streams/csvToJson');
 const { convertUuidToDecimal, nodePrimaryKeyProperty, nodeAttributesProperty } = require('./formatters/network');
 const commandRunner = require('./commandRunner');
@@ -35,7 +36,7 @@ const getNode = (network, id) => {
 
   if (!node) {
     throw new Error(
-      `Corresponding node data for '${id}' (convertUuidToDecimal) could not be found in network object.`,
+      `getNetworkResolver: Corresponding node data for '${id}' (convertUuidToDecimal) could not be found in network object.`,
     );
   }
 
@@ -56,6 +57,14 @@ const appendNodeNetworkData = network =>
   miss.through((chunk, encoding, callback) => {
     try {
       const obj = JSON.parse(chunk);
+
+      if (
+        !has(obj, 'networkCanvasAlterID_1') ||
+        !has(obj, 'networkCanvasAlterID_2') ||
+        !has(obj, 'prob')
+      ) {
+        throw new Error('getNetworkResolver: Data must contain variables: networkCanvasAlterID_1, networkCanvasAlterID_2, prob');
+      }
 
       const nodes = [
         getNode(network, obj.networkCanvasAlterID_1),

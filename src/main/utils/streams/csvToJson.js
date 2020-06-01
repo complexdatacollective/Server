@@ -33,7 +33,7 @@ class CsvAsJsonStream extends Transform {
 
     // Length of values must match length of headings
     if (values.length !== this._keys.length) {
-      callback('Length values does not match length of headings (in first row).');
+      callback('csvToJson: Length values does not match length of headings (in first row).');
       return;
     }
 

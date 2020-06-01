@@ -33,7 +33,7 @@ class ResolverService {
   }
 
   onResolveRequest(event, requestId, protocolId, options) {
-    logger.debug('[ResoverService]', eventTypes.RESOLVE_REQUEST, protocolId, requestId, JSON.stringify(options));
+    logger.debug('[ResolverService]', eventTypes.RESOLVE_REQUEST, protocolId, requestId, JSON.stringify(options));
     const ipcs = new IPCStream(requestId, event.sender, { emitClose: true });
 
     const handleError = (error) => {
@@ -43,8 +43,9 @@ class ResolverService {
     this.resolveProtocol(protocolId, options)
       .then((resolverStream) => {
         const handleStreamError = (error) => {
-          logger.debug('[ResolverService:stream]', `Error: ${error.message}`);
-          ipcs.write(JSON.stringify({ error: { message: error.message, stack: error.stack } }));
+          const message = error.message || error;
+          logger.debug('[ResolverService:stream]', `Error: ${message}`);
+          ipcs.write(JSON.stringify({ error: { message, stack: error.stack } }));
           resolverStream.abort();
         };
 
