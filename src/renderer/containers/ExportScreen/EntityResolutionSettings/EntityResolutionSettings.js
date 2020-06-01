@@ -42,7 +42,6 @@ const EntityResolutionSettings = ({
       .then(({ resolutions }) => {
         const sortedResolutions = [...resolutions].sort(compareCreatedAt);
         setResolutionHistory(sortedResolutions);
-        onSelectResolution(null);
 
         // if path/arguments have been changed skip this
         if (
@@ -52,7 +51,6 @@ const EntityResolutionSettings = ({
           const lastResolution = last(sortedResolutions);
           const lastEntityResolutionPath = get(lastResolution, 'parameters.entityResolutionPath', '');
           const lastEntityResolutionArguments = get(lastResolution, 'parameters.entityResolutionArguments', '');
-          console.log(lastResolution);
           onUpdateSetting('entityResolutionPath', lastEntityResolutionPath);
           onUpdateSetting('entityResolutionArguments', lastEntityResolutionArguments);
         }

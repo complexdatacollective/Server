@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Progress, Spinner, Icon, Button } from '@codaco/ui';
+import { Modal, Progress, Spinner, Button } from '@codaco/ui';
 import ReviewTable from './ReviewTable';
 import EntityDiff from './EntityDiff';
 import useResolverState from './useResolverState';
@@ -41,6 +41,11 @@ const Resolver = ({
     }
   };
 
+  const handleClose = () => {
+    reset();
+    onCancel();
+  };
+
   useEffect(() => {
     reset();
   }, [resolveRequestId]);
@@ -51,7 +56,7 @@ const Resolver = ({
     }
 
     if (!hasData && !isLoadingMatches) {
-      return 'No data';
+      return 'No results';
     }
 
     if (isComplete) {
@@ -68,8 +73,10 @@ const Resolver = ({
   const renderContent = () => {
     if (!hasData && !isLoadingMatches) {
       return (
-        <div className="resolver__error">
-          <Icon name="error" /> No match data (and no pending match data).
+        <div className="resolver__no-result">
+          <p>No match results.</p>
+
+          <Button color="white" onClick={handleClose}>Close</Button>
         </div>
       );
     }

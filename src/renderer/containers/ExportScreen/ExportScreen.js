@@ -45,6 +45,8 @@ const ExportScreen = ({
     },
   ] = useExportSettingsState();
 
+  console.log({ exportSettings });
+
   const [resolverState, resolveProtocol, resetResolver] = useResolver(showConfirmation, showError);
 
   const [exportToFile, saveResolution] = useAdminClient(showConfirmation, showError);
@@ -106,7 +108,7 @@ const ExportScreen = ({
     resetResolver();
   };
 
-  const handleCancel = () => {
+  const handleCancelExport = () => {
     // setState({ exportInProgress: false });
     // TODO: cancel underlying requests with an AbortController (requires Electron 3+)
     // Temporary workaround:
@@ -129,7 +131,7 @@ const ExportScreen = ({
       <ExportModal
         className="modal--export"
         show={exportInProgress}
-        handleCancel={handleCancel}
+        handleCancel={handleCancelExport}
       />
       <ErrorBoundary>
         <Resolver
