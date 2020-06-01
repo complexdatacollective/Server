@@ -43,10 +43,18 @@ const EntityResolutionSettings = ({
         const sortedResolutions = [...resolutions].sort(compareCreatedAt);
         setResolutionHistory(sortedResolutions);
         onSelectResolution(null);
-        // if path has been changed skip this
-        if (entityResolutionPath.length === 0) {
-          const path = get(last(sortedResolutions), 'options.entityResolutionPath', '');
-          onUpdateSetting('entityResolutionPath', path);
+
+        // if path/arguments have been changed skip this
+        if (
+          entityResolutionPath.length === 0 &&
+          entityResolutionArguments.length === 0
+        ) {
+          const lastResolution = last(sortedResolutions);
+          const lastEntityResolutionPath = get(lastResolution, 'parameters.entityResolutionPath', '');
+          const lastEntityResolutionArguments = get(lastResolution, 'parameters.entityResolutionArguments', '');
+          console.log(lastResolution);
+          onUpdateSetting('entityResolutionPath', lastEntityResolutionPath);
+          onUpdateSetting('entityResolutionArguments', lastEntityResolutionArguments);
         }
       })
       .catch(err => showError(err.message));

@@ -5,7 +5,7 @@ import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import Text from '@codaco/ui/lib/components/Fields/Text';
 
 const variants = {
-  hidden: { height: 0, opacity: 0 },
+  hide: { height: 0, opacity: 0 },
   show: { height: 'auto', opacity: 1 },
 };
 

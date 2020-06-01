@@ -95,8 +95,8 @@ class ResolverManager {
       .then(resolutions => resolutions.map(formatResolution));
   }
 
-  saveResolution(protocolId, options, transforms) {
-    return this.resolverDB.insertResolution(protocolId, options, transforms);
+  saveResolution(protocolId, parameters, transforms) {
+    return this.resolverDB.insertResolution(protocolId, parameters, transforms);
   }
 
   // Delete all resolutions ater and including resolutionId

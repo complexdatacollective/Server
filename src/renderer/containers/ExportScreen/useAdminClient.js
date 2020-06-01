@@ -15,15 +15,17 @@ const useAdminClient = (showConfirmation, showError) => {
 
     const {
       entityResolutionPath,
+      entityResolutionArguments,
     } = exportSettings;
 
-    const options = {
+    const parameters = {
       entityResolutionPath,
+      entityResolutionArguments,
     };
 
     return client
       .current
-      .post(`/protocols/${protocolId}/resolutions`, { options, resolution })
+      .post(`/protocols/${protocolId}/resolutions`, { parameters, resolution })
       .catch(err => showError(err.message));
   };
 
