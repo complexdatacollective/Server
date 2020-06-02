@@ -1,28 +1,44 @@
 .resolver {
   width: 80vw;
-  min-height: 60vh;
-  max-height: 90vh;
   background-color: var(--color-cyber-grape);
   color: var(--inverse-text-color);
   border-radius: 2rem;
-  padding: 4rem;
-  overflow-y: scroll;
   position: relative;
 
   &__heading {
-    margin: 0 0 1rem;
-    text-align: center;
+    background-color: var(--color-navy-taupe);
+    padding: 2rem;
+    border-radius: 2rem 2rem 0 0;
+
+    .progress {
+      height: 1rem;
+    }
   }
 
-  &__close {
-    position: absolute;
-    top: 2rem;
-    left: 2rem;
-    cursor: pointer;
+  &__content {
+    margin: 0 0 1rem;
+    max-height: 70vh;
+    overflow-y: scroll;
+    padding: 1rem 2rem;
+  }
 
-    .icon {
-      width: 1.5rem;
+  &__control-bar {
+    background-color: var(--color-navy-taupe);
+    padding: 1rem 2rem;
+    border-radius: 0 0 2rem 2rem;
+    display: flex;
+    width: 100%;
+
+    .button {
+      margin-left: 1rem;
     }
+  }
+
+  &__controls--center {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   &__progress {

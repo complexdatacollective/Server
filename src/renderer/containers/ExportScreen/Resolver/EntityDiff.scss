@@ -1,55 +1,135 @@
 .entity-diff {
-  &__controls {
-    margin-top: 2rem;
-    text-align: right;
+  position: relative;
+  max-height: 60vh;
+  overflow-y: scroll;
 
-    button {
-      margin-left: 1rem;
+  .form-field-radio {
+    display: block;
+    position: relative;
+
+    input {
+      position: absolute;
+    }
+  }
+
+  &__node-stack {
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    .node {
+      position: absolute;
+      top: 0;
+
+      &:nth-child(1) {
+        left: 50%;
+        transform: translateX(-20%);
+      }
+
+      &:nth-child(2) {
+        left: 50%;
+        transform: translateX(-80%);
+      }
     }
   }
 
   &__table {
     width: 100%;
 
+    &-heading {
+      display: table-cell;
+      vertical-align: bottom;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background-color: var(--color-cyber-grape);
+
+      &-context {
+        padding: 1rem 2rem;
+        height: 12rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      &-fill,
+      &-cell {
+        display: block;
+        height: 4rem;
+        padding: 1rem 2rem;
+      }
+
+      &-cell {
+        background-color: var(--base-background-color);
+        color: var(--input-text);
+        border-bottom: 1px solid var(--color-platinum--dark);
+      }
+
+      &-fill {
+        background-color: var(--inverse-background-color);
+        border-bottom: 1px solid transparent;
+      }
+    }
+
+    td,
     th {
-      padding: 1rem;
-      background-color: var(--inverse-background-color);
-      color: var(--inverse-text-color);
+      padding: 1rem 2rem;
     }
 
-    td {
-      background-color: var(--base-background-color);
-      color: var(--input-text);
-    }
+    tbody {
+      th {
+        background-color: var(--inverse-background-color);
+        color: var(--inverse-text-color);
+        border-bottom: 1px solid transparent;
+      }
 
-    tr {
-      &:nth-child(2n) {
-        td {
+      td {
+        background-color: var(--base-background-color);
+        color: var(--input-text);
+        border-bottom: 1px solid var(--color-platinum--dark);
+        width: 33%;
+        height: 4rem;
+        vertical-align: center;
+
+        &:nth-child(2n) {
           background-color: var(--color-platinum);
         }
       }
-
-      th,
-      td {
-        height: 4rem;
-        padding-left: 5rem;
-        width: 33%;
-        vertical-align: center;
-
-        &.entity-diff__table-clickable {
-          padding: 0;
-
-          .form-field-radio {
-            display: block;
-            padding-left: 1rem;
-          }
-        }
-
-        &.entity-diff__table-hidden-count {
-          text-align: center;
-          padding: 0;
-        }
-      }
     }
+
+    // td {
+    //   background-color: var(--base-background-color);
+    //   color: var(--input-text);
+    // }
+
+    // tr {
+    //   &:nth-child(2n) {
+    //     td {
+    //       background-color: var(--color-platinum);
+    //     }
+    //   }
+
+    //   th,
+    //   td {
+    //     height: 4rem;
+    //     padding-left: 5rem;
+    //     width: 33%;
+    //     vertical-align: center;
+
+    //     &.entity-diff__table-clickable {
+    //       padding: 0;
+
+    //       .form-field-radio {
+    //         display: block;
+    //         padding-left: 1rem;
+    //       }
+    //     }
+
+    //     &.entity-diff__table-hidden-count {
+    //       text-align: center;
+    //       padding: 0;
+    //     }
+    //   }
+    // }
   }
 }

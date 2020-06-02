@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { isEqual, isNil, reduce, get, round } from 'lodash';
-import { Button } from '@codaco/ui';
+import { isEqual, isNil, reduce, get } from 'lodash';
+import { Button, Node } from '@codaco/ui';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import { nodePrimaryKeyProperty } from '%main/utils/formatters/network';
 import useEntityState from './useEntityState';
@@ -93,71 +93,94 @@ const EntityDiff = ({
 
   return (
     <div key={match.index} className="entity-diff">
-      <h2 className="entity-diff__heading">Match score: {round(match.probability, 2).toFixed(2)}</h2>
-
       <table className="entity-diff__table">
         <thead>
           <tr>
-            <th>Variable</th>
-            <th className="entity-diff__table-clickable" title={a[nodePrimaryKeyProperty]}>
-              <Radio
-                label={a[nodePrimaryKeyProperty].slice(0, 7)}
-                checked={allChecked[0]}
-                input={{
-                  onChange: () => setAttributes(
-                    requiredAttributes.reduce((acc, attribute) => ({ ...acc, [attribute]: 0 }), {}),
-                  ),
-                }}
-              />
-            </th>
-            <th className="entity-diff__table-clickable" title={b[nodePrimaryKeyProperty]}>
-              <Radio
-                label={b[nodePrimaryKeyProperty].slice(0, 7)}
-                checked={allChecked[1]}
-                input={{
-                  onChange: () => setAttributes(
-                    requiredAttributes.reduce((acc, attribute) => ({ ...acc, [attribute]: 1 }), {}),
-                  ),
-                }}
-              />
-            </th>
+            <div className="entity-diff__table-heading">
+              <div className="entity-diff__table-heading-context">
+                {(match.probability * 100).toFixed(0)}% match
+              </div>
+              <div className="entity-diff__table-heading-fill" />
+            </div>
+            <div className="entity-diff__table-heading">
+              <div className="entity-diff__table-heading-context">
+                <Node />
+              </div>
+              <div className="entity-diff__table-heading-cell" title={a[nodePrimaryKeyProperty]}>
+                <Radio
+                  label="Use all"
+                  checked={allChecked[0]}
+                  input={{
+                    onChange: () => setAttributes(
+                      requiredAttributes.reduce((acc, attribute) => ({ ...acc, [attribute]: 0 }), {}),
+                    ),
+                  }}
+                />
+              </div>
+            </div>
+            <div className="entity-diff__table-heading">
+              <div className="entity-diff__table-heading-context">
+                <Node />
+              </div>
+              <div className="entity-diff__table-heading-cell" title={b[nodePrimaryKeyProperty]}>
+                <Radio
+                  label="Use all"
+                  checked={allChecked[1]}
+                  input={{
+                    onChange: () => setAttributes(
+                      requiredAttributes.reduce((acc, attribute) => ({ ...acc, [attribute]: 1 }), {}),
+                    ),
+                  }}
+                />
+              </div>
+            </div>
+            <div className="entity-diff__table-heading">
+              <div className="entity-diff__table-heading-context">
+                <div className="entity-diff__node-stack">
+                  <Node />
+                  <Node />
+                </div>
+              </div>
+              <div className="entity-diff__table-heading-cell">
+                <Radio
+                  label="Not a match"
+                  checked={false}
+                  input={{
+                    onChange: () => {},
+                  }}
+                />
+              </div>
+            </div>
           </tr>
         </thead>
         <tbody>
-          {rows
-            .filter(({ required }) => required)
-            .map(({ variable, values, checked }) => (
-              <tr key={`${match.index}_${variable}`}>
-                <th>{ variable }</th>
-                <td className="entity-diff__table-clickable">
-                  <Radio
-                    label={formatVariable(values[0])}
-                    checked={checked[0]}
-                    input={{
-                      onChange: () => setAttributes({ [variable]: 0 }),
-                    }}
-                  />
-                </td>
-                <td className="entity-diff__table-clickable">
-                  <Radio
-                    label={formatVariable(values[1])}
-                    checked={checked[1]}
-                    input={{
-                      onChange: () => setAttributes({ [variable]: 1 }),
-                    }}
-                  />
-                </td>
-              </tr>
-            ))}
-          { !showHidden &&
-            <tr>
-              <th />
-              <td colSpan="2" className="entity-diff__table-hidden-count">
-                <Button onClick={toggleHidden} size="small" color="platinum">
-                  {rows.filter(({ required }) => !required).length} hidden matching rows...
-                </Button>
-              </td>
-            </tr>
+          {
+            rows
+              .filter(({ required }) => required)
+              .map(({ variable, values, checked }) => (
+                <tr key={`${match.index}_${variable}`}>
+                  <th>{ variable }</th>
+                  <td className="entity-diff__table-clickable">
+                    <Radio
+                      label={formatVariable(values[0])}
+                      checked={checked[0]}
+                      input={{
+                        onChange: () => setAttributes({ [variable]: 0 }),
+                      }}
+                    />
+                  </td>
+                  <td className="entity-diff__table-clickable">
+                    <Radio
+                      label={formatVariable(values[1])}
+                      checked={checked[1]}
+                      input={{
+                        onChange: () => setAttributes({ [variable]: 1 }),
+                      }}
+                    />
+                  </td>
+                  <td />
+                </tr>
+              ))
           }
           {showHidden && rows
             .filter(({ required }) => !required)
@@ -170,16 +193,28 @@ const EntityDiff = ({
                 <td>
                   {formatVariable(values[1])}
                 </td>
+                <td />
               </tr>
-            ))}
+            ))
+          }
+          { !showHidden &&
+            <tr>
+              <th>
+                <Button onClick={toggleHidden} size="small" color="platinum">
+                  {rows.filter(({ required }) => !required).length} hidden matching rows...
+                </Button>
+              </th>
+              <td colSpan="3" />
+            </tr>
+          }
         </tbody>
       </table>
 
-      <div className="entity-diff__controls">
+      {/* <div className="entity-diff__controls">
         <Button color="white" onClick={onCancel}>Cancel all</Button>
         <Button color="sea-serpent" onClick={handleSkip}>Skip</Button>
         <Button color="kiwi" onClick={handleResolve}>Resolve</Button>
-      </div>
+      </div> */}
     </div>
   );
 };
