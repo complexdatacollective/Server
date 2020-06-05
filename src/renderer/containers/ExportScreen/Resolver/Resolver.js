@@ -1,6 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Progress, Spinner, Button } from '@codaco/ui';
+import { Modal, Progress, Button } from '@codaco/ui';
+import Loading from './Loading';
+import NoResults from './NoResults';
 import ReviewTable from './ReviewTable';
 import EntityDiff from './EntityDiff';
 import useResolverState from './useResolverState';
@@ -33,6 +35,7 @@ const Resolver = ({
   resolveRequestId,
 }) => {
   const [state, handlers] = useResolverState();
+  const entityDiffRef = useRef();
 
   const { resolveMatch, skipMatch, reset } = handlers;
 
@@ -44,8 +47,6 @@ const Resolver = ({
   const isComplete = hasData && !isLoadingMatches && isLastMatch;
 
   const status = getStatus({ hasData, isLoadingMatches, isComplete, matchOrResolved });
-
-  console.log(status);
 
   const handleFinish = () => {
     const resolutions = finializeResolutions(state.resolutions);
@@ -66,20 +67,21 @@ const Resolver = ({
     onCancel();
   };
 
+  const handleBack = () => {};
+
   useEffect(() => {
     reset();
   }, [resolveRequestId]);
 
   const renderHeading = () => {
     switch (status) {
-      case status.NO_RESULTS:
-        return <h1>No results</h1>;
-      case status.REVIEW:
-        return <h1>Review resolutions</h1>;
-      case status.LOADING:
-      case status.WAITING:
-        return <h1>Loading results...</h1>;
-      default:
+      case states.NO_RESULTS:
+      case states.LOADING:
+        return <h2>Entity Resolution</h2>;
+      case states.REVIEW:
+        return <h2>Review Resolutions</h2>;
+      case states.RESOLVING:
+      case states.WAITING:
         return (
           <Progress
             value={state.currentMatchIndex + 1}
@@ -87,6 +89,8 @@ const Resolver = ({
             // active={isLoadingMatches}
           />
         );
+      default:
+        return null;
     }
   };
 
@@ -96,52 +100,50 @@ const Resolver = ({
         <div className="resolver__heading">
           {renderHeading()}
         </div>
-        <div className={`resolver__content resolver__content--${status.toLowerCase()}`}>
+        <div key="loading-content" className="resolver__content resolver__content--loading">
           { status === states.LOADING &&
-            <div>
-              <Spinner />
-              <Button color="white" onClick={handleCancel}>Cancel</Button>
-            </div>
+            <Loading />
           }
           { status === states.NO_RESULTS &&
-            <div>
-              <p>No match results.</p>
-              <Button color="white" onClick={handleClose}>Close</Button>
-            </div>
+            <NoResults onClose={handleClose} />
           }
           { status === states.RESOLVING &&
-            <div>
-              <EntityDiff
-                match={matchOrResolved}
-                onResolve={resolveMatch}
-                onSkip={skipMatch}
-                onCancel={handleCancel}
-              />
-            </div>
+            <EntityDiff
+              match={matchOrResolved}
+              onResolve={resolveMatch}
+              onSkip={skipMatch}
+              onBack={handleBack}
+              ref={entityDiffRef}
+            />
           }
           { status === states.REVIEW &&
-            <div>
-              <ReviewTable
-                matches={matches}
-                actions={state.actions}
-                onConfirm={handleFinish}
-                onCancel={handleCancel}
-              />
-            </div>
+            <ReviewTable matches={matches} actions={state.actions} />
           }
         </div>
-        <div className="resolver__control-bar">
+        <div key="loading-controls" className="resolver__control-bar">
           <div className="resolver__controls resolver__controls--left">
-            <Button color="white">Cancel all</Button>
+            { status === states.NO_RESULTS &&
+              <Button color="white" key="close" onClick={handleClose}>Close</Button>
+            }
+            { status !== states.NO_RESULTS &&
+              <Button color="white" key="cancel" onClick={handleCancel}>Cancel</Button>
+            }
           </div>
           <div className="resolver__controls resolver__controls--center">
-            {state.currentMatchIndex + 1} of {matches.length}
+            { status === states.RESOLVING &&
+              `${state.currentMatchIndex + 1} of ${matches.length}`
+            }
           </div>
           <div className="resolver__controls resolver__controls--right">
-            { hasData && [
-              <Button color="white">Back</Button>,
-              <Button>Next</Button>,
-            ]}
+            { status === states.RESOLVING && state.currentMatchIndex > 0 &&
+              <Button color="white" onClick={() => entityDiffRef.current.onBack()}>Back</Button>
+            }
+            { status === states.RESOLVING &&
+              <Button onClick={() => entityDiffRef.current.onNext()}>Next</Button>
+            }
+            { status === states.REVIEW &&
+              <Button onClick={handleFinish}>Save and export</Button>
+            }
           </div>
         </div>
       </div>

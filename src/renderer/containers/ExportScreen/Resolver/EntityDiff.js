@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { forwardRef, useImperativeHandle } from 'react';
 import PropTypes from 'prop-types';
 import { isEqual, isNil, reduce, get } from 'lodash';
 import { Button, Node } from '@codaco/ui';
@@ -14,11 +14,11 @@ const EntityDiff = ({
   match,
   onResolve,
   onSkip,
-  onCancel,
-}) => {
+  onBack,
+}, ref) => {
   const [
-    { resolvedAttributes, showHidden },
-    { set: setAttributes, reset, toggleHidden },
+    { resolvedAttributes, showHidden, isMatch, isTouched },
+    { set: setAttributes, reset, toggleHidden, setNoMatch },
   ] = useEntityState();
 
   if (!match) { return null; }
@@ -30,44 +30,51 @@ const EntityDiff = ({
 
   const getVariableResolution = variable => get(resolvedAttributes, variable);
 
-  const handleResolve = useCallback(
-    () => {
-      const isComplete = isEqual(requiredAttributes, Object.keys(resolvedAttributes));
-
-      // TODO: set error state
-      if (!isComplete) {
-        window.confirm("Looks like you haven't chosen all the attributes yet?") // eslint-disable-line
+  useImperativeHandle(ref, () => ({
+    onBack: () => {
+      if (!(
+        !isTouched ||
+        window.confirm('Looks like you have set some attributes, are you sure?') // eslint-disable-line
+      )) {
         return;
       }
 
-      const resolved = reduce(resolvedAttributes, (obj, resolution, variable) => ({
-        ...obj,
-        [variable]: match.nodes[resolution].attributes[variable],
-      }), {});
+      onBack();
+    },
+    onNext: () => {
+      if (!isTouched) {
+        return;
+      }
 
-      const fullResolvedAttributes = {
-        ...match.nodes[0].attributes, // include values we filtered out (ones that were equal)
-        ...resolved,
-      };
+      if (isMatch) {
+        const isComplete = isEqual(requiredAttributes, Object.keys(resolvedAttributes));
 
-      onResolve(match, fullResolvedAttributes);
+        // TODO: set error state
+        if (!isComplete) {
+          window.confirm("Looks like you haven't chosen all the attributes yet?") // eslint-disable-line
+          return;
+        }
+
+        const resolved = reduce(resolvedAttributes, (obj, resolution, variable) => ({
+          ...obj,
+          [variable]: match.nodes[resolution].attributes[variable],
+        }), {});
+
+        const fullResolvedAttributes = {
+          ...match.nodes[0].attributes, // include values we filtered out (ones that were equal)
+          ...resolved,
+        };
+
+        onResolve(match, fullResolvedAttributes);
+        reset();
+        return;
+      }
+
+      // if !isMatch
+      onSkip(match);
       reset();
     },
-    [onResolve, resolvedAttributes, reset, match],
-  );
-
-  const handleSkip = useCallback(() => {
-    // TODO: better in app warning?
-    if (!(
-      Object.keys(resolvedAttributes).length === 0 ||
-      window.confirm('Looks like you have set some attributes, are you sure?') // eslint-disable-line
-    )) {
-      return;
-    }
-
-    onSkip(match);
-    reset();
-  }, [onResolve, reset]);
+  }), [onResolve, resolvedAttributes, reset, match, isTouched, isMatch]);
 
   const rows = Object.keys(a.attributes)
     .map(variable => ({
@@ -91,6 +98,13 @@ const EntityDiff = ({
     ] :
     [false, false];
 
+  const setAll = value =>
+    setAttributes(
+      requiredAttributes.reduce(
+        (acc, attribute) => ({ ...acc, [attribute]: value }), {},
+      ),
+    );
+
   return (
     <div key={match.index} className="entity-diff">
       <table className="entity-diff__table">
@@ -110,11 +124,7 @@ const EntityDiff = ({
                 <Radio
                   label="Use all"
                   checked={allChecked[0]}
-                  input={{
-                    onChange: () => setAttributes(
-                      requiredAttributes.reduce((acc, attribute) => ({ ...acc, [attribute]: 0 }), {}),
-                    ),
-                  }}
+                  input={{ onChange: () => setAll(0) }}
                 />
               </div>
             </div>
@@ -126,11 +136,7 @@ const EntityDiff = ({
                 <Radio
                   label="Use all"
                   checked={allChecked[1]}
-                  input={{
-                    onChange: () => setAttributes(
-                      requiredAttributes.reduce((acc, attribute) => ({ ...acc, [attribute]: 1 }), {}),
-                    ),
-                  }}
+                  input={{ onChange: () => setAll(1) }}
                 />
               </div>
             </div>
@@ -144,9 +150,9 @@ const EntityDiff = ({
               <div className="entity-diff__table-heading-cell">
                 <Radio
                   label="Not a match"
-                  checked={false}
+                  checked={isMatch === false}
                   input={{
-                    onChange: () => {},
+                    onChange: () => setNoMatch(),
                   }}
                 />
               </div>
@@ -209,12 +215,6 @@ const EntityDiff = ({
           }
         </tbody>
       </table>
-
-      {/* <div className="entity-diff__controls">
-        <Button color="white" onClick={onCancel}>Cancel all</Button>
-        <Button color="sea-serpent" onClick={handleSkip}>Skip</Button>
-        <Button color="kiwi" onClick={handleResolve}>Resolve</Button>
-      </div> */}
     </div>
   );
 };
@@ -232,11 +232,11 @@ EntityDiff.propTypes = {
   }),
   onResolve: PropTypes.func.isRequired,
   onSkip: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired,
+  onBack: PropTypes.func.isRequired,
 };
 
 EntityDiff.defaultProps = {
   match: null,
 };
 
-export default EntityDiff;
+export default forwardRef(EntityDiff);

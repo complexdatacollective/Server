@@ -2,6 +2,13 @@
   position: relative;
   max-height: 60vh;
   overflow-y: scroll;
+  scroll-behavior: smooth;
+  width: 100%;
+  text-align: left;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   .form-field-radio {
     display: block;
@@ -63,6 +70,7 @@
         background-color: var(--base-background-color);
         color: var(--input-text);
         border-bottom: 1px solid var(--color-platinum--dark);
+        text-align: left;
       }
 
       &-fill {
