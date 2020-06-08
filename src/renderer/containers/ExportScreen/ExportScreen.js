@@ -135,6 +135,7 @@ const ExportScreen = ({
       />
       <ErrorBoundary>
         <Resolver
+          protocol={protocol}
           key={resolverState.resolveRequestId}
           matches={resolverState.matches}
           isLoadingMatches={resolverState.isLoadingMatches}

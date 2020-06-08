@@ -33,6 +33,7 @@ const Resolver = ({
   onCancel,
   onResolve,
   resolveRequestId,
+  protocol,
 }) => {
   const [state, handlers] = useResolverState();
   const entityDiffRef = useRef();
@@ -109,6 +110,7 @@ const Resolver = ({
           }
           { status === states.RESOLVING &&
             <EntityDiff
+              codebook={protocol.codebook}
               match={matchOrResolved}
               onResolve={resolveMatch}
               onSkip={skipMatch}
@@ -158,9 +160,11 @@ Resolver.propTypes = {
   onResolve: PropTypes.func.isRequired,
   matches: PropTypes.array,
   resolveRequestId: PropTypes.string,
+  protocol: PropTypes.object,
 };
 
 Resolver.defaultProps = {
+  protocol: {},
   isLoadingMatches: true,
   show: false,
   matches: null,
