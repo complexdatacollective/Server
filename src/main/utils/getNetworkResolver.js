@@ -4,11 +4,12 @@ const split = require('split');
 const miss = require('mississippi');
 const { has } = require('lodash');
 const csvToJson = require('./streams/csvToJson');
-const { convertUuidToDecimal, nodePrimaryKeyProperty } = require('./formatters/network');
+const networkNodeTable = require('./streams/networkNodeTable');
+const { nodePrimaryKeyProperty } = require('./formatters/network');
 const commandRunner = require('./commandRunner');
-const {
-  AttributeListFormatter,
-} = require('./formatters/index');
+// const {
+//   AttributeListFormatter,
+// } = require('./formatters/index');
 
 const debugStream = prefix => miss.through(
   (chunk, enc, cb) => {
@@ -20,17 +21,13 @@ const debugStream = prefix => miss.through(
   },
 );
 
-/**
- * nodes are transmitted to the resolver as numerical ids generated
- * by convertUuidToDecimal, this find method handles that additional
- * step.
- */
 const findNode = findId =>
   (node) => {
-    const id = convertUuidToDecimal(node[nodePrimaryKeyProperty]);
+    const id = node[nodePrimaryKeyProperty];
     return id === findId;
   };
 
+// TODO: noop used to sue convertUuidToDecimal, placeholder until the new export changes come in
 const getNode = (network, id) => {
   const node = network.nodes.find(findNode(id));
 
@@ -97,15 +94,13 @@ const getNetworkResolver = (
   command,
   { codebook },
 ) =>
-  (network) => {
-    // TODO: what happens when network is empty?
-    const formatter = new AttributeListFormatter(network, false, false, codebook);
-
-    return commandRunner(command)
+  network =>
+    commandRunner(command)
       .then((runResolverProcess) => {
         const resolverProcess = runResolverProcess();
 
-        const pipeline = miss.pipeline(
+        const pipeline = miss.pipe(
+          networkNodeTable(codebook, network.nodes),
           debugStream('input'),
           resolverProcess,
           split(),
@@ -118,11 +113,8 @@ const getNetworkResolver = (
           resolverProcess.kill();
         };
 
-        formatter.writeToStream(pipeline);
-
         return pipeline;
       });
-  };
 
 module.exports = {
   getNetworkResolver,

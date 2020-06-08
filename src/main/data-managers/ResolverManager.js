@@ -4,7 +4,6 @@ const path = require('path');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
 const {
   insertEgoInNetworks,
-  transposedCodebook,
   unionOfNetworks,
 } = require('../utils/formatters/network');
 const { getNetworkResolver } = require('../utils/getNetworkResolver');
@@ -123,10 +122,8 @@ class ResolverManager {
       return Promise.reject(new RequestError(ErrorMessages.NotFound));
     }
 
-    const codebook = transposedCodebook(protocol.codebook);
-
     const command = `${options.entityResolutionPath} ${options.entityResolutionArguments}`;
-    const resolverOptions = { codebook };
+    const resolverOptions = { codebook: protocol.codebook };
 
     const networkResolver = getNetworkResolver(command, resolverOptions);
 
