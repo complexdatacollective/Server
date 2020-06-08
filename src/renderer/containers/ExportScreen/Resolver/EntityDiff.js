@@ -1,9 +1,10 @@
 import React, { forwardRef, useImperativeHandle } from 'react';
 import PropTypes from 'prop-types';
-import { isEqual, isNil, reduce, get } from 'lodash';
+import { isEqual, isNil, reduce, get, pick } from 'lodash';
 import { Button, Node } from '@codaco/ui';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import { nodePrimaryKeyProperty } from '%main/utils/formatters/network';
+import { getNodeMeta } from './selectors';
 import useEntityState from './useEntityState';
 import './EntityDiff.scss';
 
@@ -15,6 +16,7 @@ const EntityDiff = ({
   onResolve,
   onSkip,
   onBack,
+  codebook,
 }, ref) => {
   const [
     { resolvedAttributes, showHidden, isMatch, isTouched },
@@ -27,6 +29,11 @@ const EntityDiff = ({
 
   const requiredAttributes = Object.keys(a.attributes)
     .filter(variable => a.attributes[variable] !== b.attributes[variable] || variable === 'name');
+
+  const nodePropsA = pick(a.attributes, ['name', 'color']);
+  const nodePropsB = pick(b.attributes, ['name', 'color']);
+
+  console.log(getNodeMeta(codebook)(a));
 
   const getVariableResolution = variable => get(resolvedAttributes, variable);
 
@@ -118,7 +125,7 @@ const EntityDiff = ({
             </div>
             <div className="entity-diff__table-heading">
               <div className="entity-diff__table-heading-context">
-                <Node />
+                <Node {...nodePropsA} />
               </div>
               <div className="entity-diff__table-heading-cell" title={a[nodePrimaryKeyProperty]}>
                 <Radio
@@ -130,7 +137,7 @@ const EntityDiff = ({
             </div>
             <div className="entity-diff__table-heading">
               <div className="entity-diff__table-heading-context">
-                <Node />
+                <Node {...nodePropsB} />
               </div>
               <div className="entity-diff__table-heading-cell" title={b[nodePrimaryKeyProperty]}>
                 <Radio
