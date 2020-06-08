@@ -4,7 +4,7 @@ const split = require('split');
 const miss = require('mississippi');
 const { has } = require('lodash');
 const csvToJson = require('./streams/csvToJson');
-const { convertUuidToDecimal, nodePrimaryKeyProperty, nodeAttributesProperty } = require('./formatters/network');
+const { convertUuidToDecimal, nodePrimaryKeyProperty } = require('./formatters/network');
 const commandRunner = require('./commandRunner');
 const {
   AttributeListFormatter,
@@ -40,10 +40,7 @@ const getNode = (network, id) => {
     );
   }
 
-  return {
-    [nodePrimaryKeyProperty]: node[nodePrimaryKeyProperty],
-    [nodeAttributesProperty]: node[nodeAttributesProperty],
-  };
+  return node;
 };
 
 /**
