@@ -30,12 +30,14 @@ const EntityDiff = ({
   const requiredAttributes = Object.keys(a.attributes)
     .filter(variable => a.attributes[variable] !== b.attributes[variable] || variable === 'name');
 
-  const nodePropsA = pick(a.attributes, ['name', 'color']);
-  const nodePropsB = pick(b.attributes, ['name', 'color']);
-
-  console.log(getNodeMeta(codebook)(a));
+  const nodeMetaA = getNodeMeta(codebook)(a);
+  const nodeMetaB = getNodeMeta(codebook)(b);
+  const nodePropsA = { label: nodeMetaA.label, color: nodeMetaA.definition.color };
+  const nodePropsB = { label: nodeMetaB.label, color: nodeMetaB.definition.color };
 
   const getVariableResolution = variable => get(resolvedAttributes, variable);
+  // TODO: separate out definition so can be used here generically?
+  const getVariableName = variable => nodeMetaA.definition.variables[variable].name;
 
   useImperativeHandle(ref, () => ({
     onBack: () => {
@@ -150,8 +152,8 @@ const EntityDiff = ({
             <div className="entity-diff__table-heading">
               <div className="entity-diff__table-heading-context">
                 <div className="entity-diff__node-stack">
-                  <Node />
-                  <Node />
+                  <Node {...nodePropsA} />
+                  <Node {...nodePropsB} />
                 </div>
               </div>
               <div className="entity-diff__table-heading-cell">
@@ -172,7 +174,7 @@ const EntityDiff = ({
               .filter(({ required }) => required)
               .map(({ variable, values, checked }) => (
                 <tr key={`${match.index}_${variable}`}>
-                  <th>{ variable }</th>
+                  <th>{ getVariableName(variable) }</th>
                   <td className="entity-diff__table-clickable">
                     <Radio
                       label={formatVariable(values[0])}
@@ -199,7 +201,7 @@ const EntityDiff = ({
             .filter(({ required }) => !required)
             .map(({ variable, values }) => (
               <tr key={`${match.index}_${variable}`}>
-                <th>{ variable }</th>
+                <th>{ getVariableName(variable) }</th>
                 <td>
                   {formatVariable(values[0])}
                 </td>

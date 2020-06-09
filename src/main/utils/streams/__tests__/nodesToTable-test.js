@@ -1,7 +1,7 @@
 /* eslint-env jest */
 
 const miss = require('mississippi');
-const { nodePrimaryKeyProperty, nodeAttributesProperty, entityTypeProperty, egoProperty } = require('../../formatters/network');
+const { nodePrimaryKeyProperty, nodeAttributesProperty, egoProperty } = require('../../formatters/network');
 const nodesToTable = require('../nodesToTable');
 
 const mockCodebook = {

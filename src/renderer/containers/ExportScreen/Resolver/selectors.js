@@ -1,4 +1,4 @@
-import { findKey } from 'lodash';
+import { findKey, get } from 'lodash';
 import { getEntityAttributes } from '%main/utils/formatters/network';
 
 // See: https://github.com/codaco/Network-Canvas/wiki/Node-Labeling
@@ -33,15 +33,14 @@ export const labelLogic = (codebookForNodeType, nodeAttributes) => {
   return 'No \'name\' variable!';
 };
 
-
 export const getNodeMeta = codebook =>
   (node) => {
-    console.log(node, codebook);
-    const nodeType = node.type;
-    const nodeTypeDefinition = codebook.node[nodeType];
+    const nodeTypeDefinition = get(codebook, ['node', node.type]);
     const nodeLabel = labelLogic(nodeTypeDefinition, getEntityAttributes(node));
-    return {
+    const meta = {
       label: nodeLabel,
       definition: nodeTypeDefinition,
     };
+
+    return meta;
   };
