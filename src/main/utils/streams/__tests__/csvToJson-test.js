@@ -45,7 +45,7 @@ describe('csvToJson', () => {
     const csvAsJsonStream = csvToJson();
 
     csvAsJsonStream.on('error', (err) => {
-      expect(err).toEqual('Length values does not match length of headings (in first row).');
+      expect(err).toEqual('csvToJson: Length values does not match length of headings.');
       done();
     });
 

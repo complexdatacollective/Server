@@ -1,15 +1,17 @@
 const miss = require('mississippi');
-const { reduce, toPairs } = require('lodash');
+const { reduce, toPairs, get } = require('lodash');
 const { nodePrimaryKeyProperty, nodeAttributesProperty, entityTypeProperty, egoProperty } = require('../formatters/network');
-const { cellValue, csvEOL } = require('../formatters/csv');
 
-const initialHeadings = {
+const defaultHeadings = {
   [nodePrimaryKeyProperty]: 'networkCanvasAlterID',
   [entityTypeProperty]: 'networkCanvasNodeType',
+};
+
+const egoHeading = {
   [egoProperty]: 'networkCanvasEgoID',
 };
 
-const getHeadings = (codebook) => {
+const getHeadings = (codebook, initialHeadings = defaultHeadings) => {
   const headings = reduce(
     codebook.node,
     (attributes, nodeDefinition) =>
@@ -42,19 +44,18 @@ const getAttributes = (headings, node) => {
   });
 };
 
-const csvRow = cells =>
-  `${cells.map(v => cellValue(v)).join(',')}${csvEOL}`;
-
-const networkNodeTable = (codebook, nodes = []) => {
-  const headings = getHeadings(codebook);
+const nodesToTable = (codebook, options = {}, nodes = []) => {
+  const includeEgo = get(options, 'includeEgo', false);
+  const initialHeadings = includeEgo ? { ...defaultHeadings, ...egoHeading } : defaultHeadings;
+  const headings = getHeadings(codebook, initialHeadings);
 
   let firstRow = true;
 
-  const tableStream = miss.from((size, next) => {
+  const tableStream = miss.from({ objectMode: true }, (size, next) => {
     try {
       if (firstRow === true) {
         firstRow = false;
-        return next(null, csvRow(headings.map(([, v]) => v)));
+        return next(null, headings.map(([, v]) => v));
       }
 
       if (nodes.length === 0) {
@@ -63,7 +64,7 @@ const networkNodeTable = (codebook, nodes = []) => {
 
       const node = nodes.shift();
 
-      return next(null, csvRow(getAttributes(headings, node)));
+      return next(null, getAttributes(headings, node));
     } catch (err) {
       return next(err);
     }
@@ -76,4 +77,4 @@ const networkNodeTable = (codebook, nodes = []) => {
   return tableStream;
 };
 
-module.exports = networkNodeTable;
+module.exports = nodesToTable;

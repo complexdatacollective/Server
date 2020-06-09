@@ -3,13 +3,11 @@
 const split = require('split');
 const miss = require('mississippi');
 const { has } = require('lodash');
+const nodesToTable = require('./streams/nodesToTable');
 const csvToJson = require('./streams/csvToJson');
-const networkNodeTable = require('./streams/networkNodeTable');
+const tableToCsv = require('./streams/tableToCsv');
 const { nodePrimaryKeyProperty } = require('./formatters/network');
 const commandRunner = require('./commandRunner');
-// const {
-//   AttributeListFormatter,
-// } = require('./formatters/index');
 
 const debugStream = prefix => miss.through(
   (chunk, enc, cb) => {
@@ -100,13 +98,14 @@ const getNetworkResolver = (
         const resolverProcess = runResolverProcess();
 
         const pipeline = miss.pipe(
-          networkNodeTable(codebook, network.nodes),
-          debugStream('input'),
+          nodesToTable(codebook, null, network.nodes),
+          tableToCsv(),
+          debugStream('out'),
           resolverProcess,
           split(),
           csvToJson(),
           appendNodeNetworkData(network),
-          debugStream('output'),
+          debugStream('in'),
         );
 
         pipeline.abort = () => {
