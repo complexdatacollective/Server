@@ -11,7 +11,7 @@ const commandRunner = require('./commandRunner');
 
 const debugStream = prefix => miss.through(
   (chunk, enc, cb) => {
-    console.log(`[stream: ${prefix}]`, chunk.toString());
+    console.log(`[stream:${prefix}]`, chunk.toString());
     cb(null, chunk);
   },
   (cb) => {
@@ -19,15 +19,8 @@ const debugStream = prefix => miss.through(
   },
 );
 
-const findNode = findId =>
-  (node) => {
-    const id = node[nodePrimaryKeyProperty];
-    return id === findId;
-  };
-
-// TODO: noop used to sue convertUuidToDecimal, placeholder until the new export changes come in
-const getNode = (network, id) => {
-  const node = network.nodes.find(findNode(id));
+const getNode = (nodes, id) => {
+  const node = nodes.find(n => id === n[nodePrimaryKeyProperty]);
 
   if (!node) {
     throw new Error(
@@ -45,7 +38,7 @@ const getNode = (network, id) => {
  * { networkCanvasAlterID_1, networkCanvasAlterID_2, prob: '0.0' } ->
  *   { nodes: [ { id, attributes }, { id, attributes } ], prob: 0.0 }
  */
-const appendNodeNetworkData = network =>
+const appendNodeNetworkData = nodes =>
   miss.through((chunk, encoding, callback) => {
     try {
       const obj = JSON.parse(chunk);
@@ -58,15 +51,15 @@ const appendNodeNetworkData = network =>
         throw new Error('getNetworkResolver: Data must contain variables: networkCanvasAlterID_1, networkCanvasAlterID_2, prob');
       }
 
-      const nodes = [
-        getNode(network, obj.networkCanvasAlterID_1),
-        getNode(network, obj.networkCanvasAlterID_2),
+      const pair = [
+        getNode(nodes, obj.networkCanvasAlterID_1),
+        getNode(nodes, obj.networkCanvasAlterID_2),
       ];
 
       const probability = parseFloat(obj.prob);
 
       const result = {
-        nodes,
+        nodes: pair,
         probability,
       };
 
@@ -74,6 +67,7 @@ const appendNodeNetworkData = network =>
 
       callback(null, output);
     } catch (err) {
+      console.log({ err });
       callback(err);
     }
   });
@@ -97,20 +91,21 @@ const getNetworkResolver = (
       .then((runResolverProcess) => {
         const resolverProcess = runResolverProcess();
 
-        const pipeline = miss.pipe(
-          nodesToTable(codebook, null, network.nodes),
+        const pipeline = miss.pipeline(
           tableToCsv(),
           debugStream('out'),
           resolverProcess,
+          debugStream('in'),
           split(),
           csvToJson(),
-          appendNodeNetworkData(network),
-          debugStream('in'),
+          appendNodeNetworkData(network.nodes),
         );
 
         pipeline.abort = () => {
           resolverProcess.kill();
         };
+
+        nodesToTable(codebook, null, [...network.nodes]).pipe(pipeline);
 
         return pipeline;
       });

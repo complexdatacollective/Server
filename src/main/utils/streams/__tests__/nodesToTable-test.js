@@ -20,11 +20,8 @@ const readLines = stream => new Promise((resolve, reject) => {
 
   return miss.pipe(
     stream,
-    // miss.through({ objectMode: true }, (data, enc, cb) => {
-    //   cb(null, JSON.parse(data.toString()));
-    // }),
-    miss.to({ objectMode: true }, (data, enc, cb) => {
-      output.push(data);
+    miss.to((data, enc, cb) => {
+      output.push(JSON.parse(data.toString()));
       cb();
     }),
     (err) => {
@@ -56,7 +53,8 @@ describe('nodesToTable', () => {
 
     const nodes = [{
       [nodePrimaryKeyProperty]: 'cce4044d-c171-4f25-8377-b28616e90006',
-      [entityTypeProperty]: 'person',
+      // [entityTypeProperty]: 'person',
+      type: 'person',
       [nodeAttributesProperty]: {
         '0c3cc033-aca6-424e-bde7-6cdff7c20da6': 'Bob',
         'e3e8a80b-7cf0-4a70-93f9-6b8049b2c347': 50,
@@ -64,14 +62,15 @@ describe('nodesToTable', () => {
     }];
 
     const [headings, firstRow] = await readLines(nodesToTable(codebook, null, nodes));
-    expect(headings).toEqual(['networkCanvasAlterID', 'networkCanvasNodeType', 'name', 'age', 'venue name', 'location']);
-    expect(firstRow).toEqual(['cce4044d-c171-4f25-8377-b28616e90006', 'person', 'Bob', 50, undefined, undefined]);
+    expect(headings).toEqual(['networkCanvasAlterID', 'networkCanvasNodeType', '0c3cc033-aca6-424e-bde7-6cdff7c20da6', 'e3e8a80b-7cf0-4a70-93f9-6b8049b2c347', '1c3cc033-aca6-424e-bde7-6cdff7c20da6', '23e8a80b-7cf0-4a70-93f9-6b8049b2c347']);
+    expect(firstRow).toEqual(['cce4044d-c171-4f25-8377-b28616e90006', 'person', 'Bob', 50, null, null]);
   });
 
   it('writes a simple CSV', async () => {
     const nodes = [{
       [nodePrimaryKeyProperty]: 'cce4044d-c171-4f25-8377-b28616e90006',
-      [entityTypeProperty]: 'person',
+      // [entityTypeProperty]: 'person',
+      type: 'person',
       [nodeAttributesProperty]: {
         '0c3cc033-aca6-424e-bde7-6cdff7c20da6': 'Bob',
         'e3e8a80b-7cf0-4a70-93f9-6b8049b2c347': 50,
@@ -86,7 +85,8 @@ describe('nodesToTable', () => {
   it('exports egoID', async () => {
     const nodes = [{
       [nodePrimaryKeyProperty]: 'cce4044d-c171-4f25-8377-b28616e90006',
-      [entityTypeProperty]: 'person',
+      // [entityTypeProperty]: 'person',
+      type: 'person',
       [egoProperty]: '0861a8d7-736c-4edd-af04-1c02a9d4259f',
       [nodeAttributesProperty]: {
         '0c3cc033-aca6-424e-bde7-6cdff7c20da6': false,
@@ -98,7 +98,7 @@ describe('nodesToTable', () => {
       nodesToTable(mockCodebook, { includeEgo: true }, nodes),
     );
 
-    expect(headings).toEqual(['networkCanvasAlterID', 'networkCanvasNodeType', 'networkCanvasEgoID', 'name', 'age']);
+    expect(headings).toEqual(['networkCanvasAlterID', 'networkCanvasNodeType', 'networkCanvasEgoID', '0c3cc033-aca6-424e-bde7-6cdff7c20da6', 'e3e8a80b-7cf0-4a70-93f9-6b8049b2c347']);
     expect(firstRow).toEqual(['cce4044d-c171-4f25-8377-b28616e90006', 'person', '0861a8d7-736c-4edd-af04-1c02a9d4259f', false, 50]);
   });
 });

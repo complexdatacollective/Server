@@ -19,7 +19,7 @@ const getHeadings = (codebook, initialHeadings = defaultHeadings) => {
         nodeDefinition.variables,
         (memo, variable, id) => ({
           ...memo,
-          [id]: variable.name,
+          [id]: `${id}`,
         }),
         attributes,
       ),
@@ -35,9 +35,10 @@ const getAttributes = (headings, node) => {
   return headings.map(([id]) => {
     switch (id) {
       case nodePrimaryKeyProperty:
-      case entityTypeProperty:
       case egoProperty:
         return node[id];
+      case entityTypeProperty:
+        return node.type; // TODO: shim until we find out why "entityTypeProperty" is _type
       default:
         return attributes[id];
     }
@@ -51,11 +52,11 @@ const nodesToTable = (codebook, options = {}, nodes = []) => {
 
   let firstRow = true;
 
-  const tableStream = miss.from({ objectMode: true }, (size, next) => {
+  const tableStream = miss.from((size, next) => {
     try {
       if (firstRow === true) {
         firstRow = false;
-        return next(null, headings.map(([, v]) => v));
+        return next(null, JSON.stringify(headings.map(([, v]) => v)));
       }
 
       if (nodes.length === 0) {
@@ -64,7 +65,7 @@ const nodesToTable = (codebook, options = {}, nodes = []) => {
 
       const node = nodes.shift();
 
-      return next(null, getAttributes(headings, node));
+      return next(null, JSON.stringify(getAttributes(headings, node)));
     } catch (err) {
       return next(err);
     }

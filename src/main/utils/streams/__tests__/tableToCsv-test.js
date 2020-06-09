@@ -2,7 +2,7 @@
 
 const miss = require('mississippi');
 const { csvEOL } = require('../../formatters/csv');
-const arrayToCsv = require('../arrayToCsv');
+const tableToCsv = require('../tableToCsv');
 
 
 const streamLines = stream =>
@@ -13,13 +13,13 @@ const streamLines = stream =>
       miss.from({ objectMode: true }, (size, next) => {
         if (lines.length <= 0) { return next(null, null); }
 
-        const nextLine = lines.shift();
+        const nextLine = JSON.stringify(lines.shift());
 
         return next(null, nextLine);
       }),
       stream,
       miss.concat((data) => {
-        output = data.split(csvEOL);
+        output = data.toString().split(csvEOL);
       }),
       (err) => {
         if (err) { return reject(err); }
@@ -29,9 +29,14 @@ const streamLines = stream =>
     );
   });
 
-describe('arrayToCsv', () => {
+describe('tableToCsv', () => {
   it('escapes quotes', async () => {
     const rows = [
+      [
+        'id',
+        'type',
+        'name',
+      ],
       [
         'cce4044d-c171-4f25-8377-b28616e90006',
         'person',
@@ -39,9 +44,10 @@ describe('arrayToCsv', () => {
       ],
     ];
 
-    const [result] = await streamLines(arrayToCsv())(rows);
+    const [headings, firstRow] = await streamLines(tableToCsv())(rows);
 
-    expect(result).toEqual('cce4044d-c171-4f25-8377-b28616e90006,person,"""Bob"""');
+    expect(headings).toEqual('id,type,name');
+    expect(firstRow).toEqual('cce4044d-c171-4f25-8377-b28616e90006,person,"""Bob"""');
   });
 
   it('stringifies and quotes objects', async () => {
@@ -53,7 +59,7 @@ describe('arrayToCsv', () => {
       ],
     ];
 
-    const [result] = await streamLines(arrayToCsv())(rows);
+    const [result] = await streamLines(tableToCsv())(rows);
 
     expect(result).toEqual('cce4044d-c171-4f25-8377-b28616e90006,person,"{""x"":1,""y"":1}"');
   });
@@ -67,7 +73,7 @@ describe('arrayToCsv', () => {
       ],
     ];
 
-    const [result] = await streamLines(arrayToCsv())(rows);
+    const [result] = await streamLines(tableToCsv())(rows);
 
     expect(result).toEqual('cce4044d-c171-4f25-8377-b28616e90006,,person');
   });
@@ -81,7 +87,7 @@ describe('arrayToCsv', () => {
       ],
     ];
 
-    const [result] = await streamLines(arrayToCsv())(rows);
+    const [result] = await streamLines(tableToCsv())(rows);
 
     expect(result).toEqual('cce4044d-c171-4f25-8377-b28616e90006,,person');
   });
@@ -95,7 +101,7 @@ describe('arrayToCsv', () => {
       ],
     ];
 
-    const [result] = await streamLines(arrayToCsv())(rows);
+    const [result] = await streamLines(tableToCsv())(rows);
 
     expect(result).toEqual('cce4044d-c171-4f25-8377-b28616e90006,false,person');
   });
