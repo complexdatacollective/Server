@@ -33,14 +33,14 @@ export const labelLogic = (codebookForNodeType, nodeAttributes) => {
   return 'No \'name\' variable!';
 };
 
-export const getNodeMeta = codebook =>
-  (node) => {
-    const nodeTypeDefinition = get(codebook, ['node', node.type]);
-    const nodeLabel = labelLogic(nodeTypeDefinition, getEntityAttributes(node));
-    const meta = {
-      label: nodeLabel,
-      definition: nodeTypeDefinition,
-    };
+export const getNodeTypeDefinition = (codebook, node) => {
+  const nodeType = get(node, 'type');
+  return get(codebook, ['node', nodeType]);
+};
 
-    return meta;
-  };
+export const getLabel = (codebook, node) => {
+  const nodeTypeDefinition = getNodeTypeDefinition(codebook, node);
+  const nodeLabel = labelLogic(nodeTypeDefinition, getEntityAttributes(node));
+  return nodeLabel;
+};
+

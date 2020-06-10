@@ -36,9 +36,9 @@ const Resolver = ({
   protocol,
 }) => {
   const [state, handlers] = useResolverState();
-  const entityDiffRef = useRef();
-
   const { resolveMatch, skipMatch, reset } = handlers;
+
+  const entityDiffRef = useRef();
 
   const match = getMatch(matches, state.currentMatchIndex);
   const matchOrResolved = getMatchOrResolved(match, state.resolutions);
@@ -69,6 +69,11 @@ const Resolver = ({
   };
 
   const handleBack = () => {};
+
+  const isDiffReady = entityDiffRef.current && entityDiffRef.current.isReady();
+
+  const handleNext = () =>
+    entityDiffRef.current && entityDiffRef.current.onNext();
 
   useEffect(() => {
     reset();
@@ -141,7 +146,10 @@ const Resolver = ({
               <Button color="white" onClick={() => entityDiffRef.current.onBack()}>Back</Button>
             }
             { status === states.RESOLVING &&
-              <Button onClick={() => entityDiffRef.current.onNext()}>Next</Button>
+              <Button
+                disabled={!isDiffReady}
+                onClick={handleNext}
+              >Next</Button>
             }
             { status === states.REVIEW &&
               <Button onClick={handleFinish}>Save and export</Button>

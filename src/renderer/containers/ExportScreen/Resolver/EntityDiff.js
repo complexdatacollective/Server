@@ -1,10 +1,10 @@
 import React, { forwardRef, useImperativeHandle } from 'react';
 import PropTypes from 'prop-types';
-import { isEqual, isNil, reduce, get, pick } from 'lodash';
+import { isEqual, isNil, reduce, get } from 'lodash';
 import { Button, Node } from '@codaco/ui';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import { nodePrimaryKeyProperty } from '%main/utils/formatters/network';
-import { getNodeMeta } from './selectors';
+import { getNodeTypeDefinition, getLabel } from './selectors';
 import useEntityState from './useEntityState';
 import './EntityDiff.scss';
 
@@ -30,14 +30,15 @@ const EntityDiff = ({
   const requiredAttributes = Object.keys(a.attributes)
     .filter(variable => a.attributes[variable] !== b.attributes[variable] || variable === 'name');
 
-  const nodeMetaA = getNodeMeta(codebook)(a);
-  const nodeMetaB = getNodeMeta(codebook)(b);
-  const nodePropsA = { label: nodeMetaA.label, color: nodeMetaA.definition.color };
-  const nodePropsB = { label: nodeMetaB.label, color: nodeMetaB.definition.color };
+  const { color, variables } = getNodeTypeDefinition(codebook, a);
+  const nodePropsA = { label: getLabel(codebook, a), color };
+  const nodePropsB = { label: getLabel(codebook, b), color };
 
   const getVariableResolution = variable => get(resolvedAttributes, variable);
-  // TODO: separate out definition so can be used here generically?
-  const getVariableName = variable => nodeMetaA.definition.variables[variable].name;
+  const getVariableName = variable => variables[variable].name;
+
+  const isComplete = isEqual(requiredAttributes, Object.keys(resolvedAttributes));
+  const isReady = isComplete && ((isMatch && isComplete) || !isMatch);
 
   useImperativeHandle(ref, () => ({
     onBack: () => {
@@ -50,17 +51,16 @@ const EntityDiff = ({
 
       onBack();
     },
+    isReady: () => isReady,
     onNext: () => {
       if (!isTouched) {
         return;
       }
 
       if (isMatch) {
-        const isComplete = isEqual(requiredAttributes, Object.keys(resolvedAttributes));
-
         // TODO: set error state
         if (!isComplete) {
-          window.confirm("Looks like you haven't chosen all the attributes yet?") // eslint-disable-line
+          window.alert("Looks like you haven't chosen all the attributes yet?") // eslint-disable-line
           return;
         }
 
@@ -216,10 +216,10 @@ const EntityDiff = ({
             <tr>
               <th>
                 <Button onClick={toggleHidden} size="small" color="platinum">
-                  {rows.filter(({ required }) => !required).length} hidden matching rows...
+                  {rows.filter(({ required }) => !required).length} matching rows...
                 </Button>
               </th>
-              <td colSpan="3" />
+              <td colSpan="3" className="wide" />
             </tr>
           }
         </tbody>
@@ -239,6 +239,7 @@ EntityDiff.propTypes = {
     probability: PropTypes.number.isRequired,
     index: PropTypes.number.isRequired,
   }),
+  codebook: PropTypes.object,
   onResolve: PropTypes.func.isRequired,
   onSkip: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,
@@ -246,6 +247,7 @@ EntityDiff.propTypes = {
 
 EntityDiff.defaultProps = {
   match: null,
+  codebook: null,
 };
 
 export default forwardRef(EntityDiff);

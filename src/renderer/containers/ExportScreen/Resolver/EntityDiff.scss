@@ -102,42 +102,12 @@
         &:nth-child(2n) {
           background-color: var(--color-platinum);
         }
+
+        &.wide {
+          width: 100%;
+        }
       }
     }
 
-    // td {
-    //   background-color: var(--base-background-color);
-    //   color: var(--input-text);
-    // }
-
-    // tr {
-    //   &:nth-child(2n) {
-    //     td {
-    //       background-color: var(--color-platinum);
-    //     }
-    //   }
-
-    //   th,
-    //   td {
-    //     height: 4rem;
-    //     padding-left: 5rem;
-    //     width: 33%;
-    //     vertical-align: center;
-
-    //     &.entity-diff__table-clickable {
-    //       padding: 0;
-
-    //       .form-field-radio {
-    //         display: block;
-    //         padding-left: 1rem;
-    //       }
-    //     }
-
-    //     &.entity-diff__table-hidden-count {
-    //       text-align: center;
-    //       padding: 0;
-    //     }
-    //   }
-    // }
   }
 }
