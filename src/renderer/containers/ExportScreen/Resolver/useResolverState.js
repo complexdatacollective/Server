@@ -4,6 +4,7 @@ import { uniq, findLast } from 'lodash';
 import { bindActionCreators } from 'redux';
 import uuid from 'uuid';
 import { nodePrimaryKeyProperty } from '%main/utils/formatters/network';
+import { getMatch, getMatchOrResolved } from './helpers';
 
 const resolveMatchAction = createAction(
   'RESOLVE_MATCH', (match, action, attributes = {}) => ({
@@ -21,15 +22,15 @@ const resolveMatchAction = createAction(
 
 const resolveMatch = (match, attributes) => resolveMatchAction(match, 'RESOLVE', attributes);
 const skipMatch = match => resolveMatchAction(match, 'SKIP');
-const nextEntity = createAction('NEXT_ENTITY');
-const previousEntity = createAction('PREVIOUS_ENTITY');
+const nextMatch = createAction('NEXT_ENTITY');
+const previousMatch = createAction('PREVIOUS_ENTITY');
 const reset = createAction('RESET');
 
 export const actionCreators = {
   resolveMatch,
   skipMatch,
-  nextMatch: nextEntity,
-  previousMatch: previousEntity,
+  nextMatch,
+  previousMatch,
   reset,
 };
 
@@ -113,11 +114,11 @@ export const resolveReducer = (state, { type, payload: { match, action, attribut
 const entityResolutionReducer = handleActions(
   {
     [resolveMatchAction]: resolveReducer,
-    [previousEntity]: state => ({
+    [previousMatch]: state => ({
       ...state,
       currentMatchIndex: state.currentMatchIndex - 1,
     }),
-    [nextEntity]: state => ({
+    [nextMatch]: state => ({
       ...state,
       currentMatchIndex: state.currentMatchIndex + 1,
     }),
@@ -125,12 +126,26 @@ const entityResolutionReducer = handleActions(
   initialState,
 );
 
-const useEntityResolutionState = () => {
+const useEntityResolutionState = (matches) => {
   const [state, dispatch] = useReducer(entityResolutionReducer, initialState);
+
+  const matchOrResolved = getMatchOrResolved(
+    getMatch(matches, state.currentMatchIndex),
+    state.resolutions,
+  );
+
+  const isLastMatch = state.currentMatchIndex >= matches.length;
 
   const handlers = bindActionCreators(actionCreators, dispatch);
 
-  return [state, handlers];
+  return [
+    {
+      ...state,
+      isLastMatch,
+      match: matchOrResolved,
+    },
+    handlers,
+  ];
 };
 
 export default useEntityResolutionState;

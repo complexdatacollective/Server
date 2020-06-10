@@ -8,7 +8,6 @@ import EntityDiff from './EntityDiff';
 import useResolverState from './useResolverState';
 import useEntityState from './useEntityState';
 import finializeResolutions from './finalizeResolutions';
-import { getMatch, getMatchOrResolved } from './helpers';
 import './Resolver.scss';
 
 const states = {
@@ -19,11 +18,11 @@ const states = {
   RESOLVING: 'RESOLVING',
 };
 
-const getStatus = ({ hasData, isLoadingMatches, isComplete, matchOrResolved }) => {
+const getStatus = ({ hasData, isLoadingMatches, isComplete, match }) => {
   if (!hasData && isLoadingMatches) { return states.LOADING; }
   if (!hasData && !isLoadingMatches) { return states.NO_RESULTS; }
   if (isComplete) { return states.REVIEW; } // or "COMPLETE"
-  if (!matchOrResolved) { return states.WAITING; } // loaded some data, waiting for more
+  if (!match) { return states.WAITING; } // loaded some data, waiting for more
   return states.RESOLVING;
 };
 
@@ -37,57 +36,47 @@ const Resolver = ({
   protocol,
 }) => {
   const [
-    state,
-    {
-      resolveMatch,
-      skipMatch,
-      previousMatch,
-      reset: resetResolver,
-    },
-  ] = useResolverState();
-  // const { reset: resetResolver } = resolverHandlers;
-
-  // TODO: Move into useResolverState?
-  const matchOrResolved = getMatchOrResolved(
-    getMatch(matches, state.currentMatchIndex),
-    state.resolutions,
-  );
-  const hasData = matches.length > 0;
-  const isLastMatch = state.currentMatchIndex >= matches.length;
-  const isComplete = hasData && !isLoadingMatches && isLastMatch;
-  const status = getStatus({ hasData, isLoadingMatches, isComplete, matchOrResolved });
+    { actions, resolutions, currentMatchIndex, isLastMatch, match },
+    { resolveMatch, skipMatch, previousMatch, reset },
+  ] = useResolverState(matches);
 
   const [
     { requiredAttributes, resolvedAttributes, isAMatch, isDiffComplete },
     { setAttributes, setNotAMatch, nextDiff, previousDiff },
   ] = useEntityState(
     protocol.codebook,
-    matchOrResolved,
+    match,
     { resolveMatch, skipMatch, previousMatch },
   );
 
   const handleFinish = () => {
-    const resolutions = finializeResolutions(state.resolutions);
-    onResolve(resolutions);
-    resetResolver();
+    const finalizedResolutions = finializeResolutions(resolutions);
+    onResolve(finalizedResolutions);
+    reset();
   };
 
   const handleCancel = () => {
     // eslint-disable-next-line no-alert
     if (window.confirm('You will loose any progress, are you sure?')) {
-      resetResolver();
+      reset();
       onCancel();
     }
   };
 
   const handleClose = () => {
-    resetResolver();
+    reset();
     onCancel();
   };
 
   useEffect(() => {
-    resetResolver();
+    reset();
   }, [resolveRequestId]);
+
+  const hasData = matches.length > 0;
+  const isComplete = hasData && !isLoadingMatches && isLastMatch;
+  const status = getStatus({ hasData, isLoadingMatches, isComplete, match });
+
+  console.log({ hasData, isLoadingMatches, isComplete, match, status });
 
   const renderHeading = () => {
     switch (status) {
@@ -100,9 +89,8 @@ const Resolver = ({
       case states.WAITING:
         return (
           <Progress
-            value={state.currentMatchIndex + 1}
+            value={currentMatchIndex + 1}
             max={matches.length}
-            // active={isLoadingMatches}
           />
         );
       default:
@@ -126,7 +114,7 @@ const Resolver = ({
           { status === states.RESOLVING &&
             <EntityDiff
               codebook={protocol.codebook}
-              match={matchOrResolved}
+              match={match}
               requiredAttributes={requiredAttributes}
               resolvedAttributes={resolvedAttributes}
               setAttributes={setAttributes}
@@ -135,7 +123,7 @@ const Resolver = ({
             />
           }
           { status === states.REVIEW &&
-            <ReviewTable matches={matches} actions={state.actions} />
+            <ReviewTable matches={matches} actions={actions} />
           }
         </div>
         <div key="loading-controls" className="resolver__control-bar">
@@ -149,11 +137,11 @@ const Resolver = ({
           </div>
           <div className="resolver__controls resolver__controls--center">
             { status === states.RESOLVING &&
-              `${state.currentMatchIndex + 1} of ${matches.length}`
+              `${currentMatchIndex + 1} of ${matches.length}`
             }
           </div>
           <div className="resolver__controls resolver__controls--right">
-            { status === states.RESOLVING && state.currentMatchIndex > 0 &&
+            { status === states.RESOLVING && currentMatchIndex > 0 &&
               <Button color="white" onClick={previousDiff}>Back</Button>
             }
             { status === states.RESOLVING &&

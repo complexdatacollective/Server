@@ -12,7 +12,7 @@ const initialState = {
 
 const setAttributes = createAction('SET', attributes => ({ attributes }));
 const reset = createAction('RESET');
-const setNotAMatch = createAction('NOT_A_MATCH'),;
+const setNotAMatch = createAction('NOT_A_MATCH');
 
 const entityDiffReducer = handleActions({
   [setAttributes]: (state, { payload }) => ({
