@@ -76,8 +76,6 @@ const Resolver = ({
   const isComplete = hasData && !isLoadingMatches && isLastMatch;
   const status = getStatus({ hasData, isLoadingMatches, isComplete, match });
 
-  console.log({ hasData, isLoadingMatches, isComplete, match, status });
-
   const renderHeading = () => {
     switch (status) {
       case states.NO_RESULTS:
@@ -123,7 +121,11 @@ const Resolver = ({
             />
           }
           { status === states.REVIEW &&
-            <ReviewTable matches={matches} actions={actions} />
+            <ReviewTable
+              codebook={protocol.codebook}
+              matches={matches}
+              actions={actions}
+            />
           }
         </div>
         <div key="loading-controls" className="resolver__control-bar">

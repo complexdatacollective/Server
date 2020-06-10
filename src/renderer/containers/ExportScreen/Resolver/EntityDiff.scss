@@ -103,8 +103,14 @@
           background-color: var(--color-platinum);
         }
 
-        &.wide {
+        &.hiddenRows {
+          background-color: var(--base-background-color);
           width: 100%;
+          text-align: center;
+
+          button {
+            margin: 0;
+          }
         }
       }
     }

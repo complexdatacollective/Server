@@ -164,12 +164,13 @@ const EntityDiff = ({
           }
           { !showHidden &&
             <tr>
-              <th>
+              <th />
+              <td colSpan="3" className="hiddenRows">
+
                 <Button onClick={handleToggleHidden} size="small" color="platinum">
                   {rows.filter(({ required }) => !required).length} matching rows...
                 </Button>
-              </th>
-              <td colSpan="3" className="wide" />
+              </td>
             </tr>
           }
         </tbody>
@@ -190,7 +191,7 @@ EntityDiff.propTypes = {
     index: PropTypes.number.isRequired,
   }),
   codebook: PropTypes.object,
-  requiredAttributes: PropTypes.object,
+  requiredAttributes: PropTypes.array,
   resolvedAttributes: PropTypes.object,
   setAttributes: PropTypes.func.isRequired,
   setNotAMatch: PropTypes.func.isRequired,

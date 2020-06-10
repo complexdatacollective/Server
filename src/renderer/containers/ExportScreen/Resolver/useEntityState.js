@@ -88,8 +88,6 @@ const useEntityDiffState = (
         ...resolved,
       };
 
-      console.log({ fullResolvedAttributes });
-
       resolveMatch(match, fullResolvedAttributes);
       return;
     }

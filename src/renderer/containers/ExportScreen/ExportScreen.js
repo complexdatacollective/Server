@@ -45,8 +45,6 @@ const ExportScreen = ({
     },
   ] = useExportSettingsState();
 
-  console.log({ exportSettings });
-
   const [resolverState, resolveProtocol, resetResolver] = useResolver(showConfirmation, showError);
 
   const [exportToFile, saveResolution] = useAdminClient(showConfirmation, showError);

@@ -1,13 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { get } from 'lodash';
-import { nodePrimaryKeyProperty, nodeAttributesProperty } from '%main/utils/formatters/network';
+import { nodePrimaryKeyProperty } from '%main/utils/formatters/network';
+import { getLabel } from './selectors';
 import './ReviewTable.scss';
 
-const renderNodeCell = node =>
-  (<td title={`ID: ${get(node, nodePrimaryKeyProperty)}`}>{get(node, [nodeAttributesProperty, 'name'])}</td>);
+const renderNodeCell = (codebook, node) =>
+  (<td title={get(node, nodePrimaryKeyProperty)}>{getLabel(codebook, node)}</td>);
 
 const ReviewTable = ({
+  codebook,
   matches,
   actions,
 }) => (
@@ -24,10 +26,11 @@ const ReviewTable = ({
           // This is inefficient:
           const { action } = actions
             .find(r => r.index === index) || { action: null };
+
           return (
             <tr key={index}>
-              {renderNodeCell(nodes[0])}
-              {renderNodeCell(nodes[1])}
+              {renderNodeCell(codebook, nodes[0])}
+              {renderNodeCell(codebook, nodes[1])}
               <td>{action}</td>
             </tr>
           );
@@ -38,11 +41,13 @@ const ReviewTable = ({
 );
 
 ReviewTable.propTypes = {
+  codebook: PropTypes.object,
   matches: PropTypes.array,
   actions: PropTypes.array,
 };
 
 ReviewTable.defaultProps = {
+  codebook: {},
   matches: [],
   actions: [],
 };
