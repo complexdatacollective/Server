@@ -1,55 +1,124 @@
-import { useReducer } from 'react';
+import { useReducer, useEffect } from 'react';
 import { bindActionCreators } from 'redux';
 import { createAction, handleActions } from 'redux-actions';
+import { isEqual, reduce } from 'lodash';
+import { getRequiredAttributes, getMatchId } from './selectors';
 
 const initialState = {
   isTouched: false,
-  isMatch: null,
-  showHidden: false,
+  isAMatch: null,
   resolvedAttributes: {},
 };
 
-const actionCreators = {
-  set: createAction('SET', attributes => ({ attributes })),
-  reset: createAction('RESET'),
-  toggleHidden: createAction('TOGGLE_HIDDEN'),
-  setNoMatch: createAction('NO_MATCH'),
-};
+const setAttributes = createAction('SET', attributes => ({ attributes }));
+const reset = createAction('RESET');
+const setNotAMatch = createAction('NOT_A_MATCH'),;
 
 const entityDiffReducer = handleActions({
-  [actionCreators.set]: (state, { payload }) => ({
+  [setAttributes]: (state, { payload }) => ({
     ...state,
     isTouched: true,
-    isMatch: true,
+    isAMatch: true,
     resolvedAttributes: {
       ...state.resolvedAttributes,
       ...payload.attributes,
     },
   }),
-  [actionCreators.reset]: () => ({
+  [reset]: () => ({
     ...initialState,
     isTouched: false,
-    isMatch: null,
+    isAMatch: null,
   }),
-  [actionCreators.toggleHidden]: state => ({
-    ...state,
-    showHidden: !state.showHidden,
-  }),
-  [actionCreators.setNoMatch]: () => ({
+  [setNotAMatch]: () => ({
     ...initialState,
-    isMatch: false,
+    isAMatch: false,
     isTouched: true,
   }),
 }, initialState);
 
-const useEntityDiffState = () => {
-  const [state, dispatch] = useReducer(entityDiffReducer, initialState);
+const getIsDiffValid = (requiredAttributes, resolvedAttributes) =>
+  isEqual(requiredAttributes, Object.keys(resolvedAttributes));
 
-  const handlers = bindActionCreators(actionCreators, dispatch);
+const useEntityDiffState = (
+  codebook,
+  match,
+  {
+    resolveMatch,
+    skipMatch,
+    previousMatch,
+  },
+) => {
+  const [state, dispatch] = useReducer(entityDiffReducer, initialState);
+  const { isTouched, resolvedAttributes, isAMatch } = state;
+
+  const requiredAttributes = getRequiredAttributes(codebook, match);
+  const isDiffValid = getIsDiffValid(requiredAttributes, resolvedAttributes);
+  const isDiffComplete = isTouched && ((isAMatch && isDiffValid) || !isAMatch);
+
+  const previousDiff = () => {
+    if (!(
+      !isTouched ||
+      window.confirm('Looks like you have set some attributes, are you sure?') // eslint-disable-line
+    )) {
+      return;
+    }
+
+    previousMatch();
+  };
+
+  const nextDiff = () => {
+    if (!isTouched) {
+      return;
+    }
+
+    if (isAMatch) {
+      // TODO: set error state
+      if (!isDiffValid) {
+        window.alert("Looks like you haven't chosen all the attributes yet?") // eslint-disable-line
+        return;
+      }
+
+      const resolved = reduce(resolvedAttributes, (obj, resolution, variable) => ({
+        ...obj,
+        [variable]: match.nodes[resolution].attributes[variable],
+      }), {});
+
+      const fullResolvedAttributes = {
+        ...match.nodes[0].attributes, // include values we filtered out (ones that were equal)
+        ...resolved,
+      };
+
+      console.log({ fullResolvedAttributes });
+
+      resolveMatch(match, fullResolvedAttributes);
+      return;
+    }
+
+    // if !isAMatch
+    skipMatch(match);
+  };
+
+  useEffect(() => {
+    dispatch(reset());
+  }, [getMatchId(match)]);
+
+  const handlers = bindActionCreators({
+    setAttributes,
+    setNotAMatch,
+  }, dispatch);
 
   return [
-    state,
-    handlers,
+    {
+      requiredAttributes,
+      resolvedAttributes,
+      isAMatch,
+      isDiffComplete,
+    },
+    {
+      ...handlers,
+      previousDiff,
+      nextDiff,
+    },
   ];
 };
 

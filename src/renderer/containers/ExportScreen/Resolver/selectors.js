@@ -33,9 +33,32 @@ export const labelLogic = (codebookForNodeType, nodeAttributes) => {
   return 'No \'name\' variable!';
 };
 
+export const getMatchId = match =>
+  `${get(match, ['nodes', 0, '_uid'], 0)}_${get(match, ['nodes', 1, '_uid'], 0)}`;
+
 export const getNodeTypeDefinition = (codebook, node) => {
   const nodeType = get(node, 'type');
   return get(codebook, ['node', nodeType]);
+};
+
+export const getVariableName = (nodeTypeDefinition, variable) =>
+  get(nodeTypeDefinition, ['variables', variable, 'name']);
+
+export const getRequiredAttributes = (codebook, match) => {
+  if (!match) { return []; }
+
+  const [a, b] = match.nodes;
+  const nodeTypeDefinition = getNodeTypeDefinition(codebook, a);
+
+  const requiredAttributes = Object.keys(a.attributes)
+    .filter((variable) => {
+      const areDifferent = a.attributes[variable] !== b.attributes[variable];
+      const isName = getVariableName(nodeTypeDefinition, variable) === 'name';
+
+      return areDifferent || isName;
+    });
+
+  return requiredAttributes;
 };
 
 export const getLabel = (codebook, node) => {

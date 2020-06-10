@@ -79,12 +79,12 @@
       }
     }
 
-    td,
-    th {
-      padding: 1rem 2rem;
-    }
-
     tbody {
+      td,
+      th {
+        padding: 1rem 2rem;
+      }
+
       th {
         background-color: var(--inverse-background-color);
         color: var(--inverse-text-color);

@@ -37,7 +37,6 @@ export const matchActionReducer = (state, { payload: { match, action } }) => {
   const newEntry = { index: match.index, action };
   const matchIndex = state.findIndex(({ index }) => index === match.index);
   const priorMatches = matchIndex !== -1 ? state.slice(0, matchIndex) : state;
-
   return [...priorMatches, newEntry];
 };
 
@@ -76,7 +75,11 @@ export const resolutionsReducer = (state, { payload: { match, action, attributes
     attributes,
   };
 
-  return [...priorResolutions, newEntry];
+  const resolutions = [...priorResolutions, newEntry];
+
+  console.log({ resolutions });
+
+  return resolutions;
 };
 
 const initialState = {

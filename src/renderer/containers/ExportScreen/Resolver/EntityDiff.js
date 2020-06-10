@@ -1,89 +1,37 @@
-import React, { forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { isEqual, isNil, reduce, get } from 'lodash';
+import { isNil, get } from 'lodash';
 import { Button, Node } from '@codaco/ui';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import { nodePrimaryKeyProperty } from '%main/utils/formatters/network';
-import { getNodeTypeDefinition, getLabel } from './selectors';
-import useEntityState from './useEntityState';
+import { getNodeTypeDefinition, getLabel, getMatchId } from './selectors';
 import './EntityDiff.scss';
 
 const formatVariable = variable =>
   (isNil(variable) ? 'not set' : variable.toString());
 
 const EntityDiff = ({
-  match,
-  onResolve,
-  onSkip,
-  onBack,
   codebook,
-}, ref) => {
-  const [
-    { resolvedAttributes, showHidden, isMatch, isTouched },
-    { set: setAttributes, reset, toggleHidden, setNoMatch },
-  ] = useEntityState();
+  match,
+  requiredAttributes,
+  resolvedAttributes,
+  setAttributes,
+  setNotAMatch,
+  isAMatch,
+}) => {
+  const [showHidden, setShowHidden] = useState(false);
 
-  if (!match) { return null; }
+  useEffect(() => {
+    setShowHidden(false);
+  }, [getMatchId(match)]);
 
   const [a, b] = match.nodes;
-
-  const requiredAttributes = Object.keys(a.attributes)
-    .filter(variable => a.attributes[variable] !== b.attributes[variable] || variable === 'name');
 
   const { color, variables } = getNodeTypeDefinition(codebook, a);
   const nodePropsA = { label: getLabel(codebook, a), color };
   const nodePropsB = { label: getLabel(codebook, b), color };
-
   const getVariableResolution = variable => get(resolvedAttributes, variable);
   const getVariableName = variable => variables[variable].name;
-
-  const isComplete = isEqual(requiredAttributes, Object.keys(resolvedAttributes));
-  const isReady = isComplete && ((isMatch && isComplete) || !isMatch);
-
-  useImperativeHandle(ref, () => ({
-    onBack: () => {
-      if (!(
-        !isTouched ||
-        window.confirm('Looks like you have set some attributes, are you sure?') // eslint-disable-line
-      )) {
-        return;
-      }
-
-      onBack();
-    },
-    isReady: () => isReady,
-    onNext: () => {
-      if (!isTouched) {
-        return;
-      }
-
-      if (isMatch) {
-        // TODO: set error state
-        if (!isComplete) {
-          window.alert("Looks like you haven't chosen all the attributes yet?") // eslint-disable-line
-          return;
-        }
-
-        const resolved = reduce(resolvedAttributes, (obj, resolution, variable) => ({
-          ...obj,
-          [variable]: match.nodes[resolution].attributes[variable],
-        }), {});
-
-        const fullResolvedAttributes = {
-          ...match.nodes[0].attributes, // include values we filtered out (ones that were equal)
-          ...resolved,
-        };
-
-        onResolve(match, fullResolvedAttributes);
-        reset();
-        return;
-      }
-
-      // if !isMatch
-      onSkip(match);
-      reset();
-    },
-  }), [onResolve, resolvedAttributes, reset, match, isTouched, isMatch]);
 
   const rows = Object.keys(a.attributes)
     .map(variable => ({
@@ -114,18 +62,20 @@ const EntityDiff = ({
       ),
     );
 
+  const handleToggleHidden = () => setShowHidden(s => !s);
+
   return (
     <div key={match.index} className="entity-diff">
-      <table className="entity-diff__table">
+      <table className="entity-diff__table" cellPadding="0" cellSpacing="0">
         <thead>
           <tr>
-            <div className="entity-diff__table-heading">
+            <td className="entity-diff__table-heading">
               <div className="entity-diff__table-heading-context">
                 {(match.probability * 100).toFixed(0)}% match
               </div>
               <div className="entity-diff__table-heading-fill" />
-            </div>
-            <div className="entity-diff__table-heading">
+            </td>
+            <td className="entity-diff__table-heading">
               <div className="entity-diff__table-heading-context">
                 <Node {...nodePropsA} />
               </div>
@@ -136,8 +86,8 @@ const EntityDiff = ({
                   input={{ onChange: () => setAll(0) }}
                 />
               </div>
-            </div>
-            <div className="entity-diff__table-heading">
+            </td>
+            <td className="entity-diff__table-heading">
               <div className="entity-diff__table-heading-context">
                 <Node {...nodePropsB} />
               </div>
@@ -148,8 +98,8 @@ const EntityDiff = ({
                   input={{ onChange: () => setAll(1) }}
                 />
               </div>
-            </div>
-            <div className="entity-diff__table-heading">
+            </td>
+            <td className="entity-diff__table-heading">
               <div className="entity-diff__table-heading-context">
                 <div className="entity-diff__node-stack">
                   <Node {...nodePropsA} />
@@ -159,13 +109,13 @@ const EntityDiff = ({
               <div className="entity-diff__table-heading-cell">
                 <Radio
                   label="Not a match"
-                  checked={isMatch === false}
+                  checked={isAMatch === false}
                   input={{
-                    onChange: () => setNoMatch(),
+                    onChange: setNotAMatch,
                   }}
                 />
               </div>
-            </div>
+            </td>
           </tr>
         </thead>
         <tbody>
@@ -215,7 +165,7 @@ const EntityDiff = ({
           { !showHidden &&
             <tr>
               <th>
-                <Button onClick={toggleHidden} size="small" color="platinum">
+                <Button onClick={handleToggleHidden} size="small" color="platinum">
                   {rows.filter(({ required }) => !required).length} matching rows...
                 </Button>
               </th>
@@ -240,14 +190,19 @@ EntityDiff.propTypes = {
     index: PropTypes.number.isRequired,
   }),
   codebook: PropTypes.object,
-  onResolve: PropTypes.func.isRequired,
-  onSkip: PropTypes.func.isRequired,
-  onBack: PropTypes.func.isRequired,
+  requiredAttributes: PropTypes.object,
+  resolvedAttributes: PropTypes.object,
+  setAttributes: PropTypes.func.isRequired,
+  setNotAMatch: PropTypes.func.isRequired,
+  isAMatch: PropTypes.bool,
 };
 
 EntityDiff.defaultProps = {
   match: null,
   codebook: null,
+  isAMatch: false,
+  requiredAttributes: [],
+  resolvedAttributes: {},
 };
 
-export default forwardRef(EntityDiff);
+export default EntityDiff;
