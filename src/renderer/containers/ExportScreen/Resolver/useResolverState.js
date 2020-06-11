@@ -55,6 +55,14 @@ const getNextMatchIndex = (resolutions, matches, actions) => {
   );
 };
 
+const getPreviousMatchIndex = (actions) => {
+  console.log({ actions });
+  const { index } = findLast(actions, ({ action }) => action !== 'IMPLICIT');
+  console.log({ index });
+
+  return index;
+};
+
 export const matchActionReducer = matches =>
   ({ actions, resolutions }, { payload: { match, action } }) => {
     const newEntry = { index: match.index, action };
@@ -101,8 +109,6 @@ export const resolutionsReducer = (state, { payload: { match, action, attributes
 
   const resolutions = [...priorResolutions, newEntry];
 
-  console.log({ resolutions });
-
   return resolutions;
 };
 
@@ -139,16 +145,18 @@ const entityResolutionReducer = matches =>
         return newState;
       },
       [previousMatch]: (state) => {
+        const previousMatchIndex = getPreviousMatchIndex(state.actions);
+
         const actions = state.actions
-          .filter(({ index }) => index < state.currentMatchIndex - 1);
+          .filter(({ index }) => index < previousMatchIndex);
         const resolutions = state.resolutions
-          .filter(({ matchIndex }) => matchIndex < state.currentMatchIndex - 1);
+          .filter(({ matchIndex }) => matchIndex < previousMatchIndex);
 
         return {
           ...state,
           actions,
           resolutions,
-          currentMatchIndex: state.currentMatchIndex - 1,
+          currentMatchIndex: previousMatchIndex,
         };
       },
       [nextMatch]: state => ({
