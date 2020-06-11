@@ -34,11 +34,19 @@ export const actionCreators = {
   reset,
 };
 
-export const matchActionReducer = (state, { payload: { match, action } }) => {
+export const matchActionReducer = ({ actions, resolutions }, { payload: { match, action } }) => {
   const newEntry = { index: match.index, action };
-  const matchIndex = state.findIndex(({ index }) => index === match.index);
-  const priorMatches = matchIndex !== -1 ? state.slice(0, matchIndex) : state;
-  return [...priorMatches, newEntry];
+  const matchIndex = actions.findIndex(({ index }) => index === match.index);
+  const priorMatches = matchIndex !== -1 ? actions.slice(0, matchIndex) : actions;
+
+  const matchActions = [...priorMatches, newEntry];
+
+  const currentMatchIndex = matchActions[matchActions.length - 1].index + 1;
+
+  return {
+    actions: [...priorMatches, newEntry],
+    currentMatchIndex,
+  };
 };
 
 const getLatestXorResolutionNodes = (state, includeEntity, excludeEntity) => {
@@ -92,11 +100,17 @@ const initialState = {
 const entityResolutionReducer = handleActions(
   {
     [resolveMatchAction]: (state, { payload: { match, action, attributes } }) => {
-      const matchActions = matchActionReducer(state.actions, { payload: { match, action } });
-      const currentMatchIndex = matchActions[matchActions.length - 1].index + 1;
       const resolutions = resolutionsReducer(
         state.resolutions,
         { payload: { match, action, attributes } },
+      );
+
+      const {
+        actions: matchActions,
+        currentMatchIndex,
+      } = matchActionReducer(
+        { actions: state.actions, resolutions },
+        { payload: { match, action } },
       );
 
       const newState = {
