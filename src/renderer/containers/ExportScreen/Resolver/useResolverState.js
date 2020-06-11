@@ -34,32 +34,34 @@ const isImplicitMatch = (match) => {
   return a === b;
 };
 
+const getNextMatchIndex = (resolutions, matches, actions) => {
+  const currentMatchIndex = actions[actions.length - 1].index + 1;
+
+  const matchOrResolved = getMatchOrResolved(
+    getMatch(matches, currentMatchIndex),
+    resolutions,
+  );
+
+  if (!isImplicitMatch(matchOrResolved)) {
+    return { actions, currentMatchIndex };
+  }
+
+  const nextActions = [...actions, { index: currentMatchIndex, action: 'IMPLICIT' }];
+
+  return getNextMatchIndex(
+    resolutions,
+    matches,
+    nextActions,
+  );
+};
+
 export const matchActionReducer = matches =>
   ({ actions, resolutions }, { payload: { match, action } }) => {
     const newEntry = { index: match.index, action };
     const matchIndex = actions.findIndex(({ index }) => index === match.index);
     const priorMatches = matchIndex !== -1 ? actions.slice(0, matchIndex) : actions;
 
-    let nextActions = [...priorMatches, newEntry];
-    let currentMatchIndex = nextActions[nextActions.length - 1].index + 1;
-    let matchOrResolved = getMatchOrResolved(
-      getMatch(matches, currentMatchIndex),
-      resolutions,
-    );
-
-    while (isImplicitMatch(matchOrResolved)) {
-      nextActions = [...nextActions, { index: currentMatchIndex, action: 'IMPLICIT' }];
-      currentMatchIndex = nextActions[nextActions.length - 1].index + 1;
-      matchOrResolved = getMatchOrResolved(
-        getMatch(matches, currentMatchIndex),
-        resolutions,
-      );
-    }
-
-    return {
-      actions: nextActions,
-      currentMatchIndex,
-    };
+    return getNextMatchIndex(resolutions, matches, [...priorMatches, newEntry]);
   };
 
 const getLatestXorResolutionNodes = (state, includeEntity, excludeEntity) => {
