@@ -89,39 +89,43 @@ const initialState = {
   currentMatchIndex: 0,
 };
 
-export const resolveReducer = (state, { type, payload: { match, action, attributes } }) => {
-  if (type === reset) {
-    return initialState;
-  }
-
-  const matchActions = matchActionReducer(state.actions, { payload: { match, action } });
-  const currentMatchIndex = matchActions[matchActions.length - 1].index + 1;
-  const resolutions = resolutionsReducer(
-    state.resolutions,
-    { payload: { match, action, attributes } },
-  );
-
-  const newState = {
-    ...state,
-    currentMatchIndex,
-    actions: matchActions,
-    resolutions,
-  };
-
-  return newState;
-};
-
 const entityResolutionReducer = handleActions(
   {
-    [resolveMatchAction]: resolveReducer,
-    [previousMatch]: state => ({
-      ...state,
-      currentMatchIndex: state.currentMatchIndex - 1,
-    }),
+    [resolveMatchAction]: (state, { payload: { match, action, attributes } }) => {
+      const matchActions = matchActionReducer(state.actions, { payload: { match, action } });
+      const currentMatchIndex = matchActions[matchActions.length - 1].index + 1;
+      const resolutions = resolutionsReducer(
+        state.resolutions,
+        { payload: { match, action, attributes } },
+      );
+
+      const newState = {
+        ...state,
+        currentMatchIndex,
+        actions: matchActions,
+        resolutions,
+      };
+
+      return newState;
+    },
+    [previousMatch]: (state) => {
+      const actions = state.actions
+        .filter(({ index }) => index < state.currentMatchIndex - 1);
+      const resolutions = state.resolutions
+        .filter(({ matchIndex }) => matchIndex < state.currentMatchIndex - 1);
+
+      return {
+        ...state,
+        actions,
+        resolutions,
+        currentMatchIndex: state.currentMatchIndex - 1,
+      };
+    },
     [nextMatch]: state => ({
       ...state,
       currentMatchIndex: state.currentMatchIndex + 1,
     }),
+    [reset]: () => ({ ...initialState }),
   },
   initialState,
 );
