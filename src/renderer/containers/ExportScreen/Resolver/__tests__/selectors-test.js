@@ -1,8 +1,8 @@
 /* eslint-env jest */
 
-import { getMatch, getMatchOrResolved } from '../helpers';
+import { getMatch, getMatchOrResolved } from '../selectors';
 
-describe('helpers', () => {
+describe('selectors', () => {
   describe('getMatch', () => {
     const matches = [{ foo: 'bar' }, { bazz: 'buzz' }, { fizz: 'pop' }];
 

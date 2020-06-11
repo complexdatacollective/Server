@@ -1,5 +1,40 @@
 import { findKey, get } from 'lodash';
-import { getEntityAttributes } from '%main/utils/formatters/network';
+import { nodePrimaryKeyProperty, getEntityAttributes } from '%main/utils/formatters/network';
+
+export const getMatch = (matches, index) => {
+  if (matches.length < index + 1) { return null; }
+
+  return {
+    ...matches[index],
+    index,
+  };
+};
+
+export const getMatchOrResolved = (match, resolutions) => {
+  if (!match) { return null; }
+
+  console.log(match);
+
+  const reversedResolutions = [...resolutions].reverse();
+
+  const nodes = match.nodes.map((node) => {
+    const resolution = reversedResolutions
+      .find(r => r.nodes.includes(node[nodePrimaryKeyProperty]));
+
+    if (!resolution) { return node; }
+
+    return {
+      ...node,
+      _resolvedId: resolution.id,
+      attributes: resolution.attributes,
+    };
+  });
+
+  return {
+    ...match,
+    nodes,
+  };
+};
 
 // See: https://github.com/codaco/Network-Canvas/wiki/Node-Labeling
 export const labelLogic = (codebookForNodeType, nodeAttributes) => {
