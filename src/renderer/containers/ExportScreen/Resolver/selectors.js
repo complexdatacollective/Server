@@ -13,8 +13,6 @@ export const getMatch = (matches, index) => {
 export const getMatchOrResolved = (match, resolutions) => {
   if (!match) { return null; }
 
-  console.log(match);
-
   const reversedResolutions = [...resolutions].reverse();
 
   const nodes = match.nodes.map((node) => {

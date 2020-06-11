@@ -1,12 +1,13 @@
 /* eslint-env jest */
 
 import { nodePrimaryKeyProperty } from '%main/utils/formatters/network';
-import { resolutionsReducer, matchActionReducer, actionCreators } from '../useResolverState';
+import { resolutionsReducer, matchActionReducer as getMatchActionReducer, actionCreators } from '../useResolverState';
 import Factory from '../__factories__';
 
 describe('useResolverState', () => {
   describe('matchActionReducer', () => {
     const initialState = Factory.matchEntry.buildList(3);
+    const matchActionReducer = getMatchActionReducer([]);
 
     it('SKIP appends new matches', () => {
       const skipMatchAction = actionCreators.skipMatch(
@@ -20,9 +21,9 @@ describe('useResolverState', () => {
         },
       ];
 
-      const subject = matchActionReducer([], skipMatchAction);
+      const { actions } = matchActionReducer({ actions: [], resolutions: [] }, skipMatchAction);
 
-      expect(subject).toEqual(expectedResult);
+      expect(actions).toEqual(expectedResult);
     });
 
     it('SKIP deletes match entries beyond the match index', () => {
@@ -38,9 +39,12 @@ describe('useResolverState', () => {
         },
       ];
 
-      const subject = matchActionReducer(initialState, skipMatchAction);
+      const { actions } = matchActionReducer({
+        actions: initialState,
+        resolutions: [],
+      }, skipMatchAction);
 
-      expect(subject).toEqual(expectedResult);
+      expect(actions).toEqual(expectedResult);
     });
 
     it('RESOLVE appends new matches', () => {
@@ -48,7 +52,10 @@ describe('useResolverState', () => {
         Factory.match.build({ index: 100 }),
       );
 
-      const subject = matchActionReducer([], resolveMatchAction);
+      const { actions } = matchActionReducer({
+        actions: [],
+        resolutions: [],
+      }, resolveMatchAction);
 
       const expectedResult = [
         {
@@ -57,7 +64,7 @@ describe('useResolverState', () => {
         },
       ];
 
-      expect(subject).toEqual(expectedResult);
+      expect(actions).toEqual(expectedResult);
     });
 
     it('RESOLVE deletes match entries beyond the match index', () => {
@@ -65,7 +72,10 @@ describe('useResolverState', () => {
         Factory.match.build({ index: 2 }),
       );
 
-      const subject = matchActionReducer(initialState, resolveMatchAction);
+      const { actions } = matchActionReducer({
+        actions: initialState,
+        resolutions: [],
+      }, resolveMatchAction);
 
       const expectedResult = [
         ...initialState.slice(0, 1),
@@ -75,7 +85,7 @@ describe('useResolverState', () => {
         },
       ];
 
-      expect(subject).toEqual(expectedResult);
+      expect(actions).toEqual(expectedResult);
     });
   });
 

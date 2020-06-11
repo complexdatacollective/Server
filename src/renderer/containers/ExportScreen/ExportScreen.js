@@ -310,12 +310,12 @@ const mapDispatchToProps = dispatch => ({
   showError: bindActionCreators(messageActionCreators.showErrorMessage, dispatch),
 });
 
-export default compose(
-  connect(mapStateToProps, mapDispatchToProps),
-  withRouter,
-)(ExportScreen);
-
 export {
   ExportScreen,
   availableCsvTypes,
 };
+
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  withRouter,
+)(ExportScreen);

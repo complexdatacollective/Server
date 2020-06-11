@@ -26,6 +26,13 @@ const skipMatch = match => resolveMatchAction(match, 'SKIP');
 const nextMatch = createAction('NEXT_ENTITY');
 const previousMatch = createAction('PREVIOUS_ENTITY');
 
+export const actionCreators = {
+  resolveMatch,
+  skipMatch,
+  nextMatch,
+  previousMatch,
+};
+
 const isImplicitMatch = (match) => {
   const a = get(match, ['nodes', 0, '_resolvedId'], Symbol('a'));
   const b = get(match, ['nodes', 1, '_resolvedId'], Symbol('b'));
@@ -162,13 +169,6 @@ const entityResolutionReducer = matches =>
     },
     initialState,
   );
-
-export const actionCreators = {
-  resolveMatch,
-  skipMatch,
-  nextMatch,
-  previousMatch,
-};
 
 const useEntityResolutionState = (matches) => {
   const [state, dispatch] = useReducer(entityResolutionReducer(matches), initialState);
