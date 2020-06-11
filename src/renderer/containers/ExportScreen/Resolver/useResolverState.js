@@ -19,14 +19,12 @@ const resolveMatchAction = createAction(
     action,
     attributes,
   }),
-  // (??) => ({ matches }) // TODO: where do we get matches?
 );
 
 const resolveMatch = (match, attributes) => resolveMatchAction(match, 'RESOLVE', attributes);
 const skipMatch = match => resolveMatchAction(match, 'SKIP');
 const nextMatch = createAction('NEXT_ENTITY');
 const previousMatch = createAction('PREVIOUS_ENTITY');
-const reset = createAction('RESET');
 
 const isImplicitMatch = (match) => {
   const a = get(match, ['nodes', 0, '_resolvedId'], Symbol('a'));
@@ -56,9 +54,7 @@ const getNextMatchIndex = (resolutions, matches, actions) => {
 };
 
 const getPreviousMatchIndex = (actions) => {
-  console.log({ actions });
   const { index } = findLast(actions, ({ action }) => action !== 'IMPLICIT');
-  console.log({ index });
 
   return index;
 };
@@ -163,7 +159,6 @@ const entityResolutionReducer = matches =>
         ...state,
         currentMatchIndex: state.currentMatchIndex + 1,
       }),
-      [reset]: () => ({ ...initialState }),
     },
     initialState,
   );
@@ -173,7 +168,6 @@ export const actionCreators = {
   skipMatch,
   nextMatch,
   previousMatch,
-  reset,
 };
 
 const useEntityResolutionState = (matches) => {

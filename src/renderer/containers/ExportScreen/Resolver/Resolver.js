@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
+import cx from 'classnames';
 import { Modal, Progress, Button } from '@codaco/ui';
 import Loading from './Loading';
 import NoResults from './NoResults';
@@ -37,7 +38,7 @@ const Resolver = ({
 }) => {
   const [
     { actions, resolutions, currentMatchIndex, isLastMatch, match },
-    { resolveMatch, skipMatch, previousMatch, reset },
+    { resolveMatch, skipMatch, previousMatch },
   ] = useResolverState(matches);
 
   const [
@@ -52,25 +53,18 @@ const Resolver = ({
   const handleFinish = () => {
     const finalizedResolutions = finializeResolutions(resolutions);
     onResolve(finalizedResolutions);
-    reset();
   };
 
   const handleCancel = () => {
     // eslint-disable-next-line no-alert
     if (window.confirm('You will loose any progress, are you sure?')) {
-      reset();
       onCancel();
     }
   };
 
   const handleClose = () => {
-    reset();
     onCancel();
   };
-
-  useEffect(() => {
-    reset();
-  }, [resolveRequestId]);
 
   const hasData = matches.length > 0;
   const isComplete = hasData && !isLoadingMatches && isLastMatch;
@@ -96,13 +90,22 @@ const Resolver = ({
     }
   };
 
+  const contentClasses = cx(
+    'resolver__content',
+    {
+      'resolver__content--loading': status === states.LOADING,
+      'resolver__content--no-results': status === states.NO_RESULTS,
+    },
+  );
+
   return (
     <Modal show={show}>
       <div className="resolver">
         <div className="resolver__heading">
           {renderHeading()}
         </div>
-        <div key="loading-content" className="resolver__content resolver__content--loading">
+        <div key={status} className={contentClasses}>
+          {resolveRequestId}
           { status === states.LOADING &&
             <Loading />
           }
