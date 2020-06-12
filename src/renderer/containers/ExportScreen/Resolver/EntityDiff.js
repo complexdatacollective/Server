@@ -102,8 +102,8 @@ const EntityDiff = ({
             <td className="entity-diff__table-heading">
               <div className="entity-diff__table-heading-context">
                 <div className="entity-diff__node-stack">
-                  <Node {...nodePropsA} />
                   <Node {...nodePropsB} />
+                  <Node {...nodePropsA} />
                 </div>
               </div>
               <div className="entity-diff__table-heading-cell">
