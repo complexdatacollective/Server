@@ -6,7 +6,6 @@ const apiRequestLogger = require('./apiRequestLogger');
 const DeviceManager = require('../data-managers/DeviceManager');
 const ProtocolManager = require('../data-managers/ProtocolManager');
 const ExportManager = require('../data-managers/ExportManager');
-const { ResolverManager } = require('../data-managers/ResolverManager');
 const { resetPemKeyPair } = require('./certificateManager');
 const { PairingRequestService } = require('./devices/PairingRequestService');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
@@ -38,7 +37,6 @@ class AdminService {
     this.statusDelegate = statusDelegate;
     this.deviceManager = new DeviceManager(dataDir);
     this.protocolManager = new ProtocolManager(dataDir);
-    this.resolverManager = new ResolverManager(dataDir);
     this.exportManager = new ExportManager(dataDir);
     this.pairingRequestService = new PairingRequestService();
     this.reportDb = this.protocolManager.reportDb;

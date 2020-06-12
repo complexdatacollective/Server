@@ -14,7 +14,7 @@ const eventTypes = {
 class ResolverService {
   constructor({ dataDir }) {
     this.protocolManager = new ProtocolManager(dataDir);
-    this.resolverManager = new ResolverManager(dataDir);
+    this.resolverManager = new ResolverManager(this.protocolManager);
   }
 
   /**

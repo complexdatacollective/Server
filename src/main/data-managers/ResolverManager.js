@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
 
-const path = require('path');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
 const {
   insertEgoInNetworks,
@@ -8,8 +7,6 @@ const {
 } = require('../utils/formatters/network');
 const { getNetworkResolver } = require('../utils/getNetworkResolver');
 const { transformSessions } = require('../utils/transformSessions');
-const ResolverDB = require('./ResolverDB');
-const SessionDB = require('./SessionDB');
 
 const defaultNetworkOptions = {
   enableEntityResolution: true,
@@ -35,11 +32,8 @@ const formatSessionAsNetwork = (session) => {
  * Interface for data resolution
  */
 class ResolverManager {
-  constructor(dataDir) {
-    const resolverDBFile = path.join(dataDir, 'db', 'resolver.db');
-    this.resolverDB = new ResolverDB(resolverDBFile);
-    const sessionDbFile = path.join(dataDir, 'db', 'sessions.db');
-    this.sessionDB = new SessionDB(sessionDbFile);
+  constructor(protocolManager) {
+    this.protocolManager = protocolManager;
   }
 
   getNetwork(
@@ -66,7 +60,7 @@ class ResolverManager {
 
     return Promise.all([
       this.getSessionNetworks(protocolId),
-      this.getResolutions(protocolId),
+      this.protocolManager.getResolutions(protocolId),
     ])
       .then(
         ([sessions, resolutions]) =>
@@ -76,8 +70,7 @@ class ResolverManager {
   }
 
   getSessionNetworks(protocolId) {
-    // TODO: should this filter by data for performance?
-    return this.sessionDB.findAll(protocolId, null, null)
+    return this.protocolManager.getProtocolSessions(protocolId, null, null)
       .then(sessions => sessions.map(formatSessionAsNetwork));
   }
 
