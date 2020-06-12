@@ -17,14 +17,6 @@ const defaultNetworkOptions = {
   resolutionId: null,
 };
 
-const formatResolution = resolution => ({
-  ...resolution,
-  _meta: {
-    id: resolution._id,
-    date: resolution.createdAt,
-  },
-});
-
 const formatSessionAsNetwork = (session) => {
   const id = session && session._id;
   const caseID = session && session.data && session.data.sessionVariables &&
@@ -87,31 +79,6 @@ class ResolverManager {
     // TODO: should this filter by data for performance?
     return this.sessionDB.findAll(protocolId, null, null)
       .then(sessions => sessions.map(formatSessionAsNetwork));
-  }
-
-  getResolutions(protocolId) {
-    return this.resolverDB.getResolutions(protocolId)
-      .then(resolutions => resolutions.map(formatResolution));
-  }
-
-  saveResolution(protocolId, parameters, transforms) {
-    return this.resolverDB.insertResolution(protocolId, parameters, transforms);
-  }
-
-  // Delete all resolutions after and INCLUDING resolutionId
-  deleteResolutionsSince(protocolId, resolutionId) {
-    return this.getResolutions(protocolId)
-      // Get all resolutions up to and including resolutionId
-      .then((resolutions) => {
-        const resolutionIndex = resolutions
-          .findIndex(resolution => resolution._id === resolutionId);
-        return resolutions.slice(0, resolutionIndex + 1);
-      })
-      .then(resolutions => resolutions.map(({ _id }) => _id))
-      .then(resolutionIds =>
-        this.resolverDB.deleteResolutions(resolutionIds)
-          .then(() => resolutionIds),
-      );
   }
 
   resolveProtocol(

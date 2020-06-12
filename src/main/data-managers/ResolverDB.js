@@ -51,6 +51,18 @@ class ResolverDB extends DatabaseAdapter {
     return this.find(query);
   }
 
+  deleteProtocolResolutions(protocolId) {
+    return new Promise((resolve, reject) => {
+      if (!protocolId) { reject(new Error(missingRequiredIdMessage)); }
+
+      this.db.remove(
+        { protocolId },
+        { multi: true },
+        resolveOrReject(resolve, reject),
+      );
+    });
+  }
+
   deleteResolution(resolutionId) {
     return new Promise((resolve, reject) => {
       if (!resolutionId) { reject(new Error(missingRequiredIdMessage)); }

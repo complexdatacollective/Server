@@ -38,8 +38,8 @@ class AdminService {
     this.statusDelegate = statusDelegate;
     this.deviceManager = new DeviceManager(dataDir);
     this.protocolManager = new ProtocolManager(dataDir);
-    this.exportManager = new ExportManager(dataDir);
     this.resolverManager = new ResolverManager(dataDir);
+    this.exportManager = new ExportManager(dataDir);
     this.pairingRequestService = new PairingRequestService();
     this.reportDb = this.protocolManager.reportDb;
   }
@@ -239,7 +239,7 @@ class AdminService {
     api.get('/protocols/:protocolId/resolutions', (req, res, next) => {
       apiRequestLogger('AdminAPI')(req, { statusCode: 0 }); // log request start
 
-      this.resolverManager.getResolutions(req.params.protocolId)
+      this.protocolManager.getResolutions(req.params.protocolId)
         .then(resolutions => res.send({ status: 'ok', resolutions }))
         .catch((err) => {
           logger.error(err);
@@ -253,7 +253,7 @@ class AdminService {
 
       const { parameters, resolution } = req.body;
 
-      this.resolverManager.saveResolution(
+      this.protocolManager.saveResolution(
         req.params.protocolId,
         parameters,
         resolution,
@@ -271,7 +271,7 @@ class AdminService {
     api.del('/protocols/:protocolId/resolutions/:resolutionId', (req, res, next) => {
       apiRequestLogger('AdminAPI')(req, { statusCode: 0 }); // log request start
 
-      this.resolverManager.deleteResolutionsSince(
+      this.protocolManager.deleteResolutionsSince(
         req.params.protocolId,
         req.params.resolutionId,
       )

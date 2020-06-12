@@ -7,6 +7,7 @@ const uuid = require('uuid/v4');
 const dialog = require('../dialog');
 const ProtocolDB = require('./ProtocolDB');
 const SessionDB = require('./SessionDB');
+const ResolverDB = require('./ResolverDB');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
 const { readFile, rename, tryUnlink } = require('../utils/promised-fs');
 const { hexDigest } = require('../utils/sha256');
@@ -32,6 +33,8 @@ class ProtocolManager {
 
     const sessionDbFile = path.join(dataDir, 'db', 'sessions.db');
     this.sessionDb = new SessionDB(sessionDbFile);
+    const resolverDBFile = path.join(dataDir, 'db', 'resolver.db');
+    this.resolverDB = new ResolverDB(resolverDBFile);
     this.reportDb = this.sessionDb;
   }
 
@@ -263,7 +266,7 @@ class ProtocolManager {
 
   /**
    * Destroy both metadata from DB and saved file
-   * Does not destroy associated sessions.
+   * Does not destroy associated sessions or resolutions.
    * @param {object} protocol
    * @param {Boolean} ensureFileDeleted If true and the file could not be deleted, rejects.
    * @async
@@ -352,7 +355,8 @@ class ProtocolManager {
    * @return {number} removed count
    */
   deleteProtocolSessions(protocolId, sessionId = null) {
-    return this.sessionDb.delete(protocolId, sessionId);
+    return this.resolverDB.deleteProtocolResolutions(protocolId)
+      .then(() => this.sessionDb.delete(protocolId, sessionId));
   }
 
   /**
@@ -378,6 +382,48 @@ class ProtocolManager {
   // TODO: Probably remove after alpha testing
   destroyAllSessions() {
     return this.sessionDb.deleteAll();
+  }
+
+  getResolutions(protocolId) {
+    const formatResolution = resolution => ({
+      ...resolution,
+      _meta: {
+        // eslint-disable-next-line no-underscore-dangle
+        id: resolution._id,
+        date: resolution.createdAt,
+      },
+    });
+
+    return this.resolverDB.getResolutions(protocolId)
+      .then(resolutions => resolutions.map(formatResolution));
+  }
+
+  saveResolution(protocolId, parameters, transforms) {
+    return this.resolverDB.insertResolution(protocolId, parameters, transforms);
+  }
+
+  // Delete all resolutions after and INCLUDING resolutionId
+  deleteResolutionsSince(protocolId, resolutionId) {
+    return this.getResolutions(protocolId)
+      // Get all resolutions up to and including resolutionId
+      .then((resolutions) => {
+        const resolutionIndex = resolutions
+          // eslint-disable-next-line no-underscore-dangle
+          .findIndex(resolution => resolution._id === resolutionId);
+        return resolutions.slice(0, resolutionIndex + 1);
+      })
+      .then(resolutions => resolutions.map(({ _id }) => _id))
+      .then(resolutionIds =>
+        this.resolverDB.deleteResolutions(resolutionIds)
+          .then(() => resolutionIds),
+      );
+  }
+
+  // Delete all resolutions related to a protocol
+  // Used when we delete that protocol, or sessions connectd
+  // to that protocol
+  deleteProtocolResolutions(protocolId) {
+    return this.resolverDB.deleteProtocolResolutions(protocolId);
   }
 }
 
