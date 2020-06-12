@@ -98,8 +98,8 @@ class ResolverManager {
     return this.resolverDB.insertResolution(protocolId, parameters, transforms);
   }
 
-  // Delete all resolutions ater and including resolutionId
-  deleteResolutionsFromId(protocolId, resolutionId) {
+  // Delete all resolutions after and INCLUDING resolutionId
+  deleteResolutionsSince(protocolId, resolutionId) {
     return this.getResolutions(protocolId)
       // Get all resolutions up to and including resolutionId
       .then((resolutions) => {

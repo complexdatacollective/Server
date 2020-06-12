@@ -162,9 +162,9 @@ const mapStateToProps = (state, ownProps) => ({
   panelLayoutOrder: layoutSelectors.panelLayoutOrderForCurrentProtocol(state, ownProps),
 });
 
-const mapDispatchToProps = dispatch => ({
-  setPanelLayoutOrder: bindActionCreators(layoutActionCreators.setPanelLayoutOrder, dispatch),
-});
+const mapDispatchToProps = {
+  setPanelLayoutOrder: layoutActionCreators.setPanelLayoutOrder,
+};
 
 WorkspaceScreen.defaultProps = {
   answerDistributionCharts: [],

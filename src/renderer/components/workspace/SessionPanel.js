@@ -2,7 +2,6 @@
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
 import { DismissButton, ScrollingPanelItem } from '../../components';
@@ -95,11 +94,9 @@ SessionPanel.propTypes = {
   openDialog: PropTypes.func.isRequired,
 };
 
-function mapDispatchToProps(dispatch) {
-  return {
-    openDialog: bindActionCreators(dialogActions.openDialog, dispatch),
-  };
-}
+const mapDispatchToProps = {
+  openDialog: dialogActions.openDialog,
+};
 
 export default connect(null, mapDispatchToProps)(SessionPanel);
 
