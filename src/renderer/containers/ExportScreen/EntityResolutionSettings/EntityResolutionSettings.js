@@ -5,7 +5,7 @@ import { DateTime } from 'luxon';
 import { get, last } from 'lodash';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
-import cx from 'classnames';
+import { motion } from 'framer-motion';
 import Checkbox from '@codaco/ui/lib/components/Fields/Checkbox';
 import withApiClient from '%components/withApiClient';
 import { actionCreators as dialogActions } from '%modules/dialogs';
@@ -16,20 +16,24 @@ import './EntityResolution.scss';
 const compareCreatedAt = (a, b) =>
   DateTime.fromISO(a.createdAt) - DateTime.fromISO(b.createdAt);
 
+const variants = {
+  hide: { height: 0, opacity: 0 },
+  show: { height: 'auto', opacity: 1 },
+};
+
 const EntityResolutionSettings = ({
   apiClient,
   showError,
   protocolId,
   resolveRequestId,
   enableEntityResolution,
-  resolutionId, // TODO: what is this?
+  resolutionId,
   createNewResolution,
   entityResolutionArguments,
   entityResolutionPath,
   onUpdateSetting,
   onSelectResolution,
   onSelectCreateNewResolution,
-  disabled,
   openDialog,
 }) => {
   const [resolutionHistory, setResolutionHistory] = useState([]);
@@ -91,7 +95,12 @@ const EntityResolutionSettings = ({
   };
 
   return (
-    <div className={cx('entity-resolution', { 'entity-resolution--disabled': disabled })}>
+    <motion.div
+      className="entity-resolution"
+      variants={variants}
+      initial="hide"
+      animate="show"
+    >
       <div className="export__section">
         <h3>Entity Resolution</h3>
         <p>Use an external application to resolve nodes in a unified network.</p>
@@ -102,7 +111,6 @@ const EntityResolutionSettings = ({
               name: 'enable_entity_resolution', // TODO: is this necessary?
               checked: enableEntityResolution,
               onChange: () => onUpdateSetting('enableEntityResolution', !enableEntityResolution),
-              disabled,
             }}
           />
         </div>
@@ -143,7 +151,7 @@ const EntityResolutionSettings = ({
           </div>
         }
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -160,14 +168,12 @@ EntityResolutionSettings.propTypes = {
   onUpdateSetting: PropTypes.func.isRequired,
   onSelectResolution: PropTypes.func.isRequired,
   onSelectCreateNewResolution: PropTypes.func.isRequired,
-  disabled: PropTypes.bool,
   openDialog: PropTypes.func.isRequired,
 };
 
 EntityResolutionSettings.defaultProps = {
   protocolId: null,
   resolveRequestId: null,
-  disabled: false,
   resolutionId: null,
   enableEntityResolution: false,
   createNewResolution: false,

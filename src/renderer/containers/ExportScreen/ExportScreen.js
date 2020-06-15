@@ -261,7 +261,7 @@ const ExportScreen = ({
           />
         </div>
       </div>
-      <ErrorBoundary>
+      { exportSettings.exportNetworkUnion &&
         <EntityResolutionSettings
           // key={state.resolutionsKey}
           resolveRequestId={resolverState.resolveRequestId}
@@ -276,9 +276,8 @@ const ExportScreen = ({
           onUpdateSetting={updateSetting}
           onSelectResolution={selectResolution}
           onSelectCreateNewResolution={selectCreateNewResolution}
-          disabled={!exportSettings.exportNetworkUnion}
         />
-      </ErrorBoundary>
+      }
       <div className="export__footer">
         <Button color="platinum" onClick={() => history.goBack()}>Cancel</Button>&nbsp;
         <Button type="submit" disabled={exportInProgress}>Export</Button>
