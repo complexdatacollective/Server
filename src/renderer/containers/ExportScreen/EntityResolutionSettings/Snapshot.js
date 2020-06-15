@@ -49,11 +49,15 @@ Snapshot.propTypes = {
   onSelect: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
   canDelete: PropTypes.bool,
+  transforms: PropTypes.number,
+  sessions: PropTypes.number,
 };
 
 Snapshot.defaultProps = {
   isSelected: false,
   canDelete: false,
+  transforms: 0,
+  sessions: 0,
 };
 
 export default Snapshot;
