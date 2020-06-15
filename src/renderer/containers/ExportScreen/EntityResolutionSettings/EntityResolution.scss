@@ -57,9 +57,11 @@
       }
 
       td {
+        padding: 0.5rem 0;
         .form-field-container,
         .form-field {
           margin: 0;
+          background-color: white;
         }
       }
     }

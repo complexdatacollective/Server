@@ -36,6 +36,7 @@ const EntityResolutionSettings = ({
   onSelectCreateNewResolution,
   openDialog,
 }) => {
+  const [unresolvedCount, setUnresolvedCount] = useState(0);
   const [resolutionHistory, setResolutionHistory] = useState([]);
 
   const getResolutions = () => {
@@ -43,9 +44,10 @@ const EntityResolutionSettings = ({
 
     apiClient
       .get(`/protocols/${protocolId}/resolutions`)
-      .then(({ resolutions }) => {
+      .then(({ resolutions, unresolved }) => {
         const sortedResolutions = [...resolutions].sort(compareCreatedAt);
         setResolutionHistory(sortedResolutions);
+        setUnresolvedCount(unresolved);
 
         // if path/arguments have been changed skip this
         if (
@@ -145,6 +147,7 @@ const EntityResolutionSettings = ({
                   onUpdateSetting={onUpdateSetting}
                   entityResolutionPath={entityResolutionPath}
                   entityResolutionArguments={entityResolutionArguments}
+                  newSessionCount={unresolvedCount}
                 />
               </tbody>
             </table>

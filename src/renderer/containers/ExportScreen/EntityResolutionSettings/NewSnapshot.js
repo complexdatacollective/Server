@@ -9,6 +9,14 @@ const variants = {
   show: { height: 'auto', opacity: 1 },
 };
 
+const formatSessionCount = (sessionCount) => {
+  if (sessionCount === 1) {
+    return `${sessionCount} new session`;
+  }
+
+  return `${sessionCount} new sessions`;
+};
+
 const NewSnapshot = ({
   isSelected,
   newSessionCount,
@@ -19,9 +27,9 @@ const NewSnapshot = ({
 }) => (
   <React.Fragment>
     <tr>
-      <td colSpan="4">
+      <td>
         <Radio
-          label={`Resolve new sessions (${newSessionCount})`}
+          label={`Resolve new sessions (${formatSessionCount(newSessionCount)})`}
           input={{
             name: 'create_new_snapshot',
             checked: isSelected,
@@ -29,6 +37,7 @@ const NewSnapshot = ({
           }}
         />
       </td>
+      <td colSpan="4" />
     </tr>
     <tr>
       <td colSpan="4" className="snapshots__row--no-padding">

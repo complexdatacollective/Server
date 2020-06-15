@@ -11,6 +11,8 @@ const Snapshot = ({
   onSelect,
   onDelete,
   canDelete,
+  sessions,
+  transforms,
 }) => {
   const displayDate = DateTime.fromISO(date).toHTTP();
 
@@ -27,8 +29,8 @@ const Snapshot = ({
           label={displayDate}
         />
       </td>
-      <td />
-      <td />
+      <td>{sessions}</td>
+      <td>{transforms}</td>
       <td>
         { canDelete &&
           <div className="snapshot__delete">

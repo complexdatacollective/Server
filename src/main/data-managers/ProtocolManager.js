@@ -1,9 +1,10 @@
+/* eslint-disable no-underscore-dangle */
 const fs = require('fs');
 const jszip = require('jszip');
 const logger = require('electron-log');
 const path = require('path');
 const uuid = require('uuid/v4');
-
+const { get, merge, findLast } = require('lodash');
 const dialog = require('../dialog');
 const ProtocolDB = require('./ProtocolDB');
 const SessionDB = require('./SessionDB');
@@ -18,6 +19,15 @@ const protocolDirName = 'protocols';
 const ProtocolDataFile = 'protocol.json';
 
 const hasValidExtension = filepath => validFileExts.includes(path.extname(filepath).replace(/^\./, ''));
+
+const formatResolution = resolution => ({
+  ...resolution,
+  _meta: {
+    id: resolution._id,
+    date: resolution.createdAt,
+    transforms: resolution.transforms.length,
+  },
+});
 
 /**
  * Interface to protocol data (higher-level than DB)
@@ -384,18 +394,49 @@ class ProtocolManager {
     return this.sessionDb.deleteAll();
   }
 
-  getResolutions(protocolId) {
-    const formatResolution = resolution => ({
-      ...resolution,
-      _meta: {
-        // eslint-disable-next-line no-underscore-dangle
-        id: resolution._id,
-        date: resolution.createdAt,
-      },
-    });
+  // resolutions is in format:
+  // [{ id, date }, ...]
+  getResolutionSessionCounts(protocolId, resolutions = []) {
+    return this.sessionDb.findAll(protocolId, null, { updatedAt: 1 })
+      .then((sessions) => {
+        if (resolutions.length === 0) { return { _unresolved: sessions.length }; }
+        const counts = sessions
+          .reduce((acc, session) => {
+            const { id } = findLast(resolutions, ({ date }) => date > session.updatedAt) || { id: '_unresolved' };
+            return {
+              ...acc,
+              [id]: get(acc, id, 0) + 1,
+            };
+          }, {});
 
+        return counts;
+      });
+  }
+
+  getResolutions(protocolId) {
     return this.resolverDB.getResolutions(protocolId)
       .then(resolutions => resolutions.map(formatResolution));
+  }
+
+  getResolutionsIndex(protocolId) {
+    return this.getResolutions(protocolId)
+      .then((resolutions) => {
+        const resolutionDateIndex = resolutions
+          .map(({ _meta: { date, id } }) => ({ date, id }));
+
+        return this.getResolutionSessionCounts(protocolId, resolutionDateIndex)
+          .then((sessionCounts) => {
+            const unresolved = get(sessionCounts, '_unresolved', 0);
+
+            const resolutionsWithCount = resolutions
+              .map(resolution => merge(
+                resolution,
+                { _meta: { sessions: get(sessionCounts, resolution._id, 0) } },
+              ));
+
+            return { resolutions: resolutionsWithCount, unresolved };
+          });
+      });
   }
 
   saveResolution(protocolId, parameters, transforms) {
@@ -408,7 +449,6 @@ class ProtocolManager {
       // Get all resolutions up to and including resolutionId
       .then((resolutions) => {
         const resolutionIndex = resolutions
-          // eslint-disable-next-line no-underscore-dangle
           .findIndex(resolution => resolution._id === resolutionId);
         return resolutions.slice(0, resolutionIndex + 1);
       })
