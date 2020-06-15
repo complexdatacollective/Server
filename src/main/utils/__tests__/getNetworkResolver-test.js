@@ -43,29 +43,29 @@ describe('getNetworkResolver()', () => {
   };
 
   it('returns a networkResolver function', () => {
-    const subject = getNetworkResolver({
-      command: '/dev/null',
-      codebook: {},
-    });
+    const subject = getNetworkResolver(
+      '/dev/null',
+      { codebook: {} },
+    );
 
     expect(subject).toBeInstanceOf(Function);
   });
 
   describe('networkResolver()', () => {
     it('returns a promise', () => {
-      const networkResolver = getNetworkResolver({
-        command: '/dev/null',
-        codebook,
-      });
+      const networkResolver = getNetworkResolver(
+        '/dev/null',
+        { codebook },
+      );
 
       expect(networkResolver(network)).toBeInstanceOf(Promise);
     });
 
     it('when network is empty it returns an empty array', (done) => {
-      const networkResolver = getNetworkResolver({
-        command: '/dev/null',
-        codebook,
-      });
+      const networkResolver = getNetworkResolver(
+        '/dev/null',
+        { codebook },
+      );
 
       networkResolver({ nodes: [] })
         .then((resolver) => {
@@ -83,10 +83,10 @@ describe('getNetworkResolver()', () => {
     });
 
     it('promise resolves to a stream of json objects', (done) => {
-      const networkResolver = getNetworkResolver({
-        command: '/dev/null',
-        codebook,
-      });
+      const networkResolver = getNetworkResolver(
+        '/dev/null',
+        { codebook },
+      );
 
       networkResolver(network)
         .then((resolver) => {
@@ -103,10 +103,12 @@ describe('getNetworkResolver()', () => {
                   {
                     _uid: 'abc1',
                     attributes: { foo: 'foo' },
+                    type: 'foo',
                   },
                   {
                     _uid: 'abc2',
                     attributes: { foo: 'bar' },
+                    type: 'foo',
                   },
                 ],
                 probability: 0.5,
@@ -116,10 +118,12 @@ describe('getNetworkResolver()', () => {
                   {
                     _uid: 'abc3',
                     attributes: { foo: 'bazz' },
+                    type: 'foo',
                   },
                   {
                     _uid: 'abc4',
                     attributes: { foo: 'buzz' },
+                    type: 'foo',
                   },
                 ],
                 probability: 0.5,

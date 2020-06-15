@@ -6,6 +6,7 @@ import path from 'path';
 import ProtocolManager from '../ProtocolManager';
 import promisedFs from '../../utils/promised-fs';
 import dialog from '../../dialog';
+import ResolverDB from '../ResolverDB';
 
 jest.mock('fs');
 jest.mock('electron');
@@ -13,6 +14,7 @@ jest.mock('electron-log');
 jest.mock('jszip');
 jest.mock('../../utils/promised-fs');
 jest.mock('../ProtocolDB');
+jest.mock('../ResolverDB');
 jest.mock('../SessionDB');
 jest.mock('../../dialog');
 
@@ -364,6 +366,14 @@ describe('ProtocolManager', () => {
   describe('session manager', () => {
     const protocolId = 'protocol1';
 
+    beforeAll(() => {
+      ResolverDB.mockImplementation(() => ({
+        deleteProtocolResolutions: jest.fn(
+          () => Promise.resolve(),
+        ),
+      }));
+    });
+
     it('finds all sessions for a protocol via DB', () => {
       manager.getProtocolSessions(protocolId);
       expect(manager.sessionDb.findAll).toHaveBeenCalled();
@@ -376,13 +386,17 @@ describe('ProtocolManager', () => {
     });
 
     it('deletes a session via DB', () => {
-      manager.deleteProtocolSessions(protocolId, 'session1');
-      expect(manager.sessionDb.delete).toHaveBeenCalledWith(protocolId, 'session1');
+      return manager.deleteProtocolSessions(protocolId, 'session1')
+        .then(() => {
+          expect(manager.sessionDb.delete).toHaveBeenCalledWith(protocolId, 'session1');
+        });
     });
 
     it('allows omitting ID (to delete multiple)', () => {
-      manager.deleteProtocolSessions('protocol1');
-      expect(manager.sessionDb.delete).toHaveBeenCalledWith(protocolId, null);
+      return manager.deleteProtocolSessions('protocol1')
+        .then(() => {
+          expect(manager.sessionDb.delete).toHaveBeenCalledWith(protocolId, null);
+        });
     });
 
     describe('insertion', () => {

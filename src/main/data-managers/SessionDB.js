@@ -28,7 +28,6 @@ class SessionDB extends Reportable(DatabaseAdapter) {
         reject(new RequestError(ErrorMessages.NotFound));
         return;
       }
-      console.log('INSERT ALL FOR PROTOCOL');
       const isArray = sessionOrSessions instanceof Array;
       let sessions = isArray ? sessionOrSessions : [sessionOrSessions];
       // Reject if any session is missing its UUID or data fields. Uses same check as nedb.
@@ -44,14 +43,11 @@ class SessionDB extends Reportable(DatabaseAdapter) {
         // Use client-provided uid for PK; nedb drops field if undefined.
         { ...s, _id: s[sessionUidField], [sessionUidField]: undefined, protocolId: protocol._id }
       ));
-      console.log({ s: JSON.stringify(sessions[0].data.nodes) });
       this.db.insert(sessions, (err, docs) => {
         if (err) {
           reject(err);
-          console.log('ERROR');
         } else {
           resolve(docs);
-          console.log('DONE');
         }
       });
     });

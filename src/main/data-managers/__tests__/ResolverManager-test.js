@@ -2,6 +2,7 @@
 const {
   ResolverManager,
 } = require('../ResolverManager');
+const ProtocolManager = require('../ProtocolManager');
 const { ErrorMessages } = require('../../errors/RequestError');
 
 jest.mock('nedb');
@@ -21,14 +22,18 @@ jest.mock('../ResolverDB', () => (function MockResolverDB() {
 
 jest.mock('../../utils/commandRunner');
 
+const protocolManager = new ProtocolManager('.');
+
 describe('resolveProtocol()', () => {
   const validOpts = {
     command: 'reverse_string',
+    codebook: {},
   };
+
   let manager;
 
   beforeEach(() => {
-    manager = new ResolverManager('.');
+    manager = new ResolverManager(protocolManager);
   });
 
   it('rejects if protocol missing', async () => {

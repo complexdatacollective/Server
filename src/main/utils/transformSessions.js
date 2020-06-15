@@ -121,9 +121,6 @@ const transformSessions = (
     { nodes: [], edges: [], ego: [] },
   );
 
-  console.log(includeUnresolved && 'UNRESOLVED');
-  console.log(!includeUnresolved && 'NOT UNRESOLVED');
-
   if (includeUnresolved && sessionsByResolution._unresolved) {
     return unionOfNetworks([resultNetwork, ...sessionsByResolution._unresolved]);
   }
