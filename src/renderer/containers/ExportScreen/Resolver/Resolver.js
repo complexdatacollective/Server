@@ -107,13 +107,14 @@ const Resolver = ({
         <div key={status} className={contentClasses}>
           {resolveRequestId}
           { status === states.LOADING &&
-            <Loading />
+            <Loading key="loading" />
           }
           { status === states.NO_RESULTS &&
-            <NoResults onClose={handleClose} />
+            <NoResults key="empty" onClose={handleClose} />
           }
           { status === states.RESOLVING &&
             <EntityDiff
+              key="diff"
               codebook={protocol.codebook}
               match={match}
               requiredAttributes={requiredAttributes}
@@ -125,6 +126,7 @@ const Resolver = ({
           }
           { status === states.REVIEW &&
             <ReviewTable
+              key="review"
               codebook={protocol.codebook}
               matches={matches}
               actions={actions}

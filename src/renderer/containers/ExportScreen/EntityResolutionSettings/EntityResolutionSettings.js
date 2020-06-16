@@ -132,12 +132,15 @@ const EntityResolutionSettings = ({
                   resolutionHistory
                     .map(resolution => (
                       <Snapshot
-                        key={resolution._meta.id}
+                        key={resolution._id}
                         onSelect={onSelectResolution}
                         onDelete={handleDelete}
                         canDelete
-                        isSelected={resolutionId === resolution._meta.id}
-                        {...resolution._meta}
+                        isSelected={resolutionId === resolution._id}
+                        id={resolution._id}
+                        date={resolution._date}
+                        sessionCount={resolution._sessionCount}
+                        transformCount={resolution._transformCount}
                       />
                     ))
                 }

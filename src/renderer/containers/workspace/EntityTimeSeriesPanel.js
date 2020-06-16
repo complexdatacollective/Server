@@ -57,7 +57,6 @@ class EntityTimeSeriesPanel extends PureComponent {
   }
 
   loadData() {
-    console.log('was called');
     const route = `/protocols/${this.props.protocolId}/reports/entity_time_series`;
     this.props.apiClient.get(route)
       .then(({ entities, keys }) => entities && this.setState({

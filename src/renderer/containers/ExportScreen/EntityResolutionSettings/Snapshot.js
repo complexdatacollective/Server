@@ -11,8 +11,8 @@ const Snapshot = ({
   onSelect,
   onDelete,
   canDelete,
-  sessions,
-  transforms,
+  sessionCount,
+  transformCount,
 }) => {
   const displayDate = DateTime.fromISO(date).toHTTP();
 
@@ -29,8 +29,8 @@ const Snapshot = ({
           label={displayDate}
         />
       </td>
-      <td>{sessions}</td>
-      <td>{transforms}</td>
+      <td>{sessionCount}</td>
+      <td>{transformCount}</td>
       <td>
         { canDelete &&
           <div className="snapshot__delete">
@@ -49,15 +49,15 @@ Snapshot.propTypes = {
   onSelect: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
   canDelete: PropTypes.bool,
-  transforms: PropTypes.number,
-  sessions: PropTypes.number,
+  transformCount: PropTypes.number,
+  sessionCount: PropTypes.number,
 };
 
 Snapshot.defaultProps = {
   isSelected: false,
   canDelete: false,
-  transforms: 0,
-  sessions: 0,
+  transformCount: 0,
+  sessionCount: 0,
 };
 
 export default Snapshot;
