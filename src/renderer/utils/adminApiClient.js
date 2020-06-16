@@ -110,4 +110,5 @@ class AdminApiClient {
   }
 }
 
+// export default (...args) => new AdminApiClient(...args);
 export default AdminApiClient;

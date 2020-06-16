@@ -7,8 +7,8 @@ const resolution = new Factory()
   .option('network', null)
   .option('transformCount', null)
   .option('attributes', {})
-  .attr('id', () => uuid())
-  .sequence('date', i => DateTime.local().minus({ days: i }).toISO())
+  .attr('_id', () => uuid())
+  .sequence('_date', i => DateTime.local().minus({ days: i }).toJSDate())
   .attr(
     'transforms',
     ['transformCount', 'network', 'attributes'],

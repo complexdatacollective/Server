@@ -18,13 +18,12 @@ const formatSessionAsNetwork = (session) => {
   const id = session && session._id;
   const caseID = session && session.data && session.data.sessionVariables &&
     session.data.sessionVariables._caseID;
+
   return ({
     ...session.data,
-    _meta: {
-      caseID,
-      id,
-      date: session.createdAt,
-    },
+    _caseID: caseID,
+    _id: id,
+    _date: session.createdAt,
   });
 };
 

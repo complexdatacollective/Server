@@ -12,11 +12,11 @@ const {
 const getPriorResolutions = (resolutions, resolutionId) => {
   // from oldest to newest
   const sortedResolutions = [...resolutions]
-    .sort((a, b) => DateTime.fromJSDate(a._meta.date) - DateTime.fromJSDate(b._meta.date));
+    .sort((a, b) => DateTime.fromJSDate(a._date) - DateTime.fromJSDate(b._date));
 
   if (!resolutionId) { return sortedResolutions; }
 
-  const lastResolution = findIndex(sortedResolutions, ['_meta.id', resolutionId]);
+  const lastResolution = findIndex(sortedResolutions, ['_id', resolutionId]);
 
   if (lastResolution === -1) {
     throw new Error(`Resolution "${resolutionId}" could not be found`);
@@ -30,14 +30,14 @@ const getPriorResolutions = (resolutions, resolutionId) => {
 // calculating it?
 const getSessionsByResolution = (resolutions, sessions) =>
   sessions.reduce((memo, session) => {
-    const sessionDate = DateTime.fromJSDate(session._meta.date);
+    const sessionDate = DateTime.fromJSDate(session._date);
 
     const resolution = find(
       resolutions,
-      ({ _meta }) => sessionDate < DateTime.fromJSDate(_meta.date),
+      ({ _date }) => sessionDate < DateTime.fromJSDate(_date),
     );
 
-    const resolutionId = (resolution && resolution._meta.id) || '_unresolved';
+    const resolutionId = (resolution && resolution._id) || '_unresolved';
 
     const group = get(memo, [resolutionId], []);
 
@@ -97,16 +97,23 @@ const applyTransform = (network, transform) => {
 const transformSessions = (
   sessions,
   resolutions,
-  { useEgoData, resolutionId, includeUnresolved },
+  options,
 ) => {
+  // default options
+  const { useEgoData, fromResolution: resolutionId, includeUnresolved } = {
+    includeUnresolved: true,
+    useEgoData: true,
+    ...options,
+  };
+
   const priorResolutions = getPriorResolutions(resolutions, resolutionId);
   const sessionsByResolution = getSessionsByResolution(priorResolutions, sessions);
 
   // For each resolution merge sessions and apply resolution
   const resultNetwork = reduce(
     priorResolutions,
-    (accNetwork, { transforms, _meta }) => {
-      const sessionNetworks = sessionsByResolution[_meta.id]; // array of networks
+    (accNetwork, { transforms, _id }) => {
+      const sessionNetworks = sessionsByResolution[_id]; // array of networks
 
       if (!sessionNetworks) {
         // if no new sessions, operate on existing

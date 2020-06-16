@@ -315,6 +315,6 @@ export {
 };
 
 export default compose(
-  connect(mapStateToProps, mapDispatchToProps),
   withRouter,
+  connect(mapStateToProps, mapDispatchToProps),
 )(ExportScreen);

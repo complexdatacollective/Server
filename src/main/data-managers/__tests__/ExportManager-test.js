@@ -1,6 +1,7 @@
 /* eslint-env jest */
 
 import ExportManager from '../ExportManager';
+import ResolverManager from '../ResolverManager';
 import { ErrorMessages } from '../../errors/RequestError';
 
 jest.mock('nedb');
@@ -11,6 +12,8 @@ jest.mock('../SessionDB', () => (function MockSessionDB() {
     findAll: jest.fn().mockResolvedValue([]),
   };
 }));
+
+jest.mock('../ResolverManager');
 
 jest.mock('../../utils/network-exporters/graphml/GraphMLFormatter', () => class {
   // Mock writer: close stream as soon as writing begins
@@ -40,6 +43,8 @@ describe('ExportManager', () => {
 
   beforeEach(() => {
     manager = new ExportManager('.');
+    manager.resolverManager.getNetwork = jest.fn()
+      .mockResolvedValue([]);
     protocol = { id: '1', name: '1', createdAt: new Date() };
     validOpts = {
       destinationFilepath: '.',
@@ -80,13 +85,10 @@ describe('ExportManager', () => {
   // TODO: make the stream interface more testable
   describe('with data', () => {
     beforeEach(() => {
+      manager = new ExportManager('.');
       protocol.codebook = {};
-      manager.sessionDB = {
-        findAll: jest.fn().mockResolvedValue([{ data: { nodes: [], edges: [] } }]),
-      };
-      manager.resolverManager.sessionDB = {
-        findAll: jest.fn().mockResolvedValue([{ data: { nodes: [], edges: [] } }]),
-      };
+      manager.resolverManager.getNetwork = jest.fn()
+        .mockResolvedValue([{ data: { nodes: [], edges: [] } }]);
     });
 
     it('returns a promise', async () => {

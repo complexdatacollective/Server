@@ -22,11 +22,8 @@ const hasValidExtension = filepath => validFileExts.includes(path.extname(filepa
 
 const formatResolution = resolution => ({
   ...resolution,
-  _meta: {
-    id: resolution._id,
-    date: resolution.createdAt,
-    transforms: resolution.transforms.length,
-  },
+  _date: resolution.updatedAt,
+  _transformCount: resolution.transforms.length,
 });
 
 /**
@@ -402,10 +399,10 @@ class ProtocolManager {
         if (resolutions.length === 0) { return { _unresolved: sessions.length }; }
         const counts = sessions
           .reduce((acc, session) => {
-            const { id } = findLast(resolutions, ({ date }) => date > session.updatedAt) || { id: '_unresolved' };
+            const { _id } = findLast(resolutions, ({ _date }) => _date > session.updatedAt) || { id: '_unresolved' };
             return {
               ...acc,
-              [id]: get(acc, id, 0) + 1,
+              [_id]: get(acc, _id, 0) + 1,
             };
           }, {});
 
@@ -420,23 +417,20 @@ class ProtocolManager {
 
   getResolutionsIndex(protocolId) {
     return this.getResolutions(protocolId)
-      .then((resolutions) => {
-        const resolutionDateIndex = resolutions
-          .map(({ _meta: { date, id } }) => ({ date, id }));
-
-        return this.getResolutionSessionCounts(protocolId, resolutionDateIndex)
+      .then(resolutions =>
+        this.getResolutionSessionCounts(protocolId, resolutions)
           .then((sessionCounts) => {
             const unresolved = get(sessionCounts, '_unresolved', 0);
 
             const resolutionsWithCount = resolutions
-              .map(resolution => merge(
-                resolution,
-                { _meta: { sessions: get(sessionCounts, resolution._id, 0) } },
-              ));
+              .map(resolution => ({
+                ...resolution,
+                _sessionCount: get(sessionCounts, resolution._id, 0),
+              }));
 
             return { resolutions: resolutionsWithCount, unresolved };
-          });
-      });
+          }),
+      );
   }
 
   saveResolution(protocolId, parameters, transforms) {

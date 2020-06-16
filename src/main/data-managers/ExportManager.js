@@ -5,7 +5,7 @@ const path = require('path');
 const logger = require('electron-log');
 const { flattenDeep } = require('lodash');
 
-const SessionDB = require('./SessionDB');
+const ProtocolManager = require('./ProtocolManager');
 const { ResolverManager } = require('./ResolverManager');
 const { archive } = require('../utils/archive');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
@@ -92,9 +92,8 @@ const exportFile = (
 class ExportManager {
   constructor(sessionDataDir) {
     // TODO: path is duplicated in ProtocolManager
-    const sessionDbFile = path.join(sessionDataDir, 'db', 'sessions.db');
-    this.sessionDB = new SessionDB(sessionDbFile);
-    this.resolverManager = new ResolverManager(sessionDataDir);
+    const protocolManager = new ProtocolManager(sessionDataDir);
+    this.resolverManager = new ResolverManager(protocolManager);
   }
 
   /**
