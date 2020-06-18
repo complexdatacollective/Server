@@ -385,19 +385,19 @@ describe('ProtocolManager', () => {
       expect(manager.sessionDb.findAll).toHaveBeenCalledWith(protocolId, 100);
     });
 
-    it('deletes a session via DB', () => {
-      return manager.deleteProtocolSessions(protocolId, 'session1')
+    it('deletes a session via DB', () =>
+      manager.deleteProtocolSessions(protocolId, 'session1')
         .then(() => {
           expect(manager.sessionDb.delete).toHaveBeenCalledWith(protocolId, 'session1');
-        });
-    });
+        }),
+    );
 
-    it('allows omitting ID (to delete multiple)', () => {
-      return manager.deleteProtocolSessions('protocol1')
+    it('allows omitting ID (to delete multiple)', () =>
+      manager.deleteProtocolSessions('protocol1')
         .then(() => {
           expect(manager.sessionDb.delete).toHaveBeenCalledWith(protocolId, null);
-        });
-    });
+        }),
+    );
 
     describe('insertion', () => {
       const mockProtocol = { _id: protocolId };

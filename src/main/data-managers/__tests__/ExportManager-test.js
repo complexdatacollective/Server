@@ -1,7 +1,6 @@
 /* eslint-env jest */
 
 import ExportManager from '../ExportManager';
-import ResolverManager from '../ResolverManager';
 import { ErrorMessages } from '../../errors/RequestError';
 
 jest.mock('nedb');

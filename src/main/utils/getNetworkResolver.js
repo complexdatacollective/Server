@@ -11,7 +11,7 @@ const commandRunner = require('./commandRunner');
 
 const debugStream = prefix => miss.through(
   (chunk, enc, cb) => {
-    console.log(`[stream:${prefix}]`, chunk.toString());
+    console.log(`[stream:${prefix}]`, chunk.toString()); // eslint-disable-line
     cb(null, chunk);
   },
   (cb) => {
@@ -67,7 +67,7 @@ const appendNodeNetworkData = nodes =>
 
       callback(null, output);
     } catch (err) {
-      console.log({ err });
+      console.log({ err }); // eslint-disable-line
       callback(err);
     }
   });

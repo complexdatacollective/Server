@@ -14,26 +14,6 @@ jest.mock('../../../utils/adminApiClient', () => {
   return MockApiClient;
 });
 
-// const props = {
-//   protocolId: '1',
-// };
-
-// describe('ProtocolCountsPanel', () => {
-//   let subject;
-//   let mockApiClient;
-
-//   beforeEach(() => {
-//     mockApiClient = new AdminApiClient();
-//     subje
-// jest.mock('../../../utils/adminApiClient', () =>
-  // () =>
-    // ({
-      // get: jest.fn().mockResolvedValue({
-        // entities: [{ time: 1546455484765, node: 20, edge: 0 }],
-      // }),
-    // }),
-// );
-
 const props = {
   protocolId: '1',
 };
