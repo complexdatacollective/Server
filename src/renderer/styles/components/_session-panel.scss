@@ -1,4 +1,8 @@
 .session-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+
   @include element(header) {
     display: flex;
     justify-content: space-between;
@@ -11,5 +15,9 @@
   @include element(id) {
     color: var(--color-charcoal);
     margin-left: 0.5rem;
+  }
+
+  &__link {
+    align-self: flex-end;
   }
 }
