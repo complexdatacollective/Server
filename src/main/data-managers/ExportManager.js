@@ -25,7 +25,6 @@ const {
   getFormatterClass,
   partitionByEdgeType,
 } = require('../utils/formatters/utils');
-const {protocol} = require('electron');
 
 const escapeFilePart = part => part.replace(/\W/g, '');
 
@@ -136,7 +135,9 @@ class ExportManager {
       useDirectedEdges,
       useEgoData,
       enableEntityResolution,
+      egoCastType,
       resolutionId,
+      ...rest
     } = {},
   ) {
     if (!protocol) {
@@ -158,6 +159,7 @@ class ExportManager {
     };
 
     const networkOpts = {
+      egoCastType,
       exportNetworkUnion,
       useEgoData,
       enableEntityResolution,

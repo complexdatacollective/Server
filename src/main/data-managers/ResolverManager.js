@@ -2,7 +2,7 @@
 
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
 const { getNetworkResolver } = require('../utils/getNetworkResolver');
-const { transformSessions } = require('../utils/transformSessions');
+const { transformSessions } = require('../utils/resolver/transformSessions');
 const { formatSessionAsNetwork } = require('../utils/formatters/network');
 
 const defaultNetworkOptions = {
@@ -26,12 +26,12 @@ class ResolverManager {
     const protocolId = protocol._id;
 
     const {
-      useEgoData,
       resolutionId,
       includeUnresolved,
+      egoCastType,
     } = { ...defaultNetworkOptions, ...networkOptions };
 
-    const transformOptions = { useEgoData, resolutionId, includeUnresolved };
+    const transformOptions = { resolutionId, includeUnresolved, egoCastType };
 
     return Promise.all([
       this.getSessionNetworks(protocolId),
@@ -39,7 +39,7 @@ class ResolverManager {
     ])
       .then(
         ([sessions, resolutions]) =>
-          transformSessions(sessions, resolutions, transformOptions),
+          transformSessions(protocol, sessions, resolutions, transformOptions),
       )
       .then(network => ([network]));
   }

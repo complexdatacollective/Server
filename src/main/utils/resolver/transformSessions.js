@@ -2,12 +2,12 @@
 const { DateTime } = require('luxon');
 const { get, find, findIndex, reduce } = require('lodash');
 const {
-  insertEgoInNetworks,
   unionOfNetworks,
   nodePrimaryKeyProperty,
   nodeAttributesProperty,
   egoProperty,
-} = require('../utils/formatters/network');
+} = require('../formatters/network');
+const castEgoAsNode = require('./castEgoAsNode');
 
 const getPriorResolutions = (resolutions, resolutionId) => {
   // from oldest to newest
@@ -95,14 +95,14 @@ const applyTransform = (network, transform) => {
 };
 
 const transformSessions = (
+  protocol,
   sessions,
   resolutions,
   options,
 ) => {
   // default options
-  const { useEgoData, fromResolution: resolutionId, includeUnresolved } = {
+  const { egoCastType, fromResolution: resolutionId, includeUnresolved } = {
     includeUnresolved: true,
-    useEgoData: true,
     ...options,
   };
 
@@ -120,8 +120,10 @@ const transformSessions = (
         return transforms.reduce(applyTransform, accNetwork);
       }
 
-      const withEgoData = useEgoData ? insertEgoInNetworks(sessionNetworks) : sessionNetworks;
-      const unifiedNetwork = unionOfNetworks([accNetwork, ...withEgoData]);
+      const sessionNetworksWithEgos = sessionNetworks.map(castEgoAsNode(protocol.codebook, egoCastType));
+      // console.log(sessionNetworks);
+
+      const unifiedNetwork = unionOfNetworks([accNetwork, ...sessionNetworksWithEgos]);
 
       return transforms.reduce(applyTransform, unifiedNetwork);
     },

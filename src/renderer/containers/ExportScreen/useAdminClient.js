@@ -16,11 +16,13 @@ const useAdminClient = (showConfirmation, showError) => {
     const {
       entityResolutionPath,
       entityResolutionArguments,
+      egoCastType,
     } = exportSettings;
 
     const parameters = {
       entityResolutionPath,
       entityResolutionArguments,
+      egoCastType,
     };
 
     return client

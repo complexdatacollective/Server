@@ -76,6 +76,7 @@ const useResolver = (showError) => {
       useDirectedEdges,
       useEgoData,
       resolutionId,
+      egoCastType,
       entityResolutionArguments,
       entityResolutionPath,
     } = exportSettings;
@@ -104,6 +105,7 @@ const useResolver = (showError) => {
         exportFormats: (exportFormat === 'csv' && [...exportCsvTypes]) || [exportFormat],
         exportNetworkUnion,
         useDirectedEdges,
+        egoCastType,
         useEgoData: useEgoData && showCsvOpts,
       },
     )
