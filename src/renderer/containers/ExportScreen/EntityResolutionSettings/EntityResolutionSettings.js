@@ -24,19 +24,20 @@ const variants = {
 
 const EntityResolutionSettings = ({
   apiClient,
-  showError,
-  protocolId,
-  resolveRequestId,
-  enableEntityResolution,
-  resolutionId,
-  nodeTypes,
   createNewResolution,
+  egoCastType,
+  enableEntityResolution,
   entityResolutionArguments,
   entityResolutionPath,
-  onUpdateSetting,
-  onSelectResolution,
+  nodeTypes,
   onSelectCreateNewResolution,
+  onSelectResolution,
+  onUpdateSetting,
   openDialog,
+  protocolId,
+  resolutionId,
+  resolveRequestId,
+  showError,
 }) => {
   const [unresolvedCount, setUnresolvedCount] = useState(0);
   const [resolutionHistory, setResolutionHistory] = useState([]);
@@ -59,8 +60,10 @@ const EntityResolutionSettings = ({
           const lastResolution = last(sortedResolutions);
           const lastEntityResolutionPath = get(lastResolution, 'parameters.entityResolutionPath', '');
           const lastEntityResolutionArguments = get(lastResolution, 'parameters.entityResolutionArguments', '');
+          const lastEgoCastType = get(lastResolution, 'parameters.egoCastType', '');
           onUpdateSetting('entityResolutionPath', lastEntityResolutionPath);
           onUpdateSetting('entityResolutionArguments', lastEntityResolutionArguments);
+          onUpdateSetting('egoCastType', lastEgoCastType);
         }
       })
       .catch(err => showError(err.message));
@@ -151,6 +154,7 @@ const EntityResolutionSettings = ({
                   onSelectCreateNewResolution={onSelectCreateNewResolution}
                   isSelected={createNewResolution}
                   onUpdateSetting={onUpdateSetting}
+                  egoCastType={egoCastType}
                   entityResolutionPath={entityResolutionPath}
                   entityResolutionArguments={entityResolutionArguments}
                   newSessionCount={unresolvedCount}
@@ -167,6 +171,7 @@ const EntityResolutionSettings = ({
 EntityResolutionSettings.propTypes = {
   apiClient: PropTypes.object.isRequired,
   createNewResolution: PropTypes.bool,
+  egoCastType: PropTypes.string,
   enableEntityResolution: PropTypes.bool,
   entityResolutionArguments: PropTypes.string,
   entityResolutionPath: PropTypes.string,
@@ -183,6 +188,7 @@ EntityResolutionSettings.propTypes = {
 
 EntityResolutionSettings.defaultProps = {
   createNewResolution: false,
+  egoCastType: undefined,
   enableEntityResolution: false,
   entityResolutionArguments: '',
   entityResolutionPath: '',

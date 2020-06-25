@@ -33,6 +33,7 @@ const initialState = {
   enableEntityResolution: false,
   resolutionId: null,
   createNewResolution: false,
+  egoCastType: undefined,
   entityResolutionArguments: '',
   entityResolutionPath: '',
   // entityResolutionArguments: '--minimumThreshold=0.5',

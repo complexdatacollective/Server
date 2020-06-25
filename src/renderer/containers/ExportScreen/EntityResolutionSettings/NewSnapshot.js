@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
+import { isEmpty } from 'lodash';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import Text from '@codaco/ui/lib/components/Fields/Text';
 
@@ -59,13 +60,11 @@ const NewSnapshot = ({
                   <td>
                     <select
                       className="select-field"
-                      input={{
-                        value: egoCastType,
-                        onChange: e => onUpdateSetting('egoCastType', e.target.value),
-                        disabled: !isSelected,
-                      }}
+                      onChange={e => onUpdateSetting('egoCastType', isEmpty(e.target.value) ? undefined : e.target.value)}
+                      value={egoCastType || ''}
+                      disabled={!isSelected}
                     >
-                      <option>&mdash; Select a node type &mdash;</option>
+                      <option value="">&mdash; Select a node type &mdash;</option>
                       {nodeTypes.map(({ label, value }) => (
                         <option value={value} key={value}>{label}</option>
                       ))}
@@ -122,7 +121,7 @@ NewSnapshot.propTypes = {
 
 NewSnapshot.defaultProps = {
   nodeTypes: [],
-  egoCastType: '',
+  egoCastType: undefined,
   entityResolutionPath: '',
   entityResolutionArguments: '',
   newSessionCount: 0,

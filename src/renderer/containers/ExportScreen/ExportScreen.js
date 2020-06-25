@@ -263,19 +263,19 @@ const ExportScreen = ({
       </div>
       { exportSettings.exportNetworkUnion &&
         <EntityResolutionSettings
-          // key={state.resolutionsKey}
+          createNewResolution={exportSettings.createNewResolution}
+          egoCastType={exportSettings.egoCastType}
+          enableEntityResolution={exportSettings.enableEntityResolution}
+          entityResolutionArguments={exportSettings.entityResolutionArguments}
+          entityResolutionPath={exportSettings.entityResolutionPath}
+          onSelectCreateNewResolution={selectCreateNewResolution}
+          onSelectResolution={selectResolution}
+          onUpdateSetting={updateSetting}
+          protocolId={protocol.id}
+          resolutionId={exportSettings.resolutionId}
           resolveRequestId={resolverState.resolveRequestId}
           show={exportSettings.exportNetworkUnion}
           showError={showError}
-          protocolId={protocol.id}
-          enableEntityResolution={exportSettings.enableEntityResolution}
-          resolutionId={exportSettings.resolutionId}
-          createNewResolution={exportSettings.createNewResolution}
-          entityResolutionArguments={exportSettings.entityResolutionArguments}
-          entityResolutionPath={exportSettings.entityResolutionPath}
-          onUpdateSetting={updateSetting}
-          onSelectResolution={selectResolution}
-          onSelectCreateNewResolution={selectCreateNewResolution}
         />
       }
       <div className="export__footer">
