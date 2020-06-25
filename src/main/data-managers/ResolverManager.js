@@ -1,30 +1,14 @@
 /* eslint-disable no-underscore-dangle */
 
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
-const {
-  insertEgoInNetworks,
-  unionOfNetworks,
-} = require('../utils/formatters/network');
 const { getNetworkResolver } = require('../utils/getNetworkResolver');
 const { transformSessions } = require('../utils/transformSessions');
+const { formatSessionAsNetwork } = require('../utils/formatters/network');
 
 const defaultNetworkOptions = {
   enableEntityResolution: true,
   includeUnresolved: true,
   resolutionId: null,
-};
-
-const formatSessionAsNetwork = (session) => {
-  const id = session && session._id;
-  const caseID = session && session.data && session.data.sessionVariables &&
-    session.data.sessionVariables._caseID;
-
-  return ({
-    ...session.data,
-    _caseID: caseID,
-    _id: id,
-    _date: session.createdAt,
-  });
 };
 
 /**
@@ -43,17 +27,9 @@ class ResolverManager {
 
     const {
       useEgoData,
-      exportNetworkUnion,
-      enableEntityResolution,
       resolutionId,
       includeUnresolved,
     } = { ...defaultNetworkOptions, ...networkOptions };
-
-    if (!enableEntityResolution) {
-      return this.getSessionNetworks(protocolId)
-        .then(networks => (useEgoData ? insertEgoInNetworks(networks) : networks))
-        .then(networks => (exportNetworkUnion ? [unionOfNetworks(networks)] : networks));
-    }
 
     const transformOptions = { useEgoData, resolutionId, includeUnresolved };
 

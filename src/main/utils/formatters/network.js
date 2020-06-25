@@ -125,6 +125,22 @@ const transposedCodebook = (codebook = {}) => ({
   ego: transposedCodebookVariables({}, { ...codebook.ego, name: 'ego' }).ego,
 });
 
+const formatSessionAsNetwork = (session) => {
+  // eslint-disable-next-line no-underscore-dangle
+  const id = session && session._id;
+  const caseID = session && session.data &&
+    session.data.sessionVariables &&
+    // eslint-disable-next-line no-underscore-dangle
+    session.data.sessionVariables._caseID;
+
+  return ({
+    ...session.data,
+    _caseID: caseID,
+    _id: id,
+    _date: session.createdAt,
+  });
+};
+
 module.exports = {
   convertUuidToDecimal,
   filterNetworkEntities,
@@ -140,4 +156,5 @@ module.exports = {
   transposedCodebook,
   transposedCodebookSection,
   unionOfNetworks,
+  formatSessionAsNetwork,
 };

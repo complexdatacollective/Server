@@ -9,14 +9,23 @@ const ProtocolManager = require('./ProtocolManager');
 const { ResolverManager } = require('./ResolverManager');
 const { archive } = require('../utils/archive');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
-const { makeTempDir, removeTempDir } = require('../utils/formatters/dir');
-const { transposedCodebook } = require('../utils/formatters/network');
+const {
+  makeTempDir,
+  removeTempDir,
+} = require('../utils/formatters/dir');
+const {
+  transposedCodebook,
+  insertEgoInNetworks,
+  unionOfNetworks,
+  formatSessionAsNetwork,
+} = require('../utils/formatters/network');
 const {
   formatsAreValid,
   getFileExtension,
   getFormatterClass,
   partitionByEdgeType,
 } = require('../utils/formatters/utils');
+const {protocol} = require('electron');
 
 const escapeFilePart = part => part.replace(/\W/g, '');
 
@@ -93,6 +102,7 @@ class ExportManager {
   constructor(sessionDataDir) {
     // TODO: path is duplicated in ProtocolManager
     const protocolManager = new ProtocolManager(sessionDataDir);
+    this.protocolManager = protocolManager;
     this.resolverManager = new ResolverManager(protocolManager);
   }
 
@@ -171,12 +181,19 @@ class ExportManager {
       // TODO: ensure this works
       // _CaseID may need to change to _meta.CaseID
       // _id _meta.id
-      .then(() =>
-        this.resolverManager.getNetwork(
+      .then(() => {
+        if (!enableEntityResolution) {
+          return this.protocolManager.getProtocolSessions(protocol._id, null, null)
+            .then(sessions => sessions.map(formatSessionAsNetwork))
+            .then(networks => (useEgoData ? insertEgoInNetworks(networks) : networks))
+            .then(networks => (exportNetworkUnion ? [unionOfNetworks(networks)] : networks));
+        }
+
+        return this.resolverManager.getNetwork(
           protocol,
           networkOpts,
-        ),
-      )
+        );
+      })
       .then((networks) => {
         promisedExports = flattenDeep(
           // Export every network
