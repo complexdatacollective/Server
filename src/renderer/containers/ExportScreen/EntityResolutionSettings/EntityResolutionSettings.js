@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 import Checkbox from '@codaco/ui/lib/components/Fields/Checkbox';
 import withApiClient from '%components/withApiClient';
 import { actionCreators as dialogActions } from '%modules/dialogs';
+import { selectors } from '%modules/protocols';
 import Snapshot from './Snapshot';
 import NewSnapshot from './NewSnapshot';
 import './EntityResolution.scss';
@@ -28,6 +29,7 @@ const EntityResolutionSettings = ({
   resolveRequestId,
   enableEntityResolution,
   resolutionId,
+  nodeTypes,
   createNewResolution,
   entityResolutionArguments,
   entityResolutionPath,
@@ -145,6 +147,7 @@ const EntityResolutionSettings = ({
                     ))
                 }
                 <NewSnapshot
+                  nodeTypes={nodeTypes}
                   onSelectCreateNewResolution={onSelectCreateNewResolution}
                   isSelected={createNewResolution}
                   onUpdateSetting={onUpdateSetting}
@@ -163,35 +166,48 @@ const EntityResolutionSettings = ({
 
 EntityResolutionSettings.propTypes = {
   apiClient: PropTypes.object.isRequired,
-  showError: PropTypes.func.isRequired,
-  protocolId: PropTypes.string,
-  resolveRequestId: PropTypes.string,
-  enableEntityResolution: PropTypes.bool,
-  resolutionId: PropTypes.string,
   createNewResolution: PropTypes.bool,
+  enableEntityResolution: PropTypes.bool,
   entityResolutionArguments: PropTypes.string,
   entityResolutionPath: PropTypes.string,
-  onUpdateSetting: PropTypes.func.isRequired,
-  onSelectResolution: PropTypes.func.isRequired,
+  nodeTypes: PropTypes.array.isRequired,
   onSelectCreateNewResolution: PropTypes.func.isRequired,
+  onSelectResolution: PropTypes.func.isRequired,
+  onUpdateSetting: PropTypes.func.isRequired,
   openDialog: PropTypes.func.isRequired,
+  protocolId: PropTypes.string,
+  resolutionId: PropTypes.string,
+  resolveRequestId: PropTypes.string,
+  showError: PropTypes.func.isRequired,
 };
 
 EntityResolutionSettings.defaultProps = {
-  protocolId: null,
-  resolveRequestId: null,
-  resolutionId: null,
-  enableEntityResolution: false,
   createNewResolution: false,
+  enableEntityResolution: false,
   entityResolutionArguments: '',
   entityResolutionPath: '',
+  protocolId: null,
+  resolutionId: null,
+  resolveRequestId: null,
 };
+
+const nodeDefinitionsAsOptions = nodeDefinitions =>
+  Object.keys(nodeDefinitions).map(nodeType => ({
+    label: nodeDefinitions[nodeType].name,
+    value: nodeType,
+  }));
+
+const mapStateToProps = (state, props) => ({
+  nodeTypes: nodeDefinitionsAsOptions(
+    selectors.nodeDefinitions(state, props.protocolId),
+  ),
+});
 
 const mapDispatchToProps = {
   openDialog: dialogActions.openDialog,
 };
 
 export default compose(
-  connect(null, mapDispatchToProps),
+  connect(mapStateToProps, mapDispatchToProps),
   withApiClient,
 )(EntityResolutionSettings);

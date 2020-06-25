@@ -41,7 +41,6 @@
     }
   }
 
-
   .new-snapshot {
     width: 100%;
     border-top: 2px solid rgb(242, 246, 247);
@@ -67,5 +66,28 @@
         }
       }
     }
+  }
+}
+
+.select-field {
+  display: block;
+  border: none;
+  background-color: transparent;
+  font-size: 14px; // TODO
+  width: 100%;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
+  max-width: 100%;
+  min-height: 4rem;
+  font-family: var(--body-font-family);
+  border-radius: 1rem 1rem 0 0;
+  background-color: white;
+  padding: 0.5rem 1rem;
+  border-bottom: 2px solid transparent;
+  transition: border-bottom-color var(--animation-easing) var(--animation-duration-standard);
+
+  &:hover {
+    border-bottom-color: var(--input-accent);
   }
 }

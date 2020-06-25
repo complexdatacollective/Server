@@ -47,6 +47,13 @@ const currentProtocolId = (state, props) => {
   return protocol && protocol.id;
 };
 
+const nodeDefinitions = (state, protocolId) => {
+  const protocol = currentProtocol(state, { protocolId });
+  if (!protocol) { return []; }
+
+  return protocol.codebook.node || {};
+};
+
 // Transpose all types & variable IDs to names
 // Imported data is transposed; this allows utility components from Architect to work as-is.
 const transposedCodebook = (state, props) => {
@@ -158,6 +165,7 @@ const selectors = {
   protocolsHaveLoaded,
   transposedCodebook,
   ordinalAndCategoricalVariables,
+  nodeDefinitions,
 };
 
 export {

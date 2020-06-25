@@ -22,6 +22,8 @@ const NewSnapshot = ({
   newSessionCount,
   onSelectCreateNewResolution,
   onUpdateSetting,
+  egoCastType,
+  nodeTypes,
   entityResolutionPath,
   entityResolutionArguments,
 }) => (
@@ -50,6 +52,26 @@ const NewSnapshot = ({
             <h4>Entity Resolver</h4>
             <table className="new-snapshot__options">
               <tbody>
+                <tr>
+                  <th>
+                    Cast ego as node type
+                  </th>
+                  <td>
+                    <select
+                      className="select-field"
+                      input={{
+                        value: egoCastType,
+                        onChange: e => onUpdateSetting('egoCastType', e.target.value),
+                        disabled: !isSelected,
+                      }}
+                    >
+                      <option>&mdash; Select a node type &mdash;</option>
+                      {nodeTypes.map(({ label, value }) => (
+                        <option value={value} key={value}>{label}</option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
                 <tr>
                   <th>
                     Script path
@@ -92,11 +114,15 @@ NewSnapshot.propTypes = {
   isSelected: PropTypes.bool.isRequired,
   newSessionCount: PropTypes.number,
   onUpdateSetting: PropTypes.func.isRequired,
+  nodeTypes: PropTypes.array,
+  egoCastType: PropTypes.string,
   entityResolutionPath: PropTypes.string,
   entityResolutionArguments: PropTypes.string,
 };
 
 NewSnapshot.defaultProps = {
+  nodeTypes: [],
+  egoCastType: '',
   entityResolutionPath: '',
   entityResolutionArguments: '',
   newSessionCount: 0,
