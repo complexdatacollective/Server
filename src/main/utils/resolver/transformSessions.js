@@ -108,6 +108,7 @@ const transformSessions = (
 
   const priorResolutions = getPriorResolutions(resolutions, resolutionId);
   const sessionsByResolution = getSessionsByResolution(priorResolutions, sessions);
+  const egoCaster = castEgoAsNode(protocol.codebook, egoCastType);
 
   // For each resolution merge sessions and apply resolution
   const resultNetwork = reduce(
@@ -120,11 +121,13 @@ const transformSessions = (
         return transforms.reduce(applyTransform, accNetwork);
       }
 
-      const sessionNetworksWithEgos = sessionNetworks.map(castEgoAsNode(protocol.codebook, egoCastType));
-      // console.log(sessionNetworks);
+      // Convert egos into nodes
+      const sessionNetworksWithEgos = sessionNetworks.map(egoCaster);
 
+      // Combine new sessions with existing super network
       const unifiedNetwork = unionOfNetworks([accNetwork, ...sessionNetworksWithEgos]);
 
+      // Apply the resolutions to the network
       return transforms.reduce(applyTransform, unifiedNetwork);
     },
     { nodes: [], edges: [], ego: [] },

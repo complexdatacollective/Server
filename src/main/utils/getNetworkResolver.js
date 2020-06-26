@@ -93,10 +93,10 @@ const getNetworkResolver = (
 
         const pipeline = miss.pipeline(
           tableToCsv(),
-          debugStream('out'),
+          debugStream('send'),
           resolverProcess,
-          debugStream('in'),
           split(),
+          debugStream('receive'),
           csvToJson(),
           appendNodeNetworkData(network.nodes),
         );

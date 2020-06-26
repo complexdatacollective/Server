@@ -27,7 +27,9 @@ const EntityDiff = ({
 
   const [a, b] = match.nodes;
 
-  const { color, variables } = getNodeTypeDefinition(codebook, a);
+  const nodeDefinition = getNodeTypeDefinition(codebook, a);
+  console.log({ nodeDefinition, codebook, a });
+  const { color, variables } = nodeDefinition;
   const nodePropsA = { label: getLabel(codebook, a), color };
   const nodePropsB = { label: getLabel(codebook, b), color };
   const getVariableResolution = variable => get(resolvedAttributes, variable);
