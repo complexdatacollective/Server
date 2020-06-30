@@ -6,17 +6,22 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Redirect, withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
+import { includes, without } from 'lodash';
 import { Button, Spinner } from '@codaco/ui';
 import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 import { selectors as protocolSelectors } from '../ducks/modules/protocols';
-import { DismissButton, ScrollingPanelItem } from '../components';
+import { CaseTable, DismissButton, ScrollingPanelItem } from '../components';
 import withSessions from './workspace/withSessions';
 import Types from '../types';
-import { formatDate } from '../utils/formatters';
 
 const emptyContent = (<p>Interviews you import from Network Canvas will appear here.</p>);
 
 class CaseManagement extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { sessionsToDelete: [], width: 500 };
+  }
+
   get header() {
     const { sessions, totalSessionsCount } = this.props;
     const countText = (totalSessionsCount && sessions.length < totalSessionsCount) ? `(${sessions.length} of ${totalSessionsCount})` : '';
@@ -30,37 +35,68 @@ class CaseManagement extends Component {
         </h4>
         {
           sessions && sessions.length > 0 &&
-          <DismissButton small inline onClick={() => this.deleteAllSessions()}>
-            Delete all
+          <DismissButton
+            small
+            inline
+            onClick={() => this.deleteSelectedSessions(this.state.sessionsToDelete)}
+          >
+            Delete selected
           </DismissButton>
         }
       </div>
     );
   }
 
-  deleteAllSessions() {
+  isSessionSelected = id => includes(this.state.sessionsToDelete, id);
+
+  allSessionsSelected = () => this.state.sessionsToDelete.length === this.props.sessions.length;
+
+  updateSessionsToDelete = (id) => {
+    if (includes(this.state.sessionsToDelete, id)) {
+      this.setState({ sessionsToDelete: without(this.state.sessionsToDelete, id) });
+    } else {
+      this.setState({
+        sessionsToDelete: [
+          ...this.state.sessionsToDelete,
+          id,
+        ],
+      });
+    }
+  };
+
+  toggleAllSessions = () => {
+    let selectedSessions = [];
+    if (this.state.sessionsToDelete.length !== this.props.sessions.length) {
+      selectedSessions = this.props.sessions.map(session => session.id);
+    }
+    this.setState({
+      sessionsToDelete: [...selectedSessions],
+    });
+  };
+
+  deleteSelectedSessions = (sessionsToDelete) => {
+    if (!sessionsToDelete || sessionsToDelete.length < 1) return;
+
     this.props.openDialog({
       type: 'Warning',
-      title: 'Delete all interview sessions?',
-      confirmLabel: 'Delete all sessions',
-      onConfirm: () => this.props.deleteAllSessions(),
-      message: 'Are you sure you want to delete all interview sessions? This action cannot be undone!',
+      title: 'Delete selected interview sessions?',
+      confirmLabel: 'Delete selected sessions',
+      onConfirm: () => {
+        this.props.deleteSelectedSessions(sessionsToDelete);
+        this.setState({ sessionsToDelete: [] });
+      },
+      message: 'Are you sure you want to delete selected interview sessions? This action cannot be undone!',
     });
   }
 
-  deleteSession(sessionId) {
-    if (!sessionId) {
-      return;
+  refCallback = (element) => {
+    if (element) {
+      this.setState({
+        width: element.getBoundingClientRect().width,
+        height: element.getBoundingClientRect().height,
+      });
     }
-
-    this.props.openDialog({
-      type: 'Confirm',
-      title: 'Delete this interview session?',
-      confirmLabel: 'Delete this session',
-      onConfirm: () => this.props.deleteSession(sessionId),
-      message: 'Are you sure you want to delete this interview session? This action cannot be undone!',
-    });
-  }
+  };
 
   render() {
     const { sessions, protocol, protocolsHaveLoaded, history } = this.props;
@@ -73,27 +109,25 @@ class CaseManagement extends Component {
       return <div className="settings--loading"><Spinner /></div>;
     }
 
-    console.log(sessions);
-
     return (
-      <div>
+      <div ref={this.refCallback}>
         <ScrollingPanelItem header={this.header}>
           { (sessions && sessions.length === 0) && emptyContent }
-          <ul className="session-panel__list">
-            {sessions && sessions.map(s => (
-              <li key={s.id}>
-                <p>
-                  <DismissButton small inline onClick={() => this.deleteSession(s.id)} />
-                  <span>{formatDate(s.updatedAt)}</span>
-                  <span className="session-panel__id">
-                    {s.data && s.data.sessionVariables && s.data.sessionVariables._caseID}
-                    {' - '}
-                    {s.id && s.id.substring(0, 13)}
-                  </span>
-                </p>
-              </li>
-            ))}
-          </ul>
+          <div className="session-panel__list">
+            {sessions &&
+            <CaseTable
+              list={sessions}
+              loadMoreSessions={this.props.loadMoreSessions}
+              hasMoreSessions={this.props.hasMoreSessions}
+              totalSessionsCount={this.props.totalSessionsCount}
+              updateSessionsToDelete={this.updateSessionsToDelete}
+              isSessionSelected={this.isSessionSelected}
+              allSessionsSelected={this.allSessionsSelected}
+              toggleAllSessions={this.toggleAllSessions}
+              width={this.state.width - 50}
+              height={297}
+            />}
+          </div>
         </ScrollingPanelItem>
         <div className="settings__footer">
           <Button color="primary" onClick={() => history.goBack()}>Finished</Button>
@@ -110,8 +144,9 @@ CaseManagement.defaultProps = {
 };
 
 CaseManagement.propTypes = {
-  deleteSession: PropTypes.func.isRequired,
-  deleteAllSessions: PropTypes.func.isRequired,
+  deleteSelectedSessions: PropTypes.func.isRequired,
+  hasMoreSessions: PropTypes.func.isRequired,
+  loadMoreSessions: PropTypes.func.isRequired,
   sessions: PropTypes.array,
   totalSessionsCount: PropTypes.number,
   openDialog: PropTypes.func.isRequired,

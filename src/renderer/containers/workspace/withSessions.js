@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import logger from 'electron-log';
 import { ipcRenderer } from 'electron';
+import { pull } from 'lodash';
 
 import Types from '../../types';
 import AdminApiClient from '../../utils/adminApiClient';
@@ -13,6 +14,7 @@ import viewModelMapper from '../../utils/baseViewModelMapper';
  * Defines the following props on a wrapped component:
  *
  * - deleteAllSessions
+ * - deleteSelectedSessions
  * - deleteSession
  * - sessions
  * - totalSessionsCount
@@ -34,6 +36,7 @@ const withSessions = WrappedComponent =>
           prevProtocolId: props.protocol.id,
           sessions: null,
           totalSessionsCount: null,
+          sessionOffset: 0,
         };
       }
       return null;
@@ -42,9 +45,11 @@ const withSessions = WrappedComponent =>
     constructor(props) {
       super(props);
       this.apiClient = new AdminApiClient();
+      this.loadPromises = [];
       this.state = {
         sessions: [],
         totalSessionsCount: null,
+        sessionOffset: 0,
       };
     }
 
@@ -60,7 +65,7 @@ const withSessions = WrappedComponent =>
     }
 
     componentWillUnmount() {
-      if (this.loadPromise) { this.loadPromise.cancelled = true; }
+      this.loadPromises.map(loadPromise => ({ ...loadPromise, cancelled: true }));
       ipcRenderer.removeListener('SESSIONS_IMPORTED', this.onSessionsImported);
     }
 
@@ -76,29 +81,54 @@ const withSessions = WrappedComponent =>
       return base && `${base}/${sessionId}`;
     }
 
-    loadSessions() {
+    loadSessions = (startIndex = 0, stopIndex = 5) => {
       const { protocol } = this.props;
-      if (!protocol || this.loadPromise) {
+      if (!protocol) {
         return;
       }
-      this.loadPromise = this.apiClient.get(this.sessionsEndpoint)
+      const loadPromise = this.apiClient.get(`${this.sessionsEndpoint}/${startIndex}/${stopIndex}`);
+      this.loadPromises.push(loadPromise);
+      loadPromise
         .then((resp) => {
-          if (!this.loadPromise.cancelled) {
-            const sessions = resp.sessions.map(viewModelMapper);
-            this.setState({ sessions, totalSessionsCount: resp.totalSessions });
+          if (!loadPromise.cancelled) {
+            let sessions = this.state.sessions ? this.state.sessions : [];
+            sessions = [...sessions, ...resp.sessions.map(viewModelMapper)];
+            this.setState({
+              sessions,
+              totalSessionsCount: resp.totalSessions,
+              sessionOffset: sessions.length,
+            // eslint-disable-next-line no-return-assign
+            });
           }
         })
         .catch((err) => {
-          if (!this.loadPromise.cancelled) {
+          if (!loadPromise.cancelled) {
             logger.error(err);
             this.setState({ sessions: [] });
           }
         })
-        .then(() => { this.loadPromise = null; });
+        .then(() => { pull(this.loadPromises, loadPromise); });
+    }
+
+    hasMoreSessions = () => this.state.sessionOffset < this.state.totalSessionsCount;
+
+    loadMoreSessions = (startIndex, stopIndex) => {
+      /* if (this.state.sessionOffset < this.state.totalSessionsCount) {
+        this.loadSessions(this.state.sessionOffset);
+      } */
+      this.loadSessions(startIndex, stopIndex);
     }
 
     deleteAllSessions = () => {
       this.apiClient.delete(this.sessionsEndpoint)
+        .then(() => this.loadSessions());
+    }
+
+    deleteSelectedSessions = (selectedSessions) => {
+      if (!selectedSessions) return;
+      const deletePromises = selectedSessions.map(
+        session => this.apiClient.delete(this.sessionEndpoint(session)));
+      Promise.all(deletePromises)
         .then(() => this.loadSessions());
     }
 
@@ -115,7 +145,10 @@ const withSessions = WrappedComponent =>
           sessions={sessions}
           totalSessionsCount={totalSessionsCount}
           deleteAllSessions={this.deleteAllSessions}
+          deleteSelectedSessions={this.deleteSelectedSessions}
           deleteSession={this.deleteSession}
+          hasMoreSessions={this.hasMoreSessions}
+          loadMoreSessions={this.loadMoreSessions}
         />
       );
     }
@@ -123,9 +156,12 @@ const withSessions = WrappedComponent =>
 
 const providedPropTypes = {
   deleteAllSessions: PropTypes.function,
+  deleteSelectedSessions: PropTypes.function,
   deleteSession: PropTypes.function,
   sessions: PropTypes.array,
   totalSessionsCount: PropTypes.number,
+  hasMoreSessions: PropTypes.function,
+  loadMoreSessions: PropTypes.function,
 };
 
 export default withSessions;

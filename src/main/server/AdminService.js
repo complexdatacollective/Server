@@ -2,6 +2,7 @@ const restify = require('restify');
 const logger = require('electron-log');
 const corsMiddleware = require('restify-cors-middleware');
 const detectPort = require('detect-port');
+const { toNumber } = require('lodash');
 
 const apiRequestLogger = require('./apiRequestLogger');
 const DeviceManager = require('../data-managers/DeviceManager');
@@ -218,15 +219,14 @@ class AdminService {
         .then(() => next());
     });
 
-    api.get('/protocols/:id/sessions', (req, res, next) => {
-      // For now, hardcode response limit & offset
-      // TODO: paginated API if needed
-      const limit = 100;
+    api.get('/protocols/:id/sessions/:startIndex/:stopIndex', (req, res, next) => {
+      const stopIndex = toNumber(req.params.stopIndex) || 100;
+      const startIndex = toNumber(req.params.startIndex) || 0;
       this.protocolManager.getProtocolSessions(req.params.id)
         .then(sessions => res.send({
           status: 'ok',
           totalSessions: sessions.length,
-          sessions: sessions.slice(0, limit),
+          sessions: sessions.slice(startIndex, stopIndex),
         }))
         .catch((err) => {
           logger.error(err);
