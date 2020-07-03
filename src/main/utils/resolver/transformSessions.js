@@ -110,17 +110,21 @@ const transformSessions = (
   const sessionsByResolution = getSessionsByResolution(priorResolutions, sessions);
   const egoCaster = castEgoAsNode(protocol.codebook, egoCastType);
 
-  // For each resolution merge sessions and apply resolution
+  // For each resolution, cumulatively merge any new sessions and apply resolution
   const resultNetwork = reduce(
     priorResolutions,
     (accNetwork, { transforms, _id }) => {
       const sessionNetworks = sessionsByResolution[_id]; // array of networks
 
+      // if no sessions tied to this specific resolution, we apply the transform
+      // to the cumulative network so-far
       if (!sessionNetworks) {
-        // if no new sessions, operate on existing
-        // TODO: what does this mean?
+        // 1. Apply the resolutions to the network as-is
         return transforms.reduce(applyTransform, accNetwork);
       }
+
+      // otherwise, we need to merge those new sessions first,
+      // before then applying the transform
 
       // Convert egos into nodes
       const sessionNetworksWithEgos = sessionNetworks.map(egoCaster);
@@ -128,7 +132,7 @@ const transformSessions = (
       // Combine new sessions with existing super network
       const unifiedNetwork = unionOfNetworks([accNetwork, ...sessionNetworksWithEgos]);
 
-      // Apply the resolutions to the network
+      // 2. (or) apply the resolutions to the network with new sessions
       return transforms.reduce(applyTransform, unifiedNetwork);
     },
     { nodes: [], edges: [], ego: [] },
