@@ -11,6 +11,7 @@ const ExportManager = require('../data-managers/ExportManager');
 const { resetPemKeyPair } = require('./certificateManager');
 const { PairingRequestService } = require('./devices/PairingRequestService');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
+const { mostRecentlyCreated, leastRecentlyCreated, mostRecentlyUpdated, leastRecentlyUpdated, caseIdAscending, caseIdDescending, sessionIdAscending, sessionIdDescending } = require('../utils/db');
 
 const DefaultPort = 8080;
 
@@ -29,6 +30,20 @@ const codeForError = (err) => {
   }
   return 500;
 };
+
+const getSort = (sortType, direction) => {
+  switch (sortType) {
+    case 'caseId':
+      return direction === -1 ? caseIdDescending : caseIdAscending;
+    case 'sessionId':
+      return direction === -1 ? sessionIdDescending : sessionIdAscending;
+    case 'updatedAt':
+      return direction === -1 ? mostRecentlyUpdated : leastRecentlyUpdated;
+    case 'createdAt':
+    default:
+      return direction === -1 ? mostRecentlyCreated : leastRecentlyCreated;
+  }
+}
 
 /**
  * Provides a RESTful API for electron renderer clients on the same machine.
@@ -219,10 +234,14 @@ class AdminService {
         .then(() => next());
     });
 
-    api.get('/protocols/:id/sessions/:startIndex/:stopIndex', (req, res, next) => {
+    api.get('/protocols/:id/sessions/:startIndex/:stopIndex/:sortType/:direction/:filter', (req, res, next) => {
       const stopIndex = toNumber(req.params.stopIndex) || 100;
       const startIndex = toNumber(req.params.startIndex) || 0;
-      this.protocolManager.getProtocolSessions(req.params.id)
+      const sortType = req.params.sortType || 'createdAt';
+      const direction = toNumber(req.params.direction) || -1;
+      const sort = getSort(sortType, direction);
+      const filterValue = req.params.filter || '';
+      this.protocolManager.getProtocolSessions(req.params.id, undefined, sort, filterValue)
         .then(sessions => res.send({
           status: 'ok',
           totalSessions: sessions.length,

@@ -8,9 +8,10 @@ import { Redirect, withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
 import { includes, without } from 'lodash';
 import { Button, Spinner } from '@codaco/ui';
+import { Text } from '@codaco/ui/lib/components/Fields';
 import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 import { selectors as protocolSelectors } from '../ducks/modules/protocols';
-import { CaseTable, DismissButton, ScrollingPanelItem } from '../components';
+import { CaseTable, DismissButton } from '../components';
 import withSessions from './workspace/withSessions';
 import Types from '../types';
 
@@ -19,20 +20,43 @@ const emptyContent = (<p>Interviews you import from Network Canvas will appear h
 class CaseManagement extends Component {
   constructor(props) {
     super(props);
-    this.state = { sessionsToDelete: [], width: 500 };
+    this.state = { sessionsToDelete: [], width: 500, filterValue: '' };
   }
+
+  onFilterChange = (event) => {
+    this.setState({
+      filterValue: event.target.value,
+    });
+  }
+
+  onSubmitFilter = () => (
+    this.props.loadMoreSessions(
+      0,
+      25,
+      'createdAt',
+      -1,
+      this.state.filterValue,
+    )); // TODO use the same sort values as CaseTable
 
   get header() {
     const { sessions, totalSessionsCount } = this.props;
-    const countText = (totalSessionsCount && sessions.length < totalSessionsCount) ? `(${sessions.length} of ${totalSessionsCount})` : '';
     return (
       <div className="dashboard__header session-panel__header">
         <h4 className="dashboard__header-text">
-          Imported Interviews
-          <small className="session-panel__header-count">
-            {countText}
-          </small>
+          {`${totalSessionsCount} Imported Interviews`}
         </h4>
+        <div style={{ display: 'flex' }}>
+          <Text
+            type="text"
+            placeholder="Filter Items..."
+            className="list-select__filter"
+            input={{
+              value: this.state.filterValue,
+              onChange: this.onFilterChange,
+            }}
+          />
+          <Button color="platinum" style={{ height: '1rem' }} onClick={this.onSubmitFilter}>Filter</Button>
+        </div>
         {
           sessions && sessions.length > 0 &&
           <DismissButton
@@ -110,25 +134,26 @@ class CaseManagement extends Component {
     }
 
     return (
-      <div ref={this.refCallback}>
-        <ScrollingPanelItem header={this.header}>
-          { (sessions && sessions.length === 0) && emptyContent }
-          <div className="session-panel__list">
-            {sessions &&
-            <CaseTable
-              list={sessions}
-              loadMoreSessions={this.props.loadMoreSessions}
-              hasMoreSessions={this.props.hasMoreSessions}
-              totalSessionsCount={this.props.totalSessionsCount}
-              updateSessionsToDelete={this.updateSessionsToDelete}
-              isSessionSelected={this.isSessionSelected}
-              allSessionsSelected={this.allSessionsSelected}
-              toggleAllSessions={this.toggleAllSessions}
-              width={this.state.width - 50}
-              height={297}
-            />}
-          </div>
-        </ScrollingPanelItem>
+      <div ref={this.refCallback} style={{ height: '100%', overflow: 'hidden', paddingBottom: '80px' }}>
+        <div className="dashboard__header" style={{ height: '80px' }}>{this.header}</div>
+        { (sessions && sessions.length === 0) && emptyContent }
+        <div className="session-panel__list">
+          {sessions &&
+          <CaseTable
+            list={sessions}
+            loadMoreSessions={this.props.loadMoreSessions}
+            hasMoreSessions={this.props.hasMoreSessions}
+            reloadSessions={this.props.reloadSessions}
+            filterValue={this.state.filterValue}
+            totalSessionsCount={this.props.totalSessionsCount}
+            updateSessionsToDelete={this.updateSessionsToDelete}
+            isSessionSelected={this.isSessionSelected}
+            allSessionsSelected={this.allSessionsSelected}
+            toggleAllSessions={this.toggleAllSessions}
+            width={this.state.width}
+            height={this.state.height - 160}
+          />}
+        </div>
         <div className="settings__footer">
           <Button color="primary" onClick={() => history.goBack()}>Finished</Button>
         </div>
@@ -147,6 +172,7 @@ CaseManagement.propTypes = {
   deleteSelectedSessions: PropTypes.func.isRequired,
   hasMoreSessions: PropTypes.func.isRequired,
   loadMoreSessions: PropTypes.func.isRequired,
+  reloadSessions: PropTypes.func.isRequired,
   sessions: PropTypes.array,
   totalSessionsCount: PropTypes.number,
   openDialog: PropTypes.func.isRequired,

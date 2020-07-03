@@ -2,7 +2,7 @@
 const DatabaseAdapter = require('./DatabaseAdapter');
 const Reportable = require('./Reportable');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
-const { mostRecent, resolveOrReject } = require('../utils/db');
+const { mostRecentlyCreated, resolveOrReject } = require('../utils/db');
 
 // The ID & data properties documented for the API request
 const sessionUidField = 'uuid';
@@ -57,10 +57,11 @@ class SessionDB extends Reportable(DatabaseAdapter) {
    * Find all sessions for a protocol.
    * The default projection returns only limited data to speed up query.
    */
-  findAll(protocolId, limit = null, projection = { updatedAt: 1, 'data.sessionVariables': 1 }) {
+  findAll(protocolId, limit = null, projection = { updatedAt: 1, createdAt: 1, 'data.sessionVariables': 1 }, sort = mostRecentlyCreated, filterValue = '') {
     return new Promise((resolve, reject) => {
-      let cursor = this.db.find({ protocolId }, projection || undefined);
-      cursor = cursor.sort(mostRecent);
+      const exp = new RegExp(filterValue);
+      let cursor = this.db.find({ protocolId, $or: [{ 'data.sessionVariables._caseID': exp }, { _id: exp }] }, projection || undefined);
+      cursor = cursor.sort(sort);
       if (limit) { cursor = cursor.limit(limit); }
       cursor.exec((err, docs) => {
         if (err) {

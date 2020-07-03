@@ -6,14 +6,19 @@ import Checkbox from '@codaco/ui/lib/components/Fields/Checkbox';
 import { formatDate } from '../utils/formatters';
 
 class CaseTable extends Component {
-  state = {
-    widths: {
-      updatedAt: 0.23,
-      caseId: 0.33,
-      sessionId: 0.33,
-    },
-    sessionsToDelete: [],
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      widths: {
+        createdAt: 0.15,
+        updatedAt: 0.15,
+        caseId: 0.25,
+        sessionId: 0.25,
+      },
+      sortType: 'createdAt',
+      sortDirection: '-1',
+    };
+  }
 
   checkboxRenderer = ({ rowIndex }) => {
     const selectedSessionId = this.props.list[rowIndex] && this.props.list[rowIndex].id;
@@ -42,16 +47,23 @@ class CaseTable extends Component {
     />
   );
 
-  headerRenderer = ({ dataKey, label }) => (
+  directionSymbol = (dataKey) => {
+    if (dataKey === this.state.sortType) {
+      return this.state.sortDirection === 1 ? ' \u25BC' : ' \u25B2';
+    }
+    return '';
+  };
+
+  headerRenderer = ({ dataKey, label }, adjustable = true) => (
     <React.Fragment key={dataKey}>
-      <div className="ReactVirtualized__Table__headerTruncatedText">
-        {label}
+      <div className="ReactVirtualized__Table__headerTruncatedText" onClick={() => this.sortSessions(dataKey)} role="button" tabIndex={0}>
+        {`${label} ${this.directionSymbol(dataKey)}`}
       </div>
-      <Draggable
+      {adjustable && <Draggable
         axis="x"
         defaultClassName="DragHandle"
         defaultClassNameDragging="DragHandleActive"
-        onDrag={(event, { deltaX }) =>
+        onDrag={(_, { deltaX }) =>
           this.resizeRow({
             dataKey,
             deltaX,
@@ -61,7 +73,7 @@ class CaseTable extends Component {
         zIndex={999}
       >
         <span className="DragHandleIcon">⋮</span>
-      </Draggable>
+      </Draggable>}
     </React.Fragment>
   );
 
@@ -73,6 +85,9 @@ class CaseTable extends Component {
       let nextDataKey;
       switch (dataKey) {
         case 'checkbox':
+          nextDataKey = 'createdAt';
+          break;
+        case 'createdAt':
           nextDataKey = 'updatedAt';
           break;
         case 'updatedAt':
@@ -94,22 +109,20 @@ class CaseTable extends Component {
       };
     });
 
-  resetSelection = (event) => {
-    if (event.target instanceof HTMLInputElement) {
-      this.setState({
-        sessionsToDelete: [],
-      });
-    }
-  };
+  sortSessions = (sortType) => {
+    const sortDirection = this.state.sortType === sortType ? (0 - this.state.sortDirection) : 1;
+    this.setState({
+      sortType,
+      sortDirection,
+    }, () => this.props.reloadSessions(sortType, sortDirection, this.props.filterValue));
+  }
 
   loadMore = ({ startIndex, stopIndex }) => {
-    console.log('loadMore');
-    console.log(startIndex);
-    console.log(stopIndex);
-    const end = stopIndex === startIndex ? this.props.totalSessionsCount : stopIndex;
-    if (this.props.hasMoreSessions()) {
-      console.log('has more'); // TODO just request more??
-      this.props.loadMoreSessions(startIndex, end);
+    console.log(`loadMore request: ${startIndex} ${stopIndex + 1}`);
+    const { loadMoreSessions, hasMoreSessions } = this.props;
+    if (hasMoreSessions()) {
+      console.log('has more, let us do this thing'); // TODO just request more??
+      loadMoreSessions(startIndex, stopIndex + 1, this.state.sortType, this.state.sortDirection);
       return Promise.resolve();
     }
     return Promise.reject();
@@ -136,6 +149,7 @@ class CaseTable extends Component {
             rowCount={this.props.totalSessionsCount}
             rowGetter={({ index }) => ({
               checkbox: list[index] && list[index].id,
+              createdAt: formatDate(list[index] && list[index].createdAt),
               updatedAt: formatDate(list[index] && list[index].updatedAt),
               caseId: list[index] && list[index].data &&
                 list[index].data.sessionVariables &&
@@ -143,12 +157,25 @@ class CaseTable extends Component {
                 list[index].data.sessionVariables._caseID,
               sessionId: list[index] && list[index].id,
             })}
+            rowClassName={({ index }) => {
+              if (index !== -1 && index % 2 === 0) {
+                return 'even';
+              }
+              return 'odd';
+            }}
           >
             <Column
               headerRenderer={this.checkboxHeaderRenderer}
               dataKey="checkbox"
               label="Selected"
+              width={60}
               cellRenderer={({ rowIndex }) => this.checkboxRenderer({ rowIndex })}
+            />
+            <Column
+              headerRenderer={this.headerRenderer}
+              dataKey="createdAt"
+              label="Created At"
+              width={widths.createdAt * width}
             />
             <Column
               headerRenderer={this.headerRenderer}
@@ -163,6 +190,7 @@ class CaseTable extends Component {
               width={widths.caseId * width}
             />
             <Column
+              headerRenderer={options => this.headerRenderer(options, false)}
               dataKey="sessionId"
               label="Session ID"
               width={widths.sessionId * width}
@@ -179,6 +207,7 @@ CaseTable.defaultProps = {
   totalSessionsCount: 0,
   width: 500,
   height: 500,
+  filterValue: '',
 };
 
 CaseTable.propTypes = {
@@ -186,6 +215,8 @@ CaseTable.propTypes = {
   totalSessionsCount: PropTypes.number,
   hasMoreSessions: PropTypes.func.isRequired,
   loadMoreSessions: PropTypes.func.isRequired,
+  reloadSessions: PropTypes.func.isRequired,
+  filterValue: PropTypes.string,
   isSessionSelected: PropTypes.func.isRequired,
   allSessionsSelected: PropTypes.func.isRequired,
   updateSessionsToDelete: PropTypes.func.isRequired,

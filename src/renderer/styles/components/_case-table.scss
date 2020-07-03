@@ -1,3 +1,7 @@
+.ReactVirtualized__Grid.ReactVirtualized__Table__Grid:focus {
+  outline: none;
+}
+
 .ReactVirtualized__Table {
   display: inline-block;
   border: 2px solid rgba(0, 0, 0, 0.1);
@@ -20,6 +24,10 @@
 
 .ReactVirtualized__Table__row {
   display: flex;
+
+  &.even {
+    background-color: var(--input-background);
+  }
 }
 
 .DragHandle {
@@ -44,4 +52,9 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.dashboard__header .dismiss-button {
+  height: 1rem;
+  margin-top: 1rem;
 }
