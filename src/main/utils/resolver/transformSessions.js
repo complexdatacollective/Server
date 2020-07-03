@@ -118,6 +118,7 @@ const transformSessions = (
 
       if (!sessionNetworks) {
         // if no new sessions, operate on existing
+        // TODO: what does this mean?
         return transforms.reduce(applyTransform, accNetwork);
       }
 
@@ -134,7 +135,9 @@ const transformSessions = (
   );
 
   if (includeUnresolved && sessionsByResolution._unresolved) {
-    return unionOfNetworks([resultNetwork, ...sessionsByResolution._unresolved]);
+    const unresolvedWithEgos = sessionsByResolution._unresolved.map(egoCaster);
+
+    return unionOfNetworks([resultNetwork, ...unresolvedWithEgos]);
   }
 
   return resultNetwork;

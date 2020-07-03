@@ -96,8 +96,8 @@ const getNetworkResolver = (
           debugStream('send'),
           resolverProcess,
           split(),
-          debugStream('receive'),
           csvToJson(),
+          debugStream('receive'),
           appendNodeNetworkData(network.nodes),
         );
 

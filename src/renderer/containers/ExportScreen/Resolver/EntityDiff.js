@@ -28,12 +28,11 @@ const EntityDiff = ({
   const [a, b] = match.nodes;
 
   const nodeDefinition = getNodeTypeDefinition(codebook, a);
-  console.log({ nodeDefinition, codebook, a });
   const { color, variables } = nodeDefinition;
   const nodePropsA = { label: getLabel(codebook, a), color };
   const nodePropsB = { label: getLabel(codebook, b), color };
   const getVariableResolution = variable => get(resolvedAttributes, variable);
-  const getVariableName = variable => variables[variable].name;
+  const getVariableName = variable => get(variables, [variable, 'name']);
 
   const rows = Object.keys(a.attributes)
     .map(variable => ({
