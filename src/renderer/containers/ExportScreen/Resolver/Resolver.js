@@ -91,10 +91,10 @@ const Resolver = ({
   };
 
   const contentClasses = cx(
-    'resolver__content',
+    'resolver__main',
     {
-      'resolver__content--loading': status === states.LOADING,
-      'resolver__content--no-results': status === states.NO_RESULTS,
+      'resolver__main--loading': status === states.LOADING,
+      'resolver__main--no-results': status === states.NO_RESULTS,
     },
   );
 
@@ -105,33 +105,35 @@ const Resolver = ({
           {renderHeading()}
         </div>
         <div key={status} className={contentClasses}>
-          {resolveRequestId}
-          { status === states.LOADING &&
-            <Loading key="loading" />
-          }
-          { status === states.NO_RESULTS &&
-            <NoResults key="empty" onClose={handleClose} />
-          }
-          { status === states.RESOLVING &&
-            <EntityDiff
-              key="diff"
-              codebook={protocol.codebook}
-              match={match}
-              requiredAttributes={requiredAttributes}
-              resolvedAttributes={resolvedAttributes}
-              setAttributes={setAttributes}
-              setNotAMatch={setNotAMatch}
-              isAMatch={isAMatch}
-            />
-          }
-          { status === states.REVIEW &&
-            <ReviewTable
-              key="review"
-              codebook={protocol.codebook}
-              matches={matches}
-              actions={actions}
-            />
-          }
+          <div className="resolver__content">
+            {resolveRequestId}
+            { status === states.LOADING &&
+              <Loading key="loading" />
+            }
+            { status === states.NO_RESULTS &&
+              <NoResults key="empty" onClose={handleClose} />
+            }
+            { status === states.RESOLVING &&
+              <EntityDiff
+                key="diff"
+                codebook={protocol.codebook}
+                match={match}
+                requiredAttributes={requiredAttributes}
+                resolvedAttributes={resolvedAttributes}
+                setAttributes={setAttributes}
+                setNotAMatch={setNotAMatch}
+                isAMatch={isAMatch}
+              />
+            }
+            { status === states.REVIEW &&
+              <ReviewTable
+                key="review"
+                codebook={protocol.codebook}
+                matches={matches}
+                actions={actions}
+              />
+            }
+          </div>
         </div>
         <div key="loading-controls" className="resolver__control-bar">
           <div className="resolver__controls resolver__controls--left">

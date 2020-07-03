@@ -1,9 +1,12 @@
 .resolver {
   width: 90vw;
+  max-height: 95vh;
   background-color: var(--color-cyber-grape);
   color: var(--inverse-text-color);
   border-radius: 2rem;
   position: relative;
+  display: flex;
+  flex-direction: column;
 
   &__heading {
     background-color: var(--color-navy-taupe);
@@ -18,16 +21,20 @@
     }
   }
 
+
   &__content {
-    scroll-behavior: smooth;
     margin: 0 0 1rem;
-    max-height: 90vh;
-    overflow-y: scroll;
     padding: 1rem 2rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+  }
+
+  &__main {
+    scroll-behavior: smooth;
+    max-height: 95vh;
+    overflow-y: scroll;
 
     &::-webkit-scrollbar {
       display: none;
