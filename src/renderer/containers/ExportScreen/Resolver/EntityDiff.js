@@ -166,7 +166,7 @@ const EntityDiff = ({
           { !showHidden &&
             <tr>
               <th />
-              <td colSpan="3" className="hiddenRows">
+              <td colSpan="3" className="hidden-rows">
 
                 <Button onClick={handleToggleHidden} size="small" color="platinum">
                   {rows.filter(({ required }) => !required).length} matching rows...

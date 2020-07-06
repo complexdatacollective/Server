@@ -6,7 +6,7 @@
   width: 100%;
   text-align: left;
 
-  &::-webkit-scrollbar {
+  &::-webkit-scrollbar { // sass-lint:disable-line no-vendor-prefixes
     display: none;
   }
 
@@ -103,7 +103,7 @@
           background-color: var(--color-platinum);
         }
 
-        &.hiddenRows {
+        &.hidden-rows {
           background-color: var(--base-background-color);
           width: 100%;
           text-align: center;
