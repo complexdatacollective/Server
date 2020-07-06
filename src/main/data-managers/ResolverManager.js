@@ -4,7 +4,7 @@ const { last, get } = require('lodash');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
 const { getNetworkResolver } = require('../utils/getNetworkResolver');
 const { transformSessions } = require('../utils/resolver/transformSessions');
-const { formatSessionAsNetwork } = require('../utils/formatters/network');
+const { formatSessionAsNetwork, insertEgoInNetworks } = require('../utils/formatters/network');
 
 const defaultNetworkOptions = {
   enableEntityResolution: true,
@@ -50,7 +50,8 @@ class ResolverManager {
 
   getSessionNetworks(protocolId) {
     return this.protocolManager.getProtocolSessions(protocolId, null, null)
-      .then(sessions => sessions.map(formatSessionAsNetwork));
+      .then(sessions => sessions.map(formatSessionAsNetwork))
+      .then(networks => insertEgoInNetworks(networks));
   }
 
   resolveProtocol(

@@ -137,7 +137,6 @@ class ExportManager {
       enableEntityResolution,
       egoCastType,
       resolutionId,
-      ...rest
     } = {},
   ) {
     if (!protocol) {

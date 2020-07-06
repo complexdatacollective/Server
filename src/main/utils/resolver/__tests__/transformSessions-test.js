@@ -7,11 +7,11 @@ const {
   isEqual,
   map,
 } = require('lodash');
-const { Factory } = require('../../../__factories__/Factory');
+const { Factory } = require('../../../../__factories__/Factory');
 const {
   nodePrimaryKeyProperty,
   nodeAttributesProperty,
-} = require('../../utils/formatters/network');
+} = require('../../formatters/network');
 const {
   getPriorResolutions,
   getSessionsByResolution,

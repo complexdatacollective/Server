@@ -115,7 +115,6 @@ const useResolver = (showError) => {
         newResolverStream.on('data', (d) => {
           const data = JSON.parse(d.toString());
 
-          console.log('stream', { data });
           addMatch(data);
         });
 

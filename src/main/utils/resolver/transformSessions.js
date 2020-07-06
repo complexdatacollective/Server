@@ -127,15 +127,17 @@ const transformSessions = (
       // before then applying the transform
 
       // Convert egos into nodes
-      const sessionNetworksWithEgos = sessionNetworks.map(egoCaster);
+      // const sessionNetworksWithEgos = sessionNetworks.map(egoCaster);
+      const sessionNetworksWithEgos = sessionNetworks;
 
       // Combine new sessions with existing super network
-      const unifiedNetwork = unionOfNetworks([accNetwork, ...sessionNetworksWithEgos]);
+      // (unifiedNetwork)
+      const { nodes, edges } = unionOfNetworks([accNetwork, ...sessionNetworksWithEgos]);
 
       // 2. (or) apply the resolutions to the network with new sessions
-      return transforms.reduce(applyTransform, unifiedNetwork);
+      return transforms.reduce(applyTransform, { nodes, edges });
     },
-    { nodes: [], edges: [], ego: [] },
+    { nodes: [], edges: [] },
   );
 
   if (includeUnresolved && sessionsByResolution._unresolved) {
