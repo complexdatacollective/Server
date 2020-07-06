@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 
+const { last, get } = require('lodash');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
 const { getNetworkResolver } = require('../utils/getNetworkResolver');
 const { transformSessions } = require('../utils/resolver/transformSessions');
@@ -25,21 +26,24 @@ class ResolverManager {
   ) {
     const protocolId = protocol._id;
 
-    const {
-      resolutionId,
-      includeUnresolved,
-      egoCastType,
-    } = { ...defaultNetworkOptions, ...networkOptions };
-
-    const transformOptions = { resolutionId, includeUnresolved, egoCastType };
+    const optionsWithDefaults = { ...defaultNetworkOptions, ...networkOptions };
 
     return Promise.all([
       this.getSessionNetworks(protocolId),
       this.protocolManager.getResolutions(protocolId),
     ])
       .then(
-        ([sessions, resolutions]) =>
-          transformSessions(protocol, sessions, resolutions, transformOptions),
+        ([sessions, resolutions]) => {
+          const lastResolution = last(resolutions);
+
+          const transformOptions = {
+            resolutionId: optionsWithDefaults.resolutionId,
+            includeUnresolved: optionsWithDefaults.includeUnresolved,
+            egoCastType: get(lastResolution, ['parameters', 'egoCastType'], optionsWithDefaults.egoCastType),
+          };
+
+          return transformSessions(protocol, sessions, resolutions, transformOptions);
+        },
       )
       .then(network => ([network]));
   }

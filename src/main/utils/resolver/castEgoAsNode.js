@@ -18,13 +18,12 @@ const castEgoAsNode = (codebook, nodeType) =>
     const egoVariables = toPairs(codebook.ego.variables);
 
     const castEgoAttributes = egoVariables.reduce((acc, [egoVariableId, egoVariableDefinition]) => {
-      const [nodeVariableId] = nodeVariables.find(
-        ([, nodeVariableDefinition]) =>
+      const [castVariableId] = nodeVariables.find(
+        ([, nodeVariableDefinition]) => (
           nodeVariableDefinition.name === egoVariableDefinition.name &&
-          nodeVariableDefinition.type === egoVariableDefinition.type,
-      ) || [];
-
-      const castVariableId = nodeVariableId || egoVariableId;
+            nodeVariableDefinition.type === egoVariableDefinition.type
+        ),
+      ) || [egoVariableId];
 
       return {
         ...acc,
@@ -42,10 +41,6 @@ const castEgoAsNode = (codebook, nodeType) =>
       nodes: [...network.nodes, egoAsNode],
       edges: network.edges,
     };
-
-    console.log('nodeType', nodeType);
-
-    console.log('network', JSON.stringify({ nodeType, newNetwork }, null, 2));
 
     return newNetwork;
   };
