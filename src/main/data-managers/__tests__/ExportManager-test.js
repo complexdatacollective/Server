@@ -86,8 +86,8 @@ describe('ExportManager', () => {
     beforeEach(() => {
       manager = new ExportManager('.');
       protocol.codebook = {};
-      manager.resolverManager.getNetwork = jest.fn()
-        .mockResolvedValue([{ data: { nodes: [], edges: [] } }]);
+      manager.protocolManager.getProtocolSessions =
+        jest.fn().mockResolvedValue([{ data: { nodes: [], edges: [] } }]);
     });
 
     it('returns a promise', async () => {

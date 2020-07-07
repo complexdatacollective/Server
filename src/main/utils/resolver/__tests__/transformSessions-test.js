@@ -208,12 +208,14 @@ describe('transformSessions', () => {
       ),
     ];
 
+    const protocol = {};
+
     const options = {
       fromResolution: resolutions[0]._id,
       useEgoData: true,
     };
 
-    const transformedNetwork = transformSessions(sessions, resolutions, options);
+    const transformedNetwork = transformSessions(protocol, sessions, resolutions, options);
 
     // Nodes exist in network prior to resolution
     expect(sessions[0]).networkIncludesNodes(resolutions[0].transforms[0].nodes);
@@ -240,14 +242,31 @@ describe('transformSessions', () => {
       ),
     ];
 
+    const protocol = {
+      codebook: {
+        node: {
+          bar: {
+            variables: {},
+          },
+        },
+        ego: {
+          variables: {},
+        },
+      },
+    };
+
     const options = {
       fromResolution: resolutions[0]._id,
+      egoCastType: 'bar',
       useEgoData: true,
     };
 
-    const transformedNetwork = transformSessions(sessions, resolutions, options);
+    const transformedNetwork = transformSessions(protocol, sessions, resolutions, options);
 
-    expect(transformedNetwork.nodes).toEqual(sessions[0].nodes);
+    expect(transformedNetwork.nodes).toEqual([
+      ...sessions[0].nodes,
+      { ...sessions[0].ego, type: 'bar' }, // Ego is still appended
+    ]);
   });
 
   // blends sessions
@@ -255,6 +274,8 @@ describe('transformSessions', () => {
     const sessions = Factory.session.buildList(1, null, { size: 5 });
 
     const resolutions = [];
+
+    const protocol = {};
 
     resolutions.push(
       Factory.resolution.build({
@@ -288,7 +309,7 @@ describe('transformSessions', () => {
       useEgoData: true,
     };
 
-    const transformedNetwork = transformSessions(sessions, resolutions, options);
+    const transformedNetwork = transformSessions(protocol, sessions, resolutions, options);
 
     // Transformed network does not contain transformed nodes
     expect(transformedNetwork).networkExcludesNodes(resolutions[0].transforms[0].nodes);
