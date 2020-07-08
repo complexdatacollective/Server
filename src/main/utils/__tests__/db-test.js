@@ -1,11 +1,11 @@
 /* eslint-env jest */
 
-import { mostRecent, resolveOrReject } from '../db';
+import { mostRecentlyCreated, resolveOrReject } from '../db';
 
 describe('db helpers', () => {
-  describe('mostRecent', () => {
+  describe('mostRecentlyCreated', () => {
     it('sorts on createdAt', () => {
-      expect(mostRecent.createdAt).toBe(-1);
+      expect(mostRecentlyCreated.createdAt).toBe(-1);
     });
   });
 

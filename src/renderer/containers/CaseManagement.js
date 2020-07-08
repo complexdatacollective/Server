@@ -20,42 +20,24 @@ const emptyContent = (<p>Interviews you import from Network Canvas will appear h
 class CaseManagement extends Component {
   constructor(props) {
     super(props);
-    this.state = { sessionsToDelete: [], width: 500, filterValue: '' };
+    this.state = { sessionsToDelete: [], width: 500, height: 300 };
   }
-
-  onFilterChange = (event) => {
-    this.setState({
-      filterValue: event.target.value,
-    });
-  }
-
-  onSubmitFilter = () => (
-    this.props.loadMoreSessions(
-      0,
-      25,
-      'createdAt',
-      -1,
-      this.state.filterValue,
-    )); // TODO use the same sort values as CaseTable
 
   get header() {
-    const { sessions, totalSessionsCount } = this.props;
+    const { sessions, filterValue, changeFilter } = this.props;
     return (
-      <div className="dashboard__header session-panel__header">
-        <h4 className="dashboard__header-text">
-          {`${totalSessionsCount} Imported Interviews`}
-        </h4>
-        <div style={{ display: 'flex' }}>
+      <div className="case-management__header-text">
+        <div className="case-management__filter">
+          <h4>Filter:&nbsp;</h4>
           <Text
             type="text"
             placeholder="Filter Items..."
-            className="list-select__filter"
+            className="case-management__filter-text"
             input={{
-              value: this.state.filterValue,
-              onChange: this.onFilterChange,
+              value: filterValue,
+              onChange: changeFilter,
             }}
           />
-          <Button color="platinum" style={{ height: '1rem' }} onClick={this.onSubmitFilter}>Filter</Button>
         </div>
         {
           sessions && sessions.length > 0 &&
@@ -123,38 +105,51 @@ class CaseManagement extends Component {
   };
 
   render() {
-    const { sessions, protocol, protocolsHaveLoaded, history } = this.props;
+    const {
+      sessions,
+      protocol,
+      protocolsHaveLoaded,
+      history,
+      loadMoreSessions,
+      hasMoreSessions,
+      totalSessionsCount,
+      sortType,
+      sortDirection,
+      sortSessions,
+    } = this.props;
 
     if (protocolsHaveLoaded && !protocol) { // This protocol doesn't exist
       return <Redirect to="/" />;
     }
 
-    if (!protocol) { // This protocol hasn't loaded yet
-      return <div className="settings--loading"><Spinner /></div>;
+    if (!protocol || !sessions) { // This protocol hasn't loaded yet
+      return <div className="case-management--loading"><Spinner /></div>;
     }
 
     return (
-      <div ref={this.refCallback} style={{ height: '100%', overflow: 'hidden', paddingBottom: '80px' }}>
-        <div className="dashboard__header" style={{ height: '80px' }}>{this.header}</div>
+      <div ref={this.refCallback} className="case-management">
+        <div className="case-management__header">{this.header}</div>
         { (sessions && sessions.length === 0) && emptyContent }
-        <div className="session-panel__list">
-          {sessions &&
-          <CaseTable
-            list={sessions}
-            loadMoreSessions={this.props.loadMoreSessions}
-            hasMoreSessions={this.props.hasMoreSessions}
-            reloadSessions={this.props.reloadSessions}
-            filterValue={this.state.filterValue}
-            totalSessionsCount={this.props.totalSessionsCount}
-            updateSessionsToDelete={this.updateSessionsToDelete}
-            isSessionSelected={this.isSessionSelected}
-            allSessionsSelected={this.allSessionsSelected}
-            toggleAllSessions={this.toggleAllSessions}
-            width={this.state.width}
-            height={this.state.height - 160}
-          />}
-        </div>
-        <div className="settings__footer">
+        {(sessions && sessions.length !== 0) &&
+          <div className="case-management__table">
+            <CaseTable
+              list={sessions}
+              loadMoreSessions={loadMoreSessions}
+              hasMoreSessions={hasMoreSessions}
+              sortType={sortType}
+              sortDirection={sortDirection}
+              sortSessions={sortSessions}
+              totalSessionsCount={totalSessionsCount}
+              updateSessionsToDelete={this.updateSessionsToDelete}
+              isSessionSelected={this.isSessionSelected}
+              allSessionsSelected={this.allSessionsSelected}
+              toggleAllSessions={this.toggleAllSessions}
+              width={this.state.width}
+              height={this.state.height - 160}
+            />
+          </div>
+        }
+        <div className="case-management__footer">
           <Button color="primary" onClick={() => history.goBack()}>Finished</Button>
         </div>
       </div>
@@ -172,13 +167,17 @@ CaseManagement.propTypes = {
   deleteSelectedSessions: PropTypes.func.isRequired,
   hasMoreSessions: PropTypes.func.isRequired,
   loadMoreSessions: PropTypes.func.isRequired,
-  reloadSessions: PropTypes.func.isRequired,
   sessions: PropTypes.array,
   totalSessionsCount: PropTypes.number,
   openDialog: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
   protocol: Types.protocol,
   protocolsHaveLoaded: PropTypes.bool.isRequired,
+  filterValue: PropTypes.string.isRequired,
+  changeFilter: PropTypes.func.isRequired,
+  sortType: PropTypes.string.isRequired,
+  sortDirection: PropTypes.number.isRequired,
+  sortSessions: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state, ownProps) => ({

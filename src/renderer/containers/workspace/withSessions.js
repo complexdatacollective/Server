@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import logger from 'electron-log';
 import { ipcRenderer } from 'electron';
-import { pull } from 'lodash';
+import { debounce, pull } from 'lodash';
 
 import Types from '../../types';
 import AdminApiClient from '../../utils/adminApiClient';
@@ -50,6 +50,9 @@ const withSessions = WrappedComponent =>
         sessions: [],
         totalSessionsCount: null,
         sessionOffset: 0,
+        filterValue: '',
+        sortType: 'createdAt',
+        sortDirection: -1,
       };
     }
 
@@ -69,11 +72,25 @@ const withSessions = WrappedComponent =>
       ipcRenderer.removeListener('SESSIONS_IMPORTED', this.onSessionsImported);
     }
 
-    onSessionsImported = () => this.loadSessions();
+    onSessionsImported = () => this.reloadSessions();
 
     get sessionsEndpoint() {
       const id = this.props.protocol.id;
       return id && `/protocols/${id}/sessions`;
+    }
+
+    changeFilter = (event) => {
+      this.setState({
+        filterValue: event.target.value,
+      }, this.debouncedReload);
+    }
+
+    sortSessions = (sortType) => {
+      const sortDirection = this.state.sortType === sortType ? (0 - this.state.sortDirection) : 1;
+      this.setState({
+        sortType,
+        sortDirection,
+      }, () => this.reloadSessions());
     }
 
     sessionEndpoint(sessionId) {
@@ -92,7 +109,7 @@ const withSessions = WrappedComponent =>
         .then((resp) => {
           if (!loadPromise.cancelled) {
             let sessions = !!startIndex && this.state.sessions ? this.state.sessions : [];
-            sessions = [...sessions, ...resp.sessions.map(viewModelMapper)];
+            sessions = [...sessions.slice(0, startIndex), ...resp.sessions.map(viewModelMapper)];
             this.setState({
               sessions,
               totalSessionsCount: resp.totalSessions,
@@ -112,17 +129,31 @@ const withSessions = WrappedComponent =>
 
     hasMoreSessions = () => this.state.sessionOffset < this.state.totalSessionsCount;
 
-    loadMoreSessions = (startIndex, stopIndex, sortType, direction, filterValue) => {
-      this.loadSessions(startIndex, stopIndex, sortType, direction, filterValue);
+    loadMoreSessions = (startIndex, stopIndex) => {
+      this.loadSessions(
+        startIndex,
+        stopIndex,
+        this.state.sortType,
+        this.state.sortDirection,
+        this.state.filterValue,
+      );
     }
 
-    reloadSessions = (sortType, direction, filterValue) => {
-      this.loadSessions(0, this.state.sessions.length, sortType, direction, filterValue);
+    reloadSessions = () => {
+      this.loadSessions(
+        0,
+        this.state.sessions.length,
+        this.state.sortType,
+        this.state.sortDirection,
+        this.state.filterValue,
+      );
     }
+
+    debouncedReload = debounce(this.reloadSessions, 200);
 
     deleteAllSessions = () => {
       this.apiClient.delete(this.sessionsEndpoint)
-        .then(() => this.loadSessions());
+        .then(() => this.reloadSessions());
     }
 
     deleteSelectedSessions = (selectedSessions) => {
@@ -130,16 +161,16 @@ const withSessions = WrappedComponent =>
       const deletePromises = selectedSessions.map(
         session => this.apiClient.delete(this.sessionEndpoint(session)));
       Promise.all(deletePromises)
-        .then(() => this.loadSessions());
+        .then(() => this.reloadSessions());
     }
 
     deleteSession = (sessionId) => {
       this.apiClient.delete(this.sessionEndpoint(sessionId))
-        .then(() => this.loadSessions());
+        .then(() => this.reloadSessions());
     }
 
     render() {
-      const { sessions, totalSessionsCount } = this.state;
+      const { sessions, totalSessionsCount, filterValue, sortType, sortDirection } = this.state;
       return (
         <WrappedComponent
           {...this.props}
@@ -150,7 +181,11 @@ const withSessions = WrappedComponent =>
           deleteSession={this.deleteSession}
           hasMoreSessions={this.hasMoreSessions}
           loadMoreSessions={this.loadMoreSessions}
-          reloadSessions={this.reloadSessions}
+          sortType={sortType}
+          sortDirection={sortDirection}
+          sortSessions={this.sortSessions}
+          filterValue={filterValue}
+          changeFilter={this.changeFilter}
         />
       );
     }
@@ -164,7 +199,11 @@ const providedPropTypes = {
   totalSessionsCount: PropTypes.number,
   hasMoreSessions: PropTypes.function,
   loadMoreSessions: PropTypes.function,
-  reloadSessions: PropTypes.function,
+  sortType: PropTypes.string,
+  sortDirection: PropTypes.number,
+  sortSessions: PropTypes.function,
+  filterValue: PropTypes.string,
+  changeFilter: PropTypes.function,
 };
 
 export default withSessions;

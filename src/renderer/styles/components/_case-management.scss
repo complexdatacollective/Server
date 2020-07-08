@@ -1,0 +1,98 @@
+.ReactVirtualized__Grid.ReactVirtualized__Table__Grid:focus {
+  outline: none;
+}
+
+.ReactVirtualized__Table {
+  display: inline-block;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.ReactVirtualized__Table__headerRow {
+  display: flex;
+}
+
+.ReactVirtualized__Table__headerColumn {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  padding: 0;
+}
+
+.ReactVirtualized__Table__headerTruncatedText {
+  flex: auto;
+}
+
+.ReactVirtualized__Table__row {
+  display: flex;
+
+  &.ReactVirtualized__even {
+    background-color: var(--input-background);
+  }
+}
+
+.ReactVirtualized__DragHandle {
+  flex: 0 0 16px;
+  z-index: 2;
+  cursor: col-resize;
+  color: #0085ff;
+}
+.ReactVirtualized__DragHandle:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.ReactVirtualized__DragHandleActive,
+.ReactVirtualized__DragHandleActive:hover {
+  color: #0b6fcc;
+  z-index: 3;
+}
+
+.ReactVirtualized__DragHandleIcon {
+  flex: 0 0 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.case-management {
+  height: 100%;
+  overflow: hidden;
+  padding-bottom: 6rem;
+
+  &__header {
+    height: 5rem;
+
+    .dismiss-button {
+      height: 1rem;
+      margin-top: 1rem;
+    }
+  }
+
+  &__header-text {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__filter {
+    display: flex;
+  }
+
+  &--loading {
+    display: flex;
+    justify-content: center;
+  }
+
+  &__footer {
+    position: fixed;
+    bottom: 0;
+    width: calc(100% - var(--app-sidebar-width));
+    right: 0;
+    background: var(--color-cyber-grape);
+    margin-left: -3.6rem;
+    height: 6rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 spacing(large);
+  }
+}

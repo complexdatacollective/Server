@@ -15,8 +15,6 @@ class CaseTable extends Component {
         caseId: 0.25,
         sessionId: 0.25,
       },
-      sortType: 'createdAt',
-      sortDirection: '-1',
     };
   }
 
@@ -48,21 +46,21 @@ class CaseTable extends Component {
   );
 
   directionSymbol = (dataKey) => {
-    if (dataKey === this.state.sortType) {
-      return this.state.sortDirection === 1 ? ' \u25BC' : ' \u25B2';
+    if (dataKey === this.props.sortType) {
+      return this.props.sortDirection === 1 ? ' \u25BC' : ' \u25B2';
     }
     return '';
   };
 
   headerRenderer = ({ dataKey, label }, adjustable = true) => (
     <React.Fragment key={dataKey}>
-      <div className="ReactVirtualized__Table__headerTruncatedText" onClick={() => this.sortSessions(dataKey)} role="button" tabIndex={0}>
+      <div className="ReactVirtualized__Table__headerTruncatedText" onClick={() => this.props.sortSessions(dataKey)} role="button" tabIndex={0}>
         {`${label} ${this.directionSymbol(dataKey)}`}
       </div>
       {adjustable && <Draggable
         axis="x"
-        defaultClassName="DragHandle"
-        defaultClassNameDragging="DragHandleActive"
+        defaultClassName="ReactVirtualized__DragHandle"
+        defaultClassNameDragging="ReactVirtualized__DragHandleActive"
         onDrag={(_, { deltaX }) =>
           this.resizeRow({
             dataKey,
@@ -72,7 +70,7 @@ class CaseTable extends Component {
         position={{ x: 0 }}
         zIndex={999}
       >
-        <span className="DragHandleIcon">⋮</span>
+        <span className="ReactVirtualized__DragHandleIcon">⋮</span>
       </Draggable>}
     </React.Fragment>
   );
@@ -109,20 +107,14 @@ class CaseTable extends Component {
       };
     });
 
-  sortSessions = (sortType) => {
-    const sortDirection = this.state.sortType === sortType ? (0 - this.state.sortDirection) : 1;
-    this.setState({
-      sortType,
-      sortDirection,
-    }, () => this.props.reloadSessions(sortType, sortDirection, this.props.filterValue));
-  }
-
   loadMore = ({ startIndex, stopIndex }) => {
-    console.log(`loadMore request: ${startIndex} ${stopIndex + 1}`);
     const { loadMoreSessions, hasMoreSessions } = this.props;
+    console.log(`loadMore request: ${startIndex} ${stopIndex + 1}`);
+
     if (hasMoreSessions()) {
-      console.log('has more, let us do this thing'); // TODO just request more??
-      loadMoreSessions(startIndex, stopIndex + 1, this.state.sortType, this.state.sortDirection);
+      console.log('has more, let us do this thing');
+
+      loadMoreSessions(startIndex, stopIndex + 1);
       return Promise.resolve();
     }
     return Promise.reject();
@@ -159,9 +151,9 @@ class CaseTable extends Component {
             })}
             rowClassName={({ index }) => {
               if (index !== -1 && index % 2 === 0) {
-                return 'even';
+                return 'ReactVirtualized__even';
               }
-              return 'odd';
+              return 'ReactVirtualized__odd';
             }}
           >
             <Column
@@ -207,7 +199,6 @@ CaseTable.defaultProps = {
   totalSessionsCount: 0,
   width: 500,
   height: 500,
-  filterValue: '',
 };
 
 CaseTable.propTypes = {
@@ -215,8 +206,9 @@ CaseTable.propTypes = {
   totalSessionsCount: PropTypes.number,
   hasMoreSessions: PropTypes.func.isRequired,
   loadMoreSessions: PropTypes.func.isRequired,
-  reloadSessions: PropTypes.func.isRequired,
-  filterValue: PropTypes.string,
+  sortType: PropTypes.string.isRequired,
+  sortDirection: PropTypes.number.isRequired,
+  sortSessions: PropTypes.func.isRequired,
   isSessionSelected: PropTypes.func.isRequired,
   allSessionsSelected: PropTypes.func.isRequired,
   updateSessionsToDelete: PropTypes.func.isRequired,
