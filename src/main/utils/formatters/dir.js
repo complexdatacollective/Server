@@ -1,7 +1,8 @@
 const fs = require('fs');
+const fse = require('fs-extra');
 const os = require('os');
 const path = require('path');
-const { readdir, rmdir, tryUnlink } = require('../promised-fs');
+const { tryUnlink } = require('../promised-fs');
 const { extensions } = require('./utils');
 
 const tmpDirPrefix = 'org.codaco.server.exporting.';
@@ -37,9 +38,9 @@ const removeTempDir = (tmpDir) => {
     return Promise.resolve();
   };
 
-  return readdir(tmpDir, { withFileTypes: true })
+  return fse.readdir(tmpDir, { withFileTypes: true })
     .then(fileNames => Promise.all(fileNames.map(fileName => removeFile(fileName.name))))
-    .then(() => rmdir(tmpDir))
+    .then(() => fse.rmdir(tmpDir))
     .catch(ignoreError);
 };
 

@@ -55,18 +55,15 @@ class ProtocolManager {
         { name: 'Protocols', extensions: validFileExts },
       ],
     };
-    return new Promise((resolve, reject) => {
-      dialog.showOpenDialog(browserWindow, opts, (filePaths) => {
-        if (!filePaths) {
-          // User cancelled
-          resolve();
-          return;
+
+    return dialog.showOpenDialog(browserWindow, opts)
+      .then(({ canceled, filePaths }) => {
+        if (canceled) {
+          return null;
         }
-        this.validateAndImport(filePaths)
-          .then(savedFilename => resolve(savedFilename))
-          .catch(err => reject(err));
+
+        return this.validateAndImport(filePaths);
       });
-    });
   }
 
   /**
