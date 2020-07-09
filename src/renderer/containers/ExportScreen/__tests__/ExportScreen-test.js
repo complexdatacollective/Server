@@ -59,7 +59,8 @@ describe('<ExportScreen />', () => {
     const mockApiClient = new AdminApiClient();
 
     beforeEach(() => {
-      remote.dialog.showSaveDialog.mockImplementation((_, cb) => cb('/dev/null'));
+      remote.dialog.showSaveDialog.mockImplementation(() =>
+        Promise.resolve({ canceled: false, filePath: '/dev/null' }));
       const protocol = { id: '1', name: 'mock', createdAt };
       jest.clearAllMocks();
       props = {
@@ -78,25 +79,37 @@ describe('<ExportScreen />', () => {
       expect(subject.find('Button[type="submit"]').html()).toMatch(/export/i);
     });
 
-    it('selects CSV format', () => {
+    it('selects CSV format', (done) => {
+      expect.assertions(1);
       const radioWrapper = subject.findWhere(n => n.name() === 'Radio' && n.prop('label') === 'CSV');
       radioWrapper.dive().find('input').simulate('change', { target: { value: 'csv' } });
       subject.find('form').simulate('submit');
-      expect(mockApiClient.post.mock.calls[0][1].exportFormats).toEqual(['adjacencyMatrix', 'attributeList', 'edgeList', 'ego']);
+      setImmediate(() => {
+        expect(mockApiClient.post.mock.calls[0][1].exportFormats).toEqual(['adjacencyMatrix', 'attributeList', 'edgeList', 'ego']);
+        done();
+      });
     });
 
-    it('does not warn about ego data for csv export', () => {
+    it('does not warn about ego data for csv export', (done) => {
+      expect.assertions(1);
       const radioWrapper = subject.findWhere(n => n.name() === 'Radio' && n.prop('label') === 'CSV');
       radioWrapper.dive().find('input').simulate('change', { target: { value: 'csv' } });
       const toggleWrapper = subject.find('Toggle').at(0);
-      expect(toggleWrapper.dive().find('.form-field-toggle').at(0).hasClass('form-field-toggle--disabled')).toBe(false);
+      setImmediate(() => {
+        expect(toggleWrapper.dive().find('.form-field-toggle').at(0).hasClass('form-field-toggle--disabled')).toBe(false);
+        done();
+      });
     });
 
-    it('selects graphml format', () => {
+    it('selects graphml format', (done) => {
+      expect.assertions(1);
       const radioWrapper = subject.findWhere(n => n.name() === 'Radio' && n.prop('label') === 'GraphML');
       radioWrapper.dive().find('input').simulate('change', { target: { value: 'graphml' } });
       subject.find('form').simulate('submit');
-      expect(mockApiClient.post.mock.calls[0][1].exportFormats).toEqual(['graphml']);
+      setImmediate(() => {
+        expect(mockApiClient.post.mock.calls[0][1].exportFormats).toEqual(['graphml']);
+        done();
+      });
     });
 
     it('warns about ego data not downloading', () => {
@@ -106,7 +119,8 @@ describe('<ExportScreen />', () => {
       expect(toggleWrapper.dive().find('.form-field-toggle').at(0).hasClass('form-field-toggle--disabled')).toBe(true);
     });
 
-    it('selects a csv type', () => {
+    it('selects a csv type', (done) => {
+      expect.assertions(3);
       const csvType = 'adjacencyMatrix';
       const checkbox = subject.find('Checkbox').first().dive().find('input');
       expect(availableCsvTypes[csvType]).toBeDefined();
@@ -114,32 +128,47 @@ describe('<ExportScreen />', () => {
       // It is selected by default so the first click deselects it
       checkbox.simulate('change', { target: { value: csvType, checked: false } });
       subject.find('form').simulate('submit');
-      expect(mockApiClient.post.mock.calls[0][1].exportFormats).not.toContain('adjacencyMatrix');
-
       checkbox.simulate('change', { target: { value: csvType, checked: true } });
       subject.find('form').simulate('submit');
-      expect(mockApiClient.post.mock.calls[1][1].exportFormats).toContain('adjacencyMatrix');
+
+      setImmediate(() => {
+        expect(mockApiClient.post.mock.calls[0][1].exportFormats).not.toContain('adjacencyMatrix');
+        expect(mockApiClient.post.mock.calls[1][1].exportFormats).toContain('adjacencyMatrix');
+        done();
+      });
     });
 
-    it('toggles union setting', () => {
+    it('toggles union setting', (done) => {
+      expect.assertions(1);
       const radioWrapper = subject.findWhere(n => n.name() === 'Radio' && (/the union of/).test(n.prop('label')));
       radioWrapper.dive().find('input').simulate('change', { target: { value: 'true' } });
       subject.find('form').simulate('submit');
-      expect(mockApiClient.post.mock.calls[0][1].exportNetworkUnion).toBe(true);
+      setImmediate(() => {
+        expect(mockApiClient.post.mock.calls[0][1].exportNetworkUnion).toBe(true);
+        done();
+      });
     });
 
-    it('toggles directed edge setting', () => {
+    it('toggles directed edge setting', (done) => {
+      expect.assertions(1);
       const radioWrapper = subject.findWhere(n => n.name() === 'Toggle' && (/directed/).test(n.prop('label')));
       radioWrapper.dive().find('input').simulate('change', { target: { checked: true } });
       subject.find('form').simulate('submit');
-      expect(mockApiClient.post.mock.calls[0][1].useDirectedEdges).toBe(true);
+      setImmediate(() => {
+        expect(mockApiClient.post.mock.calls[0][1].useDirectedEdges).toBe(true);
+        done();
+      });
     });
 
-    it('toggles ego setting', () => {
+    it('toggles ego setting', (done) => {
+      expect.assertions(1);
       const radioWrapper = subject.findWhere(n => n.name() === 'Toggle' && (/Ego/).test(n.prop('label')));
       radioWrapper.dive().find('input').simulate('change', { target: { checked: true } });
       subject.find('form').simulate('submit');
-      expect(mockApiClient.post.mock.calls[0][1].useEgoData).toBe(true);
+      setImmediate(() => {
+        expect(mockApiClient.post.mock.calls[0][1].useEgoData).toBe(true);
+        done();
+      });
     });
 
     // TODO: what is relevant when we consider resolutions?

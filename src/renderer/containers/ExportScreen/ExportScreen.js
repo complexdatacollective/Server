@@ -60,7 +60,7 @@ const ExportScreen = ({
       }],
     };
 
-    remote.dialog.showSaveDialog(exportDialog)
+    return remote.dialog.showSaveDialog(exportDialog)
       .then(({ canceled, filePath }) => {
         if (canceled || !filePath) { return; }
         setState({ exportInProgress: true });
