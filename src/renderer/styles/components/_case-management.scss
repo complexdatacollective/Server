@@ -55,9 +55,12 @@
 }
 
 .case-management {
-  height: 100%;
+  height: calc(100% - var(--app-titlebar-height) - 5rem);
   overflow: hidden;
-  padding-bottom: 6rem;
+  padding: 0 3.6rem 6rem 3.6rem;
+  left: calc(var(--app-sidebar-width));
+  position: fixed;
+  width: calc(100% - var(--app-sidebar-width));
 
   &__header {
     height: 5rem;

@@ -109,11 +109,8 @@ class CaseTable extends Component {
 
   loadMore = ({ startIndex, stopIndex }) => {
     const { loadMoreSessions, hasMoreSessions } = this.props;
-    console.log(`loadMore request: ${startIndex} ${stopIndex + 1}`);
 
     if (hasMoreSessions()) {
-      console.log('has more, let us do this thing');
-
       loadMoreSessions(startIndex, stopIndex + 1);
       return Promise.resolve();
     }
@@ -140,14 +137,14 @@ class CaseTable extends Component {
             rowHeight={30}
             rowCount={this.props.totalSessionsCount}
             rowGetter={({ index }) => ({
-              checkbox: list[index] && list[index].id,
-              createdAt: formatDate(list[index] && list[index].createdAt),
-              updatedAt: formatDate(list[index] && list[index].updatedAt),
+              checkbox: list[index] ? list[index].id : '...',
+              createdAt: list[index] ? formatDate(list[index] && list[index].createdAt) : '...',
+              updatedAt: list[index] ? formatDate(list[index] && list[index].updatedAt) : '...',
               caseId: list[index] && list[index].data &&
-                list[index].data.sessionVariables &&
+                list[index].data.sessionVariables ?
                 // eslint-disable-next-line no-underscore-dangle
-                list[index].data.sessionVariables._caseID,
-              sessionId: list[index] && list[index].id,
+                list[index].data.sessionVariables._caseID : '...',
+              sessionId: list[index] ? list[index].id : '...',
             })}
             rowClassName={({ index }) => {
               if (index !== -1 && index % 2 === 0) {

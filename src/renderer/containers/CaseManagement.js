@@ -1,6 +1,6 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_caseID"] }] */
 
-import React, { Component } from 'react';
+import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -21,6 +21,16 @@ class CaseManagement extends Component {
   constructor(props) {
     super(props);
     this.state = { sessionsToDelete: [], width: 500, height: 300 };
+    this.resizeObserver = null;
+    this.resizeSubject = createRef();
+  }
+
+  componentDidMount() {
+    this.observe(ResizeObserver);
+  }
+
+  componentWillUnmount() {
+    this.resizeObserver.disconnect();
   }
 
   get header() {
@@ -52,6 +62,20 @@ class CaseManagement extends Component {
       </div>
     );
   }
+
+  observe = (RO) => {
+    this.resizeObserver = new RO((entries) => {
+      const {
+        width,
+        height,
+      } = entries[0].contentRect;
+      this.setState({ width, height });
+    });
+
+    if (this.resizeSubject.current) {
+      this.resizeObserver.observe(this.resizeSubject.current);
+    }
+  };
 
   isSessionSelected = id => includes(this.state.sessionsToDelete, id);
 
@@ -95,15 +119,6 @@ class CaseManagement extends Component {
     });
   }
 
-  refCallback = (element) => {
-    if (element) {
-      this.setState({
-        width: element.getBoundingClientRect().width,
-        height: element.getBoundingClientRect().height,
-      });
-    }
-  };
-
   render() {
     const {
       sessions,
@@ -122,36 +137,47 @@ class CaseManagement extends Component {
       return <Redirect to="/" />;
     }
 
+    let content;
+    let classes;
     if (!protocol || !sessions) { // This protocol hasn't loaded yet
-      return <div className="case-management--loading"><Spinner /></div>;
+      content = <Spinner />;
+      classes = 'case-management--loading';
+    } else {
+      content = (
+        <React.Fragment>
+          <div className="case-management__header">{this.header}</div>
+          {(sessions && sessions.length === 0) && emptyContent }
+          {
+            (sessions && sessions.length !== 0) &&
+              <div className="case-management__table">
+                <CaseTable
+                  list={sessions}
+                  loadMoreSessions={loadMoreSessions}
+                  hasMoreSessions={hasMoreSessions}
+                  sortType={sortType}
+                  sortDirection={sortDirection}
+                  sortSessions={sortSessions}
+                  totalSessionsCount={totalSessionsCount}
+                  updateSessionsToDelete={this.updateSessionsToDelete}
+                  isSessionSelected={this.isSessionSelected}
+                  allSessionsSelected={this.allSessionsSelected}
+                  toggleAllSessions={this.toggleAllSessions}
+                  width={this.state.width}
+                  height={this.state.height - 160}
+                />
+              </div>
+          }
+          <div className="case-management__footer">
+            <Button color="primary" onClick={() => history.goBack()}>Finished</Button>
+          </div>
+        </React.Fragment>
+      );
+      classes = 'case-management';
     }
 
     return (
-      <div ref={this.refCallback} className="case-management">
-        <div className="case-management__header">{this.header}</div>
-        { (sessions && sessions.length === 0) && emptyContent }
-        {(sessions && sessions.length !== 0) &&
-          <div className="case-management__table">
-            <CaseTable
-              list={sessions}
-              loadMoreSessions={loadMoreSessions}
-              hasMoreSessions={hasMoreSessions}
-              sortType={sortType}
-              sortDirection={sortDirection}
-              sortSessions={sortSessions}
-              totalSessionsCount={totalSessionsCount}
-              updateSessionsToDelete={this.updateSessionsToDelete}
-              isSessionSelected={this.isSessionSelected}
-              allSessionsSelected={this.allSessionsSelected}
-              toggleAllSessions={this.toggleAllSessions}
-              width={this.state.width}
-              height={this.state.height - 160}
-            />
-          </div>
-        }
-        <div className="case-management__footer">
-          <Button color="primary" onClick={() => history.goBack()}>Finished</Button>
-        </div>
+      <div ref={this.resizeSubject} className={classes}>
+        {content}
       </div>
     );
   }
