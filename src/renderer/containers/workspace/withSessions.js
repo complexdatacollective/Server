@@ -36,7 +36,6 @@ const withSessions = WrappedComponent =>
           prevProtocolId: props.protocol.id,
           sessions: null,
           totalSessionsCount: null,
-          sessionOffset: 0,
         };
       }
       return null;
@@ -49,7 +48,6 @@ const withSessions = WrappedComponent =>
       this.state = {
         sessions: [],
         totalSessionsCount: null,
-        sessionOffset: 0,
         filterValue: '',
         sortType: 'createdAt',
         sortDirection: -1,
@@ -98,22 +96,38 @@ const withSessions = WrappedComponent =>
       return base && `${base}/${sessionId}`;
     }
 
-    loadSessions = (startIndex = 0, stopIndex = 5, sortType = 'createdAt', direction = -1, filterValue = '') => {
+    loadSessions = (startIndex = 0, stopIndex = 100, sortType = 'createdAt', direction = -1, filterValue = '', reset = true) => {
       const { protocol } = this.props;
       if (!protocol) {
-        return;
+        return Promise.reject();
       }
       const loadPromise = this.apiClient.get(`${this.sessionsEndpoint}/${startIndex}/${stopIndex}/${sortType}/${direction}/${filterValue}`);
       this.loadPromises.push(loadPromise);
-      loadPromise
+      return (loadPromise
         .then((resp) => {
           if (!loadPromise.cancelled) {
-            let sessions = !!startIndex && this.state.sessions ? this.state.sessions : [];
-            sessions = [...sessions.slice(0, startIndex), ...resp.sessions.map(viewModelMapper)];
+            let sessions;
+            if (reset) {
+              sessions = resp.sessions.map(viewModelMapper);
+            } else {
+              sessions = !!startIndex && this.state.sessions ? this.state.sessions : [];
+              // fill blank indexes between previously loaded and just loaded
+              if (startIndex > sessions.length) {
+                sessions = sessions.concat(Array(startIndex - sessions.length));
+              }
+              // only keep up to the index of just loaded
+              sessions = [...sessions.slice(0, startIndex)];
+              // add just loaded sessions
+              sessions = [...sessions, ...resp.sessions.map(viewModelMapper)];
+              // add sessions loaded previously after the just loaded indices
+              if (this.state.sessions && sessions.length < this.state.sessions.length) {
+                sessions = sessions.concat(
+                  this.state.sessions.slice(stopIndex, this.state.sessions.length));
+              }
+            }
             this.setState({
               sessions,
               totalSessionsCount: resp.totalSessions,
-              sessionOffset: sessions.length,
             // eslint-disable-next-line no-return-assign
             });
           }
@@ -124,30 +138,27 @@ const withSessions = WrappedComponent =>
             this.setState({ sessions: [] });
           }
         })
-        .then(() => { pull(this.loadPromises, loadPromise); });
+        .then(() => { pull(this.loadPromises, loadPromise); }));
     }
 
-    hasMoreSessions = () => this.state.sessionOffset < this.state.totalSessionsCount;
-
-    loadMoreSessions = (startIndex, stopIndex) => {
+    loadMoreSessions = (startIndex, stopIndex) => (
       this.loadSessions(
         startIndex,
         stopIndex,
         this.state.sortType,
         this.state.sortDirection,
         this.state.filterValue,
-      );
-    }
+        false,
+      ));
 
-    reloadSessions = () => {
+    reloadSessions = () => (
       this.loadSessions(
         0,
         this.state.sessions.length,
         this.state.sortType,
         this.state.sortDirection,
         this.state.filterValue,
-      );
-    }
+      ));
 
     debouncedReload = debounce(this.reloadSessions, 200);
 
@@ -179,7 +190,6 @@ const withSessions = WrappedComponent =>
           deleteAllSessions={this.deleteAllSessions}
           deleteSelectedSessions={this.deleteSelectedSessions}
           deleteSession={this.deleteSession}
-          hasMoreSessions={this.hasMoreSessions}
           loadMoreSessions={this.loadMoreSessions}
           sortType={sortType}
           sortDirection={sortDirection}
@@ -197,7 +207,6 @@ const providedPropTypes = {
   deleteSession: PropTypes.function,
   sessions: PropTypes.array,
   totalSessionsCount: PropTypes.number,
-  hasMoreSessions: PropTypes.function,
   loadMoreSessions: PropTypes.function,
   sortType: PropTypes.string,
   sortDirection: PropTypes.number,

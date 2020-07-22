@@ -40,14 +40,16 @@ let db;
 function initDb() {
   const initDbTime = process.hrtime();
   return new Promise(resolve => {
-    db = new SessionDB(dbFile, { onload: (err) => {
-      if (err) {
-        console.error(err);
-        process.exit(1);
+    db = new SessionDB(dbFile, {
+      onload: (err) => {
+        if (err) {
+          console.error(err);
+          process.exit(1);
+        }
+        printResult(`Initialized Database`, 1, process.hrtime(initDbTime));
+        resolve();
       }
-      printResult(`Initialized Database`, 1, process.hrtime(initDbTime));
-      resolve();
-    }});
+    });
   });
 }
 
@@ -74,20 +76,21 @@ function buildMockData({ sessionCount = SessionCount, edgesPerSession = EdgesPer
   const mockNode = {
     [nodePrimaryKeyProperty]: 'person_3',
     type: 'person',
+    itemType: 'NEW_NODE',
     [nodeAttributesProperty]: {
       name: 'Carlito',
       nickname: 'Carl',
       age: '25',
-      itemType: 'NEW_NODE',
       prop1: 'example1',
       prop2: 22,
-      school_important: true,
-      id:2,
-      closenessLayout: {"x":0.35625,"y":0.6988888888888889},
+      talk_friend: true,
+      id: 2,
+      closenessLayout: { "x": 0.35625, "y": 0.6988888888888889 },
     }
   };
-  const mockEdge = {"from":12,"to":11,"type":"friends"};
+  const mockEdge = { "from": 12, "to": 11, "type": "friends" };
 
+  let index = 0;
   const makeNetwork = (includeEgo = false) => {
     let nodes = new Array(nodesPerSession);
     let edges = new Array(edgesPerSession);
@@ -107,7 +110,11 @@ function buildMockData({ sessionCount = SessionCount, edgesPerSession = EdgesPer
       }
     }
 
-    return { nodes, edges };
+    return {
+      nodes,
+      edges,
+      sessionVariables: { _caseID: `a_${index++}`, _remoteProtocolID: '049d5630a2cd747c3fb26f0081d917b73146eb12bc682afeac1c11316d0151ff' },
+    };
   }
 
   return [...Array(sessionCount)].map((r, i) => ({
@@ -152,7 +159,7 @@ function testCountSessions() {
 function testFilterByEdge() {
   return new Promise((resolve) => {
     const time = process.hrtime();
-    db.db.find({ 'data.edges': { $elemMatch: {"from":13,"to": { $exists: true } ,"type":"friends"} } }, (err, docs) => {
+    db.db.find({ 'data.edges': { $elemMatch: { "from": 13, "to": { $exists: true }, "type": "friends" } } }, (err, docs) => {
       if (err) console.error(err);
       if (docs) printResult('Find all associations with known node at one end', docs.length, process.hrtime(time));
       resolve();
@@ -163,7 +170,7 @@ function testFilterByEdge() {
 function testCountNodes() {
   return new Promise((resolve) => {
     const time = process.hrtime();
-    db.db.find({ 'data.nodes': { $exists: true } }).projection({ 'data.nodes':1, _id: 0 }).exec((err, docs) => {
+    db.db.find({ 'data.nodes': { $exists: true } }).projection({ 'data.nodes': 1, _id: 0 }).exec((err, docs) => {
       if (err) console.error(err);
       if (docs) {
         const count = docs.reduce((count, doc) => count += doc.data.nodes.length, 0);
@@ -179,7 +186,7 @@ function testCountNodesOnField() {
     const time = process.hrtime();
     // "__countable__" is a dummy field for the projection: we don't need to know anything about nodes other then their length
     // Suppressing return of full node objects speeds up count significantly
-    db.db.find({ 'data.nodes': { $exists: true } }).projection({ 'data.nodes.__countable__':1, _id: 0 }).exec((err, docs) => {
+    db.db.find({ 'data.nodes': { $exists: true } }).projection({ 'data.nodes.__countable__': 1, _id: 0 }).exec((err, docs) => {
       if (err) console.error(err);
       if (docs) {
         const count = docs.reduce((count, doc) => count += doc.data.nodes.__countable__.length, 0);
@@ -193,7 +200,7 @@ function testCountNodesOnField() {
 function testCountEdges() {
   return new Promise((resolve) => {
     const time = process.hrtime();
-    db.db.find({ 'data.edges': { $exists: true } }).projection({ 'data.edges.__countable__':1, _id: 0 }).exec((err, docs) => {
+    db.db.find({ 'data.edges': { $exists: true } }).projection({ 'data.edges.__countable__': 1, _id: 0 }).exec((err, docs) => {
       if (err) console.error(err);
       if (docs) {
         const count = docs.reduce((count, doc) => count += doc.data.edges.__countable__.length, 0);
@@ -270,10 +277,6 @@ const variableRegistry = {
           name: "id",
           type: "text",
         },
-        itemType: {
-          name: "itemType",
-          type: "text",
-        },
         '68119732-49a4-449f-b056-f444f4e41982': {
           name: "prop1",
           type: "text",
@@ -282,9 +285,9 @@ const variableRegistry = {
           name: "prop2",
           type: "number",
         },
-        school_important: {
-          "name": "school_important",
-          "label": "school_important",
+        talk_friend: {
+          "name": "talk_friend",
+          "label": "talk_friend",
           "description": "Human readable description",
           "type": "boolean"
         },
@@ -308,8 +311,8 @@ const variableRegistry = {
 if (require.main === module) {
   console.log('Initializing DB...');
   initDb()
-    .then(resetDb? clearDb : go)
-    .then(resetDb? insertDocs : go)
+    .then(resetDb ? clearDb : go)
+    .then(resetDb ? insertDocs : go)
     .then(testCountSessions)
     .then(testFilterByEdge)
     .then(testCountNodes)

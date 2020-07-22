@@ -126,7 +126,6 @@ class CaseManagement extends Component {
       protocolsHaveLoaded,
       history,
       loadMoreSessions,
-      hasMoreSessions,
       totalSessionsCount,
       sortType,
       sortDirection,
@@ -153,7 +152,6 @@ class CaseManagement extends Component {
                 <CaseTable
                   list={sessions}
                   loadMoreSessions={loadMoreSessions}
-                  hasMoreSessions={hasMoreSessions}
                   sortType={sortType}
                   sortDirection={sortDirection}
                   sortSessions={sortSessions}
@@ -191,7 +189,6 @@ CaseManagement.defaultProps = {
 
 CaseManagement.propTypes = {
   deleteSelectedSessions: PropTypes.func.isRequired,
-  hasMoreSessions: PropTypes.func.isRequired,
   loadMoreSessions: PropTypes.func.isRequired,
   sessions: PropTypes.array,
   totalSessionsCount: PropTypes.number,

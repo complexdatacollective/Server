@@ -108,13 +108,9 @@ class CaseTable extends Component {
     });
 
   loadMore = ({ startIndex, stopIndex }) => {
-    const { loadMoreSessions, hasMoreSessions } = this.props;
+    const { loadMoreSessions } = this.props;
 
-    if (hasMoreSessions()) {
-      loadMoreSessions(startIndex, stopIndex + 1);
-      return Promise.resolve();
-    }
-    return Promise.reject();
+    return loadMoreSessions(startIndex, stopIndex + 1);
   }
 
   render() {
@@ -125,7 +121,9 @@ class CaseTable extends Component {
       <InfiniteLoader
         isRowLoaded={({ index }) => !!list[index]}
         loadMoreRows={this.loadMore}
+        minimumBatchSize={100}
         rowCount={this.props.totalSessionsCount}
+        threshold={30}
       >
         {({ onRowsRendered, registerChild }) => (
           <Table
@@ -201,7 +199,6 @@ CaseTable.defaultProps = {
 CaseTable.propTypes = {
   list: PropTypes.array,
   totalSessionsCount: PropTypes.number,
-  hasMoreSessions: PropTypes.func.isRequired,
   loadMoreSessions: PropTypes.func.isRequired,
   sortType: PropTypes.string.isRequired,
   sortDirection: PropTypes.number.isRequired,

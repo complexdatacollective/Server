@@ -43,7 +43,7 @@ const getSort = (sortType, direction) => {
     default:
       return direction === -1 ? mostRecentlyCreated : leastRecentlyCreated;
   }
-}
+};
 
 /**
  * Provides a RESTful API for electron renderer clients on the same machine.
