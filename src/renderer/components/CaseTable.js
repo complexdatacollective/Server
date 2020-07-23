@@ -22,6 +22,7 @@ class CaseTable extends Component {
     const selectedSessionId = this.props.list[rowIndex] && this.props.list[rowIndex].id;
     return (
       <Checkbox
+        className="case-management__checkbox"
         label=" "
         input={{
           name: 'case-management__list-item',
@@ -35,6 +36,7 @@ class CaseTable extends Component {
 
   checkboxHeaderRenderer = () => (
     <Checkbox
+      className="case-management__checkbox"
       label=" "
       input={{
         name: 'case-management__list-item',
