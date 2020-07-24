@@ -35,21 +35,21 @@ class AddButton extends PureComponent {
             type="button"
             onClick={() => { this.onHideAddChoices(); this.props.onAddRule('alter'); }}
           >
-          Alter
+            Alter
           </button>
           <button
             className="rule-add-button__choice rule-add-button__choice--ego"
             type="button"
             onClick={() => { this.onHideAddChoices(); this.props.onAddRule('ego'); }}
           >
-          Ego
+            Ego
           </button>
           <button
             className="rule-add-button__choice rule-add-button__choice--edge"
             type="button"
             onClick={() => { this.onHideAddChoices(); this.props.onAddRule('edge'); }}
           >
-          Edge
+            Edge
           </button>
         </div>
       </div>

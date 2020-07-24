@@ -28,12 +28,12 @@ class Updater {
       message: 'Do you want update now?',
       detail: `Version ${updateInfo.releaseName} is available.\n\nRelease notes are available at:\n${releasesUrl}\n\nClick 'Download and Restart' to fetch this update and install it. Ensure you have exported or backed up any important data before continuing.`,
       buttons: ['Download and Restart', 'Cancel'],
-    },
-    (buttonIndex) => {
-      if (buttonIndex === 0) {
-        autoUpdater.downloadUpdate();
-      }
-    });
+    })
+      .then(({ response }) => {
+        if (response === 0) {
+          autoUpdater.downloadUpdate();
+        }
+      });
   }
 
   onUpdateNotAvailable() {
@@ -54,8 +54,8 @@ class Updater {
       message: 'Download Complete',
       detail: 'Your update is ready to install. You must now restart the app and install the update.',
       buttons: ['Restart'],
-    },
-    () => setImmediate(() => autoUpdater.quitAndInstall()));
+    })
+      .then(() => setImmediate(() => autoUpdater.quitAndInstall()));
   }
 
   onError(error) {

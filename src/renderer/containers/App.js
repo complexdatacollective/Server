@@ -146,7 +146,7 @@ class App extends Component {
                         You have started Server with the <code>unsafe-pairing-code</code>
                         option set. This option severely undermines the security of Server,
                         and should <strong>not be used when conducting a study under any
-                        circumstances</strong>.
+                          circumstances</strong>.
                       </p>
                     </div>
                   }

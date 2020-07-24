@@ -40,27 +40,26 @@ describe('ProtocolManager', () => {
       expect(dialog.showOpenDialog).toHaveBeenCalled();
     });
 
-    it('allows an import via the open dialog', (done) => {
-      const simulateChooseFile = (browserWindow, opts, callback) => {
-        callback(mockFileList);
-        expect(manager.validateAndImport).toHaveBeenCalled();
-        done();
-      };
+    it('allows an import via the open dialog', () => {
+      expect.assertions(1);
+      const simulateChooseFile = Promise.resolve({ filePaths: mockFileList });
       manager.validateAndImport = jest.fn().mockReturnValue(Promise.resolve(mockFileList));
-      dialog.showOpenDialog.mockImplementation(simulateChooseFile);
-      manager.presentImportDialog();
+      dialog.showOpenDialog.mockReturnValue(simulateChooseFile);
+      return manager.presentImportDialog()
+        .then(() => {
+          expect(manager.validateAndImport).toHaveBeenCalled();
+        });
     });
 
-    it('allows dialog to be cancelled', (done) => {
+    it('allows dialog to be cancelled', () => {
       expect.assertions(1);
-      const simulateChooseNothing = (browserWindow, opts, callback) => {
-        callback();
-        expect(manager.validateAndImport).not.toHaveBeenCalled();
-        done();
-      };
+      const simulateChooseNothing = Promise.resolve({ canceled: true });
       manager.validateAndImport = jest.fn();
-      dialog.showOpenDialog.mockImplementation(simulateChooseNothing);
-      manager.presentImportDialog();
+      dialog.showOpenDialog.mockReturnValue(simulateChooseNothing);
+      return manager.presentImportDialog()
+        .then(() => {
+          expect(manager.validateAndImport).not.toHaveBeenCalled();
+        });
     });
   });
 
