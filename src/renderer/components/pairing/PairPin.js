@@ -20,7 +20,7 @@ const PairPin = ({ code, dismissPairingRequest }) => {
         To pair your Network Canvas client with this installation of Server,
         type the code shown below into the prompt on the device running Network Canvas.
       </p>
-      <div className="pairing-pin__code">
+      <div className="pairing-pin__code allow-text-selection">
         {chars.map((c, i) => <PinChar key={`${i}.${c}`} char={c} />)}
       </div>
       <div className="button-footer">
