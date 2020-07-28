@@ -88,7 +88,7 @@
         "react-dev-utils": "^6.1.1",
         "react-draggable": "^4.4.3",
         "react-virtualized": "^9.21.2",
-        "regenerator-runtime": "^0.13.3",
+        "regenerator-runtime": "^0.13.5",
         "sass-lint": "^1.12.1",
         "sass-loader": "^7.0.3",
         "sass-svg": "^1.0.1",
