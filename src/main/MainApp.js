@@ -1,4 +1,4 @@
-const { app, Menu } = require('electron');
+const { app, Menu, dialog } = require('electron');
 const ProtocolManager = require('./data-managers/ProtocolManager');
 const MainWindow = require('./components/mainWindow');
 const { AdminService } = require('./server/AdminService');
@@ -9,11 +9,10 @@ const { createTray } = require('./components/tray');
 const guiProxy = require('./guiProxy');
 const Updater = require('./Updater');
 
-const dialog = require('./dialog');
-
 // TODO: move/centralize
 const FileImportUpdated = 'FILE_IMPORT_UPDATED';
 const PROTOCOL_IMPORT_SUCCEEDED = 'PROTOCOL_IMPORT_SUCCEEDED';
+const RESET_APP = 'RESET_APP';
 
 const userDataDir = app.getPath('userData');
 const adminService = new AdminService({ dataDir: userDataDir });
@@ -32,29 +31,36 @@ const createApp = () => {
   updater.checkForUpdates(true);
 
   const regenerateCertificates = () => {
-    const responseNum = dialog.showMessageBox(mainWindow.window, {
+    dialog.showMessageBox(mainWindow.window, {
       message: 'Regenerate certificates?',
       detail: 'Regenerating security certificates will require you to re-pair all of your devices. Do you want to continue?',
       buttons: ['Regenerate Certificates', 'Cancel'],
       cancelId: 1,
       defaultId: 0,
+    }).then(({ response }) => {
+      if (response === 0) {
+        resetPemKeyPair()
+          .then(adminService.resetDevices())
+          .then(() => mainWindow.send(RESET_APP));
+      }
     });
-    if (responseNum === 0) {
-      resetPemKeyPair().then(adminService.resetDevices()).then(reloadHomeScreen);
-    }
   };
 
   const resetAppData = () => {
-    const responseNum = dialog.showMessageBox(mainWindow.window, {
+    dialog.showMessageBox(mainWindow.window, {
       message: 'Destroy all application files and data?',
       detail: 'This will delete ALL existing data, including interview data, imported protocols and paired devices. Do you want to continue?',
       buttons: ['Reset Data', 'Cancel'],
       cancelId: 1,
       defaultId: 0,
+    }).then(({ response }) => {
+      if (response === 0) {
+        if (response === 0) {
+          adminService.resetData()
+            .then(() => mainWindow.send(RESET_APP));
+        }
+      }
     });
-    if (responseNum === 0) {
-      adminService.resetData().then(reloadHomeScreen);
-    }
   };
 
   const showImportProtocolDialog = () => {

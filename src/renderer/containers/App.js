@@ -16,6 +16,7 @@ import { AnimatedPairPrompt } from '../components/pairing/PairPrompt';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
 import { actionCreators as connectionInfoActionCreators } from '../ducks/modules/connectionInfo';
 import { actionCreators as deviceActionCreators } from '../ducks/modules/devices';
+import { actionCreators as protocolActionCreators } from '../ducks/modules/protocols';
 import { actionCreators as messageActionCreators, messages } from '../ducks/modules/appMessages';
 import { isFrameless } from '../utils/environment';
 
@@ -27,6 +28,7 @@ const IPC = {
   PAIRING_TIMED_OUT: 'PAIRING_TIMED_OUT',
   PAIRING_COMPLETE: 'PAIRING_COMPLETE',
   PROTOCOL_IMPORT_SUCCEEDED: 'PROTOCOL_IMPORT_SUCCEEDED',
+  RESET_APP: 'RESET_APP',
 };
 
 // This prevents user from being able to drop a file anywhere on the app
@@ -68,8 +70,7 @@ class App extends Component {
     preventGlobalDragDrop();
     enableExternalLinks();
 
-    ipcRenderer.send(IPC.REQUEST_API_INFO);
-    ipcRenderer.once(IPC.API_INFO, (event, connectionInfo) => {
+    const updateAPIInfo = (connectionInfo) => {
       if (connectionInfo.adminService) {
         AdminApiClient.setPort(connectionInfo.adminService.port);
       } else {
@@ -77,7 +78,10 @@ class App extends Component {
       }
       this.props.setConnectionInfo(connectionInfo);
       this.setState({ apiReady: true });
-    });
+    };
+
+    ipcRenderer.send(IPC.REQUEST_API_INFO);
+    ipcRenderer.once(IPC.API_INFO, (event, connectionInfo) => updateAPIInfo(connectionInfo));
 
     ipcRenderer.on(IPC.PAIRING_CODE_AVAILABLE, (event, data) => {
       props.newPairingRequest(data.id, data.pairingCode);
@@ -94,6 +98,17 @@ class App extends Component {
 
     ipcRenderer.on(IPC.PROTOCOL_IMPORT_SUCCEEDED, () => {
       props.showConfirmationMessage(messages.protocolImportSuccess);
+    });
+
+    ipcRenderer.on(IPC.RESET_APP, () => {
+      props.resetApp(); // Reset state to initial state
+      ipcRenderer.send(IPC.REQUEST_API_INFO); // Recover backend API info
+      ipcRenderer.once(IPC.API_INFO, (event, connectionInfo) => updateAPIInfo(connectionInfo));
+
+      props.loadDevices(); // Request device data
+      props.loadProtocols(); // Request protocol data
+
+      this.props.history.push('/overview'); // Navigate to overview screen
     });
 
     this.props.dismissAppMessages();
@@ -177,6 +192,7 @@ App.propTypes = {
   dismissAppMessage: PropTypes.func.isRequired,
   dismissPairingRequest: PropTypes.func.isRequired,
   loadDevices: PropTypes.func.isRequired,
+  resetApp: PropTypes.func.isRequired,
   newPairingRequest: PropTypes.func.isRequired,
   pairingRequest: PropTypes.shape({
     status: PropTypes.string,
@@ -202,6 +218,8 @@ function mapDispatchToProps(dispatch) {
     ackPairingRequest: bindActionCreators(actionCreators.acknowledgePairingRequest, dispatch),
     completedPairingRequest: bindActionCreators(actionCreators.completedPairingRequest, dispatch),
     loadDevices: bindActionCreators(deviceActionCreators.loadDevices, dispatch),
+    loadProtocols: bindActionCreators(protocolActionCreators.loadProtocols, dispatch),
+    resetApp: () => dispatch({ type: 'RESET_APP' }),
     newPairingRequest: bindActionCreators(actionCreators.newPairingRequest, dispatch),
     showConfirmationMessage:
       bindActionCreators(messageActionCreators.showConfirmationMessage, dispatch),

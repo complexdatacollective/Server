@@ -23,6 +23,7 @@ const mockDispatched = {
   dismissAppMessage: jest.fn(),
   dismissAppMessages: jest.fn(),
   loadDevices: jest.fn(),
+  resetApp: jest.fn(),
   setConnectionInfo: jest.fn(),
 };
 

@@ -1,22 +1,45 @@
 import { createStore, applyMiddleware, compose } from 'redux';
-import { persistStore, autoRehydrate } from 'redux-persist';
+import { persistStore, persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 import thunk from 'redux-thunk';
 import { logger, pairingObserver } from './middleware';
 import rootReducer from './modules/rootReducer';
 
+const persistConfig = {
+  key: 'server',
+  storage,
+  whitelist: [
+    'excludedChartVariables',
+    'panelLayoutOrders',
+  ],
+};
+
 export const store = createStore(
-  rootReducer,
+  persistReducer(persistConfig, rootReducer),
   undefined,
   compose(
-    autoRehydrate(),
-    applyMiddleware(thunk, logger, pairingObserver),
+    applyMiddleware(thunk, pairingObserver, logger),
     typeof window === 'object' && typeof window.devToolsExtension !== 'undefined'
       ? window.devToolsExtension()
       : f => f,
   ),
 );
 
-export const persistor = persistStore(
-  store,
-  { whitelist: ['excludedChartVariables', 'panelLayoutOrders'] },
-);
+export const persistor = persistStore(store);
+
+// export const store = createStore(
+//   rootReducer,
+//   undefined,
+//   compose(
+//     autoRehydrate(),
+//     applyMiddleware(thunk, logger, pairingObserver),
+//     typeof window === 'object' && typeof window.devToolsExtension !== 'undefined'
+//       ? window.devToolsExtension()
+//       : f => f,
+//   ),
+// );
+
+// export const persistor = persistStore(
+//   store,
+//   { whitelist: ['excludedChartVariables', 'panelLayoutOrders'] },
+// );
