@@ -3,7 +3,8 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
-import SessionPanel from '../SessionPanel';
+import { HashRouter } from 'react-router-dom';
+import { UnconnectedSessionPanel as SessionPanel } from '../SessionPanel';
 
 const mockSessionId = 'session-1';
 const mockSessions = [{ id: mockSessionId }];
@@ -24,20 +25,25 @@ const mockStore = createStore(() => (
 
 describe('<SessionPanel />', () => {
   it('renders a title', () => {
-    const subject = mount(<Provider store={mockStore}><SessionPanel {...props} /></Provider>);
-    expect(subject.text()).toMatch('Interviews');
+    const subject = mount(
+      <HashRouter><Provider store={mockStore}><SessionPanel {...props} /></Provider></HashRouter>);
+    expect(subject.text()).toMatch('Most Recent Sessions');
   });
 
   it('renders sessions', () => {
-    const subject = mount(<Provider store={mockStore}><SessionPanel {...props} /></Provider>);
+    const subject = mount(
+      <HashRouter>
+        <Provider store={mockStore}><SessionPanel {...props} /></Provider>
+      </HashRouter>);
     expect(subject.find('.session-panel__list').find('li')).toHaveLength(1);
   });
 
   it('renders total count if greater than loaded count', () => {
     const mockTotal = 991199;
     const subject = mount(
-      <Provider store={mockStore}><SessionPanel {...props} totalCount={mockTotal} /></Provider>,
-    );
+      <HashRouter><Provider store={mockStore}>
+        <SessionPanel {...props} totalCount={mockTotal} />
+      </Provider></HashRouter>);
     expect(subject.text()).toContain(`${mockSessions.length} of ${mockTotal}`);
   });
 
