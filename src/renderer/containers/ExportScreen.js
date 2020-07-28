@@ -77,14 +77,15 @@ class ExportScreen extends Component {
       }],
     };
 
-    remote.dialog.showSaveDialog(exportDialog, (filepath) => {
-      if (filepath) {
+    remote.dialog.showSaveDialog(exportDialog)
+      .then(({ canceled, filePath }) => {
+        if (canceled) { return; }
+
         this.setState(
           { exportInProgress: true },
-          () => this.exportToFile(filepath),
+          () => this.exportToFile(filePath),
         );
-      }
-    });
+      });
   }
 
   handleCancel = () => {

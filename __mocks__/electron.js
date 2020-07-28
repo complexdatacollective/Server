@@ -31,13 +31,10 @@ const app = {
 };
 
 const dialog = {
-  showErrorBox: jest.fn(),
-  showMessageBox: jest.fn().mockImplementation((browserWindow, options, callback) => {
-    const cb = typeof options === 'function' ? options : callback;
-    if (cb) { cb(); }
-  }),
-  showOpenDialog: jest.fn(),
-  showSaveDialog: jest.fn(),
+  showErrorBox: jest.fn(() => Promise.resolve()),
+  showMessageBox: jest.fn(() => Promise.resolve()),
+  showOpenDialog: jest.fn(() => Promise.resolve({ canceled: false, filePaths: [] })),
+  showSaveDialog: jest.fn(() => Promise.resolve({ canceled: false, filePath: undefined })),
 };
 
 const remote = {

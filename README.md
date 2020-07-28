@@ -50,7 +50,7 @@ Run `npm run` for a list of all available commands.
 
 ### Node.js/NPM Versions
 
-This project currently requires Node.js `12.8.0` to match the version used by Electron, and version `6.10.2` of npm.
+This project currently requires Node.js `12.14.1` to match the version used by Electron, and version `6.13.4` of npm.
 
 ### [MDNS](https://www.npmjs.com/package/mdns)
 
