@@ -85,7 +85,8 @@ const createApp = () => {
       if (!developmentProtocol) { return; }
       const mockSessions = buildMockData(developmentProtocol);
       const developmentProtocolId = get(developmentProtocol, '_id');
-      protocolManager.addSessionData(developmentProtocolId, mockSessions);
+      protocolManager.addSessionData(developmentProtocolId, mockSessions)
+        .then(() => reloadHomeScreen());
     });
   };
 

@@ -1,22 +1,4 @@
-/**
- * basic scaling tests for nedb
- *
- * notes:
- * - Node Crashes on DB size >256MB because of serialization
- *   + e.g., will not init.
- *   + This won't be an issue "soon" on 64-bit machines
- *     + [as of Chromium: 62](https://stackoverflow.com/a/47781288)
- *     + [electron2.0.2 is at Chromium 61](http://electronjs.org)
- *   + Easy repro: set SessionCount to 30k and run.
- *     + or set to 15k and run twice. (auto-compaction not working as advertised?)
- *     + note that [lack of] compaction makes this worse, but with mostly immutable data, matters less?
- *   + Can get in a state where app would never [re-]start, but underlying data is uncorrupted.
- * - everything grows linearly with SessionCount (init, insert, find, count)
- *   + init & insert probably grow linearly with total size
- *   + find & inner counts probably depend on query
- * - insert is atomic, hits inherent serialization limit for a certain insert (string length)
- */
-
+/* eslint-disable no-bitwise */
 const uuidv4 = require('uuid/v4');
 const faker = require('faker');
 
@@ -51,8 +33,9 @@ const mockValue = (nodeVariable) => {
 
 const makeEntity = (type, variables) => {
   const mockAttributes = Object.entries(variables).reduce(
+    // eslint-disable-next-line no-unused-vars
     (acc, [variableId, variable]) => {
-      acc[variableId] = mockValue(variable);
+      acc[variable.name] = mockValue(variable);
       return acc;
     }, {},
   );
@@ -72,7 +55,7 @@ const makeEntity = (type, variables) => {
 
 const buildMockData = (
   protocol,
-  sessionCount = 500,
+  sessionCount = 4500,
 ) => {
   const codebookNodeTypes = Object.keys(protocol.codebook.node);
   const codebookEdgeTypes = Object.keys(protocol.codebook.edge);
@@ -80,21 +63,26 @@ const buildMockData = (
   const makeNetwork = (caseId) => {
     // Generate nodes
     const nodes = [];
-    const networkMaxNodes = 40;
-    const networkMinNodes = 4;
-    const thisNetworkSize =
-      Math.round(Math.random() * ((networkMaxNodes - networkMinNodes) + networkMinNodes));
-
-    const nodesPerType = Math.round(thisNetworkSize / codebookNodeTypes.length);
+    const networkMaxNodes = 20;
+    const networkMinNodes = 2;
 
     codebookNodeTypes.forEach((nodeType) => {
-      nodes.push([...Array(nodesPerType)].map(() => makeEntity(nodeType, protocol.codebook.node[nodeType].variables)));
+      const nodesOfThisType =
+        Math.round(Math.random() * ((networkMaxNodes - networkMinNodes) + networkMinNodes));
+      nodes.push(
+        ...[...Array(nodesOfThisType)].map(() =>
+          makeEntity(
+            protocol.codebook.node[nodeType].name,
+            protocol.codebook.node[nodeType].variables,
+          ),
+        ),
+      );
     });
 
     const ego = makeEntity(null, protocol.codebook.ego.variables);
 
     const edges = [];
-    const networkMaxEdges = 40;
+    const networkMaxEdges = 20;
     const networkMinEdges = 1;
     const pickNodeUid = () => nodes[~~(Math.random() * nodes.length)][nodePrimaryKeyProperty];
 
@@ -102,11 +90,16 @@ const buildMockData = (
       const edgesOfThisType =
         Math.round(Math.random() * ((networkMaxEdges - networkMinEdges) + networkMinEdges));
 
-      edges.push([...Array(edgesOfThisType)].map(() => ({
-        ...makeEntity(edgeType, protocol.codebook.edge[edgeType].variables),
-        from: pickNodeUid(),
-        to: pickNodeUid(),
-      })));
+      edges.push(
+        ...[...Array(edgesOfThisType)].map(() => ({
+          ...makeEntity(
+            protocol.codebook.edge[edgeType].name,
+            protocol.codebook.edge[edgeType].variables,
+          ),
+          from: pickNodeUid(),
+          to: pickNodeUid(),
+        })),
+      );
     });
 
     return {
