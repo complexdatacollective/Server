@@ -1,4 +1,3 @@
-/* eslint-disable no-bitwise */
 const uuidv4 = require('uuid/v4');
 const faker = require('faker');
 
@@ -69,14 +68,11 @@ const buildMockData = (
     codebookNodeTypes.forEach((nodeType) => {
       const nodesOfThisType =
         Math.round(Math.random() * ((networkMaxNodes - networkMinNodes) + networkMinNodes));
-      nodes.push(
-        ...[...Array(nodesOfThisType)].map(() =>
-          makeEntity(
-            protocol.codebook.node[nodeType].name,
-            protocol.codebook.node[nodeType].variables,
-          ),
-        ),
-      );
+      nodes.push(...[...Array(nodesOfThisType)].map(() =>
+        makeEntity(
+          protocol.codebook.node[nodeType].name,
+          protocol.codebook.node[nodeType].variables,
+        )));
     });
 
     const ego = makeEntity(null, protocol.codebook.ego.variables);
@@ -84,22 +80,21 @@ const buildMockData = (
     const edges = [];
     const networkMaxEdges = 20;
     const networkMinEdges = 1;
+    // eslint-disable-next-line no-bitwise
     const pickNodeUid = () => nodes[~~(Math.random() * nodes.length)][nodePrimaryKeyProperty];
 
     codebookEdgeTypes.forEach((edgeType) => {
       const edgesOfThisType =
         Math.round(Math.random() * ((networkMaxEdges - networkMinEdges) + networkMinEdges));
 
-      edges.push(
-        ...[...Array(edgesOfThisType)].map(() => ({
-          ...makeEntity(
-            protocol.codebook.edge[edgeType].name,
-            protocol.codebook.edge[edgeType].variables,
-          ),
-          from: pickNodeUid(),
-          to: pickNodeUid(),
-        })),
-      );
+      edges.push(...[...Array(edgesOfThisType)].map(() => ({
+        ...makeEntity(
+          protocol.codebook.edge[edgeType].name,
+          protocol.codebook.edge[edgeType].variables,
+        ),
+        from: pickNodeUid(),
+        to: pickNodeUid(),
+      })));
     });
 
     return {
