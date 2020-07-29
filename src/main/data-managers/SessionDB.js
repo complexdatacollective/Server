@@ -57,7 +57,17 @@ class SessionDB extends Reportable(DatabaseAdapter) {
    * Find all sessions for a protocol.
    * The default projection returns only limited data to speed up query.
    */
-  findAll(protocolId, limit = null, projection = { updatedAt: 1, createdAt: 1, 'data.sessionVariables': 1 }, sort = mostRecentlyCreated, filterValue = '') {
+  findAll(
+    protocolId,
+    limit = null,
+    projection = {
+      updatedAt: 1,
+      createdAt: 1,
+      'data.sessionVariables': 1,
+    },
+    sort = mostRecentlyCreated,
+    filterValue = '',
+  ) {
     return new Promise((resolve, reject) => {
       const exp = new RegExp(filterValue);
       let cursor = this.db.find({ protocolId, $or: [{ 'data.sessionVariables._caseID': exp }, { _id: exp }] }, projection || undefined);

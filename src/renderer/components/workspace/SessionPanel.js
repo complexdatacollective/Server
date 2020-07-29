@@ -3,6 +3,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { withRouter, Link } from 'react-router-dom';
 import { compose } from 'recompose';
 import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';

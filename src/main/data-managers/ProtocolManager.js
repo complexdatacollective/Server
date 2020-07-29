@@ -350,8 +350,8 @@ class ProtocolManager {
    * @async
    * @return {array}
    */
-  getProtocolSessions(protocolId, ...rest) {
-    return this.sessionDb.findAll(protocolId, ...rest);
+  getProtocolSessions(protocolId, limit, sort, filter) {
+    return this.sessionDb.findAll(protocolId, limit, undefined, sort, filter);
   }
 
   /**

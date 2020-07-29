@@ -48,7 +48,7 @@
         "@babel/preset-env": "^7.10.4",
         "@babel/preset-react": "^7.10.4",
         "@codaco/ui": "^3.4.1",
-        "autoprefixer": "^8.6.5",
+        "autoprefixer": "^9.8.5",
         "babel-eslint": "^9.0.0",
         "babel-jest": "^25.5.1",
         "babel-loader": "^8.1.0",
@@ -88,12 +88,12 @@
         "node-sass": "^4.14.1",
         "postcss-loader": "^2.1.6",
         "react-dev-utils": "^6.1.1",
-        "rosie": "^2.0.1",
         "react-draggable": "^4.4.3",
         "react-virtualized": "^9.21.2",
         "redux-logger": "^3.0.6",
         "redux-persist": "^6.0.0",
         "regenerator-runtime": "^0.13.5",
+        "rosie": "^2.0.1",
         "sass-lint": "^1.12.1",
         "sass-loader": "^7.0.3",
         "sass-svg": "^1.0.1",
@@ -135,8 +135,6 @@
         "recompose": "^0.26.0",
         "redux": "^3.6.0",
         "redux-actions": "^2.6.5",
-        "redux-logger": "^2.7.4",
-        "redux-persist": "^4.3.1",
         "redux-thunk": "^2.3.0",
         "reselect": "^3.0.0",
         "restify": "^7.2.1",
@@ -148,7 +146,7 @@
         "xmldom": "^0.1.27"
     },
     "browserslist": [
-        "Chrome 61"
+        "Electron 9.0.0"
     ],
     "build": {
         "extends": null,
