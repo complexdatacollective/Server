@@ -1,10 +1,9 @@
+const { dialog } = require('electron');
 const fs = require('fs');
 const jszip = require('jszip');
 const logger = require('electron-log');
 const path = require('path');
 const uuid = require('uuid/v4');
-
-const dialog = require('../dialog');
 const ProtocolDB = require('./ProtocolDB');
 const SessionDB = require('./SessionDB');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');

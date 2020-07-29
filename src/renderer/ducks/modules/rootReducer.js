@@ -20,6 +20,11 @@ const appReducer = combineReducers({
   protocols,
 });
 
-const rootReducer = (state, action) => appReducer(state, action);
+const rootReducer = (state, action) => {
+  if (action.type === 'RESET_APP') {
+    return appReducer(undefined, action);
+  }
+  return appReducer(state, action);
+};
 
 export default rootReducer;
