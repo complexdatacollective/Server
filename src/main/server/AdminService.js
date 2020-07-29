@@ -11,7 +11,16 @@ const ExportManager = require('../data-managers/ExportManager');
 const { resetPemKeyPair } = require('./certificateManager');
 const { PairingRequestService } = require('./devices/PairingRequestService');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
-const { mostRecentlyCreated, leastRecentlyCreated, mostRecentlyUpdated, leastRecentlyUpdated, caseIdAscending, caseIdDescending, sessionIdAscending, sessionIdDescending } = require('../utils/db');
+const {
+  mostRecentlyCreated,
+  leastRecentlyCreated,
+  mostRecentlyUpdated,
+  leastRecentlyUpdated,
+  caseIdAscending,
+  caseIdDescending,
+  sessionIdAscending,
+  sessionIdDescending,
+} = require('../utils/db');
 
 const DefaultPort = 8080;
 

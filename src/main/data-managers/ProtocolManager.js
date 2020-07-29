@@ -375,7 +375,6 @@ class ProtocolManager {
       });
   }
 
-  // TODO: Probably remove after alpha testing
   destroyAllSessions() {
     return this.sessionDb.deleteAll();
   }

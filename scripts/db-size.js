@@ -113,7 +113,7 @@ function buildMockData({ sessionCount = SessionCount, edgesPerSession = EdgesPer
     return {
       nodes,
       edges,
-      sessionVariables: { _caseID: `a_${index++}`, _remoteProtocolID: '049d5630a2cd747c3fb26f0081d917b73146eb12bc682afeac1c11316d0151ff' },
+      sessionVariables: { _caseID: `a_${index++}`, _remoteProtocolID: "629aa7b8a90c8ca577ae8c6b3e245ba1e0f1fad99035d6cddd19265186e375cf" },
     };
   }
 
@@ -137,7 +137,7 @@ function insertDocs() {
   const mockRecords = buildMockData();
   console.log('ok');
   const insertTime = process.hrtime();
-  const protocol = { _id: "GoOWVsT0tjDaNIK9" };
+  const protocol = { _id: "629aa7b8a90c8ca577ae8c6b3e245ba1e0f1fad99035d6cddd19265186e375cf" };
   return db.insertAllForProtocol(mockRecords, protocol)
     .then((docs) => {
       printResult(`Insert ${docs.length} sessions`, docs.length, process.hrtime(insertTime));

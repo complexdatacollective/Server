@@ -1,3 +1,4 @@
+const { get, find } = require('lodash');
 const { app, Menu } = require('electron');
 const ProtocolManager = require('./data-managers/ProtocolManager');
 const MainWindow = require('./components/mainWindow');
@@ -10,6 +11,7 @@ const guiProxy = require('./guiProxy');
 const Updater = require('./Updater');
 
 const dialog = require('./dialog');
+const { buildMockData } = require('./utils/db-size');
 
 // TODO: move/centralize
 const FileImportUpdated = 'FILE_IMPORT_UPDATED';
@@ -71,6 +73,18 @@ const createApp = () => {
       });
   };
 
+  const generateTestSessions = () => {
+    protocolManager.allProtocols().then((allProtocols) => {
+      const developmentProtocol = find(allProtocols, ['name', 'Development (schema version 4)']);
+
+      if (!developmentProtocol) { return; }
+
+      const mockSessions = buildMockData(developmentProtocol);
+      const developmentProtocolId = get(developmentProtocol, '_id');
+      protocolManager.addSessionData(developmentProtocolId, mockSessions);
+    });
+  };
+
   let tray; // Always keep reference; if tray is GCed, it disappears
   const trayMenu = [
     {
@@ -104,15 +118,6 @@ const createApp = () => {
           label: 'Import Protocol...',
           click: showImportProtocolDialog,
         },
-        { type: 'separator' },
-        {
-          label: 'Regenerate Certificates...',
-          click: regenerateCertificates,
-        },
-        {
-          label: 'Reset Data...',
-          click: resetAppData,
-        },
       ],
     },
     {
@@ -137,6 +142,25 @@ const createApp = () => {
         { role: 'zoomout' },
         { type: 'separator' },
         { role: 'togglefullscreen' },
+      ],
+    },
+    {
+      label: 'Develop',
+      submenu: [
+        {
+          label: 'Generate test sessions...',
+          click: generateTestSessions,
+        },
+        { type: 'separator' },
+        {
+          label: 'Regenerate Certificates...',
+          click: regenerateCertificates,
+        },
+        { type: 'separator' },
+        {
+          label: 'Reset App Data...',
+          click: resetAppData,
+        },
       ],
     },
     {
