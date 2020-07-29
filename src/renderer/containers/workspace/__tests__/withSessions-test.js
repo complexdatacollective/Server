@@ -49,14 +49,11 @@ describe('withSessions HOC', () => {
     expect(wrapper.instance().loadSessions).not.toHaveBeenCalled();
   });
 
-  it('clears sessions if load errors', (done) => {
+  it('clears sessions if load errors', async () => {
     mockApiClient.get.mockRejectedValue('err');
     wrapper.setProps({ protocol: mockProtocol, sessions: [{ id: 1 }] });
-    // setImmediate: allow the load promise from setting protocol to flush
-    setImmediate(() => {
-      expect(wrapper.state()).toMatchObject({ sessions: [] });
-      done();
-    });
+    await expect(wrapper.instance().loadSessions()).rejects.toMatch('err');
+    expect(wrapper.state()).toMatchObject({ sessions: [] });
   });
 
   it('unsets sessions when protocol changes', () => {
@@ -87,14 +84,14 @@ describe('withSessions HOC', () => {
 
   it('cancels pending request when unmounted', () => {
     const instance = wrapper.instance();
-    instance.loadPromise = {};
+    instance.loadPromises[0] = {};
     wrapper.unmount();
-    expect(instance.loadPromise.cancelled).toBe(true);
+    expect(instance.loadPromises[0].cancelled).toBe(true);
   });
 
   it('ignores cancellation when nothing outstanding', () => {
     const instance = wrapper.instance();
-    instance.loadPromise = null;
+    instance.loadPromises[0] = null;
     expect(() => wrapper.unmount()).not.toThrow();
   });
 });

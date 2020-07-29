@@ -66,7 +66,8 @@ const withSessions = WrappedComponent =>
     }
 
     componentWillUnmount() {
-      this.loadPromises.map(loadPromise => ({ ...loadPromise, cancelled: true }));
+      this.loadPromises = this.loadPromises.map(
+        loadPromise => ({ ...loadPromise, cancelled: true }));
       ipcRenderer.removeListener('SESSIONS_IMPORTED', this.onSessionsImported);
     }
 
@@ -103,7 +104,7 @@ const withSessions = WrappedComponent =>
       }
       const loadPromise = this.apiClient.get(`${this.sessionsEndpoint}/${startIndex}/${stopIndex}/${sortType}/${direction}/${filterValue}`);
       this.loadPromises.push(loadPromise);
-      return (loadPromise
+      return (new Promise((resolve, reject) => (loadPromise
         .then((resp) => {
           if (!loadPromise.cancelled) {
             let sessions;
@@ -135,10 +136,13 @@ const withSessions = WrappedComponent =>
         .catch((err) => {
           if (!loadPromise.cancelled) {
             logger.error(err);
-            this.setState({ sessions: [] });
+            this.setState({ sessions: [] }, () => reject(err));
           }
         })
-        .then(() => { pull(this.loadPromises, loadPromise); }));
+        .then(() => {
+          pull(this.loadPromises, loadPromise);
+          resolve();
+        }))));
     }
 
     loadMoreSessions = (startIndex, stopIndex) => (
