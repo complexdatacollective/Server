@@ -2,10 +2,9 @@
 import fs from 'fs';
 import JSZip from 'jszip';
 import path from 'path';
-
+import { dialog } from 'electron';
 import ProtocolManager from '../ProtocolManager';
 import promisedFs from '../../utils/promised-fs';
-import dialog from '../../dialog';
 
 jest.mock('fs');
 jest.mock('electron');
@@ -14,7 +13,6 @@ jest.mock('jszip');
 jest.mock('../../utils/promised-fs');
 jest.mock('../ProtocolDB');
 jest.mock('../SessionDB');
-jest.mock('../../dialog');
 
 const anyNetcanvasFile = expect.stringMatching(/\.netcanvas$/);
 
