@@ -27,6 +27,7 @@ const caseProperty = '_caseID';
 const mockCoord = () => faker.random.number({ min: 0, max: 1, precision: 0.000001 });
 
 // Todo: make these mock values reflect validation
+// Todo: include date time
 const mockValue = (nodeVariable) => {
   switch (nodeVariable.type) {
     case 'boolean':
@@ -41,49 +42,40 @@ const mockValue = (nodeVariable) => {
       return { x: mockCoord(), y: mockCoord() };
     default: {
       if (nodeVariable.name === 'name') {
-        return faker.random.name();
+        return faker.name.findName();
       }
       return faker.random.word();
     }
   }
 };
 
-const generateNodes = (number, type, codebookVariables) => {
-  const makeNode = () => {
-    const mockAttributes = Object.entries(codebookVariables).reduce(
-      (acc, [variableId, variable]) => {
-        acc[variableId] = mockValue(variable);
-        return acc;
-      }, {},
-    );
+const makeEntity = (type, variables) => {
+  const mockAttributes = Object.entries(variables).reduce(
+    (acc, [variableId, variable]) => {
+      acc[variableId] = mockValue(variable);
+      return acc;
+    }, {},
+  );
 
-    const modelData = {
-      [nodePrimaryKeyProperty]: uuidv4(),
-      type,
-    };
-
-    return {
-      ...modelData,
-      [nodeAttributesProperty]: {
-        ...mockAttributes,
-      },
-    };
+  const modelData = {
+    [nodePrimaryKeyProperty]: uuidv4(),
+    ...(type && { type }),
   };
 
-  return [...Array(number)].map((r, i) => ({
-    uuid: uuidv4(),
-    data: makeNode(),
-  }));
+  return {
+    ...modelData,
+    [nodeAttributesProperty]: {
+      ...mockAttributes,
+    },
+  };
 };
 
 const buildMockData = (
   protocol,
-  sessionCount = 4500,
+  sessionCount = 500,
 ) => {
   const codebookNodeTypes = Object.keys(protocol.codebook.node);
   const codebookEdgeTypes = Object.keys(protocol.codebook.edge);
-
-  const mockEdge = { from: 12, to: 11, type: 'friends' };
 
   const makeNetwork = (caseId) => {
     // Generate nodes
@@ -96,21 +88,26 @@ const buildMockData = (
     const nodesPerType = Math.round(thisNetworkSize / codebookNodeTypes.length);
 
     codebookNodeTypes.forEach((nodeType) => {
-      nodes.push(generateNodes(nodesPerType, protocol.codebook.node[nodeType]));
+      nodes.push([...Array(nodesPerType)].map(() => makeEntity(nodeType, protocol.codebook.node[nodeType].variables)));
     });
 
+    const ego = makeEntity(null, protocol.codebook.ego.variables);
+
     const edges = [];
-    const ego = {};
-    // let edges = new Array(edgesPerSession);
-    // edges.fill(mockEdge);
+    const networkMaxEdges = 40;
+    const networkMinEdges = 1;
+    const pickNodeUid = () => nodes[~~(Math.random() * nodes.length)][nodePrimaryKeyProperty];
 
-    // // Change last edge's property so we can search for it
-    // if (edges.length) { edges[edges.length - 1].from = 13; }
+    codebookEdgeTypes.forEach((edgeType) => {
+      const edgesOfThisType =
+        Math.round(Math.random() * ((networkMaxEdges - networkMinEdges) + networkMinEdges));
 
-    // if (useRealIds) {
-    //   const pickNodeUid = () => nodes[~~(Math.random() * nodes.length)][nodePrimaryKeyProperty];
-    //   edges = edges.map(edge => ({ ...edge, from: pickNodeUid(), to: pickNodeUid() }))
-    // }
+      edges.push([...Array(edgesOfThisType)].map(() => ({
+        ...makeEntity(edgeType, protocol.codebook.edge[edgeType].variables),
+        from: pickNodeUid(),
+        to: pickNodeUid(),
+      })));
+    });
 
     return {
       nodes,

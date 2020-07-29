@@ -215,7 +215,10 @@ const Reportable = Super => class extends Super {
             acc = acc || {};
             (variableNames || []).forEach((variableName) => {
               acc[variableName] = acc[variableName] || {};
-              const optionValue = entity[attributesProperty][variableName];
+
+              const optionValue =
+                entity[attributesProperty] && entity[attributesProperty][variableName];
+
               if (optionValue !== undefined) {
                 // Categorical values are expressed as arrays of multiple options
                 const optionValues = (optionValue instanceof Array) ? optionValue : [optionValue];
@@ -230,7 +233,10 @@ const Reportable = Super => class extends Super {
             acc[entity.type] = acc[entity.type] || {};
             (variableNames[entity.type] || []).forEach((variableName) => {
               acc[entity.type][variableName] = acc[entity.type][variableName] || {};
-              const optionValue = entity[attributesProperty][variableName];
+
+              const optionValue =
+                entity[attributesProperty] && entity[attributesProperty][variableName];
+
               if (optionValue !== undefined) {
                 // Categorical values are expressed as arrays of multiple options
                 const optionValues = (optionValue instanceof Array) ? optionValue : [optionValue];

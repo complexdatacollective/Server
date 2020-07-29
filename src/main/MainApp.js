@@ -6,6 +6,7 @@ const { AdminService } = require('./server/AdminService');
 const { resetPemKeyPair } = require('./server/certificateManager');
 const { isWindows } = require('./utils/environment');
 const { createTray } = require('./components/tray');
+const { buildMockData } = require('./utils/buildMockData');
 
 const guiProxy = require('./guiProxy');
 const Updater = require('./Updater');
@@ -81,9 +82,7 @@ const createApp = () => {
   const generateTestSessions = () => {
     protocolManager.allProtocols().then((allProtocols) => {
       const developmentProtocol = find(allProtocols, ['name', 'Development (schema version 4)']);
-
       if (!developmentProtocol) { return; }
-
       const mockSessions = buildMockData(developmentProtocol);
       const developmentProtocolId = get(developmentProtocol, '_id');
       protocolManager.addSessionData(developmentProtocolId, mockSessions);
