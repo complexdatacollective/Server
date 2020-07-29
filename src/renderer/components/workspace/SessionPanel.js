@@ -3,20 +3,27 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { withRouter, Link } from 'react-router-dom';
+import { compose } from 'recompose';
 import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
+import { selectors as protocolSelectors } from '../../ducks/modules/protocols';
 import { DismissButton, ScrollingPanelItem } from '../../components';
 import { formatDate } from '../../utils/formatters';
 
 const emptyContent = (<p>Interviews you import from Network Canvas will appear here.</p>);
+const maxRecentSessions = 5;
 
 class SessionPanel extends Component {
   get header() {
     const { sessions, totalCount } = this.props;
-    const countText = (totalCount && sessions.length < totalCount) ? `(${sessions.length} of ${totalCount})` : '';
+    const visibleSessions = maxRecentSessions < sessions.length ?
+      maxRecentSessions : sessions.length;
+    const countText = (totalCount && visibleSessions < totalCount) ?
+      `(${visibleSessions} of ${totalCount})` : '';
     return (
       <div className="dashboard__header session-panel__header">
         <h4 className="dashboard__header-text">
-          Imported Interviews
+          Most Recent Sessions
           <small className="session-panel__header-count">
             {countText}
           </small>
@@ -56,37 +63,45 @@ class SessionPanel extends Component {
   }
 
   render() {
-    const { sessions } = this.props;
+    const { currentProtocolId, sessions } = this.props;
 
     return (
-      <ScrollingPanelItem header={this.header}>
+      <ScrollingPanelItem header={this.header} className="session-panel">
         { (sessions && sessions.length === 0) && emptyContent }
         <ul className="session-panel__list">
-          {sessions && sessions.map(s => (
-            <li key={s.id}>
-              <p>
-                <DismissButton small inline onClick={() => this.deleteSession(s.id)} />
-                <span>{formatDate(s.updatedAt)}</span>
-                <span className="session-panel__id">
-                  {s.data && s.data.sessionVariables && s.data.sessionVariables._caseID}
-                  {' - '}
-                  {s.id && s.id.substring(0, 13)}
-                </span>
-              </p>
-            </li>
-          ))}
+          {sessions && sessions.map((s, index) => {
+            if (index < maxRecentSessions) {
+              return (
+                <li key={s.id}>
+                  <p>
+                    <DismissButton small inline onClick={() => this.deleteSession(s.id)} />
+                    <span>{formatDate(s.updatedAt)}</span>
+                    <span className="session-panel__id">
+                      {s.data && s.data.sessionVariables && s.data.sessionVariables._caseID}
+                      {' - '}
+                      {s.id && s.id.substring(0, 13)}
+                    </span>
+                  </p>
+                </li>
+              );
+            }
+            return '';
+          })}
         </ul>
+        <Link to={`/workspaces/${currentProtocolId}/casemanagement`} className="session-panel__link">Additional case details</Link>
       </ScrollingPanelItem>
     );
   }
 }
 
 SessionPanel.defaultProps = {
+  currentProtocolId: '',
   sessions: [],
   totalCount: 0,
 };
 
 SessionPanel.propTypes = {
+  currentProtocolId: PropTypes.string,
   deleteSession: PropTypes.func.isRequired,
   deleteAllSessions: PropTypes.func.isRequired,
   sessions: PropTypes.array,
@@ -94,11 +109,20 @@ SessionPanel.propTypes = {
   openDialog: PropTypes.func.isRequired,
 };
 
-const mapDispatchToProps = {
-  openDialog: dialogActions.openDialog,
-};
+const mapStateToProps = (state, ownProps) => ({
+  currentProtocolId: protocolSelectors.currentProtocolId(state, ownProps),
+});
 
-export default connect(null, mapDispatchToProps)(SessionPanel);
+function mapDispatchToProps(dispatch) {
+  return {
+    openDialog: bindActionCreators(dialogActions.openDialog, dispatch),
+  };
+}
+
+export default compose(
+  withRouter,
+  connect(mapStateToProps, mapDispatchToProps),
+)(SessionPanel);
 
 export {
   SessionPanel as UnconnectedSessionPanel,

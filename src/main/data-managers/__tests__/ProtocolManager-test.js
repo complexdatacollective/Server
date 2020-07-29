@@ -2,10 +2,9 @@
 import fs from 'fs';
 import JSZip from 'jszip';
 import path from 'path';
-
+import { dialog } from 'electron';
 import ProtocolManager from '../ProtocolManager';
 import promisedFs from '../../utils/promised-fs';
-import dialog from '../../dialog';
 import ResolverDB from '../ResolverDB';
 
 jest.mock('fs');
@@ -16,7 +15,6 @@ jest.mock('../../utils/promised-fs');
 jest.mock('../ProtocolDB');
 jest.mock('../ResolverDB');
 jest.mock('../SessionDB');
-jest.mock('../../dialog');
 
 const anyNetcanvasFile = expect.stringMatching(/\.netcanvas$/);
 
@@ -382,7 +380,8 @@ describe('ProtocolManager', () => {
 
     it('accepts a limit', () => {
       manager.getProtocolSessions(protocolId, 100);
-      expect(manager.sessionDb.findAll).toHaveBeenCalledWith(protocolId, 100);
+      expect(manager.sessionDb.findAll).toHaveBeenCalledWith(
+        protocolId, 100, undefined, undefined, undefined);
     });
 
     it('deletes a session via DB', () =>

@@ -39,10 +39,10 @@ OverviewScreen.propTypes = {
   protocols: Types.protocols,
 };
 
-const mapStateToProps = ({ connectionInfo: { deviceService }, devices, protocols }) => ({
+const mapStateToProps = ({ connectionInfo, devices, protocols }) => ({
   devices,
   protocols,
-  deviceApiInfo: deviceService,
+  deviceApiInfo: connectionInfo && connectionInfo.deviceService,
 });
 
 const mapDispatchToProps = dispatch => ({

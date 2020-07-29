@@ -2,6 +2,7 @@ export { default as AnswerDistributionPanel } from './workspace/AnswerDistributi
 export { default as AppMessage } from './AppMessage';
 export { default as BarChart } from './charts/BarChart';
 export { default as CountsWidget } from './charts/CountsWidget';
+export { default as CaseTable } from './CaseTable';
 export { default as DeviceDetails } from './DeviceDetails';
 export { default as DeviceList } from './DeviceList';
 export { default as DismissButton } from './DismissButton';
