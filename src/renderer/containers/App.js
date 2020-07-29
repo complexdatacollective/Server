@@ -192,10 +192,14 @@ App.propTypes = {
   dismissAppMessage: PropTypes.func.isRequired,
   dismissPairingRequest: PropTypes.func.isRequired,
   loadDevices: PropTypes.func.isRequired,
+  loadProtocols: PropTypes.func.isRequired,
   resetApp: PropTypes.func.isRequired,
   newPairingRequest: PropTypes.func.isRequired,
   pairingRequest: PropTypes.shape({
     status: PropTypes.string,
+  }),
+  history: PropTypes.shape({
+    push: PropTypes.func.isRequired,
   }),
   setConnectionInfo: PropTypes.func.isRequired,
   showConfirmationMessage: PropTypes.func,
@@ -206,6 +210,9 @@ App.defaultProps = {
   appMessages: [],
   pairingRequest: {},
   showConfirmationMessage: () => {},
+  history: {
+    push: () => {},
+  },
 };
 
 const mapStateToProps = ({ pairingRequest, appMessages }) => ({

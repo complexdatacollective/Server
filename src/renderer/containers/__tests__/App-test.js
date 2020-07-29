@@ -23,13 +23,21 @@ const mockDispatched = {
   dismissAppMessage: jest.fn(),
   dismissAppMessages: jest.fn(),
   loadDevices: jest.fn(),
+  loadProtocols: jest.fn(),
   resetApp: jest.fn(),
   setConnectionInfo: jest.fn(),
+  history: {
+    push: jest.fn(),
+  },
 };
 
 describe('<App />', () => {
   beforeEach(() => {
-    Object.values(mockDispatched).forEach(mockFn => mockFn.mockClear());
+    Object.values(mockDispatched).forEach((mockFn) => {
+      if (typeof mockFn === 'function') {
+        mockFn.mockClear();
+      }
+    });
   });
 
   const mockPairRequest = {};

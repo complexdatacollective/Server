@@ -26,20 +26,3 @@ export const store = createStore(
 );
 
 export const persistor = persistStore(store);
-
-// export const store = createStore(
-//   rootReducer,
-//   undefined,
-//   compose(
-//     autoRehydrate(),
-//     applyMiddleware(thunk, logger, pairingObserver),
-//     typeof window === 'object' && typeof window.devToolsExtension !== 'undefined'
-//       ? window.devToolsExtension()
-//       : f => f,
-//   ),
-// );
-
-// export const persistor = persistStore(
-//   store,
-//   { whitelist: ['excludedChartVariables', 'panelLayoutOrders'] },
-// );
