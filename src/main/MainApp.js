@@ -1,3 +1,4 @@
+const { get, find } = require('lodash');
 const { app, Menu, dialog } = require('electron');
 const ProtocolManager = require('./data-managers/ProtocolManager');
 const MainWindow = require('./components/mainWindow');
@@ -5,6 +6,7 @@ const { AdminService } = require('./server/AdminService');
 const { resetPemKeyPair } = require('./server/certificateManager');
 const { isWindows } = require('./utils/environment');
 const { createTray } = require('./components/tray');
+const { buildMockData } = require('./utils/buildMockData');
 
 const guiProxy = require('./guiProxy');
 const Updater = require('./Updater');
@@ -77,6 +79,17 @@ const createApp = () => {
       });
   };
 
+  const generateTestSessions = () => {
+    protocolManager.allProtocols().then((allProtocols) => {
+      const developmentProtocol = find(allProtocols, ['name', 'Development']);
+      if (!developmentProtocol) { return; }
+      const mockSessions = buildMockData(developmentProtocol);
+      const developmentProtocolId = get(developmentProtocol, '_id');
+      protocolManager.addSessionData(developmentProtocolId, mockSessions)
+        .then(() => reloadHomeScreen());
+    });
+  };
+
   let tray; // Always keep reference; if tray is GCed, it disappears
   const trayMenu = [
     {
@@ -110,15 +123,6 @@ const createApp = () => {
           label: 'Import Protocol...',
           click: showImportProtocolDialog,
         },
-        { type: 'separator' },
-        {
-          label: 'Regenerate Certificates...',
-          click: regenerateCertificates,
-        },
-        {
-          label: 'Reset Data...',
-          click: resetAppData,
-        },
       ],
     },
     {
@@ -143,6 +147,25 @@ const createApp = () => {
         { role: 'zoomout' },
         { type: 'separator' },
         { role: 'togglefullscreen' },
+      ],
+    },
+    {
+      label: 'Develop',
+      submenu: [
+        {
+          label: 'Generate test sessions...',
+          click: generateTestSessions,
+        },
+        { type: 'separator' },
+        {
+          label: 'Regenerate Certificates...',
+          click: regenerateCertificates,
+        },
+        { type: 'separator' },
+        {
+          label: 'Reset App Data...',
+          click: resetAppData,
+        },
       ],
     },
     {

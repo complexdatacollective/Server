@@ -2,6 +2,7 @@ const restify = require('restify');
 const logger = require('electron-log');
 const corsMiddleware = require('restify-cors-middleware');
 const detectPort = require('detect-port');
+const { toNumber } = require('lodash');
 
 const apiRequestLogger = require('./apiRequestLogger');
 const DeviceManager = require('../data-managers/DeviceManager');
@@ -10,6 +11,16 @@ const ExportManager = require('../data-managers/ExportManager');
 const { resetPemKeyPair } = require('./certificateManager');
 const { PairingRequestService } = require('./devices/PairingRequestService');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
+const {
+  mostRecentlyCreated,
+  leastRecentlyCreated,
+  mostRecentlyUpdated,
+  leastRecentlyUpdated,
+  caseIdAscending,
+  caseIdDescending,
+  sessionIdAscending,
+  sessionIdDescending,
+} = require('../utils/db');
 
 const DefaultPort = 8080;
 
@@ -27,6 +38,20 @@ const codeForError = (err) => {
     return 400;
   }
   return 500;
+};
+
+const getSort = (sortType, direction) => {
+  switch (sortType) {
+    case 'caseId':
+      return direction === -1 ? caseIdDescending : caseIdAscending;
+    case 'sessionId':
+      return direction === -1 ? sessionIdDescending : sessionIdAscending;
+    case 'updatedAt':
+      return direction === -1 ? mostRecentlyUpdated : leastRecentlyUpdated;
+    case 'createdAt':
+    default:
+      return direction === -1 ? mostRecentlyCreated : leastRecentlyCreated;
+  }
 };
 
 /**
@@ -218,15 +243,18 @@ class AdminService {
         .then(() => next());
     });
 
-    api.get('/protocols/:id/sessions', (req, res, next) => {
-      // For now, hardcode response limit & offset
-      // TODO: paginated API if needed
-      const limit = 100;
-      this.protocolManager.getProtocolSessions(req.params.id)
+    api.get('/protocols/:id/sessions/:startIndex/:stopIndex/:sortType/:direction/:filter', (req, res, next) => {
+      const stopIndex = toNumber(req.params.stopIndex) || 100;
+      const startIndex = toNumber(req.params.startIndex) || 0;
+      const sortType = req.params.sortType || 'createdAt';
+      const direction = toNumber(req.params.direction) || -1;
+      const sort = getSort(sortType, direction);
+      const filterValue = req.params.filter || '';
+      this.protocolManager.getProtocolSessions(req.params.id, undefined, sort, filterValue)
         .then(sessions => res.send({
           status: 'ok',
           totalSessions: sessions.length,
-          sessions: sessions.slice(0, limit),
+          sessions: sessions.slice(startIndex, stopIndex),
         }))
         .catch((err) => {
           logger.error(err);

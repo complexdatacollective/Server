@@ -232,7 +232,7 @@ describe('the AdminService', () => {
         });
 
         it('loads sessions', async () => {
-          const res = await jsonClient.get(sessEndpoint);
+          const res = await jsonClient.get(`${sessEndpoint}/0/100/createdAt/-1/`);
           expect(res.json.sessions).toEqual(mockSessions);
         });
 
@@ -257,7 +257,7 @@ describe('the AdminService', () => {
           });
 
           it('returns a server error (get)', async () => {
-            await expect(jsonClient.get(sessEndpoint)).rejects.toMatchObject(mockResp);
+            await expect(jsonClient.get(`${sessEndpoint}/0/100/createdAt/-1/`)).rejects.toMatchObject(mockResp);
           });
 
           it('returns a server error (delete all)', async () => {

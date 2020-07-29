@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */ // disabled for reducers
 const attributesProperty = require('../utils/network-query/nodeAttributesProperty');
-const { leastRecent, resolveOrReject } = require('../utils/db');
+const { leastRecentlyCreated, resolveOrReject } = require('../utils/db');
 
 // This is a dummy field used for projections when counting network members.
 // When we don't need to know anything about members other than size, returning
@@ -115,7 +115,7 @@ const Reportable = Super => class extends Super {
     return new Promise((resolve, reject) => {
       let cursor = this.db.find({ protocolId });
       cursor = cursor.projection({ 'data.edges.type': 1, 'data.nodes.type': 1, createdAt: 1, _id: 0 });
-      cursor = cursor.sort(leastRecent);
+      cursor = cursor.sort(leastRecentlyCreated);
       cursor.exec(resolveOrReject(((records) => {
         const entities = records.reduce((entries, record) => {
           const { edges: { type: edgeTypes } = {}, nodes: { type: nodeTypes } = {} } = record.data;
@@ -215,7 +215,10 @@ const Reportable = Super => class extends Super {
             acc = acc || {};
             (variableNames || []).forEach((variableName) => {
               acc[variableName] = acc[variableName] || {};
-              const optionValue = entity[attributesProperty][variableName];
+
+              const optionValue =
+                entity[attributesProperty] && entity[attributesProperty][variableName];
+
               if (optionValue !== undefined) {
                 // Categorical values are expressed as arrays of multiple options
                 const optionValues = (optionValue instanceof Array) ? optionValue : [optionValue];
@@ -230,7 +233,10 @@ const Reportable = Super => class extends Super {
             acc[entity.type] = acc[entity.type] || {};
             (variableNames[entity.type] || []).forEach((variableName) => {
               acc[entity.type][variableName] = acc[entity.type][variableName] || {};
-              const optionValue = entity[attributesProperty][variableName];
+
+              const optionValue =
+                entity[attributesProperty] && entity[attributesProperty][variableName];
+
               if (optionValue !== undefined) {
                 // Categorical values are expressed as arrays of multiple options
                 const optionValues = (optionValue instanceof Array) ? optionValue : [optionValue];

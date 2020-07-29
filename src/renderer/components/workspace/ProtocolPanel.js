@@ -12,6 +12,7 @@ const ProtocolPanel = ({ protocol, workspaceId }) => (
     <PanelItem label="Imported" value={protocol.updatedAt && protocol.updatedAt.toLocaleString()} />
     <div className="workspace-panel__buttons">
       <LinkButton to={`/workspaces/${workspaceId}/settings`} color="mustard">Settings</LinkButton>&nbsp;
+      <LinkButton to={`/workspaces/${workspaceId}/casemanagement`} color="slate-blue">Manage Cases</LinkButton>&nbsp;
       <LinkButton to={`/workspaces/${workspaceId}/export`} color="neon-coral">Export data</LinkButton>
     </div>
   </div>

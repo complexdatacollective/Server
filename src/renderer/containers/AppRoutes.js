@@ -5,7 +5,7 @@ import {
   Switch,
 } from 'react-router-dom';
 
-import { PairDevice, OverviewScreen, SettingsScreen, ExportScreen, WorkspaceScreen } from './';
+import { CaseManagement, ExportScreen, OverviewScreen, PairDevice, SettingsScreen, WorkspaceScreen } from './';
 import PairedDeviceList from '../components/PairedDeviceList';
 import { ServerPanel } from '../components';
 
@@ -28,6 +28,7 @@ class AppRoutes extends Component {
           <Switch>
             <Route path="/overview" component={OverviewScreen} />
             <Route exact path="/workspaces/:id/" render={workspaceRenderer} />
+            <Route exact path="/workspaces/:id/casemanagement" component={CaseManagement} />
             <Route exact path="/workspaces/:id/settings" component={SettingsScreen} />
             <Route exact path="/workspaces/:id/export" component={ExportScreen} />
             <Route exact path="/devices" component={PairedDeviceList} />

@@ -1,5 +1,5 @@
 const NeDB = require('nedb');
-const { mostRecent, resolveOrReject } = require('../utils/db');
+const { mostRecentlyCreated, resolveOrReject } = require('../utils/db');
 
 const DbConfig = {
   corruptAlertThreshold: 0,
@@ -61,7 +61,7 @@ class DatabaseAdapter {
    */
   all() {
     return new Promise((resolve, reject) => {
-      this.db.find({}).sort(mostRecent).exec(resolveOrReject(resolve, reject));
+      this.db.find({}).sort(mostRecentlyCreated).exec(resolveOrReject(resolve, reject));
     });
   }
 
