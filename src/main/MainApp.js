@@ -81,7 +81,7 @@ const createApp = () => {
 
   const generateTestSessions = () => {
     protocolManager.allProtocols().then((allProtocols) => {
-      const developmentProtocol = find(allProtocols, ['name', 'Development (schema version 4)']);
+      const developmentProtocol = find(allProtocols, ['name', 'Development']);
       if (!developmentProtocol) { return; }
       const mockSessions = buildMockData(developmentProtocol);
       const developmentProtocolId = get(developmentProtocol, '_id');
