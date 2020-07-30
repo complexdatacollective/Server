@@ -143,7 +143,6 @@ const createApp = () => {
       submenu: [
         { role: 'reload' },
         { role: 'forcereload' },
-        { role: 'toggledevtools' },
         { type: 'separator' },
         { role: 'resetzoom' },
         { role: 'zoomin' },
@@ -155,6 +154,8 @@ const createApp = () => {
     {
       label: 'Develop',
       submenu: [
+        { role: 'toggledevtools' },
+        { type: 'separator' },
         {
           label: 'Generate test sessions...',
           click: generateTestSessions,
