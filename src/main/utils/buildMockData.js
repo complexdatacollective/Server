@@ -25,9 +25,7 @@ const mockValue = (variable) => {
     case 'layout':
       return { x: mockCoord(), y: mockCoord() };
     default: {
-      console.log('testing for variable name', variable.name);
       if (variable.name.toLowerCase() === 'name' || variable.name.toLowerCase().includes('name')) {
-        console.log(variable.name, 'is a name');
         return faker.name.findName();
       }
       return faker.random.word();
