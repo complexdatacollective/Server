@@ -8,25 +8,34 @@ const caseProperty = '_caseID';
 const mockCoord = () => faker.random.number({ min: 0, max: 1, precision: 0.000001 });
 
 // Todo: make these mock values reflect validation
-// Todo: include date time
-const mockValue = (nodeVariable) => {
-  switch (nodeVariable.type) {
+const mockValue = (variable) => {
+  switch (variable.type) {
     case 'boolean':
       return faker.random.boolean();
     case 'number':
       return faker.random.number({ min: 20, max: 100 });
+    case 'scalar':
+      return faker.random.number({ min: 0, max: 1, precision: 0.001 });
+    case 'datetime':
+      return faker.date.recent().toISOString().slice(0, 10);
     case 'ordinal':
-      return faker.random.arrayElement(nodeVariable.options).value;
+      return faker.random.arrayElement(variable.options).value;
     case 'categorical':
-      return [faker.random.arrayElement(nodeVariable.options).value];
+      return [faker.random.arrayElement(variable.options).value];
     case 'layout':
       return { x: mockCoord(), y: mockCoord() };
-    default: {
-      if (nodeVariable.name === 'name') {
+    case 'text': {
+      if (variable.name.toLowerCase() === 'name' || variable.name.toLowerCase().includes('name')) {
         return faker.name.findName();
+      }
+
+      if (variable.component && variable.component === 'TextArea') {
+        return faker.lorem.paragraph();
       }
       return faker.random.word();
     }
+    default:
+      return faker.random.word();
   }
 };
 
@@ -81,7 +90,7 @@ const buildMockData = (
     const networkMaxEdges = 20;
     const networkMinEdges = 1;
     // eslint-disable-next-line no-bitwise
-    const pickNodeUid = () => nodes[~~(Math.random() * nodes.length)][nodePrimaryKeyProperty];
+    const pickNodeUid = () => nodes[~~(Math.random() * (nodes.length - 1))][nodePrimaryKeyProperty];
 
     codebookEdgeTypes.forEach((edgeType) => {
       const edgesOfThisType =
