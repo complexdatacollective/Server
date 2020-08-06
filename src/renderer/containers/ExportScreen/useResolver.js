@@ -109,30 +109,25 @@ const useResolver = (showError) => {
         useEgoData: useEgoData && showCsvOpts,
       },
     )
-      .then(newResolverStream => new Promise((resolve, reject) => {
-        resolverStream.current = newResolverStream;
+      .then(result => new Promise((resolve, reject) => {
+        resolverStream.current = result;
 
-        newResolverStream.on('data', (d) => {
+        result.on('match', (d) => {
           const data = JSON.parse(d.toString());
 
           addMatch(data);
         });
 
-        newResolverStream.on('data', (d) => {
-          const data = JSON.parse(d.toString());
+        result.on('end', resolve);
 
-          addMatch(data);
-        });
-
-        newResolverStream.on('end', resolve);
-
-        newResolverStream.on('error', reject);
+        result.on('error', reject);
       }))
       .then(() => updateState({
         isLoadingMatches: false,
       }))
       .catch((error) => {
-        showError(error.message);
+        const message = error.message || error.toString();
+        showError(message);
 
         updateState({
           errorLoadingMatches: error,

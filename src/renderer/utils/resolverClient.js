@@ -1,20 +1,6 @@
 const { ipcRenderer } = require('electron');
 const uuid = require('uuid');
 const { EventEmitter } = require('events');
-const { through, pipeline } = require('mississippi');
-// const IPCStream = require('electron-ipc-stream');
-
-// Make our IPCStream emit events
-const IPCErrorTranform = () => through((chunk, encoding, callback) => {
-  const data = JSON.parse(chunk.toString());
-  // IPC streams aren't real streams so we use a custom error message
-  if (data.error) {
-    callback(data.error);
-    return;
-  }
-
-  callback(null, chunk);
-});
 
 const eventTypes = {
   RESOLVE_REQUEST: 'RESOLVE_REQUEST',
@@ -32,7 +18,7 @@ const makeResolverResult = (requestId) => {
 
   const handleError = (e) => {
     console.log('error', e);
-    emitter.emit('error', e);
+    emitter.emit('error', new Error(e));
     emitter.emit('end');
   };
 
@@ -41,7 +27,7 @@ const makeResolverResult = (requestId) => {
     console.log('resolve end');
   });
 
-  ipcRenderer.on(getEventName(eventTypes.RESOLVE_DATA, requestId), (data) => {
+  ipcRenderer.on(getEventName(eventTypes.RESOLVE_DATA, requestId), (event, data) => {
     try {
       const parsedData = JSON.parse(data.toString());
 
@@ -50,18 +36,21 @@ const makeResolverResult = (requestId) => {
         return;
       }
 
-      console.log('data');
+      console.log('data', parsedData);
       emitter.emit('match', parsedData);
     } catch (e) {
       handleError(e);
     }
   });
 
-  throw new Error('listen for' + getEventName(eventTypes.RESOLVE_ERROR, requestId));
+  console.log('listen for:' + getEventName(eventTypes.RESOLVE_ERROR, requestId));
 
-  ipcRenderer.on(getEventName(eventTypes.RESOLVE_ERROR, requestId), (data) => {
-    handleError(data);
-  });
+  ipcRenderer.on(
+    getEventName(eventTypes.RESOLVE_ERROR, requestId),
+    (_, error) => handleError(error),
+  );
+
+  return emitter;
 };
 
 /**
@@ -69,7 +58,7 @@ const makeResolverResult = (requestId) => {
  */
 class resolverClient {
   static resolveProtocol(protocolId, options) {
-    const requestId = `resolve-request-${uuid()}`;
+    const requestId = uuid();
 
     return new Promise((resolve) => {
       const resolverResult = makeResolverResult(requestId);

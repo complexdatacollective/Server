@@ -44,20 +44,20 @@ class ResolverService {
 
     const handleError = (error) => {
       logger.debug('[ResolverService:error]', error.message);
-      console.log('emit', getEventName(eventTypes.RESOLVE_ERROR, requestId));
-      ipcMain.emit(getEventName(eventTypes.RESOLVE_ERROR, requestId), error);
+      const message = error.message || error;
+      event.sender.send(getEventName(eventTypes.RESOLVE_ERROR, requestId), message);
     };
 
     this.resolveProtocol(protocolId, options)
       .then((resolverStream) => {
         resolverStream.on('data', (data) => {
           logger.debug('[ResolverService:data]', data);
-          ipcMain.emit(getEventName(eventTypes.RESOLVE_DATA, requestId), data);
+          event.sender.send(getEventName(eventTypes.RESOLVE_DATA, requestId), data);
         });
-        resolverStream.on('error', handleError);
+        resolverStream.on('error', (_, e) => handleError(e));
         resolverStream.on('end', () => {
           logger.debug('END');
-          ipcMain.emit(getEventName(eventTypes.RESOLVE_END, requestId));
+          event.sender.send(getEventName(eventTypes.RESOLVE_END, requestId));
         });
         // const handleStreamError = (error) => {
         //   const message = error.message || error;
