@@ -29,7 +29,7 @@ function stateReducer(state, action) {
 }
 
 const useResolver = (showError) => {
-  const resolverStream = useRef(null);
+  const resolverResults = useRef(null);
   const client = useRef(resolverClient);
   const [state, dispatch] = useReducer(stateReducer, initialState);
 
@@ -40,9 +40,9 @@ const useResolver = (showError) => {
     dispatch({ type: 'UPDATE', payload: props });
 
   const cleanupResolverStream = () => {
-    if (resolverStream.current) {
-      resolverStream.current.abort();
-      resolverStream.current = null;
+    if (resolverResults.current) {
+      // resolverResults.current.abort();
+      resolverResults.current = null;
     }
   };
 
@@ -110,7 +110,7 @@ const useResolver = (showError) => {
       },
     )
       .then(result => new Promise((resolve, reject) => {
-        resolverStream.current = result;
+        resolverResults.current = result;
 
         result.on('match', (d) => {
           const data = JSON.parse(d.toString());

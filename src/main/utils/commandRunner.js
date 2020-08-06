@@ -15,6 +15,8 @@ const spawnCommand = ({ executable, args }) =>
     fs.access(executable, fs.constants.R_OK, (error) => {
       if (error) { reject(new Error('could not find command')); }
 
+      // resolve(child.spawn(executable, args));
+
       const spawnProcess = () => child.spawn(executable, args);
 
       resolve(spawnProcess);
