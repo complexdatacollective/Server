@@ -3,7 +3,7 @@ const logger = require('electron-log');
 const ProtocolManager = require('../data-managers/ProtocolManager');
 const { ResolverManager } = require('../data-managers/ResolverManager');
 
-// TODO: share this with the client?
+// TODO: can we share this with the client?
 const eventTypes = {
   RESOLVE_REQUEST: 'RESOLVE_REQUEST',
   RESOLVE_END: 'RESOLVE_END',
@@ -11,7 +11,7 @@ const eventTypes = {
   RESOLVE_ERROR: 'RESOLVE_ERROR',
 };
 
-// TODO: share this with the client?
+// TODO:  can we share this with the client?
 const getEventName = (eventType, requestId) =>
   `${eventType}_${requestId}`;
 
