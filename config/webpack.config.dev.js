@@ -108,7 +108,7 @@ const config = {
     new webpack.NamedModulesPlugin(),
     // new webpack.DefinePlugin(env.stringified),
     // This is necessary to emit hot updates (currently CSS only):
-    // new webpack.HotModuleReplacementPlugin(),
+    new webpack.HotModuleReplacementPlugin(),
     // Watcher doesn't work well if you mistype casing in a path so we use
     // a plugin that prints an error when you attempt to do this.
     // See https://github.com/facebookincubator/create-react-app/issues/240
@@ -117,7 +117,7 @@ const config = {
     // to restart the development server for Webpack to discover it. This plugin
     // makes the discovery automatic so you don't have to restart.
     // See https://github.com/facebookincubator/create-react-app/issues/186
-    // new WatchMissingNodeModulesPlugin(paths.appNodeModules),
+    new WatchMissingNodeModulesPlugin(paths.appNodeModules),
   ],
   node: nodeConfig,
 };
