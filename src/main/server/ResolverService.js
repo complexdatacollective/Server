@@ -1,12 +1,18 @@
 const { ipcMain } = require('electron');
 const logger = require('electron-log');
-const IPCStream = require('electron-ipc-stream');
 const ProtocolManager = require('../data-managers/ProtocolManager');
 const { ResolverManager } = require('../data-managers/ResolverManager');
 
 const eventTypes = {
   RESOLVE_REQUEST: 'RESOLVE_REQUEST',
+  RESOLVE_END: 'RESOLVE_END',
+  RESOLVE_DATA: 'RESOLVE_DATA',
+  RESOLVE_ERROR: 'RESOLVE_ERROR',
+  // RESOLVE_RESULT: 'RESOLVE_RESULT',
 };
+
+const getEventName = (eventType, requestId) =>
+  `${eventType}_${requestId}`;
 
 /**
  * Provides an IPC API for resolution clients on the same machine.
@@ -33,39 +39,50 @@ class ResolverService {
   }
 
   onResolveRequest(event, requestId, protocolId, options) {
-    logger.debug('[ResolverService]', eventTypes.RESOLVE_REQUEST, protocolId, requestId, JSON.stringify(options));
-    const ipcs = new IPCStream(requestId, event.sender, { emitClose: true });
+    logger.debug('[ResolverService:request]', eventTypes.RESOLVE_REQUEST, protocolId, requestId, JSON.stringify(options));
+    // const ipcs = new IPCStream(requestId, event.sender, { emitClose: true });
 
     const handleError = (error) => {
-      logger.debug('[ResolverService]', `Error: ${error.message}`);
+      logger.debug('[ResolverService:error]', error.message);
+      console.log('emit', getEventName(eventTypes.RESOLVE_ERROR, requestId));
+      ipcMain.emit(getEventName(eventTypes.RESOLVE_ERROR, requestId), error);
     };
 
     this.resolveProtocol(protocolId, options)
       .then((resolverStream) => {
-        const handleStreamError = (error) => {
-          const message = error.message || error;
-          logger.debug('[ResolverService:stream]', `Error: ${message}`);
-          ipcs.write(JSON.stringify({ error: { message, stack: error.stack } }));
-          resolverStream.abort();
-        };
-
-        // This is a requirement of the 'end' event, all data must be processed before
-        // 'end' is emitted.
-        ipcs.on('data', () => {
-          // noop
-          logger.debug('[ResolverService:data]');
+        resolverStream.on('data', (data) => {
+          logger.debug('[ResolverService:data]', data);
+          ipcMain.emit(getEventName(eventTypes.RESOLVE_DATA, requestId), data);
         });
-
-        ipcs.on('end', () => {
-          logger.debug('[ResolverService]', 'Killing process');
-          resolverStream.abort();
+        resolverStream.on('error', handleError);
+        resolverStream.on('end', () => {
+          logger.debug('END');
+          ipcMain.emit(getEventName(eventTypes.RESOLVE_END, requestId));
         });
+        // const handleStreamError = (error) => {
+        //   const message = error.message || error;
+        //   logger.debug('[ResolverService:stream]', `Error: ${message}`);
+        //   ipcs.write(JSON.stringify({ error: { message, stack: error.stack } }));
+        //   resolverStream.abort();
+        // };
 
-        // IPCStream is not a true stream and does not support errors, perhaps consider
-        // using plain IPC messages?
-        resolverStream.on('error', handleStreamError);
+        // // This is a requirement of the 'end' event, all data must be processed before
+        // // 'end' is emitted.
+        // ipcs.on('data', () => {
+        //   // noop
+        //   logger.debug('[ResolverService:data]');
+        // });
 
-        resolverStream.pipe(ipcs);
+        // ipcs.on('end', () => {
+        //   logger.debug('[ResolverService]', 'Killing process');
+        //   resolverStream.abort();
+        // });
+
+        // // IPCStream is not a true stream and does not support errors, perhaps consider
+        // // using plain IPC messages?
+        // resolverStream.on('error', handleStreamError);
+
+        // resolverStream.pipe(ipcs);
       })
       .catch(handleError);
   }

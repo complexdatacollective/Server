@@ -118,6 +118,12 @@ const useResolver = (showError) => {
           addMatch(data);
         });
 
+        newResolverStream.on('data', (d) => {
+          const data = JSON.parse(d.toString());
+
+          addMatch(data);
+        });
+
         newResolverStream.on('end', resolve);
 
         newResolverStream.on('error', reject);

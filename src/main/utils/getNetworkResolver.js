@@ -88,9 +88,7 @@ const getNetworkResolver = (
 ) =>
   network =>
     commandRunner(command)
-      .then((runResolverProcess) => {
-        const resolverProcess = runResolverProcess();
-
+      .then((resolverProcess) => {
         const pipeline = miss.pipeline(
           tableToCsv(),
           debugStream('send'),
