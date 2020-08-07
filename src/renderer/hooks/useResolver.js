@@ -132,8 +132,6 @@ const useResolver = () => {
         isLoadingMatches: false,
       }))
       .catch((error) => {
-        // const message = error.message || error.toString();
-        // showError(message);
         dispatch(dialogActions.openDialog({
           type: 'Error',
           error,

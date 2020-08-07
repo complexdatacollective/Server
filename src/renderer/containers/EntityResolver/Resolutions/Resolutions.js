@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import { get } from 'lodash';
 import cx from 'classnames';
 import { Modal, Progress, Button } from '@codaco/ui';
-import useResolver from '../useResolver';
+import useResolver from '%renderer/hooks/useResolver';
+import useAdminClient from '%renderer/hooks/useAdminClient';
 import Loading from './Loading';
 import NoResults from './NoResults';
 import ReviewTable from './ReviewTable';
@@ -33,23 +34,14 @@ const getStatus = ({ hasData, isLoadingMatches, isComplete, match }) => {
 
 const Resolver = React.forwardRef(({
   onComplete,
-  saveResolution,
 }, ref) => {
+  const { saveResolution } = useAdminClient();
+
   const [
     resolverState,
     resolveProtocol,
     resetResolver,
   ] = useResolver();
-
-  const {
-    show,
-    isLoadingMatches,
-    matches,
-    resolveRequestId,
-    protocol,
-  } = resolverState;
-
-  const codebook = get(protocol, 'codebook', {});
 
   useEffect(() => {
     if (ref && !ref.current) {
@@ -57,10 +49,12 @@ const Resolver = React.forwardRef(({
     }
   }, [ref]);
 
+  const codebook = get(resolverState, ['protocol', 'codebook'], {});
+
   const [
     { actions, resolutions, currentMatchIndex, isLastMatch, match },
     { resolveMatch, skipMatch, previousMatch },
-  ] = useResolutionsState(matches);
+  ] = useResolutionsState(resolverState.matches);
 
   // todo, can we move this to diff'er?
   const [
@@ -75,7 +69,11 @@ const Resolver = React.forwardRef(({
   const handleFinish = () => {
     const finalizedResolutions = finializeResolutions(resolutions);
 
-    saveResolution(protocol, exportSettings, finalizedResolutions) // adminApi
+    saveResolution(
+      resolverState.protocol,
+      resolverState.exportSettings,
+      finalizedResolutions,
+    ) // adminApi
       .then(({ resolutionId }) => onComplete({
         resolutionId,
         enableEntityResolution: true,
@@ -96,9 +94,14 @@ const Resolver = React.forwardRef(({
     resetResolver();
   };
 
-  const hasData = matches.length > 0;
-  const isComplete = hasData && !isLoadingMatches && isLastMatch;
-  const status = getStatus({ hasData, isLoadingMatches, isComplete, match });
+  const hasData = resolverState.matches.length > 0;
+  const isComplete = hasData && !resolverState.isLoadingMatches && isLastMatch;
+  const status = getStatus({
+    hasData,
+    isLoadingMatches: resolverState.isLoadingMatches,
+    isComplete,
+    match,
+  });
 
   const renderHeading = () => {
     switch (status) {
@@ -112,7 +115,7 @@ const Resolver = React.forwardRef(({
         return (
           <Progress
             value={currentMatchIndex + 1}
-            max={matches.length}
+            max={resolverState.matches.length}
           />
         );
       default:
@@ -129,14 +132,14 @@ const Resolver = React.forwardRef(({
   );
 
   return (
-    <Modal show={show}>
+    <Modal show={resolverState.show}>
       <div className="resolver">
         <div className="resolver__heading">
           {renderHeading()}
         </div>
         <div key={status} className={contentClasses}>
           <div className="resolver__content">
-            {resolveRequestId}
+            {resolverState.resolveRequestId}
             { status === states.LOADING &&
               <Loading key="loading" />
             }
@@ -159,7 +162,7 @@ const Resolver = React.forwardRef(({
               <ReviewTable
                 key="review"
                 codebook={codebook}
-                matches={matches}
+                matches={resolverState.matches}
                 actions={actions}
               />
             }
@@ -176,7 +179,7 @@ const Resolver = React.forwardRef(({
           </div>
           <div className="resolver__controls resolver__controls--center">
             { status === states.RESOLVING &&
-              `${currentMatchIndex + 1} of ${matches.length}`
+              `${currentMatchIndex + 1} of ${resolverState.matches.length}`
             }
           </div>
           <div className="resolver__controls resolver__controls--right">

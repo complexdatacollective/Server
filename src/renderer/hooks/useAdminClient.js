@@ -1,8 +1,18 @@
 import { useRef } from 'react';
+import { useDispatch } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { actionCreators as messageActionCreators } from '%modules/appMessages';
 import AdminApiClient from '%utils/adminApiClient';
 
-const useAdminClient = (showConfirmation, showError) => {
+const useAdminClient = () => {
   const client = useRef(new AdminApiClient());
+  const dispatch = useDispatch();
+
+  const showConfirmation = bindActionCreators(
+    messageActionCreators.showConfirmationMessage,
+    dispatch,
+  );
+  const showError = bindActionCreators(messageActionCreators.showErrorMessage, dispatch);
 
   const saveResolution = (protocol, exportSettings, resolution) => {
     if (!client.current) {

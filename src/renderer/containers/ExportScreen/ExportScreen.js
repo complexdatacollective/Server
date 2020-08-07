@@ -2,7 +2,6 @@
 import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { Redirect, withRouter } from 'react-router-dom';
 import { remote } from 'electron';
 import { compose } from 'recompose';
@@ -15,12 +14,10 @@ import Types from '%renderer/types';
 import ErrorBoundary from '%components/ErrorBoundary';
 import ExportModal from '%components/ExportModal';
 import { selectors } from '%modules/protocols';
-import { actionCreators as messageActionCreators } from '%modules/appMessages';
-import { actionCreators as dialogActionCreators } from '%modules/dialogs';
+import useAdminClient from '%renderer/hooks/useAdminClient';
 import EntityResolverSettings from './EntityResolverSettings';
 import Resolutions from '../EntityResolver/Resolutions';
 import useExportSettingsState, { availableCsvTypes } from './useExportSettingsState';
-import useAdminClient from './useAdminClient';
 
 const ExportScreen = ({
   protocol,
@@ -42,7 +39,7 @@ const ExportScreen = ({
       selectResolution,
       selectCreateNewResolution,
       updateSetting,
-      updateSettings,
+      updateSettings, // does Resolver need this?
       csvTypeChange,
     },
   ] = useExportSettingsState();
@@ -95,7 +92,12 @@ const ExportScreen = ({
     remote.getCurrentWindow().reload();
   };
 
-  const handleCompletedResolutions = () => {};
+  const handleCompletedResolutions = updatedSettings =>
+    new Promise((resolve) => {
+      updateSettings(updatedSettings);
+      promptAndExport();
+      resolve();
+    });
 
   if (protocolsHaveLoaded && !protocol) { // This protocol doesn't exist
     return <Redirect to="/" />;
@@ -286,12 +288,6 @@ const mapStateToProps = (state, ownProps) => ({
   protocol: selectors.currentProtocol(state, ownProps),
 });
 
-const mapDispatchToProps = dispatch => ({
-  showConfirmation: bindActionCreators(messageActionCreators.showConfirmationMessage, dispatch),
-  showError: bindActionCreators(messageActionCreators.showErrorMessage, dispatch),
-  openDialog: bindActionCreators(dialogActionCreators.openDialog, dispatch),
-});
-
 export {
   ExportScreen,
   availableCsvTypes,
@@ -299,5 +295,5 @@ export {
 
 export default compose(
   withRouter,
-  connect(mapStateToProps, mapDispatchToProps),
+  connect(mapStateToProps),
 )(ExportScreen);
