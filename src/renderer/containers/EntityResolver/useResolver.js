@@ -1,8 +1,11 @@
 import { useRef, useReducer } from 'react';
+import { useDispatch } from 'react-redux';
 import uuid from 'uuid';
 import resolverClient from '%utils/resolverClient';
+import { actionCreators as dialogActions } from '%modules/dialogs';
 
 const initialState = {
+  protocol: null,
   initialState: true,
   resolveRequestId: null,
   matches: [],
@@ -11,7 +14,7 @@ const initialState = {
   errorLoadingMatches: null,
 };
 
-function stateReducer(state, action) {
+const resolverReducer = (state, action) => {
   switch (action.type) {
     case 'UPDATE':
       return {
@@ -26,22 +29,23 @@ function stateReducer(state, action) {
     default:
       throw new Error();
   }
-}
+};
 
-const useResolver = (showError) => {
+const useResolver = () => {
   const resolverResults = useRef(null);
+  const dispatch = useDispatch();
+
   const client = useRef(resolverClient);
-  const [state, dispatch] = useReducer(stateReducer, initialState);
+  const [resolverState, resolverDispatch] = useReducer(resolverReducer, initialState);
 
   const addMatch = data =>
-    dispatch({ type: 'ADD_MATCH', payload: data });
+    resolverDispatch({ type: 'ADD_MATCH', payload: data });
 
   const updateState = props =>
-    dispatch({ type: 'UPDATE', payload: props });
+    resolverDispatch({ type: 'UPDATE', payload: props });
 
   const cleanupResolverStream = () => {
     if (resolverResults.current) {
-      // resolverResults.current.abort();
       resolverResults.current = null;
     }
   };
@@ -53,6 +57,7 @@ const useResolver = (showError) => {
       resolveRequestId: null,
       errorLoadingMatches: null,
       matches: [],
+      protocol: null,
     });
 
     cleanupResolverStream();
@@ -61,7 +66,7 @@ const useResolver = (showError) => {
   const resolveProtocol = (protocol, exportSettings) => {
     if (!client.current) { return Promise.reject(); }
 
-    if (state.resolveRequestId) { return Promise.reject(); }
+    if (resolverState.resolveRequestId) { return Promise.reject(); }
 
     const requestId = uuid();
 
@@ -93,6 +98,7 @@ const useResolver = (showError) => {
       isLoadingMatches: true,
       errorLoadingMatches: null,
       matches: [],
+      protocol,
     });
 
     return client.current.resolveProtocol(
@@ -126,8 +132,12 @@ const useResolver = (showError) => {
         isLoadingMatches: false,
       }))
       .catch((error) => {
-        const message = error.message || error.toString();
-        showError(message);
+        // const message = error.message || error.toString();
+        // showError(message);
+        dispatch(dialogActions.openDialog({
+          type: 'Error',
+          error,
+        }));
 
         updateState({
           errorLoadingMatches: error,
@@ -140,7 +150,7 @@ const useResolver = (showError) => {
   };
 
   return [
-    state,
+    resolverState,
     resolveProtocol,
     reset,
   ];

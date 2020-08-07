@@ -170,7 +170,7 @@ const entityResolutionReducer = matches =>
     initialState,
   );
 
-const useEntityResolutionState = (matches) => {
+const useResolutionsState = (matches) => {
   const [state, dispatch] = useReducer(entityResolutionReducer(matches), initialState);
 
   const matchOrResolved = getMatchOrResolved(
@@ -192,4 +192,4 @@ const useEntityResolutionState = (matches) => {
   ];
 };
 
-export default useEntityResolutionState;
+export default useResolutionsState;

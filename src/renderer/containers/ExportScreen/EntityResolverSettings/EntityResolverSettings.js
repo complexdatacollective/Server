@@ -22,7 +22,7 @@ const variants = {
   show: { height: 'auto', opacity: 1 },
 };
 
-const EntityResolutionSettings = ({
+const EntityResolverSettings = ({
   apiClient,
   createNewResolution,
   egoCastType,
@@ -170,7 +170,7 @@ const EntityResolutionSettings = ({
   );
 };
 
-EntityResolutionSettings.propTypes = {
+EntityResolverSettings.propTypes = {
   apiClient: PropTypes.object.isRequired,
   createNewResolution: PropTypes.bool,
   egoCastType: PropTypes.string,
@@ -188,7 +188,7 @@ EntityResolutionSettings.propTypes = {
   showError: PropTypes.func.isRequired,
 };
 
-EntityResolutionSettings.defaultProps = {
+EntityResolverSettings.defaultProps = {
   createNewResolution: false,
   egoCastType: undefined,
   enableEntityResolution: false,
@@ -218,4 +218,4 @@ const mapDispatchToProps = {
 export default compose(
   connect(mapStateToProps, mapDispatchToProps),
   withApiClient,
-)(EntityResolutionSettings);
+)(EntityResolverSettings);

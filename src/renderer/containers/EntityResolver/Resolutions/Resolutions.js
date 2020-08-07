@@ -1,15 +1,19 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { get } from 'lodash';
 import cx from 'classnames';
 import { Modal, Progress, Button } from '@codaco/ui';
+import useResolver from '../useResolver';
 import Loading from './Loading';
 import NoResults from './NoResults';
 import ReviewTable from './ReviewTable';
 import EntityDiff from './EntityDiff';
-import useResolverState from './useResolverState';
+import useResolutionsState from './useResolutionsState';
 import useEntityState from './useEntityState';
 import finializeResolutions from './finalizeResolutions';
 import './Resolver.scss';
+
+// const [resolverState, resolveProtocol, resetResolver] = useResolver(showConfirmation, openDialog);
 
 const states = {
   LOADING: 'LOADING',
@@ -27,43 +31,69 @@ const getStatus = ({ hasData, isLoadingMatches, isComplete, match }) => {
   return states.RESOLVING;
 };
 
-const Resolver = ({
-  isLoadingMatches,
-  matches,
-  show,
-  onCancel,
-  onResolve,
-  resolveRequestId,
-  protocol,
-}) => {
+const Resolver = React.forwardRef(({
+  onComplete,
+  saveResolution,
+}, ref) => {
+  const [
+    resolverState,
+    resolveProtocol,
+    resetResolver,
+  ] = useResolver();
+
+  const {
+    show,
+    isLoadingMatches,
+    matches,
+    resolveRequestId,
+    protocol,
+  } = resolverState;
+
+  const codebook = get(protocol, 'codebook', {});
+
+  useEffect(() => {
+    if (ref && !ref.current) {
+      ref.current = { resolveProtocol }; // eslint-disable-line no-param-reassign
+    }
+  }, [ref]);
+
   const [
     { actions, resolutions, currentMatchIndex, isLastMatch, match },
     { resolveMatch, skipMatch, previousMatch },
-  ] = useResolverState(matches);
+  ] = useResolutionsState(matches);
 
+  // todo, can we move this to diff'er?
   const [
     { requiredAttributes, resolvedAttributes, isAMatch, isDiffComplete },
     { setAttributes, setNotAMatch, nextDiff, previousDiff },
   ] = useEntityState(
-    protocol.codebook,
+    codebook,
     match,
     { resolveMatch, skipMatch, previousMatch },
   );
 
   const handleFinish = () => {
     const finalizedResolutions = finializeResolutions(resolutions);
-    onResolve(finalizedResolutions);
+
+    saveResolution(protocol, exportSettings, finalizedResolutions) // adminApi
+      .then(({ resolutionId }) => onComplete({
+        resolutionId,
+        enableEntityResolution: true,
+        createNewResolution: false,
+        resolutionsKey: resolutionId, // trigger reload of resolutions
+      }))
+      .finally(resetResolver);
   };
 
   const handleCancel = () => {
     // eslint-disable-next-line no-alert
     if (window.confirm('You will loose any progress, are you sure?')) {
-      onCancel();
+      resetResolver();
     }
   };
 
   const handleClose = () => {
-    onCancel();
+    resetResolver();
   };
 
   const hasData = matches.length > 0;
@@ -116,7 +146,7 @@ const Resolver = ({
             { status === states.RESOLVING &&
               <EntityDiff
                 key="diff"
-                codebook={protocol.codebook}
+                codebook={codebook}
                 match={match}
                 requiredAttributes={requiredAttributes}
                 resolvedAttributes={resolvedAttributes}
@@ -128,7 +158,7 @@ const Resolver = ({
             { status === states.REVIEW &&
               <ReviewTable
                 key="review"
-                codebook={protocol.codebook}
+                codebook={codebook}
                 matches={matches}
                 actions={actions}
               />
@@ -167,24 +197,10 @@ const Resolver = ({
       </div>
     </Modal>
   );
-};
+});
 
 Resolver.propTypes = {
-  isLoadingMatches: PropTypes.bool,
-  show: PropTypes.bool,
-  onCancel: PropTypes.func.isRequired,
-  onResolve: PropTypes.func.isRequired,
-  matches: PropTypes.array,
-  resolveRequestId: PropTypes.string,
-  protocol: PropTypes.object,
-};
-
-Resolver.defaultProps = {
-  protocol: {},
-  isLoadingMatches: true,
-  show: false,
-  matches: null,
-  resolveRequestId: null,
+  onComplete: PropTypes.func.isRequired,
 };
 
 export default Resolver;

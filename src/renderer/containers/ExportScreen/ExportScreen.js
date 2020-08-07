@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -16,10 +16,10 @@ import ErrorBoundary from '%components/ErrorBoundary';
 import ExportModal from '%components/ExportModal';
 import { selectors } from '%modules/protocols';
 import { actionCreators as messageActionCreators } from '%modules/appMessages';
-import EntityResolutionSettings from './EntityResolutionSettings';
-import Resolver from './Resolver';
+import { actionCreators as dialogActionCreators } from '%modules/dialogs';
+import EntityResolverSettings from './EntityResolverSettings';
+import Resolutions from '../EntityResolver/Resolutions';
 import useExportSettingsState, { availableCsvTypes } from './useExportSettingsState';
-import useResolver from './useResolver';
 import useAdminClient from './useAdminClient';
 
 const ExportScreen = ({
@@ -29,6 +29,8 @@ const ExportScreen = ({
   showConfirmation,
   showError,
 }) => {
+  const resolutionsRef = useRef();
+
   const [state, setState] = useState({
     exportInProgress: false,
     resolutionsKey: null,
@@ -45,9 +47,7 @@ const ExportScreen = ({
     },
   ] = useExportSettingsState();
 
-  const [resolverState, resolveProtocol, resetResolver] = useResolver(showConfirmation, showError);
-
-  const [exportToFile, saveResolution] = useAdminClient(showConfirmation, showError);
+  const [exportToFile, saveResolutions] = useAdminClient(showConfirmation, showError);
 
   const promptAndExport = () => {
     const defaultName = protocol.name || 'network-canvas-data';
@@ -81,29 +81,11 @@ const ExportScreen = ({
     }
 
     if (createNewResolution) {
-      resolveProtocol(protocol, exportSettings);
+      resolutionsRef.current.resolveProtocol(protocol, exportSettings);
       return;
     }
 
     promptAndExport();
-  };
-
-  const handleResolve = (resolutions) => {
-    saveResolution(protocol, exportSettings, resolutions)
-      .then(({ resolutionId }) => {
-        updateSettings({
-          resolutionId,
-          enableEntityResolution: true,
-          createNewResolution: false,
-          resolutionsKey: resolutionId, // trigger reload of resolutions
-        });
-      })
-      .then(resetResolver)
-      .then(promptAndExport);
-  };
-
-  const handleCancelResolve = () => {
-    resetResolver();
   };
 
   const handleCancelExport = () => {
@@ -112,6 +94,8 @@ const ExportScreen = ({
     // Temporary workaround:
     remote.getCurrentWindow().reload();
   };
+
+  const handleCompletedResolutions = () => {};
 
   if (protocolsHaveLoaded && !protocol) { // This protocol doesn't exist
     return <Redirect to="/" />;
@@ -125,164 +109,162 @@ const ExportScreen = ({
   const { exportInProgress } = state;
 
   return (
-    <form className="export" onSubmit={handleSubmit}>
+    <React.Fragment>
       <ExportModal
         className="modal--export"
         show={exportInProgress}
         handleCancel={handleCancelExport}
       />
       <ErrorBoundary>
-        <Resolver
-          protocol={protocol}
-          key={resolverState.resolveRequestId}
-          matches={resolverState.matches}
-          isLoadingMatches={resolverState.isLoadingMatches}
-          show={resolverState.showResolver}
-          onCancel={handleCancelResolve}
-          onResolve={handleResolve}
+        <Resolutions
+          ref={resolutionsRef}
+          saveResolutions={saveResolutions} // TODO: can this be moved inside Resolutions?
+          onComplete={handleCompletedResolutions}
         />
       </ErrorBoundary>
-      <h1>Export Data {resolverState.resolveRequestId}</h1>
-      <div className="export__section">
-        <h3>File Type</h3>
-        <p>
-          Choose an export format. If multiple files are produced, they’ll be archived in a ZIP
-          for download.
-        </p>
-        <div>
-          <Radio
-            label="GraphML"
-            input={{
-              name: 'export_format',
-              checked: exportSettings.exportFormat === 'graphml',
-              value: 'graphml',
-              onChange: () => updateSetting('exportFormat', 'graphml'),
-            }}
-          />
-        </div>
-        <div>
-          <Radio
-            label="CSV"
-            input={{
-              name: 'export_format',
-              checked: exportSettings.exportFormat === 'csv',
-              value: 'csv',
-              onChange: () => updateSetting('exportFormat', 'csv'),
-            }}
-          />
-        </div>
-        <div className="export__csv-types">
-          <Toggle
-            disabled={exportSettings.exportFormat === 'graphml'}
-            label="Include Ego data?"
-            input={{
-              name: 'export_ego_data',
-              onChange: (e) => updateSetting('useEgoData', e.target.checked),
-              value: exportSettings.exportFormat === 'csv' && exportSettings.useEgoData,
-            }}
-          />
-          <DrawerTransition in={!showCsvOpts}>
-            <div className="export__ego-info">* Ego data not supported for this export format. See <a className="external-link" href="https://documentation.networkcanvas.com/docs/tutorials/server-workflows/#managing-and-exporting-data-in-server">documentation</a>.</div>
-          </DrawerTransition>
-        </div>
-        <DrawerTransition in={showCsvOpts}>
-          <div className="export__subpanel">
-            <div className="export__subpanel-content">
-              <h4>Include the following files:</h4>
-              {
-                Object.entries(availableCsvTypes).map(([csvType, label]) => (
-                  <div key={`export_csv_type_${csvType}`}>
+      <form className="export" onSubmit={handleSubmit}>
+        <h1>Export Data</h1>
+        <div className="export__section">
+          <h3>File Type</h3>
+          <p>
+            Choose an export format. If multiple files are produced, they’ll be archived in a ZIP
+            for download.
+          </p>
+          <div>
+            <Radio
+              label="GraphML"
+              input={{
+                name: 'export_format',
+                checked: exportSettings.exportFormat === 'graphml',
+                value: 'graphml',
+                onChange: () => updateSetting('exportFormat', 'graphml'),
+              }}
+            />
+          </div>
+          <div>
+            <Radio
+              label="CSV"
+              input={{
+                name: 'export_format',
+                checked: exportSettings.exportFormat === 'csv',
+                value: 'csv',
+                onChange: () => updateSetting('exportFormat', 'csv'),
+              }}
+            />
+          </div>
+          <div className="export__csv-types">
+            <Toggle
+              disabled={exportSettings.exportFormat === 'graphml'}
+              label="Include Ego data?"
+              input={{
+                name: 'export_ego_data',
+                onChange: (e) => updateSetting('useEgoData', e.target.checked),
+                value: exportSettings.exportFormat === 'csv' && exportSettings.useEgoData,
+              }}
+            />
+            <DrawerTransition in={!showCsvOpts}>
+              <div className="export__ego-info">* Ego data not supported for this export format. See <a className="external-link" href="https://documentation.networkcanvas.com/docs/tutorials/server-workflows/#managing-and-exporting-data-in-server">documentation</a>.</div>
+            </DrawerTransition>
+          </div>
+          <DrawerTransition in={showCsvOpts}>
+            <div className="export__subpanel">
+              <div className="export__subpanel-content">
+                <h4>Include the following files:</h4>
+                {
+                  Object.entries(availableCsvTypes).map(([csvType, label]) => (
+                    <div key={`export_csv_type_${csvType}`}>
+                      <Checkbox
+                        label={label}
+                        input={{
+                          name: 'export_csv_types',
+                          checked: exportSettings.csvTypes.has(csvType),
+                          value: csvType,
+                          onChange: (e) => csvTypeChange(csvType, e.target.checked),
+                        }}
+                      />
+                    </div>
+                  ))
+                }
+                <DrawerTransition in={exportSettings.useEgoData}>
+                  <div key="export_csv_type_ego">
                     <Checkbox
-                      label={label}
+                      label="Ego Attribute List"
                       input={{
-                        name: 'export_csv_types',
-                        checked: exportSettings.csvTypes.has(csvType),
-                        value: csvType,
-                        onChange: (e) => csvTypeChange(csvType, e.target.checked),
+                        name: 'export_ego_attributes',
+                        checked: exportSettings.csvTypes.has('ego'),
+                        value: 'ego',
+                        onChange: (e) => csvTypeChange('ego', e.target.checked),
                       }}
                     />
                   </div>
-                ))
-              }
-              <DrawerTransition in={exportSettings.useEgoData}>
-                <div key="export_csv_type_ego">
-                  <Checkbox
-                    label="Ego Attribute List"
-                    input={{
-                      name: 'export_ego_attributes',
-                      checked: exportSettings.csvTypes.has('ego'),
-                      value: 'ego',
-                      onChange: (e) => csvTypeChange('ego', e.target.checked),
-                    }}
-                  />
-                </div>
-              </DrawerTransition>
+                </DrawerTransition>
+              </div>
             </div>
+          </DrawerTransition>
+        </div>
+        <div className="export__section">
+          <h4>Directed Edges</h4>
+          <Toggle
+            label="Treat edges as directed"
+            input={{
+              name: 'export_use_directed_edges',
+              onChange: e => updateSetting('useDirectedEdges', e.target.checked),
+              value: exportSettings.useDirectedEdges,
+            }}
+          />
+        </div>
+        <div className="export__section">
+          <h3>Interview Networks</h3>
+          <p>
+            Choose whether to export all networks separately, or to merge them
+            before exporting.
+          </p>
+          <div>
+            <Radio
+              label="Export the network from each interview separately"
+              input={{
+                name: 'export_network_union',
+                checked: exportSettings.exportNetworkUnion === false,
+                value: 'false',
+                onChange: () => updateSetting('exportNetworkUnion', false),
+              }}
+            />
           </div>
-        </DrawerTransition>
-      </div>
-      <div className="export__section">
-        <h4>Directed Edges</h4>
-        <Toggle
-          label="Treat edges as directed"
-          input={{
-            name: 'export_use_directed_edges',
-            onChange: e => updateSetting('useDirectedEdges', e.target.checked),
-            value: exportSettings.useDirectedEdges,
-          }}
-        />
-      </div>
-      <div className="export__section">
-        <h3>Interview Networks</h3>
-        <p>
-          Choose whether to export all networks separately, or to merge them
-          before exporting.
-        </p>
-        <div>
-          <Radio
-            label="Export the network from each interview separately"
-            input={{
-              name: 'export_network_union',
-              checked: exportSettings.exportNetworkUnion === false,
-              value: 'false',
-              onChange: () => updateSetting('exportNetworkUnion', false),
-            }}
-          />
+          <div>
+            <Radio
+              label="Export the union of all interview networks"
+              input={{
+                name: 'export_network_union',
+                checked: exportSettings.exportNetworkUnion === true,
+                value: 'true',
+                onChange: () => updateSetting('exportNetworkUnion', true),
+              }}
+            />
+          </div>
         </div>
-        <div>
-          <Radio
-            label="Export the union of all interview networks"
-            input={{
-              name: 'export_network_union',
-              checked: exportSettings.exportNetworkUnion === true,
-              value: 'true',
-              onChange: () => updateSetting('exportNetworkUnion', true),
-            }}
+        { exportSettings.exportNetworkUnion &&
+          <EntityResolverSettings
+            createNewResolution={exportSettings.createNewResolution}
+            egoCastType={exportSettings.egoCastType}
+            enableEntityResolution={exportSettings.enableEntityResolution}
+            entityResolutionArguments={exportSettings.entityResolutionArguments}
+            entityResolutionPath={exportSettings.entityResolutionPath}
+            onSelectCreateNewResolution={selectCreateNewResolution}
+            onSelectResolution={selectResolution}
+            onUpdateSetting={updateSetting}
+            protocolId={protocol.id}
+            resolutionId={exportSettings.resolutionId}
+            // resolveRequestId={resolverState.resolveRequestId}
+            show={exportSettings.exportNetworkUnion}
+            showError={showError}
           />
+        }
+        <div className="export__footer">
+          <Button color="platinum" onClick={() => history.goBack()}>Cancel</Button>&nbsp;
+          <Button type="submit" disabled={exportInProgress}>Export</Button>
         </div>
-      </div>
-      { exportSettings.exportNetworkUnion &&
-        <EntityResolutionSettings
-          createNewResolution={exportSettings.createNewResolution}
-          egoCastType={exportSettings.egoCastType}
-          enableEntityResolution={exportSettings.enableEntityResolution}
-          entityResolutionArguments={exportSettings.entityResolutionArguments}
-          entityResolutionPath={exportSettings.entityResolutionPath}
-          onSelectCreateNewResolution={selectCreateNewResolution}
-          onSelectResolution={selectResolution}
-          onUpdateSetting={updateSetting}
-          protocolId={protocol.id}
-          resolutionId={exportSettings.resolutionId}
-          resolveRequestId={resolverState.resolveRequestId}
-          show={exportSettings.exportNetworkUnion}
-          showError={showError}
-        />
-      }
-      <div className="export__footer">
-        <Button color="platinum" onClick={() => history.goBack()}>Cancel</Button>&nbsp;
-        <Button type="submit" disabled={exportInProgress}>Export</Button>
-      </div>
-    </form>
+      </form>
+    </React.Fragment>
   );
 };
 
@@ -307,6 +289,7 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = dispatch => ({
   showConfirmation: bindActionCreators(messageActionCreators.showConfirmationMessage, dispatch),
   showError: bindActionCreators(messageActionCreators.showErrorMessage, dispatch),
+  openDialog: bindActionCreators(dialogActionCreators.openDialog, dispatch),
 });
 
 export {
