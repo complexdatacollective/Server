@@ -118,11 +118,7 @@ const useResolver = () => {
       .then(result => new Promise((resolve, reject) => {
         resolverResults.current = result;
 
-        result.on('match', (d) => {
-          const data = JSON.parse(d.toString());
-
-          addMatch(data);
-        });
+        result.on('match', addMatch);
 
         result.on('end', resolve);
 

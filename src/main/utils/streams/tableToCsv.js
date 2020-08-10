@@ -6,7 +6,12 @@ const csvRow = cells =>
 
 const tableToCsv = () => miss.through(
   (row, enc, push) => {
-    push(null, csvRow(JSON.parse(row.toString())));
+    try {
+      push(null, csvRow(JSON.parse(row.toString())));
+    } catch (err) {
+      err.friendlyMessage = 'Error in tableToCsv()';
+      push(err);
+    }
   },
   (push) => {
     push(null);

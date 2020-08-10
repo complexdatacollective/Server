@@ -67,6 +67,7 @@ const nodesToTable = (codebook, options = {}, nodes = []) => {
 
       return next(null, JSON.stringify(getAttributes(headings, node)));
     } catch (err) {
+      err.friendlyMessage = 'error in nodesToTable()';
       return next(err);
     }
   });

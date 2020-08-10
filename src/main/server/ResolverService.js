@@ -50,8 +50,8 @@ class ResolverService {
     this.resolveProtocol(protocolId, options)
       .then((resolverStream) => {
         resolverStream.on('data', (data) => {
-          logger.debug('[ResolverService:data]', data);
-          event.sender.send(getEventName(eventTypes.RESOLVE_DATA, requestId), data);
+          // logger.debug('[ResolverService:data]');
+          event.sender.send(getEventName(eventTypes.RESOLVE_DATA, requestId), data.toString());
         });
         resolverStream.on('error', (_, e) => handleError(e));
         resolverStream.on('end', () => {

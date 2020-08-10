@@ -17,7 +17,7 @@ const makeResolverResult = (requestId) => {
 
   ipcRenderer.on(getEventName(eventTypes.RESOLVE_DATA, requestId), (event, data) => {
     try {
-      const parsedData = JSON.parse(data.toString());
+      const parsedData = JSON.parse(data);
 
       if (parsedData.error) {
         handleError(parsedData.error);

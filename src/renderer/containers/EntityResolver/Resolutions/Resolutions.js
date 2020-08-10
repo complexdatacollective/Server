@@ -14,8 +14,6 @@ import useEntityState from './useEntityState';
 import finializeResolutions from './finalizeResolutions';
 import './Resolver.scss';
 
-// const [resolverState, resolveProtocol, resetResolver] = useResolver(showConfirmation, openDialog);
-
 const states = {
   LOADING: 'LOADING',
   NO_RESULTS: 'NO_RESULTS',
@@ -132,7 +130,7 @@ const Resolver = React.forwardRef(({
   );
 
   return (
-    <Modal show={resolverState.show}>
+    <Modal show={resolverState.showResolver}>
       <div className="resolver">
         <div className="resolver__heading">
           {renderHeading()}
