@@ -49,7 +49,7 @@ class ResolverManager {
   }
 
   getSessionNetworks(protocolId) {
-    return this.protocolManager.getProtocolSessions(protocolId, null, null)
+    return this.protocolManager.sessionDb.findAll(protocolId, null, null)
       .then(sessions => sessions.map(formatSessionAsNetwork))
       .then(networks => insertEgoInNetworks(networks));
   }
