@@ -43,7 +43,7 @@ class ResolverService {
     logger.debug('[ResolverService:request]', eventTypes.RESOLVE_REQUEST, protocolId, requestId, JSON.stringify(options));
 
     const handleError = (error) => {
-      logger.debug('[ResolverService:error]', error.message || error.toString());
+      logger.error('[ResolverService:error]', error);
       event.sender.send(getEventName(eventTypes.RESOLVE_ERROR, requestId), error);
     };
 
