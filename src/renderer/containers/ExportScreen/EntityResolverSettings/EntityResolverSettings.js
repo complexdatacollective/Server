@@ -10,6 +10,7 @@ import Checkbox from '@codaco/ui/lib/components/Fields/Checkbox';
 import withApiClient from '%components/withApiClient';
 import { actionCreators as dialogActions } from '%modules/dialogs';
 import { selectors } from '%modules/protocols';
+import { actionCreators as messageActionCreators } from '%modules/appMessages';
 import Snapshot from './Snapshot';
 import NewSnapshot from './NewSnapshot';
 import './EntityResolution.scss';
@@ -213,6 +214,7 @@ const mapStateToProps = (state, props) => ({
 
 const mapDispatchToProps = {
   openDialog: dialogActions.openDialog,
+  showError: messageActionCreators.showErrorMessage,
 };
 
 export default compose(
