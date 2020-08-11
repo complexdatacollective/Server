@@ -3,21 +3,12 @@
 const split = require('split');
 const miss = require('mississippi');
 const { has } = require('lodash');
+const { sampleStream, countStream } = require('./streams/helpers');
 const nodesToTable = require('./streams/nodesToTable');
 const csvToJson = require('./streams/csvToJson');
 const tableToCsv = require('./streams/tableToCsv');
 const { nodePrimaryKeyProperty } = require('./formatters/network');
 const commandRunner = require('./commandRunner');
-
-const debugStream = prefix => miss.through(
-  (chunk, enc, cb) => {
-    console.log(`[stream:${prefix}]`, chunk.toString()); // eslint-disable-line
-    cb(null, chunk);
-  },
-  (cb) => {
-    cb(null);
-  },
-);
 
 const getNode = (nodes, id) => {
   const node = nodes.find(n => id === n[nodePrimaryKeyProperty]);
@@ -93,11 +84,13 @@ const getNetworkResolver = (
 
         const pipeline = miss.pipeline(
           tableToCsv(),
-          // debugStream('send'),
+          sampleStream('sent', 3),
+          countStream('records sent'),
           resolverProcess,
           split(),
           csvToJson(),
-          // debugStream('receive'),
+          sampleStream('recieved', 3),
+          countStream('records received'),
           appendNodeNetworkData(network.nodes),
         );
 
