@@ -53,7 +53,7 @@ class ResolverService {
           // logger.debug('[ResolverService:data]');
           event.sender.send(getEventName(eventTypes.RESOLVE_DATA, requestId), data.toString());
         });
-        resolverStream.on('error', (_, e) => handleError(e));
+        resolverStream.on('error', e => handleError(e));
         resolverStream.on('end', () => {
           logger.debug('[ResolverService:end]');
           event.sender.send(getEventName(eventTypes.RESOLVE_END, requestId));
