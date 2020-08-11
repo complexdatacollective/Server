@@ -120,6 +120,7 @@ const ExportScreen = ({
       <ErrorBoundary>
         <Resolutions
           ref={resolutionsRef}
+          key={resolutionsRef.current && resolutionsRef.current.requestId}
           saveResolutions={saveResolutions} // TODO: can this be moved inside Resolutions?
           onComplete={handleCompletedResolutions}
         />

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { get } from 'lodash';
+import { get, reduce } from 'lodash';
 import cx from 'classnames';
 import { Modal, Progress, Button } from '@codaco/ui';
 import useResolver from '%renderer/hooks/useResolver';
@@ -35,37 +35,71 @@ const Resolver = React.forwardRef(({
 }, ref) => {
   const { saveResolution } = useAdminClient();
 
-  const [
-    resolverState,
-    resolveProtocol,
-    resetResolver,
-  ] = useResolver();
+  const [resolverState, resolveProtocol, resetResolver] = useResolver();
 
   useEffect(() => {
     if (ref && !ref.current) {
-      ref.current = { resolveProtocol }; // eslint-disable-line no-param-reassign
+      ref.current = { // eslint-disable-line no-param-reassign
+        resolveProtocol,
+      };
     }
-  }, [ref]);
+  }, [ref, resolverState.resolveRequestId]);
+
+  const [resolutionsState, resolutionsActions] =
+    useResolutionsState(resolverState.matches);
 
   const codebook = get(resolverState, ['protocol', 'codebook'], {});
 
-  const [
-    { actions, resolutions, currentMatchIndex, isLastMatch, match },
-    { resolveMatch, skipMatch, previousMatch },
-  ] = useResolutionsState(resolverState.matches);
-
   // todo, can we move this to diff'er?
-  const [
-    { requiredAttributes, resolvedAttributes, isAMatch, isDiffComplete },
-    { setAttributes, setNotAMatch, nextDiff, previousDiff },
-  ] = useEntityState(
-    codebook,
-    match,
-    { resolveMatch, skipMatch, previousMatch },
-  );
+  const [diffState, diffActions] = useEntityState(codebook, resolutionsState.match);
+
+  const previousDiff = () => {
+    if (!(
+      !diffState.isTouched ||
+      window.confirm('Looks like you have set some attributes, are you sure?') // eslint-disable-line
+    )) {
+      return;
+    }
+
+    resolutionsActions.previousMatch();
+  };
+
+  const nextDiff = () => {
+    console.log('next',  diffState);
+    if (!diffState.isTouched) {
+      return;
+    }
+
+    if (diffState.isAMatch) {
+      // TODO: set error state
+      if (!diffState.isDiffComplete) {
+        window.alert("Looks like you haven't chosen all the attributes yet?") // eslint-disable-line
+        return;
+      }
+
+      const resolved = reduce(diffState.resolvedAttributes, (obj, resolution, variable) => ({
+        ...obj,
+        [variable]: resolutionsState.match.nodes[resolution].attributes[variable],
+      }), {});
+
+      const fullResolvedAttributes = {
+        // include values we filtered out (ones that were equal)
+        ...resolutionsState.match.nodes[0].attributes,
+        ...resolved,
+      };
+
+      console.log('next', resolutionsState.match, fullResolvedAttributes, resolutionsActions.resolveMatch);
+
+      resolutionsActions.resolveMatch(resolutionsState.match, fullResolvedAttributes);
+      return;
+    }
+
+    // if !isAMatch
+    resolutionsActions.skipMatch(resolutionsState.match);
+  };
 
   const handleFinish = () => {
-    const finalizedResolutions = finializeResolutions(resolutions);
+    const finalizedResolutions = finializeResolutions(resolutionsState.resolutions);
 
     saveResolution(
       resolverState.protocol,
@@ -93,12 +127,12 @@ const Resolver = React.forwardRef(({
   };
 
   const hasData = resolverState.matches.length > 0;
-  const isComplete = hasData && !resolverState.isLoadingMatches && isLastMatch;
+  const isComplete = hasData && !resolverState.isLoadingMatches && resolutionsState.isLastMatch;
   const status = getStatus({
     hasData,
     isLoadingMatches: resolverState.isLoadingMatches,
     isComplete,
-    match,
+    match: resolutionsState.match,
   });
 
   const renderHeading = () => {
@@ -112,7 +146,7 @@ const Resolver = React.forwardRef(({
       case states.WAITING:
         return (
           <Progress
-            value={currentMatchIndex + 1}
+            value={resolutionsState.currentMatchIndex + 1}
             max={resolverState.matches.length}
           />
         );
@@ -141,6 +175,9 @@ const Resolver = React.forwardRef(({
             { status === states.LOADING &&
               <Loading key="loading" />
             }
+            { status === states.WAITING &&
+              <Loading key="waiting" />
+            }
             { status === states.NO_RESULTS &&
               <NoResults key="empty" onClose={handleClose} />
             }
@@ -148,12 +185,12 @@ const Resolver = React.forwardRef(({
               <EntityDiff
                 key="diff"
                 codebook={codebook}
-                match={match}
-                requiredAttributes={requiredAttributes}
-                resolvedAttributes={resolvedAttributes}
-                setAttributes={setAttributes}
-                setNotAMatch={setNotAMatch}
-                isAMatch={isAMatch}
+                match={resolutionsState.match}
+                requiredAttributes={diffState.requiredAttributes}
+                resolvedAttributes={diffState.resolvedAttributes}
+                setAttributes={diffActions.setAttributes}
+                setNotAMatch={diffActions.setNotAMatch}
+                isAMatch={diffState.isAMatch}
               />
             }
             { status === states.REVIEW &&
@@ -161,7 +198,7 @@ const Resolver = React.forwardRef(({
                 key="review"
                 codebook={codebook}
                 matches={resolverState.matches}
-                actions={actions}
+                actions={resolutionsActions.actions}
               />
             }
           </div>
@@ -177,16 +214,16 @@ const Resolver = React.forwardRef(({
           </div>
           <div className="resolver__controls resolver__controls--center">
             { status === states.RESOLVING &&
-              `${currentMatchIndex + 1} of ${resolverState.matches.length}`
+              `${resolutionsState.currentMatchIndex + 1} of ${resolverState.matches.length}`
             }
           </div>
           <div className="resolver__controls resolver__controls--right">
-            { status === states.RESOLVING && currentMatchIndex > 0 &&
+            { status === states.RESOLVING && resolutionsState.currentMatchIndex > 0 &&
               <Button color="white" onClick={previousDiff}>Back</Button>
             }
             { status === states.RESOLVING &&
               <Button
-                disabled={!isDiffComplete}
+                disabled={!diffState.isDiffComplete}
                 onClick={nextDiff}
               >Next</Button>
             }

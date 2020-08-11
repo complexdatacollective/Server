@@ -4,7 +4,7 @@ import { Spinner } from '@codaco/ui';
 const Loading = () => (
   <React.Fragment>
     <Spinner />
-    <p>Loading...</p>
+    <p>Working...</p>
   </React.Fragment>
 );
 

@@ -34,11 +34,11 @@ const initialState = {
   resolutionId: null,
   createNewResolution: false,
   egoCastType: undefined,
-  entityResolutionArguments: '',
-  entityResolutionPath: '',
-  // entityResolutionArguments: '--minimumThreshold=0.5',
-  // entityResolutionPath:
-  //   '/Users/steve/Projects/teamgarlic/codaco/network-canvas-er/EntityResolution',
+  // entityResolutionArguments: '',
+  // entityResolutionPath: '',
+  entityResolutionArguments: '--minimumThreshold=0.5',
+  entityResolutionPath:
+    '/Users/steve/Projects/northwestern/network-canvas-er/Random.py',
 };
 
 const entityResolutionReducer = handleActions(

@@ -42,11 +42,6 @@ const getIsDiffValid = (requiredAttributes, resolvedAttributes) =>
 const useEntityDiffState = (
   codebook,
   match,
-  {
-    resolveMatch,
-    skipMatch,
-    previousMatch,
-  },
 ) => {
   const [state, dispatch] = useReducer(entityDiffReducer, initialState);
   const { isTouched, resolvedAttributes, isAMatch } = state;
@@ -54,47 +49,6 @@ const useEntityDiffState = (
   const requiredAttributes = getRequiredAttributes(codebook, match);
   const isDiffValid = getIsDiffValid(requiredAttributes, resolvedAttributes);
   const isDiffComplete = isTouched && ((isAMatch && isDiffValid) || !isAMatch);
-
-  const previousDiff = () => {
-    if (!(
-      !isTouched ||
-      window.confirm('Looks like you have set some attributes, are you sure?') // eslint-disable-line
-    )) {
-      return;
-    }
-
-    previousMatch();
-  };
-
-  const nextDiff = () => {
-    if (!isTouched) {
-      return;
-    }
-
-    if (isAMatch) {
-      // TODO: set error state
-      if (!isDiffValid) {
-        window.alert("Looks like you haven't chosen all the attributes yet?") // eslint-disable-line
-        return;
-      }
-
-      const resolved = reduce(resolvedAttributes, (obj, resolution, variable) => ({
-        ...obj,
-        [variable]: match.nodes[resolution].attributes[variable],
-      }), {});
-
-      const fullResolvedAttributes = {
-        ...match.nodes[0].attributes, // include values we filtered out (ones that were equal)
-        ...resolved,
-      };
-
-      resolveMatch(match, fullResolvedAttributes);
-      return;
-    }
-
-    // if !isAMatch
-    skipMatch(match);
-  };
 
   useEffect(() => {
     dispatch(reset());
@@ -111,12 +65,9 @@ const useEntityDiffState = (
       resolvedAttributes,
       isAMatch,
       isDiffComplete,
+      isTouched,
     },
-    {
-      ...handlers,
-      previousDiff,
-      nextDiff,
-    },
+    handlers,
   ];
 };
 

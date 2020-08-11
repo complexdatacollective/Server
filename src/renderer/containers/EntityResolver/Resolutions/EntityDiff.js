@@ -66,6 +66,8 @@ const EntityDiff = ({
 
   const handleToggleHidden = () => setShowHidden(s => !s);
 
+  console.log({ nodePropsA });
+
   return (
     <div key={match.index} className="entity-diff">
       <table className="entity-diff__table" cellPadding="0" cellSpacing="0">

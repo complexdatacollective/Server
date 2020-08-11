@@ -1,4 +1,4 @@
-import { useRef, useReducer } from 'react';
+import { useRef, useReducer, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import uuid from 'uuid';
 import resolverClient from '%utils/resolverClient';
@@ -62,6 +62,9 @@ const useResolver = () => {
 
     cleanupResolverStream();
   };
+
+  // cleanup on unmount
+  useEffect(() => () => reset(), []);
 
   const resolveProtocol = (protocol, exportSettings) => {
     if (!client.current) { return Promise.reject(); }
