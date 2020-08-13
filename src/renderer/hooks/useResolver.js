@@ -56,8 +56,24 @@ const useResolver = () => {
   const resetState = (hard = false) =>
     resolverDispatch({ type: 'RESET', payload: { hard } });
 
-  const handleEnd = () =>
+  const abortResolver = () => {
+    if (!resolver.current) { return; }
+    resolver.current.abort();
+  };
+
+  const cleanupResolver = () => {
+    if (!resolver.current) { return; }
+    abortResolver(); // may not be neccessary if we quit, but otherwise
+    resolver.current.removeAllListeners('match');
+    resolver.current.removeAllListeners('end');
+    resolver.current.removeAllListeners('error');
+    resolver.current = null;
+  };
+
+  const handleEnd = () => {
     updateState({ isLoadingMatches: false });
+    cleanupResolver();
+  };
 
   const handleError = (error) => {
     dispatch(dialogActions.openDialog({
@@ -70,16 +86,6 @@ const useResolver = () => {
       matches: [],
       showResolver: false,
     });
-  };
-
-  const cleanupResolver = () => {
-    if (resolver.current) {
-      resolver.current.removeAllListeners('match');
-      resolver.current.removeAllListeners('end');
-      resolver.current.removeAllListeners('error');
-      resolver.current.abort();
-      resolver.current = null;
-    }
   };
 
   const setResolver = (nextResolver) => {
@@ -107,9 +113,9 @@ const useResolver = () => {
       });
     };
 
-  const handleAbort = () => {
+  const cancelResolver = () => {
     resetState();
-    setResolver(null);
+    cleanupResolver();
   };
 
   // cleanup on unmount
@@ -158,7 +164,7 @@ const useResolver = () => {
   return [
     resolverState,
     resolveProtocol,
-    handleAbort,
+    cancelResolver,
   ];
 };
 

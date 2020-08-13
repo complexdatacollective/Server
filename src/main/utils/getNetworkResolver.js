@@ -77,33 +77,34 @@ const appendNodeNetworkData = nodes =>
 const getNetworkResolver = (
   requestId,
   command,
-  { codebook },
+  codebook,
+  network,
 ) =>
-  network =>
-    commandRunner(command)
-      .then((startResolver) => {
-        const resolverProcess = startResolver();
+  commandRunner(command)
+    .then((startResolver) => {
+      const resolverProcess = startResolver();
 
-        const pipeline = miss.pipeline(
-          tableToCsv(),
-          sampleStream(`${requestId}:sent`, 3),
-          countStream(`${requestId}:sent`),
-          resolverProcess,
-          split(),
-          csvToJson(),
-          sampleStream(`${requestId}:recieved`, 3),
-          countStream(`${requestId}:received`),
-          appendNodeNetworkData(network.nodes),
-        );
+      const resolverStream = miss.pipeline(
+        tableToCsv(),
+        sampleStream(`${requestId}:sent`, 3),
+        countStream(`${requestId}:sent`),
+        resolverProcess,
+        split(),
+        csvToJson(),
+        sampleStream(`${requestId}:recieved`, 3),
+        countStream(`${requestId}:received`),
+        appendNodeNetworkData(network.nodes),
+      );
 
-        pipeline.abort = () => {
-          resolverProcess.kill();
-        };
+      resolverStream.abort = () => {
+        resolverProcess.kill();
+        resolverStream.destroy();
+      };
 
-        nodesToTable(codebook, null, [...network.nodes]).pipe(pipeline);
+      miss.pipe(nodesToTable(codebook, null, [...network.nodes]), resolverStream);
 
-        return pipeline;
-      });
+      return resolverStream;
+    });
 
 module.exports = {
   getNetworkResolver,

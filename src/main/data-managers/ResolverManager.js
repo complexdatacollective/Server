@@ -64,12 +64,9 @@ class ResolverManager {
     }
 
     const command = `${options.entityResolutionPath} ${options.entityResolutionArguments}`;
-    const resolverOptions = { codebook: protocol.codebook };
-
-    const networkResolver = getNetworkResolver(requestId, command, resolverOptions);
 
     return this.getNetwork(protocol, options)
-      .then(([network]) => networkResolver(network));
+      .then(([network]) => getNetworkResolver(requestId, command, protocol.codebook, network));
   }
 }
 

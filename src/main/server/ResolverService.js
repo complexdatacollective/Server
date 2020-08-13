@@ -47,7 +47,6 @@ class ResolverService {
     if (!this.resolvers[requestId]) { return; }
     this.resolvers[requestId].abort();
     delete this.resolvers[requestId];
-    logger.debug('[ResolverService:abort:done]', eventTypes.RESOLVE_ABORT, requestId);
   }
 
   onResolveRequest(event, requestId, protocolId, options) {
@@ -65,13 +64,20 @@ class ResolverService {
     this.resolveProtocol(requestId, protocolId, options)
       .then((resolverStream) => {
         this.resolvers[requestId] = resolverStream;
+
         resolverStream.on('data', (data) => {
-          // logger.debug('[ResolverService:data]');
           event.sender.send(getEventName(eventTypes.RESOLVE_DATA, requestId), data.toString());
         });
+
         resolverStream.on('error', e => handleError(e));
+
         resolverStream.on('end', () => {
           logger.debug('[ResolverService:end]');
+          event.sender.send(getEventName(eventTypes.RESOLVE_END, requestId));
+        });
+
+        resolverStream.on('close', () => {
+          logger.debug('[ResolverService:close]');
           event.sender.send(getEventName(eventTypes.RESOLVE_END, requestId));
         });
       })
