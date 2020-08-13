@@ -183,7 +183,7 @@ const Resolver = React.forwardRef(({
             }
             { status === states.RESOLVING &&
               <EntityDiff
-                key="diff"
+                key={`diff_${resolutionsState.match.index}`}
                 codebook={codebook}
                 match={resolutionsState.match}
                 requiredAttributes={diffState.requiredAttributes}

@@ -1,14 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { isNil, get } from 'lodash';
+import { isNil, get, isPlainObject } from 'lodash';
 import { Button, Node } from '@codaco/ui';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import { nodePrimaryKeyProperty } from '%main/utils/formatters/network';
 import { getNodeTypeDefinition, getLabel, getMatchId } from './selectors';
 import './EntityDiff.scss';
 
-const formatVariable = variable =>
-  (isNil(variable) ? 'not set' : variable.toString());
+const formatVariable = (variable) => {
+  if (isNil(variable)) { return 'not set'; }
+  if (isPlainObject(variable)) {
+    return Object.keys(variable)
+      .map(key => (
+        <div>{key}: {variable[key]}</div>
+      ));
+  }
+  return variable.toString();
+};
 
 const EntityDiff = ({
   codebook,
@@ -69,7 +77,7 @@ const EntityDiff = ({
   console.log({ nodePropsA });
 
   return (
-    <div key={match.index} className="entity-diff">
+    <div className="entity-diff">
       <table className="entity-diff__table" cellPadding="0" cellSpacing="0">
         <thead>
           <tr>
