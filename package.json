@@ -27,9 +27,9 @@
         "predist:mac": "node scripts/check-env.js darwin",
         "predist:linux": "node scripts/check-env.js linux",
         "predist:win": "node scripts/check-env.js win32",
-        "dist:mac": "npm run build && electron-builder -m --publish=always",
-        "dist:linux": "npm run build && electron-builder -l --publish=always",
-        "dist:win": "npm run build && electron-builder -w --publish=always",
+        "dist:mac": "npm run build && electron-builder -m",
+        "dist:linux": "npm run build && electron-builder -l",
+        "dist:win": "npm run build && electron-builder -w",
         "generate-icons": "node scripts/generate-app-icons.js",
         "preflight": "npm run lint -- --max-warnings 0 && npm run sass-lint -- --max-warnings 0 && npm run build-docs && node scripts/build-api-spec && npm test -- --coverage"
     },
