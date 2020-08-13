@@ -10,6 +10,7 @@ export { default as GetStarted } from './GetStarted';
 export { default as Instructions } from './Instructions';
 export { default as InterviewWidget } from './charts/InterviewWidget';
 export { default as LinkButton } from './LinkButton';
+export { default as ExternalLink } from './ExternalLink';
 export { default as TimeSeriesChart } from './charts/TimeSeriesChart';
 export { default as Overflow } from './Overflow';
 export { default as PanelItem } from './workspace/PanelItem';

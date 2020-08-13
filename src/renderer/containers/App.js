@@ -5,6 +5,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { ipcRenderer, shell, remote } from 'electron';
 import { withRouter } from 'react-router-dom';
+import { Button } from '../ui/components';
 import DialogManager from '../components/DialogManager';
 import AppRoutes from './AppRoutes';
 import ProtocolNav from './ProtocolNav';
@@ -12,10 +13,12 @@ import AdminApiClient from '../utils/adminApiClient';
 import { appVersion, codename } from '../utils/appVersion';
 import NCLogo from '../images/NC-Mark.svg';
 import { AppMessage } from '../components';
+import { openExternalLink } from '../components/ExternalLink';
 import { AnimatedPairPrompt } from '../components/pairing/PairPrompt';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
 import { actionCreators as connectionInfoActionCreators } from '../ducks/modules/connectionInfo';
 import { actionCreators as deviceActionCreators } from '../ducks/modules/devices';
+import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 import { actionCreators as messageActionCreators, messages } from '../ducks/modules/appMessages';
 import { isFrameless } from '../utils/environment';
 
@@ -97,6 +100,37 @@ class App extends Component {
     });
 
     this.props.dismissAppMessages();
+
+    this.props.openDialog({
+      type: 'Notice',
+      title: 'Please upgrade to continue receiving support',
+      canCancel: false,
+      message: (
+        <React.Fragment>
+          <p>
+            Our initial development period has come to an end, and we are pleased to announce
+            the release of the first stable versions of Network Canvas, Architect,
+            and Server. Since stable versions are now available, the version of the software
+            that you are currently using is no longer supported. Please visit our
+            documentation website for information about how to update to the new versions.
+          </p>
+          <p>
+            <Button
+              color="sea-serpent"
+              onClick={() => openExternalLink('https://documentation.networkcanvas.com/docs/technical-documentation/updating-from-beta/')}
+            >
+              Visit documentation website
+            </Button>
+          </p>
+          <p>
+            In the meantime, you can continue to use this version of the software
+            in order to export data, or conclude any in-progress work. The stable releases include
+            many new fixes and features collected from feedback you have provided, and we strongly
+            encourage you to update to them as soon as possible.
+          </p>
+        </React.Fragment>
+      ),
+    });
   }
 
   render() {
@@ -184,12 +218,14 @@ App.propTypes = {
   setConnectionInfo: PropTypes.func.isRequired,
   showConfirmationMessage: PropTypes.func,
   dismissAppMessages: PropTypes.func.isRequired,
+  openDialog: PropTypes.func.isRequired,
 };
 
 App.defaultProps = {
   appMessages: [],
   pairingRequest: {},
   showConfirmationMessage: () => {},
+  openDialog: () => {},
 };
 
 const mapStateToProps = ({ pairingRequest, appMessages }) => ({
@@ -202,6 +238,7 @@ function mapDispatchToProps(dispatch) {
     ackPairingRequest: bindActionCreators(actionCreators.acknowledgePairingRequest, dispatch),
     completedPairingRequest: bindActionCreators(actionCreators.completedPairingRequest, dispatch),
     loadDevices: bindActionCreators(deviceActionCreators.loadDevices, dispatch),
+    openDialog: bindActionCreators(dialogActions.openDialog, dispatch),
     newPairingRequest: bindActionCreators(actionCreators.newPairingRequest, dispatch),
     showConfirmationMessage:
       bindActionCreators(messageActionCreators.showConfirmationMessage, dispatch),
