@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
-import { isEmpty } from 'lodash';
+import { isEmpty, get } from 'lodash';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import Text from '@codaco/ui/lib/components/Fields/Text';
+import BrowseInput from '%components/BrowseInput';
 
 const variants = {
   hide: { height: 0, opacity: 0 },
@@ -31,6 +32,12 @@ const NewSnapshot = ({
 }) => {
   const handleUpdateEgoCastType = e =>
     onUpdateSetting('egoCastType', isEmpty(e.target.value) ? undefined : e.target.value);
+
+  const handleSelectResolver = (e) => {
+    const filePath = get(e.target, ['files', 0, 'path']);
+    if (!filePath) { return; }
+    onUpdateSetting('entityResolutionPath', filePath);
+  };
 
   return (
     <React.Fragment>
@@ -81,10 +88,12 @@ const NewSnapshot = ({
                       Script path
                     </th>
                     <td>
-                      <Text
+                      <BrowseInput
                         input={{
                           value: entityResolutionPath,
-                          onChange: e => onUpdateSetting('entityResolutionPath', e.target.value),
+                          onChange: (value) => {
+                            onUpdateSetting('entityResolutionPath', value);
+                          },
                           disabled: !isSelected,
                         }}
                       />
