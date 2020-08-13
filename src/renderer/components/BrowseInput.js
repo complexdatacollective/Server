@@ -2,10 +2,12 @@ import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import uuid from 'uuid';
 import { get } from 'lodash';
+import { Button } from '@codaco/ui';
 import Text from '@codaco/ui/lib/components/Fields/Text';
+import './BrowseInput.scss';
 
 const BrowseInput = (props) => {
-  const id = useRef(uuid());
+  const fileRef = useRef();
 
   const handleSelectFile = (e) => {
     const filePath = get(e.target, ['files', 0, 'path']);
@@ -21,17 +23,22 @@ const BrowseInput = (props) => {
     },
   };
 
+  const handleClick = () => {
+    if (!fileRef.current) { return; }
+    fileRef.current.click();
+  };
+
   return (
-    <div clasName="form-field-browse">
-      <div clasName="form-field-browse__button-container">
-        <input
-          clasName="form-field-browse__input"
-          type="file"
-          id={id.current}
-          onChange={handleSelectFile}
-          disabled={props.input.disabled}
-        />
-        <label htmlFor={id.current} clasName="form-field-browse__button">Browse</label>
+    <div className="form-field-browse">
+      <input
+        className="form-field-browse__file"
+        type="file"
+        ref={fileRef}
+        onChange={handleSelectFile}
+        disabled={props.input.disabled}
+      />
+      <div className="form-field-browse__button">
+        <Button onClick={handleClick} size="small">Browse</Button>
       </div>
       <Text {...inputProps} />
     </div>

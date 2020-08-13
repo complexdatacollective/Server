@@ -1,0 +1,27 @@
+.form-field-browse {
+  display: flex;
+  position: relative;
+
+  &__file {
+    border: 0;
+    clip: rect(0, 0, 0, 0);
+    height: 1px;
+    width: 1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute !important;
+    white-space: nowrap;
+    position: absolute;
+  }
+
+  &__button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-right: 1rem;
+  }
+
+  .form-field-container {
+    flex-grow: 1;
+  }
+}
