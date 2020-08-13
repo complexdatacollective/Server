@@ -1,12 +1,10 @@
 import { useRef, useReducer, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import uuid from 'uuid';
 import resolverClient from '%utils/resolverClient';
 import { actionCreators as dialogActions } from '%modules/dialogs';
 
 const initialState = {
   protocol: null,
-  initialState: true,
   resolveRequestId: null,
   matches: [],
   showResolver: false,
@@ -26,16 +24,27 @@ const resolverReducer = (state, action) => {
         ...state,
         matches: [...state.matches, action.payload],
       };
+    case 'RESET':
+      return (
+        action.payload.hard ?
+          { ...initialState } :
+          {
+            ...state,
+            protocol: null,
+            isLoadingMatches: false,
+            showResolver: false,
+            errorLoadingMatches: null,
+            matches: [],
+          }
+      );
     default:
       throw new Error();
   }
 };
 
 const useResolver = () => {
-  const resolverResults = useRef(null);
   const dispatch = useDispatch();
-
-  const client = useRef(resolverClient);
+  const resolver = useRef(null);
   const [resolverState, resolverDispatch] = useReducer(resolverReducer, initialState);
 
   const addMatch = data =>
@@ -44,35 +53,69 @@ const useResolver = () => {
   const updateState = props =>
     resolverDispatch({ type: 'UPDATE', payload: props });
 
-  const cleanupResolverStream = () => {
-    if (resolverResults.current) {
-      resolverResults.current = null;
+  const resetState = (hard = false) =>
+    resolverDispatch({ type: 'RESET', payload: { hard } });
+
+  const handleEnd = () =>
+    updateState({ isLoadingMatches: false });
+
+  const handleError = (error) => {
+    dispatch(dialogActions.openDialog({
+      type: 'Error',
+      error,
+    }));
+
+    updateState({
+      errorLoadingMatches: error,
+      matches: [],
+      showResolver: false,
+    });
+  };
+
+  const cleanupResolver = () => {
+    if (resolver.current) {
+      resolver.current.removeAllListeners('match');
+      resolver.current.removeAllListeners('end');
+      resolver.current.removeAllListeners('error');
+      resolver.current.abort();
+      resolver.current = null;
     }
   };
 
-  const reset = () => {
-    updateState({
-      isLoadingMatches: false,
-      showResolver: false,
-      resolveRequestId: null,
-      errorLoadingMatches: null,
-      matches: [],
-      protocol: null,
-    });
+  const setResolver = (nextResolver) => {
+    cleanupResolver();
 
-    cleanupResolverStream();
+    if (!nextResolver) { return; }
+
+    resolver.current = nextResolver;
+
+    resolver.current.on('match', addMatch);
+    resolver.current.on('end', handleEnd);
+    resolver.current.on('error', handleError);
+  };
+
+  const handleResolve = protocol =>
+    (client) => {
+      // clean up old resolver
+      setResolver(client.resolver);
+
+      updateState({
+        protocol,
+        showResolver: true,
+        isLoadingMatches: true,
+        requestId: client.requestId,
+      });
+    };
+
+  const handleAbort = () => {
+    resetState();
+    setResolver(null);
   };
 
   // cleanup on unmount
-  useEffect(() => () => reset(), []);
+  useEffect(() => () => cleanupResolver(), []);
 
   const resolveProtocol = (protocol, exportSettings) => {
-    if (!client.current) { return Promise.reject(); }
-
-    if (resolverState.resolveRequestId) { return Promise.reject(); }
-
-    const requestId = uuid();
-
     const {
       id: protocolId,
     } = protocol;
@@ -94,17 +137,7 @@ const useResolver = () => {
     const exportCsvTypes = useEgoData ? csvTypes : csvTypesNoEgo;
     const showCsvOpts = exportFormat === 'csv';
 
-    updateState({
-      initialState: false,
-      showResolver: true,
-      resolveRequestId: requestId,
-      isLoadingMatches: true,
-      errorLoadingMatches: null,
-      matches: [],
-      protocol,
-    });
-
-    return client.current.resolveProtocol(
+    return resolverClient(
       protocolId,
       {
         resolutionId,
@@ -118,38 +151,14 @@ const useResolver = () => {
         useEgoData: useEgoData && showCsvOpts,
       },
     )
-      .then(result => new Promise((resolve, reject) => {
-        resolverResults.current = result;
-
-        result.on('match', addMatch);
-
-        result.on('end', resolve);
-
-        result.on('error', reject);
-      }))
-      .then(() => updateState({
-        isLoadingMatches: false,
-      }))
-      .catch((error) => {
-        dispatch(dialogActions.openDialog({
-          type: 'Error',
-          error,
-        }));
-
-        updateState({
-          errorLoadingMatches: error,
-          matches: [],
-          showResolver: false,
-          resolveRequestId: null,
-        });
-      })
-      .finally(cleanupResolverStream);
+      .then(handleResolve(protocol))
+      .catch(handleError);
   };
 
   return [
     resolverState,
     resolveProtocol,
-    reset,
+    handleAbort,
   ];
 };
 

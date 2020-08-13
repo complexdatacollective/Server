@@ -9,6 +9,7 @@ const eventTypes = {
   RESOLVE_END: 'RESOLVE_END',
   RESOLVE_DATA: 'RESOLVE_DATA',
   RESOLVE_ERROR: 'RESOLVE_ERROR',
+  RESOLVE_ABORT: 'RESOLVE_ABORT',
 };
 
 // TODO:  can we share this with the client?
@@ -20,6 +21,7 @@ const getEventName = (eventType, requestId) =>
  */
 class ResolverService {
   constructor({ dataDir }) {
+    this.resolvers = [];
     this.protocolManager = new ProtocolManager(dataDir);
     this.resolverManager = new ResolverManager(this.protocolManager);
   }
@@ -32,11 +34,20 @@ class ResolverService {
   start() {
     // start listening?
     ipcMain.on(eventTypes.RESOLVE_REQUEST, this.onResolveRequest.bind(this));
+    ipcMain.on(eventTypes.RESOLVE_ABORT, this.onResolveAbort.bind(this));
   }
 
   stop() {
     // stop listening?
     ipcMain.removeListener(eventTypes.RESOLVE_REQUEST, this.onResolveRequest.bind(this));
+  }
+
+  onResolveAbort(event, requestId) {
+    logger.debug('[ResolverService:abort]', eventTypes.RESOLVE_ABORT, requestId);
+    if (!this.resolvers[requestId]) { return; }
+    this.resolvers[requestId].abort();
+    delete this.resolvers[requestId];
+    logger.debug('[ResolverService:abort:done]', eventTypes.RESOLVE_ABORT, requestId);
   }
 
   onResolveRequest(event, requestId, protocolId, options) {
@@ -47,8 +58,13 @@ class ResolverService {
       event.sender.send(getEventName(eventTypes.RESOLVE_ERROR, requestId), error);
     };
 
-    this.resolveProtocol(protocolId, options)
+    if (this.resolvers[requestId]) {
+      handleError(new Error('This requestId already exists'));
+    }
+
+    this.resolveProtocol(requestId, protocolId, options)
       .then((resolverStream) => {
+        this.resolvers[requestId] = resolverStream;
         resolverStream.on('data', (data) => {
           // logger.debug('[ResolverService:data]');
           event.sender.send(getEventName(eventTypes.RESOLVE_DATA, requestId), data.toString());
@@ -62,9 +78,9 @@ class ResolverService {
       .catch(handleError);
   }
 
-  resolveProtocol(protocolId, options) {
+  resolveProtocol(requestId, protocolId, options) {
     return this.protocolManager.getProtocol(protocolId)
-      .then(protocol => this.resolverManager.resolveProtocol(protocol, options));
+      .then(protocol => this.resolverManager.resolveProtocol(requestId, protocol, options));
   }
 }
 

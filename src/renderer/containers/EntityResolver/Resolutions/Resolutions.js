@@ -35,7 +35,7 @@ const Resolver = React.forwardRef(({
 }, ref) => {
   const { saveResolution } = useAdminClient();
 
-  const [resolverState, resolveProtocol, resetResolver] = useResolver();
+  const [resolverState, resolveProtocol, abortResolution] = useResolver();
 
   useEffect(() => {
     if (ref && !ref.current) {
@@ -65,7 +65,7 @@ const Resolver = React.forwardRef(({
   };
 
   const nextDiff = () => {
-    console.log('next',  diffState);
+    console.log('next', diffState);
     if (!diffState.isTouched) {
       return;
     }
@@ -112,18 +112,18 @@ const Resolver = React.forwardRef(({
         createNewResolution: false,
         resolutionsKey: resolutionId, // trigger reload of resolutions
       }))
-      .finally(resetResolver);
+      .finally(abortResolution); // for good measure
   };
 
   const handleCancel = () => {
     // eslint-disable-next-line no-alert
     if (window.confirm('You will loose any progress, are you sure?')) {
-      resetResolver();
+      abortResolution();
     }
   };
 
   const handleClose = () => {
-    resetResolver();
+    abortResolution();
   };
 
   const hasData = resolverState.matches.length > 0;

@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 
+const uuid = require('uuid');
 const split = require('split');
 const miss = require('mississippi');
 const { has } = require('lodash');
@@ -74,6 +75,7 @@ const appendNodeNetworkData = nodes =>
  * stream with `.on('error', () => {});`
  */
 const getNetworkResolver = (
+  requestId,
   command,
   { codebook },
 ) =>
@@ -84,13 +86,13 @@ const getNetworkResolver = (
 
         const pipeline = miss.pipeline(
           tableToCsv(),
-          sampleStream('sent', 3),
-          countStream('records sent'),
+          sampleStream(`${requestId}:sent`, 3),
+          countStream(`${requestId}:sent`),
           resolverProcess,
           split(),
           csvToJson(),
-          sampleStream('recieved', 3),
-          countStream('records received'),
+          sampleStream(`${requestId}:recieved`, 3),
+          countStream(`${requestId}:received`),
           appendNodeNetworkData(network.nodes),
         );
 

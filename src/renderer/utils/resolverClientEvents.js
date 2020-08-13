@@ -3,6 +3,7 @@ const eventTypes = {
   RESOLVE_END: 'RESOLVE_END',
   RESOLVE_DATA: 'RESOLVE_DATA',
   RESOLVE_ERROR: 'RESOLVE_ERROR',
+  RESOLVE_ABORT: 'RESOLVE_ABORT',
 };
 
 const getEventName = (eventType, requestId) =>

@@ -55,6 +55,7 @@ class ResolverManager {
   }
 
   resolveProtocol(
+    requestId,
     protocol,
     options,
   ) {
@@ -65,7 +66,7 @@ class ResolverManager {
     const command = `${options.entityResolutionPath} ${options.entityResolutionArguments}`;
     const resolverOptions = { codebook: protocol.codebook };
 
-    const networkResolver = getNetworkResolver(command, resolverOptions);
+    const networkResolver = getNetworkResolver(requestId, command, resolverOptions);
 
     return this.getNetwork(protocol, options)
       .then(([network]) => networkResolver(network));

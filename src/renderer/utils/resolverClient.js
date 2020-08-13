@@ -35,24 +35,27 @@ const makeResolverResult = (requestId) => {
     (_, error) => handleError(error),
   );
 
+  emitter.abort = () => {
+    console.log('abort', requestId);
+    ipcRenderer.send(eventTypes.RESOLVE_ABORT, requestId);
+  };
+
   return emitter;
 };
 
 /**
  * Provides an IPC API for resolution clients on the same machine.
  */
-class resolverClient {
-  static resolveProtocol(protocolId, options) {
-    const requestId = uuid();
+const resolveProtocol = (protocolId, options) => {
+  const requestId = uuid();
 
-    return new Promise((resolve) => {
-      const resolverResult = makeResolverResult(requestId);
+  return new Promise((resolve) => {
+    const resolver = makeResolverResult(requestId);
 
-      ipcRenderer.send(eventTypes.RESOLVE_REQUEST, requestId, protocolId, options);
+    ipcRenderer.send(eventTypes.RESOLVE_REQUEST, requestId, protocolId, options);
 
-      resolve(resolverResult);
-    });
-  }
-}
+    resolve({ requestId, resolver });
+  });
+};
 
-module.exports = resolverClient;
+module.exports = resolveProtocol;
