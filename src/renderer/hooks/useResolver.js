@@ -5,7 +5,7 @@ import { actionCreators as dialogActions } from '%modules/dialogs';
 
 const initialState = {
   protocol: null,
-  resolveRequestId: null,
+  requestId: null,
   matches: [],
   showResolver: false,
   isLoadingMatches: false,

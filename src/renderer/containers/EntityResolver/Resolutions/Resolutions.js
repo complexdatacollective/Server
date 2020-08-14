@@ -29,10 +29,10 @@ const Resolver = React.forwardRef(({
         resolveProtocol,
       };
     }
-  }, [ref, resolverState.resolveRequestId]);
+  }, [ref, resolverState.requestId]);
 
   const [resolutionsState, resolutionsActions] =
-    useResolutionsState(resolverState.matches);
+    useResolutionsState(resolverState.matches, [resolverState.requestId]);
 
   const codebook = get(resolverState, ['protocol', 'codebook'], {});
 

@@ -1,37 +1,10 @@
-import { useReducer } from 'react';
+import { useReducer, useEffect } from 'react';
 import { createAction, handleActions } from 'redux-actions';
 import { uniq, findLast, get } from 'lodash';
 import { bindActionCreators } from 'redux';
 import uuid from 'uuid';
 import { nodePrimaryKeyProperty } from '%main/utils/formatters/network';
 import { getMatch, getMatchOrResolved } from './selectors';
-
-const resolveMatchAction = createAction(
-  'RESOLVE_MATCH',
-  (match, action, attributes = {}) => ({
-    match: {
-      ...match,
-      nodes: [
-        match.nodes[0][nodePrimaryKeyProperty],
-        match.nodes[1][nodePrimaryKeyProperty],
-      ],
-    },
-    action,
-    attributes,
-  }),
-);
-
-const resolveMatch = (match, attributes) => resolveMatchAction(match, 'RESOLVE', attributes);
-const skipMatch = match => resolveMatchAction(match, 'SKIP');
-const nextMatch = createAction('NEXT_ENTITY');
-const previousMatch = createAction('PREVIOUS_ENTITY');
-
-export const actionCreators = {
-  resolveMatch,
-  skipMatch,
-  nextMatch,
-  previousMatch,
-};
 
 const isImplicitMatch = (match) => {
   const a = get(match, ['nodes', 0, '_resolvedId'], Symbol('a'));
@@ -66,7 +39,41 @@ const getPreviousMatchIndex = (actions) => {
   return index;
 };
 
-export const matchActionReducer = matches =>
+const resolveTypes = {
+  skip: 'skip',
+  match: 'match',
+};
+
+const resolveMatchAction = createAction(
+  'RESOLVE_MATCH',
+  (match, action, attributes = {}) => ({
+    match: {
+      ...match,
+      nodes: [
+        match.nodes[0][nodePrimaryKeyProperty],
+        match.nodes[1][nodePrimaryKeyProperty],
+      ],
+    },
+    action,
+    attributes,
+  }),
+);
+
+const resolveMatch = (match, attributes) =>
+  resolveMatchAction(match, resolveTypes.match, attributes);
+const skipMatch = match => resolveMatchAction(match, resolveTypes.skip);
+const nextMatch = createAction('NEXT_ENTITY');
+const previousMatch = createAction('PREVIOUS_ENTITY');
+const reset = createAction('RESET');
+
+export const actionCreators = {
+  resolveMatch,
+  skipMatch,
+  nextMatch,
+  previousMatch,
+};
+
+export const reduceActions = matches =>
   ({ actions, resolutions }, { payload: { match, action } }) => {
     const newEntry = { index: match.index, action };
     const matchIndex = actions.findIndex(({ index }) => index === match.index);
@@ -84,11 +91,11 @@ const getLatestXorResolutionNodes = (state, includeEntity, excludeEntity) => {
   return resolution ? resolution.nodes : [];
 };
 
-export const resolutionsReducer = (state, { payload: { match, action, attributes } }) => {
+export const reduceResolutions = (state, { payload: { match, action, attributes } }) => {
   const resolutionIndex = state.findIndex(({ matchIndex }) => matchIndex === match.index);
   const priorResolutions = resolutionIndex !== -1 ? state.slice(0, resolutionIndex) : state;
 
-  if (action === 'SKIP') {
+  if (action === resolveTypes.skip) {
     return priorResolutions;
   }
 
@@ -125,23 +132,19 @@ const entityResolutionReducer = matches =>
   handleActions(
     {
       [resolveMatchAction]: (state, { payload: { match, action, attributes } }) => {
-        const resolutions = resolutionsReducer(
+        const resolutions = reduceResolutions(
           state.resolutions,
           { payload: { match, action, attributes } },
         );
 
-        const {
-          actions: matchActions,
-          currentMatchIndex,
-        } = matchActionReducer(matches)(
+        const actions = reduceActions(matches)(
           { actions: state.actions, resolutions },
           { payload: { match, action } },
         );
 
         const newState = {
           ...state,
-          currentMatchIndex,
-          actions: matchActions,
+          ...actions, // { actions, currentMatchIndex }
           resolutions,
         };
 
@@ -166,12 +169,17 @@ const entityResolutionReducer = matches =>
         ...state,
         currentMatchIndex: state.currentMatchIndex + 1,
       }),
+      [reset]: () => initialState,
     },
     initialState,
   );
 
-const useResolutionsState = (matches) => {
+const useResolutionsState = (matches, resetOnProps) => {
   const [state, dispatch] = useReducer(entityResolutionReducer(matches), initialState);
+
+  useEffect(() => {
+    dispatch(reset());
+  }, resetOnProps);
 
   const matchOrResolved = getMatchOrResolved(
     getMatch(matches, state.currentMatchIndex),
