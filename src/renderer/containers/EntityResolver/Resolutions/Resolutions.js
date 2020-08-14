@@ -2,33 +2,19 @@ import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { get, reduce } from 'lodash';
 import cx from 'classnames';
-import { Modal, Progress, Button } from '@codaco/ui';
+import { Modal, ProgressBar } from '@codaco/ui';
 import useResolver from '%renderer/hooks/useResolver';
 import useAdminClient from '%renderer/hooks/useAdminClient';
 import Loading from './Loading';
 import NoResults from './NoResults';
 import ReviewTable from './ReviewTable';
 import EntityDiff from './EntityDiff';
+import ControlBar from './ControlBar';
 import useResolutionsState from './useResolutionsState';
 import useEntityState from './useEntityState';
 import finializeResolutions from './finalizeResolutions';
+import states, { getStatus } from './states';
 import './Resolver.scss';
-
-const states = {
-  LOADING: 'LOADING',
-  NO_RESULTS: 'NO_RESULTS',
-  REVIEW: 'REVIEW',
-  WAITING: 'WAITING',
-  RESOLVING: 'RESOLVING',
-};
-
-const getStatus = ({ hasData, isLoadingMatches, isComplete, match }) => {
-  if (!hasData && isLoadingMatches) { return states.LOADING; }
-  if (!hasData && !isLoadingMatches) { return states.NO_RESULTS; }
-  if (isComplete) { return states.REVIEW; } // or "COMPLETE"
-  if (!match) { return states.WAITING; } // loaded some data, waiting for more
-  return states.RESOLVING;
-};
 
 const Resolver = React.forwardRef(({
   onComplete,
@@ -135,25 +121,59 @@ const Resolver = React.forwardRef(({
     match: resolutionsState.match,
   });
 
-  const renderHeading = () => {
-    switch (status) {
-      case states.NO_RESULTS:
-      case states.LOADING:
-        return <h2>Entity Resolution</h2>;
-      case states.REVIEW:
-        return <h2>Review Resolutions</h2>;
-      case states.RESOLVING:
-      case states.WAITING:
-        return (
-          <Progress
-            value={resolutionsState.currentMatchIndex + 1}
-            max={resolverState.matches.length}
-          />
-        );
-      default:
-        return null;
-    }
-  };
+  const currentMatch = resolutionsState.currentMatchIndex + 1;
+  const totalMatches = get(resolverState, 'matches.length', 1);
+  const percentProgress = (currentMatch / totalMatches) * 100;
+  // If we're still loading prevent the 100% animation
+  const resolvingProgress = resolverState.isLoadingMatches && percentProgress === 100
+    ? 99
+    : percentProgress;
+
+  const heading = {
+    [states.NO_RESULTS]: (<h2>No results</h2>),
+    [states.REVIEW]: (<h2>Review matches</h2>),
+    [states.RESOLVING]: (
+      <ProgressBar
+        percentProgress={resolvingProgress}
+        orientation="horizontal"
+        indeterminate
+      />
+    ),
+    [states.LOADING]: (<ProgressBar percentProgress={33} orientation="horizontal" indeterminate />),
+    [states.WAITING]: (
+      <ProgressBar
+        percentProgress={percentProgress}
+        orientation="horizontal"
+        indeterminate
+      />
+    ),
+  }[status];
+
+  const content = {
+    [states.LOADING]: <Loading key="loading" />,
+    [states.WAITING]: <Loading key="waiting" />,
+    [states.NO_RESULTS]: <NoResults key="empty" onClose={handleClose} />,
+    [states.RESOLVING]: (
+      <EntityDiff
+        key={`diff_${currentMatch}`}
+        codebook={codebook}
+        match={resolutionsState.match}
+        requiredAttributes={diffState.requiredAttributes}
+        resolvedAttributes={diffState.resolvedAttributes}
+        setAttributes={diffActions.setAttributes}
+        setNotAMatch={diffActions.setNotAMatch}
+        isAMatch={diffState.isAMatch}
+      />
+    ),
+    [states.REVIEW]: (
+      <ReviewTable
+        key="review"
+        codebook={codebook}
+        matches={resolverState.matches}
+        actions={resolutionsActions.actions}
+      />
+    ),
+  }[status];
 
   const contentClasses = cx(
     'resolver__main',
@@ -167,71 +187,25 @@ const Resolver = React.forwardRef(({
     <Modal show={resolverState.showResolver}>
       <div className="resolver">
         <div className="resolver__heading">
-          {renderHeading()}
+          {heading}
         </div>
         <div key={status} className={contentClasses}>
           <div className="resolver__content">
-            {resolverState.resolveRequestId}
-            { status === states.LOADING &&
-              <Loading key="loading" />
-            }
-            { status === states.WAITING &&
-              <Loading key="waiting" />
-            }
-            { status === states.NO_RESULTS &&
-              <NoResults key="empty" onClose={handleClose} />
-            }
-            { status === states.RESOLVING &&
-              <EntityDiff
-                key={`diff_${resolutionsState.match.index}`}
-                codebook={codebook}
-                match={resolutionsState.match}
-                requiredAttributes={diffState.requiredAttributes}
-                resolvedAttributes={diffState.resolvedAttributes}
-                setAttributes={diffActions.setAttributes}
-                setNotAMatch={diffActions.setNotAMatch}
-                isAMatch={diffState.isAMatch}
-              />
-            }
-            { status === states.REVIEW &&
-              <ReviewTable
-                key="review"
-                codebook={codebook}
-                matches={resolverState.matches}
-                actions={resolutionsActions.actions}
-              />
-            }
+            {content}
           </div>
         </div>
-        <div key="loading-controls" className="resolver__control-bar">
-          <div className="resolver__controls resolver__controls--left">
-            { status === states.NO_RESULTS &&
-              <Button color="white" key="close" onClick={handleClose}>Close</Button>
-            }
-            { status !== states.NO_RESULTS &&
-              <Button color="white" key="cancel" onClick={handleCancel}>Cancel</Button>
-            }
-          </div>
-          <div className="resolver__controls resolver__controls--center">
-            { status === states.RESOLVING &&
-              `${resolutionsState.currentMatchIndex + 1} of ${resolverState.matches.length}`
-            }
-          </div>
-          <div className="resolver__controls resolver__controls--right">
-            { status === states.RESOLVING && resolutionsState.currentMatchIndex > 0 &&
-              <Button color="white" onClick={previousDiff}>Back</Button>
-            }
-            { status === states.RESOLVING &&
-              <Button
-                disabled={!diffState.isDiffComplete}
-                onClick={nextDiff}
-              >Next</Button>
-            }
-            { status === states.REVIEW &&
-              <Button onClick={handleFinish}>Save and export</Button>
-            }
-          </div>
-        </div>
+        <ControlBar
+          currentMatch={currentMatch}
+          onBack={previousDiff}
+          onCancel={handleCancel}
+          onClose={handleClose}
+          onFinish={handleFinish}
+          onNext={nextDiff}
+          isDiffComplete={diffState.isDiffComplete}
+          isLoadingMatches={resolverState.isLoadingMatches}
+          status={status}
+          totalMatches={totalMatches}
+        />
       </div>
     </Modal>
   );
