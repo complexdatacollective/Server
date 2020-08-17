@@ -137,11 +137,11 @@
         "xmldom": "^0.1.27"
     },
     "browserslist": [
-        "Chrome 61"
+        "Electron 9.2.0"
     ],
     "build": {
         "extends": null,
-        "appId": "NetworkCanvasServer",
+        "appId": "Network-Canvas-Server-6",
         "afterSign": "./build-resources/scripts/afterSignHook.js",
         "directories": {
             "app": "./www",
