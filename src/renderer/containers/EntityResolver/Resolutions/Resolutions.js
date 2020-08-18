@@ -28,6 +28,7 @@ const Resolver = React.forwardRef(({
       ref.current = { // eslint-disable-line no-param-reassign
         resolveProtocol,
       };
+      console.log('set resolver');
     }
   }, [ref, resolverState.requestId]);
 
@@ -130,18 +131,26 @@ const Resolver = React.forwardRef(({
     : percentProgress;
 
   const heading = {
-    [states.NO_RESULTS]: (<h2>No results</h2>),
-    [states.REVIEW]: (<h2>Review matches</h2>),
+    [states.NO_RESULTS]: (<h2 key="empty">No results</h2>),
+    [states.REVIEW]: (<h2 key="review">Review matches</h2>),
     [states.RESOLVING]: (
       <ProgressBar
+        key="resolve"
         percentProgress={resolvingProgress}
         orientation="horizontal"
-        indeterminate
+        indeterminate={resolverState.isLoadingMatches}
       />
     ),
-    [states.LOADING]: (<ProgressBar percentProgress={33} orientation="horizontal" indeterminate />),
+    [states.LOADING]: (
+      <ProgressBar
+        key="loading"
+        percentProgress={33}
+        orientation="horizontal"
+        indeterminate
+      />),
     [states.WAITING]: (
       <ProgressBar
+        key="waiting"
         percentProgress={percentProgress}
         orientation="horizontal"
         indeterminate

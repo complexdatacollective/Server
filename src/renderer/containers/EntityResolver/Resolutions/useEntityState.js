@@ -54,20 +54,22 @@ const useEntityDiffState = (
     dispatch(reset());
   }, [getMatchId(match)]);
 
-  const handlers = bindActionCreators({
+  const diffActions = bindActionCreators({
     setAttributes,
     setNotAMatch,
   }, dispatch);
 
+  const diffState = {
+    requiredAttributes,
+    resolvedAttributes,
+    isAMatch,
+    isDiffComplete,
+    isTouched,
+  };
+
   return [
-    {
-      requiredAttributes,
-      resolvedAttributes,
-      isAMatch,
-      isDiffComplete,
-      isTouched,
-    },
-    handlers,
+    diffState,
+    diffActions,
   ];
 };
 

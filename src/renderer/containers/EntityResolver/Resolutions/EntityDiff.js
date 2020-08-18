@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { isNil, get, isPlainObject } from 'lodash';
+import { isNil, get, isPlainObject, isEqual } from 'lodash';
 import { Button, Node } from '@codaco/ui';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import { nodePrimaryKeyProperty } from '%main/utils/formatters/network';
@@ -218,4 +218,11 @@ EntityDiff.defaultProps = {
   resolvedAttributes: {},
 };
 
-export default EntityDiff;
+const areEqual = (prevProps, props) => {
+  const isIndexMatch = get(prevProps, 'match.index') === get(props, 'match.index');
+  const isResolvedMatch = isEqual(get(prevProps, 'resolvedAttributes'), get(props, 'resolvedAttributes'));
+
+  return isIndexMatch && isResolvedMatch;
+}
+
+export default React.memo(EntityDiff, areEqual);
