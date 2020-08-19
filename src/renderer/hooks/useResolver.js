@@ -1,5 +1,6 @@
 import { useRef, useReducer, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
+import { isEmpty } from 'lodash';
 import resolverClient from '%utils/resolverClient';
 import { actionCreators as dialogActions } from '%modules/dialogs';
 
@@ -142,6 +143,16 @@ const useResolver = () => {
     csvTypesNoEgo.delete('ego');
     const exportCsvTypes = useEgoData ? csvTypes : csvTypesNoEgo;
     const showCsvOpts = exportFormat === 'csv';
+
+    if (isEmpty(egoCastType)) {
+      handleError(new Error('Please specify an ego cast type'));
+      return;
+    }
+    
+    if (isEmpty(entityResolutionPath)) {
+      handleError(new Error('Please specify a resolver path'));
+      return;
+    }
 
     return resolverClient(
       protocolId,

@@ -28,7 +28,6 @@ const Resolver = React.forwardRef(({
       ref.current = { // eslint-disable-line no-param-reassign
         resolveProtocol,
       };
-      console.log('set resolver');
     }
   }, [ref, resolverState.requestId]);
 
@@ -52,7 +51,6 @@ const Resolver = React.forwardRef(({
   };
 
   const nextDiff = () => {
-    console.log('next', diffState);
     if (!diffState.isTouched) {
       return;
     }
@@ -74,8 +72,6 @@ const Resolver = React.forwardRef(({
         ...resolutionsState.match.nodes[0].attributes,
         ...resolved,
       };
-
-      console.log('next', resolutionsState.match, fullResolvedAttributes, resolutionsActions.resolveMatch);
 
       resolutionsActions.resolveMatch(resolutionsState.match, fullResolvedAttributes);
       return;

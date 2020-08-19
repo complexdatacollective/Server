@@ -33,10 +33,8 @@ const NewSnapshot = ({
   const handleUpdateEgoCastType = e =>
     onUpdateSetting('egoCastType', isEmpty(e.target.value) ? undefined : e.target.value);
 
-  const handleSelectResolver = (e) => {
-    const filePath = get(e.target, ['files', 0, 'path']);
-    if (!filePath) { return; }
-    onUpdateSetting('entityResolutionPath', filePath);
+  const handleSelectResolver = (value) => {
+    onUpdateSetting('entityResolutionPath', value);
   };
 
   return (
@@ -91,9 +89,7 @@ const NewSnapshot = ({
                       <BrowseInput
                         input={{
                           value: entityResolutionPath,
-                          onChange: (value) => {
-                            onUpdateSetting('entityResolutionPath', value);
-                          },
+                          onChange: handleSelectResolver,
                           disabled: !isSelected,
                         }}
                       />

@@ -52,17 +52,17 @@ const EntityResolverSettings = ({
         setResolutionHistory(sortedResolutions);
         setUnresolvedCount(unresolved);
 
-        const lastResolution = last(sortedResolutions);
-        const lastEgoCastType = get(lastResolution, 'parameters.egoCastType', '');
-        onUpdateSetting('egoCastType', lastEgoCastType);
-
         // if path/arguments have been changed skip this
         if (
           entityResolutionPath.length === 0 &&
-          entityResolutionArguments.length === 0
+          entityResolutionArguments.length === 0 &&
+          egoCastType.length === 0
         ) {
+          const lastResolution = last(sortedResolutions);
+          const lastEgoCastType = get(lastResolution, 'parameters.egoCastType', '');
           const lastEntityResolutionPath = get(lastResolution, 'parameters.entityResolutionPath', '');
           const lastEntityResolutionArguments = get(lastResolution, 'parameters.entityResolutionArguments', '');
+          onUpdateSetting('egoCastType', lastEgoCastType);
           onUpdateSetting('entityResolutionPath', lastEntityResolutionPath);
           onUpdateSetting('entityResolutionArguments', lastEntityResolutionArguments);
         }
