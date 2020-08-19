@@ -23,6 +23,9 @@ const useAdminClient = () => {
       id: protocolId,
     } = protocol;
 
+
+    console.log({ exportSettings, resolution });
+
     const {
       entityResolutionPath,
       entityResolutionArguments,
@@ -34,6 +37,8 @@ const useAdminClient = () => {
       entityResolutionArguments,
       egoCastType,
     };
+
+    console.log({ parameters });
 
     return client
       .current
@@ -82,10 +87,10 @@ const useAdminClient = () => {
       .catch(err => showError(err.message));
   };
 
-  return [
+  return {
     exportToFile,
     saveResolution,
-  ];
+  };
 };
 
 export default useAdminClient;

@@ -23,7 +23,6 @@ const ExportScreen = ({
   protocol,
   protocolsHaveLoaded,
   history,
-  showConfirmation,
   showError,
 }) => {
   const resolutionsRef = useRef();
@@ -44,7 +43,7 @@ const ExportScreen = ({
     },
   ] = useExportSettingsState();
 
-  const [exportToFile, saveResolutions] = useAdminClient(showConfirmation, showError);
+  const { exportToFile, saveResolutions } = useAdminClient();
 
   const promptAndExport = () => {
     const defaultName = protocol.name || 'network-canvas-data';
@@ -275,7 +274,6 @@ ExportScreen.propTypes = {
   apiClient: PropTypes.object,
   protocol: Types.protocol,
   protocolsHaveLoaded: PropTypes.bool.isRequired,
-  showConfirmation: PropTypes.func.isRequired,
   showError: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
 };

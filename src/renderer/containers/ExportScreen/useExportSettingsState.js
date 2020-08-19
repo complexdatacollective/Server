@@ -36,9 +36,9 @@ const initialState = {
   egoCastType: undefined,
   // entityResolutionArguments: '',
   // entityResolutionPath: '',
-  entityResolutionArguments: '--minimumThreshold=0.5',
+  entityResolutionArguments: '--minimumThreshold=0.997',
   entityResolutionPath:
-    '/Users/steve/Projects/northwestern/network-canvas-er/Random.py',
+    '/home/steve/Code/clients/complexdatacollective/entity-resolution/entity-resolution-sample/testing/Random.py',
 };
 
 const entityResolutionReducer = handleActions(

@@ -6,6 +6,7 @@ import { actionCreators as dialogActions } from '%modules/dialogs';
 
 const initialState = {
   protocol: null,
+  exportSettings: {},
   requestId: null,
   matches: [],
   showResolver: false,
@@ -25,6 +26,12 @@ const resolverReducer = (state, action) => {
         ...state,
         matches: [...state.matches, action.payload],
       };
+    case 'START_RESOLVE':
+      return {
+        ...state,
+        protocol: action.payload.protocol,
+        exportSettings: action.payload.exportSettings,
+      };
     case 'RESET':
       return (
         action.payload.hard ?
@@ -32,6 +39,7 @@ const resolverReducer = (state, action) => {
           {
             ...state,
             protocol: null,
+            exportSettings: {},
             isLoadingMatches: false,
             showResolver: false,
             errorLoadingMatches: null,
@@ -56,6 +64,9 @@ const useResolver = () => {
 
   const resetState = (hard = false) =>
     resolverDispatch({ type: 'RESET', payload: { hard } });
+
+  const startResolve = settings =>
+    resolverDispatch({ type: 'START_RESOLVE', payload: settings });
 
   const abortResolver = () => {
     if (!resolver.current) { return; }
@@ -101,18 +112,16 @@ const useResolver = () => {
     resolver.current.on('error', handleError);
   };
 
-  const handleResolve = protocol =>
-    (client) => {
-      // clean up old resolver
-      setResolver(client.resolver);
+  const handleResolve = (client) => {
+    // clean up old resolver
+    setResolver(client.resolver);
 
-      updateState({
-        protocol,
-        showResolver: true,
-        isLoadingMatches: true,
-        requestId: client.requestId,
-      });
-    };
+    updateState({
+      showResolver: true,
+      isLoadingMatches: true,
+      requestId: client.requestId,
+    });
+  };
 
   const cancelResolver = () => {
     resetState();
@@ -139,19 +148,23 @@ const useResolver = () => {
       entityResolutionPath,
     } = exportSettings;
 
+    startResolve({ exportSettings, protocol });
+
     const csvTypesNoEgo = new Set(exportSettings.csvTypes);
     csvTypesNoEgo.delete('ego');
     const exportCsvTypes = useEgoData ? csvTypes : csvTypesNoEgo;
     const showCsvOpts = exportFormat === 'csv';
 
     if (isEmpty(egoCastType)) {
-      handleError(new Error('Please specify an ego cast type'));
-      return;
+      const e = new Error('Please specify an ego cast type');
+      handleError(e);
+      return Promise.reject(e);
     }
-    
+
     if (isEmpty(entityResolutionPath)) {
-      handleError(new Error('Please specify a resolver path'));
-      return;
+      const e = new Error('Please specify a resolver path');
+      handleError(e);
+      return Promise.reject(e);
     }
 
     return resolverClient(
@@ -168,7 +181,7 @@ const useResolver = () => {
         useEgoData: useEgoData && showCsvOpts,
       },
     )
-      .then(handleResolve(protocol))
+      .then(handleResolve)
       .catch(handleError);
   };
 
