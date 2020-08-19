@@ -5,11 +5,14 @@ import { isEmpty, get } from 'lodash';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import Text from '@codaco/ui/lib/components/Fields/Text';
 import BrowseInput from '%components/BrowseInput';
+import withValidation from './withValidation';
 
 const variants = {
   hide: { height: 0, opacity: 0 },
   show: { height: 'auto', opacity: 1 },
 };
+
+const ValidatedBrowseInput = withValidation(BrowseInput);
 
 const formatSessionCount = (sessionCount) => {
   if (sessionCount === 1) {
@@ -17,6 +20,12 @@ const formatSessionCount = (sessionCount) => {
   }
 
   return `${sessionCount} new sessions`;
+};
+
+const isRequired = (value) => {
+  console.log('hi');
+  if (!isEmpty(value)) { return undefined; }
+  return 'Required';
 };
 
 const NewSnapshot = ({
@@ -73,6 +82,7 @@ const NewSnapshot = ({
                         onChange={handleUpdateEgoCastType}
                         value={egoCastType || ''}
                         disabled={hasResolutionHistory || !isSelected}
+                        required
                       >
                         <option value="">&mdash; Select a node type &mdash;</option>
                         {nodeTypes.map(({ label, value }) => (
@@ -86,12 +96,13 @@ const NewSnapshot = ({
                       Script path
                     </th>
                     <td>
-                      <BrowseInput
+                      <ValidatedBrowseInput
                         input={{
                           value: entityResolutionPath,
                           onChange: handleSelectResolver,
                           disabled: !isSelected,
                         }}
+                        validate={isRequired}
                       />
                     </td>
                   </tr>
