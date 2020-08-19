@@ -31,6 +31,9 @@ const resolverReducer = (state, action) => {
         ...state,
         protocol: action.payload.protocol,
         exportSettings: action.payload.exportSettings,
+        showResolver: true,
+        isLoadingMatches: true,
+        matches: [],
       };
     case 'RESET':
       return (
@@ -117,8 +120,6 @@ const useResolver = () => {
     setResolver(client.resolver);
 
     updateState({
-      showResolver: true,
-      isLoadingMatches: true,
       requestId: client.requestId,
     });
   };
