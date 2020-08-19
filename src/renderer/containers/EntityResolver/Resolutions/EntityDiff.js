@@ -35,7 +35,7 @@ const EntityDiff = ({
 
   const [a, b] = match.nodes;
 
-  const nodeDefinition = getNodeTypeDefinition(codebook, a);
+  const nodeDefinition = getNodeTypeDefinition(codebook, a); // TODO: This needs to be the cast entity type
   const color = get(nodeDefinition, 'color');
   const variables = get(nodeDefinition, 'variables');
   const nodePropsA = { label: getLabel(codebook, a), color };
@@ -57,6 +57,8 @@ const EntityDiff = ({
         getVariableResolution(variable) === 1,
       ],
     }));
+
+  console.log({ rows, a, b });
 
   const allChecked = Object.values(resolvedAttributes).length === requiredAttributes.length ?
     [

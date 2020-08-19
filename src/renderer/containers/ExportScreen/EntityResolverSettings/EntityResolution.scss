@@ -1,5 +1,5 @@
-// $color-light-grey: rgb(242, 246, 247);
-// $color-light-grey-transparent: transparentize($color-light-grey, 0.5);
+$color-light-grey: rgb(242, 246, 247);
+$color-light-grey-transparent: transparentize($color-light-grey, 0.5);
 
 .entity-resolution {
   margin-bottom: 4rem;
@@ -34,7 +34,7 @@
 
       &:nth-child(2n + 1) {
         td {
-          background: color('platinum', 0.5);
+          background: $color-light-grey-transparent;
         }
       }
     }
@@ -47,7 +47,7 @@
   .new-snapshot {
     width: 100%;
     border-top: 2px solid var(--color-platinum);
-    background: color('platinum', 0.5);
+    background: $color-light-grey-transparent;
     padding: 1rem 2rem;
 
     &__options {
@@ -55,7 +55,7 @@
 
       th {
         text-align: left;
-        width: 150px;
+        width: 14rem;
       }
 
       td {
