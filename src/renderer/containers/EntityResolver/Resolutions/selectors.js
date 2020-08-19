@@ -77,13 +77,12 @@ export const getNodeTypeDefinition = (codebook, node) => {
 export const getVariableName = (nodeTypeDefinition, variable) =>
   get(nodeTypeDefinition, ['variables', variable, 'name']);
 
-export const getRequiredAttributes = (codebook, match) => {
+export const getRequiredAttributes = (nodeTypeDefinition, match) => {
   if (!match) { return []; }
 
   const [a, b] = match.nodes;
-  const nodeTypeDefinition = getNodeTypeDefinition(codebook, a);
 
-  const requiredAttributes = Object.keys(a.attributes)
+  const requiredAttributes = Object.keys(nodeTypeDefinition.variables)
     .filter((variable) => {
       const areDifferent = a.attributes[variable] !== b.attributes[variable];
       const isName = getVariableName(nodeTypeDefinition, variable) === 'name';

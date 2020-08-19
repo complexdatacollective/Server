@@ -14,9 +14,10 @@ import useResolutionsState from './useResolutionsState';
 import useEntityState from './useEntityState';
 import finializeResolutions from './finalizeResolutions';
 import states, { getStatus } from './states';
+import { getNodeTypeDefinition } from './selectors';
 import './Resolver.scss';
 
-const Resolver = React.forwardRef(({
+const Resolutions = React.forwardRef(({
   onComplete,
 }, ref) => {
   const { saveResolution } = useAdminClient();
@@ -35,9 +36,14 @@ const Resolver = React.forwardRef(({
     useResolutionsState(resolverState.matches, [resolverState.requestId]);
 
   const codebook = get(resolverState, ['protocol', 'codebook'], {});
+  // TODO: egoCastType... this seems to be generic now
+  const entityDefinition = getNodeTypeDefinition(
+    codebook,
+    resolverState.exportSettings.egoCastType,
+  );
 
   // todo, can we move this to diff'er?
-  const [diffState, diffActions] = useEntityState(codebook, resolutionsState.match);
+  const [diffState, diffActions] = useEntityState(entityDefinition, resolutionsState.match);
 
   const previousDiff = () => {
     if (!(
@@ -162,6 +168,7 @@ const Resolver = React.forwardRef(({
       <EntityDiff
         key={`diff_${currentMatch}`}
         codebook={codebook}
+        // TODO use entity definition
         match={resolutionsState.match}
         requiredAttributes={diffState.requiredAttributes}
         resolvedAttributes={diffState.resolvedAttributes}
@@ -216,8 +223,8 @@ const Resolver = React.forwardRef(({
   );
 });
 
-Resolver.propTypes = {
+Resolutions.propTypes = {
   onComplete: PropTypes.func.isRequired,
 };
 
-export default Resolver;
+export default Resolutions;

@@ -1,7 +1,7 @@
 import { useReducer, useEffect } from 'react';
 import { bindActionCreators } from 'redux';
 import { createAction, handleActions } from 'redux-actions';
-import { isEqual, reduce } from 'lodash';
+import { isEqual } from 'lodash';
 import { getRequiredAttributes, getMatchId } from './selectors';
 
 const initialState = {
@@ -40,13 +40,13 @@ const getIsDiffValid = (requiredAttributes, resolvedAttributes) =>
   isEqual(requiredAttributes, Object.keys(resolvedAttributes));
 
 const useEntityDiffState = (
-  codebook,
+  entityDefinition,
   match,
 ) => {
   const [state, dispatch] = useReducer(entityDiffReducer, initialState);
   const { isTouched, resolvedAttributes, isAMatch } = state;
 
-  const requiredAttributes = getRequiredAttributes(codebook, match);
+  const requiredAttributes = getRequiredAttributes(entityDefinition, match);
   const isDiffValid = getIsDiffValid(requiredAttributes, resolvedAttributes);
   const isDiffComplete = isTouched && ((isAMatch && isDiffValid) || !isAMatch);
 
