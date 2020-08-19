@@ -4,7 +4,7 @@ import { isNil, get, isPlainObject, isEqual } from 'lodash';
 import { Button, Node } from '@codaco/ui';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import { nodePrimaryKeyProperty } from '%main/utils/formatters/network';
-import { getNodeTypeDefinition, getLabel, getMatchId } from './selectors';
+import { getLabel, getMatchId } from './selectors';
 import './EntityDiff.scss';
 
 const formatVariable = (variable) => {
@@ -19,7 +19,7 @@ const formatVariable = (variable) => {
 };
 
 const EntityDiff = ({
-  codebook,
+  nodeTypeDefinition,
   match,
   requiredAttributes,
   resolvedAttributes,
@@ -35,15 +35,16 @@ const EntityDiff = ({
 
   const [a, b] = match.nodes;
 
-  const nodeDefinition = getNodeTypeDefinition(codebook, a); // TODO: This needs to be the cast entity type
-  const color = get(nodeDefinition, 'color');
-  const variables = get(nodeDefinition, 'variables');
-  const nodePropsA = { label: getLabel(codebook, a), color };
-  const nodePropsB = { label: getLabel(codebook, b), color };
+  const color = get(nodeTypeDefinition, 'color');
+  const variables = get(nodeTypeDefinition, 'variables', {});
+  const nodePropsA = { label: getLabel(nodeTypeDefinition, a), color };
+  const nodePropsB = { label: getLabel(nodeTypeDefinition, b), color };
   const getVariableResolution = variable => get(resolvedAttributes, variable);
   const getVariableName = variable => get(variables, [variable, 'name']);
 
-  const rows = Object.keys(a.attributes)
+  console.log({ nodeTypeDefinition, variables });
+
+  const rows = Object.keys(variables)
     .map(variable => ({
       variable,
       notSet: isNil(a.attributes[variable]) && isNil(b.attributes[variable]),
@@ -57,8 +58,6 @@ const EntityDiff = ({
         getVariableResolution(variable) === 1,
       ],
     }));
-
-  console.log({ rows, a, b });
 
   const allChecked = Object.values(resolvedAttributes).length === requiredAttributes.length ?
     [
@@ -202,7 +201,7 @@ EntityDiff.propTypes = {
     probability: PropTypes.number.isRequired,
     index: PropTypes.number.isRequired,
   }),
-  codebook: PropTypes.object,
+  nodeTypeDefinition: PropTypes.object,
   requiredAttributes: PropTypes.array,
   resolvedAttributes: PropTypes.object,
   setAttributes: PropTypes.func.isRequired,
@@ -212,7 +211,7 @@ EntityDiff.propTypes = {
 
 EntityDiff.defaultProps = {
   match: null,
-  codebook: null,
+  nodeTypeDefinition: null,
   isAMatch: false,
   requiredAttributes: [],
   resolvedAttributes: {},
@@ -221,8 +220,9 @@ EntityDiff.defaultProps = {
 const areEqual = (prevProps, props) => {
   const isIndexMatch = get(prevProps, 'match.index') === get(props, 'match.index');
   const isResolvedMatch = isEqual(get(prevProps, 'resolvedAttributes'), get(props, 'resolvedAttributes'));
+  const isNodeDefinitionMatch = isEqual(get(prevProps, 'nodeTypeDefinition'), get(props, 'nodeTypeDefinition'));
 
-  return isIndexMatch && isResolvedMatch;
+  return isIndexMatch && isResolvedMatch && isNodeDefinitionMatch;
 }
 
 export default React.memo(EntityDiff, areEqual);

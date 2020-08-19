@@ -37,13 +37,15 @@ const Resolutions = React.forwardRef(({
 
   const codebook = get(resolverState, ['protocol', 'codebook'], {});
   // TODO: egoCastType... this seems to be generic now
-  const entityDefinition = getNodeTypeDefinition(
+  const nodeTypeDefinition = getNodeTypeDefinition(
     codebook,
     resolverState.exportSettings.egoCastType,
   );
 
+  console.log({ nodeTypeDefinition, codebook, egoCastType: resolverState.exportSettings.egoCastType });
+
   // todo, can we move this to diff'er?
-  const [diffState, diffActions] = useEntityState(entityDefinition, resolutionsState.match);
+  const [diffState, diffActions] = useEntityState(nodeTypeDefinition, resolutionsState.match);
 
   const previousDiff = () => {
     if (!(
@@ -167,8 +169,7 @@ const Resolutions = React.forwardRef(({
     [states.RESOLVING]: (
       <EntityDiff
         key={`diff_${currentMatch}`}
-        codebook={codebook}
-        // TODO use entity definition
+        nodeTypeDefinition={nodeTypeDefinition}
         match={resolutionsState.match}
         requiredAttributes={diffState.requiredAttributes}
         resolvedAttributes={diffState.resolvedAttributes}
@@ -180,9 +181,9 @@ const Resolutions = React.forwardRef(({
     [states.REVIEW]: (
       <ReviewTable
         key="review"
-        codebook={codebook}
+        nodeTypeDefinition={nodeTypeDefinition}
         matches={resolverState.matches}
-        actions={resolutionsActions.actions}
+        actions={resolutionsState.actions}
       />
     ),
   }[status];

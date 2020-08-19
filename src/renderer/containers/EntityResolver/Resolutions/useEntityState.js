@@ -46,13 +46,13 @@ const useEntityDiffState = (
   const [state, dispatch] = useReducer(entityDiffReducer, initialState);
   const { isTouched, resolvedAttributes, isAMatch } = state;
 
-  const requiredAttributes = getRequiredAttributes(entityDefinition, match);
-  const isDiffValid = getIsDiffValid(requiredAttributes, resolvedAttributes);
-  const isDiffComplete = isTouched && ((isAMatch && isDiffValid) || !isAMatch);
-
   useEffect(() => {
     dispatch(reset());
   }, [getMatchId(match)]);
+
+  const requiredAttributes = getRequiredAttributes(entityDefinition, match);
+  const isDiffValid = getIsDiffValid(requiredAttributes, resolvedAttributes);
+  const isDiffComplete = isTouched && ((isAMatch && isDiffValid) || !isAMatch);
 
   const diffActions = bindActionCreators({
     setAttributes,

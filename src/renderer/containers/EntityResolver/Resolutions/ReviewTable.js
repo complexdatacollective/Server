@@ -5,11 +5,11 @@ import { nodePrimaryKeyProperty } from '%main/utils/formatters/network';
 import { getLabel } from './selectors';
 import './ReviewTable.scss';
 
-const renderNodeCell = (codebook, node) =>
-  (<td title={get(node, nodePrimaryKeyProperty)}>{getLabel(codebook, node)}</td>);
+const renderNodeCell = (nodeTypeDefinition, node) =>
+  (<td title={get(node, nodePrimaryKeyProperty)}>{getLabel(nodeTypeDefinition, node)}</td>);
 
 const ReviewTable = ({
-  codebook,
+  nodeTypeDefinition,
   matches,
   actions,
 }) => (
@@ -29,8 +29,8 @@ const ReviewTable = ({
 
           return (
             <tr key={index}>
-              {renderNodeCell(codebook, nodes[0])}
-              {renderNodeCell(codebook, nodes[1])}
+              {renderNodeCell(nodeTypeDefinition, nodes[0])}
+              {renderNodeCell(nodeTypeDefinition, nodes[1])}
               <td>{action}</td>
             </tr>
           );
@@ -41,13 +41,13 @@ const ReviewTable = ({
 );
 
 ReviewTable.propTypes = {
-  codebook: PropTypes.object,
+  nodeTypeDefinition: PropTypes.object,
   matches: PropTypes.array,
   actions: PropTypes.array,
 };
 
 ReviewTable.defaultProps = {
-  codebook: {},
+  nodeTypeDefinition: {},
   matches: [],
   actions: [],
 };
