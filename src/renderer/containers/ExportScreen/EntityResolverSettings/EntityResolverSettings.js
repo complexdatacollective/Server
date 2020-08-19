@@ -42,6 +42,8 @@ const EntityResolverSettings = ({
   const [unresolvedCount, setUnresolvedCount] = useState(0);
   const [resolutionHistory, setResolutionHistory] = useState([]);
 
+  console.log({ protocolId });
+
   const getResolutions = () => {
     if (!protocolId) { return; }
 
@@ -52,17 +54,20 @@ const EntityResolverSettings = ({
         setResolutionHistory(sortedResolutions);
         setUnresolvedCount(unresolved);
 
+        const lastResolution = last(sortedResolutions);
+        if (sortedResolutions.length > 0) {
+          // TODO: should this be enforced server side?
+          const lastEgoCastType = get(lastResolution, 'parameters.egoCastType', '');
+          onUpdateSetting('egoCastType', lastEgoCastType);
+        }
+
         // if path/arguments have been changed skip this
         if (
           entityResolutionPath.length === 0 &&
-          entityResolutionArguments.length === 0 &&
-          egoCastType.length === 0
+          entityResolutionArguments.length === 0
         ) {
-          const lastResolution = last(sortedResolutions);
-          const lastEgoCastType = get(lastResolution, 'parameters.egoCastType', '');
           const lastEntityResolutionPath = get(lastResolution, 'parameters.entityResolutionPath', '');
           const lastEntityResolutionArguments = get(lastResolution, 'parameters.entityResolutionArguments', '');
-          onUpdateSetting('egoCastType', lastEgoCastType);
           onUpdateSetting('entityResolutionPath', lastEntityResolutionPath);
           onUpdateSetting('entityResolutionArguments', lastEntityResolutionArguments);
         }
@@ -197,11 +202,19 @@ EntityResolverSettings.defaultProps = {
   resolutionId: null,
 };
 
-const nodeDefinitionsAsOptions = nodeDefinitions =>
-  Object.keys(nodeDefinitions).map(nodeType => ({
-    label: nodeDefinitions[nodeType].name,
-    value: nodeType,
-  }));
+const nodeDefinitionsAsOptions = (nodeDefinitions) => {
+  const options = Object.keys(nodeDefinitions)
+    .map(nodeType => ({
+      label: nodeDefinitions[nodeType].name,
+      value: nodeType,
+    }));
+
+
+
+  console.log({ options, nodeDefinitions });
+
+  return options;
+};
 
 const mapStateToProps = (state, props) => ({
   nodeTypes: nodeDefinitionsAsOptions(

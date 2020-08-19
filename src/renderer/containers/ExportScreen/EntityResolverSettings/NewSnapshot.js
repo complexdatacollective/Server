@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
-import { isEmpty, get } from 'lodash';
+import { isEmpty } from 'lodash';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import Text from '@codaco/ui/lib/components/Fields/Text';
 import BrowseInput from '%components/BrowseInput';
@@ -45,6 +45,8 @@ const NewSnapshot = ({
   const handleSelectResolver = (value) => {
     onUpdateSetting('entityResolutionPath', value);
   };
+
+  console.log({ nodeTypes });
 
   return (
     <React.Fragment>

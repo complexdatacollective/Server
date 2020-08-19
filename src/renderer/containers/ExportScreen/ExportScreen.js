@@ -32,6 +32,8 @@ const ExportScreen = ({
     resolutionsKey: null,
   });
 
+  console.log({ protocol });
+
   const [
     exportSettings,
     {
