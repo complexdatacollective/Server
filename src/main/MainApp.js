@@ -14,6 +14,7 @@ const Updater = require('./Updater');
 // TODO: move/centralize
 const FileImportUpdated = 'FILE_IMPORT_UPDATED';
 const PROTOCOL_IMPORT_SUCCEEDED = 'PROTOCOL_IMPORT_SUCCEEDED';
+const SESSION_IMPORT_SUCCEEDED = 'SESSION_IMPORT_SUCCEEDED';
 const RESET_APP = 'RESET_APP';
 
 const userDataDir = app.getPath('userData');
@@ -66,7 +67,7 @@ const createApp = () => {
   };
 
   const showImportProtocolDialog = () => {
-    protocolManager.presentImportDialog(mainWindow.window)
+    protocolManager.presentImportProtocolDialog(mainWindow.window)
       .then((filename) => {
         // If filename is empty, user cancelled
         if (filename) {
@@ -74,6 +75,19 @@ const createApp = () => {
         }
       })
       .then(() => mainWindow.send(FileImportUpdated))
+      .catch((err) => {
+        dialog.showErrorBox('Import Error', err && err.message);
+      });
+  };
+
+  const showImportSessionDialog = () => {
+    protocolManager.presentImportSessionDialog(mainWindow.window)
+      .then((filename) => {
+        // If filename is empty, user cancelled
+        if (filename) {
+          mainWindow.send(SESSION_IMPORT_SUCCEEDED, filename);
+        }
+      })
       .catch((err) => {
         dialog.showErrorBox('Import Error', err && err.message);
       });
@@ -122,6 +136,10 @@ const createApp = () => {
         {
           label: 'Import Protocol...',
           click: showImportProtocolDialog,
+        },
+        {
+          label: 'Import Case...',
+          click: showImportSessionDialog,
         },
       ],
     },

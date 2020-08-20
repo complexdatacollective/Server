@@ -28,6 +28,7 @@ const IPC = {
   PAIRING_TIMED_OUT: 'PAIRING_TIMED_OUT',
   PAIRING_COMPLETE: 'PAIRING_COMPLETE',
   PROTOCOL_IMPORT_SUCCEEDED: 'PROTOCOL_IMPORT_SUCCEEDED',
+  SESSION_IMPORT_SUCCEEDED: 'SESSION_IMPORT_SUCCEEDED',
   RESET_APP: 'RESET_APP',
 };
 
@@ -98,6 +99,10 @@ class App extends Component {
 
     ipcRenderer.on(IPC.PROTOCOL_IMPORT_SUCCEEDED, () => {
       props.showConfirmationMessage(messages.protocolImportSuccess);
+    });
+
+    ipcRenderer.on(IPC.SESSION_IMPORT_SUCCEEDED, () => {
+      props.showConfirmationMessage(messages.sessionImportSuccess);
     });
 
     ipcRenderer.on(IPC.RESET_APP, () => {

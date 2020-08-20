@@ -34,7 +34,7 @@ describe('ProtocolManager', () => {
     const mockFileList = ['a.netcanvas'];
 
     it('presents a dialog', () => {
-      manager.presentImportDialog();
+      manager.presentImportProtocolDialog();
       expect(dialog.showOpenDialog).toHaveBeenCalled();
     });
 
@@ -43,7 +43,7 @@ describe('ProtocolManager', () => {
       const simulateChooseFile = Promise.resolve({ filePaths: mockFileList });
       manager.validateAndImport = jest.fn().mockReturnValue(Promise.resolve(mockFileList));
       dialog.showOpenDialog.mockReturnValue(simulateChooseFile);
-      return manager.presentImportDialog()
+      return manager.presentImportProtocolDialog()
         .then(() => {
           expect(manager.validateAndImport).toHaveBeenCalled();
         });
@@ -54,7 +54,7 @@ describe('ProtocolManager', () => {
       const simulateChooseNothing = Promise.resolve({ canceled: true });
       manager.validateAndImport = jest.fn();
       dialog.showOpenDialog.mockReturnValue(simulateChooseNothing);
-      return manager.presentImportDialog()
+      return manager.presentImportProtocolDialog()
         .then(() => {
           expect(manager.validateAndImport).not.toHaveBeenCalled();
         });

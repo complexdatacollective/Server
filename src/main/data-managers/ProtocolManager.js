@@ -9,13 +9,16 @@ const SessionDB = require('./SessionDB');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
 const { readFile, rename, tryUnlink } = require('../utils/promised-fs');
 const { hexDigest } = require('../utils/sha256');
+const dom = require('xmldom');
 
-const validFileExts = ['netcanvas'];
+const validProtocolFileExts = ['netcanvas'];
+const validSessionFileExts = ['graphml'];
 const protocolDirName = 'protocols';
 
 const ProtocolDataFile = 'protocol.json';
 
-const hasValidExtension = filepath => validFileExts.includes(path.extname(filepath).replace(/^\./, ''));
+const hasValidProtocolExtension = filepath => validProtocolFileExts.includes(path.extname(filepath).replace(/^\./, ''));
+const hasValidSessionExtension = filepath => validSessionFileExts.includes(path.extname(filepath).replace(/^\./, ''));
 
 /**
  * Interface to protocol data (higher-level than DB)
@@ -23,8 +26,10 @@ const hasValidExtension = filepath => validFileExts.includes(path.extname(filepa
 class ProtocolManager {
   constructor(dataDir) {
     this.protocolDir = path.join(dataDir, protocolDirName);
-    this.presentImportDialog = this.presentImportDialog.bind(this);
+    this.presentImportProtocolDialog = this.presentImportProtocolDialog.bind(this);
+    this.presentImportSessionDialog = this.presentImportSessionDialog.bind(this);
     this.validateAndImport = this.validateAndImport.bind(this);
+    this.domparser = new dom.DOMParser();
 
     const dbFile = path.join(dataDir, 'db', 'protocols.db');
     this.db = new ProtocolDB(dbFile);
@@ -34,8 +39,8 @@ class ProtocolManager {
     this.reportDb = this.sessionDb;
   }
 
-  pathToProtocolFile(filename) {
-    return path.join(this.protocolDir, filename);
+  pathToProtocolFile(filename, dir = this.protocolDir) {
+    return path.join(dir, filename);
   }
 
   /**
@@ -46,12 +51,12 @@ class ProtocolManager {
    *                                     `undefined` if no files were selected
    * @throws {Error} If importing of any input file failed
    */
-  presentImportDialog(browserWindow) {
+  presentImportProtocolDialog(browserWindow) {
     const opts = {
       title: 'Import Protocol',
       properties: ['openFile'],
       filters: [
-        { name: 'Protocols', extensions: validFileExts },
+        { name: 'Protocols', extensions: validProtocolFileExts },
       ],
     };
 
@@ -84,7 +89,7 @@ class ProtocolManager {
 
     const userFilepath = fileList[0]; // User's file; treat as read-only
 
-    if (!hasValidExtension(userFilepath)) {
+    if (!hasValidProtocolExtension(userFilepath)) {
       return Promise.reject(new RequestError(ErrorMessages.InvalidContainerFileExtension));
     }
 
@@ -303,16 +308,16 @@ class ProtocolManager {
    * @throws {RequestError|Error} If file doesn't exist (ErrorMessages.NotFound),
    *         or there is an error reading
    */
-  fileContents(savedFileName) {
+  fileContents(savedFileName, dir = this.protocolDir) {
     return new Promise((resolve, reject) => {
       if (typeof savedFileName !== 'string') {
         reject(new RequestError(ErrorMessages.InvalidContainerFile));
         return;
       }
-      const filePath = this.pathToProtocolFile(savedFileName);
+      const filePath = this.pathToProtocolFile(savedFileName, dir);
 
       // Prevent escaping protocol directory
-      if (filePath.indexOf(this.protocolDir) !== 0) {
+      if (filePath.indexOf(dir) !== 0) {
         reject(new RequestError(ErrorMessages.InvalidContainerFile));
         return;
       }
@@ -329,6 +334,207 @@ class ProtocolManager {
         resolve(dataBuffer);
       });
     });
+  }
+
+  /**
+ * Primary entry for native UI (e.g., File -> Import).
+ * Display an Open dialog for the user to select importable files.
+ * @async
+ * @return {string|undefined} Resolves with the original requested filename, or
+ *                                     `undefined` if no files were selected
+ * @throws {Error} If importing of any input file failed
+ */
+  presentImportSessionDialog(browserWindow) {
+    const opts = {
+      title: 'Import Case',
+      properties: ['openFile'],
+      filters: [
+        { name: 'Graphml', extensions: validSessionFileExts },
+      ],
+    };
+
+    return dialog.showOpenDialog(browserWindow, opts)
+      .then(({ canceled, filePaths }) => {
+        if (canceled) {
+          return null;
+        }
+
+        return this.processSessionFile(filePaths);
+      });
+  }
+
+  /**
+     * Read a graphml file from a user-specified location.
+     * Primary interface for render-side API.
+     * @async
+     * @param  {FileList} fileList
+     * @return {string} Resolves with the original requested filename
+     * @throws {RequestError|Error} Rejects if there is a problem saving, or on invalid input
+     */
+  processSessionFile(fileList) {
+    if (!fileList || fileList.length < 1) {
+      return Promise.reject(new RequestError(ErrorMessages.EmptyFilelist));
+    }
+
+    if (fileList.length > 1) {
+      return Promise.reject(new RequestError(ErrorMessages.FilelistNotSingular));
+    }
+
+    const userFilepath = fileList[0]; // User's file; treat as read-only
+
+    if (!hasValidSessionExtension(userFilepath)) {
+      return Promise.reject(new RequestError(ErrorMessages.InvalidSessionFileExtension));
+    }
+
+    return this.fileContents(userFilepath, '')
+      .then(bufferContents => this.convertGraphML(bufferContents))
+      .then(({ protocolId, sessions }) => this.addSessionData(protocolId, sessions))
+      .catch(() => Promise.reject(new RequestError(ErrorMessages.InvalidSessionFormat)));
+  }
+
+  convertGraphML(bufferContents) {
+    const xmlDoc = this.domparser.parseFromString(bufferContents.toString(), 'text/xml');
+
+    // basic validation
+    const graphml = xmlDoc.getElementsByTagName('graphml');
+    if (graphml[0].getAttribute('xmlns:nc') !== 'http://schema.networkcanvas.com/xmlns' ||
+      graphml[0].getAttribute('xmlns') !== 'http://graphml.graphdrawing.org/xmlns'
+    ) {
+      throw new RequestError(ErrorMessages.InvalidSessionFormat);
+    }
+
+    let graphmlProtocolId;
+    const sessions = [];
+    const graphs = graphml[0].getElementsByTagName('graph');
+    Array.from(graphs).forEach((graph) => {
+      const session = {};
+      // process session variables
+      const protocolId = graph.getAttribute('nc:remoteProtocolID');
+      if (!graphmlProtocolId) {
+        graphmlProtocolId = protocolId;
+      } else if (graphmlProtocolId !== protocolId) {
+        throw new RequestError(ErrorMessages.InvalidSessionFormat);
+      }
+      const sessionId = graph.getAttribute('nc:sessionUUID');
+      session.uuid = sessionId;
+      session.data = { sessionVariables: {
+        sessionId,
+        caseId: graph.getAttribute('nc:caseId'),
+        remoteProtocolID: protocolId,
+        protocolName: graph.getAttribute('nc:protocolName'),
+        sessionExported: graph.getAttribute('nc:sessionExportTime'),
+        sessionStart: graph.getAttribute('nc:sessionStartTime'),
+        sessionFinish: graph.getAttribute('nc:sessionFinishTime'),
+      } };
+
+      const entityElements = graph.childNodes;
+      // TODO is this needed? to verify networkCanvasType and/or catVar names?
+      // this.getProtocol(protocolId)
+      // .then(protocol => console.log(protocol && protocol.codebook.node));
+      session.data.ego = {};
+      session.data.ego.attributes = {};
+      session.data.nodes = [];
+      session.data.edges = [];
+      for (let i = 0; i < entityElements.length; i += 1) {
+        if (entityElements[i].nodeType === 1) {
+          switch (entityElements[i].tagName) {
+            case 'data': // process ego
+              session.data.ego = this.processVariable(
+                entityElements[i], session.data.ego, xmlDoc);
+              break;
+            // eslint-disable-next-line no-case-declarations
+            case 'node':
+              const nodeElement = entityElements[i].childNodes;
+              let node = {};
+              node.attributes = {};
+              Array.from(nodeElement).forEach((nodeData) => {
+                if (nodeData.nodeType === 1) {
+                  node = this.processVariable(nodeData, node, xmlDoc);
+                }
+              });
+              session.data.nodes.push(node);
+              break;
+            // eslint-disable-next-line no-case-declarations
+            case 'edge':
+              const edgeElement = entityElements[i].childNodes;
+              let edge = {};
+              edge.attributes = {};
+              Array.from(edgeElement).forEach((edgeData) => {
+                if (edgeData.nodeType === 1) {
+                  edge = this.processVariable(edgeData, edge, xmlDoc);
+                }
+              });
+              session.data.edges.push(edge);
+              break;
+            default:
+              break;
+          }
+        }
+      }
+      sessions.push(session);
+    });
+
+    return { protocolId: graphmlProtocolId, sessions };
+  }
+
+  processVariable = (element, entity, xmlDoc) => {
+    const keyValue = element.getAttributeNode('key').value;
+    if (keyValue === 'networkCanvasUUID') {
+      // eslint-disable-next-line no-underscore-dangle
+      return { ...entity, _uuid: element.textContent };
+    } else if (keyValue === 'label') {
+      // can ignore since this was just for gephi
+      return entity;
+    } else if (keyValue === 'networkCanvasType') {
+      // TODO this is a string here, but uuid in export from NC to Server
+      return { ...entity, type: element.textContent };
+    } else if (keyValue === 'networkCanvasSourceUUID') {
+      return { ...entity, from: element.textContent };
+    } else if (keyValue === 'networkCanvasTargetUUID') {
+      return { ...entity, to: element.textContent };
+    } else if (!keyValue.includes('_')) {
+      const codebookKey = xmlDoc.getElementById(keyValue);
+      let text = element.textContent;
+      switch (codebookKey.getAttributeNode('attr.type').value) {
+        case 'int':
+        case 'double':
+        case 'float':
+          text = Number(text);
+          break;
+        case 'boolean':
+          text = (text === 'true');
+          break;
+        case 'string':
+        default:
+          break;
+      }
+      return { ...entity, attributes: { ...entity.attributes, [keyValue]: text } };
+    } else if (keyValue.endsWith('_X')) {
+      const locationKey = keyValue.substring(0, keyValue.indexOf('_X'));
+      const locationObject = (entity.attributes && entity.attributes[locationKey]) || {};
+      const text = Number(element.textContent);
+      return {
+        ...entity,
+        attributes: { ...entity.attributes, [locationKey]: { ...locationObject, x: text } } };
+    } else if (keyValue.endsWith('_Y')) {
+      const locationKey = keyValue.substring(0, keyValue.indexOf('_Y'));
+      const locationObject = (entity.attributes && entity.attributes[locationKey]) || {};
+      const text = Number(element.textContent);
+      return {
+        ...entity,
+        attributes: { ...entity.attributes, [locationKey]: { ...locationObject, y: text } } };
+    }
+
+    // process cat vars
+    if (element.textContent === 'true') {
+      const catKey = keyValue.substring(0, keyValue.indexOf('_'));
+      const catVar = (entity.attributes && entity.attributes[keyValue]) || [];
+      const catValue = xmlDoc.getElementById(keyValue).getAttributeNode('attr.name').value;
+      // TODO this won't work if there are underscores in the categorical variable name
+      catVar.push(catValue.substring(catValue.indexOf('_') + 1));
+      return { ...entity, attributes: { ...entity.attributes, [catKey]: catVar } };
+    }
+    return entity;
   }
 
   /**

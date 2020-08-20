@@ -1,5 +1,3 @@
-/* eslint no-underscore-dangle: ["error", { "allow": ["_caseID"] }] */
-
 import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
