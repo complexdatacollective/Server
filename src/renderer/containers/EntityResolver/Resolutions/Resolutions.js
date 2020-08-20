@@ -57,34 +57,34 @@ const Resolutions = React.forwardRef(({
   };
 
   const nextDiff = () => {
+    debugger;
     if (!diffState.isTouched) {
       return;
     }
 
-    if (diffState.isAMatch) {
-      // TODO: set error state
-      if (!diffState.isDiffComplete) {
-        window.alert("Looks like you haven't chosen all the attributes yet?") // eslint-disable-line
-        return;
-      }
-
-      const resolved = reduce(diffState.resolvedAttributes, (obj, resolution, variable) => ({
-        ...obj,
-        [variable]: resolutionsState.match.nodes[resolution].attributes[variable],
-      }), {});
-
-      const fullResolvedAttributes = {
-        // include values we filtered out (ones that were equal)
-        ...resolutionsState.match.nodes[0].attributes,
-        ...resolved,
-      };
-
-      resolutionsActions.resolveMatch(resolutionsState.match, fullResolvedAttributes);
+    if (diffState.isMatchType === 'MISMATCH') {
+      // not a match, don't apply any resolved attributes
+      resolutionsActions.skipMatch(resolutionsState.match);
       return;
     }
 
-    // if !isAMatch
-    resolutionsActions.skipMatch(resolutionsState.match);
+    if (!diffState.isDiffComplete) {
+      window.alert("Looks like you haven't chosen all the attributes yet?") // eslint-disable-line
+      return;
+    }
+
+    const resolved = reduce(diffState.resolvedAttributes, (obj, resolution, variable) => ({
+      ...obj,
+      [variable]: resolutionsState.match.nodes[resolution].attributes[variable],
+    }), {});
+
+    const fullResolvedAttributes = {
+      // include values we filtered out (ones that were equal)
+      ...resolutionsState.match.nodes[0].attributes,
+      ...resolved,
+    };
+
+    resolutionsActions.resolveMatch(resolutionsState.match, fullResolvedAttributes);
   };
 
   const handleFinish = () => {
