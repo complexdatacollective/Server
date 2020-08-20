@@ -38,7 +38,7 @@ const initialState = {
   // entityResolutionPath: '',
   entityResolutionArguments: '--minimumThreshold=0.997',
   entityResolutionPath:
-    '/home/steve/Code/clients/complexdatacollective/entity-resolution/entity-resolution-sample/testing/Random.py',
+    '/home/steve/Code/Clients/complexdatacollective/entity-resolution/Entity-Resolution-Sample/testing/Random.py',
 };
 
 const entityResolutionReducer = handleActions(

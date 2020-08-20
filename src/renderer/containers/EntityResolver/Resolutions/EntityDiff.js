@@ -19,13 +19,16 @@ const formatVariable = (variable) => {
 };
 
 const EntityDiff = ({
-  nodeTypeDefinition,
   match,
+  entityDefinition,
   requiredAttributes,
   resolvedAttributes,
-  setAttributes,
-  setNotAMatch,
-  isAMatch,
+  isMatchAll,
+  onSetAttributes,
+  onSetNotAMatch,
+  onSetLeft,
+  onSetRight,
+  isNotAMatch,
 }) => {
   const [showHidden, setShowHidden] = useState(false);
 
@@ -33,16 +36,20 @@ const EntityDiff = ({
     setShowHidden(false);
   }, [getMatchId(match)]);
 
-  const [a, b] = match.nodes;
+  const handleToggleHidden = () => setShowHidden(s => !s);
 
-  const color = get(nodeTypeDefinition, 'color');
-  const variables = get(nodeTypeDefinition, 'variables', {});
-  const nodePropsA = { label: getLabel(nodeTypeDefinition, a), color };
-  const nodePropsB = { label: getLabel(nodeTypeDefinition, b), color };
+  if (!match || !entityDefinition) { return null; }
+
+  const [a, b] = get(match, 'nodes', []);
+
+  const color = get(entityDefinition, 'color');
+  const variables = get(entityDefinition, 'variables', {});
+  const nodePropsA = { label: getLabel(entityDefinition, a), color };
+  const nodePropsB = { label: getLabel(entityDefinition, b), color };
   const getVariableResolution = variable => get(resolvedAttributes, variable);
   const getVariableName = variable => get(variables, [variable, 'name']);
 
-  console.log({ nodeTypeDefinition, variables });
+  console.log({ entityDefinition, variables });
 
   const rows = Object.keys(variables)
     .map(variable => ({
@@ -59,21 +66,7 @@ const EntityDiff = ({
       ],
     }));
 
-  const allChecked = Object.values(resolvedAttributes).length === requiredAttributes.length ?
-    [
-      Object.values(resolvedAttributes).every(v => v === 0),
-      Object.values(resolvedAttributes).every(v => v === 1),
-    ] :
-    [false, false];
-
-  const setAll = value =>
-    setAttributes(
-      requiredAttributes.reduce(
-        (acc, attribute) => ({ ...acc, [attribute]: value }), {},
-      ),
-    );
-
-  const handleToggleHidden = () => setShowHidden(s => !s);
+  console.log({ rows, isNotAMatch });
 
   return (
     <div className="entity-diff">
@@ -93,8 +86,8 @@ const EntityDiff = ({
               <div className="entity-diff__table-heading-cell" title={a[nodePrimaryKeyProperty]}>
                 <Radio
                   label="Use all"
-                  checked={allChecked[0]}
-                  input={{ onChange: () => setAll(0) }}
+                  checked={isMatchAll === 'LEFT'}
+                  input={{ onChange: onSetLeft }}
                 />
               </div>
             </td>
@@ -105,8 +98,8 @@ const EntityDiff = ({
               <div className="entity-diff__table-heading-cell" title={b[nodePrimaryKeyProperty]}>
                 <Radio
                   label="Use all"
-                  checked={allChecked[1]}
-                  input={{ onChange: () => setAll(1) }}
+                  checked={isMatchAll === 'RIGHT'}
+                  input={{ onChange: onSetRight }}
                 />
               </div>
             </td>
@@ -120,10 +113,8 @@ const EntityDiff = ({
               <div className="entity-diff__table-heading-cell">
                 <Radio
                   label="Not a match"
-                  checked={isAMatch === false}
-                  input={{
-                    onChange: setNotAMatch,
-                  }}
+                  checked={isNotAMatch === true}
+                  input={{ onChange: onSetNotAMatch }}
                 />
               </div>
             </td>
@@ -141,7 +132,7 @@ const EntityDiff = ({
                       label={formatVariable(values[0])}
                       checked={checked[0]}
                       input={{
-                        onChange: () => setAttributes({ [variable]: 0 }),
+                        onChange: () => onSetAttributes({ [variable]: 0 }),
                       }}
                     />
                   </td>
@@ -150,7 +141,7 @@ const EntityDiff = ({
                       label={formatVariable(values[1])}
                       checked={checked[1]}
                       input={{
-                        onChange: () => setAttributes({ [variable]: 1 }),
+                        onChange: () => onSetAttributes({ [variable]: 1 }),
                       }}
                     />
                   </td>
@@ -204,15 +195,19 @@ EntityDiff.propTypes = {
   nodeTypeDefinition: PropTypes.object,
   requiredAttributes: PropTypes.array,
   resolvedAttributes: PropTypes.object,
-  setAttributes: PropTypes.func.isRequired,
-  setNotAMatch: PropTypes.func.isRequired,
-  isAMatch: PropTypes.bool,
+  onSetAttributes: PropTypes.func.isRequired,
+  onSetNotAMatch: PropTypes.func.isRequired,
+  onSetLeft: PropTypes.func.isRequired,
+  onSetRight: PropTypes.func.isRequired,
+  isMatchAll: PropTypes.string,
+  isNotAMatch: PropTypes.bool,
 };
 
 EntityDiff.defaultProps = {
   match: null,
   nodeTypeDefinition: null,
-  isAMatch: false,
+  isNotAMatch: null,
+  isMatchAll: null,
   requiredAttributes: [],
   resolvedAttributes: {},
 };
@@ -220,9 +215,11 @@ EntityDiff.defaultProps = {
 const areEqual = (prevProps, props) => {
   const isIndexMatch = get(prevProps, 'match.index') === get(props, 'match.index');
   const isResolvedMatch = isEqual(get(prevProps, 'resolvedAttributes'), get(props, 'resolvedAttributes'));
+  const isNotAMatch = prevProps.isNotAMatch === props.isNotAMatch;
+  const isMatchAll = prevProps.isMatchAll === props.isMatchAll;
   const isNodeDefinitionMatch = isEqual(get(prevProps, 'nodeTypeDefinition'), get(props, 'nodeTypeDefinition'));
 
-  return isIndexMatch && isResolvedMatch && isNodeDefinitionMatch;
+  return isIndexMatch && isResolvedMatch && isNodeDefinitionMatch && isMatchAll && isNotAMatch;
 }
 
 export default React.memo(EntityDiff, areEqual);

@@ -36,7 +36,7 @@ const Resolutions = React.forwardRef(({
     useResolutionsState(resolverState.matches, [resolverState.requestId]);
 
   const codebook = get(resolverState, ['protocol', 'codebook'], {});
-  // TODO: egoCastType... this seems to be generic now
+
   const nodeTypeDefinition = getNodeTypeDefinition(
     codebook,
     resolverState.exportSettings.egoCastType,
@@ -169,13 +169,18 @@ const Resolutions = React.forwardRef(({
     [states.RESOLVING]: (
       <EntityDiff
         key={`diff_${currentMatch}`}
-        nodeTypeDefinition={nodeTypeDefinition}
-        match={resolutionsState.match}
-        requiredAttributes={diffState.requiredAttributes}
-        resolvedAttributes={diffState.resolvedAttributes}
-        setAttributes={diffActions.setAttributes}
-        setNotAMatch={diffActions.setNotAMatch}
-        isAMatch={diffState.isAMatch}
+        {...diffState}
+        // requiredAttributes,
+        // resolvedAttributes,
+        // notAMatch,
+        // matchAll,
+        // isDiffComplete,
+        // isTouched,
+        // match: state.match,
+        onSetAttributes={diffActions.setAttributes}
+        onSetLeft={diffActions.setLeft}
+        onSetRight={diffActions.setRight}
+        onSetNotAMatch={diffActions.setNotAMatch}
       />
     ),
     [states.REVIEW]: (
