@@ -23,12 +23,11 @@ const EntityDiff = ({
   entityDefinition,
   requiredAttributes,
   resolvedAttributes,
-  isMatchAll,
+  isMatchType,
   onSetAttributes,
   onSetNotAMatch,
   onSetLeft,
   onSetRight,
-  isNotAMatch,
 }) => {
   const [showHidden, setShowHidden] = useState(false);
 
@@ -49,8 +48,6 @@ const EntityDiff = ({
   const getVariableResolution = variable => get(resolvedAttributes, variable);
   const getVariableName = variable => get(variables, [variable, 'name']);
 
-  console.log({ entityDefinition, variables });
-
   const rows = Object.keys(variables)
     .map(variable => ({
       variable,
@@ -65,8 +62,6 @@ const EntityDiff = ({
         getVariableResolution(variable) === 1,
       ],
     }));
-
-  console.log({ rows, isNotAMatch });
 
   return (
     <div className="entity-diff">
@@ -86,7 +81,7 @@ const EntityDiff = ({
               <div className="entity-diff__table-heading-cell" title={a[nodePrimaryKeyProperty]}>
                 <Radio
                   label="Use all"
-                  checked={isMatchAll === 'LEFT'}
+                  checked={isMatchType === 'LEFT'}
                   input={{ onChange: onSetLeft }}
                 />
               </div>
@@ -98,7 +93,7 @@ const EntityDiff = ({
               <div className="entity-diff__table-heading-cell" title={b[nodePrimaryKeyProperty]}>
                 <Radio
                   label="Use all"
-                  checked={isMatchAll === 'RIGHT'}
+                  checked={isMatchType === 'RIGHT'}
                   input={{ onChange: onSetRight }}
                 />
               </div>
@@ -113,7 +108,7 @@ const EntityDiff = ({
               <div className="entity-diff__table-heading-cell">
                 <Radio
                   label="Not a match"
-                  checked={isNotAMatch === true}
+                  checked={isMatchType === 'MISMATCH'}
                   input={{ onChange: onSetNotAMatch }}
                 />
               </div>
@@ -193,21 +188,21 @@ EntityDiff.propTypes = {
     index: PropTypes.number.isRequired,
   }),
   nodeTypeDefinition: PropTypes.object,
+  entityDefinition: PropTypes.object,
   requiredAttributes: PropTypes.array,
   resolvedAttributes: PropTypes.object,
   onSetAttributes: PropTypes.func.isRequired,
   onSetNotAMatch: PropTypes.func.isRequired,
   onSetLeft: PropTypes.func.isRequired,
   onSetRight: PropTypes.func.isRequired,
-  isMatchAll: PropTypes.string,
-  isNotAMatch: PropTypes.bool,
+  isMatchType: PropTypes.string,
 };
 
 EntityDiff.defaultProps = {
+  entityDefinition: null,
   match: null,
   nodeTypeDefinition: null,
-  isNotAMatch: null,
-  isMatchAll: null,
+  isMatchType: null,
   requiredAttributes: [],
   resolvedAttributes: {},
 };
@@ -215,11 +210,10 @@ EntityDiff.defaultProps = {
 const areEqual = (prevProps, props) => {
   const isIndexMatch = get(prevProps, 'match.index') === get(props, 'match.index');
   const isResolvedMatch = isEqual(get(prevProps, 'resolvedAttributes'), get(props, 'resolvedAttributes'));
-  const isNotAMatch = prevProps.isNotAMatch === props.isNotAMatch;
-  const isMatchAll = prevProps.isMatchAll === props.isMatchAll;
+  const isMatchTypeMatch = prevProps.isMatchType === props.isMatchType;
   const isNodeDefinitionMatch = isEqual(get(prevProps, 'nodeTypeDefinition'), get(props, 'nodeTypeDefinition'));
 
-  return isIndexMatch && isResolvedMatch && isNodeDefinitionMatch && isMatchAll && isNotAMatch;
-}
+  return isIndexMatch && isResolvedMatch && isNodeDefinitionMatch && isMatchTypeMatch;
+};
 
 export default React.memo(EntityDiff, areEqual);

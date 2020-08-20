@@ -23,7 +23,6 @@ const formatSessionCount = (sessionCount) => {
 };
 
 const isRequired = (value) => {
-  console.log('hi');
   if (!isEmpty(value)) { return undefined; }
   return 'Required';
 };
@@ -45,8 +44,6 @@ const NewSnapshot = ({
   const handleSelectResolver = (value) => {
     onUpdateSetting('entityResolutionPath', value);
   };
-
-  console.log({ nodeTypes });
 
   return (
     <React.Fragment>

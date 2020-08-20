@@ -42,8 +42,6 @@ const Resolutions = React.forwardRef(({
     resolverState.exportSettings.egoCastType,
   );
 
-  console.log({ nodeTypeDefinition, codebook, egoCastType: resolverState.exportSettings.egoCastType });
-
   // todo, can we move this to diff'er?
   const [diffState, diffActions] = useEntityState(nodeTypeDefinition, resolutionsState.match);
 

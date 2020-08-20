@@ -36,7 +36,6 @@ const makeResolverResult = (requestId) => {
   );
 
   emitter.abort = () => {
-    console.log('abort', requestId);
     ipcRenderer.send(eventTypes.RESOLVE_ABORT, requestId);
   };
 

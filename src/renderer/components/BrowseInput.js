@@ -1,6 +1,5 @@
 import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
-import uuid from 'uuid';
 import { get } from 'lodash';
 import { Button } from '@codaco/ui';
 import Text from '@codaco/ui/lib/components/Fields/Text';

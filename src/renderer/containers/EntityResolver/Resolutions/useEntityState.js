@@ -4,14 +4,8 @@ import { createAction, handleActions } from 'redux-actions';
 import { isEqual, get } from 'lodash';
 import { getRequiredAttributes, getMatchId } from './selectors';
 
-
-const getIsDiffValid = (requiredAttributes, resolvedAttributes) => {
-  console.log({
-    req: requiredAttributes.sort(),
-    res: Object.keys(resolvedAttributes).sort(),
-  });
-  return isEqual(requiredAttributes.sort(), Object.keys(resolvedAttributes).sort());
-};
+const getIsDiffValid = (requiredAttributes, resolvedAttributes) =>
+  isEqual(requiredAttributes.sort(), Object.keys(resolvedAttributes).sort());
 
 const getSetAll = (variables, value) =>
   variables.reduce(
@@ -21,7 +15,7 @@ const getSetAll = (variables, value) =>
 
 const checkCompleted = (state) => {
   const isDiffValid = (
-    state.isNotAMatch === true ||
+    state.isMatchType === 'MISMATCH' ||
     getIsDiffValid(state.requiredAttributes, state.resolvedAttributes)
   );
   const isDiffComplete = state.isTouched && isDiffValid;
@@ -33,14 +27,13 @@ const checkCompleted = (state) => {
 };
 
 const initialState = {
-  isDiffComplete: false,
-  isTouched: false,
-  isNotAMatch: null,
-  isMatchAll: null,
   match: null,
   entityDefinition: null,
-  resolvedAttributes: {},
   requiredAttributes: [],
+  isDiffComplete: false,
+  isTouched: false,
+  isMatchType: null,
+  resolvedAttributes: {},
 };
 
 const setAttributes = createAction('SET', attributes => ({ attributes }));
@@ -57,8 +50,7 @@ const entityDiffReducer = handleActions({
   [setAttributes]: (state, { payload }) => checkCompleted({
     ...state,
     isTouched: true,
-    isMatchAll: null,
-    isNotAMatch: false,
+    isMatchType: 'CUSTOM',
     resolvedAttributes: {
       ...state.resolvedAttributes,
       ...payload.attributes,
@@ -67,21 +59,19 @@ const entityDiffReducer = handleActions({
   [setLeft]: state => checkCompleted({
     ...state,
     isTouched: true,
-    isMatchAll: 'LEFT',
-    isNotAMatch: false,
+    isMatchType: 'LEFT',
     resolvedAttributes: getSetAll(state.requiredAttributes, 0),
   }),
   [setRight]: state => checkCompleted({
     ...state,
     isTouched: true,
-    isMatchAll: 'RIGHT',
-    isNotAMatch: false,
+    isMatchType: 'RIGHT',
     resolvedAttributes: getSetAll(state.requiredAttributes, 1),
   }),
   [setNotAMatch]: state => checkCompleted({
     ...state,
     resolvedAttributes: {},
-    isNotAMatch: true,
+    isMatchType: 'MISMATCH',
     isTouched: true,
   }),
   [initialize]: (state, { payload }) => ({
@@ -90,7 +80,7 @@ const entityDiffReducer = handleActions({
     entityDefinition: payload.entityDefinition,
     requiredAttributes: payload.requiredAttributes,
     isTouched: false,
-    isAMatch: null,
+    isMatchType: null,
   }),
 }, initialState);
 
@@ -102,8 +92,7 @@ const useEntityDiffState = (
   const {
     isTouched,
     resolvedAttributes,
-    isNotAMatch,
-    isMatchAll,
+    isMatchType,
     requiredAttributes,
     isDiffComplete,
   } = state;
@@ -123,8 +112,7 @@ const useEntityDiffState = (
   const diffState = {
     requiredAttributes,
     resolvedAttributes,
-    isNotAMatch,
-    isMatchAll,
+    isMatchType,
     isDiffComplete,
     isTouched,
     match: state.match,

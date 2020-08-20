@@ -42,8 +42,6 @@ const EntityResolverSettings = ({
   const [unresolvedCount, setUnresolvedCount] = useState(0);
   const [resolutionHistory, setResolutionHistory] = useState([]);
 
-  console.log({ protocolId });
-
   const getResolutions = () => {
     if (!protocolId) { return; }
 
@@ -208,10 +206,6 @@ const nodeDefinitionsAsOptions = (nodeDefinitions) => {
       label: nodeDefinitions[nodeType].name,
       value: nodeType,
     }));
-
-
-
-  console.log({ options, nodeDefinitions });
 
   return options;
 };
