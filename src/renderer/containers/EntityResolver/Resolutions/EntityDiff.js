@@ -5,6 +5,7 @@ import { Button, Node } from '@codaco/ui';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import { nodePrimaryKeyProperty } from '%main/utils/formatters/network';
 import { getLabel, getMatchId } from './selectors';
+import useEntityState from './useEntityState';
 import './EntityDiff.scss';
 
 const formatVariable = (variable) => {
@@ -21,23 +22,39 @@ const formatVariable = (variable) => {
 const EntityDiff = ({
   match,
   entityDefinition,
-  requiredAttributes,
-  resolvedAttributes,
-  isMatchType,
-  onSetAttributes,
-  onSetNotAMatch,
-  onSetLeft,
-  onSetRight,
+  onChange,
 }) => {
+  if (!match || !entityDefinition) { return null; }
+
+  // todo, can we move this to diff'er?
+  const [diffState, diffActions] = useEntityState(entityDefinition, match);
+
+  const {
+    requiredAttributes,
+    resolvedAttributes,
+    isMatchType,
+    isDiffComplete,
+    isTouched,
+  } = diffState;
+  const {
+    setAttributes: onSetAttributes,
+    setNotAMatch: onSetNotAMatch,
+    setLeft: onSetLeft,
+    setRight: onSetRight,
+  } = diffActions;
+
   const [showHidden, setShowHidden] = useState(false);
 
   useEffect(() => {
     setShowHidden(false);
   }, [getMatchId(match)]);
 
+  useEffect(() => {
+    onChange({ isMatchType, isTouched, isDiffComplete, resolvedAttributes });
+  }, [isMatchType, isTouched, isDiffComplete, JSON.stringify(resolvedAttributes)]);
+
   const handleToggleHidden = () => setShowHidden(s => !s);
 
-  if (!match || !entityDefinition) { return null; }
 
   const [a, b] = get(match, 'nodes', []);
 
@@ -187,33 +204,21 @@ EntityDiff.propTypes = {
     probability: PropTypes.number.isRequired,
     index: PropTypes.number.isRequired,
   }),
-  nodeTypeDefinition: PropTypes.object,
   entityDefinition: PropTypes.object,
-  requiredAttributes: PropTypes.array,
-  resolvedAttributes: PropTypes.object,
-  onSetAttributes: PropTypes.func.isRequired,
-  onSetNotAMatch: PropTypes.func.isRequired,
-  onSetLeft: PropTypes.func.isRequired,
-  onSetRight: PropTypes.func.isRequired,
-  isMatchType: PropTypes.string,
+  onChange: PropTypes.func,
 };
 
 EntityDiff.defaultProps = {
   entityDefinition: null,
   match: null,
-  nodeTypeDefinition: null,
-  isMatchType: null,
-  requiredAttributes: [],
-  resolvedAttributes: {},
+  onChange: null,
 };
 
 const areEqual = (prevProps, props) => {
   const isIndexMatch = get(prevProps, 'match.index') === get(props, 'match.index');
-  const isResolvedMatch = isEqual(get(prevProps, 'resolvedAttributes'), get(props, 'resolvedAttributes'));
-  const isMatchTypeMatch = prevProps.isMatchType === props.isMatchType;
-  const isNodeDefinitionMatch = isEqual(get(prevProps, 'nodeTypeDefinition'), get(props, 'nodeTypeDefinition'));
+  const isEntityDefinitionMatch = get(prevProps, 'entityDefinition.index') === get(props, 'entityDefinition.index');
 
-  return isIndexMatch && isResolvedMatch && isNodeDefinitionMatch && isMatchTypeMatch;
+  return isIndexMatch && isEntityDefinitionMatch;
 };
 
 export default React.memo(EntityDiff, areEqual);

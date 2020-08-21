@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { get, reduce } from 'lodash';
 import cx from 'classnames';
@@ -11,7 +11,6 @@ import ReviewTable from './ReviewTable';
 import EntityDiff from './EntityDiff';
 import ControlBar from './ControlBar';
 import useResolutionsState from './useResolutionsState';
-import useEntityState from './useEntityState';
 import finializeResolutions from './finalizeResolutions';
 import states, { getStatus } from './states';
 import { getNodeTypeDefinition } from './selectors';
@@ -37,13 +36,11 @@ const Resolutions = React.forwardRef(({
 
   const codebook = get(resolverState, ['protocol', 'codebook'], {});
 
-  const nodeTypeDefinition = getNodeTypeDefinition(
-    codebook,
-    resolverState.exportSettings.egoCastType,
-  );
+  const egoCastType = resolverState.exportSettings.egoCastType;
+  const nodeTypeDefinition = getNodeTypeDefinition(codebook, egoCastType);
 
-  // todo, can we move this to diff'er?
-  const [diffState, diffActions] = useEntityState(nodeTypeDefinition, resolutionsState.match);
+  const initialDiffState = { isTouched: false, isDiffComplete: false, resolvedAttributes: {}, isMatchType: null };
+  const [diffState, setDiffState] = useState(initialDiffState);
 
   const previousDiff = () => {
     if (!(
@@ -57,7 +54,6 @@ const Resolutions = React.forwardRef(({
   };
 
   const nextDiff = () => {
-    debugger;
     if (!diffState.isTouched) {
       return;
     }
@@ -167,18 +163,9 @@ const Resolutions = React.forwardRef(({
     [states.RESOLVING]: (
       <EntityDiff
         key={`diff_${currentMatch}`}
-        {...diffState}
-        // requiredAttributes,
-        // resolvedAttributes,
-        // notAMatch,
-        // matchAll,
-        // isDiffComplete,
-        // isTouched,
-        // match: state.match,
-        onSetAttributes={diffActions.setAttributes}
-        onSetLeft={diffActions.setLeft}
-        onSetRight={diffActions.setRight}
-        onSetNotAMatch={diffActions.setNotAMatch}
+        onChange={setDiffState}
+        entityDefinition={nodeTypeDefinition}
+        match={resolutionsState.match}
       />
     ),
     [states.REVIEW]: (
