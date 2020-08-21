@@ -1,8 +1,13 @@
 const miss = require('mississippi');
 
+const debug = (...args) => {
+  if (process.env !== 'development') { return; }
+  console.log(...args); // eslint-disable-line
+};
+
 const debugStream = prefix => miss.through(
   (chunk, enc, cb) => {
-    console.log(`[stream:${prefix}]`, chunk.toString()); // eslint-disable-line
+    debug(`[stream:${prefix}]`, chunk.toString()); // eslint-disable-line
     cb(null, chunk);
   },
   (cb) => {
@@ -18,7 +23,7 @@ const countStream = (prefix) => {
       cb(null, chunk);
     },
     (cb) => {
-      console.log(`[count:${prefix}]`, count); // eslint-disable-line
+      debug(`[count:${prefix}]`, count);
       cb(null);
     },
   );
@@ -30,7 +35,7 @@ const sampleStream = (prefix, sampleSize) => {
     (chunk, enc, cb) => {
       count += 1;
       if (count <= sampleSize) {
-        console.log(`[sample:${prefix}:${count}]`, chunk.toString()); // eslint-disable-line
+        debug(`[sample:${prefix}:${count}]`, chunk.toString());
       }
       cb(null, chunk);
     },

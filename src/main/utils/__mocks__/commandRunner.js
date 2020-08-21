@@ -19,7 +19,7 @@ const commandRunner = () =>
       let buffer = '';
       let complete = false;
 
-      return miss.duplex(
+      const stream = miss.duplex(
         miss.to((data, enc, cb) => {
           if (!data) { cb(null); }
           buffer += data;
@@ -51,6 +51,10 @@ const commandRunner = () =>
           return next(null, chunk);
         }),
       );
+
+      stream.prototype.kill = () => {};
+
+      return stream;
     },
   );
 

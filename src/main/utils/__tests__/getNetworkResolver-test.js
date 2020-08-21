@@ -1,4 +1,7 @@
 /* eslint-env jest */
+const uuid = require('uuid');
+const stream = require('stream');
+const miss = require('mississippi');
 const { getNetworkResolver } = require('../getNetworkResolver');
 
 jest.mock('../../utils/commandRunner');
@@ -42,96 +45,85 @@ describe('getNetworkResolver()', () => {
     ],
   };
 
-  it('returns a networkResolver function', () => {
+  it('returns a networkResolver promise', () => {
     const subject = getNetworkResolver(
       '/dev/null',
       { codebook: {} },
     );
 
-    expect(subject).toBeInstanceOf(Function);
+    expect(subject).toBeInstanceOf(Promise);
   });
 
   describe('networkResolver()', () => {
-    it('returns a promise', () => {
-      const networkResolver = getNetworkResolver(
-        '/dev/null',
-        { codebook },
-      );
+    const defaultArgs = [
+      uuid(),
+      '/dev/null',
+      codebook,
+      network,
+    ];
 
-      expect(networkResolver(network)).toBeInstanceOf(Promise);
+    it('resolves to an abortable stream', (done) => {
+      getNetworkResolver(...defaultArgs)
+        .then((stream) => {
+          stream.abort();
+        })
+        .finally(done);
     });
 
     it('when network is empty it returns an empty array', (done) => {
-      const networkResolver = getNetworkResolver(
-        '/dev/null',
-        { codebook },
-      );
-
-      networkResolver({ nodes: [] })
-        .then((resolver) => {
-          const result = [];
-
-          resolver.on('data', (data) => {
-            result.push(JSON.parse(data));
-          });
-
-          resolver.on('finish', () => {
-            expect(result).toEqual([]);
-            done();
-          });
-        });
+      const network = { nodes: [] };
+      getNetworkResolver(defaultArgs[0], defaultArgs[1], defaultArgs[2], network)
+        .then(stream => new Promise((resolve) => {
+          const getResult = miss.concat(resolve);
+          stream.pipe(getResult);
+        }))
+        .then((result) => {
+          expect(result).toEqual([]);
+        })
+        .finally(done);
     });
 
     it('promise resolves to a stream of json objects', (done) => {
-      const networkResolver = getNetworkResolver(
-        '/dev/null',
-        { codebook },
-      );
-
-      networkResolver(network)
-        .then((resolver) => {
-          const result = [];
-
-          resolver.on('data', (data) => {
-            result.push(JSON.parse(data));
-          });
-
-          resolver.on('finish', () => {
-            expect(result).toEqual([
-              {
-                nodes: [
-                  {
-                    _uid: 'abc1',
-                    attributes: { foo: 'foo' },
-                    type: 'foo',
-                  },
-                  {
-                    _uid: 'abc2',
-                    attributes: { foo: 'bar' },
-                    type: 'foo',
-                  },
-                ],
-                probability: 0.5,
-              },
-              {
-                nodes: [
-                  {
-                    _uid: 'abc3',
-                    attributes: { foo: 'bazz' },
-                    type: 'foo',
-                  },
-                  {
-                    _uid: 'abc4',
-                    attributes: { foo: 'buzz' },
-                    type: 'foo',
-                  },
-                ],
-                probability: 0.5,
-              },
-            ]);
-            done();
-          });
-        });
+      getNetworkResolver(...defaultArgs)
+        .then(stream => new Promise((resolve) => {
+          const getResult = miss.concat(resolve);
+          stream.pipe(getResult);
+        }))
+        .then((result) => {
+          expect(JSON.parse(result.toString())).toEqual([
+            {
+              nodes: [
+                {
+                  _uid: 'abc1',
+                  attributes: { foo: 'foo' },
+                  type: 'foo',
+                },
+                {
+                  _uid: 'abc2',
+                  attributes: { foo: 'bar' },
+                  type: 'foo',
+                },
+              ],
+              probability: 0.5,
+            },
+            {
+              nodes: [
+                {
+                  _uid: 'abc3',
+                  attributes: { foo: 'bazz' },
+                  type: 'foo',
+                },
+                {
+                  _uid: 'abc4',
+                  attributes: { foo: 'buzz' },
+                  type: 'foo',
+                },
+              ],
+              probability: 0.5,
+            },
+          ]);
+        })
+        .finally(done);
     });
   });
 });

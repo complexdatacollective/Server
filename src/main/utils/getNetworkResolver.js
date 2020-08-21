@@ -83,6 +83,8 @@ const getNetworkResolver = (
     .then((startResolver) => {
       const resolverProcess = startResolver();
 
+      console.log({network});
+
       const resolverStream = miss.pipeline(
         tableToCsv(),
         sampleStream(`${requestId}:sent`, 3),

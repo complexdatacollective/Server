@@ -14,6 +14,13 @@ jest.mock('../../../utils/adminApiClient', () => {
   return MockApiClient;
 });
 
+const mockDispatch = jest.fn();
+jest.mock('react-redux', () => ({
+  connect: jest.fn(() => c => c),
+  useSelector: jest.fn(),
+  useDispatch: () => mockDispatch,
+}));
+
 describe('Connected ExportScreen', () => {
   it.skip('provides protocol props', () => {
     const container = <ConnectedExportScreen store={createStore(() => ({}))} />;
