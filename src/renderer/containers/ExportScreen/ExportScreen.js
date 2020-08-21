@@ -26,6 +26,7 @@ const ExportScreen = ({
   showError,
 }) => {
   const resolutionsRef = useRef();
+  const [resolverActive, setResolverActive] = useState(false);
 
   const [state, setState] = useState({
     exportInProgress: false,
@@ -77,6 +78,7 @@ const ExportScreen = ({
     }
 
     if (createNewResolution) {
+      setResolverActive(true);
       resolutionsRef.current.resolveProtocol(protocol, exportSettings);
       return;
     }
@@ -94,7 +96,8 @@ const ExportScreen = ({
   const handleCompletedResolutions = updatedSettings =>
     new Promise((resolve) => {
       updateSettings(updatedSettings);
-      promptAndExport();
+      promptAndExport()
+        .then(() => setResolverActive(false));
       resolve();
     });
 
@@ -256,7 +259,7 @@ const ExportScreen = ({
             onUpdateSetting={updateSetting}
             protocolId={protocol.id}
             resolutionId={exportSettings.resolutionId}
-            // resolveRequestId={resolverState.resolveRequestId}
+            resolverActive={resolverActive} // used to refresh resolutions state
             show={exportSettings.exportNetworkUnion}
             showError={showError}
           />

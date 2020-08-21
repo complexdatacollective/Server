@@ -13,7 +13,7 @@ const formatVariable = (variable) => {
   if (isPlainObject(variable)) {
     return Object.keys(variable)
       .map(key => (
-        <div>{key}: {variable[key]}</div>
+        <div key={key}>{key}: {variable[key]}</div>
       ));
   }
   return variable.toString();

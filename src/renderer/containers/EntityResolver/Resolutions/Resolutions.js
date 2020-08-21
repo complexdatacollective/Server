@@ -16,6 +16,13 @@ import states, { getStatus } from './states';
 import { getNodeTypeDefinition } from './selectors';
 import './Resolver.scss';
 
+const initialDiffState = {
+  isTouched: false,
+  isDiffComplete: false,
+  resolvedAttributes: {},
+  isMatchType: null
+};
+
 const Resolutions = React.forwardRef(({
   onComplete,
 }, ref) => {
@@ -39,7 +46,6 @@ const Resolutions = React.forwardRef(({
   const egoCastType = resolverState.exportSettings.egoCastType;
   const nodeTypeDefinition = getNodeTypeDefinition(codebook, egoCastType);
 
-  const initialDiffState = { isTouched: false, isDiffComplete: false, resolvedAttributes: {}, isMatchType: null };
   const [diffState, setDiffState] = useState(initialDiffState);
 
   const previousDiff = () => {

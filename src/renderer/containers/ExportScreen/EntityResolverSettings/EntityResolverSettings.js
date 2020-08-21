@@ -37,6 +37,7 @@ const EntityResolverSettings = ({
   openDialog,
   protocolId,
   resolutionId,
+  resolverActive,
   showError,
 }) => {
   const [unresolvedCount, setUnresolvedCount] = useState(0);
@@ -74,8 +75,10 @@ const EntityResolverSettings = ({
   };
 
   useEffect(() => {
-    getResolutions();
-  }, [protocolId]);
+    if (resolverActive === false) {
+      getResolutions();
+    }
+  }, [resolverActive]);
 
   const deleteResolution = (id) => {
     apiClient
@@ -187,6 +190,7 @@ EntityResolverSettings.propTypes = {
   openDialog: PropTypes.func.isRequired,
   protocolId: PropTypes.string,
   resolutionId: PropTypes.string,
+  resolverActive: PropTypes.bool,
   showError: PropTypes.func.isRequired,
 };
 
@@ -198,6 +202,7 @@ EntityResolverSettings.defaultProps = {
   entityResolutionPath: '',
   protocolId: null,
   resolutionId: null,
+  resolverActive: false,
 };
 
 const nodeDefinitionsAsOptions = (nodeDefinitions) => {
