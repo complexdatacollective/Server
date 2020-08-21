@@ -83,8 +83,6 @@ const getNetworkResolver = (
     .then((startResolver) => {
       const resolverProcess = startResolver();
 
-      console.log({network});
-
       const resolverStream = miss.pipeline(
         tableToCsv(),
         sampleStream(`${requestId}:sent`, 3),
@@ -98,8 +96,8 @@ const getNetworkResolver = (
       );
 
       resolverStream.abort = () => {
-        resolverProcess.kill();
         resolverStream.destroy();
+        resolverProcess.kill();
       };
 
       miss.pipe(nodesToTable(codebook, null, [...network.nodes]), resolverStream);

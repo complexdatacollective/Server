@@ -16,7 +16,7 @@ jest.mock('../SessionDB', () => (function MockSessionDB() {
 
 jest.mock('../ResolverDB', () => (function MockResolverDB() {
   return {
-    findAll: jest.fn().mockResolvedValue([]),
+    getResolutions: jest.fn().mockResolvedValue([]),
   };
 }));
 
@@ -26,7 +26,7 @@ const protocolManager = new ProtocolManager('.');
 
 describe('resolveProtocol()', () => {
   const validOpts = {
-    command: 'reverse_string',
+    command: '/dev/null',
     codebook: {},
   };
 
@@ -37,7 +37,7 @@ describe('resolveProtocol()', () => {
   });
 
   it('rejects if protocol missing', async () => {
-    await expect(manager.resolveProtocol(null, validOpts))
+    await expect(manager.resolveProtocol(null, null, validOpts))
       .rejects.toMatchErrorMessage(ErrorMessages.NotFound);
   });
 });
