@@ -1,7 +1,7 @@
 /* eslint-env jest */
 
 import { nodePrimaryKeyProperty } from '%main/utils/formatters/network';
-import { resolutionsReducer, matchActionReducer as getMatchActionReducer, actionCreators } from '../useResolutionsState';
+import { reduceResolutions as resolutionsReducer, reduceActions as getMatchActionReducer, actionCreators } from '../useResolutionsState';
 import Factory from '../__factories__';
 
 describe('useResolutionsState', () => {
@@ -17,7 +17,7 @@ describe('useResolutionsState', () => {
       const expectedResult = [
         {
           index: 100,
-          action: 'SKIP',
+          action: 'skip',
         },
       ];
 
@@ -35,7 +35,7 @@ describe('useResolutionsState', () => {
         ...initialState.slice(0, 1),
         {
           index: 2,
-          action: 'SKIP',
+          action: 'skip',
         },
       ];
 
@@ -60,7 +60,7 @@ describe('useResolutionsState', () => {
       const expectedResult = [
         {
           index: 100,
-          action: 'RESOLVE',
+          action: 'match',
         },
       ];
 
@@ -81,7 +81,7 @@ describe('useResolutionsState', () => {
         ...initialState.slice(0, 1),
         {
           index: 2,
-          action: 'RESOLVE',
+          action: 'match',
         },
       ];
 
