@@ -77,23 +77,16 @@ const filterNetworkEntities = (networks, filterConfig) => {
   return networks.map(network => filter(network));
 };
 
-const insertNetworkEgo = (network) => {
-  try {
-    return {
-      ...network,
-      nodes: network.nodes.map(node => (
-        { [egoProperty]: network.ego[nodePrimaryKeyProperty], ...node }
-      )),
-      edges: network.edges.map(edge => (
-        { [egoProperty]: network.ego[nodePrimaryKeyProperty], ...edge }
-      )),
-      ego: { ...network.sessionVariables, ...network.ego },
-    };
-  } catch (err) {
-    console.log(err, network);
-    throw err;
-  }
-};
+const insertNetworkEgo = network => ({
+  ...network,
+  nodes: network.nodes.map(node => (
+    { [egoProperty]: network.ego[nodePrimaryKeyProperty], ...node }
+  )),
+  edges: network.edges.map(edge => (
+    { [egoProperty]: network.ego[nodePrimaryKeyProperty], ...edge }
+  )),
+  ego: { ...network.sessionVariables, ...network.ego },
+});
 
 const insertEgoInNetworks = networks => (
   networks.map(network => insertNetworkEgo(network))

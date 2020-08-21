@@ -1,10 +1,10 @@
 /* eslint-env jest */
 
 import { nodePrimaryKeyProperty } from '%main/utils/formatters/network';
-import { resolutionsReducer, matchActionReducer as getMatchActionReducer, actionCreators } from '../useResolverState';
+import { resolutionsReducer, matchActionReducer as getMatchActionReducer, actionCreators } from '../useResolutionsState';
 import Factory from '../__factories__';
 
-describe('useResolverState', () => {
+describe('useResolutionsState', () => {
   describe('matchActionReducer', () => {
     const initialState = Factory.matchEntry.buildList(3);
     const matchActionReducer = getMatchActionReducer([]);

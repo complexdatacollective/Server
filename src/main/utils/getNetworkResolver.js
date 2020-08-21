@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
 
-const uuid = require('uuid');
 const split = require('split');
 const miss = require('mississippi');
 const { has } = require('lodash');

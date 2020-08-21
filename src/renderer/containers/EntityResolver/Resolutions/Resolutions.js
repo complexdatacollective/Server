@@ -20,7 +20,7 @@ const initialDiffState = {
   isTouched: false,
   isDiffComplete: false,
   resolvedAttributes: {},
-  isMatchType: null
+  isMatchType: null,
 };
 
 const Resolutions = React.forwardRef(({
