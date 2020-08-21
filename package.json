@@ -10,6 +10,7 @@
         "npm": "6.13.4"
     },
     "scripts": {
+        "postinstall": "cd node_modules/mdns && npx node-gyp rebuild --target=9.1.0 --arch=x64 --dist-url=https://atom.io/download/electron",
         "start": "cross-env PORT=4000 BUILD_TARGET=web node scripts/start.js",
         "start:electron": "cross-env PORT=4000 node scripts/start.js",
         "preelectron:dev": "node scripts/build-electron-dev.js && node scripts/build-api-spec.js",
