@@ -179,9 +179,9 @@ describe('<App />', () => {
       expect(wrapper.prop('newPairingRequest')).toBeInstanceOf(Function);
     });
 
-    it('provides message dismissal', () => {
+    it.only('provides message dismissal', () => {
       const wrapper = shallow(<ConnectedApp store={mockStore} />);
-      expect(wrapper.prop('dismissAppMessage')).toBeInstanceOf(Function);
+      expect(wrapper.find('App').prop('dismissAppMessage')).toBeInstanceOf(Function);
     });
   });
 });

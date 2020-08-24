@@ -66,13 +66,13 @@ describe('<SettingsScreen />', () => {
       const mockStore = createStore(() => (
         { protocols: [mockProtocol], excludedChartVariables: {} }
       ));
-      const subj = shallow((
+      const subj = shallow(
         <ConnectedSettingsScreen
           store={mockStore}
           match={{ params: { id: mockProtocol.id } }}
-        />
-      ));
-      expect(subj.prop('protocol')).toEqual(mockProtocol);
+        />,
+      );
+      expect(subj.find('withRouter(SettingsScreen)').prop('protocol')).toEqual(mockProtocol);
     });
   });
 });

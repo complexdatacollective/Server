@@ -54,12 +54,12 @@ describe('<PairDevice />', () => {
 
     it('maps dispatched dismiss function', () => {
       const subject = shallow(<ConnectedPairDevice store={store} />);
-      expect(subject.prop('dismissPairingRequest')).toBeInstanceOf(Function);
+      expect(subject.children().prop('dismissPairingRequest')).toBeInstanceOf(Function);
     });
 
     it('maps pairingRequest to props', () => {
       const subject = shallow(<ConnectedPairDevice store={store} />);
-      expect(subject.prop('pairingRequest')).toEqual(state.pairingRequest);
+      expect(subject.children().prop('pairingRequest')).toEqual(state.pairingRequest);
     });
   });
 });

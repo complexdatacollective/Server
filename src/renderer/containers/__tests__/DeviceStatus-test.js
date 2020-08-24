@@ -59,17 +59,17 @@ describe('<DeviceStatus />', () => {
 
     it('maps a dispatched loadDevices fn to props', () => {
       const subject = shallow(<ConnectedDeviceStatus store={store} />);
-      expect(subject.prop('loadDevices')).toBeInstanceOf(Function);
+      expect(subject.find('withRouter(DeviceStatus)').prop('loadDevices')).toBeInstanceOf(Function);
     });
 
     it('maps devices to props', () => {
       const subject = shallow(<ConnectedDeviceStatus store={store} />);
-      expect(subject.prop('devices')).toEqual(state.devices);
+      expect(subject.find('withRouter(DeviceStatus)').prop('devices')).toEqual(state.devices);
     });
 
     it('maps hasPendingRequest to props', () => {
       const subject = shallow(<ConnectedDeviceStatus store={store} />);
-      expect(subject.prop('hasPendingRequest')).toBe(true);
+      expect(subject.find('withRouter(DeviceStatus)').prop('hasPendingRequest')).toBe(true);
     });
   });
 });

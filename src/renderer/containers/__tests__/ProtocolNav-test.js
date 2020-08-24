@@ -78,12 +78,12 @@ describe('<ProtocolNav />', () => {
 
     it('maps a dispatched loadProtocols function', () => {
       const subject = shallow(<ConnectedProtocolNav store={store} location={{}} />);
-      expect(subject.prop('loadProtocols')).toBeInstanceOf(Function);
+      expect(subject.find('ProtocolNav').prop('loadProtocols')).toBeInstanceOf(Function);
     });
 
     it('maps protocols to props', () => {
       const subject = shallow(<ConnectedProtocolNav store={store} location={{}} />);
-      expect(subject.prop('protocols')).toEqual(state.protocols);
+      expect(subject.find('ProtocolNav').prop('protocols')).toEqual(state.protocols);
     });
   });
 });

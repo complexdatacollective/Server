@@ -46,22 +46,22 @@ describe('<OverviewScreen />', () => {
 
     it('maps a dispatched load function', () => {
       const subject = shallow(<ConnectedOverviewScreen store={store} />);
-      expect(subject.prop('loadDevices')).toBeInstanceOf(Function);
+      expect(subject.find('OverviewScreen').prop('loadDevices')).toBeInstanceOf(Function);
     });
 
     it('maps devices to props', () => {
       const subject = shallow(<ConnectedOverviewScreen store={store} />);
-      expect(subject.prop('devices')).toEqual(state.devices);
+      expect(subject.find('OverviewScreen').prop('devices')).toEqual(state.devices);
     });
 
     it('maps protocols to props', () => {
       const subject = shallow(<ConnectedOverviewScreen store={store} />);
-      expect(subject.prop('protocols')).toEqual(state.protocols);
+      expect(subject.find('OverviewScreen').prop('protocols')).toEqual(state.protocols);
     });
 
     it('maps API info to props', () => {
       const subject = shallow(<ConnectedOverviewScreen store={store} />);
-      expect(subject.prop('deviceApiInfo')).toEqual(state.connectionInfo.deviceService);
+      expect(subject.find('OverviewScreen').prop('deviceApiInfo')).toEqual(state.connectionInfo.deviceService);
     });
   });
 });
