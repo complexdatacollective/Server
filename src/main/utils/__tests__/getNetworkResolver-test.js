@@ -1,6 +1,5 @@
 /* eslint-env jest */
 const uuid = require('uuid');
-const stream = require('stream');
 const miss = require('mississippi');
 const { getNetworkResolver } = require('../getNetworkResolver');
 
@@ -71,8 +70,8 @@ describe('getNetworkResolver()', () => {
     });
 
     it('when network is empty it returns an empty array', (done) => {
-      const network = { nodes: [] };
-      getNetworkResolver(defaultArgs[0], defaultArgs[1], defaultArgs[2], network)
+      const mockNetwork = { nodes: [] };
+      getNetworkResolver(defaultArgs[0], defaultArgs[1], defaultArgs[2], mockNetwork)
         .then(stream => new Promise((resolve) => {
           const getResult = miss.concat(resolve);
           stream.pipe(getResult);
