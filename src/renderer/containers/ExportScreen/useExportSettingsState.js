@@ -34,11 +34,8 @@ const initialState = {
   resolutionId: null,
   createNewResolution: false,
   egoCastType: undefined,
-  // entityResolutionArguments: '',
-  // entityResolutionPath: '',
-  entityResolutionArguments: '--minimumThreshold=0.997',
-  entityResolutionPath:
-    '/home/steve/Code/Clients/complexdatacollective/entity-resolution/Entity-Resolution-Sample/testing/Random.py',
+  entityResolutionArguments: '',
+  entityResolutionPath: '',
 };
 
 const entityResolutionReducer = handleActions(
