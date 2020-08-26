@@ -19,6 +19,25 @@ const formatVariable = (variable) => {
   return variable.toString();
 };
 
+const VariableSelector = ({ value, selected, onChange }) => (
+  <td>
+    { isNil(value) ?
+      formatVariable(value) :
+      <Radio
+        label={formatVariable(value)}
+        checked={selected}
+        input={{ onChange }}
+      />
+    }
+  </td>
+);
+
+VariableSelector.propTypes = {
+  value: PropTypes.string.isRequired,
+  selected: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+};
+
 const EntityDiff = ({
   match,
   entityDefinition,
@@ -139,24 +158,16 @@ const EntityDiff = ({
               .map(({ variable, values, checked }) => (
                 <tr key={`${match.index}_${variable}`}>
                   <th>{ getVariableName(variable) }</th>
-                  <td className="entity-diff__table-clickable">
-                    <Radio
-                      label={formatVariable(values[0])}
-                      checked={checked[0]}
-                      input={{
-                        onChange: () => onSetAttributes({ [variable]: 0 }),
-                      }}
-                    />
-                  </td>
-                  <td className="entity-diff__table-clickable">
-                    <Radio
-                      label={formatVariable(values[1])}
-                      checked={checked[1]}
-                      input={{
-                        onChange: () => onSetAttributes({ [variable]: 1 }),
-                      }}
-                    />
-                  </td>
+                  <VariableSelector
+                    value={values[0]}
+                    selected={checked[0]}
+                    onChange={() => onSetAttributes({ [variable]: 0 })}
+                  />
+                  <VariableSelector
+                    value={values[1]}
+                    selected={checked[1]}
+                    onChange={() => onSetAttributes({ [variable]: 1 })}
+                  />
                   <td />
                 </tr>
               ))
