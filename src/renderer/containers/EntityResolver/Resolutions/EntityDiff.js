@@ -33,8 +33,8 @@ const VariableSelector = ({ value, selected, onChange }) => (
 );
 
 VariableSelector.propTypes = {
-  value: PropTypes.string.isRequired,
-  selected: PropTypes.string.isRequired,
+  value: PropTypes.any.isRequired,
+  selected: PropTypes.bool.isRequired,
   onChange: PropTypes.func.isRequired,
 };
 
