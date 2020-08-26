@@ -162,6 +162,11 @@ const Resolutions = React.forwardRef(({
     ),
   }[status];
 
+  // check if there is an existing resolution
+  const existingResolution = resolutionsState.resolutions
+    .find(({ matchIndex }) => matchIndex === resolutionsState.match.index);
+  const resolvedAttributes = get(existingResolution, 'attributes', {});
+
   const content = {
     [states.LOADING]: <Loading key="loading" />,
     [states.WAITING]: <Loading key="waiting" />,
@@ -171,6 +176,7 @@ const Resolutions = React.forwardRef(({
         key={`diff_${currentMatch}`}
         onChange={setDiffState}
         entityDefinition={nodeTypeDefinition}
+        resolvedAttributes={resolvedAttributes}
         match={resolutionsState.match}
       />
     ),

@@ -155,8 +155,9 @@ const entityResolutionReducer = matches =>
 
         const actions = state.actions
           .filter(({ index }) => index < previousMatchIndex);
+        // keep the last resolution so that we can see it in entity diff
         const resolutions = state.resolutions
-          .filter(({ matchIndex }) => matchIndex < previousMatchIndex);
+          .filter(({ matchIndex }) => matchIndex <= previousMatchIndex);
 
         return {
           ...state,
@@ -181,9 +182,12 @@ const useResolutionsState = (matches, resetOnProps) => {
     dispatch(reset());
   }, resetOnProps);
 
+  const match = getMatch(matches, state.currentMatchIndex);
+
   const matchOrResolved = getMatchOrResolved(
-    getMatch(matches, state.currentMatchIndex),
-    state.resolutions,
+    match,
+    // everything but (potentially) the last resolution
+    state.resolutions.filter(({ matchIndex }) => matchIndex < state.currentMatchIndex),
   );
 
   const isLastMatch = state.currentMatchIndex >= matches.length;

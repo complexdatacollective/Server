@@ -40,13 +40,14 @@ VariableSelector.propTypes = {
 
 const EntityDiff = ({
   match,
+  resolvedAttributes: initialResolvedAttributes,
   entityDefinition,
   onChange,
 }) => {
   if (!match || !entityDefinition) { return null; }
 
   // todo, can we move this to diff'er?
-  const [diffState, diffActions] = useEntityState(entityDefinition, match);
+  const [diffState, diffActions] = useEntityState(entityDefinition, match, initialResolvedAttributes);
 
   const {
     requiredAttributes,

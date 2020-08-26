@@ -13,6 +13,18 @@ const getSetAll = (variables, value) =>
     {},
   );
 
+const getLeftRight = (nodes, variable, value) => {
+  if (nodes[0].attributes[variable] === value) { return { [variable]: 0 }; }
+  if (nodes[1].attributes[variable] === value) { return { [variable]: 1 }; }
+  return {};
+};
+
+const getAutoPopulateFromValues = (variables, match, values) =>
+  variables.reduce(
+    (acc, variable) => ({ ...acc, ...getLeftRight(match.nodes, variable, values[variable]) }),
+    {},
+  );
+
 const checkCompleted = (state) => {
   const isDiffValid = (
     state.isMatchType === 'MISMATCH' ||
@@ -39,11 +51,7 @@ const initialState = {
 const setAttributes = createAction('SET', attributes => ({ attributes }));
 const setLeft = createAction('SET_LEFT');
 const setRight = createAction('SET_RIGHT');
-const initialize = createAction(
-  'INITIALIZE',
-  ({ match, entityDefinition, requiredAttributes }) =>
-    ({ match, entityDefinition, requiredAttributes }),
-);
+const initialize = createAction('INITIALIZE');
 const setNotAMatch = createAction('NOT_A_MATCH');
 
 const entityDiffReducer = handleActions({
@@ -74,19 +82,38 @@ const entityDiffReducer = handleActions({
     isMatchType: 'MISMATCH',
     isTouched: true,
   }),
-  [initialize]: (state, { payload }) => ({
-    ...initialState,
-    match: payload.match,
-    entityDefinition: payload.entityDefinition,
-    requiredAttributes: payload.requiredAttributes,
-    isTouched: false,
-    isMatchType: null,
-  }),
+  [initialize]: (state, { payload }) => {
+    const newState = {
+      ...initialState,
+      match: payload.match,
+      entityDefinition: payload.entityDefinition,
+      requiredAttributes: payload.requiredAttributes,
+      isTouched: false,
+      isMatchType: null,
+    };
+
+    if (Object.keys(payload.initialResolvedAttributes).length === 0) {
+      return newState;
+    }
+
+    const resolvedAttributes = getAutoPopulateFromValues(
+      newState.requiredAttributes,
+      newState.match,
+      payload.initialResolvedAttributes,
+    );
+
+    return checkCompleted({
+      ...newState,
+      isTouched: true,
+      resolvedAttributes,
+    });
+  },
 }, initialState);
 
 const useEntityDiffState = (
   entityDefinition,
   match,
+  initialResolvedAttributes,
 ) => {
   const [state, dispatch] = useReducer(entityDiffReducer, initialState);
   const {
@@ -99,7 +126,12 @@ const useEntityDiffState = (
 
   useEffect(() => {
     const nextRequiredAttributes = getRequiredAttributes(entityDefinition, match);
-    dispatch(initialize({ entityDefinition, match, requiredAttributes: nextRequiredAttributes }));
+    dispatch(initialize({
+      entityDefinition,
+      match,
+      requiredAttributes: nextRequiredAttributes,
+      initialResolvedAttributes,
+    }));
   }, [getMatchId(match), get(entityDefinition, 'name')]);
 
   const diffActions = bindActionCreators({
