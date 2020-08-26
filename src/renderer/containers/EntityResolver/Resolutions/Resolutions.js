@@ -7,7 +7,7 @@ import useResolver from '%renderer/hooks/useResolver';
 import useAdminClient from '%renderer/hooks/useAdminClient';
 import Loading from './Loading';
 import NoResults from './NoResults';
-import ReviewTable from './ReviewTable';
+import Review from './Review';
 import EntityDiff from './EntityDiff';
 import ControlBar from './ControlBar';
 import useResolutionsState from './useResolutionsState';
@@ -162,9 +162,10 @@ const Resolutions = React.forwardRef(({
     ),
   }[status];
 
+  const matchIndex = get(resolutionsState, 'match.index');
   // check if there is an existing resolution
   const existingResolution = resolutionsState.resolutions
-    .find(({ matchIndex }) => matchIndex === resolutionsState.match.index);
+    .find(({ matchIndex: resolutionMatchIndex }) => resolutionMatchIndex === matchIndex);
   const resolvedAttributes = get(existingResolution, 'attributes', {});
 
   const content = {
@@ -181,9 +182,8 @@ const Resolutions = React.forwardRef(({
       />
     ),
     [states.REVIEW]: (
-      <ReviewTable
+      <Review
         key="review"
-        nodeTypeDefinition={nodeTypeDefinition}
         matches={resolverState.matches}
         actions={resolutionsState.actions}
       />
