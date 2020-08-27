@@ -6,6 +6,12 @@ import uuid from 'uuid';
 import { nodePrimaryKeyProperty } from '%main/utils/formatters/network';
 import { getMatch, getMatchOrResolved } from './selectors';
 
+const resolveTypes = {
+  skip: 'skip',
+  match: 'match',
+  implicit: 'implicit',
+};
+
 const isImplicitMatch = (match) => {
   const a = get(match, ['nodes', 0, '_resolvedId'], Symbol('a'));
   const b = get(match, ['nodes', 1, '_resolvedId'], Symbol('b'));
@@ -24,7 +30,7 @@ const getNextMatchIndex = (resolutions, matches, actions) => {
     return { actions, currentMatchIndex };
   }
 
-  const nextActions = [...actions, { index: currentMatchIndex, action: 'IMPLICIT' }];
+  const nextActions = [...actions, { index: currentMatchIndex, action: resolveTypes.implicit }];
 
   return getNextMatchIndex(
     resolutions,
@@ -34,14 +40,9 @@ const getNextMatchIndex = (resolutions, matches, actions) => {
 };
 
 const getPreviousMatchIndex = (actions) => {
-  const { index } = findLast(actions, ({ action }) => action !== 'IMPLICIT');
+  const { index } = findLast(actions, ({ action }) => action !== resolveTypes.implicit);
 
   return index;
-};
-
-const resolveTypes = {
-  skip: 'skip',
-  match: 'match',
 };
 
 const resolveMatchAction = createAction(
