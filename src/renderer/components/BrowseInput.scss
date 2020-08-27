@@ -9,9 +9,8 @@
     width: 1px;
     overflow: hidden;
     padding: 0;
-    position: absolute !important;
+    position: absolute !important; // sass-lint:disable-line no-important
     white-space: nowrap;
-    position: absolute;
   }
 
   &__button {
