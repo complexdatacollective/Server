@@ -5,13 +5,34 @@ import './Review.scss';
 const Review = ({
   matches,
   actions,
-}) => (
-  <div className="review">
-    Total matches: {matches.length}
-    Resolved: {actions.filter(({ action }) => action === 'match').length}
-    Skipped: {actions.filter(({ action }) => action === 'skip').length}
-  </div>
-);
+}) => {
+  const resolvedCount = actions.filter(({ action }) => action === 'match').length;
+  const skipCount = actions.filter(({ action }) => action === 'skip').length;
+  const implicitCount = actions.filter(({ action }) => action === 'implicit').length;
+
+  return (
+    <div className="review">
+      <table className="review__stats">
+        <tr>
+          <th>Total matches</th>
+          <td>{matches.length}</td>
+        </tr>
+        <tr>
+          <th>Resolved</th>
+          <td>{resolvedCount}</td>
+        </tr>
+        <tr>
+          <th>Implicit</th>
+          <td>{implicitCount}</td>
+        </tr>
+        <tr>
+          <th>Skipped</th>
+          <td>{skipCount}</td>
+        </tr>
+      </table>
+    </div>
+  );
+};
 
 Review.propTypes = {
   matches: PropTypes.array,

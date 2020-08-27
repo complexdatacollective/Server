@@ -136,7 +136,7 @@ const Resolutions = React.forwardRef(({
 
   const heading = {
     [states.NO_RESULTS]: (<h2 key="empty">No results</h2>),
-    [states.REVIEW]: (<h2 key="review">Review matches</h2>),
+    [states.REVIEW]: (<h2 key="review">Summary</h2>),
     [states.RESOLVING]: (
       <ProgressBar
         key="resolve"
