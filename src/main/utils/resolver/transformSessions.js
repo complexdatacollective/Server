@@ -125,8 +125,6 @@ const transformSessions = (
         return transforms.reduce(applyTransform, accNetwork);
       }
 
-      // console.log({ sessionNetworks });
-
       // otherwise, we need to merge those new sessions first,
       // before then applying the transform
 
@@ -137,8 +135,6 @@ const transformSessions = (
       // Combine new sessions with existing super network
       // (unifiedNetwork)
       const { nodes, edges } = unionOfNetworks([accNetwork, ...sessionNetworksWithEgos]);
-
-      console.log({ nodes });
 
       // 2. (or) apply the resolutions to the network with new sessions
       return transforms.reduce(applyTransform, { nodes, edges });
