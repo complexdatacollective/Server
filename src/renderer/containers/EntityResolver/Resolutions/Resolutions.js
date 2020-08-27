@@ -128,7 +128,7 @@ const Resolutions = React.forwardRef(({
 
   const currentMatch = resolutionsState.currentMatchIndex + 1;
   const totalMatches = get(resolverState, 'matches.length', 1);
-  const percentProgress = (currentMatch / totalMatches) * 100;
+  const percentProgress = (resolutionsState.currentMatchIndex / totalMatches) * 100;
   // If we're still loading prevent the 100% animation
   const resolvingProgress = resolverState.isLoadingMatches && percentProgress === 100
     ? 99
@@ -162,12 +162,6 @@ const Resolutions = React.forwardRef(({
     ),
   }[status];
 
-  const matchIndex = get(resolutionsState, 'match.index');
-  // check if there is an existing resolution
-  const existingResolution = resolutionsState.resolutions
-    .find(({ matchIndex: resolutionMatchIndex }) => resolutionMatchIndex === matchIndex);
-  const resolvedAttributes = get(existingResolution, 'attributes', {});
-
   const content = {
     [states.LOADING]: <Loading key="loading" />,
     [states.WAITING]: <Loading key="waiting" />,
@@ -177,7 +171,8 @@ const Resolutions = React.forwardRef(({
         key={`diff_${currentMatch}`}
         onChange={setDiffState}
         entityDefinition={nodeTypeDefinition}
-        resolvedAttributes={resolvedAttributes}
+        resolvedAttributes={resolutionsState.existingResolvedAttributes}
+        action={resolutionsState.existingAction}
         match={resolutionsState.match}
       />
     ),

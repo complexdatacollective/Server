@@ -39,8 +39,11 @@ const getNextMatchIndex = (resolutions, matches, actions) => {
   );
 };
 
-const getPreviousMatchIndex = (actions) => {
-  const { index } = findLast(actions, ({ action }) => action !== resolveTypes.implicit);
+const getPreviousMatchIndex = (actions, untilIndex) => {
+  const actionsUntilIndex = untilIndex ?
+    actions.filter(({ index }) => index < untilIndex) :
+    actions;
+  const { index } = findLast(actionsUntilIndex, ({ action }) => action !== resolveTypes.implicit);
 
   return index;
 };
@@ -152,10 +155,10 @@ const entityResolutionReducer = matches =>
         return newState;
       },
       [previousMatch]: (state) => {
-        const previousMatchIndex = getPreviousMatchIndex(state.actions);
+        const previousMatchIndex = getPreviousMatchIndex(state.actions, state.currentMatchIndex);
 
         const actions = state.actions
-          .filter(({ index }) => index < previousMatchIndex);
+          .filter(({ index }) => index <= previousMatchIndex);
         // keep the last resolution so that we can see it in entity diff
         const resolutions = state.resolutions
           .filter(({ matchIndex }) => matchIndex <= previousMatchIndex);
@@ -193,6 +196,16 @@ const useResolutionsState = (matches, resetOnProps) => {
 
   const isLastMatch = state.currentMatchIndex >= matches.length;
 
+  // check if there is an existing resolution
+  const existingResolution = state.resolutions
+    .find(
+      ({ matchIndex: resolutionMatchIndex }) =>
+        resolutionMatchIndex === state.currentMatchIndex,
+    );
+  const existingResolvedAttributes = get(existingResolution, 'attributes');
+  const existingAction = state.actions
+    .find(({ index }) => index === state.currentMatchIndex);
+
   const handlers = bindActionCreators(actionCreators, dispatch);
 
   return [
@@ -200,6 +213,8 @@ const useResolutionsState = (matches, resetOnProps) => {
       ...state,
       isLastMatch,
       match: matchOrResolved,
+      existingResolvedAttributes,
+      existingAction,
     },
     handlers,
   ];

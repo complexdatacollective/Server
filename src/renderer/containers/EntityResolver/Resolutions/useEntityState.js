@@ -1,8 +1,17 @@
 import { useReducer, useEffect } from 'react';
 import { bindActionCreators } from 'redux';
 import { createAction, handleActions } from 'redux-actions';
-import { isEqual, get } from 'lodash';
+import { isEqual, isNil, get } from 'lodash';
 import { getRequiredAttributes, getMatchId } from './selectors';
+
+
+const matchTypes = {
+  MISMATCH: 'MISMATCH',
+  CUSTOM: 'CUSTOM',
+  RIGHT: 'RIGHT',
+  LEFT: 'LEFT',
+};
+
 
 const getIsDiffValid = (requiredAttributes, resolvedAttributes) =>
   isEqual(requiredAttributes.sort(), Object.keys(resolvedAttributes).sort());
@@ -14,20 +23,44 @@ const getSetAll = (variables, value) =>
   );
 
 const getLeftRight = (nodes, variable, value) => {
+  if (isNil(value)) { return {}; }
   if (nodes[0].attributes[variable] === value) { return { [variable]: 0 }; }
   if (nodes[1].attributes[variable] === value) { return { [variable]: 1 }; }
   return {};
 };
 
-const getAutoPopulateFromValues = (variables, match, values) =>
+const translateResolvedAttributes = (variables, match, values) =>
   variables.reduce(
-    (acc, variable) => ({ ...acc, ...getLeftRight(match.nodes, variable, values[variable]) }),
+    (acc, variable) => {
+      const value = get(values, variable);
+      return {
+        ...acc,
+        ...getLeftRight(match.nodes, variable, value),
+      };
+    },
     {},
   );
 
+
+// We assume that this is an already completed resolution,
+// so do not need to check resolvedAttributes length
+const getCompletedMatchTypeFromAttributes = (resolvedAttributes) => {
+  if (!resolvedAttributes) { return null; }
+
+  const selected = Object.values(resolvedAttributes);
+  const left = selected.every(v => v === 0);
+  const right = selected.every(v => v === 1);
+
+  if (selected.length === 0) { return matchTypes.MISMATCH; }
+  if (left) { return matchTypes.LEFT; }
+  if (right) { return matchTypes.RIGHT; }
+
+  return matchTypes.CUSTOM;
+};
+
 const checkCompleted = (state) => {
   const isDiffValid = (
-    state.isMatchType === 'MISMATCH' ||
+    state.isMatchType === matchTypes.MISMATCH ||
     getIsDiffValid(state.requiredAttributes, state.resolvedAttributes)
   );
   const isDiffComplete = state.isTouched && isDiffValid;
@@ -58,7 +91,7 @@ const entityDiffReducer = handleActions({
   [setAttributes]: (state, { payload }) => checkCompleted({
     ...state,
     isTouched: true,
-    isMatchType: 'CUSTOM',
+    isMatchType: matchTypes.CUSTOM,
     resolvedAttributes: {
       ...state.resolvedAttributes,
       ...payload.attributes,
@@ -67,19 +100,19 @@ const entityDiffReducer = handleActions({
   [setLeft]: state => checkCompleted({
     ...state,
     isTouched: true,
-    isMatchType: 'LEFT',
+    isMatchType: matchTypes.LEFT,
     resolvedAttributes: getSetAll(state.requiredAttributes, 0),
   }),
   [setRight]: state => checkCompleted({
     ...state,
     isTouched: true,
-    isMatchType: 'RIGHT',
+    isMatchType: matchTypes.RIGHT,
     resolvedAttributes: getSetAll(state.requiredAttributes, 1),
   }),
   [setNotAMatch]: state => checkCompleted({
     ...state,
     resolvedAttributes: {},
-    isMatchType: 'MISMATCH',
+    isMatchType: matchTypes.MISMATCH,
     isTouched: true,
   }),
   [initialize]: (state, { payload }) => {
@@ -92,20 +125,23 @@ const entityDiffReducer = handleActions({
       isMatchType: null,
     };
 
-    if (Object.keys(payload.initialResolvedAttributes).length === 0) {
+    if (!payload.existingAction) {
       return newState;
     }
 
-    const resolvedAttributes = getAutoPopulateFromValues(
+    const resolvedAttributes = translateResolvedAttributes(
       newState.requiredAttributes,
       newState.match,
-      payload.initialResolvedAttributes,
+      payload.existingResolvedAttributes,
     );
+
+    const isMatchType = getCompletedMatchTypeFromAttributes(resolvedAttributes);
 
     return checkCompleted({
       ...newState,
       isTouched: true,
       resolvedAttributes,
+      isMatchType,
     });
   },
 }, initialState);
@@ -113,7 +149,8 @@ const entityDiffReducer = handleActions({
 const useEntityDiffState = (
   entityDefinition,
   match,
-  initialResolvedAttributes,
+  existingResolvedAttributes,
+  existingAction,
 ) => {
   const [state, dispatch] = useReducer(entityDiffReducer, initialState);
   const {
@@ -130,7 +167,8 @@ const useEntityDiffState = (
       entityDefinition,
       match,
       requiredAttributes: nextRequiredAttributes,
-      initialResolvedAttributes,
+      existingResolvedAttributes,
+      existingAction,
     }));
   }, [getMatchId(match), get(entityDefinition, 'name')]);
 

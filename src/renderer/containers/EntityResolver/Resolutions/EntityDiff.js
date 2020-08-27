@@ -11,7 +11,8 @@ import './EntityDiff.scss';
 
 const EntityDiff = ({
   match,
-  resolvedAttributes: initialResolvedAttributes,
+  resolvedAttributes: existingResolvedAttributes,
+  action: existingAction,
   entityDefinition,
   onChange,
 }) => {
@@ -21,7 +22,8 @@ const EntityDiff = ({
   const [diffState, diffActions] = useEntityState(
     entityDefinition,
     match,
-    initialResolvedAttributes,
+    existingResolvedAttributes,
+    existingAction,
   );
 
   const {
@@ -194,13 +196,15 @@ EntityDiff.propTypes = {
   entityDefinition: PropTypes.object,
   onChange: PropTypes.func,
   resolvedAttributes: PropTypes.object,
+  action: PropTypes.object,
 };
 
 EntityDiff.defaultProps = {
   entityDefinition: null,
   match: null,
   onChange: null,
-  resolvedAttributes: {},
+  resolvedAttributes: null,
+  action: null,
 };
 
 const areEqual = (prevProps, props) => {
