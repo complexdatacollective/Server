@@ -1,42 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { isNil, get, isPlainObject } from 'lodash';
+import { isNil, get } from 'lodash';
 import { Button, Node } from '@codaco/ui';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import { nodePrimaryKeyProperty } from '%main/utils/formatters/network';
 import { getLabel, getMatchId } from './selectors';
+import VariableControl, { formatVariable } from './VariableControl';
 import useEntityState from './useEntityState';
 import './EntityDiff.scss';
-
-const formatVariable = (variable) => {
-  if (isNil(variable)) { return 'not set'; }
-  if (isPlainObject(variable)) {
-    return Object.keys(variable)
-      .map(key => (
-        <div key={key}>{key}: {variable[key]}</div>
-      ));
-  }
-  return variable.toString();
-};
-
-const VariableSelector = ({ value, selected, onChange }) => (
-  <td>
-    { isNil(value) ?
-      formatVariable(value) :
-      <Radio
-        label={formatVariable(value)}
-        checked={selected}
-        input={{ onChange }}
-      />
-    }
-  </td>
-);
-
-VariableSelector.propTypes = {
-  value: PropTypes.any.isRequired,
-  selected: PropTypes.bool.isRequired,
-  onChange: PropTypes.func.isRequired,
-};
 
 const EntityDiff = ({
   match,
@@ -47,7 +18,11 @@ const EntityDiff = ({
   if (!match || !entityDefinition) { return null; }
 
   // todo, can we move this to diff'er?
-  const [diffState, diffActions] = useEntityState(entityDefinition, match, initialResolvedAttributes);
+  const [diffState, diffActions] = useEntityState(
+    entityDefinition,
+    match,
+    initialResolvedAttributes,
+  );
 
   const {
     requiredAttributes,
@@ -159,12 +134,12 @@ const EntityDiff = ({
               .map(({ variable, values, checked }) => (
                 <tr key={`${match.index}_${variable}`}>
                   <th>{ getVariableName(variable) }</th>
-                  <VariableSelector
+                  <VariableControl
                     value={values[0]}
                     selected={checked[0]}
                     onChange={() => onSetAttributes({ [variable]: 0 })}
                   />
-                  <VariableSelector
+                  <VariableControl
                     value={values[1]}
                     selected={checked[1]}
                     onChange={() => onSetAttributes({ [variable]: 1 })}
@@ -218,12 +193,14 @@ EntityDiff.propTypes = {
   }),
   entityDefinition: PropTypes.object,
   onChange: PropTypes.func,
+  resolvedAttributes: PropTypes.object,
 };
 
 EntityDiff.defaultProps = {
   entityDefinition: null,
   match: null,
   onChange: null,
+  resolvedAttributes: {},
 };
 
 const areEqual = (prevProps, props) => {
