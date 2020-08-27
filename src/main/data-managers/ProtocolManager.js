@@ -369,7 +369,7 @@ class ProtocolManager {
      * @async
      * @param  {FileList} fileList
      * @return {string} Resolves with the original requested filename
-     * @throws {RequestError|Error} Rejects if there is a problem saving, or on invalid input
+     * @throws {RequestError|Error} Rejects if there is a problem uploading, or on invalid input
      */
   processSessionFile(fileList) {
     if (!fileList || fileList.length < 1) {
@@ -380,6 +380,7 @@ class ProtocolManager {
       return Promise.reject(new RequestError(ErrorMessages.FilelistNotSingular));
     }
 
+    // TODO more than one file is allowed...process all.
     const userFilepath = fileList[0]; // User's file; treat as read-only
 
     if (!hasValidSessionExtension(userFilepath)) {
@@ -387,34 +388,61 @@ class ProtocolManager {
     }
 
     return this.fileContents(userFilepath, '')
-      .then(bufferContents => this.convertGraphML(bufferContents))
+      .then(bufferContents => this.validateGraphML(bufferContents))
+      .then(xmlDoc => this.processGraphML(xmlDoc))
       .then(({ protocolId, sessions }) => this.addSessionData(protocolId, sessions))
-      .catch(() => Promise.reject(new RequestError(ErrorMessages.InvalidSessionFormat)));
+      .catch(err => Promise.reject(err || new RequestError(ErrorMessages.InvalidSessionFormat)));
   }
 
-  convertGraphML(bufferContents) {
+  validateGraphML(bufferContents) {
     const xmlDoc = this.domparser.parseFromString(bufferContents.toString(), 'text/xml');
 
-    // basic validation
+    // basic header validation
     const graphml = xmlDoc.getElementsByTagName('graphml');
-    if (graphml[0].getAttribute('xmlns:nc') !== 'http://schema.networkcanvas.com/xmlns' ||
+    if (!graphml || !graphml[0] || graphml[0].getAttribute('xmlns:nc') !== 'http://schema.networkcanvas.com/xmlns' ||
       graphml[0].getAttribute('xmlns') !== 'http://graphml.graphdrawing.org/xmlns'
     ) {
-      throw new RequestError(ErrorMessages.InvalidSessionFormat);
+      throw new RequestError(`${ErrorMessages.InvalidSessionFormat}: missing headers.`);
     }
 
-    let graphmlProtocolId;
-    const sessions = [];
+    // all graphs within the graphml must have the same protocol
     const graphs = graphml[0].getElementsByTagName('graph');
+    let graphmlProtocolId;
     Array.from(graphs).forEach((graph) => {
-      const session = {};
-      // process session variables
       const protocolId = graph.getAttribute('nc:remoteProtocolID');
       if (!graphmlProtocolId) {
         graphmlProtocolId = protocolId;
       } else if (graphmlProtocolId !== protocolId) {
-        throw new RequestError(ErrorMessages.InvalidSessionFormat);
+        throw new RequestError(`${ErrorMessages.InvalidSessionFormat}: may only contain one protocol.`);
       }
+    });
+
+    return xmlDoc;
+  }
+
+  processGraphML(xmlDoc) {
+    const graphml = xmlDoc.getElementsByTagName('graphml');
+    const graphs = graphml[0].getElementsByTagName('graph');
+    const protocolId = graphs && graphs[0].getAttribute('nc:remoteProtocolID');
+
+    return this.getProtocol(protocolId)
+      .then((protocol) => {
+        if (!protocol) {
+          throw new RequestError(ErrorMessages.ProtocolNotFoundForSession);
+        }
+        return this.convertGraphML(xmlDoc, protocol);
+      });
+  }
+
+  convertGraphML(xmlDoc, protocol) {
+    const graphml = xmlDoc.getElementsByTagName('graphml');
+
+    const sessions = [];
+    const graphs = graphml[0].getElementsByTagName('graph');
+    const protocolId = graphs && graphs[0].getAttribute('nc:remoteProtocolID');
+    Array.from(graphs).forEach((graph) => {
+      // process session variables
+      const session = {};
       const sessionId = graph.getAttribute('nc:sessionUUID');
       session.uuid = sessionId;
       session.data = { sessionVariables: {
@@ -428,9 +456,6 @@ class ProtocolManager {
       } };
 
       const entityElements = graph.childNodes;
-      // TODO is this needed? to verify networkCanvasType and/or catVar names?
-      // this.getProtocol(protocolId)
-      // .then(protocol => console.log(protocol && protocol.codebook.node));
       session.data.ego = {};
       session.data.ego.attributes = {};
       session.data.nodes = [];
@@ -440,16 +465,18 @@ class ProtocolManager {
           switch (entityElements[i].tagName) {
             case 'data': // process ego
               session.data.ego = this.processVariable(
-                entityElements[i], session.data.ego, xmlDoc);
+                entityElements[i], session.data.ego, xmlDoc, protocol.codebook.ego);
               break;
             // eslint-disable-next-line no-case-declarations
             case 'node':
               const nodeElement = entityElements[i].childNodes;
               let node = {};
               node.attributes = {};
+              const nodeType = this.lookUpEntityType(nodeElement, protocol.codebook.node);
               Array.from(nodeElement).forEach((nodeData) => {
                 if (nodeData.nodeType === 1) {
-                  node = this.processVariable(nodeData, node, xmlDoc);
+                  node = this.processVariable(
+                    nodeData, node, xmlDoc, protocol.codebook.node[nodeType], nodeType);
                 }
               });
               session.data.nodes.push(node);
@@ -459,9 +486,11 @@ class ProtocolManager {
               const edgeElement = entityElements[i].childNodes;
               let edge = {};
               edge.attributes = {};
+              const edgeType = this.lookUpEntityType(edgeElement, protocol.codebook.edge);
               Array.from(edgeElement).forEach((edgeData) => {
                 if (edgeData.nodeType === 1) {
-                  edge = this.processVariable(edgeData, edge, xmlDoc);
+                  edge = this.processVariable(
+                    edgeData, edge, xmlDoc, protocol.codebook.edge[edgeType], edgeType);
                 }
               });
               session.data.edges.push(edge);
@@ -474,32 +503,48 @@ class ProtocolManager {
       sessions.push(session);
     });
 
-    return { protocolId: graphmlProtocolId, sessions };
+    return { protocolId, sessions };
   }
 
-  processVariable = (element, entity, xmlDoc) => {
-    const keyValue = element.getAttributeNode('key').value;
+  // this is a string (name) in graphml, but uuid in export from NC to Server
+  lookUpEntityType = (entityElement, codebookEntity) => {
+    let typeUUID = '';
+
+    Array.from(entityElement).forEach((entityData) => {
+      if (entityData.nodeType === 1) {
+        const keyValue = entityData.getAttributeNode('key').value;
+        if (keyValue === 'networkCanvasType') {
+          typeUUID = Object.keys(codebookEntity).find(
+            key => codebookEntity[key].name === entityData.textContent);
+          typeUUID = typeUUID || entityData.textContent;
+        }
+      }
+    });
+    return typeUUID;
+  };
+
+  processVariable = (element, entity, xmlDoc, codebookEntity, entityType = '') => {
+    let keyValue = element.getAttributeNode('key').value;
     if (keyValue === 'networkCanvasUUID') {
       // eslint-disable-next-line no-underscore-dangle
-      return { ...entity, _uuid: element.textContent };
+      return { ...entity, _uid: element.textContent };
     } else if (keyValue === 'label') {
       // can ignore since this was just for gephi
       return entity;
     } else if (keyValue === 'networkCanvasType') {
-      // TODO this is a string here, but uuid in export from NC to Server
-      return { ...entity, type: element.textContent };
+      return { ...entity, type: entityType };
     } else if (keyValue === 'networkCanvasSourceUUID') {
       return { ...entity, from: element.textContent };
     } else if (keyValue === 'networkCanvasTargetUUID') {
       return { ...entity, to: element.textContent };
     } else if (!keyValue.includes('_')) {
-      const codebookKey = xmlDoc.getElementById(keyValue);
+      const graphmlKey = xmlDoc.getElementById(keyValue);
       let text = element.textContent;
-      switch (codebookKey.getAttributeNode('attr.type').value) {
+      switch (graphmlKey.getAttributeNode('attr.type').value) {
         case 'int':
         case 'double':
         case 'float':
-          text = Number(text);
+          text = !Number.isNaN(Number(text)) ? Number(text) : text;
           break;
         case 'boolean':
           text = (text === 'true');
@@ -508,15 +553,17 @@ class ProtocolManager {
         default:
           break;
       }
+      // variables not in the codebook are external variables - use the name instead of uuid
+      keyValue = codebookEntity.variables[keyValue] ? keyValue : graphmlKey.getAttributeNode('attr.name').value;
       return { ...entity, attributes: { ...entity.attributes, [keyValue]: text } };
-    } else if (keyValue.endsWith('_X')) {
+    } else if (keyValue.endsWith('_X')) { // process locations
       const locationKey = keyValue.substring(0, keyValue.indexOf('_X'));
       const locationObject = (entity.attributes && entity.attributes[locationKey]) || {};
       const text = Number(element.textContent);
       return {
         ...entity,
         attributes: { ...entity.attributes, [locationKey]: { ...locationObject, x: text } } };
-    } else if (keyValue.endsWith('_Y')) {
+    } else if (keyValue.endsWith('_Y')) { // process locations
       const locationKey = keyValue.substring(0, keyValue.indexOf('_Y'));
       const locationObject = (entity.attributes && entity.attributes[locationKey]) || {};
       const text = Number(element.textContent);
@@ -525,13 +572,16 @@ class ProtocolManager {
         attributes: { ...entity.attributes, [locationKey]: { ...locationObject, y: text } } };
     }
 
-    // process cat vars
+    // process categorical vars
     if (element.textContent === 'true') {
       const catKey = keyValue.substring(0, keyValue.indexOf('_'));
-      const catVar = (entity.attributes && entity.attributes[keyValue]) || [];
-      const catValue = xmlDoc.getElementById(keyValue).getAttributeNode('attr.name').value;
-      // TODO this won't work if there are underscores in the categorical variable name
-      catVar.push(catValue.substring(catValue.indexOf('_') + 1));
+      const catVar = (entity.attributes && entity.attributes[catKey]) || []; // previous options
+      const codebookVarName = codebookEntity.variables[catKey].name;
+      const catValue = xmlDoc.getElementById(keyValue).getAttributeNode('attr.name').value; // variable_option
+      const optionIndex = codebookVarName.length + 1; // add one for the underscore
+      // fallback to using whatever it after the first underscore
+      const codebookOptionName = optionIndex > 0 ? catValue.substring(optionIndex) : catValue.substring(catValue.indexOf('_') + 1);
+      catVar.push(codebookOptionName);
       return { ...entity, attributes: { ...entity.attributes, [catKey]: catVar } };
     }
     return entity;
