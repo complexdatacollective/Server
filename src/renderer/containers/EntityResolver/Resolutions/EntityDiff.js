@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { isNil, get } from 'lodash';
+import { isNil, get, isArray } from 'lodash';
 import { Button, Node } from '@codaco/ui';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
-import { nodePrimaryKeyProperty } from '%main/utils/formatters/network';
+import { nodePrimaryKeyProperty, caseProperty } from '%main/utils/formatters/network';
 import { getLabel, getMatchId } from './selectors';
 import VariableControl, { formatVariable } from './VariableControl';
 import useEntityState from './useEntityState';
 import './EntityDiff.scss';
+
+const renderCaseID = (caseId) => {
+  const caseIdString = isArray(caseId) ? caseId.join(' + ') : caseId;
+  return <div className="entity-diff__table-heading-case-id">{caseIdString}</div>;
+};
 
 const EntityDiff = ({
   match,
@@ -90,6 +95,7 @@ const EntityDiff = ({
             </td>
             <td className="entity-diff__table-heading">
               <div className="entity-diff__table-heading-context">
+                {renderCaseID(get(a, caseProperty))}
                 <Node {...nodePropsA} />
               </div>
               <div className="entity-diff__table-heading-cell" title={a[nodePrimaryKeyProperty]}>
@@ -102,6 +108,7 @@ const EntityDiff = ({
             </td>
             <td className="entity-diff__table-heading">
               <div className="entity-diff__table-heading-context">
+                {renderCaseID(get(b, caseProperty))}
                 <Node {...nodePropsB} />
               </div>
               <div className="entity-diff__table-heading-cell" title={b[nodePrimaryKeyProperty]}>

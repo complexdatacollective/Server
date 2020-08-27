@@ -77,15 +77,24 @@ const filterNetworkEntities = (networks, filterConfig) => {
   return networks.map(network => filter(network));
 };
 
+// Strictly caseId is not the egoId, but we probably need both of these bits of info
 const insertNetworkEgo = network => ({
   ...network,
-  nodes: network.nodes.map(node => (
-    { [egoProperty]: network.ego[nodePrimaryKeyProperty], ...node }
-  )),
-  edges: network.edges.map(edge => (
-    { [egoProperty]: network.ego[nodePrimaryKeyProperty], ...edge }
-  )),
-  ego: { ...network.sessionVariables, ...network.ego },
+  nodes: network.nodes.map(node => ({
+    [egoProperty]: network.ego[nodePrimaryKeyProperty],
+    [caseProperty]: network.sessionVariables.caseId,
+    ...node,
+  })),
+  edges: network.edges.map(edge => ({
+    [egoProperty]: network.ego[nodePrimaryKeyProperty],
+    [caseProperty]: network.sessionVariables.caseId,
+    ...edge,
+  })),
+  ego: {
+    ...network.sessionVariables,
+    [caseProperty]: network.sessionVariables.caseId,
+    ...network.ego,
+  },
 });
 
 const insertEgoInNetworks = networks => (
@@ -104,11 +113,13 @@ const transposedCodebookVariables = (sectionCodebook, definition) => {
     acc[variable.name] = variable;
     return acc;
   }, {});
+
   sectionCodebook[definition.name] = { // eslint-disable-line no-param-reassign
     ...definition,
     displayVariable: displayVariable && displayVariable.name,
     variables,
   };
+
   return sectionCodebook;
 };
 

@@ -1,11 +1,12 @@
 /* eslint-disable no-underscore-dangle */
 const { DateTime } = require('luxon');
-const { get, find, findIndex, reduce } = require('lodash');
+const { get, find, findIndex, reduce, uniq } = require('lodash');
 const {
   unionOfNetworks,
   nodePrimaryKeyProperty,
   nodeAttributesProperty,
   egoProperty,
+  caseProperty,
 } = require('../formatters/network');
 const castEgoAsNode = require('./castEgoAsNode');
 
@@ -61,11 +62,12 @@ const applyTransform = (network, transform) => {
           {
             ...props,
             [egoProperty]: [...props[egoProperty], node[egoProperty]],
+            [caseProperty]: uniq([...props[caseProperty], node[caseProperty]]),
             type: node.type,
           },
         ];
       },
-      [[], { [egoProperty]: [] }],
+      [[], { [egoProperty]: [], [caseProperty]: [] }],
     );
 
   // nodes weren't found return original network
@@ -75,8 +77,8 @@ const applyTransform = (network, transform) => {
 
   const nodes = withTransformNodesRemoved.concat([{
     ...collectedProps, // egoIds, type, etc.
-    // TODO: this can be removed when exporter can handle arrays
-    [egoProperty]: collectedProps[egoProperty][0],
+    [egoProperty]: collectedProps[egoProperty][0], // exporter cannot handle arrays
+    // [caseProperty]: collectedProps[caseProperty][0], // exporter cannot handle arrays
     [nodePrimaryKeyProperty]: transform.id,
     [nodeAttributesProperty]: transform.attributes,
   }]);
@@ -123,6 +125,8 @@ const transformSessions = (
         return transforms.reduce(applyTransform, accNetwork);
       }
 
+      // console.log({ sessionNetworks });
+
       // otherwise, we need to merge those new sessions first,
       // before then applying the transform
 
@@ -133,6 +137,8 @@ const transformSessions = (
       // Combine new sessions with existing super network
       // (unifiedNetwork)
       const { nodes, edges } = unionOfNetworks([accNetwork, ...sessionNetworksWithEgos]);
+
+      console.log({ nodes });
 
       // 2. (or) apply the resolutions to the network with new sessions
       return transforms.reduce(applyTransform, { nodes, edges });
