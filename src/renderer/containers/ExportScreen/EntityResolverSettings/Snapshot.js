@@ -2,7 +2,7 @@ import React from 'react';
 import { DateTime } from 'luxon';
 import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
-import { get } from 'lodash';
+import { get, find } from 'lodash';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import { Button } from '@codaco/ui';
 
@@ -16,8 +16,13 @@ const Snapshot = ({
   sessionCount,
   transformCount,
   parameters,
+  nodeTypes,
 }) => {
   const displayDate = DateTime.fromISO(date).toHTTP();
+
+  const egoCastType = get(parameters, 'egoCastType');
+
+  const egoCastTypeLabel = get(find(nodeTypes, ['value', egoCastType]), 'label');
 
   return [
     <tr>
@@ -57,7 +62,7 @@ const Snapshot = ({
               <table className="snapshot__parameters-table">
                 <tr>
                   <th>Cast ego as node type</th>
-                  <td>{get(parameters, 'egoCastType')}</td>
+                  <td>{egoCastTypeLabel} (`{egoCastType}`)</td>
                 </tr>
                 <tr>
                   <th>Script path</th>
