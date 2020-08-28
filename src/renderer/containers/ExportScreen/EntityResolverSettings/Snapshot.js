@@ -1,6 +1,8 @@
 import React from 'react';
 import { DateTime } from 'luxon';
+import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
+import { get } from 'lodash';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import { Button } from '@codaco/ui';
 
@@ -13,10 +15,11 @@ const Snapshot = ({
   canDelete,
   sessionCount,
   transformCount,
+  parameters,
 }) => {
   const displayDate = DateTime.fromISO(date).toHTTP();
 
-  return (
+  return [
     <tr>
       <td>
         <Radio
@@ -38,8 +41,39 @@ const Snapshot = ({
           </div>
         }
       </td>
-    </tr>
-  );
+    </tr>,
+    <tr>
+      <td colSpan="4" className="snapshot__parameters">
+        <AnimatePresence>
+          { isSelected &&
+            <motion.div
+              key="parameters-table"
+              className="snapshot__parameters-container"
+              layout
+              initial={{ opacity: 0 }}
+              exit={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <table className="snapshot__parameters-table">
+                <tr>
+                  <th>Cast ego as node type</th>
+                  <td>{get(parameters, 'egoCastType')}</td>
+                </tr>
+                <tr>
+                  <th>Script path</th>
+                  <td>{get(parameters, 'entityResolutionPath')}</td>
+                </tr>
+                <tr>
+                  <th>Script arguments</th>
+                  <td>{get(parameters, 'entityResolutionArguments')}</td>
+                </tr>
+              </table>
+            </motion.div>
+          }
+        </AnimatePresence>
+      </td>
+    </tr>,
+  ];
 };
 
 Snapshot.propTypes = {
@@ -51,6 +85,7 @@ Snapshot.propTypes = {
   canDelete: PropTypes.bool,
   transformCount: PropTypes.number,
   sessionCount: PropTypes.number,
+  parameters: PropTypes.object,
 };
 
 Snapshot.defaultProps = {
@@ -58,6 +93,7 @@ Snapshot.defaultProps = {
   canDelete: false,
   transformCount: 0,
   sessionCount: 0,
+  parameters: {},
 };
 
 export default Snapshot;

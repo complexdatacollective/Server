@@ -150,6 +150,7 @@ const EntityResolverSettings = ({
                         canDelete
                         isSelected={resolutionId === resolution._id}
                         id={resolution._id}
+                        parameters={resolution.parameters}
                         date={resolution._date}
                         sessionCount={resolution._sessionCount}
                         transformCount={resolution._transformCount}

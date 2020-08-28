@@ -32,7 +32,12 @@ $color-light-grey-transparent: transparentize($color-light-grey, 0.5);
         padding: 1rem 2rem;
       }
 
-      &:nth-child(2n + 1) {
+      &:nth-child(4n + 1) {
+        td {
+          background: $color-light-grey-transparent;
+        }
+      }
+      &:nth-child(4n + 2) {
         td {
           background: $color-light-grey-transparent;
         }
@@ -41,6 +46,24 @@ $color-light-grey-transparent: transparentize($color-light-grey, 0.5);
 
     .snapshots__row--no-padding {
       padding: 0;
+    }
+  }
+
+  .snapshot__parameters {
+    padding: 0 !important;
+
+    &-container {
+      border-width: 2px 0 0;
+      border-style: solid;
+      border-color: $color-light-grey-transparent;
+    }
+
+    &-table {
+      width: 100%;
+
+      th, td {
+        padding: 1rem 2rem;
+      }
     }
   }
 
