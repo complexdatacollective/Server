@@ -1,4 +1,4 @@
-/* eslint no-underscore-dangle: ["error", { "allow": ["_caseID"] }] */
+/* eslint no-underscore-dangle: ["error", { "allow": ["caseId"] }] */
 
 import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';

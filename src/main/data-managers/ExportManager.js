@@ -180,7 +180,7 @@ class ExportManager {
         }
       })
       // TODO: ensure this works
-      // _CaseID may need to change to _meta.CaseID
+      // caseId may need to change to _meta.CaseID
       // _id _meta.id
       .then(() => {
         if (!enableEntityResolution) {
@@ -207,7 +207,7 @@ class ExportManager {
               // => [ [[n1.matrix.knows.csv, n1.matrix.likes.csv], [n1.attrs.csv]],
               //      [[n2.matrix.knows.csv, n2.matrix.likes.csv], [n2.attrs.csv]]]
               partitionByEdgeType(network, format).map((partitionedNetwork) => {
-                const prefix = network._id ? `${network._caseID}_${network._id}` : protocol.name;
+                const prefix = network._id ? `${network.caseId}_${network._id}` : protocol.name;
                 // gather one promise for each exported file
                 return exportFile(
                   prefix,

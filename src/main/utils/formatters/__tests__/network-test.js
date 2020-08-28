@@ -62,28 +62,48 @@ describe('network format helpers', () => {
   });
 
   describe('insertEgoInNetworks', () => {
-    it('inserts ego uid in node objects', () => {
-      const a = { nodes: [{ id: 1 }, { id: 2 }], edges: [], ego: { _uid: 1 } };
-      const b = { nodes: [{ id: a }], edges: [], ego: { _uid: 2 } };
+    it('inserts ego uid and case id in node objects', () => {
+      const a = { nodes: [{ id: 1 }, { id: 2 }], edges: [], ego: { _uid: 1 }, sessionVariables: { caseId: 'c' } };
+      const b = {
+        nodes: [{ id: a }],
+        edges: [],
+        ego: { _uid: 2 },
+        sessionVariables: { caseId: 1 },
+      };
       const egoNetworks = insertEgoInNetworks([a, b]);
-      expect(egoNetworks[0].nodes).toEqual([{ _egoID: 1, id: 1 }, { _egoID: 1, id: 2 }]);
-      expect(egoNetworks[1].nodes).toEqual([{ _egoID: 2, id: a }]);
+      expect(egoNetworks[0].nodes).toEqual([
+        expect.objectContaining({ _egoID: 1, id: 1, caseId: 'c' }),
+        expect.objectContaining({ _egoID: 1, id: 2, caseId: 'c' }),
+      ]);
+      expect(egoNetworks[1].nodes).toEqual([
+        expect.objectContaining({ _egoID: 2, id: a, caseId: 1 }),
+      ]);
     });
 
-    it('inserts ego uid in edge objects', () => {
-      const a = { nodes: [], edges: [{ id: 1 }, { id: 2 }], ego: { _uid: 1 } };
-      const b = { nodes: [], edges: [{ id: a }], ego: { _uid: 2 } };
+    it('inserts ego uid and case id in edge objects', () => {
+      const a = { nodes: [], edges: [{ id: 1 }, { id: 2 }], ego: { _uid: 1 }, sessionVariables: { caseId: 'c' } };
+      const b = {
+        nodes: [],
+        edges: [{ id: a }],
+        ego: { _uid: 2 },
+        sessionVariables: { caseId: 1 },
+      };
       const egoNetworks = insertEgoInNetworks([a, b]);
-      expect(egoNetworks[0].edges).toEqual([{ _egoID: 1, id: 1 }, { _egoID: 1, id: 2 }]);
-      expect(egoNetworks[1].edges).toEqual([{ _egoID: 2, id: a }]);
+      expect(egoNetworks[0].edges).toEqual([
+        expect.objectContaining({ _egoID: 1, id: 1, caseId: 'c' }),
+        expect.objectContaining({ _egoID: 1, id: 2, caseId: 'c' }),
+      ]);
+      expect(egoNetworks[1].edges).toEqual([
+        expect.objectContaining({ _egoID: 2, id: a, caseId: 1 }),
+      ]);
     });
 
     it('inserts session variables in ego', () => {
-      const a = { nodes: [], edges: [], ego: { _uid: 1 }, sessionVariables: { _caseID: 'c' } };
-      const b = { nodes: [], edges: [], ego: { _uid: 2 }, sessionVariables: { _caseID: 1 } };
+      const a = { nodes: [], edges: [], ego: { _uid: 1 }, sessionVariables: { caseId: 'c' } };
+      const b = { nodes: [], edges: [], ego: { _uid: 2 }, sessionVariables: { caseId: 1 } };
       const egoNetworks = insertEgoInNetworks([a, b]);
-      expect(egoNetworks[0].ego).toEqual({ _uid: 1, _caseID: 'c' });
-      expect(egoNetworks[1].ego).toEqual({ _uid: 2, _caseID: 1 });
+      expect(egoNetworks[0].ego).toMatchObject({ _uid: 1, caseId: 'c' });
+      expect(egoNetworks[1].ego).toMatchObject({ _uid: 2, caseId: 1 });
     });
   });
 

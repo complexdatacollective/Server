@@ -7,7 +7,7 @@ const getFilter = require('../network-query/filter').default;
 // TODO: share with other places this is defined
 const nodePrimaryKeyProperty = '_uid';
 const egoProperty = '_egoID';
-const caseProperty = '_caseID';
+const caseProperty = 'caseId';
 const entityTypeProperty = '_type'; // NC sends as 'type' at the top level, but this will allow us to also look for a user attribute named type
 
 const nodeAttributesProperty = 'attributes';
@@ -82,17 +82,16 @@ const insertNetworkEgo = network => ({
   ...network,
   nodes: network.nodes.map(node => ({
     [egoProperty]: network.ego[nodePrimaryKeyProperty],
-    [caseProperty]: network.sessionVariables.caseId,
+    [caseProperty]: network.sessionVariables[caseProperty],
     ...node,
   })),
   edges: network.edges.map(edge => ({
     [egoProperty]: network.ego[nodePrimaryKeyProperty],
-    [caseProperty]: network.sessionVariables.caseId,
+    [caseProperty]: network.sessionVariables[caseProperty],
     ...edge,
   })),
   ego: {
     ...network.sessionVariables,
-    [caseProperty]: network.sessionVariables.caseId,
     ...network.ego,
   },
 });
@@ -140,11 +139,11 @@ const formatSessionAsNetwork = (session) => {
   const caseID = session && session.data &&
     session.data.sessionVariables &&
     // eslint-disable-next-line no-underscore-dangle
-    session.data.sessionVariables._caseID;
+    session.data.sessionVariables.caseId;
 
   return ({
     ...session.data,
-    _caseID: caseID,
+    caseId: caseID,
     _id: id,
     _date: session.createdAt,
   });

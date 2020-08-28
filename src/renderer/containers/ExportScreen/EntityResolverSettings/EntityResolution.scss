@@ -37,6 +37,7 @@ $color-light-grey-transparent: transparentize($color-light-grey, 0.5);
           background: $color-light-grey-transparent;
         }
       }
+
       &:nth-child(4n + 2) {
         td {
           background: $color-light-grey-transparent;
@@ -50,7 +51,7 @@ $color-light-grey-transparent: transparentize($color-light-grey, 0.5);
   }
 
   .snapshot__parameters {
-    padding: 0 !important;
+    padding: 0 !important; // sass-lint:disable-line no-important
 
     &-container {
       border-width: 2px 0 0;
@@ -61,7 +62,8 @@ $color-light-grey-transparent: transparentize($color-light-grey, 0.5);
     &-table {
       width: 100%;
 
-      th, td {
+      th,
+      td {
         padding: 1rem 2rem;
       }
     }

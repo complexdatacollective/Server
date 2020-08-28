@@ -70,7 +70,7 @@ class SessionDB extends Reportable(DatabaseAdapter) {
   ) {
     return new Promise((resolve, reject) => {
       const exp = new RegExp(filterValue);
-      let cursor = this.db.find({ protocolId, $or: [{ 'data.sessionVariables._caseID': exp }, { _id: exp }] }, projection || undefined);
+      let cursor = this.db.find({ protocolId, $or: [{ 'data.sessionVariables.caseId': exp }, { _id: exp }] }, projection || undefined);
       cursor = cursor.sort(sort);
       if (limit) { cursor = cursor.limit(limit); }
       cursor.exec((err, docs) => {

@@ -3,7 +3,7 @@ const faker = require('faker');
 
 const nodePrimaryKeyProperty = '_uid';
 const nodeAttributesProperty = 'attributes';
-const caseProperty = '_caseID';
+const caseProperty = 'caseId';
 
 const mockCoord = () => faker.random.number({ min: 0, max: 1, precision: 0.000001 });
 

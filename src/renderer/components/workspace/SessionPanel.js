@@ -1,4 +1,4 @@
-/* eslint no-underscore-dangle: ["error", { "allow": ["_caseID"] }] */
+/* eslint no-underscore-dangle: ["error", { "allow": ["caseId"] }] */
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
@@ -78,7 +78,7 @@ class SessionPanel extends Component {
                     <DismissButton small inline onClick={() => this.deleteSession(s.id)} />
                     <span>{formatDate(s.updatedAt)}</span>
                     <span className="session-panel__id">
-                      {s.data && s.data.sessionVariables && s.data.sessionVariables._caseID}
+                      {s.data && s.data.sessionVariables && s.data.sessionVariables.caseId}
                       {' - '}
                       {s.id && s.id.substring(0, 13)}
                     </span>
