@@ -101,8 +101,8 @@ class App extends Component {
       props.showConfirmationMessage(messages.protocolImportSuccess);
     });
 
-    ipcRenderer.on(IPC.SESSION_IMPORT_SUCCEEDED, () => {
-      props.showConfirmationMessage(messages.sessionImportSuccess);
+    ipcRenderer.on(IPC.SESSION_IMPORT_SUCCEEDED, (event, data) => {
+      props.showConfirmationMessage(`${messages.sessionImportSuccess}: ${data}`);
     });
 
     ipcRenderer.on(IPC.RESET_APP, () => {

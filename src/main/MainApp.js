@@ -82,10 +82,14 @@ const createApp = () => {
 
   const showImportSessionDialog = () => {
     protocolManager.presentImportSessionDialog(mainWindow.window)
-      .then((filename) => {
-        // If filename is empty, user cancelled
-        if (filename) {
-          mainWindow.send(SESSION_IMPORT_SUCCEEDED, filename);
+      .then(({ filenames, errorMessages }) => {
+        // If filenames are empty, user cancelled
+        if (filenames) {
+          reloadHomeScreen();
+          mainWindow.send(SESSION_IMPORT_SUCCEEDED, filenames);
+        }
+        if (errorMessages) {
+          dialog.showErrorBox('Import Error', errorMessages);
         }
       })
       .catch((err) => {

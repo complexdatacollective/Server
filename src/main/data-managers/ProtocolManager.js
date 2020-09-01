@@ -347,7 +347,7 @@ class ProtocolManager {
   presentImportSessionDialog(browserWindow) {
     const opts = {
       title: 'Import Case',
-      properties: ['openFile'],
+      properties: ['openFile', 'multiSelections'],
       filters: [
         { name: 'Graphml', extensions: validSessionFileExts },
       ],
@@ -356,10 +356,10 @@ class ProtocolManager {
     return dialog.showOpenDialog(browserWindow, opts)
       .then(({ canceled, filePaths }) => {
         if (canceled) {
-          return null;
+          return { filesnames: null, errorMessages: null };
         }
 
-        return this.processSessionFile(filePaths);
+        return this.processSessionFiles(filePaths);
       });
   }
 
@@ -371,27 +371,46 @@ class ProtocolManager {
      * @return {string} Resolves with the original requested filename
      * @throws {RequestError|Error} Rejects if there is a problem uploading, or on invalid input
      */
-  processSessionFile(fileList) {
+  processSessionFiles(fileList) {
     if (!fileList || fileList.length < 1) {
       return Promise.reject(new RequestError(ErrorMessages.EmptyFilelist));
     }
 
-    if (fileList.length > 1) {
-      return Promise.reject(new RequestError(ErrorMessages.FilelistNotSingular));
-    }
+    const promisedImports = fileList.map(userFilepath => (
+      new Promise((resolve, reject) => {
+        if (!hasValidSessionExtension(userFilepath)) {
+          return reject(new RequestError(ErrorMessages.InvalidSessionFileExtension));
+        }
+        resolve(this.fileContents(userFilepath, '')
+          .then(bufferContents => this.validateGraphML(bufferContents))
+          .then(xmlDoc => this.processGraphML(xmlDoc))
+          .then(({ protocolId, sessions }) => this.addSessionData(protocolId, sessions))
+          .then(() => userFilepath)
+          .catch(err => Promise.reject(
+            err || new RequestError(ErrorMessages.InvalidSessionFormat))));
+        return userFilepath;
+      })
+    ));
 
-    // TODO more than one file is allowed...process all.
-    const userFilepath = fileList[0]; // User's file; treat as read-only
+    return Promise.allSettled(promisedImports)
+      .then((importedPaths) => {
+        // Remove any imports that failed
+        const validImportedSessionFiles = importedPaths
+          .filter(sessionPath => sessionPath.status === 'fulfilled')
+          .map(filteredPath => filteredPath.value && path.basename(filteredPath.value));
 
-    if (!hasValidSessionExtension(userFilepath)) {
-      return Promise.reject(new RequestError(ErrorMessages.InvalidSessionFileExtension));
-    }
+        const invalidImportedSessionErrors = importedPaths
+          .filter(sessionPath => sessionPath.status === 'rejected')
+          .map(filteredPath => filteredPath.reason.message)
+          .join(';\n');
 
-    return this.fileContents(userFilepath, '')
-      .then(bufferContents => this.validateGraphML(bufferContents))
-      .then(xmlDoc => this.processGraphML(xmlDoc))
-      .then(({ protocolId, sessions }) => this.addSessionData(protocolId, sessions))
-      .catch(err => Promise.reject(err || new RequestError(ErrorMessages.InvalidSessionFormat)));
+        // FatalError if no sessions survived the cull
+        if (validImportedSessionFiles.length === 0) {
+          throw new RequestError(invalidImportedSessionErrors);
+        }
+
+        return { filenames: validImportedSessionFiles.join(', '), errorMessages: invalidImportedSessionErrors };
+      });
   }
 
   validateGraphML(bufferContents) {
@@ -402,18 +421,21 @@ class ProtocolManager {
     if (!graphml || !graphml[0] || graphml[0].getAttribute('xmlns:nc') !== 'http://schema.networkcanvas.com/xmlns' ||
       graphml[0].getAttribute('xmlns') !== 'http://graphml.graphdrawing.org/xmlns'
     ) {
-      throw new RequestError(`${ErrorMessages.InvalidSessionFormat}: missing headers.`);
+      throw new RequestError(`${ErrorMessages.InvalidSessionFormat}: missing headers`);
     }
 
     // all graphs within the graphml must have the same protocol
     const graphs = graphml[0].getElementsByTagName('graph');
+    if (graphs < 1) {
+      throw new RequestError(`${ErrorMessages.InvalidSessionFormat}: missing graph`);
+    }
     let graphmlProtocolId;
     Array.from(graphs).forEach((graph) => {
       const protocolId = graph.getAttribute('nc:remoteProtocolID');
       if (!graphmlProtocolId) {
         graphmlProtocolId = protocolId;
       } else if (graphmlProtocolId !== protocolId) {
-        throw new RequestError(`${ErrorMessages.InvalidSessionFormat}: may only contain one protocol.`);
+        throw new RequestError(`${ErrorMessages.InvalidSessionFormat}: may only contain one protocol`);
       }
     });
 
