@@ -8,6 +8,7 @@ const apiRequestLogger = require('./apiRequestLogger');
 const DeviceManager = require('../data-managers/DeviceManager');
 const ProtocolManager = require('../data-managers/ProtocolManager');
 const ExportManager = require('../data-managers/ExportManager');
+const { sendToGui } = require('../guiProxy');
 const { resetPemKeyPair } = require('./certificateManager');
 const { PairingRequestService } = require('./devices/PairingRequestService');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
@@ -29,6 +30,11 @@ const ApiVersion = '0.0.1';
 
 // Admin API should listen *only* on loopback
 const Host = '127.0.0.1';
+
+const emittedEvents = {
+  SESSIONS_IMPORTED: 'SESSIONS_IMPORTED',
+  PROTOCOL_IMPORT_SUCCEEDED: 'PROTOCOL_IMPORT_SUCCEEDED',
+};
 
 const codeForError = (err) => {
   if (err.message === ErrorMessages.NotFound) {
@@ -173,10 +179,33 @@ class AdminService {
         .then(() => next());
     });
 
+    api.post('/sessions', (req, res, next) => {
+      const files = req.body.files;
+      this.protocolManager.processSessionFiles(files)
+        .then(({ filenames, errorMessages }) => {
+          if (filenames) {
+            res.send({ status: 'ok', filenames, message: errorMessages });
+          } else {
+            res.send(500, { status: 'error', message: errorMessages });
+          }
+          return filenames;
+        })
+        .then(docs => sendToGui(emittedEvents.SESSIONS_IMPORTED, docs))
+        .catch((err) => {
+          logger.error(err);
+          res.send(500, { status: 'error', message: err.message });
+        })
+        .then(() => next());
+    });
+
     api.post('/protocols', (req, res, next) => {
       const files = req.body.files;
       this.protocolManager.validateAndImport(files)
-        .then(saved => res.send({ status: 'ok', protocols: saved }))
+        .then((saved) => {
+          res.send({ status: 'ok', filenames: saved });
+          return saved;
+        })
+        .then(docs => sendToGui(emittedEvents.PROTOCOL_IMPORT_SUCCEEDED, docs))
         .catch((err) => {
           logger.error(err);
           res.send(500, { status: 'error', message: err.message });

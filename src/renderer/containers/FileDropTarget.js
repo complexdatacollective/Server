@@ -40,7 +40,7 @@ class FileDropTarget extends Component {
   onDrop(evt) {
     evt.preventDefault();
     evt.stopPropagation();
-    const { loadProtocols, showConfirmationMessage, showErrorMessage } = this.props;
+    const { loadProtocols, showErrorMessage } = this.props;
 
     const fileList = evt.dataTransfer.files;
     const files = [];
@@ -53,16 +53,18 @@ class FileDropTarget extends Component {
       const urlName = evt.dataTransfer.getData && evt.dataTransfer.getData('URL');
       if (urlName) {
         this.setState({ draggingOver: false });
-        showErrorMessage('Dragging protocol files into Server from this source is not currently supported. Please download the file to your computer and try again.');
+        showErrorMessage('Dragging files into Server from this source is not currently supported. Please download the file to your computer and try again.');
         return;
       }
     }
 
     this.setState({ draggingOver: false });
     this.apiClient
-      .post('/protocols', { files })
-      .then(resp => resp.protocols)
-      .then(() => showConfirmationMessage(messages.protocolImportSuccess))
+      .post(this.props.postURI, { files })
+      .then(resp => ({ filenames: resp.filenames, errorMessages: resp.message }))
+      .then(({ errorMessages }) => {
+        if (errorMessages) showErrorMessage(`Import error: ${errorMessages}`);
+      })
       .then(() => loadProtocols())
       .catch(err => showErrorMessage(err.message || 'Could not save file'));
   }
@@ -91,18 +93,19 @@ class FileDropTarget extends Component {
 FileDropTarget.defaultProps = {
   children: null,
   loadProtocols: () => {},
+  postURI: '/protocols',
+  confirmationMessage: messages.protocolImportSuccess,
 };
 
 FileDropTarget.propTypes = {
   children: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+  postURI: PropTypes.string,
+  confirmationMessage: PropTypes.string,
   loadProtocols: PropTypes.func,
-  showConfirmationMessage: PropTypes.func.isRequired,
   showErrorMessage: PropTypes.func.isRequired,
 };
 
 const mapDispatchToProps = dispatch => ({
-  showConfirmationMessage:
-    bindActionCreators(messageActionCreators.showConfirmationMessage, dispatch),
   showErrorMessage: bindActionCreators(messageActionCreators.showErrorMessage, dispatch),
   loadProtocols: bindActionCreators(protocolActionCreators.loadProtocols, dispatch),
 });

@@ -1,10 +1,15 @@
 .file-drop-target {
+  height: 100%;
 
   @include modifier(active) {
     background-color: var(--color-slate-blue--dark);
 
     > * {
       pointer-events: none;
+    }
+
+    .dashboard__panel {
+      background-color: var(--color-platinum--dark);
     }
   }
 }

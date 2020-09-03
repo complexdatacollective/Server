@@ -28,7 +28,7 @@ const IPC = {
   PAIRING_TIMED_OUT: 'PAIRING_TIMED_OUT',
   PAIRING_COMPLETE: 'PAIRING_COMPLETE',
   PROTOCOL_IMPORT_SUCCEEDED: 'PROTOCOL_IMPORT_SUCCEEDED',
-  SESSION_IMPORT_SUCCEEDED: 'SESSION_IMPORT_SUCCEEDED',
+  SESSIONS_IMPORTED: 'SESSIONS_IMPORTED',
   RESET_APP: 'RESET_APP',
 };
 
@@ -97,12 +97,14 @@ class App extends Component {
       props.loadDevices();
     });
 
-    ipcRenderer.on(IPC.PROTOCOL_IMPORT_SUCCEEDED, () => {
-      props.showConfirmationMessage(messages.protocolImportSuccess);
+    ipcRenderer.on(IPC.PROTOCOL_IMPORT_SUCCEEDED, (_, data) => {
+      const appendData = data ? `: ${data}` : '';
+      props.showConfirmationMessage(`${messages.protocolImportSuccess}${appendData}`);
     });
 
-    ipcRenderer.on(IPC.SESSION_IMPORT_SUCCEEDED, (event, data) => {
-      props.showConfirmationMessage(`${messages.sessionImportSuccess}: ${data}`);
+    ipcRenderer.on(IPC.SESSIONS_IMPORTED, (_, data) => {
+      const appendData = data ? `: ${data}` : '';
+      props.showConfirmationMessage(`${messages.sessionImportSuccess}${appendData}`);
     });
 
     ipcRenderer.on(IPC.RESET_APP, () => {

@@ -14,7 +14,7 @@ const Updater = require('./Updater');
 // TODO: move/centralize
 const FileImportUpdated = 'FILE_IMPORT_UPDATED';
 const PROTOCOL_IMPORT_SUCCEEDED = 'PROTOCOL_IMPORT_SUCCEEDED';
-const SESSION_IMPORT_SUCCEEDED = 'SESSION_IMPORT_SUCCEEDED';
+const SESSIONS_IMPORTED = 'SESSIONS_IMPORTED';
 const RESET_APP = 'RESET_APP';
 
 const userDataDir = app.getPath('userData');
@@ -85,8 +85,7 @@ const createApp = () => {
       .then(({ filenames, errorMessages }) => {
         // If filenames are empty, user cancelled
         if (filenames) {
-          reloadHomeScreen();
-          mainWindow.send(SESSION_IMPORT_SUCCEEDED, filenames);
+          mainWindow.send(SESSIONS_IMPORTED, filenames);
         }
         if (errorMessages) {
           dialog.showErrorBox('Import Error', errorMessages);
@@ -104,7 +103,7 @@ const createApp = () => {
       const mockSessions = buildMockData(developmentProtocol);
       const developmentProtocolId = get(developmentProtocol, '_id');
       protocolManager.addSessionData(developmentProtocolId, mockSessions)
-        .then(() => reloadHomeScreen());
+        .then(() => mainWindow.send(SESSIONS_IMPORTED, ''));
     });
   };
 

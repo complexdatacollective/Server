@@ -688,7 +688,8 @@ class DeviceAPI extends EventEmitter {
             res.json(201, { status: 'ok', data: { insertedCount: docs.length } });
             return docs;
           })
-          .then(docs => sendToGui(emittedEvents.SESSIONS_IMPORTED, docs))
+          .then(docs => sendToGui(emittedEvents.SESSIONS_IMPORTED, docs.map(doc =>
+            doc.data && doc.data.sessionVariables && doc.data.sessionVariables.caseId).join(', ')))
           .catch((err) => {
             if (err.errorType === 'uniqueViolated') { // from nedb
               this.handlers.onError(new ConflictError(err.message), res);
