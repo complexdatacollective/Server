@@ -60,10 +60,9 @@ describe('<FileDropTarget />', () => {
       AdminApiClient.mockImplementation(() => mockClient);
     });
 
-    it('displays a success confirmation', () => {
+    it('displays no errors', () => {
       wrapper.simulate('drop', { dataTransfer: { files: {}, getData: () => '' } });
       expect(mockClient.post).toHaveBeenCalled();
-      expect(mockProps.showConfirmationMessage).toHaveBeenCalled();
       expect(mockProps.showErrorMessage).not.toHaveBeenCalled();
     });
   });
@@ -113,11 +112,6 @@ describe('<FileDropTarget />', () => {
     it('maps a dispatched showErrorMessage fn to props', () => {
       const subject = shallow(<ConnectedFileDropTarget store={store} />);
       expect(subject.prop('showErrorMessage')).toBeInstanceOf(Function);
-    });
-
-    it('maps a dispatched showConfirmationMessage fn to props', () => {
-      const subject = shallow(<ConnectedFileDropTarget store={store} />);
-      expect(subject.prop('showConfirmationMessage')).toBeInstanceOf(Function);
     });
   });
 });

@@ -181,7 +181,7 @@ describe('the AdminService', () => {
 
         it('accepts posted filenames', async () => {
           const res = await jsonClient.post(endpoint, { files: mockFiles });
-          expect(res.json.protocols).toEqual(mockFiles);
+          expect(res.json.filenames).toEqual(mockFiles);
         });
 
         it('deletes a protocol', async () => {
