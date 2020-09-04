@@ -31,7 +31,10 @@ const createApp = () => {
   // Instantiate the updater class, and check for update once on startup.
   // Do not notify the user if there are no updates.
   const updater = Updater();
-  updater.checkForUpdates(true);
+
+  if (!process.env.NODE_ENV === 'development') {
+    updater.checkForUpdates(true);
+  }
 
   const regenerateCertificates = () => {
     dialog.showMessageBox(mainWindow.window, {
@@ -161,7 +164,6 @@ const createApp = () => {
       submenu: [
         { role: 'reload' },
         { role: 'forcereload' },
-        { role: 'toggledevtools' },
         { type: 'separator' },
         { role: 'resetzoom' },
         { role: 'zoomin' },
@@ -173,6 +175,8 @@ const createApp = () => {
     {
       label: 'Develop',
       submenu: [
+        { role: 'toggledevtools' },
+        { type: 'separator' },
         {
           label: 'Generate test sessions...',
           click: generateTestSessions,
