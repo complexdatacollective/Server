@@ -6,7 +6,7 @@ import { logger, pairingObserver } from './middleware';
 import rootReducer from './modules/rootReducer';
 
 const persistConfig = {
-  key: 'server',
+  key: 'server6',
   storage,
   whitelist: [
     'excludedChartVariables',

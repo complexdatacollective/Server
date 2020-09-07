@@ -58,7 +58,7 @@ class Server extends EventEmitter {
   }
 
   advertiseDeviceService(deviceService) {
-    const serviceType = { name: 'network-canvas', protocol: 'tcp' };
+    const serviceType = { name: 'nc-server-6', protocol: 'tcp' };
     if (!mdnsIsSupported) {
       return;
     }
