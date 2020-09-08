@@ -8,6 +8,8 @@ import Types from '../../types';
 import AdminApiClient from '../../utils/adminApiClient';
 import viewModelMapper from '../../utils/baseViewModelMapper';
 
+const defaultMinimumSessions = 100;
+
 /**
  * HOC to provide session-related data and functionality to a workspace.
  *
@@ -97,7 +99,7 @@ const withSessions = WrappedComponent =>
       return base && `${base}/${sessionId}`;
     }
 
-    loadSessions = (startIndex = 0, stopIndex = 100, sortType = 'createdAt', direction = -1, filterValue = '', reset = true) => {
+    loadSessions = (startIndex = 0, stopIndex = defaultMinimumSessions, sortType = 'createdAt', direction = -1, filterValue = '', reset = true) => {
       const { protocol } = this.props;
       if (!protocol) {
         return Promise.reject();
@@ -155,14 +157,17 @@ const withSessions = WrappedComponent =>
         false,
       ));
 
-    reloadSessions = () => (
-      this.loadSessions(
+    reloadSessions = () => {
+      const numSessions = this.state.sessions.length < defaultMinimumSessions ?
+        defaultMinimumSessions : this.state.sessions.length;
+      return this.loadSessions(
         0,
-        this.state.sessions.length,
+        numSessions,
         this.state.sortType,
         this.state.sortDirection,
         this.state.filterValue,
-      ));
+      );
+    }
 
     debouncedReload = debounce(this.reloadSessions, 200);
 
