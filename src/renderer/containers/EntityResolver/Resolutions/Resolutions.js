@@ -43,7 +43,7 @@ const Resolutions = React.forwardRef(({
 
   const codebook = get(resolverState, ['protocol', 'codebook'], {});
 
-  const egoCastType = resolverState.exportSettings.egoCastType;
+  const egoCastType = get(resolverState, 'exportSettings.resolverOptions.egoCastType');
   const nodeTypeDefinition = getNodeTypeDefinition(codebook, egoCastType);
 
   const [diffState, setDiffState] = useState(initialDiffState);

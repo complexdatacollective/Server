@@ -57,7 +57,6 @@ const EntityDiff = ({
 
   const handleToggleHidden = () => setShowHidden(s => !s);
 
-
   const [a, b] = get(match, 'nodes', []);
 
   const color = get(entityDefinition, 'color');

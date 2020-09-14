@@ -23,13 +23,6 @@ const variants = {
   show: { height: 'auto', opacity: 1 },
 };
 
-const defaultResolverOptions = {
-  egoCastType: '',
-  interpreterPath: '',
-  resolverPath: '',
-  args: '',
-};
-
 const EntityResolverSettings = ({
   apiClient,
   createNewResolution,
@@ -63,39 +56,15 @@ const EntityResolverSettings = ({
         setUnresolvedCount(unresolved);
 
         const lastResolution = last(sortedResolutions);
+        const lastParameters = get(lastResolution, 'parameters', {});
 
         const nextResolverOptions = {
-          ...defaultResolverOptions,
-          ...get(lastResolution, 'parameters', {}),
           ...resolverOptions,
+          ...lastParameters,
         };
 
+        // if path/arguments have been changed skip this
         onUpdateOptions(nextResolverOptions);
-
-        // if (sortedResolutions.length > 0) {
-        //   // TODO: should this be enforced server side?
-        //   const lastEgoCastType = get(lastResolution, 'parameters.egoCastType', '');
-        //   newResolverOptions.egoCastType = lastEgoCastType;
-        // }
-
-        // // if path/arguments have been changed skip this
-        // if (
-        //   resolverOptions.interpreterPath.length === 0 &&
-        //   resolverOptions.resolverPath.length === 0 &&
-        //   resolverOptions.args.length === 0
-        // ) {
-        //   const lastResolverOptions
-        //   const lastInterpreterPath = get(lastResolution, 'parameters.interpreterPath', '');
-        //   const lastResolverPath = get(lastResolution, 'parameters.resolverPath', '');
-        //   const lastArgs = get(lastResolution, 'parameters.args', '');
-
-        //   newResolverOptions.interpreterPath = lastInterpreterPath;
-        //   newResolverOptions.resolverPath = lastResolverPath;
-        //   newResolverOptions.args = lastArgs;
-        // }
-
-        // if (!isEqual(newResolverOptions, resolverOptions)) {
-        // }
       })
       .catch(err => showError(err.message));
   };
