@@ -7,7 +7,7 @@ const makeResolverResult = (requestId) => {
   const emitter = new EventEmitter();
 
   const handleError = (e) => {
-    emitter.emit('error', new Error(e));
+    emitter.emit('error', e);
     emitter.emit('end');
   };
 
