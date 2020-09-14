@@ -376,21 +376,32 @@ class ProtocolManager {
       return Promise.reject(new RequestError(ErrorMessages.EmptyFilelist));
     }
 
-    const promisedImports = fileList.map(userFilepath => (
-      new Promise((resolve, reject) => {
-        if (!hasValidSessionExtension(userFilepath)) {
-          return reject(new RequestError(ErrorMessages.InvalidSessionFileExtension));
-        }
-        resolve(this.fileContents(userFilepath, '')
-          .then(bufferContents => this.validateGraphML(bufferContents))
-          .then(xmlDoc => this.processGraphML(xmlDoc))
-          .then(({ protocolId, sessions }) => this.addSessionData(protocolId, sessions))
-          .then(() => userFilepath)
-          .catch(err => Promise.reject(
-            err || new RequestError(ErrorMessages.InvalidSessionFormat))));
-        return userFilepath;
-      })
-    ));
+    const promisedImports = fileList.map((userFilepath) => {
+      if (!hasValidSessionExtension(userFilepath)) {
+        return Promise.reject(new RequestError(ErrorMessages.InvalidSessionFileExtension));
+      }
+      return (this.fileContents(userFilepath, ''))
+        .then(bufferContents => this.validateGraphML(bufferContents))
+        .then(xmlDoc => this.processGraphML(xmlDoc))
+        .then(({ protocolId, sessions }) => sessions.map(
+          session => this.addSessionData(protocolId, session)))
+        .then(addSessionPromises => Promise.allSettled(addSessionPromises))
+        .then((importedSessions) => {
+          const validImportedSessions = importedSessions
+            .filter(sessionPath => sessionPath.status === 'fulfilled')
+            .map(filteredPath => filteredPath.value);
+          const invalidImportedSessionErrors = importedSessions
+            .filter(sessionPath => sessionPath.status === 'rejected')
+            .map(filteredPath => filteredPath.reason.message)
+            .join(';\n');
+
+          if (validImportedSessions.length === 0) {
+            throw new RequestError(invalidImportedSessionErrors);
+          }
+          return userFilepath;
+        })
+        .catch(err => Promise.reject(err || new RequestError(ErrorMessages.InvalidSessionFormat)));
+    });
 
     return Promise.allSettled(promisedImports)
       .then((importedPaths) => {
