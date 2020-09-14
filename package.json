@@ -48,7 +48,7 @@
         "@babel/plugin-transform-runtime": "^7.10.4",
         "@babel/preset-env": "^7.10.4",
         "@babel/preset-react": "^7.10.4",
-        "@codaco/ui": "^3.4.1",
+        "@codaco/ui": "^3.5.1",
         "autoprefixer": "^9.8.5",
         "babel-eslint": "^9.0.0",
         "babel-jest": "^25.5.1",
