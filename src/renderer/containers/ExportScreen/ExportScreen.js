@@ -250,16 +250,15 @@ const ExportScreen = ({
         { exportSettings.exportNetworkUnion &&
           <EntityResolverSettings
             createNewResolution={exportSettings.createNewResolution}
-            egoCastType={exportSettings.egoCastType}
             enableEntityResolution={exportSettings.enableEntityResolution}
-            entityResolutionArguments={exportSettings.entityResolutionArguments}
-            entityResolutionPath={exportSettings.entityResolutionPath}
             onSelectCreateNewResolution={selectCreateNewResolution}
             onSelectResolution={selectResolution}
+            onUpdateOptions={value => updateSetting('resolverOptions', value)}
             onUpdateSetting={updateSetting}
             protocolId={protocol.id}
             resolutionId={exportSettings.resolutionId}
             resolverActive={resolverActive} // used to refresh resolutions state
+            resolverOptions={exportSettings.resolverOptions}
             show={exportSettings.exportNetworkUnion}
             showError={showError}
           />

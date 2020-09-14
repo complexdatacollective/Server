@@ -33,9 +33,12 @@ const initialState = {
   enableEntityResolution: false,
   resolutionId: null,
   createNewResolution: false,
-  egoCastType: undefined,
-  entityResolutionArguments: '',
-  entityResolutionPath: '',
+  resolverOptions: {
+    egoCastType: undefined,
+    args: '',
+    resolverPath: '',
+    interpreterPath: '',
+  },
 };
 
 const entityResolutionReducer = handleActions(

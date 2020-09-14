@@ -28,22 +28,16 @@ const isRequired = (value) => {
 };
 
 const NewSnapshot = ({
-  egoCastType,
-  entityResolutionArguments,
-  entityResolutionPath,
   hasResolutionHistory,
   isSelected,
   newSessionCount,
   nodeTypes,
   onSelectCreateNewResolution,
-  onUpdateSetting,
+  onUpdateOption,
+  options,
 }) => {
   const handleUpdateEgoCastType = e =>
-    onUpdateSetting('egoCastType', isEmpty(e.target.value) ? undefined : e.target.value);
-
-  const handleSelectResolver = (value) => {
-    onUpdateSetting('entityResolutionPath', value);
-  };
+    onUpdateOption('egoCastType', isEmpty(e.target.value) ? undefined : e.target.value);
 
   return (
     <React.Fragment>
@@ -79,7 +73,7 @@ const NewSnapshot = ({
                       <select
                         className="select-field"
                         onChange={handleUpdateEgoCastType}
-                        value={egoCastType || ''}
+                        value={options.egoCastType || ''}
                         disabled={hasResolutionHistory || !isSelected}
                         required
                       >
@@ -92,13 +86,28 @@ const NewSnapshot = ({
                   </tr>
                   <tr>
                     <th>
-                      Script path
+                      Interpreter path (e.g. `/usr/bin/python`)
                     </th>
                     <td>
                       <ValidatedBrowseInput
                         input={{
-                          value: entityResolutionPath,
-                          onChange: handleSelectResolver,
+                          value: options.interpreterPath,
+                          onChange: value => onUpdateOption('interpreterPath', value),
+                          disabled: !isSelected,
+                        }}
+                        validate={isRequired}
+                      />
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>
+                      Script path (e.g. `my_resolution_script.py`)
+                    </th>
+                    <td>
+                      <ValidatedBrowseInput
+                        input={{
+                          value: options.resolverPath,
+                          onChange: value => onUpdateOption('resolverPath', value),
                           disabled: !isSelected,
                         }}
                         validate={isRequired}
@@ -112,8 +121,8 @@ const NewSnapshot = ({
                     <td>
                       <Text
                         input={{
-                          value: entityResolutionArguments,
-                          onChange: e => onUpdateSetting('entityResolutionArguments', e.target.value),
+                          value: options.args,
+                          onChange: e => onUpdateOption('args', e.target.value),
                           disabled: !isSelected,
                         }}
                       />
@@ -130,15 +139,19 @@ const NewSnapshot = ({
 };
 
 NewSnapshot.propTypes = {
-  egoCastType: PropTypes.string,
-  entityResolutionArguments: PropTypes.string,
-  entityResolutionPath: PropTypes.string,
+
   hasResolutionHistory: PropTypes.bool,
   isSelected: PropTypes.bool.isRequired,
   newSessionCount: PropTypes.number,
   nodeTypes: PropTypes.array,
   onSelectCreateNewResolution: PropTypes.func.isRequired,
-  onUpdateSetting: PropTypes.func.isRequired,
+  onUpdateOption: PropTypes.func.isRequired,
+  options: PropTypes.shape({
+    args: PropTypes.string,
+    egoCastType: PropTypes.string,
+    interpreterPath: PropTypes.string,
+    resolverPath: PropTypes.string,
+  }),
 };
 
 NewSnapshot.defaultProps = {
@@ -148,6 +161,7 @@ NewSnapshot.defaultProps = {
   hasResolutionHistory: false,
   newSessionCount: 0,
   nodeTypes: [],
+  options: {},
 };
 
 export default NewSnapshot;

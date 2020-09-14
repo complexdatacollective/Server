@@ -138,15 +138,13 @@ const useResolver = () => {
     } = protocol;
 
     const {
+      csvTypes,
       exportFormat,
       exportNetworkUnion,
-      csvTypes,
+      resolutionId,
+      resolverOptions,
       useDirectedEdges,
       useEgoData,
-      resolutionId,
-      egoCastType,
-      entityResolutionArguments,
-      entityResolutionPath,
     } = exportSettings;
 
     startResolve({ exportSettings, protocol });
@@ -156,14 +154,20 @@ const useResolver = () => {
     const exportCsvTypes = useEgoData ? csvTypes : csvTypesNoEgo;
     const showCsvOpts = exportFormat === 'csv';
 
-    if (isEmpty(egoCastType)) {
+    if (isEmpty(resolverOptions.egoCastType)) {
       const e = new Error('Please specify an ego cast type');
       handleError(e);
       return Promise.reject(e);
     }
 
-    if (isEmpty(entityResolutionPath)) {
+    if (isEmpty(resolverOptions.resolverPath)) {
       const e = new Error('Please specify a resolver path');
+      handleError(e);
+      return Promise.reject(e);
+    }
+
+    if (isEmpty(resolverOptions.interpreterPath)) {
+      const e = new Error('Please specify a interpreter path');
       handleError(e);
       return Promise.reject(e);
     }
@@ -171,14 +175,12 @@ const useResolver = () => {
     return resolverClient(
       protocolId,
       {
-        resolutionId,
         enableEntityResolution: true,
-        entityResolutionArguments,
-        entityResolutionPath,
         exportFormats: (exportFormat === 'csv' && [...exportCsvTypes]) || [exportFormat],
         exportNetworkUnion,
+        resolutionId,
+        resolverOptions,
         useDirectedEdges,
-        egoCastType,
         useEgoData: useEgoData && showCsvOpts,
       },
     )

@@ -23,17 +23,23 @@ const variants = {
   show: { height: 'auto', opacity: 1 },
 };
 
+const defaultResolverOptions = {
+  egoCastType: '',
+  interpreterPath: '',
+  resolverPath: '',
+  args: '',
+};
+
 const EntityResolverSettings = ({
   apiClient,
   createNewResolution,
-  egoCastType,
   enableEntityResolution,
-  entityResolutionArguments,
-  entityResolutionPath,
+  resolverOptions,
   nodeTypes,
   onSelectCreateNewResolution,
   onSelectResolution,
   onUpdateSetting,
+  onUpdateOptions,
   openDialog,
   protocolId,
   resolutionId,
@@ -42,6 +48,9 @@ const EntityResolverSettings = ({
 }) => {
   const [unresolvedCount, setUnresolvedCount] = useState(0);
   const [resolutionHistory, setResolutionHistory] = useState([]);
+
+  const updateResolverOption = (option, value) =>
+    onUpdateOptions({ ...resolverOptions, [option]: value });
 
   const getResolutions = () => {
     if (!protocolId) { return; }
@@ -54,22 +63,39 @@ const EntityResolverSettings = ({
         setUnresolvedCount(unresolved);
 
         const lastResolution = last(sortedResolutions);
-        if (sortedResolutions.length > 0) {
-          // TODO: should this be enforced server side?
-          const lastEgoCastType = get(lastResolution, 'parameters.egoCastType', '');
-          onUpdateSetting('egoCastType', lastEgoCastType);
-        }
 
-        // if path/arguments have been changed skip this
-        if (
-          entityResolutionPath.length === 0 &&
-          entityResolutionArguments.length === 0
-        ) {
-          const lastEntityResolutionPath = get(lastResolution, 'parameters.entityResolutionPath', '');
-          const lastEntityResolutionArguments = get(lastResolution, 'parameters.entityResolutionArguments', '');
-          onUpdateSetting('entityResolutionPath', lastEntityResolutionPath);
-          onUpdateSetting('entityResolutionArguments', lastEntityResolutionArguments);
-        }
+        const nextResolverOptions = {
+          ...defaultResolverOptions,
+          ...get(lastResolution, 'parameters', {}),
+          ...resolverOptions,
+        };
+
+        onUpdateOptions(nextResolverOptions);
+
+        // if (sortedResolutions.length > 0) {
+        //   // TODO: should this be enforced server side?
+        //   const lastEgoCastType = get(lastResolution, 'parameters.egoCastType', '');
+        //   newResolverOptions.egoCastType = lastEgoCastType;
+        // }
+
+        // // if path/arguments have been changed skip this
+        // if (
+        //   resolverOptions.interpreterPath.length === 0 &&
+        //   resolverOptions.resolverPath.length === 0 &&
+        //   resolverOptions.args.length === 0
+        // ) {
+        //   const lastResolverOptions
+        //   const lastInterpreterPath = get(lastResolution, 'parameters.interpreterPath', '');
+        //   const lastResolverPath = get(lastResolution, 'parameters.resolverPath', '');
+        //   const lastArgs = get(lastResolution, 'parameters.args', '');
+
+        //   newResolverOptions.interpreterPath = lastInterpreterPath;
+        //   newResolverOptions.resolverPath = lastResolverPath;
+        //   newResolverOptions.args = lastArgs;
+        // }
+
+        // if (!isEqual(newResolverOptions, resolverOptions)) {
+        // }
       })
       .catch(err => showError(err.message));
   };
@@ -159,15 +185,13 @@ const EntityResolverSettings = ({
                     ))
                 }
                 <NewSnapshot
+                  hasResolutionHistory={resolutionHistory.length > 0}
+                  isSelected={createNewResolution}
+                  newSessionCount={unresolvedCount}
                   nodeTypes={nodeTypes}
                   onSelectCreateNewResolution={onSelectCreateNewResolution}
-                  isSelected={createNewResolution}
-                  onUpdateSetting={onUpdateSetting}
-                  egoCastType={egoCastType}
-                  hasResolutionHistory={resolutionHistory.length > 0}
-                  entityResolutionPath={entityResolutionPath}
-                  entityResolutionArguments={entityResolutionArguments}
-                  newSessionCount={unresolvedCount}
+                  onUpdateOption={updateResolverOption}
+                  options={resolverOptions}
                 />
               </tbody>
             </table>
@@ -181,30 +205,32 @@ const EntityResolverSettings = ({
 EntityResolverSettings.propTypes = {
   apiClient: PropTypes.object.isRequired,
   createNewResolution: PropTypes.bool,
-  egoCastType: PropTypes.string,
   enableEntityResolution: PropTypes.bool,
-  entityResolutionArguments: PropTypes.string,
-  entityResolutionPath: PropTypes.string,
   nodeTypes: PropTypes.array.isRequired,
   onSelectCreateNewResolution: PropTypes.func.isRequired,
   onSelectResolution: PropTypes.func.isRequired,
+  onUpdateOptions: PropTypes.func.isRequired,
   onUpdateSetting: PropTypes.func.isRequired,
   openDialog: PropTypes.func.isRequired,
   protocolId: PropTypes.string,
   resolutionId: PropTypes.string,
   resolverActive: PropTypes.bool,
+  resolverOptions: PropTypes.shape({
+    args: PropTypes.string,
+    egoCastType: PropTypes.string,
+    interpreterPath: PropTypes.string,
+    resolverPath: PropTypes.string,
+  }),
   showError: PropTypes.func.isRequired,
 };
 
 EntityResolverSettings.defaultProps = {
   createNewResolution: false,
-  egoCastType: undefined,
   enableEntityResolution: false,
-  entityResolutionArguments: '',
-  entityResolutionPath: '',
   protocolId: null,
   resolutionId: null,
   resolverActive: false,
+  resolverOptions: {},
 };
 
 const nodeDefinitionsAsOptions = (nodeDefinitions) => {

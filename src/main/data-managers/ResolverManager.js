@@ -39,7 +39,7 @@ class ResolverManager {
           const transformOptions = {
             resolutionId: optionsWithDefaults.resolutionId,
             includeUnresolved: optionsWithDefaults.includeUnresolved,
-            egoCastType: get(lastResolution, ['parameters', 'egoCastType'], optionsWithDefaults.egoCastType),
+            egoCastType: get(lastResolution, ['parameters', 'egoCastType'], optionsWithDefaults.resolverOptions.egoCastType),
           };
 
           return transformSessions(protocol, sessions, resolutions, transformOptions);
@@ -63,10 +63,12 @@ class ResolverManager {
       return Promise.reject(new RequestError(ErrorMessages.NotFound));
     }
 
+    const resolverOptions = options.resolverOptions;
+
     const command = [
-      '/usr/bin/python3',
-      options.entityResolutionPath,
-      options.entityResolutionArguments,
+      resolverOptions.interpreterPath,
+      resolverOptions.resolverPath,
+      resolverOptions.args,
     ];
 
     return this.getNetwork(protocol, options)
