@@ -63,7 +63,11 @@ class ResolverManager {
       return Promise.reject(new RequestError(ErrorMessages.NotFound));
     }
 
-    const command = `${options.entityResolutionPath} ${options.entityResolutionArguments}`;
+    const command = [
+      '/usr/bin/python3',
+      options.entityResolutionPath,
+      options.entityResolutionArguments,
+    ];
 
     return this.getNetwork(protocol, options)
       .then(([network]) => getNetworkResolver(requestId, command, protocol.codebook, network));

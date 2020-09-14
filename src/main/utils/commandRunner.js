@@ -1,26 +1,30 @@
 const child = require('duplex-child-process');
-const fs = require('fs');
+const fs = require('fs-extra');
 
-const getArgs = command => new Promise((resolve, reject) => {
-  if (!command) { reject(new Error('no comand specified')); }
-  const [executable, ...args] = command.split(' ');
-  resolve({ executable, args });
-});
+/**
+ * `command` should be an array in the format:
+ * [
+ *    interpreter, // path to executable, e.g. /usr/bin/python
+ *    script, // Path to user script e.g. /home/user/resolver.py
+ *    ...args, // Array of arguments
+ * ]
+ */
+const spawnCommand = (command) => {
+  const [interpreter, script, ...args] = command;
 
-const spawnCommand = ({ executable, args }) =>
-  new Promise((resolve, reject) => {
-    if (!executable) { reject(new Error('no executable specified as part of "command"')); }
-    fs.access(executable, fs.constants.X_OK, (error) => {
-      if (error) { reject(new Error('Could not find command, or it is not executable.')); }
-
-      const spawnProcess = () => child.spawn(executable, args);
-
-      resolve(spawnProcess);
+  return Promise.all([
+    fs.pathExists(interpreter),
+    fs.pathExists(script),
+  ])
+    // .catch((e) => {
+    //   throw new Error('Could not find command, or it is not executable.');
+    // })
+    .then(() => {
+      const spawnArgs = [script, ...args];
+      console.log({ spawnArgs });
+      const spawnProcess = () => child.spawn(interpreter, spawnArgs);
+      return spawnProcess;
     });
-  });
+};
 
-const commandRunner = (command = '') =>
-  getArgs(command)
-    .then(spawnCommand);
-
-module.exports = commandRunner;
+module.exports = spawnCommand;
