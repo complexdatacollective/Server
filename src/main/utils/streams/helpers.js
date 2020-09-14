@@ -1,7 +1,7 @@
 const miss = require('mississippi');
 
 const debug = (...args) => {
-  if (process.env !== 'development') { return; }
+  if (process.env.NODE_ENV !== 'development') { return; }
   console.log(...args); // eslint-disable-line
 };
 

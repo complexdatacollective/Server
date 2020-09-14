@@ -16,12 +16,11 @@ const spawnCommand = (command) => {
     fs.pathExists(interpreter),
     fs.pathExists(script),
   ])
-    // .catch((e) => {
-    //   throw new Error('Could not find command, or it is not executable.');
+    // .catch(() => {
+    //   throw new Error('Could not find interpreter or script');
     // })
     .then(() => {
       const spawnArgs = [script, ...args];
-      console.log({ spawnArgs });
       const spawnProcess = () => child.spawn(interpreter, spawnArgs);
       return spawnProcess;
     });
