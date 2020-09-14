@@ -61,16 +61,20 @@ const Snapshot = ({
             >
               <table className="snapshot__parameters-table">
                 <tr>
-                  <th>Cast ego as node type</th>
-                  <td>{egoCastTypeLabel} (`{egoCastType}`)</td>
+                  <th>Node Type</th>
+                  <td>{egoCastType} ({egoCastTypeLabel})</td>
                 </tr>
                 <tr>
-                  <th>Script path</th>
-                  <td>{get(parameters, 'entityResolutionPath')}</td>
+                  <th>Interpreter Tath</th>
+                  <td>{get(parameters, 'interpreterPath')}</td>
                 </tr>
                 <tr>
-                  <th>Script arguments</th>
-                  <td>{get(parameters, 'entityResolutionArguments')}</td>
+                  <th>Resolver Script Path</th>
+                  <td>{get(parameters, 'resolverPath')}</td>
+                </tr>
+                <tr>
+                  <th>Resolver Script Arguments</th>
+                  <td>{get(parameters, 'args')}</td>
                 </tr>
               </table>
             </motion.div>

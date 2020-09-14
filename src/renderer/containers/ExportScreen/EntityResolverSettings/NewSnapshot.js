@@ -67,7 +67,7 @@ const NewSnapshot = ({
                 <tbody>
                   <tr>
                     <th>
-                      Cast ego as node type
+                      Node Type
                     </th>
                     <td>
                       <select
@@ -86,7 +86,7 @@ const NewSnapshot = ({
                   </tr>
                   <tr>
                     <th>
-                      Interpreter path (e.g. `/usr/bin/python`)
+                      Interpreter path
                     </th>
                     <td>
                       <ValidatedBrowseInput
@@ -101,7 +101,7 @@ const NewSnapshot = ({
                   </tr>
                   <tr>
                     <th>
-                      Script path (e.g. `my_resolution_script.py`)
+                      Resolver Script Path
                     </th>
                     <td>
                       <ValidatedBrowseInput
@@ -116,7 +116,7 @@ const NewSnapshot = ({
                   </tr>
                   <tr>
                     <th>
-                      Script arguments
+                      Resolver Script Arguments
                     </th>
                     <td>
                       <Text

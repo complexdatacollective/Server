@@ -23,17 +23,7 @@ const useAdminClient = () => {
       id: protocolId,
     } = protocol;
 
-    const {
-      entityResolutionPath,
-      entityResolutionArguments,
-      egoCastType,
-    } = exportSettings;
-
-    const parameters = {
-      entityResolutionPath,
-      entityResolutionArguments,
-      egoCastType,
-    };
+    const parameters = exportSettings.resolverOptions;
 
     return client
       .current

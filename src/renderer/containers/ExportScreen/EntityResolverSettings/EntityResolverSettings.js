@@ -55,6 +55,8 @@ const EntityResolverSettings = ({
         setResolutionHistory(sortedResolutions);
         setUnresolvedCount(unresolved);
 
+        console.log({ resolutions });
+
         const lastResolution = last(sortedResolutions);
         const lastParameters = get(lastResolution, 'parameters', {});
 
