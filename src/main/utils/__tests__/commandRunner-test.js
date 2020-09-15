@@ -4,22 +4,19 @@ const miss = require('mississippi');
 const split = require('split');
 
 // example_command.js reverses stdin
-const testCommand = '/usr/bin/env node ./src/main/utils/__tests__/example_command.js';
+const testCommand = ['node', './src/main/utils/__tests__/example_command.js'];
 
 describe('commandRunner', () => {
-  it('can initialize', () => {
-    commandRunner(testCommand);
-  });
+  it('can initialize', () => commandRunner(testCommand));
 
-  it('is writable', (done) => {
+  it('is writable', () =>
     commandRunner(testCommand)
       .then((startProcess) => {
         const p = startProcess();
         p.write('buzz');
         p.end();
-        done();
-      });
-  });
+      }),
+  );
 
   it('is readable', () => {
     const dataHandler = jest.fn();
@@ -57,12 +54,12 @@ describe('commandRunner', () => {
           done();
         });
         p.kill();
-        done();
-      });
+      })
+      .finally(done);
   });
 
   it('handles end/done', (done) => {
-    commandRunner(`${testCommand} --buffered`)
+    commandRunner([...testCommand, '--buffered'])
       .then((start) => {
         const p = start();
         p.on('data', (d) => {
