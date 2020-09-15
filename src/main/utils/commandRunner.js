@@ -12,11 +12,8 @@ const fs = require('fs-extra');
 const spawnCommand = (command) => {
   const [interpreter, script, ...args] = command;
 
-  // return fs.pathExists(interpreter)
-  //   .catch(() => { throw new Error(`Could not find interpreter "${interpreter}"`); })
-  //   .then(fs.pathExists(script))
   return fs.pathExists(script)
-    .catch(() => { throw new Error(`Could not find resolver script "${script}"`); })
+    .catch(() => { throw new Error(`Could not find script "${script}"`); })
     .then(() => {
       const spawnArgs = [script, ...args];
       const spawnProcess = () => child.spawn(interpreter, spawnArgs);
