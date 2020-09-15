@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { DateTime } from 'luxon';
-import { get, last } from 'lodash';
+import { get, last, omit } from 'lodash';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { motion } from 'framer-motion';
@@ -55,17 +55,26 @@ const EntityResolverSettings = ({
         setResolutionHistory(sortedResolutions);
         setUnresolvedCount(unresolved);
 
-        console.log({ resolutions });
-
         const lastResolution = last(sortedResolutions);
         const lastParameters = get(lastResolution, 'parameters', {});
 
-        const nextResolverOptions = {
-          ...resolverOptions,
-          ...lastParameters,
-        };
+        const egoCastType = get(lastParameters, 'egoCastType');
+        const otherOptions = omit(resolverOptions, 'egoCastType');
+
+        let nextResolverOptions = resolverOptions;
+
+        if (egoCastType) { nextResolverOptions.egoCastType = egoCastType; }
 
         // if path/arguments have been changed skip this
+        const otherOptionsValues = Object.values(otherOptions);
+        if (otherOptionsValues.every(v => v.length === 0)) {
+          nextResolverOptions = {
+            ...nextResolverOptions,
+            ...otherOptions,
+          };
+        }
+
+        // otherwise use last parameters
         onUpdateOptions(nextResolverOptions);
       })
       .catch(err => showError(err.message));
