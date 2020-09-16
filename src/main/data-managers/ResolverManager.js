@@ -36,10 +36,13 @@ class ResolverManager {
         ([sessions, resolutions]) => {
           const lastResolution = last(resolutions);
 
+          // Assumption: All exports henceforce will have the same ego cast type
+          const egoCastType = get(lastResolution, ['parameters', 'egoCastType']);
+
           const transformOptions = {
             resolutionId: optionsWithDefaults.resolutionId,
             includeUnresolved: optionsWithDefaults.includeUnresolved,
-            egoCastType: get(lastResolution, ['parameters', 'egoCastType'], optionsWithDefaults.resolverOptions.egoCastType),
+            egoCastType,
           };
 
           return transformSessions(protocol, sessions, resolutions, transformOptions);

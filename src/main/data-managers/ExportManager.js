@@ -135,7 +135,6 @@ class ExportManager {
       useDirectedEdges,
       useEgoData,
       enableEntityResolution,
-      egoCastType,
       resolutionId,
     } = {},
   ) {
@@ -158,7 +157,6 @@ class ExportManager {
     };
 
     const networkOpts = {
-      egoCastType,
       exportNetworkUnion,
       useEgoData,
       enableEntityResolution,
