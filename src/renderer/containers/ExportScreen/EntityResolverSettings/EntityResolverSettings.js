@@ -1,7 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { DateTime } from 'luxon';
 import { get, last, omit } from 'lodash';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
@@ -14,9 +13,6 @@ import { actionCreators as messageActionCreators } from '%modules/appMessages';
 import Snapshot from './Snapshot';
 import NewSnapshot from './NewSnapshot';
 import './EntityResolution.scss';
-
-const compareCreatedAt = (a, b) =>
-  DateTime.fromISO(a.createdAt) - DateTime.fromISO(b.createdAt);
 
 const variants = {
   hide: { height: 0, opacity: 0 },
@@ -51,11 +47,10 @@ const EntityResolverSettings = ({
     apiClient
       .get(`/protocols/${protocolId}/resolutions`)
       .then(({ resolutions, unresolved }) => {
-        const sortedResolutions = [...resolutions].sort(compareCreatedAt);
-        setResolutionHistory(sortedResolutions);
+        setResolutionHistory(resolutions);
         setUnresolvedCount(unresolved);
 
-        const lastResolution = last(sortedResolutions);
+        const lastResolution = last(resolutions);
         const lastParameters = get(lastResolution, 'parameters', {});
 
         const egoCastType = get(lastParameters, 'egoCastType');

@@ -444,7 +444,8 @@ class ProtocolManager {
       .then((resolutions) => {
         const resolutionIndex = resolutions
           .findIndex(resolution => resolution._id === resolutionId);
-        return resolutions.slice(0, resolutionIndex + 1);
+
+        return resolutions.slice(resolutionIndex);
       })
       .then(resolutions => resolutions.map(({ _id }) => _id))
       .then(resolutionIds =>

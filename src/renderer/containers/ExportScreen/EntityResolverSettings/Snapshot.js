@@ -65,7 +65,7 @@ const Snapshot = ({
                   <td>{egoCastType} ({egoCastTypeLabel})</td>
                 </tr>
                 <tr>
-                  <th>Interpreter Tath</th>
+                  <th>Interpreter Path</th>
                   <td>{get(parameters, 'interpreterPath')}</td>
                 </tr>
                 <tr>

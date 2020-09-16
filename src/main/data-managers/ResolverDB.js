@@ -1,6 +1,6 @@
 const DatabaseAdapter = require('./DatabaseAdapter');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
-const { mostRecent, resolveOrReject } = require('../utils/db');
+const { leastRecentlyCreated, resolveOrReject } = require('../utils/db');
 
 const missingRequiredIdMessage = 'Cannot delete resolution without a protocol id and resolution id';
 
@@ -42,7 +42,7 @@ class ResolverDB extends DatabaseAdapter {
 
   find(query) {
     return new Promise((resolve, reject) => {
-      this.db.find(query).sort(mostRecent).exec(resolveOrReject(resolve, reject));
+      this.db.find(query).sort(leastRecentlyCreated).exec(resolveOrReject(resolve, reject));
     });
   }
 
