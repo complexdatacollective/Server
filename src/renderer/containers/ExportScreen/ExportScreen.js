@@ -18,6 +18,7 @@ import useAdminClient from '%renderer/hooks/useAdminClient';
 import EntityResolverSettings from './EntityResolverSettings';
 import Resolutions from '../EntityResolver/Resolutions';
 import useExportSettingsState, { availableCsvTypes } from './useExportSettingsState';
+import useResolverOptionsState from './useResolverOptionsState';
 
 const ExportScreen = ({
   protocol,
@@ -43,6 +44,11 @@ const ExportScreen = ({
       csvTypeChange,
     },
   ] = useExportSettingsState();
+
+  const [
+    resolverOptions,
+    { updateResolverOptions },
+  ] = useResolverOptionsState();
 
   const { exportToFile, saveResolutions } = useAdminClient();
 
@@ -79,7 +85,7 @@ const ExportScreen = ({
 
     if (createNewResolution) {
       setResolverActive(true);
-      resolutionsRef.current.resolveProtocol(protocol, exportSettings);
+      resolutionsRef.current.resolveProtocol(protocol, { ...exportSettings, resolverOptions });
       return;
     }
 
@@ -253,12 +259,12 @@ const ExportScreen = ({
             enableEntityResolution={exportSettings.enableEntityResolution}
             onSelectCreateNewResolution={selectCreateNewResolution}
             onSelectResolution={selectResolution}
-            onUpdateOptions={value => updateSetting('resolverOptions', value)}
+            onUpdateOptions={updateResolverOptions}
             onUpdateSetting={updateSetting}
             protocolId={protocol.id}
             resolutionId={exportSettings.resolutionId}
             resolverActive={resolverActive} // used to refresh resolutions state
-            resolverOptions={exportSettings.resolverOptions}
+            resolverOptions={resolverOptions}
             show={exportSettings.exportNetworkUnion}
             showError={showError}
           />

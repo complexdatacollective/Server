@@ -33,12 +33,6 @@ const initialState = {
   enableEntityResolution: false,
   resolutionId: null,
   createNewResolution: false,
-  resolverOptions: {
-    args: '--minimumThreshold=0.99',
-    egoCastType: '4aebf73e-95e3-4fd1-95e7-237dcc4a4466',
-    interpreterPath: 'python3',
-    resolverPath: '',
-  },
 };
 
 const entityResolutionReducer = handleActions(
