@@ -15,10 +15,17 @@ import ErrorBoundary from '%components/ErrorBoundary';
 import ExportModal from '%components/ExportModal';
 import { selectors } from '%modules/protocols';
 import useAdminClient from '%renderer/hooks/useAdminClient';
+import useAppState from '%renderer/hooks/useAppState';
 import EntityResolverSettings from './EntityResolverSettings';
 import Resolutions from '../EntityResolver/Resolutions';
 import useExportSettingsState, { availableCsvTypes } from './useExportSettingsState';
-import useResolverOptionsState from './useResolverOptionsState';
+
+const defaultResolverOptions = {
+  args: '--minimumThreshold=0.99',
+  egoCastType: '4aebf73e-95e3-4fd1-95e7-237dcc4a4466',
+  interpreterPath: 'python3',
+  resolverPath: '',
+};
 
 const ExportScreen = ({
   protocol,
@@ -47,8 +54,8 @@ const ExportScreen = ({
 
   const [
     resolverOptions,
-    { updateResolverOptions },
-  ] = useResolverOptionsState();
+    updateResolverOptions,
+  ] = useAppState('resolverOptions', defaultResolverOptions);
 
   const { exportToFile, saveResolutions } = useAdminClient();
 
