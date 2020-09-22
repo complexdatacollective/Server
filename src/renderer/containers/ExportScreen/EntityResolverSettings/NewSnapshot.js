@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { isEmpty } from 'lodash';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import Text from '@codaco/ui/lib/components/Fields/Text';
+import Tip from '%components/Tip';
 import BrowseInput from '%components/BrowseInput';
 import withValidation from './withValidation';
 
@@ -67,7 +68,7 @@ const NewSnapshot = ({
                 <tbody>
                   <tr>
                     <th>
-                      Node Type
+                      Ego Node Cast Type
                     </th>
                     <td>
                       <select
@@ -77,11 +78,19 @@ const NewSnapshot = ({
                         disabled={hasResolutionHistory || !isSelected}
                         required
                       >
-                        <option value="">&mdash; Select a node type &mdash;</option>
+                        <option value="">&mdash; Select a node type to convert the ego to&mdash;</option>
                         {nodeTypes.map(({ label, value }) => (
                           <option value={value} key={value}>{label}</option>
                         ))}
                       </select>
+                      { (hasResolutionHistory || !isSelected) &&
+                        <Tip type="warning">
+                          <p>
+                            Ego node cast type cannot be changed whilst there are
+                            existing resolutions because the results are cumulative.
+                          </p>
+                        </Tip>
+                      }
                     </td>
                   </tr>
                   <tr>

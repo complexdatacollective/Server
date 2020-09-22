@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { get, last, omit } from 'lodash';
+import { get, last } from 'lodash';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { motion } from 'framer-motion';

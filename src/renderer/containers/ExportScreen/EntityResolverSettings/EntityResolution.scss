@@ -81,6 +81,9 @@ $color-light-grey-transparent: transparentize($color-light-grey, 0.5);
       th {
         text-align: left;
         width: 14rem;
+        vertical-align: top;
+        line-height: 4rem;
+        padding-top: 0.5rem;
       }
 
       td {
