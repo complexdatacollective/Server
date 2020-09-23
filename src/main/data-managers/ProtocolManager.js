@@ -377,8 +377,10 @@ class ProtocolManager {
     }
 
     const promisedImports = fileList.map((userFilepath) => {
+      const fileBasename = userFilepath && path.basename(userFilepath);
+
       if (!hasValidSessionExtension(userFilepath)) {
-        return Promise.reject(new RequestError(ErrorMessages.InvalidSessionFileExtension));
+        return Promise.reject(new RequestError(`${fileBasename} - ${ErrorMessages.InvalidSessionFileExtension}`));
       }
       return (this.fileContents(userFilepath, ''))
         .then(bufferContents => this.validateGraphML(bufferContents))
@@ -396,11 +398,16 @@ class ProtocolManager {
             .join(';\n');
 
           if (validImportedSessions.length === 0) {
-            throw new RequestError(invalidImportedSessionErrors);
+            throw new RequestError(`${importedSessions.length} failed: ${invalidImportedSessionErrors}`);
           }
-          return userFilepath;
+          return {
+            fileBasename,
+            numSessionsSucceeded: validImportedSessions.length,
+            numSessionsFailed: importedSessions.length - validImportedSessions.length,
+            invalidImportedSessionErrors,
+          };
         })
-        .catch(err => Promise.reject(err || new RequestError(ErrorMessages.InvalidSessionFormat)));
+        .catch(err => Promise.reject(new RequestError(`${fileBasename} - ${err.message || ErrorMessages.InvalidSessionFormat}`)));
     });
 
     return Promise.allSettled(promisedImports)
@@ -408,19 +415,26 @@ class ProtocolManager {
         // Remove any imports that failed
         const validImportedSessionFiles = importedPaths
           .filter(sessionPath => sessionPath.status === 'fulfilled')
-          .map(filteredPath => filteredPath.value && path.basename(filteredPath.value));
+          .map(filteredPath => filteredPath.value && `${filteredPath.value.numSessionsSucceeded} from ${filteredPath.value.fileBasename}`);
 
-        const invalidImportedSessionErrors = importedPaths
+        const invalidSessionsFromValidFiles = importedPaths
+          .filter(sessionPath => sessionPath.status === 'fulfilled' && sessionPath.value && sessionPath.value.numSessionsFailed)
+          .map(filteredPath => `${filteredPath.value.numSessionsFailed} failed from ${filteredPath.value.fileBasename} with: ${filteredPath.value.invalidImportedSessionErrors}`)
+          .join('; ');
+
+        const invalidImportedFileErrors = importedPaths
           .filter(sessionPath => sessionPath.status === 'rejected')
           .map(filteredPath => filteredPath.reason.message)
-          .join(';\n');
+          .join('; ');
 
         // FatalError if no sessions survived the cull
         if (validImportedSessionFiles.length === 0) {
-          throw new RequestError(invalidImportedSessionErrors);
+          throw new RequestError(invalidImportedFileErrors);
         }
 
-        return { filenames: validImportedSessionFiles.join(', '), errorMessages: invalidImportedSessionErrors };
+        let allErrors = invalidSessionsFromValidFiles ? `${invalidSessionsFromValidFiles}. ` : '';
+        allErrors += invalidImportedFileErrors;
+        return { filenames: validImportedSessionFiles.join(', '), errorMessages: allErrors };
       });
   }
 
@@ -457,11 +471,12 @@ class ProtocolManager {
     const graphml = xmlDoc.getElementsByTagName('graphml');
     const graphs = graphml[0].getElementsByTagName('graph');
     const protocolId = graphs && graphs[0].getAttribute('nc:remoteProtocolID');
+    const protocolName = graphs && graphs[0].getAttribute('nc:protocolName');
 
     return this.getProtocol(protocolId)
       .then((protocol) => {
         if (!protocol) {
-          throw new RequestError(ErrorMessages.ProtocolNotFoundForSession);
+          throw new RequestError(`${ErrorMessages.ProtocolNotFoundForSession}: ${protocolName}`);
         }
         return this.convertGraphML(xmlDoc, protocol);
       });
@@ -650,15 +665,22 @@ class ProtocolManager {
    * @async
    */
   addSessionData(protocolId, sessionOrSessions) {
+    const session = Array.isArray(sessionOrSessions) ? sessionOrSessions[0] : sessionOrSessions;
     return this.getProtocol(protocolId)
       .then((protocol) => {
         if (!protocol) {
-          throw new RequestError(ErrorMessages.ProtocolNotFoundForSession);
+          const protocolName = (session && session.data && session.data.sessionVariables &&
+            session.data.sessionVariables.protocolName) || 'undefined';
+          throw new RequestError(`${ErrorMessages.ProtocolNotFoundForSession} - ${protocolName}`);
         }
         return this.sessionDb.insertAllForProtocol(sessionOrSessions, protocol);
       })
       .catch((insertErr) => {
         logger.error(insertErr);
+        if (insertErr.errorType === 'uniqueViolated') {
+          throw new RequestError(`${ErrorMessages.SessionAlreadyExists}:
+            ${session && session.data && session.data.sessionVariables && session.data.sessionVariables.caseId}`);
+        }
         throw insertErr;
       });
   }

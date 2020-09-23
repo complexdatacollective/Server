@@ -106,7 +106,7 @@ const createApp = () => {
       const mockSessions = buildMockData(developmentProtocol);
       const developmentProtocolId = get(developmentProtocol, '_id');
       protocolManager.addSessionData(developmentProtocolId, mockSessions)
-        .then(() => mainWindow.send(SESSIONS_IMPORTED, ''));
+        .then(() => mainWindow.send(SESSIONS_IMPORTED, `${mockSessions.length} test sessions`));
     });
   };
 

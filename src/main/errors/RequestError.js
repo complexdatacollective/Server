@@ -29,6 +29,7 @@ const ErrorMessages = {
   NothingToExport: 'No data available to export',
   ProtocolAlreadyExists: 'This protocol has already been imported, and cannot be overwritten. If you have changed your protocol since importing it, either rename it to create a new workspace, or remove the existing protocol.',
   ProtocolNotFoundForSession: 'The associated protocol does not exist on this server',
+  SessionAlreadyExists: 'This server already contains this session',
   VerificationFailed: 'Request verification failed',
 };
 

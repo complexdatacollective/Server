@@ -6,8 +6,9 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import AdminApiClient from '../utils/adminApiClient';
-import { actionCreators as messageActionCreators, messages } from '../ducks/modules/appMessages';
+import { messages } from '../ducks/modules/appMessages';
 import { actionCreators as protocolActionCreators } from '../ducks/modules/protocols';
+import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 
 const onDragOver = (evt) => {
   evt.preventDefault();
@@ -40,7 +41,7 @@ class FileDropTarget extends Component {
   onDrop(evt) {
     evt.preventDefault();
     evt.stopPropagation();
-    const { loadProtocols, showErrorMessage } = this.props;
+    const { loadProtocols } = this.props;
 
     const fileList = evt.dataTransfer.files;
     const files = [];
@@ -53,7 +54,7 @@ class FileDropTarget extends Component {
       const urlName = evt.dataTransfer.getData && evt.dataTransfer.getData('URL');
       if (urlName) {
         this.setState({ draggingOver: false });
-        showErrorMessage('Dragging files into Server from this source is not currently supported. Please download the file to your computer and try again.');
+        this.showErrorDialog('Dragging files into Server from this source is not currently supported. Please download the file to your computer and try again.');
         return;
       }
     }
@@ -63,10 +64,19 @@ class FileDropTarget extends Component {
       .post(this.props.postURI, { files })
       .then(resp => ({ filenames: resp.filenames, errorMessages: resp.message }))
       .then(({ errorMessages }) => {
-        if (errorMessages) showErrorMessage(`Import error: ${errorMessages}`);
+        if (errorMessages) this.showErrorDialog(errorMessages);
       })
       .then(() => loadProtocols())
-      .catch(err => showErrorMessage(err.message || 'Could not save file'));
+      .catch(err => this.showErrorDialog(err.message || 'Could not save file'));
+  }
+
+  showErrorDialog = (error) => {
+    this.props.openDialog({
+      type: 'Warning',
+      canCancel: false,
+      title: 'Import Error',
+      message: error,
+    });
   }
 
   render() {
@@ -102,12 +112,12 @@ FileDropTarget.propTypes = {
   postURI: PropTypes.string,
   confirmationMessage: PropTypes.string,
   loadProtocols: PropTypes.func,
-  showErrorMessage: PropTypes.func.isRequired,
+  openDialog: PropTypes.func.isRequired,
 };
 
 const mapDispatchToProps = dispatch => ({
-  showErrorMessage: bindActionCreators(messageActionCreators.showErrorMessage, dispatch),
   loadProtocols: bindActionCreators(protocolActionCreators.loadProtocols, dispatch),
+  openDialog: bindActionCreators(dialogActions.openDialog, dispatch),
 });
 
 export default connect(null, mapDispatchToProps)(FileDropTarget);
