@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { get } from 'lodash';
 
-const withValidation = WrappedComponent =>
-  (props) => {
+const withValidation = (WrappedComponent) => {
+  const ValidatedComponent = (props) => {
     const value = get(props, 'input.value', null);
     const [metaState, setMetaState] = useState({
       value,
@@ -29,5 +30,17 @@ const withValidation = WrappedComponent =>
 
     return <WrappedComponent {...componentProps} />;
   };
+
+  ValidatedComponent.propTypes = {
+    meta: PropTypes.obj,
+    validate: PropTypes.func.isRequired,
+  };
+
+  ValidatedComponent.defaultProps = {
+    meta: {},
+  };
+
+  return ValidatedComponent;
+};
 
 export default withValidation;

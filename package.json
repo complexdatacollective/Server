@@ -49,7 +49,7 @@
         "@babel/preset-env": "^7.10.4",
         "@babel/preset-react": "^7.10.4",
         "@codaco/ui": "^3.5.1",
-        "autoprefixer": "^9.8.5",
+        "autoprefixer": "^9.8.6",
         "babel-eslint": "^9.0.0",
         "babel-jest": "^25.5.1",
         "babel-loader": "^8.1.0",
@@ -59,7 +59,7 @@
         "css-loader": "^1.0.0",
         "dotenv": "^6.0.0",
         "electron": "^9.2.0",
-        "electron-builder": "^22.7.0",
+        "electron-builder": "^22.8.0",
         "electron-devtools-installer": "^2.2.4",
         "electron-log": "^4.2.2",
         "electron-notarize": "^1.0.0",
@@ -91,10 +91,10 @@
         "react-dev-utils": "^6.1.1",
         "react-draggable": "^4.4.3",
         "react-redux": "^7.2.1",
-        "react-virtualized": "^9.21.2",
+        "react-virtualized": "^9.22.2",
         "redux-logger": "^3.0.6",
         "redux-persist": "^6.0.0",
-        "regenerator-runtime": "^0.13.5",
+        "regenerator-runtime": "^0.13.7",
         "rosie": "^2.0.1",
         "sass-lint": "^1.12.1",
         "sass-loader": "^7.0.3",
@@ -117,8 +117,8 @@
         "duplex-child-process": "^1.0.0",
         "framer-motion": "^2.6.0",
         "jszip": "^3.5.0",
-        "libsodium-wrappers": "^0.7.3",
-        "lodash": "^4.17.19",
+        "libsodium-wrappers": "^0.7.8",
+        "lodash": "^4.17.20",
         "luxon": "^1.22.0",
         "mdns": "^2.5.1",
         "mississippi": "^4.0.0",
@@ -146,7 +146,7 @@
         "xmldom": "^0.1.27"
     },
     "browserslist": [
-        "Electron 9.0.0"
+        "Electron 9.2.0"
     ],
     "build": {
         "extends": null,
