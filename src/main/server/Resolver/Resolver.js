@@ -1,10 +1,10 @@
 const logger = require('electron-log');
 const path = require('path');
-const { get } = require('lodash');
+const { get, flow } = require('lodash');
 const SessionDB = require('../../data-managers/SessionDB');
 const ProtocolDB = require('../../data-managers/ProtocolDB');
 const castEgoAsNode = require('../../utils/resolver/castEgoAsNode'); // move to formatters?
-const { unionOfNetworks } = require('../../utils/formatters/network');
+const { unionOfNetworks, formatSessionAsNetwork  } = require('../../utils/formatters/network');
 const { resolverMessageTypes, ipcEventTypes, getIpcEventId } = require('./config');
 const getResolverStream = require('./getResolverStream');
 
@@ -28,84 +28,20 @@ class Resolver {
     this.options = options;
     this.sessionDb = new SessionDB(path.join(dataDir, 'db', 'sessions.db'));
     this.protocolDb = new ProtocolDB(path.join(dataDir, 'db', 'protocols.db'));
+    this.resolverStream = null;
+
+    this.state = {
+      index: 0,
+      nodes: [],
+    };
 
     this.resolve();
   }
 
-  getSessions() {
-    return this.sessionDb.findAll(this.protocolId, null, null)
-      .then(sessions =>
-        sessions.map((session) => {
-          const caseID = get(session, 'data.sessionVariables.caseID');
-          return { ...session.data, _caseID: caseID };
-        }),
-      );
-  }
-
-  getNodes() {
-    return Promise.all([
-      this.protocolDb.get(this.protocolId),
-      this.getSessions(),
-    ])
-      .then(([
-        protocol,
-        sessions,
-      ]) => {
-        const egoCaster = castEgoAsNode(protocol.codebook, this.options.nodeType);
-        const { nodes } = unionOfNetworks(sessions.map(egoCaster));
-        return nodes;
-      })
-      .then(nodes =>
-        nodes.map(node => ({ nodes: [node._uid], attributes: node.attributes })),
-      );
-  }
-
-  getResolver() {
-    return getResolverStream(this.options.command)
-      .then((resolverStream) => {
-        // emit for each line
-        resolverStream.on('error', this.handleError);
-        resolverStream.on('end', this.handleEnd);
-        resolverStream.on('close', this.handleEnd);
-
-        return resolverStream;
-      })
-      .catch(this.handleError);
-  }
-
-  resolve() {
-    Promise.all([
-      this.getResolver(),
-      this.getNodes(),
-    ])
-      .then(([resolverStream, nodes]) => {
-        this.result = [...nodes];
-
-        resolverStream
-          .on('data', (data) => {
-            // parse events
-            const [type, payload] = readData(data);
-
-            switch (type) {
-              case resolverMessageTypes.MAYBE:
-                this.send(ipcEventTypes.QUERY, payload);
-                return;
-              case resolverMessageTypes.MATCH:
-                // payload = { ids, attributes }
-                return;
-              case resolverMessageTypes.REJECT:
-                // payload = { ids }
-                return;
-              case resolverMessageTypes.LOG:
-              default:
-                logger.debug(type, payload);
-            }
-          });
-
-          while (???) {
-            resolverStream.write();
-          }
-      });
+  // Send to UI
+  send = (eventType, ...args) => {
+    const eventId = getIpcEventId(eventType, this.requestId);
+    this.sender.send(eventId, ...args);
   }
 
   handleError = (error) => {
@@ -118,10 +54,84 @@ class Resolver {
     this.send(ipcEventTypes.END);
   };
 
-  // Send to UI
-  send = (eventType, ...args) => {
-    const eventId = getIpcEventId(eventType, this.requestId);
-    this.sender.send(eventId, ...args);
+  getNetwork() {
+    // TODO: This should return the latest RESOLVED network using transformSessions
+    // Does this make sense to belong to Resolver?
+    return this.protocolDb.get(this.protocolId)
+      .then((protocol) => {
+        const egoCaster = castEgoAsNode(protocol.codebook, this.options.nodeType);
+        const processSession = flow([formatSessionAsNetwork, egoCaster]);
+
+        return this.sessionDb.findAll(this.protocolId, null, null)
+          .then(sessions => sessions.map(processSession))
+          .then(unionOfNetworks);
+      });
+  }
+
+  initializeState() {
+    return this.getNetwork()
+      .then(({ nodes }) =>
+        // eslint-disable-next-line no-underscore-dangle
+        nodes.map(node => ({ nodes: [node._uid], attributes: node.attributes })),
+      )
+      .then((nodes) => {
+        this.state = {
+          nodes,
+          index: 0,
+        };
+      });
+  }
+
+  initializeResolver() {
+    return getResolverStream(this.options.command)
+      .then((resolverStream) => {
+        this.resolverStream = resolverStream;
+
+        resolverStream.on('error', this.handleError);
+        resolverStream.on('end', this.handleEnd);
+        resolverStream.on('close', this.handleEnd);
+        resolverStream.on('data', (data) => {
+          // parse events
+          const [type, payload] = readData(data);
+
+          this.update(type, payload);
+        });
+      })
+      .catch(this.handleError);
+  }
+
+  next() {
+    const nodes = this.state.nodes.slice(this.state.index, this.state.index + 2);
+    const data = { nodes };
+    const message = `RESOLVE ${JSON.stringify(data)}`;
+    this.resolverStream.write(message);
+  }
+
+  update(type, payload) {
+    switch (type) {
+      case resolverMessageTypes.MAYBE:
+        this.send(ipcEventTypes.QUERY, payload); // ?? should it also listen? it could
+        return;
+      case resolverMessageTypes.MATCH:
+        // payload = { ids, attributes }
+        return;
+      case resolverMessageTypes.REJECT:
+        // payload = { ids }
+        return;
+      case resolverMessageTypes.LOG:
+      default:
+        logger.debug(type, payload);
+    }
+
+    this.next();
+  }
+
+  resolve() {
+    Promise.all([
+      this.initializeState(),
+      this.initializeResolver(),
+    ])
+      .then(this.next);
   }
 }
 
