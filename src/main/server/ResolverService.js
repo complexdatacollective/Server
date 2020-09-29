@@ -3,28 +3,37 @@ const logger = require('electron-log');
 const ProtocolManager = require('../data-managers/ProtocolManager');
 // const { ResolverManager } = require('../data-managers/ResolverManager');
 
-// UI message types
+// UI message types, these get sent between main/renderer
 const ipcEventTypes = {
   // Request entity resolution for protocol {protocolId}
   RESOLVE: 'RESOLVER/RESOLVE',
   // Abort entity resolution {resolutionId}
   ABORT: 'RESOLVER/ABORT',
-  // Request user feedback {type} {id1} {id2}
+  // entity resolution finished {resolutionId}
+  END: 'RESOLVER/END',
+  // Something went wrong { resolutionId, error }
+  ERROR: 'RESOLVER/ERROR',
+  // Request user feedback {resolutionId, type, payload}
   QUERY: 'RESOLVER/QUERY',
-  // Mark pair as {match/fail} {id1} {id2}
+  // Mark pair as {resolutionId, type, payload}
   RESPONSE: 'RESOLVER/RESPONSE',
 };
 
+// Resolver message types, these get sent between the app and the resolver script
 const messageTypes = {
-  request: {
-    RESOLVE: 'RESOLVE',
-  },
-  response: {
-    MATCH: 'MATCH',
-    MAYBE: 'MAYBE',
-    REJECT: 'REJECT',
-    LOG: 'LOG',
-  },
+  RESOLVE: 'RESOLVE',
+  MATCH: 'MATCH',
+  MAYBE: 'MAYBE',
+  REJECT: 'REJECT',
+  LOG: 'LOG',
+};
+
+const makeGetRequestEventName = requestId => eventType =>
+  `${eventType}/${requestId}`;
+
+const readData = (data) => {
+  const [type, payload] = data.toString().split(' ');
+  return [type, JSON.parse(payload)];
 };
 
 /**
@@ -63,56 +72,63 @@ class ResolverService {
     });
   }
 
-// // TODO:  can we share this with the client?
-// const getEventName = (eventType, requestId) =>
-// `${eventType}_${requestId}`;
+  onResolve(event, { protocolId, requestId, options }) {
+    logger.debug(event, protocolId, requestId, JSON.stringify(options));
+    const getRequestEventName = makeGetRequestEventName(requestId);
 
-  // onResolveAbort(event, requestId) {
-  //   logger.debug('[ResolverService:abort]', eventTypes.RESOLVE_ABORT, requestId);
-  //   if (!this.resolvers[requestId]) { return; }
-  //   this.resolvers[requestId].abort();
-  //   delete this.resolvers[requestId];
-  // }
+    const handleError = (error) => {
+      logger.error(ipcEventTypes.ERROR, error);
+      event.sender.send(getRequestEventName(ipcEventTypes.ERROR), { error });
+    };
 
-  // onResolveRequest(event, requestId, protocolId, options) {
-  //   logger.debug('[ResolverService:request]', eventTypes.RESOLVE_REQUEST, protocolId, requestId, JSON.stringify(options));
+    const handleEnd = () => {
+      logger.debug(getRequestEventName(ipcEventTypes.END));
+      event.sender.send(getRequestEventName(ipcEventTypes.END));
+    };
 
-  //   const handleError = (error) => {
-  //     logger.error('[ResolverService:error]', error);
-  //     event.sender.send(getEventName(eventTypes.RESOLVE_ERROR, requestId), error);
-  //   };
+    if (this.resolvers[requestId]) {
+      handleError(new Error('This requestId already exists'));
+    }
 
-  //   if (this.resolvers[requestId]) {
-  //     handleError(new Error('This requestId already exists'));
-  //   }
+    this.getResolver(options)
+      .then((resolverStream) => {
+        this.resolvers[requestId] = resolverStream;
 
-  //   this.resolveProtocol(requestId, protocolId, options)
-  //     .then((resolverStream) => {
-  //       this.resolvers[requestId] = resolverStream;
+        // emit for each line
+        resolverStream.on('data', (data) => {
+          // parse events
+          const [type, payload] = readData(data);
 
-  //       resolverStream.on('data', (data) => {
-  //         event.sender.send(getEventName(eventTypes.RESOLVE_DATA, requestId), data.toString());
-  //       });
+          switch (type) {
+            // MATCH/REJECT handled in stream??
+            case messageTypes.MAYBE:
+              // Send to UI
+              event.sender.send(ipcEventTypes.QUERY, payload);
+              return;
+            case messageTypes.LOG:
+            default:
+              logger.debug(type, payload);
+          }
+        });
 
-  //       resolverStream.on('error', e => handleError(e));
+        resolverStream.on('error', e => handleError(e));
+        resolverStream.on('end', handleEnd);
+        resolverStream.on('close', handleEnd);
+      })
+      .catch(handleError);
+  }
 
-  //       resolverStream.on('end', () => {
-  //         logger.debug('[ResolverService:end]');
-  //         event.sender.send(getEventName(eventTypes.RESOLVE_END, requestId));
-  //       });
-
-  //       resolverStream.on('close', () => {
-  //         logger.debug('[ResolverService:close]');
-  //         event.sender.send(getEventName(eventTypes.RESOLVE_END, requestId));
-  //       });
-  //     })
-  //     .catch(handleError);
-  // }
-
-  // resolveProtocol(requestId, protocolId, options) {
-  //   return this.protocolManager.getProtocol(protocolId)
-  //     .then(protocol => this.resolverManager.resolveProtocol(requestId, protocol, options));
-  // }
+  onResponse(event, { requestId, type, payload }) {
+    logger.debug(event, requestId, type, payload);
+    switch (type) {
+      case messageTypes.MATCH:
+      case messageTypes.REJECT:
+        this.resolvers[requestId].send(type, payload);
+        return;
+      default:
+        logger.debug(type, payload);
+    }
+  }
 }
 
 module.exports = {
