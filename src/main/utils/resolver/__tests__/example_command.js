@@ -1,4 +1,4 @@
-const split = require('split');
+const split = require('split'); // use each?
 
 const args = process.argv.slice(2);
 

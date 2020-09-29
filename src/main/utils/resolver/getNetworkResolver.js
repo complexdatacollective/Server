@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 
-const split = require('split');
+const split = require('split'); // use each?
 const miss = require('mississippi');
 const { has } = require('lodash');
 const { sampleStream, countStream } = require('../streams/helpers');

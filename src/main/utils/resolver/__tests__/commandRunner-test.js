@@ -1,7 +1,7 @@
 /* eslint-env jest */
 const commandRunner = require('../commandRunner');
 const miss = require('mississippi');
-const split = require('split');
+const split = require('split'); // use each?
 
 // example_command.js reverses stdin
 const testCommand = ['node', './src/main/utils/__tests__/example_command.js'];
