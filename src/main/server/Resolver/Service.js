@@ -8,11 +8,10 @@ const Resolver = require('./Resolver');
  * Provides an IPC API for resolution clients on the same machine.
  */
 class ResolverService {
-  // constructor({ dataDir }) {
-  constructor() {
+  constructor({ dataDir }) {
     console.log('Resolver service');
     this.resolvers = [];
-    // this.protocolManager = new ProtocolManager(dataDir);
+    this.dataDir = dataDir;
     // // this.resolverManager = new ResolverManager(this.protocolManager);
   }
 
@@ -30,6 +29,15 @@ class ResolverService {
       }
       ipcMain.on(ipcEventTypes[key], this[handlerName].bind(this));
     });
+
+    this.onResolve(
+      { sender: console.log },
+      {
+        protocolId: '21b6a798321a49f75b9c3827fa3cfdb7efe2c4e05c3d13aefe1c825b9774a158',
+        requestId: 'test',
+        options: {},
+      },
+    );
   }
 
   stop() {
@@ -56,7 +64,13 @@ class ResolverService {
       event.sender.send(getIpcEventId(ipcEventTypes.ERROR, requestId), { error });
     }
 
-    this.resolvers[requestId] = new Resolver(event.sender, requestId, protocolId, options);
+    this.resolvers[requestId] = new Resolver(
+      this.dataDir,
+      event.sender,
+      requestId,
+      protocolId,
+      options,
+    );
   }
 
   onResponse(event, { requestId, type, payload }) {
