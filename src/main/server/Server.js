@@ -4,7 +4,7 @@ const logger = require('electron-log');
 
 const { DeviceService, deviceServiceEvents } = require('./devices/DeviceService');
 const { AdminService } = require('./AdminService');
-const { ResolverService } = require('./ResolverService');
+const { ResolverService } = require('./Resolver/Service');
 const { mdns, mdnsIsSupported } = require('./mdnsProvider');
 
 class Server extends EventEmitter {

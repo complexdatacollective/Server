@@ -4,7 +4,7 @@ const miss = require('mississippi');
 const split = require('split'); // use each?
 
 // example_command.js reverses stdin
-const testCommand = ['node', './src/main/utils/__tests__/example_command.js'];
+const testCommand = ['node', './src/main/server/Resolver/__tests__/example_command.js'];
 
 describe('commandRunner', () => {
   it('can initialize', () => commandRunner(testCommand));
