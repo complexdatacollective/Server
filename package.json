@@ -57,6 +57,7 @@
         "cross-env": "^5.2.0",
         "css-loader": "^1.0.0",
         "dotenv": "^6.0.0",
+        "duplex-child-process": "^1.0.1",
         "electron": "^9.2.0",
         "electron-builder": "^22.8.0",
         "electron-devtools-installer": "^2.2.4",
