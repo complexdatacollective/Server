@@ -47,7 +47,7 @@
         "@babel/plugin-transform-runtime": "^7.11.0",
         "@babel/preset-env": "^7.11.0",
         "@babel/preset-react": "^7.10.4",
-        "@codaco/ui": "^3.4.1",
+        "@codaco/ui": "^3.5.1",
         "autoprefixer": "^9.8.6",
         "babel-eslint": "^9.0.0",
         "babel-jest": "^25.5.1",
@@ -57,7 +57,6 @@
         "cross-env": "^5.2.0",
         "css-loader": "^1.0.0",
         "dotenv": "^6.0.0",
-        "duplex-child-process": "^1.0.1",
         "electron": "^9.2.0",
         "electron-builder": "^22.8.0",
         "electron-devtools-installer": "^2.2.4",
@@ -70,6 +69,7 @@
         "eslint": "^4.1.1",
         "eslint-config-airbnb": "^15.0.1",
         "eslint-config-react-app": "^2.1.0",
+        "eslint-import-resolver-alias": "^1.1.2",
         "eslint-loader": "^2.2.1",
         "eslint-plugin-import": "^2.22.0",
         "eslint-plugin-jsx-a11y": "5.1.1",
@@ -77,6 +77,7 @@
         "faker": "^4.1.0",
         "file-loader": "^1.1.11",
         "fs-extra": "^6.0.1",
+        "framer-motion": "^2.6.0",
         "html-webpack-plugin": "^4.3.0",
         "icon-gen": "^1.2.1",
         "istanbul-lib-coverage": "^1.2.0",
@@ -89,10 +90,13 @@
         "postcss-loader": "^2.1.6",
         "react-dev-utils": "^6.1.1",
         "react-draggable": "^4.4.3",
+        "react-redux": "^7.2.1",
         "react-virtualized": "^9.22.2",
+        "redux-actions": "^2.6.5",
         "redux-logger": "^3.0.6",
         "redux-persist": "^6.0.0",
         "regenerator-runtime": "^0.13.7",
+        "rosie": "^2.0.1",
         "sass-lint": "^1.12.1",
         "sass-loader": "^7.0.3",
         "sass-svg": "^1.0.1",
@@ -111,10 +115,13 @@
         "big-integer": "^1.6.43",
         "classnames": "^2.2.6",
         "detect-port": "^1.2.3",
+        "duplex-child-process": "^1.0.1",
         "jszip": "^3.5.0",
         "libsodium-wrappers": "^0.7.8",
         "lodash": "^4.17.20",
+        "luxon": "^1.22.0",
         "mdns": "^2.5.1",
+        "mississippi": "^4.0.0",
         "nedb": "^1.8.0",
         "prop-types": "^15.6.2",
         "react": "^16.13.1",
@@ -133,6 +140,7 @@
         "restify": "^7.2.1",
         "restify-cors-middleware": "^1.1.1",
         "selfsigned": "^1.10.7",
+        "split": "^1.0.1",
         "thread-loader": "^1.1.5",
         "uuid": "^3.3.2",
         "xmldom": "^0.1.27"
@@ -208,11 +216,18 @@
             "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
             "^(?!.*\\.(js|jsx|css|json)$)": "<rootDir>/config/jest/fileTransform.js"
         },
+        "testRegex": "(/__tests__/.*|(\\.|/))(\\.test|-test)\\.[jt]sx?$",
         "transformIgnorePatterns": [
             "/node_modules/(?!@codaco/ui).+\\.js$"
         ],
         "moduleNameMapper": {
-            "^react-native$": "react-native-web"
+            "^react-native$": "react-native-web",
+            "%components/(.*)$": "<rootDir>/src/renderer/components/$1",
+            "%containers/(.*)$": "<rootDir>/src/renderer/containers/$1",
+            "%utils/(.*)$": "<rootDir>/src/renderer/utils/$1",
+            "%modules/(.*)$": "<rootDir>/src/renderer/ducks/modules/$1",
+            "%main/(.*)$": "<rootDir>/src/main/$1",
+            "%renderer/(.*)$": "<rootDir>/src/renderer/$1"
         }
     },
     "eslintConfig": {
