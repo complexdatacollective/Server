@@ -5,6 +5,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { ipcRenderer, shell, remote } from 'electron';
 import { withRouter } from 'react-router-dom';
+import { Spinner, Modal } from '@codaco/ui';
 import DialogManager from '../components/DialogManager';
 import AppRoutes from './AppRoutes';
 import ProtocolNav from './ProtocolNav';
@@ -29,6 +30,8 @@ const IPC = {
   PAIRING_COMPLETE: 'PAIRING_COMPLETE',
   PROTOCOL_IMPORT_SUCCEEDED: 'PROTOCOL_IMPORT_SUCCEEDED',
   SESSIONS_IMPORTED: 'SESSIONS_IMPORTED',
+  SESSIONS_IMPORT_STARTED: 'SESSIONS_IMPORT_STARTED',
+  SESSIONS_IMPORT_COMPLETE: 'SESSIONS_IMPORT_COMPLETE',
   RESET_APP: 'RESET_APP',
 };
 
@@ -66,6 +69,7 @@ class App extends Component {
     this.state = {
       apiReady: false,
       insecure: remote.app.commandLine.hasSwitch('unsafe-pairing-code'),
+      importingSession: false,
     };
 
     preventGlobalDragDrop();
@@ -102,7 +106,16 @@ class App extends Component {
       props.showConfirmationMessage(`${messages.protocolImportSuccess}${appendData}`);
     });
 
+    ipcRenderer.on(IPC.SESSIONS_IMPORT_STARTED, () => {
+      this.setState({ importingSession: true });
+    });
+
+    ipcRenderer.on(IPC.SESSIONS_IMPORT_COMPLETE, () => {
+      this.setState({ importingSession: false });
+    });
+
     ipcRenderer.on(IPC.SESSIONS_IMPORTED, (_, data) => {
+      this.setState({ importingSession: false });
       const appendData = data ? `: ${data}` : '';
       props.showConfirmationMessage(`${messages.sessionImportSuccess}${appendData}`);
     });
@@ -133,6 +146,7 @@ class App extends Component {
     const {
       apiReady,
       insecure,
+      importingSession,
     } = this.state;
 
     const appClass = isFrameless() ? 'app app--frameless' : 'app';
@@ -142,6 +156,11 @@ class App extends Component {
 
     return (
       <div className={appClass}>
+        {
+          <Modal className="modal--import" title="Importing..." show={importingSession}>
+            <Spinner small />
+          </Modal>
+        }
         <div className="app__flash">
           { appMessages.map(msg => (
             <AppMessage key={msg.timestamp} {...msg} handleDismissal={handleDismissal} />

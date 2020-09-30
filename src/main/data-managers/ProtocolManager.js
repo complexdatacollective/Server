@@ -10,6 +10,7 @@ const { ErrorMessages, RequestError } = require('../errors/RequestError');
 const { readFile, rename, tryUnlink } = require('../utils/promised-fs');
 const { hexDigest } = require('../utils/sha256');
 const dom = require('xmldom');
+const { sendToGui } = require('../guiProxy');
 
 const validProtocolFileExts = ['netcanvas'];
 const validSessionFileExts = ['graphml'];
@@ -19,6 +20,11 @@ const ProtocolDataFile = 'protocol.json';
 
 const hasValidProtocolExtension = filepath => validProtocolFileExts.includes(path.extname(filepath).replace(/^\./, ''));
 const hasValidSessionExtension = filepath => validSessionFileExts.includes(path.extname(filepath).replace(/^\./, ''));
+
+const emittedEvents = {
+  SESSIONS_IMPORT_STARTED: 'SESSIONS_IMPORT_STARTED',
+  SESSIONS_IMPORT_COMPLETE: 'SESSIONS_IMPORT_COMPLETE',
+};
 
 /**
  * Interface to protocol data (higher-level than DB)
@@ -382,6 +388,9 @@ class ProtocolManager {
       if (!hasValidSessionExtension(userFilepath)) {
         return Promise.reject(new RequestError(`${fileBasename} - ${ErrorMessages.InvalidSessionFileExtension}`));
       }
+
+      sendToGui(emittedEvents.SESSIONS_IMPORT_STARTED);
+
       return (this.fileContents(userFilepath, ''))
         .then(bufferContents => this.validateGraphML(bufferContents))
         .then(xmlDoc => this.processGraphML(xmlDoc))
@@ -427,6 +436,7 @@ class ProtocolManager {
           .map(filteredPath => filteredPath.reason.message)
           .join('; ');
 
+        sendToGui(emittedEvents.SESSIONS_IMPORT_COMPLETE);
         // FatalError if no sessions survived the cull
         if (validImportedSessionFiles.length === 0) {
           throw new RequestError(invalidImportedFileErrors);

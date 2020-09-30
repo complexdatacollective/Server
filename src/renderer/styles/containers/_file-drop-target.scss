@@ -1,6 +1,4 @@
 .file-drop-target {
-  height: 100%;
-
   @include modifier(active) {
     background-color: var(--color-slate-blue--dark);
 
@@ -12,4 +10,6 @@
       background-color: var(--color-platinum--dark);
     }
   }
+
+  height: 100%;
 }
