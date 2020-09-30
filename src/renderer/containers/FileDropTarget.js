@@ -103,6 +103,7 @@ class FileDropTarget extends Component {
 FileDropTarget.defaultProps = {
   children: null,
   loadProtocols: () => {},
+  openDialog: () => {},
   postURI: '/protocols',
   confirmationMessage: messages.protocolImportSuccess,
 };
@@ -112,7 +113,7 @@ FileDropTarget.propTypes = {
   postURI: PropTypes.string,
   confirmationMessage: PropTypes.string,
   loadProtocols: PropTypes.func,
-  openDialog: PropTypes.func.isRequired,
+  openDialog: PropTypes.func,
 };
 
 const mapDispatchToProps = dispatch => ({
