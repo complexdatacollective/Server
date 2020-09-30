@@ -281,7 +281,7 @@ class AdminService {
 
       this.protocolManager.getProtocol(req.params.protocolId)
         .then((protocol) => {
-          const exportRequest = this.exportManager.createExportFile(protocol, req.body);
+          const exportRequest = this.exportManager.exportSessions(protocol, req.body);
           abortRequest = exportRequest.abort;
           return exportRequest;
         })
