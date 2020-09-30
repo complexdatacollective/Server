@@ -1,9 +1,9 @@
 [submodule "src/main/utils/shared-api"]
 	path = src/main/utils/shared-api
-	url = https://github.com/codaco/secure-comms-api.git
+	url = https://github.com/complexdatacollective/secure-comms-api.git
 [submodule "src/main/utils/network-query"]
 	path = src/main/utils/network-query
-	url = https://github.com/codaco/networkQuery.git
+	url = https://github.com/complexdatacollective/networkQuery.git
 [submodule "src/main/utils/network-exporters"]
 	path = src/main/utils/network-exporters
-	url = https://github.com/codaco/network-exporters
+	url = https://github.com/complexdatacollective/network-exporters
