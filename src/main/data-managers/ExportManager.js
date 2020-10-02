@@ -49,13 +49,6 @@ class ExportManager {
     const exportPromise = this.sessionDB.findAll(protocol._id, null, null)
       .then();
 
-    // exportPromise.abort = () => {
-    //   if (promisedExports) {
-    //     promisedExports.forEach(promise => promise.abort());
-    //   }
-    //   cleanUp();
-    // };
-
     return exportPromise;
   }
 }

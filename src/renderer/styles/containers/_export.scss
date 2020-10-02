@@ -7,20 +7,21 @@
     padding: spacing(large) 0;
   }
 
-  @include element(csv-types) {
-    .form-field-container {
-      margin-bottom: 0;
-    }
+  @include element(row) {
+    padding: 1rem 0 0;
   }
 
   @include element(subpanel) {
     transform-origin: top;
-    padding: 0 1.5rem;
+    // padding: 0 1.5rem;
+    padding: 1rem 0 0 4rem;
   }
 
   @include element(subpanel-content) {
     padding: 1rem 0;
   }
+
+  // style={{ paddingLeft: '4rem' }}
 
   margin-bottom: 6rem; // height of footer
 

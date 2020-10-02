@@ -5,60 +5,121 @@ import { bindActionCreators } from 'redux';
 import { Redirect, withRouter } from 'react-router-dom';
 import { remote } from 'electron';
 import { compose } from 'recompose';
+import { set } from 'lodash';
 import { Button, Spinner } from '@codaco/ui';
-import DrawerTransition from '@codaco/ui/lib/components/Transitions/Drawer';
-import Checkbox from '@codaco/ui/lib/components/Fields/Checkbox';
-import Radio from '@codaco/ui/lib/components/Fields/Radio';
-import Toggle from '@codaco/ui/lib/components/Fields/Toggle';
-import Types from '../types';
-import ExportModal from '../components/ExportModal';
-import withApiClient from '../components/withApiClient';
-import { selectors } from '../ducks/modules/protocols';
-import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
+// import DrawerTransition from '@codaco/ui/lib/components/Transitions/Drawer';
+// import Checkbox from '@codaco/ui/lib/components/Fields/Checkbox';
+// import Radio from '@codaco/ui/lib/components/Fields/Radio';
+// import Toggle from '@codaco/ui/lib/components/Fields/Toggle';
+import CheckboxGroup from '@codaco/ui/lib/components/Fields/CheckboxGroup';
+import Types from '../../types';
+import ExportModal from '../../components/ExportModal';
+import withApiClient from '../../components/withApiClient';
+import { selectors } from '../../ducks/modules/protocols';
+import { actionCreators as messageActionCreators } from '../../ducks/modules/appMessages';
+import useExportOptions from './useExportOptions';
+
+const exportFormats = [
+  {
+    label: 'GraphML',
+    value: 'GRAPHML',
+  },
+  {
+    label: 'CSV',
+    value: 'CSV',
+  },
+];
 
 const availableCsvTypes = {
   adjacencyMatrix: 'Adjacency Matrix',
   attributeList: 'Attribute List',
   edgeList: 'Edge List',
+  egoAttributeList: 'Ego Attribute List',
 };
+
+// const defaultCSVOptions = {
+//   adjacencyMatrix: false,
+//   attributeList: true,
+//   edgeList: true,
+//   egoAttributeList: true,
+// };
+
+// const defaultExportOptions = {
+//   exportGraphML: true,
+//   exportCSV: defaultCSVOptions,
+//   globalOptions: {
+//     unifyNetworks: false,
+//     useDirectedEdges: false, // TODO
+//     useScreenLayoutCoordinates: true,
+//     screenLayoutHeight: 1080,
+//     screenLayoutWidth: 1920,
+//   },
+// };
+
+// // Merge default and user-supplied options
+// this.exportOptions = {
+//   ...defaultExportOptions,
+//   ...exportOptions,
+//   ...(exportOptions.exportCSV === true ? { exportCSV: defaultCSVOptions } : {}),
+// };
 
 class ExportScreen extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
-      exportFormat: 'csv',
-      exportNetworkUnion: false,
-      csvTypes: new Set([...Object.keys(availableCsvTypes), 'ego']),
-      useDirectedEdges: true,
-      useEgoData: true,
+      // exportFormat: 'csv',
+      // exportNetworkUnion: false,
+      // csvTypes: new Set([...Object.keys(availableCsvTypes), 'ego']),
+      // useDirectedEdges: true,
+      // useEgoData: true,
+      exportOptions: {
+        exportFormats: ['GRAPHML'],
+      },
+      // exportGraphML: true,
+      // exportCSV: false,
+      // globalOptions: {
+      //   unifyNetworks: false,
+      //   useDirectedEdges: false, // TODO
+      //   useScreenLayoutCoordinates: true,
+      //   screenLayoutHeight: 1080,
+      //   screenLayoutWidth: 1920,
+      // },
     };
   }
 
-  handleFormatChange = (evt) => {
-    const exportFormat = evt.target.value;
-    this.setState({ exportFormat });
-  }
+  // handleFormatChange = (evt) => {
+  //   const exportFormat = evt.target.value;
+  //   this.setState({ exportFormat });
+  // }
 
-  handleCsvTypeChange = (evt) => {
-    const csvTypes = new Set(this.state.csvTypes);
-    if (evt.target.checked) {
-      csvTypes.add(evt.target.value);
-    } else {
-      csvTypes.delete(evt.target.value);
-    }
-    this.setState({ csvTypes });
-  }
+  // handleCsvTypeChange = (evt) => {
+  //   const csvTypes = new Set(this.state.csvTypes);
+  //   if (evt.target.checked) {
+  //     csvTypes.add(evt.target.value);
+  //   } else {
+  //     csvTypes.delete(evt.target.value);
+  //   }
+  //   this.setState({ csvTypes });
+  // }
 
-  handleUnionChange = (evt) => {
-    this.setState({ exportNetworkUnion: evt.target.value === 'true' });
-  }
+  // handleUnionChange = (evt) => {
+  //   this.setState({ exportNetworkUnion: evt.target.value === 'true' });
+  // }
 
-  handleDirectedEdgesChange = (evt) => {
-    this.setState({ useDirectedEdges: evt.target.checked });
-  }
+  // handleDirectedEdgesChange = (evt) => {
+  //   this.setState({ useDirectedEdges: evt.target.checked });
+  // }
 
-  handleEgoDataChange = (evt) => {
-    this.setState({ useEgoData: evt.target.checked });
+  // handleEgoDataChange = (evt) => {
+  //   this.setState({ useEgoData: evt.target.checked });
+  // }
+
+  handleUpdateExportOptions = (option, value) => {
+    this.setState((s) => {
+      console.log(set(s, `exportOptions.${option}`, value));
+      set(s, `exportOptions.${option}`, value);
+    });
   }
 
   handleExport = () => {
@@ -118,14 +179,10 @@ class ExportScreen extends Component {
     const exportCsvTypes = useEgoData ? csvTypes : csvTypesNoEgo;
     const showCsvOpts = exportFormat === 'csv';
 
+    const options = {};
+
     apiClient
-      .post(`/protocols/${protocolId}/export_requests`, {
-        exportFormats: (exportFormat === 'csv' && [...exportCsvTypes]) || [exportFormat],
-        exportNetworkUnion,
-        destinationFilepath,
-        useDirectedEdges,
-        useEgoData: useEgoData && showCsvOpts,
-      })
+      .post(`/protocols/${protocolId}/export_requests`, options)
       .then(() => showConfirmation('Export complete'))
       .catch(err => showError(err.message))
       .then(() => this.setState({ exportInProgress: false }));
@@ -156,6 +213,31 @@ class ExportScreen extends Component {
         }
         <h1>Export Data</h1>
         <div className="export__section">
+          <h3>File Type</h3>
+          <p>
+            Choose an export format. If multiple files are produced, they’ll be archived in a ZIP
+            for download.
+          </p>
+          <div>
+            <CheckboxGroup
+              label="GraphML"
+              input={{
+                name: 'export_format',
+                value: this.state.exportOptions.exportFormats,
+                onChange: value => this.handleUpdateExportOptions('exportFormats', value),
+              }}
+              options={exportFormats}
+
+              // input={{
+              //   name: 'export_format',
+              //   checked: this.state.exportFormat === 'graphml',
+              //   value: 'graphml',
+              //   onChange: this.handleFormatChange,
+              // }}
+            />
+          </div>
+        </div>
+        {/* <div className="export__section">
           <h3>File Type</h3>
           <p>
             Choose an export format. If multiple files are produced, they’ll be archived in a ZIP
@@ -272,7 +354,7 @@ class ExportScreen extends Component {
               }}
             />
           </div>
-        </div>
+        </div> */}
         <div className="export__footer">
           <Button color="platinum" onClick={() => history.goBack()}>Cancel</Button>&nbsp;
           <Button type="submit" disabled={exportInProgress}>Export</Button>
