@@ -12,7 +12,7 @@ import Number from '@codaco/ui/lib/components/Fields/Number';
 import Types from '../../types';
 import ExportModal from '../../components/ExportModal';
 import { selectors } from '../../ducks/modules/protocols';
-// import useAdminClient from '../../hooks/useAdminClient';
+import useAdminClient from '../../hooks/useAdminClient';
 import useExportOptions, { exportFormats } from './useExportOptions';
 
 const CSVOptions = [
@@ -36,7 +36,7 @@ const ExportScreen = ({
 
   const [exportOptions, exportOptionsFormState, handleUpdateFormState] = useExportOptions();
 
-  // const { exportToFile, saveResolutions } = useAdminClient();
+  const { exportToFile, saveResolutions } = useAdminClient();
 
   const promptAndExport = () => {
     const defaultName = protocol.name || 'network-canvas-data';
@@ -49,6 +49,8 @@ const ExportScreen = ({
       }],
     };
 
+    console.log({ exportOptions });
+
     return remote.dialog.showSaveDialog(exportDialog)
       .then(({ canceled, filePath }) => {
         if (canceled || !filePath) { return; }
@@ -60,20 +62,12 @@ const ExportScreen = ({
   };
 
   const handleSubmit = () => {
-    const { createNewResolution, exportFormat, csvTypes } = exportSettings;
+    // const formatsAreValid = exportFormat === 'graphml' || csvTypes.size > 0;
 
-    const formatsAreValid = exportFormat === 'graphml' || csvTypes.size > 0;
-
-    if (!formatsAreValid) {
-      showError('Please select at least one file type to export');
-      return;
-    }
-
-    if (createNewResolution) {
-      setResolverActive(true);
-      resolutionsRef.current.resolveProtocol(protocol, { ...exportSettings, resolverOptions });
-      return;
-    }
+    // if (!formatsAreValid) {
+    //   showError('Please select at least one file type to export');
+    //   return;
+    // }
 
     promptAndExport();
   };

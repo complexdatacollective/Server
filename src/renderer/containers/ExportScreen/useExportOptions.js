@@ -32,12 +32,31 @@ export const exportFormats = [
   { value: 'CSV', label: 'CSV' },
 ];
 
+const baseGlobalOptions = {
+  unifyNetworks: false,
+  useDirectedEdges: false,
+  useScreenLayoutCoordinates: false,
+  screenLayoutHeight: null,
+  screenLayoutWidth: null,
+};
+
+const baseCSVOptions = {
+  adjacencyMatrix: false,
+  attributeList: false,
+  edgeList: false,
+  egoAttributeList: false,
+};
+
 const initialState = {
   exportFormats: ['GRAPHML', 'CSV'],
   unifyNetworks: false,
   useScreenLayoutCoordinates: true,
   screenLayoutHeight: 1080,
   screenLayoutWidth: 1920,
+  adjacencyMatrix: false,
+  attributeList: true,
+  edgeList: true,
+  egoAttributeList: true,
 };
 
 const useExportOptions = () => {
@@ -47,15 +66,20 @@ const useExportOptions = () => {
     setFormState(s => ({ ...set(s, key, value) }));
   };
 
-  const exportCSVOptions = {};
+  const exportCSVOptions = {
+    ...baseCSVOptions,
+    ...pick(formState, Object.keys(baseCSVOptions)),
+  };
+
+  const globalOptions = {
+    ...baseGlobalOptions,
+    ...pick(formState, Object.keys(baseGlobalOptions)),
+  };
 
   const exportOptions = {
     exportGraphML: formState.exportFormats.includes('GRAPHML'),
     exportCSV: !formState.exportFormats.includes('CSV') ? false : exportCSVOptions,
-    globalOptions: pick(
-      formState,
-      ['unifyNetworks', 'useScreenLayoutCoordinates', 'screenLayoutHeight', 'screenLayoutWidth'],
-    ),
+    globalOptions,
   };
 
   return [exportOptions, formState, handleUpdateFormState];
