@@ -51,14 +51,21 @@ const ExportScreen = ({
 
     console.log({ exportOptions });
 
-    return remote.dialog.showSaveDialog(exportDialog)
-      .then(({ canceled, filePath }) => {
-        if (canceled || !filePath) { return; }
-        setState({ exportInProgress: true });
+    return new Promise((resolve, reject) => {
+      setState({ exportInProgress: true });
 
-        return exportToFile(protocol, exportSettings, filePath)
-          .finally(() => setState({ exportInProgress: false }));
-      });
+      return exportToFile(protocol, exportOptions)
+        .finally(() => setState({ exportInProgress: false }));
+    });
+
+    // return remote.dialog.showSaveDialog(exportDialog)
+    //   .then(({ canceled, filePath }) => {
+    //     if (canceled || !filePath) { return; }
+    //     setState({ exportInProgress: true });
+
+    //     return exportToFile(protocol, exportOptions)
+    //       .finally(() => setState({ exportInProgress: false }));
+    //   });
   };
 
   const handleSubmit = () => {

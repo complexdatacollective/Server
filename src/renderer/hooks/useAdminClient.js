@@ -14,7 +14,7 @@ const useAdminClient = () => {
   );
   const showError = bindActionCreators(messageActionCreators.showErrorMessage, dispatch);
 
-  const exportToFile = (protocol, exportSettings, destinationFilepath) => {
+  const exportToFile = (protocol, exportOptions) => {
     if (!client.current) {
       return Promise.reject();
     }
@@ -23,35 +23,13 @@ const useAdminClient = () => {
       id: protocolId,
     } = protocol;
 
-    const {
-      exportFormat,
-      exportNetworkUnion,
-      csvTypes,
-      useDirectedEdges,
-      useEgoData,
-      enableEntityResolution,
-      resolutionId,
-    } = exportSettings;
-
-    const csvTypesNoEgo = new Set(exportSettings.csvTypes);
-    csvTypesNoEgo.delete('ego');
-    const exportCsvTypes = useEgoData ? csvTypes : csvTypesNoEgo;
-    const showCsvOpts = exportFormat === 'csv';
-
-    const postBody = {
-      enableEntityResolution,
-      resolutionId,
-      exportFormats: (exportFormat === 'csv' && [...exportCsvTypes]) || [exportFormat],
-      exportNetworkUnion,
-      destinationFilepath,
-      useDirectedEdges,
-      useEgoData: useEgoData && showCsvOpts,
-    };
-
     return client
       .current
-      .post(`/protocols/${protocolId}/export_requests`, postBody)
-      .then(() => showConfirmation('Export complete'))
+      .post(`/protocols/${protocolId}/export_requests`, exportOptions)
+      .then((result) => {
+        console.log({ result });
+        // showConfirmation('Export complete');
+      })
       .catch(err => showError(err.message));
   };
 

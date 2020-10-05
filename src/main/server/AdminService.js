@@ -281,11 +281,24 @@ class AdminService {
 
       this.protocolManager.getProtocol(req.params.protocolId)
         .then((protocol) => {
-          const exportRequest = this.exportManager.exportSessions(protocol, req.body);
+          const {
+            exportSessions,
+            fileExportManager,
+          } = this.exportManager.exportSessions(protocol, req.body);
+
+          fileExportManager.on('begin', (...args) => logger.log('begin', ...args));
+
+          fileExportManager.on('update', ({ statusText, progress }) => logger.log('update', { statusText, progress }));
+
+          fileExportManager.on('error', (e) => { throw e; });
+
+          fileExportManager.on('finished', ({ statusText, progress }) => logger.log('finished', { statusText, progress }));
+
+          const exportRequest = exportSessions();
           abortRequest = exportRequest.abort;
           return exportRequest;
         })
-        .then(filepath => res.send({ status: 'ok', filepath }))
+        .then(() => res.send({ status: 'ok' }))
         .catch((err) => {
           logger.error(err);
           res.send(codeForError(err), { status: 'error', message: err.message });
