@@ -8,10 +8,8 @@ import { withRouter, Link } from 'react-router-dom';
 import { compose } from 'recompose';
 import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
 import { selectors as protocolSelectors } from '../../ducks/modules/protocols';
-import { messages } from '../../ducks/modules/appMessages';
 import { DismissButton, ScrollingPanelItem } from '../../components';
 import { formatDate } from '../../utils/formatters';
-import FileDropTarget from '../../containers/FileDropTarget';
 
 const emptyContent = (<p>Interviews you import from Network Canvas will appear here.</p>);
 const maxRecentSessions = 5;
@@ -69,33 +67,31 @@ class SessionPanel extends Component {
     const { currentProtocolId, sessions } = this.props;
 
     return (
-      <FileDropTarget postURI="/sessions" confirmationMessage={messages.sessionImportSuccess}>
-        <ScrollingPanelItem header={this.header} className="session-panel">
-          {(sessions && sessions.length === 0) && emptyContent}
-          <ul className="session-panel__list">
-            {sessions && sessions.map((s, index) => {
-              if (index < maxRecentSessions) {
-                return (
-                  <li key={s.id}>
-                    <p>
-                      <DismissButton small inline onClick={() => this.deleteSession(s.id)} />
-                      <span>{formatDate(s.updatedAt)}</span>
-                      <span className="session-panel__id">
-                        {s.data && s.data.sessionVariables &&
-                          (s.data.sessionVariables._caseID || s.data.sessionVariables.caseId)}
-                        {' - '}
-                        {s.id && s.id.substring(0, 13)}
-                      </span>
-                    </p>
-                  </li>
-                );
-              }
-              return '';
-            })}
-          </ul>
-          <Link to={`/workspaces/${currentProtocolId}/casemanagement`} className="session-panel__link">Additional case details</Link>
-        </ScrollingPanelItem>
-      </FileDropTarget>
+      <ScrollingPanelItem header={this.header} className="session-panel">
+        {(sessions && sessions.length === 0) && emptyContent}
+        <ul className="session-panel__list">
+          {sessions && sessions.map((s, index) => {
+            if (index < maxRecentSessions) {
+              return (
+                <li key={s.id}>
+                  <p>
+                    <DismissButton small inline onClick={() => this.deleteSession(s.id)} />
+                    <span>{formatDate(s.updatedAt)}</span>
+                    <span className="session-panel__id">
+                      {s.data && s.data.sessionVariables &&
+                        (s.data.sessionVariables._caseID || s.data.sessionVariables.caseId)}
+                      {' - '}
+                      {s.id && s.id.substring(0, 13)}
+                    </span>
+                  </p>
+                </li>
+              );
+            }
+            return '';
+          })}
+        </ul>
+        <Link to={`/workspaces/${currentProtocolId}/casemanagement`} className="session-panel__link">Additional case details</Link>
+      </ScrollingPanelItem>
     );
   }
 }

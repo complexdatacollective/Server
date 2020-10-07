@@ -11,5 +11,25 @@
     }
   }
 
+  display: inherit;
   height: 100%;
+  width: 100%;
+
+  &__overlay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    width: 100%;
+    z-index: var(--z-global-ui);
+    background-color: var(--background);
+    height: 100%;
+
+    svg {
+      opacity: 1;
+      color: var(--color-sea-green--dark);
+      transform: rotate(180deg);
+    }    
+  }
+
 }

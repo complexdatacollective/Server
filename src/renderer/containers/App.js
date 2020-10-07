@@ -13,6 +13,7 @@ import AdminApiClient from '../utils/adminApiClient';
 import { appVersion, codename } from '../utils/appVersion';
 import NCLogo from '../images/NC-Mark.svg';
 import { AppMessage } from '../components';
+import FileDropTarget from '../containers/FileDropTarget';
 import { AnimatedPairPrompt } from '../components/pairing/PairPrompt';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
 import { actionCreators as connectionInfoActionCreators } from '../ducks/modules/connectionInfo';
@@ -179,20 +180,22 @@ class App extends Component {
             apiReady && (
               <React.Fragment>
                 <ProtocolNav className="app__sidebar" />
-                <div className="app__screen">
-                  { insecure &&
-                    <div className="unsafe-pairing-warning">
-                      <h3>Warning: Unsafe Pairing Enabled!</h3>
-                      <p>
-                        You have started Server with the <code>unsafe-pairing-code</code>
-                        option set. This option severely undermines the security of Server,
-                        and should <strong>not be used when conducting a study under any
-                          circumstances</strong>.
-                      </p>
-                    </div>
-                  }
-                  <AppRoutes />
-                </div>
+                <FileDropTarget isOverlay postURI="/sessions" confirmationMessage={messages.sessionImportSuccess}>
+                  <div className="app__screen">
+                    { insecure &&
+                      <div className="unsafe-pairing-warning">
+                        <h3>Warning: Unsafe Pairing Enabled!</h3>
+                        <p>
+                          You have started Server with the <code>unsafe-pairing-code</code>
+                          option set. This option severely undermines the security of Server,
+                          and should <strong>not be used when conducting a study under any
+                            circumstances</strong>.
+                        </p>
+                      </div>
+                    }
+                    <AppRoutes />
+                  </div>
+                </FileDropTarget>
               </React.Fragment>
             )
           }

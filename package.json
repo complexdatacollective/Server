@@ -75,6 +75,7 @@
         "eslint-plugin-react": "^7.20.3",
         "faker": "^4.1.0",
         "file-loader": "^1.1.11",
+        "framer-motion": "^2.7.7",
         "fs-extra": "^6.0.1",
         "html-webpack-plugin": "^4.3.0",
         "icon-gen": "^1.2.1",
