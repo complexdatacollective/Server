@@ -1,10 +1,14 @@
 .export {
-  @include element(section) {
+  @include element(options) {
     align-items: stretch;
     border-top: 1px solid var(--base-border-color);
     display: flex;
     flex-direction: column;
     padding: spacing(large) 0;
+  }
+
+  @include element(section) {
+    margin: 0 0 spacing(medium);
   }
 
   @include element(row) {
@@ -19,6 +23,11 @@
 
   @include element(subpanel-content) {
     padding: 1rem 0;
+  }
+
+  .form-field:last-child,
+  .form-field-container:last-child {
+    margin-bottom: 0;
   }
 
   // style={{ paddingLeft: '4rem' }}

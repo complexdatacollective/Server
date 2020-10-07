@@ -111,6 +111,7 @@
         "big-integer": "^1.6.43",
         "classnames": "^2.2.6",
         "detect-port": "^1.2.3",
+        "framer-motion": "^2.7.7",
         "jssha": "^3.1.0",
         "jszip": "^3.4.0",
         "libsodium-wrappers": "^0.7.8",
