@@ -13,6 +13,7 @@ import Number from '@codaco/ui/lib/components/Fields/Number';
 import Types from '../../types';
 import ExportModal from '../../components/ExportModal';
 import { selectors } from '../../ducks/modules/protocols';
+import { actionCreators as messageActionCreators } from '../../ducks/modules/appMessages';
 import useAdminClient from '../../hooks/useAdminClient';
 import useExportOptions, { exportFormats } from './useExportOptions';
 
@@ -35,7 +36,6 @@ const ExportScreen = ({
   history,
   showError,
 }) => {
-
   const [state, setState] = useState({
     exportInProgress: false,
     resolutionsKey: null,
@@ -68,13 +68,12 @@ const ExportScreen = ({
   };
 
   const handleSubmit = () => {
-    // TODO form validation
-    // const formatsAreValid = exportFormat === 'graphml' || csvTypes.size > 0;
+    const exportCSV = exportOptions.exportCSV;
 
-    // if (!formatsAreValid) {
-    //   showError('Please select at least one file type to export');
-    //   return;
-    // }
+    if (Object.values(exportCSV).every(toggled => !toggled)) {
+      showError('Please select at least one file type to export for CSV');
+      return;
+    }
 
     promptAndExport();
   };
@@ -237,11 +236,15 @@ const mapStateToProps = (state, ownProps) => ({
   protocol: selectors.currentProtocol(state, ownProps),
 });
 
+const mapDispatchToProps = {
+  showError: messageActionCreators.showErrorMessage,
+};
+
 export {
   ExportScreen,
 };
 
 export default compose(
   withRouter,
-  connect(mapStateToProps),
+  connect(mapStateToProps, mapDispatchToProps),
 )(ExportScreen);
