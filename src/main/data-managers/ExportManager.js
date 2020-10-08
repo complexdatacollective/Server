@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
 const path = require('path');
-const logger = require('electron-log');
 const { get } = require('lodash');
 const FileExportManager = require('../utils/network-exporters');
 
@@ -47,14 +46,12 @@ class ExportManager {
       return Promise.reject(new RequestError(ErrorMessages.NotFound));
     }
 
-    logger.log('START export');
-
     const exporter = this.sessionDB.findAll(protocol._id, null, null)
       .then(sessions =>
         sessions.map(session => ({ ...session.data })),
       )
       .then((sessions) => {
-        const protocolUID = get(sessions, [0, 'remoteProtocolId']);
+        const protocolUID = get(sessions, '[0].sessionVariables.protocolUID');
         const protocols = { [protocolUID]: protocol };
         const fileExportManager = new FileExportManager(options);
 

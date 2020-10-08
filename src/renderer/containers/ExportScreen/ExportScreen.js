@@ -1,9 +1,9 @@
 /* eslint-disable */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Redirect, withRouter } from 'react-router-dom';
-import { remote } from 'electron';
+import { remote, ipcRenderer } from 'electron';
 import { compose } from 'recompose';
 import { AnimatePresence, AnimateSharedLayout, motion } from 'framer-motion';
 import { Button, Spinner } from '@codaco/ui';
@@ -38,7 +38,6 @@ const ExportScreen = ({
 }) => {
   const [state, setState] = useState({
     exportInProgress: false,
-    resolutionsKey: null,
   });
 
   const [exportOptions, exportOptionsFormState, handleUpdateFormState] = useExportOptions();
@@ -46,25 +45,11 @@ const ExportScreen = ({
   const { exportToFile, saveResolutions } = useAdminClient();
 
   const promptAndExport = () => {
-    const defaultName = protocol.name || 'network-canvas-data';
-    const exportDialog = {
-      title: 'Export ',
-      filters: [{
-        name: `${defaultName}-export`,
-        // TODO: support exporting a single graphml file
-        extensions: ['zip'],
-      }],
-    };
+    setState({ exportInProgress: true });
 
-    console.log({ exportOptions });
-
-    return new Promise((resolve, reject) => {
-      setState({ exportInProgress: true });
-
-      return exportToFile(protocol, exportOptions)
-        .catch((e) => { showError(e); })
-        .finally(() => setState({ exportInProgress: false }));
-    });
+    return exportToFile(protocol, exportOptions)
+      .catch((e) => { showError(e); })
+      .finally(() => setState({ exportInProgress: false }));
   };
 
   const handleSubmit = () => {
@@ -78,20 +63,12 @@ const ExportScreen = ({
     promptAndExport();
   };
 
-  const handleCancelExport = () => {
-    // setState({ exportInProgress: false });
+  const handleCompleteExport = () => {
+    setState({ exportInProgress: false });
     // TODO: cancel underlying requests with an AbortController (requires Electron 3+)
     // Temporary workaround:
-    remote.getCurrentWindow().reload();
+    // remote.getCurrentWindow().reload();
   };
-
-  const handleCompletedResolutions = updatedSettings =>
-    new Promise((resolve) => {
-      updateSettings(updatedSettings);
-      promptAndExport()
-        .then(() => setResolverActive(false));
-      resolve();
-    });
 
   if (protocolsHaveLoaded && !protocol) { // This protocol doesn't exist
     return <Redirect to="/" />;
@@ -101,16 +78,40 @@ const ExportScreen = ({
     return <div className="settings--loading"><Spinner /></div>;
   }
 
-  const { exportInProgress } = state;
+  // useEffect(() => {
+  //   ipcRenderer.on('EXPORT/BEGIN', () => {
+  //     setState({ exportInProgress: true });
+  //   });
 
-  console.log({ exportOptions });
+  //   ipcRenderer.on('EXPORT/UPDATE', ({ statusText, progress }) => {
+  //     setState({ exportInProgress: true, statusText, progress });
+  //   });
+
+  //   ipcRenderer.on('EXPORT/FINISHED', () => {
+  //     setState({ exportInProgress: false });
+  //   });
+
+  //   ipcRenderer.on('EXPORT/ERROR', () => {
+  //     setState({ exportInProgress: false });
+  //   });
+
+  //   return () => {
+  //     ipcRenderer.removeAllListeners('EXPORT/BEGIN');
+  //     ipcRenderer.removeAllListeners('EXPORT/UPDATE');
+  //     ipcRenderer.removeAllListeners('EXPORT/FINISHED');
+  //     ipcRenderer.removeAllListeners('EXPORT/ERROR');
+  //   };
+  // }, []);
+
+  const { exportInProgress } = state;
 
   return (
     <React.Fragment>
       <ExportModal
         className="modal--export"
         show={exportInProgress}
-        handleCancel={handleCancelExport}
+        onCancel={handleCompleteExport}
+        onComplete={handleCompleteExport}
       />
       <form className="export" onSubmit={handleSubmit}>
         <h1>Export Session Data</h1>

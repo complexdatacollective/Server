@@ -12,6 +12,7 @@ const useAdminClient = () => {
     messageActionCreators.showConfirmationMessage,
     dispatch,
   );
+
   const showError = bindActionCreators(messageActionCreators.showErrorMessage, dispatch);
 
   const exportToFile = (protocol, exportOptions) => {
@@ -26,11 +27,11 @@ const useAdminClient = () => {
     return client
       .current
       .post(`/protocols/${protocolId}/export_requests`, exportOptions)
+      .catch(err => showError(err.message))
       .then((result) => {
         console.log({ result });
         // showConfirmation('Export complete');
-      })
-      .catch(err => showError(err.message));
+      });
   };
 
   return {

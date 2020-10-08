@@ -1,5 +1,7 @@
 const restify = require('restify');
 const logger = require('electron-log');
+const uuid = require('uuid');
+const { BrowserWindow } = require('electron');
 const corsMiddleware = require('restify-cors-middleware');
 const detectPort = require('detect-port');
 const { toNumber } = require('lodash');
@@ -66,6 +68,7 @@ class AdminService {
     this.exportManager = new ExportManager(dataDir);
     this.pairingRequestService = new PairingRequestService();
     this.reportDb = this.protocolManager.reportDb;
+    this.exportRequestState = [];
   }
 
   /**
@@ -280,25 +283,64 @@ class AdminService {
       res.setTimeout(0);
 
       this.protocolManager.getProtocol(req.params.protocolId)
-        .then((protocol) => {
-          const {
-            exportSessions,
-            fileExportManager,
-          } = this.exportManager.exportSessions(protocol, req.body);
+        .then(protocol =>
+          this.exportManager.exportSessions(protocol, req.body),
+        )
+        .then(({
+          exportSessions,
+          fileExportManager,
+        }) => {
+          const sender = BrowserWindow.getFocusedWindow();
+          const id = uuid();
 
-          fileExportManager.on('begin', (...args) => logger.log('begin', ...args));
+          fileExportManager.on('begin', (data) => {
+            logger.log('begin', { data });
+            sender.webContents.send('EXPORT/BEGIN', { ...data, id });
+          });
 
-          fileExportManager.on('update', ({ statusText, progress }) => logger.log('update', { statusText, progress }));
+          fileExportManager.on('update', (data) => {
+            logger.log('update', data);
+            sender.webContents.send('EXPORT/UPDATE', { ...data, id });
+          });
 
-          fileExportManager.on('error', (e) => { throw e; });
+          fileExportManager.on('error', (err) => {
+            logger.error('update', err);
+            sender.webContents.send('EXPORT/ERROR', { errors: err, id });
+          });
 
-          fileExportManager.on('finished', ({ statusText, progress }) => logger.log('finished', { statusText, progress }));
+          sender.webContents.send('EXPORT/ERROR', { errors: [
+            'there was an error',
+            'there was an error',
+            'there was an error',
+            'there was an error',
+            'there was an error',
+            'there was an error',
+          ], id });
+
+          fileExportManager.on('finished', (data) => {
+            logger.log('finished', data);
+            sender.webContents.send('EXPORT/FINISHED', { ...data, id });
+          });
 
           const exportRequest = exportSessions();
           abortRequest = exportRequest.abort;
+
+          // TODO: abort
+          // ipcMain.on('EXPORT/ABORT', (abortId) => {
+          //   if (abortId !== id) { return; }
+          //   abortRequest();
+          // });
+
           return exportRequest;
         })
-        .then(() => res.send({ status: 'ok' }))
+        .then(() => {
+          return new Promise((resolve) => {
+            setTimeout(() => {
+              res.send({ status: 'ok' });
+              resolve();
+            }, 5000);
+          });
+        })
         .catch((err) => {
           logger.error(err);
           res.send(codeForError(err), { status: 'error', message: err.message });
