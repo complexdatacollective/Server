@@ -1,7 +1,7 @@
 const restify = require('restify');
 const logger = require('electron-log');
 const uuid = require('uuid');
-const { BrowserWindow } = require('electron');
+const { BrowserWindow, ipcMain } = require('electron');
 const corsMiddleware = require('restify-cors-middleware');
 const detectPort = require('detect-port');
 const { toNumber } = require('lodash');
@@ -316,11 +316,10 @@ class AdminService {
           const exportRequest = exportSessions();
           abortRequest = exportRequest.abort;
 
-          // TODO: abort
-          // ipcMain.on('EXPORT/ABORT', (abortId) => {
-          //   if (abortId !== id) { return; }
-          //   abortRequest();
-          // });
+          ipcMain.on('EXPORT/ABORT', (event, abortId) => {
+            if (abortId !== id) { return; }
+            abortRequest();
+          });
 
           return exportRequest;
         })

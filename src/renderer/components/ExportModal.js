@@ -32,10 +32,10 @@ const ExportModal = ({
   }, [setState]);
 
   const handleCancelExport = useCallback(() => {
-    // ipcRenderer.send('EXPORT/ABORT', state.id);
+    ipcRenderer.send('EXPORT/ABORT', state.id);
     setState({ ...initialState, show: false });
     onCancel();
-  }, [setState, onCancel]);
+  }, [setState, onCancel, state.id]);
 
   const handleCompleteExport = useCallback(() => {
     setState({ ...initialState, show: false });
