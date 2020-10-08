@@ -308,15 +308,6 @@ class AdminService {
             sender.webContents.send('EXPORT/ERROR', { errors: err, id });
           });
 
-          sender.webContents.send('EXPORT/ERROR', { errors: [
-            'there was an error',
-            'there was an error',
-            'there was an error',
-            'there was an error',
-            'there was an error',
-            'there was an error',
-          ], id });
-
           fileExportManager.on('finished', (data) => {
             logger.log('finished', data);
             sender.webContents.send('EXPORT/FINISHED', { ...data, id });
