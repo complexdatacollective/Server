@@ -313,6 +313,11 @@ class AdminService {
             sender.webContents.send('EXPORT/FINISHED', { ...data, id });
           });
 
+          fileExportManager.on('cancelled', (data) => {
+            logger.log('cancelled', data);
+            sender.webContents.send('EXPORT/CANCELLED', { ...data, id });
+          });
+
           const exportRequest = exportSessions();
           abortRequest = exportRequest.abort;
 
