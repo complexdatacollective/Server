@@ -31,30 +31,43 @@ const ExportModal = ({
     setState(s => ({ ...s, ...data }));
   }, [setState]);
 
-  const handleCancelExport = useCallback(() => {
-    ipcRenderer.send('EXPORT/ABORT', state.id);
-    setState({ ...initialState, show: false });
-    onCancel();
-  }, [setState, onCancel, state.id]);
-
   const handleCompleteExport = useCallback(() => {
     setState({ ...initialState, show: false });
     onComplete();
   }, [setState, onComplete]);
 
-  useEffect(() => {
-    ipcRenderer.on('EXPORT/BEGIN', handleExportStatus);
-    ipcRenderer.on('EXPORT/UPDATE', handleExportStatus);
-    ipcRenderer.on('EXPORT/ERROR', handleExportError);
-    ipcRenderer.on('EXPORT/FINISHED', handleExportStatus);
+  // Cancelled from inside network-exporters
+  const handleExportCancelled = useCallback(() => {
+    setState({ ...initialState, show: false });
+    onComplete();
+  }, [setState, onComplete]);
 
-    return () => {
+  // Cancelled from UI
+  const handleCancelExport = useCallback(() => {
+    ipcRenderer.send('EXPORT/ABORT', state.id);
+    setState({ ...initialState, show: false });
+    onComplete();
+  }, [setState, onComplete, state.id]);
+
+  useEffect(() => {
+    const unmount = () => {
       ipcRenderer.removeListener('EXPORT/BEGIN', handleExportStatus);
       ipcRenderer.removeListener('EXPORT/UPDATE', handleExportStatus);
       ipcRenderer.removeListener('EXPORT/ERROR', handleExportError);
       ipcRenderer.removeListener('EXPORT/FINISHED', handleExportStatus);
+      ipcRenderer.removeListener('EXPORT/CANCELLED', handleExportCancelled);
     };
-  }, []);
+
+    if (!state.show) { unmount(); }
+
+    ipcRenderer.on('EXPORT/BEGIN', handleExportStatus);
+    ipcRenderer.on('EXPORT/UPDATE', handleExportStatus);
+    ipcRenderer.on('EXPORT/ERROR', handleExportError);
+    ipcRenderer.on('EXPORT/FINISHED', handleExportStatus);
+    ipcRenderer.on('EXPORT/CANCELLED', handleExportCancelled);
+
+    return unmount;
+  }, [state.show]);
 
   // open when notified, but close using internal logic
   useEffect(() => {

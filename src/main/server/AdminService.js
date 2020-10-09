@@ -321,7 +321,7 @@ class AdminService {
           const exportRequest = exportSessions();
           abortRequest = exportRequest.abort;
 
-          ipcMain.on('EXPORT/ABORT', (event, abortId) => {
+          ipcMain.on('EXPORT/ABORT', (_, abortId) => {
             if (abortId !== id) { return; }
             abortRequest();
           });
