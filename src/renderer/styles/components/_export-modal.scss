@@ -1,10 +1,5 @@
 .modal {
   @include modifier(export) {
-
-    .modal__window {
-      min-width: 80vw;
-    }
-
     @include element(status) {
       display: flex;
     }
@@ -12,12 +7,14 @@
     @include element(controls) {
       text-align: right;
     }
+
+    .modal__window {
+      min-width: 80vw;
+    }
   }
 }
 
 .export-modal {
-  width: 50vw;
-
   @include element(status) {
     display: flex;
     align-items: center;
@@ -26,7 +23,7 @@
   @include element(status-detail) {
     padding-left: 2rem;
     flex-grow: 1;
-    color: white;
+    color: var(--color-white);
   }
 
   @include element(controls) {
@@ -51,4 +48,6 @@
       }
     }
   }
+
+  width: 50vw;
 }

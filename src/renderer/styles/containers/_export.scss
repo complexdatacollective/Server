@@ -25,14 +25,15 @@
     padding: 1rem 0;
   }
 
-  .form-field:last-child,
-  .form-field-container:last-child {
-    margin-bottom: 0;
+  margin-bottom: 6rem; // height of footer
+
+  .form-field {
+    &:last-child { margin-bottom: 0; }
   }
 
-  // style={{ paddingLeft: '4rem' }}
-
-  margin-bottom: 6rem; // height of footer
+  .form-field-container {
+    &:last-child { margin-bottom: 0; }
+  }
 
   &__footer {
     position: fixed;

@@ -39,15 +39,15 @@ const ExportModal = ({
   // Cancelled from inside network-exporters
   const handleExportCancelled = useCallback(() => {
     setState({ ...initialState, show: false });
-    onComplete();
-  }, [setState, onComplete]);
+    onCancel();
+  }, [setState, onCancel]);
 
   // Cancelled from UI
   const handleCancelExport = useCallback(() => {
     ipcRenderer.send('EXPORT/ABORT', state.id);
     setState({ ...initialState, show: false });
-    onComplete();
-  }, [setState, onComplete, state.id]);
+    onCancel();
+  }, [setState, onCancel, state.id]);
 
   useEffect(() => {
     const unmount = () => {

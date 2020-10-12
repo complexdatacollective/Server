@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import { mount } from 'enzyme';
 import { act } from 'react-dom/test-utils';
 import useAdminClient from '../../../hooks/useAdminClient';
-import ConnectedExportScreen, { ExportScreen, availableCsvTypes } from '../ExportScreen';
+import { ExportScreen } from '../ExportScreen';
 
 jest.mock('react-router-dom');
 jest.mock('electron');

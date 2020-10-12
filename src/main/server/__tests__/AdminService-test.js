@@ -330,7 +330,7 @@ describe('the AdminService', () => {
 
         it('reponds to a POST request', async () => {
           const endpoint = makeUrl('protocols/1/export_requests', apiBase);
-          const res = await jsonClient.post(endpoint, { exportFormats: ['graphml'] });
+          const res = await jsonClient.post(endpoint, {});
           expect(res.json.status).toBe('ok');
         });
       });
