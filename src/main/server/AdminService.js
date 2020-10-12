@@ -329,12 +329,7 @@ class AdminService {
           return exportRequest;
         })
         .then(() => {
-          return new Promise((resolve) => {
-            setTimeout(() => {
-              res.send({ status: 'ok' });
-              resolve();
-            }, 5000);
-          });
+          res.send({ status: 'ok' });
         })
         .catch((err) => {
           logger.error(err);
