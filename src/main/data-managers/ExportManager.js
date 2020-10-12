@@ -6,7 +6,6 @@ const FileExportManager = require('../utils/network-exporters');
 const SessionDB = require('./SessionDB');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
 
-
 /**
  * Interface for all data exports
  */

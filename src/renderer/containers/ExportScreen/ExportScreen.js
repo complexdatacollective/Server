@@ -42,7 +42,7 @@ const ExportScreen = ({
 
   const [exportOptions, exportOptionsFormState, handleUpdateFormState] = useExportOptions();
 
-  const { exportToFile, saveResolutions } = useAdminClient();
+  const { exportToFile } = useAdminClient();
 
   const promptAndExport = () => {
     setState({ exportInProgress: true });
@@ -65,9 +65,6 @@ const ExportScreen = ({
 
   const handleCompleteExport = () => {
     setState({ exportInProgress: false });
-    // TODO: cancel underlying requests with an AbortController (requires Electron 3+)
-    // Temporary workaround:
-    // remote.getCurrentWindow().reload();
   };
 
   if (protocolsHaveLoaded && !protocol) { // This protocol doesn't exist
@@ -77,31 +74,6 @@ const ExportScreen = ({
   if (!protocol) { // This protocol hasn't loaded yet
     return <div className="settings--loading"><Spinner /></div>;
   }
-
-  // useEffect(() => {
-  //   ipcRenderer.on('EXPORT/BEGIN', () => {
-  //     setState({ exportInProgress: true });
-  //   });
-
-  //   ipcRenderer.on('EXPORT/UPDATE', ({ statusText, progress }) => {
-  //     setState({ exportInProgress: true, statusText, progress });
-  //   });
-
-  //   ipcRenderer.on('EXPORT/FINISHED', () => {
-  //     setState({ exportInProgress: false });
-  //   });
-
-  //   ipcRenderer.on('EXPORT/ERROR', () => {
-  //     setState({ exportInProgress: false });
-  //   });
-
-  //   return () => {
-  //     ipcRenderer.removeAllListeners('EXPORT/BEGIN');
-  //     ipcRenderer.removeAllListeners('EXPORT/UPDATE');
-  //     ipcRenderer.removeAllListeners('EXPORT/FINISHED');
-  //     ipcRenderer.removeAllListeners('EXPORT/ERROR');
-  //   };
-  // }, []);
 
   const { exportInProgress } = state;
 
