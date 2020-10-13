@@ -1,7 +1,7 @@
 /* eslint-env jest */
 const EventEmitter = require('events');
 const { InvalidCredentialsError, NotAuthorizedError } = require('restify-errors');
-
+const request = require('supertest');
 const ProtocolManager = require('../../../data-managers/ProtocolManager');
 const { DeviceAPI } = require('../DeviceAPI');
 const { jsonClient, secureClient, makeUrl, httpsCert, httpsPrivateKey } = require('../../../../../config/jest/setupTestEnv');
@@ -104,6 +104,29 @@ describe('the DeviceAPI', () => {
         deviceApi.sslServer = deviceApi.createSecureServer(mockAuthenticator, mockKeys);
       }
       await deviceApi.listen(testHttpPortNumber, testHttpsPortNumber);
+    });
+
+    describe('GET version mismatch', () => {
+      it('it responds with a 400 error when no version is specified', async () => {
+        await request(deviceApi.server)
+          .get('/devices/new')
+          .expect(400, {
+            error: 'Device API version mismatch.',
+            server: '1',
+            device: 'Not specified',
+          });
+      });
+
+      it('it responds with a 400 error when version does not match', async () => {
+        await request(deviceApi.server)
+          .get('/devices/new')
+          .set('X-Device-API-Version', '-999')
+          .expect(400, {
+            error: 'Device API version mismatch.',
+            server: '1',
+            device: '-999',
+          });
+      });
     });
 
     describe('GET /devices/new', () => {

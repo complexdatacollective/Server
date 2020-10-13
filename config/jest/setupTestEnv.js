@@ -97,6 +97,7 @@ const jsonClient = (useHttps) => {
           method: reqMethod,
           headers: {
             'Content-Type': 'application/json',
+            'X-Device-API-Version': 1,
           },
         };
 

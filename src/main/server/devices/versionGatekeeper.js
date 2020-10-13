@@ -1,6 +1,4 @@
-const { version } = require("jszip");
-
-const SERVER_API_VERSION = 1;
+const SERVER_API_VERSION = '1';
 
 const versionGatekeeper = (req, res, next) => {
   const deviceApiVersion = req.header('X-Device-API-Version', 'Not specified');

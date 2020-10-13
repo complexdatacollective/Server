@@ -8,7 +8,7 @@ const { app } = require('electron');
 const { ConflictError, NotAcceptableError } = require('restify-errors');
 const { EventEmitter } = require('events');
 const { sendToGui } = require('../../guiProxy');
-
+const versionGatekeeper = require('./versionGatekeeper');
 const DeviceManager = require('../../data-managers/DeviceManager');
 const ProtocolManager = require('../../data-managers/ProtocolManager');
 const apiRequestLogger = require('../apiRequestLogger');
@@ -198,6 +198,7 @@ const createBaseServer = (opts = {}) => {
   const server = restify.createServer(serverOpts);
   server.pre(restify.plugins.pre.sanitizePath());
   server.pre(restify.plugins.authorizationParser());
+  server.use(versionGatekeeper);
   server.use(restify.plugins.bodyParser());
   server.on('restifyError', handleApiError);
 
