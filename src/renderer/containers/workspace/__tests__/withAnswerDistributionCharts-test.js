@@ -99,7 +99,7 @@ describe('AnswerDistributionPanels', () => {
 
   it('loads data when protocolId changes', () => {
     // shallow to bypass mapStateToProps
-    const wrapped = shallow(<Wrapper store={createStore(() => state)} />).dive();
+    const wrapped = shallow(<Wrapper store={createStore(() => state)} />).dive().dive();
     wrapped.setProps({ protocolId: null });
     mockApiClient.post.mockClear();
     wrapped.setProps({ protocolId: '2' });
@@ -108,7 +108,8 @@ describe('AnswerDistributionPanels', () => {
 
   describe('API handler', () => {
     beforeEach(async () => {
-      wrapper = shallow(<Wrapper store={createStore(() => state)} />).dive();
+      wrapper = shallow(<Wrapper store={createStore(() => state)} />)
+        .dive().dive();
       await wrapper.instance().loadData();
     });
 

@@ -4,7 +4,7 @@ import { mount, shallow } from 'enzyme';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
 import { ipcRenderer } from 'electron';
-
+import { act } from 'react-dom/test-utils';
 import AdminApiClient from '../../utils/adminApiClient';
 import { ConnectedApp, UnconnectedApp as App, IPC } from '../App';
 import { isFrameless } from '../../utils/environment';
@@ -160,7 +160,8 @@ describe('<App />', () => {
   describe('when connected', () => {
     let app;
     beforeEach(() => {
-      app = shallow(<ConnectedApp store={mockStore} {...mockDispatched} />);
+      app = shallow(<ConnectedApp store={mockStore} {...mockDispatched} />)
+        .dive();
     });
 
     it('maps messages from state', () => {
@@ -172,7 +173,8 @@ describe('<App />', () => {
     });
 
     it('provides pairing actions', () => {
-      const wrapper = shallow(<ConnectedApp store={mockStore} />);
+      const wrapper = shallow(<ConnectedApp store={mockStore} />)
+        .dive();
       expect(wrapper.prop('ackPairingRequest')).toBeInstanceOf(Function);
       expect(wrapper.prop('completedPairingRequest')).toBeInstanceOf(Function);
       expect(wrapper.prop('dismissPairingRequest')).toBeInstanceOf(Function);
@@ -180,7 +182,8 @@ describe('<App />', () => {
     });
 
     it('provides message dismissal', () => {
-      const wrapper = shallow(<ConnectedApp store={mockStore} />);
+      const wrapper = shallow(<ConnectedApp store={mockStore} />)
+        .dive();
       expect(wrapper.prop('dismissAppMessage')).toBeInstanceOf(Function);
     });
   });

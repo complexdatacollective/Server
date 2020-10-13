@@ -71,7 +71,8 @@ describe('<SettingsScreen />', () => {
           store={mockStore}
           match={{ params: { id: mockProtocol.id } }}
         />
-      ));
+      ))
+        .dive();
       expect(subj.prop('protocol')).toEqual(mockProtocol);
     });
   });
