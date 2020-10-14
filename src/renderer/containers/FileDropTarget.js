@@ -9,7 +9,6 @@ import { motion } from 'framer-motion';
 import { Icon } from '@codaco/ui';
 import { getCSSVariableAsNumber } from '@codaco/ui/lib/utils/CSSVariables';
 import AdminApiClient from '../utils/adminApiClient';
-import { messages } from '../ducks/modules/appMessages';
 import { actionCreators as protocolActionCreators } from '../ducks/modules/protocols';
 import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 
@@ -149,13 +148,11 @@ FileDropTarget.defaultProps = {
   loadProtocols: () => {},
   openDialog: () => {},
   postURI: '/protocols',
-  confirmationMessage: messages.protocolImportSuccess,
 };
 
 FileDropTarget.propTypes = {
   children: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   postURI: PropTypes.string,
-  confirmationMessage: PropTypes.string,
   isOverlay: PropTypes.bool,
   loadProtocols: PropTypes.func,
   openDialog: PropTypes.func,

@@ -71,10 +71,13 @@ const createApp = () => {
 
   const showImportProtocolDialog = () => {
     protocolManager.presentImportProtocolDialog(mainWindow.window)
-      .then((filename) => {
-        // If filename is empty, user cancelled
-        if (filename) {
-          mainWindow.send(PROTOCOL_IMPORT_SUCCEEDED, filename);
+      .then(({ filenames, errorMessages }) => {
+        // If filenames are empty, user cancelled
+        if (filenames) {
+          mainWindow.send(PROTOCOL_IMPORT_SUCCEEDED, filenames);
+        }
+        if (errorMessages) {
+          dialog.showErrorBox('Import Error', errorMessages);
         }
       })
       .then(() => mainWindow.send(FileImportUpdated))

@@ -179,18 +179,36 @@ class AdminService {
         .then(() => next());
     });
 
-    api.post('/sessions', (req, res, next) => {
+    api.post('/importFiles', (req, res, next) => {
       const files = req.body.files;
-      this.protocolManager.processSessionFiles(files)
-        .then(({ filenames, errorMessages }) => {
-          if (filenames) {
+      this.protocolManager.handleImportedFiles(files)
+        .then((
+          { importedProtocols, protocolErrors, importedSessions, sessionErrors, invalidFileErrors },
+        ) => {
+          let errorMessages = protocolErrors || '';
+          errorMessages += sessionErrors && errorMessages ? '; ' : '';
+          errorMessages += sessionErrors || '';
+          errorMessages += invalidFileErrors && errorMessages ? '; ' : '';
+          errorMessages += invalidFileErrors;
+          if (importedProtocols || importedSessions) {
+            const filenames = `${importedProtocols}\n${importedSessions}`;
             res.send({ status: 'ok', filenames, message: errorMessages });
           } else {
             res.send(500, { status: 'error', message: errorMessages });
           }
-          return filenames;
+          return { importedProtocols, importedSessions };
         })
-        .then(docs => sendToGui(emittedEvents.SESSIONS_IMPORTED, docs))
+        .then(({ importedProtocols, importedSessions }) => {
+          if (importedProtocols) {
+            sendToGui(emittedEvents.PROTOCOL_IMPORT_SUCCEEDED, importedProtocols);
+          }
+          return importedSessions;
+        })
+        .then((importedSessions) => {
+          if (importedSessions) {
+            sendToGui(emittedEvents.SESSIONS_IMPORTED, importedSessions);
+          }
+        })
         .catch((err) => {
           logger.error(err);
           res.send(500, { status: 'error', message: err.message });
@@ -200,10 +218,10 @@ class AdminService {
 
     api.post('/protocols', (req, res, next) => {
       const files = req.body.files;
-      this.protocolManager.validateAndImport(files)
-        .then((saved) => {
-          res.send({ status: 'ok', filenames: saved });
-          return saved;
+      this.protocolManager.validateAndImportProtocols(files)
+        .then(({ filenames, errorMessages }) => {
+          res.send({ status: 'ok', filenames, message: errorMessages });
+          return filenames;
         })
         .then(docs => sendToGui(emittedEvents.PROTOCOL_IMPORT_SUCCEEDED, docs))
         .catch((err) => {

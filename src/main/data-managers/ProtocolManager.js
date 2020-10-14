@@ -22,6 +22,8 @@ const hasValidProtocolExtension = filepath => validProtocolFileExts.includes(pat
 const hasValidSessionExtension = filepath => validSessionFileExts.includes(path.extname(filepath).replace(/^\./, ''));
 
 const emittedEvents = {
+  PROTOCOLS_IMPORT_STARTED: 'PROTOCOLS_IMPORT_STARTED',
+  PROTOCOLS_IMPORT_COMPLETE: 'PROTOCOLS_IMPORT_COMPLETE',
   SESSIONS_IMPORT_STARTED: 'SESSIONS_IMPORT_STARTED',
   SESSIONS_IMPORT_COMPLETE: 'SESSIONS_IMPORT_COMPLETE',
 };
@@ -34,7 +36,7 @@ class ProtocolManager {
     this.protocolDir = path.join(dataDir, protocolDirName);
     this.presentImportProtocolDialog = this.presentImportProtocolDialog.bind(this);
     this.presentImportSessionDialog = this.presentImportSessionDialog.bind(this);
-    this.validateAndImport = this.validateAndImport.bind(this);
+    this.validateAndImportProtocols = this.validateAndImportProtocols.bind(this);
 
     const dbFile = path.join(dataDir, 'db', 'protocols.db');
     this.db = new ProtocolDB(dbFile);
@@ -68,10 +70,10 @@ class ProtocolManager {
     return dialog.showOpenDialog(browserWindow, opts)
       .then(({ canceled, filePaths }) => {
         if (canceled) {
-          return null;
+          return { filesnames: null, errorMessages: null };
         }
 
-        return this.validateAndImport(filePaths);
+        return this.validateAndImportProtocols(filePaths);
       });
   }
 
@@ -83,38 +85,59 @@ class ProtocolManager {
    * @return {string} Resolves with the original requested filename
    * @throws {RequestError|Error} Rejects if there is a problem saving, or on invalid input
    */
-  validateAndImport(fileList) {
+  validateAndImportProtocols(fileList) {
     if (!fileList || fileList.length < 1) {
       return Promise.reject(new RequestError(ErrorMessages.EmptyFilelist));
     }
 
-    if (fileList.length > 1) {
-      return Promise.reject(new RequestError(ErrorMessages.FilelistNotSingular));
-    }
+    const promisedImports = fileList.map((userFilepath) => {
+      const fileBasename = userFilepath && path.basename(userFilepath);
 
-    const userFilepath = fileList[0]; // User's file; treat as read-only
+      if (!hasValidProtocolExtension(userFilepath)) {
+        return Promise.reject(new RequestError(`${fileBasename} - ${ErrorMessages.InvalidContainerFileExtension}`));
+      }
 
-    if (!hasValidProtocolExtension(userFilepath)) {
-      return Promise.reject(new RequestError(ErrorMessages.InvalidContainerFileExtension));
-    }
+      sendToGui(emittedEvents.PROTOCOLS_IMPORT_STARTED);
 
-    let tempFilepath;
-    return this.ensureDataDir()
-      .then(() => this.importFile(userFilepath))
-      .then(({ tempPath, destPath, protocolName }) => {
-        tempFilepath = tempPath;
-        return this.processFile(tempPath, destPath, protocolName);
-      })
-      .catch((err) => {
-        // Clean up tmp file on error
-        if (tempFilepath) tryUnlink(tempFilepath);
-        throw err;
-      })
-      .then(() => {
-        // Clean up tmp file if update was a no-op
-        if (tempFilepath) tryUnlink(tempFilepath);
-      })
-      .then(() => path.basename(userFilepath));
+      let tempFilepath;
+      return this.ensureDataDir()
+        .then(() => this.importFile(userFilepath))
+        .then(({ tempPath, destPath, protocolName }) => {
+          tempFilepath = tempPath;
+          return this.processFile(tempPath, destPath, protocolName);
+        })
+        .catch((err) => {
+          // Clean up tmp file on error
+          if (tempFilepath) tryUnlink(tempFilepath);
+          throw err;
+        })
+        .then(() => {
+          // Clean up tmp file if update was a no-op
+          if (tempFilepath) tryUnlink(tempFilepath);
+        })
+        .then(() => fileBasename);
+    });
+
+    return Promise.allSettled(promisedImports)
+      .then((importedPaths) => {
+        // Remove any imports that failed
+        const validImportedProtocolFiles = importedPaths
+          .filter(protocolPath => protocolPath.status === 'fulfilled')
+          .map(filteredPath => filteredPath.value);
+
+        const invalidImportedFileErrors = importedPaths
+          .filter(protocolPath => protocolPath.status === 'rejected')
+          .map(filteredPath => filteredPath.reason.message)
+          .join('; ');
+
+        sendToGui(emittedEvents.PROTOCOLS_IMPORT_COMPLETE);
+        // FatalError if no sessions survived the cull
+        if (validImportedProtocolFiles.length === 0) {
+          throw new RequestError(invalidImportedFileErrors);
+        }
+
+        return { filenames: validImportedProtocolFiles.join(', '), errorMessages: invalidImportedFileErrors };
+      });
   }
 
   ensureDataDir() {
@@ -142,7 +165,7 @@ class ProtocolManager {
       const parsedPath = path.parse(localFilepath);
 
       if (!parsedPath.base) {
-        reject(new RequestError(ErrorMessages.InvalidContainerFile));
+        reject(new RequestError(`${ErrorMessages.InvalidContainerFile}: ${localFilepath}`));
         return;
       }
 
@@ -151,7 +174,7 @@ class ProtocolManager {
       try {
         // If protocol file already exists in Server, do not allow update
         if (fs.existsSync(destPath)) {
-          throw new RequestError(ErrorMessages.ProtocolAlreadyExists);
+          throw new RequestError(`${ErrorMessages.ProtocolAlreadyExists}: ${protocolName}`);
         }
       } catch (fsErr) {
         if (fsErr instanceof RequestError) {
@@ -197,7 +220,7 @@ class ProtocolManager {
     }
 
     if (!fileContents || !fileContents.length) {
-      return cleanUpAndThrow(new RequestError(ErrorMessages.InvalidContainerFile));
+      return cleanUpAndThrow(new RequestError(`${ErrorMessages.InvalidContainerFile}: ${destFilepath && path.parse(destFilepath).base}`));
     }
 
     const destFilename = path.basename(destFilepath);
@@ -208,18 +231,18 @@ class ProtocolManager {
     try {
       zip = await jszip.loadAsync(fileContents);
     } catch (zipErr) {
-      return cleanUpAndThrow(new RequestError(ErrorMessages.InvalidZip));
+      return cleanUpAndThrow(new RequestError(`${ErrorMessages.InvalidZip}: ${path.parse(destFilepath).base}`));
     }
 
     const zippedProtocol = zip.files[ProtocolDataFile];
     if (!zippedProtocol) {
-      return cleanUpAndThrow(new RequestError(ErrorMessages.MissingProtocolFile));
+      return cleanUpAndThrow(new RequestError(`${ErrorMessages.MissingProtocolFile}: ${path.parse(destFilepath).base}`));
     }
 
     try {
       protocolContents = await zippedProtocol.async('string');
     } catch (zipErr) {
-      return cleanUpAndThrow(new RequestError(ErrorMessages.InvalidZip));
+      return cleanUpAndThrow(new RequestError(`${ErrorMessages.InvalidZip}: ${path.parse(destFilepath).base}`));
     }
 
     let json;
@@ -227,7 +250,7 @@ class ProtocolManager {
       json = JSON.parse(protocolContents);
       json = { ...json, name: protocolName }; // file name becomes protocol name
     } catch (parseErr) {
-      return cleanUpAndThrow(new Error(`${ErrorMessages.InvalidProtocolFormat}: could not parse JSON`));
+      return cleanUpAndThrow(new Error(`${path.parse(destFilepath).base} - ${ErrorMessages.InvalidProtocolFormat}: could not parse JSON`));
     }
 
     // By basing name on contents, we can short-circuit later updates that didn't change the file.
@@ -316,21 +339,21 @@ class ProtocolManager {
   fileContents(savedFileName, dir = this.protocolDir) {
     return new Promise((resolve, reject) => {
       if (typeof savedFileName !== 'string') {
-        reject(new RequestError(ErrorMessages.InvalidContainerFile));
+        reject(new RequestError(`${ErrorMessages.InvalidContainerFile}: savedFileName`));
         return;
       }
       const filePath = this.pathToProtocolFile(savedFileName, dir);
 
       // Prevent escaping protocol directory
       if (filePath.indexOf(dir) !== 0) {
-        reject(new RequestError(ErrorMessages.InvalidContainerFile));
+        reject(new RequestError(`${ErrorMessages.InvalidContainerFile}: ${path.parse(savedFileName).base}`));
         return;
       }
 
       fs.readFile(filePath, (err, dataBuffer) => {
         if (err) {
           if (err.code === 'ENOENT') {
-            reject(new RequestError(ErrorMessages.NotFound));
+            reject(new RequestError(`${ErrorMessages.NotFound}: ${path.parse(savedFileName).base}`));
           } else {
             reject(err);
           }
@@ -339,6 +362,57 @@ class ProtocolManager {
         resolve(dataBuffer);
       });
     });
+  }
+
+  /**
+     * Read graphml and/or netcanvas files from a user-specified location.
+     * Primary interface for render-side API.
+     * @async
+     * @param  {FileList} fileList
+     * @return {object} Resolves with filenames of successful imports and errors for failures
+     * @throws {RequestError|Error} Rejects if there is a problem uploading, or on invalid input
+     */
+  handleImportedFiles(fileList) {
+    const protocolFileList = fileList.filter(
+      filepath => hasValidProtocolExtension(filepath && path.basename(filepath)));
+    const sessionFileList = fileList.filter(
+      filepath => hasValidSessionExtension(filepath && path.basename(filepath)));
+    const invalidFileList = fileList.filter(filepath =>
+      !hasValidSessionExtension(filepath && path.basename(filepath)) &&
+      !hasValidProtocolExtension(filepath && path.basename(filepath)))
+      .map(filepath => path.basename(filepath));
+
+    const processFilePromises = [];
+    if (protocolFileList.length > 0) {
+      processFilePromises.push(this.validateAndImportProtocols(protocolFileList));
+    } else {
+      processFilePromises.push(Promise.resolve({ filenames: '', errorMessages: '' }));
+    }
+    if (sessionFileList.length > 0) {
+      processFilePromises.push(this.processSessionFiles(sessionFileList));
+    } else {
+      processFilePromises.push(Promise.resolve({ filenames: '', errorMessages: '' }));
+    }
+    if (invalidFileList.length > 0) {
+      processFilePromises.push(Promise.reject(new RequestError(`${ErrorMessages.InvalidFileExtension}: ${invalidFileList.join(', ')}`)));
+    } else {
+      processFilePromises.push(Promise.resolve());
+    }
+    return Promise.allSettled(processFilePromises)
+      .then((results) => {
+        const importedProtocols = results[0].status === 'fulfilled' ? results[0].value.filenames : '';
+        const protocolErrors = results[0].status === 'fulfilled' ? results[0].value.errorMessages : results[0].reason.message;
+        const importedSessions = results[1].status === 'fulfilled' ? results[1].value.filenames : '';
+        const sessionErrors = results[1].status === 'fulfilled' ? results[1].value.errorMessages : results[1].reason.message;
+        const invalidFileErrors = results[2].status === 'rejected' ? results[2].reason.message : '';
+        return {
+          importedProtocols,
+          protocolErrors,
+          importedSessions,
+          sessionErrors,
+          invalidFileErrors,
+        };
+      });
   }
 
   /**

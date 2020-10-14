@@ -30,6 +30,8 @@ const IPC = {
   PAIRING_TIMED_OUT: 'PAIRING_TIMED_OUT',
   PAIRING_COMPLETE: 'PAIRING_COMPLETE',
   PROTOCOL_IMPORT_SUCCEEDED: 'PROTOCOL_IMPORT_SUCCEEDED',
+  PROTOCOLS_IMPORT_STARTED: 'PROTOCOLS_IMPORT_STARTED',
+  PROTOCOLS_IMPORT_COMPLETE: 'PROTOCOLS_IMPORT_COMPLETE',
   SESSIONS_IMPORTED: 'SESSIONS_IMPORTED',
   SESSIONS_IMPORT_STARTED: 'SESSIONS_IMPORT_STARTED',
   SESSIONS_IMPORT_COMPLETE: 'SESSIONS_IMPORT_COMPLETE',
@@ -71,6 +73,7 @@ class App extends Component {
       apiReady: false,
       insecure: remote.app.commandLine.hasSwitch('unsafe-pairing-code'),
       importingSession: false,
+      importingProtocol: false,
     };
 
     preventGlobalDragDrop();
@@ -103,8 +106,17 @@ class App extends Component {
     });
 
     ipcRenderer.on(IPC.PROTOCOL_IMPORT_SUCCEEDED, (_, data) => {
+      this.setState({ importingProtocol: false });
       const appendData = data ? `: ${data}` : '';
       props.showConfirmationMessage(`${messages.protocolImportSuccess}${appendData}`);
+    });
+
+    ipcRenderer.on(IPC.PROTOCOLS_IMPORT_STARTED, () => {
+      this.setState({ importingProtocol: true });
+    });
+
+    ipcRenderer.on(IPC.PROTOCOLS_IMPORT_COMPLETE, () => {
+      this.setState({ importingProtocol: false });
     });
 
     ipcRenderer.on(IPC.SESSIONS_IMPORT_STARTED, () => {
@@ -147,6 +159,7 @@ class App extends Component {
     const {
       apiReady,
       insecure,
+      importingProtocol,
       importingSession,
     } = this.state;
 
@@ -158,7 +171,7 @@ class App extends Component {
     return (
       <div className={appClass}>
         {
-          <Modal className="modal--import" title="Importing..." show={importingSession}>
+          <Modal className="modal--import" title="Importing..." show={importingSession || importingProtocol}>
             <Spinner small />
           </Modal>
         }
@@ -180,7 +193,7 @@ class App extends Component {
             apiReady && (
               <React.Fragment>
                 <ProtocolNav className="app__sidebar" />
-                <FileDropTarget isOverlay postURI="/sessions" confirmationMessage={messages.sessionImportSuccess}>
+                <FileDropTarget isOverlay postURI="/importFiles">
                   <div className="app__screen">
                     { insecure &&
                       <div className="unsafe-pairing-warning">

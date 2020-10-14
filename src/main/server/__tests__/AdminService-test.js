@@ -161,7 +161,7 @@ describe('the AdminService', () => {
 
         beforeAll(() => {
           ProtocolManager.mockImplementation(() => ({
-            validateAndImport: files => Promise.resolve(files),
+            validateAndImportProtocols: files => Promise.resolve({ filenames: files.join(', ') }),
             allProtocols: jest.fn().mockResolvedValue(mockFiles.map(f => ({ filename: f }))),
             deleteProtocolSessions: jest.fn().mockResolvedValue({ status: 'ok' }),
             destroyProtocol: jest.fn().mockResolvedValue({ status: 'ok' }),
@@ -171,7 +171,7 @@ describe('the AdminService', () => {
 
         it('returns a list', async () => {
           const res = await jsonClient.get(endpoint);
-          expect(res.json.protocols).toContainEqual({ filename: mockFiles[0] });
+          expect(res.json.protocols).toEqual([{ filename: mockFiles[0] }]);
         });
 
         it('returns a protocol', async () => {
@@ -181,7 +181,7 @@ describe('the AdminService', () => {
 
         it('accepts posted filenames', async () => {
           const res = await jsonClient.post(endpoint, { files: mockFiles });
-          expect(res.json.filenames).toEqual(mockFiles);
+          expect(res.json.filenames).toEqual(mockFiles.join(', '));
         });
 
         it('deletes a protocol', async () => {
@@ -195,7 +195,7 @@ describe('the AdminService', () => {
           beforeAll(() => {
             const mockError = { error: 'mock' };
             ProtocolManager.mockImplementation(() => ({
-              validateAndImport: jest.fn().mockRejectedValue(mockError),
+              validateAndImportProtocols: jest.fn().mockRejectedValue(mockError),
               allProtocols: jest.fn().mockRejectedValue(mockError),
               deleteProtocolSessions: jest.fn().mockRejectedValue(mockError),
               getProtocol: jest.fn().mockRejectedValue(mockError),
