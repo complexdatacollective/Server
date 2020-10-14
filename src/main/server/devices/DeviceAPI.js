@@ -198,7 +198,6 @@ const createBaseServer = (opts = {}) => {
   const server = restify.createServer(serverOpts);
   server.pre(restify.plugins.pre.sanitizePath());
   server.pre(restify.plugins.authorizationParser());
-  server.use(versionGatekeeper);
   server.use(restify.plugins.bodyParser());
   server.on('restifyError', handleApiError);
 
@@ -210,10 +209,11 @@ const createBaseServer = (opts = {}) => {
   // Access-Origins buys no security
   const cors = corsMiddleware({
     origins: ['*'],
-    allowHeaders: ['Authorization'],
+    allowHeaders: ['Authorization', 'X-Device-API-Version'],
   });
   server.pre(cors.preflight);
   server.use(cors.actual);
+  server.use(versionGatekeeper);
 
   return server;
 };

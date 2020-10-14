@@ -1,4 +1,5 @@
 const logger = require('electron-log');
+
 const SERVER_API_VERSION = '1';
 
 const versionGatekeeper = (req, res, next) => {
