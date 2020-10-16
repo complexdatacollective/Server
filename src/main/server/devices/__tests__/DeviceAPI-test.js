@@ -3,6 +3,7 @@ const EventEmitter = require('events');
 const { InvalidCredentialsError, NotAuthorizedError } = require('restify-errors');
 const request = require('supertest');
 const ProtocolManager = require('../../../data-managers/ProtocolManager');
+const { DeviceAPIConfig } = require('../../../apiConfig');
 const { DeviceAPI } = require('../DeviceAPI');
 const { jsonClient, secureClient, makeUrl, httpsCert, httpsPrivateKey } = require('../../../../../config/jest/setupTestEnv');
 const { ErrorMessages, RequestError } = require('../../../errors/RequestError');
@@ -111,8 +112,9 @@ describe('the DeviceAPI', () => {
         await request(deviceApi.server)
           .get('/devices/new')
           .expect(400, {
+            status: 'version_mismatch',
             error: 'Device API version mismatch.',
-            server: '1',
+            server: DeviceAPIConfig.Version,
             device: 'Not specified',
           });
       });
@@ -122,8 +124,9 @@ describe('the DeviceAPI', () => {
           .get('/devices/new')
           .set('X-Device-API-Version', '-999')
           .expect(400, {
+            status: 'version_mismatch',
             error: 'Device API version mismatch.',
-            server: '1',
+            server: DeviceAPIConfig.Version,
             device: '-999',
           });
       });

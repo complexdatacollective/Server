@@ -8,6 +8,7 @@ const enzyme = require('enzyme');
 const Adapter = require('enzyme-adapter-react-16');
 const url = require('url');
 const Writable = require('stream').Writable;
+const { DeviceAPIConfig } = require('../../src/main/apiConfig');
 
 enzyme.configure({ adapter: new Adapter() });
 
@@ -97,7 +98,7 @@ const jsonClient = (useHttps) => {
           method: reqMethod,
           headers: {
             'Content-Type': 'application/json',
-            'X-Device-API-Version': 1,
+            'X-Device-API-Version': DeviceAPIConfig.Version,
           },
         };
 

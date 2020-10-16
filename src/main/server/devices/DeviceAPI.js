@@ -213,7 +213,7 @@ const createBaseServer = (opts = {}) => {
   });
   server.pre(cors.preflight);
   server.use(cors.actual);
-  server.use(versionGatekeeper);
+  server.use(versionGatekeeper(ApiVersion));
 
   return server;
 };
