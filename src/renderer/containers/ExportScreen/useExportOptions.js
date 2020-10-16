@@ -1,16 +1,15 @@
 import { useState } from 'react';
 import { set, pick } from 'lodash';
 
-// const defaultCSVOptions = {
-//   adjacencyMatrix: false,
-//   attributeList: true,
-//   edgeList: true,
-//   egoAttributeList: true,
-// };
-
-// const defaultExportOptions = {
+// `exportOptions` defaults:
+// {
 //   exportGraphML: true,
-//   exportCSV: defaultCSVOptions,
+//   exportCSV: {
+//      adjacencyMatrix: false,
+//      attributeList: true,
+//      edgeList: true,
+//      egoAttributeList: true,
+//   },
 //   globalOptions: {
 //     unifyNetworks: false,
 //     useDirectedEdges: false, // TODO
@@ -18,13 +17,6 @@ import { set, pick } from 'lodash';
 //     screenLayoutHeight: 1080,
 //     screenLayoutWidth: 1920,
 //   },
-// };
-
-// // Merge default and user-supplied options
-// this.exportOptions = {
-//   ...defaultExportOptions,
-//   ...exportOptions,
-//   ...(exportOptions.exportCSV === true ? { exportCSV: defaultCSVOptions } : {}),
 // };
 
 export const exportFormats = [

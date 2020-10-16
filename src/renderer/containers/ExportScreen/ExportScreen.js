@@ -53,9 +53,14 @@ const ExportScreen = ({
   };
 
   const handleSubmit = () => {
-    const exportCSV = exportOptions.exportCSV;
+    const { exportCSV, exportGraphML } = exportOptions;
 
-    if (Object.values(exportCSV).every(toggled => !toggled)) {
+    if (!exportCSV && !exportGraphML) {
+      showError('Please select at least one type of export');
+      return;
+    }
+
+    if (!!exportCSV && Object.values(exportCSV).every(toggled => !toggled)) {
       showError('Please select at least one file type to export for CSV');
       return;
     }
