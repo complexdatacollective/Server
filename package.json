@@ -21,6 +21,7 @@
         "test-update-snapshots": "node scripts/test.js --env=jsdom --updateSnapshot",
         "build-docs": "jsdoc src -r -d docs -c ./jsdoc.conf.json --verbose --readme ./README.md",
         "electron": "electron ./www",
+        "rebuild-mdns": "(cd node_modules/mdns && npx node-gyp rebuild --target=9.2.0 --arch=x64 --dist-url=https://atom.io/download/electron)",
         "pack": "electron-builder --dir",
         "dist": "electron-builder",
         "bump": "node scripts/bump.js",
