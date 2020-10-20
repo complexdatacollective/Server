@@ -1,9 +1,26 @@
-const uuidv4 = require('uuid/v4');
+const uuid = require('uuid/v4');
 const faker = require('faker');
+const { has, times } = require('lodash');
+const crypto = require('crypto');
 
-const nodePrimaryKeyProperty = '_uid';
-const nodeAttributesProperty = 'attributes';
-const caseProperty = '_caseID';
+// const nodePrimaryKeyProperty = '_uid';
+// const nodeAttributesProperty = 'attributes';
+// const caseProperty = 'caseID';
+
+const {
+  entityPrimaryKeyProperty,
+  entityAttributesProperty,
+  caseProperty,
+  sessionProperty,
+  remoteProtocolProperty,
+  protocolName,
+  protocolProperty,
+  // sessionStartTimeProperty,
+  // sessionFinishTimeProperty,
+  sessionExportTimeProperty,
+} = require('./network-exporters/src/utils/reservedAttributes');
+
+const nameDigest = name => name && crypto.createHash('sha256').update(name).digest('hex');
 
 const mockCoord = () => faker.random.number({ min: 0, max: 1, precision: 0.000001 });
 
@@ -39,24 +56,100 @@ const mockValue = (variable) => {
   }
 };
 
-const makeEntity = (type, variables) => {
+const makeEntity = (typeID, variables = {}, promptAttributes = {}) => {
   const mockAttributes = Object.entries(variables).reduce(
-    // eslint-disable-next-line no-unused-vars
     (acc, [variableId, variable]) => {
-      acc[variable.name] = mockValue(variable);
+      if (!has(promptAttributes, variableId)) {
+        acc[variableId] = mockValue(variable);
+      }
       return acc;
     }, {},
   );
 
   const modelData = {
-    [nodePrimaryKeyProperty]: uuidv4(),
-    ...(type && { type }),
+    [entityPrimaryKeyProperty]: uuid(),
+    promptIDs: ['mock'],
+    stageId: 'mock',
+    ...(typeID && { type: typeID }),
   };
 
   return {
     ...modelData,
-    [nodeAttributesProperty]: {
+    [entityAttributesProperty]: {
       ...mockAttributes,
+    },
+  };
+};
+
+const makeNetwork = (protocol) => {
+  const codebookNodeTypes = Object.keys(protocol.codebook.node || {});
+  const codebookEdgeTypes = Object.keys(protocol.codebook.edge || {});
+
+  // Generate nodes
+  const nodes = [];
+  const networkMaxNodes = 20;
+  const networkMinNodes = 2;
+
+  codebookNodeTypes.forEach((nodeType) => {
+    const nodesOfThisType =
+      Math.round(Math.random() * ((networkMaxNodes - networkMinNodes) + networkMinNodes));
+    nodes.push(...[...Array(nodesOfThisType)].map(() =>
+      makeEntity(
+        nodeType,
+        protocol.codebook.node[nodeType].variables,
+      )));
+  });
+
+  const ego = makeEntity(null, (protocol.codebook.ego || {}).variables);
+
+  const edges = [];
+  const networkMaxEdges = 20;
+  const networkMinEdges = 1;
+  // eslint-disable-next-line no-bitwise
+  const pickNodeUid = () => nodes[~~(Math.random() * (nodes.length - 1))][entityPrimaryKeyProperty];
+
+  codebookEdgeTypes.forEach((edgeType) => {
+    const edgesOfThisType =
+      Math.round(Math.random() * ((networkMaxEdges - networkMinEdges) + networkMinEdges));
+
+    edges.push(...[...Array(edgesOfThisType)].map(() => ({
+      ...makeEntity(
+        edgeType,
+        protocol.codebook.edge[edgeType].variables,
+      ),
+      from: pickNodeUid(),
+      to: pickNodeUid(),
+    })));
+  });
+
+  return {
+    nodes,
+    edges,
+    ego,
+  };
+};
+
+const makeSession = (protocol) => {
+  const network = makeNetwork(protocol);
+  const caseId = `${faker.lorem.words().replace(/ /g, '_')}_${faker.random.number()}`;
+  const sessionId = uuid();
+
+  const sessionVariables = {
+    // These are needed by export?:
+    [caseProperty]: caseId,
+    [sessionProperty]: sessionId,
+    [remoteProtocolProperty]: nameDigest(protocol.name),
+    [sessionExportTimeProperty]: new Date().toISOString(),
+    // These are needed by server?:
+    [protocolName]: protocol.name,
+    [protocolProperty]: nameDigest(protocol.name),
+  };
+
+  return {
+    uuid: sessionId,
+    data: {
+      sessionVariables,
+      ...network,
     },
   };
 };
@@ -64,61 +157,8 @@ const makeEntity = (type, variables) => {
 const buildMockData = (
   protocol,
   sessionCount = 4500,
-) => {
-  const codebookNodeTypes = Object.keys(protocol.codebook.node);
-  const codebookEdgeTypes = Object.keys(protocol.codebook.edge);
-
-  const makeNetwork = (caseId) => {
-    // Generate nodes
-    const nodes = [];
-    const networkMaxNodes = 20;
-    const networkMinNodes = 2;
-
-    codebookNodeTypes.forEach((nodeType) => {
-      const nodesOfThisType =
-        Math.round(Math.random() * ((networkMaxNodes - networkMinNodes) + networkMinNodes));
-      nodes.push(...[...Array(nodesOfThisType)].map(() =>
-        makeEntity(
-          protocol.codebook.node[nodeType].name,
-          protocol.codebook.node[nodeType].variables,
-        )));
-    });
-
-    const ego = makeEntity(null, protocol.codebook.ego.variables);
-
-    const edges = [];
-    const networkMaxEdges = 20;
-    const networkMinEdges = 1;
-    // eslint-disable-next-line no-bitwise
-    const pickNodeUid = () => nodes[~~(Math.random() * (nodes.length - 1))][nodePrimaryKeyProperty];
-
-    codebookEdgeTypes.forEach((edgeType) => {
-      const edgesOfThisType =
-        Math.round(Math.random() * ((networkMaxEdges - networkMinEdges) + networkMinEdges));
-
-      edges.push(...[...Array(edgesOfThisType)].map(() => ({
-        ...makeEntity(
-          protocol.codebook.edge[edgeType].name,
-          protocol.codebook.edge[edgeType].variables,
-        ),
-        from: pickNodeUid(),
-        to: pickNodeUid(),
-      })));
-    });
-
-    return {
-      nodes,
-      edges,
-      ego,
-      sessionVariables: { [caseProperty]: `a_${caseId}` },
-    };
-  };
-
-  return [...Array(sessionCount)].map((r, i) => ({
-    uuid: uuidv4(),
-    data: makeNetwork(i),
-  }));
-};
+) =>
+  times(sessionCount, () => makeSession(protocol));
 
 module.exports = {
   buildMockData,
