@@ -14,13 +14,12 @@ const initialState = {
 
 const ExportModal = ({
   className,
-  show,
   onCancel,
   onComplete,
+  show,
 }) => {
   const [state, setState] = useState({
     ...initialState,
-    show,
   });
 
   const handleExportStatus = useCallback((_, data) => {
@@ -28,24 +27,24 @@ const ExportModal = ({
   }, [setState]);
 
   const handleExportError = useCallback((_, data) => {
-    setState(s => ({ ...s, ...data }));
+    setState(s => ({ ...s, errors: [...s.errors, data.error] }));
   }, [setState]);
 
   const handleCompleteExport = useCallback(() => {
-    setState({ ...initialState, show: false });
+    setState({ ...initialState });
     onComplete();
   }, [setState, onComplete]);
 
   // Cancelled from inside network-exporters
   const handleExportCancelled = useCallback(() => {
-    setState({ ...initialState, show: false });
+    setState({ ...initialState });
     onCancel();
   }, [setState, onCancel]);
 
   // Cancelled from UI
   const handleCancelExport = useCallback(() => {
     ipcRenderer.send('EXPORT/ABORT', state.id);
-    setState({ ...initialState, show: false });
+    setState({ ...initialState });
     onCancel();
   }, [setState, onCancel, state.id]);
 
@@ -58,7 +57,7 @@ const ExportModal = ({
       ipcRenderer.removeListener('EXPORT/CANCELLED', handleExportCancelled);
     };
 
-    if (!state.show) { unmount(); }
+    if (!show) { unmount(); }
 
     ipcRenderer.on('EXPORT/BEGIN', handleExportStatus);
     ipcRenderer.on('EXPORT/UPDATE', handleExportStatus);
@@ -67,12 +66,6 @@ const ExportModal = ({
     ipcRenderer.on('EXPORT/CANCELLED', handleExportCancelled);
 
     return unmount;
-  }, [state.show]);
-
-  // open when notified, but close using internal logic
-  useEffect(() => {
-    if (show !== true && state.show === true) { return; }
-    setState(s => ({ ...s, show }));
   }, [show]);
 
   const classNames = cx('export-modal', className);
@@ -109,7 +102,7 @@ const ExportModal = ({
   );
 
   return (
-    <Modal title="Exporting..." show={state.show} onCancel={handleCancelExport}>
+    <Modal title="Exporting..." show={show} onCancel={handleCancelExport}>
       <div className={classNames}>
         <div className="export-modal__status">
           <div className="export-modal__status-icon">

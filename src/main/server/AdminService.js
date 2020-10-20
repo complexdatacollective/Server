@@ -282,6 +282,9 @@ class AdminService {
       req.setTimeout(0);
       res.setTimeout(0);
 
+      const id = uuid();
+      const sender = BrowserWindow.getFocusedWindow();
+
       this.protocolManager.getProtocol(req.params.protocolId)
         .then(protocol =>
           this.exportManager.exportSessions(protocol, req.body),
@@ -290,9 +293,6 @@ class AdminService {
           exportSessions,
           fileExportManager,
         }) => {
-          const sender = BrowserWindow.getFocusedWindow();
-          const id = uuid();
-
           fileExportManager.on('begin', (data) => {
             logger.log('begin', { data });
             sender.webContents.send('EXPORT/BEGIN', { ...data, id });
@@ -304,8 +304,8 @@ class AdminService {
           });
 
           fileExportManager.on('error', (err) => {
-            logger.error('update', err);
-            sender.webContents.send('EXPORT/ERROR', { errors: err, id });
+            logger.error('non-fatal error in export', err);
+            sender.webContents.send('EXPORT/ERROR', { error: err, id });
           });
 
           fileExportManager.on('finished', (data) => {
@@ -319,6 +319,7 @@ class AdminService {
           });
 
           const exportRequest = exportSessions();
+
           abortRequest = exportRequest.abort;
 
           ipcMain.on('EXPORT/ABORT', (_, abortId) => {
@@ -332,7 +333,7 @@ class AdminService {
           res.send({ status: 'ok' });
         })
         .catch((err) => {
-          logger.error(err);
+          logger.error('fatal error in export', err);
           res.send(codeForError(err), { status: 'error', message: err.message });
         })
         .then(() => next());

@@ -1,14 +1,8 @@
 import { useRef } from 'react';
-import { useDispatch } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
 import AdminApiClient from '../utils/adminApiClient';
 
 const useAdminClient = () => {
   const client = useRef(new AdminApiClient());
-  const dispatch = useDispatch();
-
-  const showError = bindActionCreators(messageActionCreators.showErrorMessage, dispatch);
 
   const exportToFile = (protocol, exportOptions) => {
     if (!client.current) {
@@ -21,8 +15,7 @@ const useAdminClient = () => {
 
     return client
       .current
-      .post(`/protocols/${protocolId}/export_requests`, exportOptions)
-      .catch(err => showError(err.message));
+      .post(`/protocols/${protocolId}/export_requests`, exportOptions);
   };
 
   return {

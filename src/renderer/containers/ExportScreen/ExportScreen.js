@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Redirect, withRouter } from 'react-router-dom';
-import { remote, ipcRenderer } from 'electron';
 import { compose } from 'recompose';
 import { AnimatePresence, AnimateSharedLayout, motion } from 'framer-motion';
 import { Button, Spinner } from '@codaco/ui';
@@ -48,8 +47,10 @@ const ExportScreen = ({
     setState({ exportInProgress: true });
 
     return exportToFile(protocol, exportOptions)
-      .catch((e) => { showError(e); })
-      .finally(() => setState({ exportInProgress: false }));
+      .catch((e) => {
+        showError(e.message);
+        setState({ exportInProgress: false });
+      });
   };
 
   const handleSubmit = () => {
