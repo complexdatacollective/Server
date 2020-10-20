@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import { Icon } from '@codaco/ui';
 import { getCSSVariableAsNumber } from '@codaco/ui/lib/utils/CSSVariables';
@@ -99,7 +99,7 @@ class FileDropTarget extends Component {
     const fastDuration = getCSSVariableAsNumber('--animation-duration-fast-ms') / 1000;
     const variants = {
       show: {
-        opacity: 0.75,
+        opacity: 1,
         transition: {
           duration: fastDuration,
         },
@@ -120,22 +120,25 @@ class FileDropTarget extends Component {
 
     return (
       <div {...containerProps} ref={this.containerRef}>
-        {(draggingOver && isOverlay) &&
-          <motion.div
-            className="file-drop-target__overlay"
-            animate="show"
-            initial="hidden"
-            exit="hidden"
-            variants={variants}
-          >
+        <AnimatePresence>
+          {(draggingOver && isOverlay) &&
             <motion.div
-              animate={{ scale: 2 }}
-              transition={spring}
+              className="file-drop-target__overlay"
+              animate="show"
+              initial="hidden"
+              exit="hidden"
+              variants={variants}
             >
-              <Icon name="menu-download-data" />
+              <motion.div
+                animate={{ scale: 2 }}
+                transition={spring}
+              >
+                <Icon name="menu-download-data" />
+                <h4>Import sessions to Server</h4>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        }
+          }
+        </AnimatePresence>
         { this.props.children }
       </div>
     );

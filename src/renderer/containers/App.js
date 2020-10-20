@@ -13,7 +13,7 @@ import AdminApiClient from '../utils/adminApiClient';
 import { appVersion, codename } from '../utils/appVersion';
 import NCLogo from '../images/NC-Mark.svg';
 import { AppMessage } from '../components';
-import FileDropTarget from '../containers/FileDropTarget';
+import NewFileDropTarget from '../containers/NewFileDropTarget';
 import { AnimatedPairPrompt } from '../components/pairing/PairPrompt';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
 import { actionCreators as connectionInfoActionCreators } from '../ducks/modules/connectionInfo';
@@ -193,7 +193,7 @@ class App extends Component {
             apiReady && (
               <React.Fragment>
                 <ProtocolNav className="app__sidebar" />
-                <FileDropTarget isOverlay postURI="/importFiles">
+                <NewFileDropTarget>
                   <div className="app__screen">
                     { insecure &&
                       <div className="unsafe-pairing-warning">
@@ -208,7 +208,7 @@ class App extends Component {
                     }
                     <AppRoutes />
                   </div>
-                </FileDropTarget>
+                </NewFileDropTarget>
               </React.Fragment>
             )
           }
