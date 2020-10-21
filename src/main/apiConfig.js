@@ -1,6 +1,6 @@
 module.exports = {
   DeviceAPIConfig: {
-    Version: '6.0.0',
+    Version: '2', // X-Device-API-Version
     DefaultHttpPort: 61001,
     DefaultHttpsPort: 61002,
   },

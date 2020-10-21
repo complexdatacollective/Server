@@ -8,7 +8,7 @@ const { app } = require('electron');
 const { ConflictError, NotAcceptableError } = require('restify-errors');
 const { EventEmitter } = require('events');
 const { sendToGui } = require('../../guiProxy');
-
+const versionGatekeeper = require('./versionGatekeeper');
 const DeviceManager = require('../../data-managers/DeviceManager');
 const ProtocolManager = require('../../data-managers/ProtocolManager');
 const apiRequestLogger = require('../apiRequestLogger');
@@ -209,10 +209,11 @@ const createBaseServer = (opts = {}) => {
   // Access-Origins buys no security
   const cors = corsMiddleware({
     origins: ['*'],
-    allowHeaders: ['Authorization'],
+    allowHeaders: ['Authorization', 'X-Device-API-Version'],
   });
   server.pre(cors.preflight);
   server.use(cors.actual);
+  server.use(versionGatekeeper(ApiVersion));
 
   return server;
 };
