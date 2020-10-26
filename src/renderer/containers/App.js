@@ -5,7 +5,6 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { ipcRenderer, shell, remote } from 'electron';
 import { withRouter } from 'react-router-dom';
-import { Spinner, Modal } from '@codaco/ui';
 import DialogManager from '../components/DialogManager';
 import AppRoutes from './AppRoutes';
 import ProtocolNav from './ProtocolNav';
@@ -13,13 +12,13 @@ import AdminApiClient from '../utils/adminApiClient';
 import { appVersion, codename } from '../utils/appVersion';
 import NCLogo from '../images/NC-Mark.svg';
 import { AppMessage } from '../components';
-import NewFileDropTarget from '../containers/NewFileDropTarget';
+import SessionFileDropTarget from '../containers/SessionFileDropTarget';
 import { AnimatedPairPrompt } from '../components/pairing/PairPrompt';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
 import { actionCreators as connectionInfoActionCreators } from '../ducks/modules/connectionInfo';
 import { actionCreators as deviceActionCreators } from '../ducks/modules/devices';
 import { actionCreators as protocolActionCreators } from '../ducks/modules/protocols';
-import { actionCreators as messageActionCreators, messages } from '../ducks/modules/appMessages';
+import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
 import { actionCreators as toastActions } from '../ducks/modules/toasts';
 import { isFrameless } from '../utils/environment';
 import ToastManager from '../components/ToastManager';
@@ -30,9 +29,6 @@ const IPC = {
   PAIRING_CODE_AVAILABLE: 'PAIRING_CODE_AVAILABLE',
   PAIRING_TIMED_OUT: 'PAIRING_TIMED_OUT',
   PAIRING_COMPLETE: 'PAIRING_COMPLETE',
-  PROTOCOL_IMPORT_SUCCEEDED: 'PROTOCOL_IMPORT_SUCCEEDED',
-  PROTOCOLS_IMPORT_STARTED: 'PROTOCOLS_IMPORT_STARTED',
-  PROTOCOLS_IMPORT_COMPLETE: 'PROTOCOLS_IMPORT_COMPLETE',
   RESET_APP: 'RESET_APP',
 };
 
@@ -106,21 +102,6 @@ class App extends Component {
       props.loadDevices();
     });
 
-    // Handle Protocol Import
-    ipcRenderer.on(IPC.PROTOCOL_IMPORT_SUCCEEDED, (_, data) => {
-      this.setState({ importingProtocol: false });
-      const appendData = data ? `: ${data}` : '';
-      props.showConfirmationMessage(`${messages.protocolImportSuccess}${appendData}`);
-    });
-
-    ipcRenderer.on(IPC.PROTOCOLS_IMPORT_STARTED, () => {
-      this.setState({ importingProtocol: true });
-    });
-
-    ipcRenderer.on(IPC.PROTOCOLS_IMPORT_COMPLETE, () => {
-      this.setState({ importingProtocol: false });
-    });
-
     // Respond to backend data reset
     ipcRenderer.on(IPC.RESET_APP, () => {
       props.resetApp(); // Reset state to initial state
@@ -148,8 +129,6 @@ class App extends Component {
     const {
       apiReady,
       insecure,
-      importingProtocol,
-      importingSession,
     } = this.state;
 
     const appClass = isFrameless() ? 'app app--frameless' : 'app';
@@ -159,11 +138,6 @@ class App extends Component {
 
     return (
       <div className={appClass}>
-        {
-          <Modal className="modal--import" title="Importing..." show={importingSession || importingProtocol}>
-            <Spinner small />
-          </Modal>
-        }
         <div className="app__flash">
           { appMessages.map(msg => (
             <AppMessage key={msg.timestamp} {...msg} handleDismissal={handleDismissal} />
@@ -182,7 +156,7 @@ class App extends Component {
             apiReady && (
               <React.Fragment>
                 <ProtocolNav className="app__sidebar" />
-                <NewFileDropTarget>
+                <SessionFileDropTarget>
                   <div className="app__screen">
                     { insecure &&
                       <div className="unsafe-pairing-warning">
@@ -197,7 +171,7 @@ class App extends Component {
                     }
                     <AppRoutes />
                   </div>
-                </NewFileDropTarget>
+                </SessionFileDropTarget>
               </React.Fragment>
             )
           }

@@ -19,7 +19,7 @@ const IPC = {
   SESSIONS_IMPORT_COMPLETE: 'SESSIONS_IMPORT_COMPLETE',
 };
 
-const NewFileDropTarget = ({
+const SessionFileDropTarget = ({
   children,
   openDialog,
 }) => {
@@ -164,7 +164,7 @@ const NewFileDropTarget = ({
     setIsImporting(true);
 
     apiClient
-      .post('/importFiles', { files: acceptedFiles.map(file => file.path) })
+      .post('/importSessions', { files: acceptedFiles.map(file => file.path) })
       .catch(({ message, error }) => {
         setIsImporting(false);
         showErrorDialog(message, error);
@@ -264,12 +264,12 @@ const NewFileDropTarget = ({
   );
 };
 
-NewFileDropTarget.defaultProps = {
+SessionFileDropTarget.defaultProps = {
   children: null,
   openDialog: () => {},
 };
 
-NewFileDropTarget.propTypes = {
+SessionFileDropTarget.propTypes = {
   children: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   openDialog: PropTypes.func,
 };
@@ -279,4 +279,4 @@ const mapDispatchToProps = dispatch => ({
   openDialog: bindActionCreators(dialogActions.openDialog, dispatch),
 });
 
-export default connect(null, mapDispatchToProps)(NewFileDropTarget);
+export default connect(null, mapDispatchToProps)(SessionFileDropTarget);

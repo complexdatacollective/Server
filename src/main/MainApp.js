@@ -12,9 +12,6 @@ const guiProxy = require('./guiProxy');
 const Updater = require('./Updater');
 
 // TODO: move/centralize
-const FileImportUpdated = 'FILE_IMPORT_UPDATED';
-const PROTOCOL_IMPORT_SUCCEEDED = 'PROTOCOL_IMPORT_SUCCEEDED';
-const SESSIONS_IMPORTED = 'SESSIONS_IMPORTED';
 const RESET_APP = 'RESET_APP';
 
 const userDataDir = app.getPath('userData');
@@ -71,34 +68,15 @@ const createApp = () => {
 
   const showImportProtocolDialog = () => {
     protocolManager.presentImportProtocolDialog(mainWindow.window)
-      .then(({ filenames, errorMessages }) => {
-        // If filenames are empty, user cancelled
-        if (filenames) {
-          mainWindow.send(PROTOCOL_IMPORT_SUCCEEDED, filenames);
-        }
-        if (errorMessages) {
-          dialog.showErrorBox('Import Error', errorMessages);
-        }
-      })
-      .then(() => mainWindow.send(FileImportUpdated))
       .catch((err) => {
-        dialog.showErrorBox('Import Error', err && err.message);
+        dialog.showErrorBox('Protocol Import Error', err && err.message);
       });
   };
 
   const showImportSessionDialog = () => {
     protocolManager.presentImportSessionDialog(mainWindow.window)
-      // .then(({ filenames, errorMessages }) => {
-      //   // If filenames are empty, user cancelled
-      //   if (filenames) {
-      //     mainWindow.send(SESSIONS_IMPORTED, filenames);
-      //   }
-      //   if (errorMessages) {
-      //     dialog.showErrorBox('Import Error', errorMessages);
-      //   }
-      // })
       .catch((err) => {
-        dialog.showErrorBox('Import Error', err && err.message);
+        dialog.showErrorBox('Session Import Error', err && err.message);
       });
   };
 
@@ -108,8 +86,7 @@ const createApp = () => {
       if (!developmentProtocol) { return; }
       const mockSessions = buildMockData(developmentProtocol);
       const developmentProtocolId = get(developmentProtocol, '_id');
-      protocolManager.addSessionData(developmentProtocolId, mockSessions)
-        .then(() => mainWindow.send(SESSIONS_IMPORTED, `${mockSessions.length} test sessions`));
+      protocolManager.addSessionData(developmentProtocolId, mockSessions);
     });
   };
 

@@ -22,8 +22,9 @@ const hasValidProtocolExtension = filepath => validProtocolFileExts.includes(pat
 const hasValidSessionExtension = filepath => validSessionFileExts.includes(path.extname(filepath).replace(/^\./, ''));
 
 const emittedEvents = {
-  PROTOCOLS_IMPORT_STARTED: 'PROTOCOLS_IMPORT_STARTED',
-  PROTOCOLS_IMPORT_COMPLETE: 'PROTOCOLS_IMPORT_COMPLETE',
+  PROTOCOL_IMPORT_START: 'PROTOCOL_IMPORT_START',
+  PROTOCOL_IMPORT_SUCCESS: 'PROTOCOL_IMPORT_SUCCESS',
+  PROTOCOL_IMPORT_FAILURE: 'PROTOCOL_IMPORT_FAILURE',
   SESSIONS_IMPORT_STARTED: 'SESSIONS_IMPORT_STARTED',
   SESSIONS_IMPORT_COMPLETE: 'SESSIONS_IMPORT_COMPLETE',
 };
@@ -76,10 +77,10 @@ class ProtocolManager {
     return dialog.showOpenDialog(browserWindow, opts)
       .then(({ canceled, filePaths }) => {
         if (canceled) {
-          return { filesnames: null, errorMessages: null };
+          return Promise.resolve('User cancelled import.');
         }
 
-        return this.validateAndImportProtocols(filePaths);
+        return this.handleProtocolImport(filePaths);
       });
   }
 
@@ -98,30 +99,47 @@ class ProtocolManager {
 
     const promisedImports = fileList.map((userFilepath) => {
       const fileBasename = userFilepath && path.basename(userFilepath);
+      sendToGui(emittedEvents.PROTOCOL_IMPORT_START, fileBasename);
 
       if (!hasValidProtocolExtension(userFilepath)) {
-        return Promise.reject(constructErrorObject(ErrorMessages.InvalidContainerFileExtension, null, fileBasename));
+        sendToGui(
+          emittedEvents.PROTOCOL_IMPORT_FAILURE,
+          fileBasename,
+          ErrorMessages.InvalidContainerFileExtension,
+        );
+        return Promise.reject(
+          constructErrorObject(ErrorMessages.InvalidContainerFileExtension, null, fileBasename),
+        );
       }
 
-      sendToGui(emittedEvents.PROTOCOLS_IMPORT_STARTED);
-
       let tempFilepath;
+      let retrievedProtocolName;
       return this.ensureDataDir()
         .then(() => this.importFile(userFilepath))
         .then(({ tempPath, destPath, protocolName }) => {
           tempFilepath = tempPath;
+          retrievedProtocolName = protocolName;
           return this.processFile(tempPath, destPath, protocolName);
         })
         .catch((err) => {
           // Clean up tmp file on error
           if (tempFilepath) tryUnlink(tempFilepath);
+
+          sendToGui(
+            emittedEvents.PROTOCOL_IMPORT_FAILURE,
+            fileBasename,
+            err,
+          );
           throw err;
         })
         .then(() => {
           // Clean up tmp file if update was a no-op
           if (tempFilepath) tryUnlink(tempFilepath);
         })
-        .then(() => fileBasename);
+        .then(() => {
+          sendToGui(emittedEvents.PROTOCOL_IMPORT_SUCCESS, fileBasename, retrievedProtocolName);
+          return fileBasename;
+        });
     });
 
     return Promise.allSettled(promisedImports)
@@ -135,13 +153,12 @@ class ProtocolManager {
           .filter(protocolPath => protocolPath.status === 'rejected')
           .map(filteredPath => filteredPath.reason);
 
-        sendToGui(emittedEvents.PROTOCOLS_IMPORT_COMPLETE);
         // FatalError if no sessions survived the cull
         if (validImportedProtocolFiles.length === 0) {
           throw new RequestError(invalidImportedFileErrors);
         }
 
-        return { filenames: validImportedProtocolFiles, errorMessages: invalidImportedFileErrors };
+        return { completed: validImportedProtocolFiles, errors: invalidImportedFileErrors };
       });
   }
 
@@ -370,32 +387,19 @@ class ProtocolManager {
   }
 
   /**
-     * Read graphml and/or netcanvas files from a user-specified location.
-     * Primary interface for render-side API.
-     * @async
-     * @param  {FileList} fileList
-     * @return {object} Resolves with filenames of successful imports and errors for failures
-     * @throws {RequestError|Error} Rejects if there is a problem uploading, or on invalid input
-     */
-  handleImportedFiles(fileList) {
-    // First separate out the filelist into protocols, sessions, and invalid files
-    const protocolFileList = fileList.filter(
-      filepath => hasValidProtocolExtension(filepath && path.basename(filepath)));
-    const sessionFileList = fileList.filter(
-      filepath => hasValidSessionExtension(filepath && path.basename(filepath)));
-    const invalidFileList = fileList.filter(filepath =>
-      !hasValidSessionExtension(filepath && path.basename(filepath)) &&
-      !hasValidProtocolExtension(filepath && path.basename(filepath)))
-      .map(filepath => path.basename(filepath));
-
+   * Read graphml and/or netcanvas files from a user-specified location.
+   * Primary interface for render-side API.
+   * @async
+   * @param  {FileList} fileList
+   * @return {object} Resolves with filenames of successful imports and errors for failures
+   * @throws {RequestError|Error} Rejects if there is a problem uploading, or on invalid input
+   */
+  handleProtocolImport(protocolFileList) {
     // Create an array to store the result of each processFile action
     const processFilePromises = [];
 
     // Test if there are protocol files to process
     if (protocolFileList.length > 0) {
-      // Emit an import start IPC event with a UUID for this import
-      sendToGui(emittedEvents.PROTOCOL_IMPORT_STARTED, 'protocolImportToastID');
-
       // Send the protocol file list to validateAndImportProtocols
       processFilePromises.push(this.validateAndImportProtocols(protocolFileList));
 
@@ -404,11 +408,41 @@ class ProtocolManager {
       processFilePromises.push(Promise.resolve({ completed: [], errors: [] }));
     }
 
+    return Promise.allSettled(processFilePromises)
+      .then((results) => {
+        const importedProtocols = results[0].status === 'fulfilled' ? results[0].value.completed : [];
+        const protocolErrors = results[0].status === 'fulfilled' ? results[0].value.errors : [results[0].reason];
+
+        return {
+          importedProtocols,
+          protocolErrors,
+        };
+      });
+  }
+
+  /**
+     * Read graphml and/or netcanvas files from a user-specified location.
+     * Primary interface for render-side API.
+     * @async
+     * @param  {FileList} fileList
+     * @return {object} Resolves with filenames of successful imports and errors for failures
+     * @throws {RequestError|Error} Rejects if there is a problem uploading, or on invalid input
+     */
+  handleSessionImport(fileList) {
+    const sessionFileList = fileList.filter(filepath =>
+      hasValidSessionExtension(filepath && path.basename(filepath)));
+    const invalidFileList = fileList.filter(filepath =>
+      !hasValidSessionExtension(filepath && path.basename(filepath)))
+      .map(filepath => path.basename(filepath));
+
+    // Create an array to store the result of each processFile action
+    const processFilePromises = [];
+
     // Test if there are session files to export
     if (sessionFileList.length > 0) {
       // Emit an import start IPC event with a UUID for this import
       logger.log('SESSION IMPORT STARTED');
-      sendToGui(emittedEvents.SESSIONS_IMPORT_STARTED, 'sessionImportToastID');
+      sendToGui(emittedEvents.SESSIONS_IMPORT_STARTED);
 
       // The "file" may be one or many sessions! the individual method must return arrays
       processFilePromises.push(this.processSessionFiles(sessionFileList));
@@ -419,7 +453,7 @@ class ProtocolManager {
     // If there are invalid files push them to the promise list as rejections
     if (invalidFileList.length > 0) {
       processFilePromises.push(
-        Promise.reject(invalidFileList.map(invalidFile => constructErrorObject( 
+        Promise.reject(invalidFileList.map(invalidFile => constructErrorObject(
           ErrorMessages.InvalidFileExtension,
           null,
           invalidFile,
@@ -431,38 +465,18 @@ class ProtocolManager {
 
     return Promise.allSettled(processFilePromises)
       .then((results) => {
-        // results = [
-        //   {
-        //     status: 'fulfilled', // 'rejected
-        //     value: {
-        //       completed: [],
-        //       errors: []
-        //     }
-        //   }
-        // ]
-        // results[0] = protocols
-        // results[1] = sessions
-        // results[2] = invalidFiles
-        //   { reason: ''}
-
-        const importedProtocols = results[0].status === 'fulfilled' ? results[0].value.completed : [];
-        const protocolErrors = results[0].status === 'fulfilled' ? results[0].value.errors : [results[0].reason];
-        const importedSessions = results[1].status === 'fulfilled' ? results[1].value.completed : [];
-        const sessionErrors = results[1].status === 'fulfilled' ? results[1].value.errors : [results[1].reason];
-        const invalidFileErrors = results[2].status === 'rejected' ? results[2].reason : [];
+        const importedSessions = results[0].status === 'fulfilled' ? results[0].value.completed : [];
+        const sessionErrors = results[0].status === 'fulfilled' ? results[0].value.errors : [results[0].reason];
+        const invalidFileErrors = results[1].status === 'rejected' ? results[1].reason : [];
 
         // Emit an import start IPC event with a UUID for this import session
         sendToGui(emittedEvents.SESSIONS_IMPORT_COMPLETE, {
-          importedProtocols,
-          protocolErrors,
           importedSessions,
           sessionErrors,
           invalidFileErrors,
         });
 
         return {
-          importedProtocols,
-          protocolErrors,
           importedSessions,
           sessionErrors,
           invalidFileErrors,
@@ -493,7 +507,7 @@ class ProtocolManager {
           return Promise.resolve('User cancelled import.');
         }
 
-        return this.handleImportedFiles(filePaths);
+        return this.handleSessionImport(filePaths);
       });
   }
 
@@ -527,8 +541,10 @@ class ProtocolManager {
         .then(bufferContents => validateGraphML(bufferContents)) // Check basic structure is valid
         .then(xmlDoc => this.processGraphML(xmlDoc)) // Parse into javascript session objects
         .then(({ protocolId, sessions }) => sessions.map( // Could be one or many sessions
-          session => this.addSessionData(protocolId, session))) // Attept to import each session into db
-        .then(addSessionPromises => Promise.allSettled(addSessionPromises)) // Wait for result of all import actions
+          session =>
+            this.addSessionData(protocolId, session))) // Attept to import each session into db
+        .then(addSessionPromises =>
+          Promise.allSettled(addSessionPromises)) // Wait for result of all import actions
         .then((importedSessions) => {
           // Determine which addSessionData calls succeeded, and which failed.
           const validImportedSessions = importedSessions
