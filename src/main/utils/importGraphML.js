@@ -1,6 +1,7 @@
 const dom = require('xmldom');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
 
+// TODO: Update this to validate against XML Schema: https://github.com/complexdatacollective/graphml-schemas
 const validateGraphML = (bufferContents) => {
   const xmlDoc = new dom.DOMParser().parseFromString(bufferContents.toString(), 'text/xml');
 

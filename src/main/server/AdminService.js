@@ -181,37 +181,26 @@ class AdminService {
 
     api.post('/importFiles', (req, res, next) => {
       const files = req.body.files;
+
+      // Handle imported files deals with processing both session and protocol files.
+      // It emits IPC messages about its progress.
       this.protocolManager.handleImportedFiles(files)
-        .then((
-          { importedProtocols, protocolErrors, importedSessions, sessionErrors, invalidFileErrors },
-        ) => {
-          let errorMessages = protocolErrors || '';
-          errorMessages += sessionErrors && errorMessages ? '; ' : '';
-          errorMessages += sessionErrors || '';
-          errorMessages += invalidFileErrors && errorMessages ? '; ' : '';
-          errorMessages += invalidFileErrors;
-          if (importedProtocols || importedSessions) {
-            const filenames = `${importedProtocols}\n${importedSessions}`;
-            res.send({ status: 'ok', filenames, message: errorMessages });
-          } else {
-            res.send(500, { status: 'error', message: errorMessages });
-          }
-          return { importedProtocols, importedSessions };
-        })
-        .then(({ importedProtocols, importedSessions }) => {
-          if (importedProtocols) {
-            sendToGui(emittedEvents.PROTOCOL_IMPORT_SUCCEEDED, importedProtocols);
-          }
-          return importedSessions;
-        })
-        .then((importedSessions) => {
-          if (importedSessions) {
-            sendToGui(emittedEvents.SESSIONS_IMPORTED, importedSessions);
-          }
+        .then((resultObject) => {
+          // When we arrive here, the result of handleImportedFiles is known for all files
+          // resultObject:
+          //  - importedProtocols,
+          //  - protocolErrors,
+          //  - importedSessions,
+          //  - sessionErrors,
+          //  - invalidFileErrors,
+
+          // We need to respond to the apiClient that posted to us.
+          return res.send({ status: 'ok', message: 'Import finished', ...resultObject });
         })
         .catch((err) => {
+          // Fatal error with the export shows an error dialog
           logger.error(err);
-          res.send(500, { status: 'error', message: err.message });
+          res.send(500, { status: 'error', message: 'There was an error during the import process.', error: err.message });
         })
         .then(() => next());
     });

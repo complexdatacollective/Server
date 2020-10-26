@@ -20,8 +20,9 @@ import { actionCreators as connectionInfoActionCreators } from '../ducks/modules
 import { actionCreators as deviceActionCreators } from '../ducks/modules/devices';
 import { actionCreators as protocolActionCreators } from '../ducks/modules/protocols';
 import { actionCreators as messageActionCreators, messages } from '../ducks/modules/appMessages';
+import { actionCreators as toastActions } from '../ducks/modules/toasts';
 import { isFrameless } from '../utils/environment';
-
+import ToastManager from '../components/ToastManager';
 
 const IPC = {
   REQUEST_API_INFO: 'REQUEST_API_INFO',
@@ -32,9 +33,6 @@ const IPC = {
   PROTOCOL_IMPORT_SUCCEEDED: 'PROTOCOL_IMPORT_SUCCEEDED',
   PROTOCOLS_IMPORT_STARTED: 'PROTOCOLS_IMPORT_STARTED',
   PROTOCOLS_IMPORT_COMPLETE: 'PROTOCOLS_IMPORT_COMPLETE',
-  SESSIONS_IMPORTED: 'SESSIONS_IMPORTED',
-  SESSIONS_IMPORT_STARTED: 'SESSIONS_IMPORT_STARTED',
-  SESSIONS_IMPORT_COMPLETE: 'SESSIONS_IMPORT_COMPLETE',
   RESET_APP: 'RESET_APP',
 };
 
@@ -69,11 +67,12 @@ class App extends Component {
   constructor(props) {
     super(props);
 
+    this.protocolImportToastID = 'protocolImportToast';
+    this.protocolImportCancelled = false;
+
     this.state = {
       apiReady: false,
       insecure: remote.app.commandLine.hasSwitch('unsafe-pairing-code'),
-      importingSession: false,
-      importingProtocol: false,
     };
 
     preventGlobalDragDrop();
@@ -89,9 +88,11 @@ class App extends Component {
       this.setState({ apiReady: true });
     };
 
+    // Initialise UI with back end API details
     ipcRenderer.send(IPC.REQUEST_API_INFO);
     ipcRenderer.once(IPC.API_INFO, (event, connectionInfo) => updateAPIInfo(connectionInfo));
 
+    // Handle pairing
     ipcRenderer.on(IPC.PAIRING_CODE_AVAILABLE, (event, data) => {
       props.newPairingRequest(data.id, data.pairingCode);
     });
@@ -105,6 +106,7 @@ class App extends Component {
       props.loadDevices();
     });
 
+    // Handle Protocol Import
     ipcRenderer.on(IPC.PROTOCOL_IMPORT_SUCCEEDED, (_, data) => {
       this.setState({ importingProtocol: false });
       const appendData = data ? `: ${data}` : '';
@@ -119,20 +121,7 @@ class App extends Component {
       this.setState({ importingProtocol: false });
     });
 
-    ipcRenderer.on(IPC.SESSIONS_IMPORT_STARTED, () => {
-      this.setState({ importingSession: true });
-    });
-
-    ipcRenderer.on(IPC.SESSIONS_IMPORT_COMPLETE, () => {
-      this.setState({ importingSession: false });
-    });
-
-    ipcRenderer.on(IPC.SESSIONS_IMPORTED, (_, data) => {
-      this.setState({ importingSession: false });
-      const appendData = data ? `: ${data}` : '';
-      props.showConfirmationMessage(`${messages.sessionImportSuccess}${appendData}`);
-    });
-
+    // Respond to backend data reset
     ipcRenderer.on(IPC.RESET_APP, () => {
       props.resetApp(); // Reset state to initial state
       ipcRenderer.send(IPC.REQUEST_API_INFO); // Recover backend API info
@@ -222,6 +211,7 @@ class App extends Component {
           }
         </div>
         <DialogManager />
+        <ToastManager />
       </div>
     );
   }
@@ -246,6 +236,7 @@ App.propTypes = {
   setConnectionInfo: PropTypes.func.isRequired,
   showConfirmationMessage: PropTypes.func,
   dismissAppMessages: PropTypes.func.isRequired,
+  addToast: PropTypes.func.isRequired,
 };
 
 App.defaultProps = {
@@ -276,6 +267,9 @@ function mapDispatchToProps(dispatch) {
     dismissAppMessage: bindActionCreators(messageActionCreators.dismissAppMessage, dispatch),
     dismissAppMessages: bindActionCreators(messageActionCreators.dismissAppMessages, dispatch),
     setConnectionInfo: bindActionCreators(connectionInfoActionCreators.setConnectionInfo, dispatch),
+    addToast: bindActionCreators(toastActions.addToast, dispatch),
+    updateToast: bindActionCreators(toastActions.updateToast, dispatch),
+    removeToast: bindActionCreators(toastActions.removeToast, dispatch),
   };
 }
 

@@ -16,7 +16,7 @@ const ErrorMessages = {
   EmptyFilelist: 'Empty filelist',
   FilelistNotSingular: 'Multiple files must be uploaded separately',
   InvalidContainerFile: 'Invalid file',
-  InvalidFileExtension: 'File must have a ".netcanvas" or ".graphml" extension',
+  InvalidFileExtension: 'This file has an invalid file extension and was not imported. Files must have a ".netcanvas" or ".graphml" extension.',
   InvalidContainerFileExtension: 'File must have a ".netcanvas" extension',
   InvalidSessionFileExtension: 'File must have a ".graphml" extension',
   InvalidPairingCode: 'Incorrect pairing code',
@@ -28,9 +28,9 @@ const ErrorMessages = {
   MissingProtocolFile: 'Missing protocol file',
   NotFound: 'Not found',
   NothingToExport: 'No data available to export',
-  ProtocolAlreadyExists: 'Protocol already imported, rename it to create a new workspace, or remove the existing protocol',
-  ProtocolNotFoundForSession: 'The associated protocol does not exist on this server',
-  SessionAlreadyExists: 'This server already contains this session',
+  ProtocolAlreadyExists: 'This protocol has already been imported. Rename it and try again to create a new workspace, or remove the existing protocol',
+  ProtocolNotFoundForSession: 'The protocol used by this session does not exist. Import it, and try again',
+  SessionAlreadyExists: 'This session already exists in Server (matched an existing session ID), and so cannot be imported again.',
   VerificationFailed: 'Request verification failed',
 };
 
