@@ -69,7 +69,7 @@ const Instructions = ({
         <p>
           Once you have a protocol imported, you can import a <code>.graphml</code> case file by
           dragging it to the protocol overview section, or
-          selecting <code>Import Case...</code> from the <code>File</code> menu.
+          selecting <code>Import Interview Files...</code> from the <code>File</code> menu.
         </p>
       </section>
     }

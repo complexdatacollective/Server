@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import PropTypes from 'prop-types';
 import { groupBy } from 'lodash';
@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 import { connect, useDispatch } from 'react-redux';
 import { ipcRenderer } from 'electron';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Icon, Spinner, ProgressBar, Button } from '@codaco/ui';
+import { Icon, Spinner, Button } from '@codaco/ui';
 import { getCSSVariableAsNumber } from '@codaco/ui/lib/utils/CSSVariables';
 import { actionCreators as protocolActionCreators } from '../ducks/modules/protocols';
 import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
@@ -39,35 +39,12 @@ const NewFileDropTarget = ({
       autoDismiss: false,
       content: (
         <React.Fragment>
-          <ProgressBar orientation="horizontal" percentProgress={10} />
+          <p>
+            Your sessions are being imported...
+          </p>
         </React.Fragment>
       ),
     }));
-  };
-
-  const showCancellationToast = () => {
-    dispatch(toastActions.addToast({
-      type: 'warning',
-      title: 'Import cancelled',
-      content: (
-        <React.Fragment>
-          <p>You cancelled session import.</p>
-        </React.Fragment>
-      ),
-    }));
-  };
-
-  const showUpdateToast = (update) => {
-    ipcRenderer.on(IPC.SESSIONS_IMPORT_COMPLETE, () => {
-      dispatch(toastActions.updateToast('sessionImportToast', {
-        title: 'Still importing...',
-        content: (
-          <React.Fragment>
-            <ProgressBar orientation="horizontal" percentProgress={update.progress} />
-          </React.Fragment>
-        ),
-      }));
-    });
   };
 
   const showCompleteToast = (message, numberSucceeded, importErrors, fileErrors) => {
@@ -138,7 +115,7 @@ const NewFileDropTarget = ({
               <span role="img" aria-label="success">✔️</span> {numberSucceeded} session(s) imported successfully.
             </p>
             <p>
-              <span role="img" aria-label="warning">⚠️</span> { importErrors.length + fileErrors.length} files or sessions enountered an
+              <span role="img" aria-label="warning">⚠️</span> { importErrors.length + fileErrors.length} file(s) or session(s) enountered an
               error during import.
             </p>
             <div className="toast-button-group">
@@ -156,7 +133,12 @@ const NewFileDropTarget = ({
       title: 'Finished!',
       content: (
         <React.Fragment>
-          <p>{message}</p>
+          <p>
+            The import process finished successfully.
+          </p>
+          <p>
+            <span role="img" aria-label="success">✔️</span> {numberSucceeded} session(s) imported.
+          </p>
         </React.Fragment>
       ),
     }));
@@ -180,22 +162,9 @@ const NewFileDropTarget = ({
 
   const onDrop = useCallback((acceptedFiles) => {
     setIsImporting(true);
-    showStartSessionImportToast();
 
     apiClient
       .post('/importFiles', { files: acceptedFiles.map(file => file.path) })
-      .then((result) => {
-        // See src/main/data-managers/ProtocolManager.js:374
-        const {
-          message, // User readable result of the API request.
-          importedSessions, // Array of session IDs for sucessfully imported sessions
-          sessionErrors, // Collection of error objects with error details
-          invalidFileErrors, // ?
-        } = result;
-
-        setIsImporting(false);
-        showCompleteToast(message, importedSessions.length, sessionErrors, invalidFileErrors);
-      })
       .catch(({ message, error }) => {
         setIsImporting(false);
         showErrorDialog(message, error);
@@ -234,6 +203,28 @@ const NewFileDropTarget = ({
     duration: slowDuration,
     when: 'beforeChildren',
   };
+
+  const handleSessionImportComplete = (_, result) => {
+    // See src/main/data-managers/ProtocolManager.js:374
+    const {
+      message, // User readable result of the API request.
+      importedSessions, // Array of session IDs for sucessfully imported sessions
+      sessionErrors, // Collection of error objects with error details
+      invalidFileErrors, // ?
+    } = result;
+
+    setIsImporting(false);
+    showCompleteToast(message, importedSessions.length, sessionErrors, invalidFileErrors);
+  };
+
+  useEffect(() => {
+    ipcRenderer.on(IPC.SESSIONS_IMPORT_STARTED, showStartSessionImportToast);
+    ipcRenderer.on(IPC.SESSIONS_IMPORT_COMPLETE, handleSessionImportComplete);
+    return () => {
+      ipcRenderer.removeListener(IPC.SESSIONS_IMPORT_STARTED, showStartSessionImportToast);
+      ipcRenderer.removeListener(IPC.SESSIONS_IMPORT_COMPLETE, handleSessionImportComplete);
+    };
+  }, []);
 
   return (
     <div {...getRootProps()} style={{ flex: 1, overflowY: 'auto' }}>

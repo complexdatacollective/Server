@@ -419,7 +419,7 @@ class ProtocolManager {
     // If there are invalid files push them to the promise list as rejections
     if (invalidFileList.length > 0) {
       processFilePromises.push(
-        Promise.reject(invalidFileList.map(invalidFile => constructErrorObject(
+        Promise.reject(invalidFileList.map(invalidFile => constructErrorObject( 
           ErrorMessages.InvalidFileExtension,
           null,
           invalidFile,
@@ -452,7 +452,13 @@ class ProtocolManager {
         const invalidFileErrors = results[2].status === 'rejected' ? results[2].reason : [];
 
         // Emit an import start IPC event with a UUID for this import session
-        sendToGui(emittedEvents.SESSIONS_IMPORT_COMPLETE, 'sessionImportToastID');
+        sendToGui(emittedEvents.SESSIONS_IMPORT_COMPLETE, {
+          importedProtocols,
+          protocolErrors,
+          importedSessions,
+          sessionErrors,
+          invalidFileErrors,
+        });
 
         return {
           importedProtocols,
@@ -484,10 +490,10 @@ class ProtocolManager {
     return dialog.showOpenDialog(browserWindow, opts)
       .then(({ canceled, filePaths }) => {
         if (canceled) {
-          return { filesnames: null, errorMessages: null };
+          return Promise.resolve('User cancelled import.');
         }
 
-        return this.processSessionFiles(filePaths);
+        return this.handleImportedFiles(filePaths);
       });
   }
 

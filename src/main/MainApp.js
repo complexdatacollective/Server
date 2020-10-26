@@ -88,15 +88,15 @@ const createApp = () => {
 
   const showImportSessionDialog = () => {
     protocolManager.presentImportSessionDialog(mainWindow.window)
-      .then(({ filenames, errorMessages }) => {
-        // If filenames are empty, user cancelled
-        if (filenames) {
-          mainWindow.send(SESSIONS_IMPORTED, filenames);
-        }
-        if (errorMessages) {
-          dialog.showErrorBox('Import Error', errorMessages);
-        }
-      })
+      // .then(({ filenames, errorMessages }) => {
+      //   // If filenames are empty, user cancelled
+      //   if (filenames) {
+      //     mainWindow.send(SESSIONS_IMPORTED, filenames);
+      //   }
+      //   if (errorMessages) {
+      //     dialog.showErrorBox('Import Error', errorMessages);
+      //   }
+      // })
       .catch((err) => {
         dialog.showErrorBox('Import Error', err && err.message);
       });
@@ -128,7 +128,6 @@ const createApp = () => {
   const appMenu = {
     label: 'App',
     submenu: [
-      { role: 'about' },
       {
         label: 'Check for Updates...',
         click: () => updater.checkForUpdates(),
@@ -146,10 +145,12 @@ const createApp = () => {
           label: 'Import Protocol...',
           click: showImportProtocolDialog,
         },
+        { type: 'separator' },
         {
-          label: 'Import Case...',
+          label: 'Import Interview Files (.graphml)...',
           click: showImportSessionDialog,
         },
+        { type: 'separator' },
       ],
     },
     {
