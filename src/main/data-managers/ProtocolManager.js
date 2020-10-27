@@ -11,6 +11,7 @@ const { readFile, rename, tryUnlink } = require('../utils/promised-fs');
 const { validateGraphML, convertGraphML } = require('../utils/importGraphML');
 const { hexDigest } = require('../utils/sha256');
 const { sendToGui } = require('../guiProxy');
+const { get } = require('lodash');
 
 const validProtocolFileExts = ['netcanvas'];
 const validSessionFileExts = ['graphml'];
@@ -669,9 +670,9 @@ class ProtocolManager {
     return this.getProtocol(protocolId)
       .then((protocol) => {
         if (!protocol) {
-          const protocolName = (session && session.data && session.data.sessionVariables &&
-            session.data.sessionVariables.protocolName) || 'undefined';
-          return Promise.reject(constructErrorObject(`The protocol ("${protocolName}") used by this session has not been imported into Server. Import it first, and try again.`, session.data.sessionVariables.caseId));
+          const protocolName = get(session, 'data,sessionVariables.protocolName', 'Unknown Protocol');
+          const caseID = get(session, 'data.sessionVariables.caseId', null);
+          return Promise.reject(constructErrorObject(`The protocol ("${protocolName}") used by this session has not been imported into Server. Import it first, and try again.`, caseID));
         }
         return this.sessionDb.insertAllForProtocol(sessionOrSessions, protocol);
       })
@@ -680,7 +681,7 @@ class ProtocolManager {
         if (insertErr.errorType === 'uniqueViolated') {
           return Promise.reject(constructErrorObject(
             ErrorMessages.SessionAlreadyExists,
-            session.data.sessionVariables.caseId,
+            get(session, 'data.sessionVariables.caseId', null),
           ));
         }
         throw insertErr;

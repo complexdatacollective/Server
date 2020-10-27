@@ -41,22 +41,22 @@ describe('ProtocolManager', () => {
     it('allows an import via the open dialog', () => {
       expect.assertions(1);
       const simulateChooseFile = Promise.resolve({ filePaths: mockFileList });
-      manager.validateAndImportProtocols = jest.fn().mockReturnValue(Promise.resolve(mockFileList));
+      manager.handleProtocolImport = jest.fn().mockReturnValue(Promise.resolve(mockFileList));
       dialog.showOpenDialog.mockReturnValue(simulateChooseFile);
       return manager.presentImportProtocolDialog()
         .then(() => {
-          expect(manager.validateAndImportProtocols).toHaveBeenCalled();
+          expect(manager.handleProtocolImport).toHaveBeenCalled();
         });
     });
 
     it('allows dialog to be cancelled', () => {
       expect.assertions(1);
       const simulateChooseNothing = Promise.resolve({ canceled: true });
-      manager.validateAndImportProtocols = jest.fn();
+      manager.handleProtocolImport = jest.fn();
       dialog.showOpenDialog.mockReturnValue(simulateChooseNothing);
       return manager.presentImportProtocolDialog()
         .then(() => {
-          expect(manager.validateAndImportProtocols).not.toHaveBeenCalled();
+          expect(manager.handleProtocolImport).not.toHaveBeenCalled();
         });
     });
   });
@@ -95,7 +95,7 @@ describe('ProtocolManager', () => {
         manager.validateAndImportProtocols(mockFiles)
           .then((results) => {
             expect(results)
-              .resolves.toMatchObject({ filenames: mockFiles.join(', ') });
+              .resolves.toMatchObject({ completed: mockFiles.join(', ') });
           });
       });
 
@@ -104,7 +104,7 @@ describe('ProtocolManager', () => {
         manager.processFile = jest.fn(filename => Promise.resolve(filename));
         const mockFilename = 'a.netcanvas';
         const result = await manager.validateAndImportProtocols([mockFilename]);
-        expect(result.filenames).toEqual(mockFilename);
+        expect(result.completed).toEqual(mockFilename);
         expect(manager.importFile).toHaveBeenCalledTimes(1);
       });
     });
@@ -416,7 +416,7 @@ describe('ProtocolManager', () => {
       it('rejects if adding to an unknown protocol', async () => {
         manager.db.get = jest.fn().mockResolvedValue(null);
         await expect(manager.addSessionData(null, []))
-          .rejects.toMatchErrorMessage(errorMessages.ProtocolNotFoundForSession);
+          .rejects.toEqual(expect.anything());
       });
     });
   });

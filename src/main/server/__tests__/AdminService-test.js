@@ -179,11 +179,6 @@ describe('the AdminService', () => {
           expect(res.json.protocol).toEqual(mockProtocol);
         });
 
-        it('accepts posted filenames', async () => {
-          const res = await jsonClient.post(endpoint, { files: mockFiles });
-          expect(res.json.filenames).toEqual(mockFiles.join(', '));
-        });
-
         it('deletes a protocol', async () => {
           const res = await jsonClient.delete(`${endpoint}/${mockProtocol.id}`);
           expect(res.json.status).toBe('ok');
@@ -204,10 +199,6 @@ describe('the AdminService', () => {
 
           it('sends an error for list', async () => {
             await expect(jsonClient.get(endpoint)).rejects.toMatchObject(mockResp);
-          });
-
-          it('sends an error for post', async () => {
-            await expect(jsonClient.post(endpoint, {})).rejects.toMatchObject(mockResp);
           });
 
           it('sends an error for get', async () => {
