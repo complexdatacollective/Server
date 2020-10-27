@@ -47,6 +47,7 @@ body {
 // Server specific error dialog for imports. 
 .dialog {
   .import-error-details {
+    @include allow-text-selection;
     overflow-y: auto;
 
     .error-section {
