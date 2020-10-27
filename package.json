@@ -99,6 +99,7 @@
         "sass-loader": "^7.0.3",
         "sass-svg": "^1.0.1",
         "style-loader": "^0.21.0",
+        "supertest": "^5.0.0",
         "swagger-jsdoc": "^3.7.0",
         "url-loader": "^1.0.1",
         "webpack": "^4.44.1",
