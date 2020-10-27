@@ -1,10 +1,97 @@
 .file-drop-target {
-
   @include modifier(active) {
     background-color: var(--color-slate-blue--dark);
 
     > * {
       pointer-events: none;
     }
+
+    .dashboard__panel {
+      background-color: var(--color-platinum--dark);
+    }
   }
+
+  display: inherit;
+  height: 100%;
+  width: 100%;
+
+  &__info {
+    background: var(--color-slate-blue--dark);
+    color: var(--text-light);
+    padding: unit(2) unit(4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius);
+    position: relative;
+    flex-grow: 0;
+
+    h2 {
+      margin-bottom: 0;
+      margin-top: unit(8);
+      font-size: 1.5rem;
+    }
+
+    .session-fan {
+      position: absolute;
+      top: -0.4rem;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .icon {
+        &[name='menu-download-data'] {
+          position: relative;
+          top: -0.75rem;
+        }
+      }
+
+    }
+
+    .mock-session {
+      width: 12rem;
+      height: 7rem;
+      border-radius: var(--border-radius);
+      background: var(--color-platinum);
+      box-shadow: 0.2rem 0.2rem 0.5rem rgba(0, 0, 0, 0.3);
+      position: absolute;
+      background: repeating-linear-gradient(
+        0deg,
+        var(--color-platinum--dark),
+        var(--color-platinum--dark) 2.4rem,
+        var(--color-platinum) 2.4rem,
+        var(--color-platinum) 7rem
+      );
+    }
+  }
+
+  &__overlay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    width: 100%;
+    z-index: var(--z-global-ui);
+    height: 100%;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: var(--color-cyber-grape);
+      opacity: 0.9;
+    }
+
+    svg {
+      opacity: 1;
+      color: var(--info);
+      transform: rotate(180deg);
+    }
+  }
+
 }

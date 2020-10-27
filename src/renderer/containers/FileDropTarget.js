@@ -4,14 +4,22 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-
+import { ipcRenderer } from 'electron';
+import { Icon, Spinner, ProgressBar } from '@codaco/ui';
 import AdminApiClient from '../utils/adminApiClient';
-import { actionCreators as messageActionCreators, messages } from '../ducks/modules/appMessages';
+import { actionCreators as toastActions } from '../ducks/modules/toasts';
 import { actionCreators as protocolActionCreators } from '../ducks/modules/protocols';
+import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 
 const onDragOver = (evt) => {
   evt.preventDefault();
   evt.dataTransfer.dropEffect = 'copy';
+};
+
+const IPC = {
+  PROTOCOL_IMPORT_START: 'PROTOCOL_IMPORT_START',
+  PROTOCOL_IMPORT_SUCCESS: 'PROTOCOL_IMPORT_SUCCESS',
+  PROTOCOL_IMPORT_FAILURE: 'PROTOCOL_IMPORT_FAILURE',
 };
 
 class FileDropTarget extends Component {
@@ -25,6 +33,18 @@ class FileDropTarget extends Component {
     this.containerRef = React.createRef();
   }
 
+  componentDidMount() {
+    ipcRenderer.on(IPC.PROTOCOL_IMPORT_START, this.showStartProtocolImportToast);
+    ipcRenderer.on(IPC.PROTOCOL_IMPORT_FAILURE, this.showProtocolImportFailureToast);
+    ipcRenderer.on(IPC.PROTOCOL_IMPORT_SUCCESS, this.showCompleteProtocolImportToast);
+  }
+
+  componentWillUnmount() {
+    ipcRenderer.removeListener(IPC.PROTOCOL_IMPORT_START, this.showStartProtocolImportToast);
+    ipcRenderer.removeListener(IPC.PROTOCOL_IMPORT_FAILURE, this.showProtocolImportFailureToast);
+    ipcRenderer.removeListener(IPC.PROTOCOL_IMPORT_SUCCESS, this.showCompleteProtocolImportToast);
+  }
+
   onDragEnter() {
     this.setState({ draggingOver: true });
   }
@@ -32,7 +52,7 @@ class FileDropTarget extends Component {
   onDragLeave(evt) {
     evt.stopPropagation();
     // Ignore event if dragging over a contained child (where evt.target is the child)
-    if (this.containerRef.current === evt.target) {
+    if (this.containerRef.current === evt.target || (this.props.isOverlay && evt.target.className === 'file-drop-target__overlay')) {
       this.setState({ draggingOver: false });
     }
   }
@@ -40,7 +60,7 @@ class FileDropTarget extends Component {
   onDrop(evt) {
     evt.preventDefault();
     evt.stopPropagation();
-    const { loadProtocols, showConfirmationMessage, showErrorMessage } = this.props;
+    const { loadProtocols } = this.props;
 
     const fileList = evt.dataTransfer.files;
     const files = [];
@@ -53,19 +73,78 @@ class FileDropTarget extends Component {
       const urlName = evt.dataTransfer.getData && evt.dataTransfer.getData('URL');
       if (urlName) {
         this.setState({ draggingOver: false });
-        showErrorMessage('Dragging protocol files into Server from this source is not currently supported. Please download the file to your computer and try again.');
+        this.showErrorDialog('Dragging files into Server from this source is not currently supported. Please download the file to your computer and try again.');
         return;
       }
     }
 
     this.setState({ draggingOver: false });
     this.apiClient
-      .post('/protocols', { files })
-      .then(resp => resp.protocols)
-      .then(() => showConfirmationMessage(messages.protocolImportSuccess))
-      .then(() => loadProtocols())
-      .catch(err => showErrorMessage(err.message || 'Could not save file'));
+      .post('/importProtocols', { files })
+      .then(() => loadProtocols()) // Refresh protocols
+      .catch(err => this.showErrorDialog(err.message || 'Could not save file'));
   }
+
+  showErrorDialog = (error) => {
+    this.props.openDialog({
+      type: 'Warning',
+      canCancel: false,
+      title: 'Import Error',
+      message: error,
+    });
+  }
+
+  showStartProtocolImportToast = (_, fileBasename) => {
+    this.props.addToast({
+      id: fileBasename,
+      type: 'info',
+      title: 'Importing...',
+      CustomIcon: (<Spinner small />),
+      autoDismiss: false,
+      content: (
+        <React.Fragment>
+          <p>
+            Importing {fileBasename}...
+          </p>
+          <ProgressBar orientation="horizontal" percentProgress={30} />
+        </React.Fragment>
+      ),
+    });
+  };
+
+  showProtocolImportFailureToast = (_, fileBasename, err) => {
+    this.props.updateToast(fileBasename, {
+      type: 'warning',
+      title: 'Import failed',
+      CustomIcon: (<Icon name="error" />),
+      autoDismiss: false,
+      content: (
+        <React.Fragment>
+          <p>
+            Importing {fileBasename} failed!
+          </p>
+          <strong>Error details:</strong>
+          <p>{(err && err.message) || err}</p>
+        </React.Fragment>
+      ),
+    });
+  };
+
+  showCompleteProtocolImportToast = (_, fileBasename, protocolName) => {
+    this.props.removeToast(fileBasename);
+
+    this.props.addToast({
+      type: 'success',
+      title: 'Import protocol complete!',
+      content: (
+        <React.Fragment>
+          <p>
+            The protocol &quot;{protocolName}&quot; was imported successfully.
+          </p>
+        </React.Fragment>
+      ),
+    });
+  };
 
   render() {
     const { draggingOver } = this.state;
@@ -90,21 +169,30 @@ class FileDropTarget extends Component {
 
 FileDropTarget.defaultProps = {
   children: null,
+  isOverlay: false,
   loadProtocols: () => {},
+  openDialog: () => {},
+  addToast: () => {},
+  removeToast: () => {},
+  updateToast: () => {},
 };
 
 FileDropTarget.propTypes = {
   children: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+  isOverlay: PropTypes.bool,
   loadProtocols: PropTypes.func,
-  showConfirmationMessage: PropTypes.func.isRequired,
-  showErrorMessage: PropTypes.func.isRequired,
+  openDialog: PropTypes.func,
+  addToast: PropTypes.func,
+  removeToast: PropTypes.func,
+  updateToast: PropTypes.func,
 };
 
 const mapDispatchToProps = dispatch => ({
-  showConfirmationMessage:
-    bindActionCreators(messageActionCreators.showConfirmationMessage, dispatch),
-  showErrorMessage: bindActionCreators(messageActionCreators.showErrorMessage, dispatch),
   loadProtocols: bindActionCreators(protocolActionCreators.loadProtocols, dispatch),
+  openDialog: bindActionCreators(dialogActions.openDialog, dispatch),
+  addToast: bindActionCreators(toastActions.addToast, dispatch),
+  removeToast: bindActionCreators(toastActions.removeToast, dispatch),
+  updateToast: bindActionCreators(toastActions.updateToast, dispatch),
 });
 
 export default connect(null, mapDispatchToProps)(FileDropTarget);

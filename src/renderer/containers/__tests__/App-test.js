@@ -26,6 +26,9 @@ const mockDispatched = {
   loadProtocols: jest.fn(),
   resetApp: jest.fn(),
   setConnectionInfo: jest.fn(),
+  addToast: jest.fn(),
+  updateToast: jest.fn(),
+  removeToast: jest.fn(),
   history: {
     push: jest.fn(),
   },
@@ -43,7 +46,12 @@ describe('<App />', () => {
   const mockPairRequest = {};
   const mockMsg = { timestamp: 1529338487695, text: 'ok' };
   const mockStore = createStore(() => (
-    { appMessages: [mockMsg], pairingRequest: mockPairRequest, dialogs: { dialogs: [] } }
+    {
+      appMessages: [mockMsg],
+      pairingRequest: mockPairRequest,
+      toasts: [],
+      dialogs: { dialogs: [] },
+    }
   ));
 
   it('does not render routes before API is ready', () => {
@@ -160,7 +168,7 @@ describe('<App />', () => {
   describe('when connected', () => {
     let app;
     beforeEach(() => {
-      app = shallow(<ConnectedApp store={mockStore} {...mockDispatched} />);
+      app = shallow(<ConnectedApp store={mockStore} {...mockDispatched} />).dive();
     });
 
     it('maps messages from state', () => {
@@ -172,7 +180,7 @@ describe('<App />', () => {
     });
 
     it('provides pairing actions', () => {
-      const wrapper = shallow(<ConnectedApp store={mockStore} />);
+      const wrapper = shallow(<ConnectedApp store={mockStore} />).dive();
       expect(wrapper.prop('ackPairingRequest')).toBeInstanceOf(Function);
       expect(wrapper.prop('completedPairingRequest')).toBeInstanceOf(Function);
       expect(wrapper.prop('dismissPairingRequest')).toBeInstanceOf(Function);
@@ -180,7 +188,7 @@ describe('<App />', () => {
     });
 
     it('provides message dismissal', () => {
-      const wrapper = shallow(<ConnectedApp store={mockStore} />);
+      const wrapper = shallow(<ConnectedApp store={mockStore} />).dive();
       expect(wrapper.prop('dismissAppMessage')).toBeInstanceOf(Function);
     });
   });

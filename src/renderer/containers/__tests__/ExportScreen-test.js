@@ -12,7 +12,7 @@ jest.mock('electron');
 describe('Connected ExportScreen', () => {
   it('provides protocol props', () => {
     const container = <ConnectedExportScreen store={createStore(() => ({}))} />;
-    const initialProps = shallow(container).props();
+    const initialProps = shallow(container).dive().props();
     expect(initialProps).toHaveProperty('protocolsHaveLoaded');
     expect(initialProps).toHaveProperty('protocol');
   });

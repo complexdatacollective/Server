@@ -173,13 +173,50 @@ class AdminService {
         .then(() => next());
     });
 
-    api.post('/protocols', (req, res, next) => {
+    api.post('/importProtocols', (req, res, next) => {
       const files = req.body.files;
-      this.protocolManager.validateAndImport(files)
-        .then(saved => res.send({ status: 'ok', protocols: saved }))
+
+      // Handle imported files deals with processing both session and protocol files.
+      // It emits IPC messages about its progress.
+      this.protocolManager.handleProtocolImport(files)
+        // eslint-disable-next-line arrow-body-style
+        .then((resultObject) => {
+          // resultObject:
+          //  - importedProtocols,
+          //  - protocolErrors,
+          //  - invalidFileErrors,
+
+          // We need to respond to the apiClient that posted to us.
+          return res.send({ status: 'ok', message: 'Protocol import finished', ...resultObject });
+        })
         .catch((err) => {
+          // Fatal error with the export shows an error dialog
           logger.error(err);
-          res.send(500, { status: 'error', message: err.message });
+          res.send(500, { status: 'error', message: 'There was an error during the protocol import process.', error: err.message });
+        })
+        .then(() => next());
+    });
+
+    api.post('/importSessions', (req, res, next) => {
+      const files = req.body.files;
+
+      // Handle imported files deals with processing both session and protocol files.
+      // It emits IPC messages about its progress.
+      this.protocolManager.handleSessionImport(files)
+        // eslint-disable-next-line arrow-body-style
+        .then((resultObject) => {
+          // resultObject:
+          //  - importedSessions,
+          //  - sessionErrors,
+          //  - invalidFileErrors,
+
+          // We need to respond to the apiClient that posted to us.
+          return res.send({ status: 'ok', message: 'Session import finished', ...resultObject });
+        })
+        .catch((err) => {
+          // Fatal error with the export shows an error dialog
+          logger.error(err);
+          res.send(500, { status: 'error', message: 'There was an error during the session import process.', error: err.message });
         })
         .then(() => next());
     });

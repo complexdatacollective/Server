@@ -689,10 +689,14 @@ class DeviceAPI extends EventEmitter {
             res.json(201, { status: 'ok', data: { insertedCount: docs.length } });
             return docs;
           })
-          .then(docs => sendToGui(emittedEvents.SESSIONS_IMPORTED, docs))
+          .then(docs => sendToGui(emittedEvents.SESSIONS_IMPORTED, docs.map(doc =>
+            doc.data && doc.data.sessionVariables && doc.data.sessionVariables.caseId).join(', ')))
           .catch((err) => {
             if (err.errorType === 'uniqueViolated') { // from nedb
-              this.handlers.onError(new ConflictError(err.message), res);
+              const session = Array.isArray(sessionData) ? sessionData[0] : sessionData;
+              this.handlers.onError(new ConflictError(`${ErrorMessages.SessionAlreadyExists}:
+                ${session.data && session.data.sessionVariables &&
+                session.data.sessionVariables.caseId}`), res);
             } else {
               this.handlers.onError(err, res);
             }
