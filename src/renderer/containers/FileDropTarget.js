@@ -4,10 +4,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { AnimatePresence, motion } from 'framer-motion';
 import { ipcRenderer } from 'electron';
 import { Icon, Spinner, ProgressBar } from '@codaco/ui';
-import { getCSSVariableAsNumber } from '@codaco/ui/lib/utils/CSSVariables';
 import AdminApiClient from '../utils/adminApiClient';
 import { actionCreators as toastActions } from '../ducks/modules/toasts';
 import { actionCreators as protocolActionCreators } from '../ducks/modules/protocols';
@@ -149,8 +147,6 @@ class FileDropTarget extends Component {
   };
 
   render() {
-    const { draggingOver } = this.state;
-    const { isOverlay } = this.props;
     const containerProps = {
       className: 'file-drop-target',
       onDragEnter: this.onDragEnter,
@@ -158,54 +154,9 @@ class FileDropTarget extends Component {
       onDragOver,
       onDrop: this.onDrop,
     };
-    if (!isOverlay && draggingOver) {
-      containerProps.className += ' file-drop-target--active';
-    }
-
-    const slowDuration = getCSSVariableAsNumber('--animation-duration-slow-ms') / 1000;
-    const fastDuration = getCSSVariableAsNumber('--animation-duration-fast-ms') / 1000;
-    const variants = {
-      show: {
-        opacity: 1,
-        transition: {
-          duration: fastDuration,
-        },
-      },
-      hidden: {
-        opacity: 0,
-        transition: {
-          duration: fastDuration,
-        },
-      },
-    };
-    const spring = {
-      type: 'spring',
-      damping: 10,
-      stiffness: 100,
-      duration: slowDuration,
-    };
 
     return (
       <div {...containerProps} ref={this.containerRef}>
-        <AnimatePresence>
-          {(draggingOver && isOverlay) &&
-            <motion.div
-              className="file-drop-target__overlay"
-              animate="show"
-              initial="hidden"
-              exit="hidden"
-              variants={variants}
-            >
-              <motion.div
-                animate={{ scale: 2 }}
-                transition={spring}
-              >
-                <Icon name="menu-download-data" />
-                <h4>Import sessions to Server</h4>
-              </motion.div>
-            </motion.div>
-          }
-        </AnimatePresence>
         { this.props.children }
       </div>
     );

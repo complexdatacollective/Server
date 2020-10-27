@@ -12,6 +12,7 @@ const guiProxy = require('./guiProxy');
 const Updater = require('./Updater');
 
 // TODO: move/centralize
+const FileImportUpdated = 'FILE_IMPORT_UPDATED';
 const RESET_APP = 'RESET_APP';
 
 const userDataDir = app.getPath('userData');
@@ -66,19 +67,18 @@ const createApp = () => {
     });
   };
 
-  const showImportProtocolDialog = () => {
+  const showImportProtocolDialog = () =>
     protocolManager.presentImportProtocolDialog(mainWindow.window)
+      .then(() => mainWindow.send(FileImportUpdated))
       .catch((err) => {
         dialog.showErrorBox('Protocol Import Error', err && err.message);
       });
-  };
 
-  const showImportSessionDialog = () => {
+  const showImportSessionDialog = () =>
     protocolManager.presentImportSessionDialog(mainWindow.window)
       .catch((err) => {
         dialog.showErrorBox('Session Import Error', err && err.message);
       });
-  };
 
   const generateTestSessions = () => {
     protocolManager.allProtocols().then((allProtocols) => {

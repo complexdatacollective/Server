@@ -549,6 +549,7 @@ class ProtocolManager {
           // Determine which addSessionData calls succeeded, and which failed.
           const validImportedSessions = importedSessions
             .filter(sessionPath => sessionPath.status === 'fulfilled')
+            // eslint-disable-next-line arrow-body-style
             .map((filteredPath) => {
               // We don't care about the specifics of the successful imports so just return
               // the session ID
@@ -558,6 +559,7 @@ class ProtocolManager {
 
           const failedImportedSessions = importedSessions
             .filter(sessionPath => sessionPath.status === 'rejected')
+            // eslint-disable-next-line arrow-body-style
             .map((filteredPath) => {
               // At this level we know the filename, so add it to the error object
               return {

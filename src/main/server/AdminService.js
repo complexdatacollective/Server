@@ -8,7 +8,6 @@ const apiRequestLogger = require('./apiRequestLogger');
 const DeviceManager = require('../data-managers/DeviceManager');
 const ProtocolManager = require('../data-managers/ProtocolManager');
 const ExportManager = require('../data-managers/ExportManager');
-const { sendToGui } = require('../guiProxy');
 const { resetPemKeyPair } = require('./certificateManager');
 const { PairingRequestService } = require('./devices/PairingRequestService');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
@@ -30,11 +29,6 @@ const ApiVersion = '0.0.1';
 
 // Admin API should listen *only* on loopback
 const Host = '127.0.0.1';
-
-const emittedEvents = {
-  SESSIONS_IMPORTED: 'SESSIONS_IMPORTED',
-  PROTOCOL_IMPORT_SUCCEEDED: 'PROTOCOL_IMPORT_SUCCEEDED',
-};
 
 const codeForError = (err) => {
   if (err.message === ErrorMessages.NotFound) {
