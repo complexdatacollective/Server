@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { compose, bindActionCreators } from 'redux';
-import { ToastManager } from '@codaco/ui';
+import { ToastManager as UIToastManager } from '@codaco/ui';
 import { actionCreators as toastActions } from '../ducks/modules/toasts';
 
 const mapStateToProps = state => ({
@@ -13,5 +13,5 @@ const mapDispatchToProps = dispatch => ({
 
 export default compose(
   connect(mapStateToProps, mapDispatchToProps),
-)(ToastManager);
+)(UIToastManager);
 

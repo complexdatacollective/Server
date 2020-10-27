@@ -210,12 +210,13 @@ App.propTypes = {
   setConnectionInfo: PropTypes.func.isRequired,
   showConfirmationMessage: PropTypes.func,
   dismissAppMessages: PropTypes.func.isRequired,
-  addToast: PropTypes.func.isRequired,
+  addToast: PropTypes.func,
 };
 
 App.defaultProps = {
   appMessages: [],
   pairingRequest: {},
+  addToast: () => {},
   showConfirmationMessage: () => {},
   history: {
     push: () => {},

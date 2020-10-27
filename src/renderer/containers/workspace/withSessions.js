@@ -102,7 +102,7 @@ const withSessions = WrappedComponent =>
     loadSessions = (startIndex = 0, stopIndex = defaultMinimumSessions, sortType = 'createdAt', direction = -1, filterValue = '', reset = true) => {
       const { protocol } = this.props;
       if (!protocol) {
-        return Promise.reject();
+        return Promise.resolve();
       }
       const loadPromise = this.apiClient.get(`${this.sessionsEndpoint}/${startIndex}/${stopIndex}/${sortType}/${direction}/${filterValue}`);
       this.loadPromises.push(loadPromise);

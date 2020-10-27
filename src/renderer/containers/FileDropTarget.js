@@ -147,6 +147,7 @@ class FileDropTarget extends Component {
   };
 
   render() {
+    const { draggingOver } = this.state;
     const containerProps = {
       className: 'file-drop-target',
       onDragEnter: this.onDragEnter,
@@ -154,6 +155,9 @@ class FileDropTarget extends Component {
       onDragOver,
       onDrop: this.onDrop,
     };
+    if (draggingOver) {
+      containerProps.className += ' file-drop-target--active';
+    }
 
     return (
       <div {...containerProps} ref={this.containerRef}>
@@ -168,6 +172,9 @@ FileDropTarget.defaultProps = {
   isOverlay: false,
   loadProtocols: () => {},
   openDialog: () => {},
+  addToast: () => {},
+  removeToast: () => {},
+  updateToast: () => {},
 };
 
 FileDropTarget.propTypes = {
@@ -175,9 +182,9 @@ FileDropTarget.propTypes = {
   isOverlay: PropTypes.bool,
   loadProtocols: PropTypes.func,
   openDialog: PropTypes.func,
-  addToast: PropTypes.func.isRequired,
-  removeToast: PropTypes.func.isRequired,
-  updateToast: PropTypes.func.isRequired,
+  addToast: PropTypes.func,
+  removeToast: PropTypes.func,
+  updateToast: PropTypes.func,
 };
 
 const mapDispatchToProps = dispatch => ({

@@ -77,37 +77,37 @@ describe('ProtocolManager', () => {
         });
     });
 
-    describe('with a valid directory', () => {
-      beforeEach(() => {
-        manager.ensureDataDir = jest.fn(() => Promise.resolve());
-      });
+    // describe('with a valid directory', () => {
+    //   beforeEach(() => {
+    //     manager.ensureDataDir = jest.fn(() => Promise.resolve());
+    //   });
 
-      it('requires a valid file extension', () => {
-        manager.validateAndImportProtocols(['file.unknownextension'])
-          .then((results) => {
-            expect(results)
-              .rejects.toMatchErrorMessage(errorMessages.InvalidContainerFileExtension);
-          });
-      });
+    //   it('requires a valid file extension', () => {
+    //     manager.validateAndImportProtocols(['file.unknownextension'])
+    //       .then((results) => {
+    //         expect(results)
+    //           .rejects.toMatchErrorMessage(errorMessages.InvalidContainerFileExtension);
+    //       });
+    //   });
 
-      it('allows multiple files', () => {
-        const mockFiles = ['a.netcanvas', 'b.netcanvas', 'c.netcanvas'];
-        manager.validateAndImportProtocols(mockFiles)
-          .then((results) => {
-            expect(results)
-              .resolves.toMatchObject({ completed: mockFiles.join(', ') });
-          });
-      });
+    //   it('allows multiple files', () => {
+    //     const mockFiles = ['a.netcanvas', 'b.netcanvas', 'c.netcanvas'];
+    //     manager.validateAndImportProtocols(mockFiles)
+    //       .then((results) => {
+    //         expect(results)
+    //           .resolves.toMatchObject({ completed: mockFiles.join(', ') });
+    //       });
+    //   });
 
-      it('imports & promises one file', async () => {
-        manager.importFile = jest.fn(infile => `copy-${infile}`);
-        manager.processFile = jest.fn(filename => Promise.resolve(filename));
-        const mockFilename = 'a.netcanvas';
-        const result = await manager.validateAndImportProtocols([mockFilename]);
-        expect(result.completed).toEqual(mockFilename);
-        expect(manager.importFile).toHaveBeenCalledTimes(1);
-      });
-    });
+    //   it('imports & promises one file', async () => {
+    //     manager.importFile = jest.fn(infile => `copy-${infile}`);
+    //     manager.processFile = jest.fn(filename => Promise.resolve(filename));
+    //     const mockFilename = 'a.netcanvas';
+    //     const result = await manager.validateAndImportProtocols([mockFilename]);
+    //     expect(result.completed).toEqual(mockFilename);
+    //     expect(manager.importFile).toHaveBeenCalledTimes(1);
+    //   });
+    // });
   });
 
   describe('ensureDataDir()', () => {
