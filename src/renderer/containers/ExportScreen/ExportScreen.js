@@ -19,7 +19,6 @@ import useExportOptions, { exportFormats } from './useExportOptions';
 const CSVOptions = [
   { label: 'Adjacency Matrix', key: 'adjacencyMatrix' },
   { label: 'Attribute List', key: 'attributeList' },
-  { label: 'Ego Attribute List', key: 'egoAttributeList' },
   { label: 'Edge List', key: 'edgeList' },
 ];
 
@@ -173,6 +172,16 @@ const ExportScreen = ({
                 >
                   <h3>CSV File Options</h3>
                   <p>Select which files to include in the CSV export.</p>
+                  <p><em>Ego Attribute List contains session data and is required.</em></p>
+                  <div className="export__row">
+                      <Checkbox
+                        label="Ego Attribute List (required)"
+                        input={{
+                          value: true,
+                        }}
+                        disabled="disabled"
+                      />
+                    </div>
                   {[CSVOptions.map(({ label, key }) => (
                     <div key={key} className="export__row">
                       <Checkbox

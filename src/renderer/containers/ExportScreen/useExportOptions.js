@@ -36,7 +36,7 @@ const baseCSVOptions = {
   adjacencyMatrix: false,
   attributeList: false,
   edgeList: false,
-  egoAttributeList: false,
+  egoAttributeList: true,
 };
 
 const initialState = {
