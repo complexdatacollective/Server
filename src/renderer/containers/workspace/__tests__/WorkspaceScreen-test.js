@@ -65,26 +65,22 @@ describe('<WorkspaceScreen />', () => {
     )).dive();
 
     it('sets protocol based on store state & URL match', () => {
-      const subj = makeSubjectWithState({ ...defaultState, panelLayoutOrders })
-        .dive();
+      const subj = makeSubjectWithState({ ...defaultState, panelLayoutOrders });
       expect(subj.prop('protocol')).toEqual(mockProtocol);
     });
 
     it('sets panel layout order', () => {
-      const subj = makeSubjectWithState({ ...defaultState, panelLayoutOrders })
-        .dive();
+      const subj = makeSubjectWithState({ ...defaultState, panelLayoutOrders });
       expect(subj.prop('panelLayoutOrder')).toEqual(['a', 'b']);
     });
 
     it('sets a default order if none given', () => {
-      wrapper = makeSubjectWithState({ ...defaultState, panelLayoutOrders: {} })
-        .dive();
+      wrapper = makeSubjectWithState({ ...defaultState, panelLayoutOrders: {} });
       expect(wrapper.prop('panelLayoutOrder')).toEqual([]);
     });
 
     it('provides setPanelLayoutOrder', () => {
-      const subj = makeSubjectWithState({ ...defaultState, panelLayoutOrders })
-        .dive();
+      const subj = makeSubjectWithState({ ...defaultState, panelLayoutOrders });
       expect(subj.prop('setPanelLayoutOrder')).toBeInstanceOf(Function);
     });
   });
