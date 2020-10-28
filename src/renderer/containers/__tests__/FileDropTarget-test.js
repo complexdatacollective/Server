@@ -9,8 +9,8 @@ import ConnectedFileDropTarget, { UnconnectedFileDropTarget as FileDropTarget } 
 jest.mock('../../utils/adminApiClient');
 
 const mockProps = {
-  showConfirmationMessage: jest.fn(),
-  showErrorMessage: jest.fn(),
+  openDialog: jest.fn(),
+  loadProtocols: jest.fn(),
 };
 
 describe('<FileDropTarget />', () => {
@@ -60,11 +60,10 @@ describe('<FileDropTarget />', () => {
       AdminApiClient.mockImplementation(() => mockClient);
     });
 
-    it('displays a success confirmation', () => {
+    it('displays no errors', () => {
       wrapper.simulate('drop', { dataTransfer: { files: {}, getData: () => '' } });
       expect(mockClient.post).toHaveBeenCalled();
-      expect(mockProps.showConfirmationMessage).toHaveBeenCalled();
-      expect(mockProps.showErrorMessage).not.toHaveBeenCalled();
+      expect(mockProps.openDialog).not.toHaveBeenCalled();
     });
   });
 
@@ -83,7 +82,7 @@ describe('<FileDropTarget />', () => {
       // process on next loop, to allow callback to have been called
       setImmediate(() => {
         expect(mockErrorClient.post).toHaveBeenCalled();
-        expect(mockProps.showErrorMessage).toHaveBeenCalled();
+        expect(mockProps.openDialog).toHaveBeenCalled();
         done();
       });
     });
@@ -93,7 +92,7 @@ describe('<FileDropTarget />', () => {
       // process on next loop, to allow callback to have been called
       setImmediate(() => {
         expect(mockErrorClient.post).toHaveBeenCalled();
-        expect(mockProps.showErrorMessage).toHaveBeenCalled();
+        expect(mockProps.openDialog).toHaveBeenCalled();
         done();
       });
     });
@@ -112,12 +111,7 @@ describe('<FileDropTarget />', () => {
 
     it('maps a dispatched showErrorMessage fn to props', () => {
       const subject = shallow(<ConnectedFileDropTarget store={store} />);
-      expect(subject.prop('showErrorMessage')).toBeInstanceOf(Function);
-    });
-
-    it('maps a dispatched showConfirmationMessage fn to props', () => {
-      const subject = shallow(<ConnectedFileDropTarget store={store} />);
-      expect(subject.prop('showConfirmationMessage')).toBeInstanceOf(Function);
+      expect(subject.prop('openDialog')).toBeInstanceOf(Function);
     });
   });
 });

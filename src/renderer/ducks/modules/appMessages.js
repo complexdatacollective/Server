@@ -13,6 +13,7 @@ const messageTypes = {
 
 const messages = {
   protocolImportSuccess: 'Protocol imported successfully',
+  sessionImportSuccess: 'Session imported successfully',
 };
 
 const newMessage = (text, messageType) => ({

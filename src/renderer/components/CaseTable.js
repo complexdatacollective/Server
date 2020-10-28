@@ -143,7 +143,7 @@ class CaseTable extends Component {
               caseId: list[index] && list[index].data &&
                 list[index].data.sessionVariables ?
                 // eslint-disable-next-line no-underscore-dangle
-                list[index].data.sessionVariables._caseID : '...',
+                list[index].data.sessionVariables._caseID || list[index].data.sessionVariables.caseId : '...',
               sessionId: list[index] ? list[index].id : '...',
             })}
             rowClassName={({ index }) => {

@@ -108,8 +108,7 @@ describe('AnswerDistributionPanels', () => {
 
   describe('API handler', () => {
     beforeEach(async () => {
-      wrapper = shallow(<Wrapper store={createStore(() => state)} />)
-        .dive().dive();
+      wrapper = shallow(<Wrapper store={createStore(() => state)} />).dive().dive();
       await wrapper.instance().loadData();
     });
 

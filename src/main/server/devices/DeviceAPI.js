@@ -8,7 +8,7 @@ const { app } = require('electron');
 const { ConflictError, NotAcceptableError } = require('restify-errors');
 const { EventEmitter } = require('events');
 const { sendToGui } = require('../../guiProxy');
-
+const versionGatekeeper = require('./versionGatekeeper');
 const DeviceManager = require('../../data-managers/DeviceManager');
 const ProtocolManager = require('../../data-managers/ProtocolManager');
 const apiRequestLogger = require('../apiRequestLogger');
@@ -209,10 +209,11 @@ const createBaseServer = (opts = {}) => {
   // Access-Origins buys no security
   const cors = corsMiddleware({
     origins: ['*'],
-    allowHeaders: ['Authorization'],
+    allowHeaders: ['Authorization', 'X-Device-API-Version'],
   });
   server.pre(cors.preflight);
   server.use(cors.actual);
+  server.use(versionGatekeeper(ApiVersion));
 
   return server;
 };
@@ -688,10 +689,14 @@ class DeviceAPI extends EventEmitter {
             res.json(201, { status: 'ok', data: { insertedCount: docs.length } });
             return docs;
           })
-          .then(docs => sendToGui(emittedEvents.SESSIONS_IMPORTED, docs))
+          .then(docs => sendToGui(emittedEvents.SESSIONS_IMPORTED, docs.map(doc =>
+            doc.data && doc.data.sessionVariables && doc.data.sessionVariables.caseId).join(', ')))
           .catch((err) => {
             if (err.errorType === 'uniqueViolated') { // from nedb
-              this.handlers.onError(new ConflictError(err.message), res);
+              const session = Array.isArray(sessionData) ? sessionData[0] : sessionData;
+              this.handlers.onError(new ConflictError(`${ErrorMessages.SessionAlreadyExists}:
+                ${session.data && session.data.sessionVariables &&
+                session.data.sessionVariables.caseId}`), res);
             } else {
               this.handlers.onError(err, res);
             }

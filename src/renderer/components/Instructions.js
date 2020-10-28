@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 import { Icon } from '@codaco/ui';
 import Types from '../types';
 
-const Instructions = ({ compact, apiInfo, showPairingInstructions, showImportInstructions }) => (
+const Instructions = ({
+  compact, apiInfo, showPairingInstructions, showImportInstructions, showImportSessionInstructions,
+}) => (
   <div className={`instructions ${compact ? 'instructions--compact' : ''}`}>
     {
       showImportInstructions &&
@@ -59,6 +61,18 @@ const Instructions = ({ compact, apiInfo, showPairingInstructions, showImportIns
 
       </section>
     }
+
+    {
+      showImportSessionInstructions &&
+      <section className="instructions__section">
+        <h2>To import a case:</h2>
+        <p>
+          Once you have a protocol imported, you can import a <code>.graphml</code> case file by
+          dragging it to the protocol overview section, or
+          selecting <code>Import Interview Files...</code> from the <code>File</code> menu.
+        </p>
+      </section>
+    }
   </div>
 );
 
@@ -67,6 +81,7 @@ Instructions.defaultProps = {
   apiInfo: null,
   showPairingInstructions: true,
   showImportInstructions: true,
+  showImportSessionInstructions: true,
 };
 
 Instructions.propTypes = {
@@ -74,6 +89,7 @@ Instructions.propTypes = {
   apiInfo: Types.deviceApiInfo,
   showPairingInstructions: PropTypes.bool,
   showImportInstructions: PropTypes.bool,
+  showImportSessionInstructions: PropTypes.bool,
 };
 
 export default Instructions;

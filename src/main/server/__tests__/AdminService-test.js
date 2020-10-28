@@ -168,7 +168,7 @@ describe('the AdminService', () => {
 
         beforeAll(() => {
           ProtocolManager.mockImplementation(() => ({
-            validateAndImport: files => Promise.resolve(files),
+            validateAndImportProtocols: files => Promise.resolve({ filenames: files.join(', ') }),
             allProtocols: jest.fn().mockResolvedValue(mockFiles.map(f => ({ filename: f }))),
             deleteProtocolSessions: jest.fn().mockResolvedValue({ status: 'ok' }),
             destroyProtocol: jest.fn().mockResolvedValue({ status: 'ok' }),
@@ -178,17 +178,12 @@ describe('the AdminService', () => {
 
         it('returns a list', async () => {
           const res = await jsonClient.get(endpoint);
-          expect(res.json.protocols).toContainEqual({ filename: mockFiles[0] });
+          expect(res.json.protocols).toEqual([{ filename: mockFiles[0] }]);
         });
 
         it('returns a protocol', async () => {
           const res = await jsonClient.get(`${endpoint}/${mockProtocol.id}`);
           expect(res.json.protocol).toEqual(mockProtocol);
-        });
-
-        it('accepts posted filenames', async () => {
-          const res = await jsonClient.post(endpoint, { files: mockFiles });
-          expect(res.json.protocols).toEqual(mockFiles);
         });
 
         it('deletes a protocol', async () => {
@@ -202,7 +197,7 @@ describe('the AdminService', () => {
           beforeAll(() => {
             const mockError = { error: 'mock' };
             ProtocolManager.mockImplementation(() => ({
-              validateAndImport: jest.fn().mockRejectedValue(mockError),
+              validateAndImportProtocols: jest.fn().mockRejectedValue(mockError),
               allProtocols: jest.fn().mockRejectedValue(mockError),
               deleteProtocolSessions: jest.fn().mockRejectedValue(mockError),
               getProtocol: jest.fn().mockRejectedValue(mockError),
@@ -211,10 +206,6 @@ describe('the AdminService', () => {
 
           it('sends an error for list', async () => {
             await expect(jsonClient.get(endpoint)).rejects.toMatchObject(mockResp);
-          });
-
-          it('sends an error for post', async () => {
-            await expect(jsonClient.post(endpoint, {})).rejects.toMatchObject(mockResp);
           });
 
           it('sends an error for get', async () => {

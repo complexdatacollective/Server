@@ -4,6 +4,7 @@ body {
   padding: 0;
   position: fixed;
   width: 100%;
+  color: var(--color-rich-black);
 }
 
 .app-root {
@@ -28,6 +29,63 @@ body {
 .form-field {
   &.form-field-toggle {
     margin-bottom: 0; // other NC field types don't have a margin; reset for consistency
+  }
+}
+
+// Override NC and UI dialog defaults for better presentation on desktop
+.dialog__main-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog--error {
+  .error__stack-trace {
+    color: var(--color-rich-black);
+  }
+}
+
+// Server specific error dialog for imports. 
+.dialog {
+  .import-error-details {
+    @include allow-text-selection;
+    overflow-y: auto;
+
+    .error-section {
+      margin: unit(2);
+      padding: unit(1) unit(2);
+      background: var(--inverse-background-color);
+      border-radius: var(--border-radius);
+
+      h2 {
+        display: inline-block;
+      }
+    }
+  }
+}
+
+// Override UI defaults for toasts for better display on desktop
+.toast {
+  width: 40rem;
+  background: var(--color-cyber-grape);
+  color: var(--text-light);
+
+  .toast-content {
+    font-weight: normal;
+
+    .progress-bar {
+      background: var(--transparent-light);
+    }
+
+    .toast-button-group {
+      display: flex;
+      justify-content: flex-end;
+
+      button {
+        &:not(:last-child) {
+          margin-right: unit(1);
+        }
+      }
+    }
   }
 }
 

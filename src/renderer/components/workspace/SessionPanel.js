@@ -68,7 +68,7 @@ class SessionPanel extends Component {
 
     return (
       <ScrollingPanelItem header={this.header} className="session-panel">
-        { (sessions && sessions.length === 0) && emptyContent }
+        {(sessions && sessions.length === 0) && emptyContent}
         <ul className="session-panel__list">
           {sessions && sessions.map((s, index) => {
             if (index < maxRecentSessions) {
@@ -78,7 +78,8 @@ class SessionPanel extends Component {
                     <DismissButton small inline onClick={() => this.deleteSession(s.id)} />
                     <span>{formatDate(s.updatedAt)}</span>
                     <span className="session-panel__id">
-                      {s.data && s.data.sessionVariables && s.data.sessionVariables._caseID}
+                      {s.data && s.data.sessionVariables &&
+                        (s.data.sessionVariables._caseID || s.data.sessionVariables.caseId)}
                       {' - '}
                       {s.id && s.id.substring(0, 13)}
                     </span>

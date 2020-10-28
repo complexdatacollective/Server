@@ -62,7 +62,7 @@ describe('<WorkspaceScreen />', () => {
         store={createStore(() => state)}
         match={{ params: { id: mockProtocol.id } }}
       />
-    ));
+    )).dive();
 
     it('sets protocol based on store state & URL match', () => {
       const subj = makeSubjectWithState({ ...defaultState, panelLayoutOrders })

@@ -13,7 +13,6 @@ const Updater = require('./Updater');
 
 // TODO: move/centralize
 const FileImportUpdated = 'FILE_IMPORT_UPDATED';
-const PROTOCOL_IMPORT_SUCCEEDED = 'PROTOCOL_IMPORT_SUCCEEDED';
 const RESET_APP = 'RESET_APP';
 
 const userDataDir = app.getPath('userData');
@@ -68,19 +67,18 @@ const createApp = () => {
     });
   };
 
-  const showImportProtocolDialog = () => {
-    protocolManager.presentImportDialog(mainWindow.window)
-      .then((filename) => {
-        // If filename is empty, user cancelled
-        if (filename) {
-          mainWindow.send(PROTOCOL_IMPORT_SUCCEEDED, filename);
-        }
-      })
+  const showImportProtocolDialog = () =>
+    protocolManager.presentImportProtocolDialog(mainWindow.window)
       .then(() => mainWindow.send(FileImportUpdated))
       .catch((err) => {
-        dialog.showErrorBox('Import Error', err && err.message);
+        dialog.showErrorBox('Protocol Import Error', err && err.message);
       });
-  };
+
+  const showImportSessionDialog = () =>
+    protocolManager.presentImportSessionDialog(mainWindow.window)
+      .catch((err) => {
+        dialog.showErrorBox('Session Import Error', err && err.message);
+      });
 
   const generateTestSessions = () => {
     protocolManager.allProtocols().then((allProtocols) => {
@@ -88,8 +86,7 @@ const createApp = () => {
       if (!developmentProtocol) { return; }
       const mockSessions = buildMockData(developmentProtocol);
       const developmentProtocolId = get(developmentProtocol, '_id');
-      protocolManager.addSessionData(developmentProtocolId, mockSessions)
-        .then(() => reloadHomeScreen());
+      protocolManager.addSessionData(developmentProtocolId, mockSessions);
     });
   };
 
@@ -108,7 +105,6 @@ const createApp = () => {
   const appMenu = {
     label: 'App',
     submenu: [
-      { role: 'about' },
       {
         label: 'Check for Updates...',
         click: () => updater.checkForUpdates(),
@@ -126,6 +122,12 @@ const createApp = () => {
           label: 'Import Protocol...',
           click: showImportProtocolDialog,
         },
+        { type: 'separator' },
+        {
+          label: 'Import Interview Files (.graphml)...',
+          click: showImportSessionDialog,
+        },
+        { type: 'separator' },
       ],
     },
     {
