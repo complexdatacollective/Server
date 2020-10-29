@@ -1,12 +1,11 @@
 .network-status {
+  @include reset-button;
   display: flex;
   justify-content: flex-start;
   align-items: center;
   margin-right: spacing(large);
 
   &__icon {
-    @include reset-button;
-
     background: center / contain no-repeat url('../images/devices-dark.png');
     cursor: pointer;
     height: 2.5rem;
