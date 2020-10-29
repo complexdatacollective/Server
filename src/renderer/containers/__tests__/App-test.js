@@ -4,7 +4,6 @@ import { mount, shallow } from 'enzyme';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
 import { ipcRenderer } from 'electron';
-
 import AdminApiClient from '../../utils/adminApiClient';
 import { ConnectedApp, UnconnectedApp as App, IPC } from '../App';
 import { isFrameless } from '../../utils/environment';

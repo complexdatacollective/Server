@@ -12,7 +12,14 @@ jest.mock('../../data-managers/DeviceManager');
 jest.mock('../../data-managers/ProtocolManager');
 jest.mock('../devices/PairingRequestService');
 jest.mock('../../data-managers/ExportManager', () => class {
-  createExportFile = jest.fn().mockResolvedValue({ abort: jest.fn() })
+  exportSessions = jest.fn().mockResolvedValue({
+    exportSessions: jest.fn(() => Promise.resolve({
+      abort: jest.fn(),
+    })),
+    fileExportManager: {
+      on: jest.fn(),
+    },
+  })
 });
 
 const testPortNumber = 52001;
@@ -306,7 +313,7 @@ describe('the AdminService', () => {
         it('requires valid export options', async () => {
           const endpoint = makeUrl('protocols/1/export_requests', apiBase);
           const error = new Error('Mock Invalid Options');
-          adminService.exportManager.createExportFile.mockRejectedValueOnce(error);
+          adminService.exportManager.exportSessions.mockRejectedValueOnce(error);
           await expect(jsonClient.post(endpoint, {})).rejects.toMatchObject({
             json: { message: error.message },
           });
@@ -314,7 +321,7 @@ describe('the AdminService', () => {
 
         it('reponds to a POST request', async () => {
           const endpoint = makeUrl('protocols/1/export_requests', apiBase);
-          const res = await jsonClient.post(endpoint, { destinationFilepath: '/tmp', exportFormats: ['graphml'] });
+          const res = await jsonClient.post(endpoint, {});
           expect(res.json.status).toBe('ok');
         });
       });

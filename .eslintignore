@@ -1,3 +1,4 @@
 src/renderer/ui
 src/main/utils/shared-api/node_modules
 src/main/utils/network-query
+src/main/utils/network-exporters

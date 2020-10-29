@@ -1,93 +1,10 @@
 /* eslint-disable no-underscore-dangle */
-
-const fs = require('fs');
 const path = require('path');
-const logger = require('electron-log');
-const { flattenDeep } = require('lodash');
+const { get } = require('lodash');
+const FileExportManager = require('../utils/network-exporters');
 
 const SessionDB = require('./SessionDB');
-const { archive } = require('../utils/archive');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
-const { makeTempDir, removeTempDir } = require('../utils/formatters/dir');
-const {
-  insertEgoInNetworks,
-  transposedCodebook,
-  unionOfNetworks,
-} = require('../utils/formatters/network');
-const {
-  formatsAreValid,
-  getFileExtension,
-  getFormatterClass,
-  partitionByEdgeType,
-} = require('../utils/formatters/utils');
-
-const escapeFilePart = part => part.replace(/\W/g, '');
-
-const makeFilename = (prefix, edgeType, exportFormat, extension) => {
-  let name = prefix;
-  if (extension !== `.${exportFormat}`) {
-    name += name ? '_' : '';
-    name += exportFormat;
-  }
-  if (edgeType) {
-    name += `_${escapeFilePart(edgeType)}`;
-  }
-  return `${name}${extension}`;
-};
-
-/**
- * Export a single (CSV or graphml) file
- * @param  {string} namePrefix
- * @param  {formats} exportFormat
- * @param  {string} outDir directory where we should write the file
- * @param  {object} network NC-formatted network `({ nodes, edges, ego })`
- * @param  {object} [options]
- * @param  {boolean} [options.useDirectedEdges=false] true to force directed edges
- * @param  {Object} [options.codebook] needed for graphML export
- * @return {Promise} promise decorated with an `abort` method.
- *                           If aborted, the returned promise will never settle.
- * @private
- */
-const exportFile = (
-  namePrefix,
-  edgeType,
-  exportFormat,
-  outDir,
-  network,
-  { useDirectedEdges, useEgoData, codebook } = {},
-) => {
-  const Formatter = getFormatterClass(exportFormat);
-  const extension = getFileExtension(exportFormat);
-  if (!Formatter || !extension) {
-    return Promise.reject(new RequestError(`Invalid export format ${exportFormat}`));
-  }
-
-  let streamController;
-  let writeStream;
-
-  const pathPromise = new Promise((resolve, reject) => {
-    const formatter = new Formatter(network, useDirectedEdges, useEgoData, codebook);
-    const outputName = makeFilename(namePrefix, edgeType, exportFormat, extension);
-    const filepath = path.join(outDir, outputName);
-    writeStream = fs.createWriteStream(filepath);
-    writeStream.on('finish', () => { resolve(filepath); });
-    writeStream.on('error', (err) => { reject(err); });
-    // TODO: on('ready')?
-    logger.debug(`Writing file ${filepath}`);
-    streamController = formatter.writeToStream(writeStream);
-  });
-
-  pathPromise.abort = () => {
-    if (streamController) {
-      streamController.abort();
-    }
-    if (writeStream) {
-      writeStream.destroy();
-    }
-  };
-
-  return pathPromise;
-};
 
 /**
  * Interface for all data exports
@@ -120,100 +37,30 @@ class ExportManager {
    *                     If the export is aborted, then the returned promise will never settle.
    * @return {string} filepath of written file
    */
-  createExportFile(
+  exportSessions(
     protocol,
-    {
-      destinationFilepath,
-      exportFormats,
-      exportNetworkUnion,
-      useDirectedEdges,
-      useEgoData,
-    } = {},
+    options,
   ) {
     if (!protocol) {
       return Promise.reject(new RequestError(ErrorMessages.NotFound));
     }
-    if (!destinationFilepath || !formatsAreValid(exportFormats) || !exportFormats.length) {
-      return Promise.reject(new RequestError(ErrorMessages.InvalidExportOptions));
-    }
 
-    let tmpDir;
-    const cleanUp = () => removeTempDir(tmpDir);
+    const exporter = this.sessionDB.findAll(protocol._id, null, null)
+      .then(sessions =>
+        sessions.map(session => ({ ...session.data })),
+      )
+      .then((sessions) => {
+        const protocolUID = get(sessions, '[0].sessionVariables.protocolUID');
+        const protocols = { [protocolUID]: protocol };
+        const fileExportManager = new FileExportManager(options);
 
-    let promisedExports;
-    const exportOpts = {
-      useDirectedEdges,
-      useEgoData,
-      codebook: transposedCodebook(protocol.codebook),
-    };
+        const exportSessions = () =>
+          fileExportManager.exportSessions(sessions, protocols);
 
-    // Export flow:
-    // 1. fetch all networks produced for this protocol's interviews
-    // 2. optional: insert ego into each network
-    // 3. optional: merge all networks into a single union for export
-    // 4. export each format for each network
-    // 5. save ZIP file to requested location
-    const exportPromise = makeTempDir()
-      .then((dir) => {
-        tmpDir = dir;
-        if (!tmpDir) {
-          throw new Error('Temporary directory unavailable');
-        }
-      })
-      .then(() => this.sessionDB.findAll(protocol._id, null, null))
-      .then(sessions => sessions.map((session) => {
-        const id = session && session._id;
-        const caseID = session && session.data && session.data.sessionVariables &&
-          session.data.sessionVariables._caseID;
-        return { ...session.data, _id: id, _caseID: caseID };
-      }))
-      .then(networks => (useEgoData ? insertEgoInNetworks(networks) : networks))
-      .then(networks => (exportNetworkUnion ? [unionOfNetworks(networks)] : networks))
-      .then((networks) => {
-        promisedExports = flattenDeep(
-          // Export every network
-          // => [n1, n2]
-          networks.map(network =>
-            // ...in every file format requested
-            // => [[n1.matrix.csv, n1.attrs.csv], [n2.matrix.csv, n2.attrs.csv]]
-            exportFormats.map(format =>
-              // ...partitioning martrix & edge-list output based on edge type
-              // => [ [[n1.matrix.knows.csv, n1.matrix.likes.csv], [n1.attrs.csv]],
-              //      [[n2.matrix.knows.csv, n2.matrix.likes.csv], [n2.attrs.csv]]]
-              partitionByEdgeType(network, format).map((partitionedNetwork) => {
-                const prefix = network._id ? `${network._caseID}_${network._id}` : protocol.name;
-                // gather one promise for each exported file
-                return exportFile(
-                  prefix,
-                  partitionedNetwork.edgeType,
-                  format,
-                  tmpDir,
-                  partitionedNetwork,
-                  exportOpts);
-              }))));
-        return Promise.all(promisedExports);
-      })
-      .then((exportedPaths) => {
-        if (exportedPaths.length === 0) {
-          throw new RequestError(ErrorMessages.NothingToExport);
-        }
-        return archive(exportedPaths, destinationFilepath);
-      })
-      .catch((err) => {
-        cleanUp();
-        logger.error(err);
-        throw err;
-      })
-      .then(cleanUp);
+        return { exportSessions, fileExportManager };
+      });
 
-    exportPromise.abort = () => {
-      if (promisedExports) {
-        promisedExports.forEach(promise => promise.abort());
-      }
-      cleanUp();
-    };
-
-    return exportPromise;
+    return exporter;
   }
 }
 

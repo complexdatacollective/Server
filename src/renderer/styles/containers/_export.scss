@@ -1,5 +1,5 @@
 .export {
-  @include element(section) {
+  @include element(options) {
     align-items: stretch;
     border-top: 1px solid var(--base-border-color);
     display: flex;
@@ -7,15 +7,18 @@
     padding: spacing(large) 0;
   }
 
-  @include element(csv-types) {
-    .form-field-container {
-      margin-bottom: 0;
-    }
+  @include element(section) {
+    margin: 0 0 spacing(medium);
+  }
+
+  @include element(row) {
+    padding: 1rem 0 0;
   }
 
   @include element(subpanel) {
     transform-origin: top;
-    padding: 0 1.5rem;
+    // padding: 0 1.5rem;
+    padding: 1rem 0 0 4rem;
   }
 
   @include element(subpanel-content) {
@@ -23,6 +26,14 @@
   }
 
   margin-bottom: 6rem; // height of footer
+
+  .form-field {
+    &:last-child { margin-bottom: 0; }
+  }
+
+  .form-field-container {
+    &:last-child { margin-bottom: 0; }
+  }
 
   &__footer {
     position: fixed;

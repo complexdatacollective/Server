@@ -51,6 +51,7 @@
     }
 
     .mock-session {
+      // sass-lint:disable-block no-duplicate-properties, no-color-literals
       width: 12rem;
       height: 7rem;
       border-radius: var(--border-radius);

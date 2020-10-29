@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { compose } from 'recompose';
 import { Modal } from '@codaco/ui';
 import withApiClient from '../components/withApiClient';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
@@ -93,7 +94,10 @@ const mapStateToProps = ({ pairingRequest }) => ({
   pairingRequest,
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(withApiClient(PairDevice));
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  withApiClient,
+)(PairDevice);
 
 export {
   PairDevice as UnconnectedPairDevice,

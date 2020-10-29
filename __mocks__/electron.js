@@ -76,6 +76,7 @@ const BrowserWindow = jest.fn(() => ({
 }));
 
 BrowserWindow.getAllWindows = jest.fn().mockReturnValue([]);
+BrowserWindow.getFocusedWindow = BrowserWindow;
 
 module.exports = {
   app,

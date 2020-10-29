@@ -1,8 +1,53 @@
 .modal {
   @include modifier(export) {
+    @include element(status) {
+      display: flex;
+    }
+
+    @include element(controls) {
+      text-align: right;
+    }
 
     .modal__window {
       min-width: 80vw;
     }
   }
+}
+
+.export-modal {
+  @include element(status) {
+    display: flex;
+    align-items: center;
+  }
+
+  @include element(status-detail) {
+    padding-left: 2rem;
+    flex-grow: 1;
+    color: var(--color-white);
+  }
+
+  @include element(controls) {
+    text-align: right;
+    padding-top: 4rem;
+  }
+
+  @include element(error-list) {
+    margin: 0;
+    padding: 0;
+
+    li {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      margin: 0.75rem;
+
+      .icon {
+        height: 2rem;
+        width: 2rem;
+        margin-right: 1rem;
+      }
+    }
+  }
+
+  width: 50vw;
 }
