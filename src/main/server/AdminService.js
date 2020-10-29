@@ -4,7 +4,7 @@ const uuid = require('uuid');
 const { BrowserWindow, ipcMain } = require('electron');
 const corsMiddleware = require('restify-cors-middleware');
 const detectPort = require('detect-port');
-const { toNumber } = require('lodash');
+const { toNumber, throttle } = require('lodash');
 
 const apiRequestLogger = require('./apiRequestLogger');
 const DeviceManager = require('../data-managers/DeviceManager');
@@ -330,15 +330,18 @@ class AdminService {
           exportSessions,
           fileExportManager,
         }) => {
+          const reportUpdate = throttle((data) => {
+            // Don't send updates to the log, there are too many of them
+            logger.debug('update', data);
+            sender.webContents.send('EXPORT/UPDATE', { ...data, id });
+          }, 50);
+
           fileExportManager.on('begin', (data) => {
             logger.log('begin', { data });
             sender.webContents.send('EXPORT/BEGIN', { ...data, id });
           });
 
-          fileExportManager.on('update', (data) => {
-            logger.log('update', data);
-            sender.webContents.send('EXPORT/UPDATE', { ...data, id });
-          });
+          fileExportManager.on('update', reportUpdate);
 
           fileExportManager.on('error', (err) => {
             logger.error('non-fatal error in export', err);
@@ -360,6 +363,7 @@ class AdminService {
           abortRequest = exportRequest.abort;
 
           ipcMain.on('EXPORT/ABORT', (_, abortId) => {
+            logger.warn('abort export');
             if (abortId !== id) { return; }
             abortRequest();
           });
