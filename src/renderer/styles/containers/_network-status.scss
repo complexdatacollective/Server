@@ -1,0 +1,37 @@
+.network-status {
+  @include reset-button;
+  @include modifier(dark) {
+    background-image: url('../images/devices-dark.png');
+  }
+
+  background: center / contain no-repeat url('../images/devices-dark.png');
+  cursor: pointer;
+  height: 3.4rem;
+  margin: 0.5rem spacing('medium');
+  position: relative;
+  width: 3.4rem;
+
+  &__badge {
+    --badge-offset: -0.4rem;
+    --badge-size: 1.4rem;
+    background-color: var(--color-tomato);
+    border-radius: calc(var(--badge-size) * 0.5);
+    bottom: var(--badge-offset);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-white);
+    font-size: 0.9rem;
+    height: var(--badge-size);
+    line-height: 1.2;
+    position: absolute;
+    right: var(--badge-offset);
+    width: var(--badge-size);
+  }
+
+  &--is-active {
+    .network-status__badge {
+      background-color: var(--color-sea-green);
+    }
+  }
+}

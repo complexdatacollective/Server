@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
+import cx from 'classnames';
 import AdminApiClient from '../utils/adminApiClient';
 
 const buttonClass = 'device-icon';
@@ -28,14 +29,19 @@ const NetworkStatus = () => {
           uptime: resp.serverStatus.uptime,
         });
       })
-      .catch(() => {
-        setState({});
+      .catch((e) => {
+        setState({ error: e.toString() });
       });
   }, []);
 
+  const networkStatusClasses = cx(
+    'network-status',
+    { 'network-status--is-active': !!state.uptime },
+  );
+
   return (
-    <button className={buttonClass}>
-      <span className="status-icon__badge" />
+    <button className={networkStatusClasses}>
+      <span className="network-status__badge" />
     </button>
   );
 };
