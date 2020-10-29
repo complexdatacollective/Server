@@ -2,7 +2,6 @@
   background-color: var(--color-platinum--dark);
   padding: spacing(medium);
   width: 100%;
-  border-bottom: 0.8rem solid var(--primary);
   color: var(--server-panel-text);
 
   &__header {
@@ -11,8 +10,7 @@
 
   &__wrapper {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
   }
-
 }
