@@ -27,25 +27,23 @@ class DeviceStatus extends Component {
   }
 
   render() {
-    const { dark, devices, history } = this.props;
-    let buttonClass = 'device-icon';
-    if (dark) {
-      buttonClass += ` ${buttonClass}--dark`;
-    }
+    const { devices, history } = this.props;
+
     return (
-      <React.Fragment>
-        <button className={buttonClass} onClick={() => history.push('/devices')}>
-          <span className="device-icon__badge">
+      <div className="device-status">
+        <button className="device-status__icon" onClick={() => history.push('/devices')}>
+          <span className="device-status__badge">
             {devices ? devices.length : ''}
           </span>
         </button>
-      </React.Fragment>
+
+        Devices
+      </div>
     );
   }
 }
 
 DeviceStatus.defaultProps = {
-  dark: false,
   devices: [],
   deleteDevice: null,
   hasPendingRequest: false,
@@ -53,7 +51,6 @@ DeviceStatus.defaultProps = {
 };
 
 DeviceStatus.propTypes = {
-  dark: PropTypes.bool,
   devices: Types.devices,
   loadDevices: PropTypes.func,
   history: PropTypes.object.isRequired,

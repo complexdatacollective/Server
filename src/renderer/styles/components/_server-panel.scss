@@ -1,6 +1,6 @@
 .server-panel {
   background-color: var(--color-platinum--dark);
-  padding: spacing(medium);
+  padding: spacing(medium) 0;
   width: 100%;
   color: var(--server-panel-text);
 
@@ -12,5 +12,6 @@
     display: flex;
     justify-content: flex-end;
     align-items: center;
+    padding: 0 spacing(large);
   }
 }

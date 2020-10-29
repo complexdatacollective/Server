@@ -2,8 +2,6 @@ import React, { useRef, useState, useEffect } from 'react';
 import cx from 'classnames';
 import AdminApiClient from '../utils/adminApiClient';
 
-const buttonClass = 'device-icon';
-
 const getMdnsStatus = ({ isAdvertising, mdnsIsSupported }) => {
   if (!mdnsIsSupported) { return 'Unsupported'; }
   return isAdvertising ? 'Active' : 'Pending';
@@ -40,9 +38,13 @@ const NetworkStatus = () => {
   );
 
   return (
-    <button className={networkStatusClasses}>
-      <span className="network-status__badge" />
-    </button>
+    <div className={networkStatusClasses}>
+      <button className="network-status__icon">
+        <span className="network-status__badge" />
+      </button>
+
+      Network
+    </div>
   );
 };
 
