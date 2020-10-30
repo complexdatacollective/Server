@@ -18,9 +18,22 @@
   user-select: text;
 
   &__close {
+    @include reset-button;
     position: absolute;
     top: spacing(medium);
     right: spacing(medium);
+    color: var(--inverse-text-color);
+    padding: 0.5rem;
+    cursor: pointer;
+
+    &:focus {
+      outline: none;
+    }
+
+    .icon {
+      height: 1rem;
+      width: 1rem;
+    }
   }
 
   h2 {

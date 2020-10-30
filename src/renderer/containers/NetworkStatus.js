@@ -1,6 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
 import cx from 'classnames';
-import { Button } from '@codaco/ui';
 import AdminApiClient from '../utils/adminApiClient';
 import InfoWindow from '../components/InfoWindow';
 import ClipboardText from '../components/ClipboardText';
@@ -28,8 +27,6 @@ const NetworkStatus = () => {
     apiClient.current.get('/health')
       .then((resp) => {
         const ip = resp.serverStatus.ip && resp.serverStatus.ip.address;
-
-        console.log({ status: resp.serverStatus });
 
         setNetworkState({
           hostname: resp.serverStatus.hostname,
@@ -66,6 +63,7 @@ const NetworkStatus = () => {
     </button>,
     <InfoWindow
       show={showNetworkModal}
+      className="network-status__window"
       onClose={() => setShowNetworkModal(false)}
     >
       <h2>Network Status</h2>
@@ -83,20 +81,17 @@ const NetworkStatus = () => {
         <tr>
           <th>Address</th>
           <td>
-          <p>You may need these if entering connection information manually.</p>
-
-          {networkState.publicAddresses &&
-            networkState.publicAddresses.map(ip => (
-              <div>
-                <ClipboardText>{`http://[${ip}]:${networkState.deviceApiPort}`}</ClipboardText><br />
-              </div>
-            ))
-          }
+            {networkState.publicAddresses &&
+              networkState.publicAddresses.map((ip) => {
+                const ipText = /[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/.test(ip)
+                  ? `http://${ip}:${networkState.deviceApiPort}`
+                  : `http://[${ip}]:${networkState.deviceApiPort}`;
+                return <div><ClipboardText>{ipText}</ClipboardText></div>;
+              })
+            }
           </td>
         </tr>
       </table>
-
-      <Button onClick={() => setShowNetworkModal(false)}>Close</Button>
     </InfoWindow>,
   ];
 };

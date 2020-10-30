@@ -1,18 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { window } from '@codaco/ui';
+import cx from 'classnames';
+import { window, Icon } from '@codaco/ui';
 import { AnimatePresence, motion } from 'framer-motion';
 
-const InfoWindow = ({ onClose, show, children }) => (
+const InfoWindow = ({ onClose, show, children, className }) => (
   <AnimatePresence>
     { show &&
       <motion.div
-        className="info-window"
+        className={cx('info-window', className)}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
-        <button className="info-window__close" onClick={onClose}>x</button>
+        <button className="info-window__close" onClick={onClose}><Icon name="close" /></button>
         {children}
       </motion.div>
     }
@@ -23,12 +24,12 @@ InfoWindow.propTypes = {
   onClose: PropTypes.func.isRequired,
   show: PropTypes.bool,
   children: PropTypes.node.isRequired,
+  className: PropTypes.string,
 };
 
 InfoWindow.defaultProps = {
   show: false,
+  className: null,
 };
-
-// export { InfoWindow };
 
 export default window(InfoWindow);

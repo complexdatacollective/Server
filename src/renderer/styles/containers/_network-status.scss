@@ -32,6 +32,20 @@
     width: var(--badge-size);
   }
 
+  &__window {
+    table {
+      th,
+      td {
+        padding: 0.5rem 0;
+        vertical-align: top;
+      }
+
+      th {
+        padding-right: 2rem;
+      }
+    }
+  }
+
   &--is-active {
     .network-status__badge {
       background-color: var(--color-sea-green);

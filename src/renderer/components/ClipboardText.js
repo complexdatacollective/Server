@@ -22,8 +22,8 @@ const ClipboardText = ({
 
     if (timer.current) { clearTimeout(timer.current); }
 
-    timer.current = setTimeout(() => setCopied(false), 500);
-  }, 800);
+    timer.current = setTimeout(() => setCopied(false), 899);
+  }, 900);
 
   const text = typeof children === 'string' && clipboardText.length === 0 ? children : clipboardText;
 
@@ -36,7 +36,7 @@ const ClipboardText = ({
 
   const animations = {
     hide: { display: 'none' },
-    copied: { display: 'block', opacity: [0, 0.8, 0], translateY: ['0%', '-100%'] },
+    copied: { display: 'block', opacity: [0, 0.9, 0], translateY: ['0%', '-150%'] },
   };
 
   return (
@@ -49,7 +49,7 @@ const ClipboardText = ({
       <motion.div
         initial="hide"
         variants={animations}
-        transition={{ duration: 0.4 }}
+        transition={{ duration: 0.9 }}
         style={{ translateX: '-50%' }}
         animate={copied ? 'copied' : 'hide'}
         className="clipboard-text__copied"
