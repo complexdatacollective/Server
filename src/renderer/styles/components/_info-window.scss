@@ -1,0 +1,31 @@
+.info-window {
+  position: absolute;
+  width: 50%;
+  max-height: 50%;
+  top: 50%;
+  left: 50%;
+  overflow-y: auto;
+  transform: translate(-50%, -50%);
+  background: var(--inverse-background-color);
+  color: var(--inverse-text-color);
+  padding: (2 * spacing(medium)) spacing(large) spacing(large);
+  border-radius: spacing(large);
+  -webkit-user-select: text;
+  -webkit-touch-callout: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  user-select: text;
+
+  &__close {
+    position: absolute;
+    top: spacing(medium);
+    right: spacing(medium);
+  }
+
+  h2 {
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+}
