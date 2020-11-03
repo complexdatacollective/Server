@@ -1,13 +1,13 @@
 .info-window {
   position: absolute;
-  width: 50%;
-  max-height: 50%;
+  width: 75vh;
+  max-height: 75vh;
   top: 50%;
   left: 50%;
   overflow-y: auto;
   transform: translate(-50%, -50%);
-  background: var(--inverse-background-color);
-  color: var(--inverse-text-color);
+  background: var(--base-background-color);
+  // color: var(--text-color);
   padding: (2 * spacing(medium)) spacing(large) spacing(large);
   border-radius: spacing(large);
   -webkit-user-select: text;
@@ -22,7 +22,7 @@
     position: absolute;
     top: spacing(medium);
     right: spacing(medium);
-    color: var(--inverse-text-color);
+    // color: var(--inverse-text-color);
     padding: 0.5rem;
     cursor: pointer;
 

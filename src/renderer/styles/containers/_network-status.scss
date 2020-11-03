@@ -34,14 +34,28 @@
 
   &__window {
     table {
+      width: 100%;
+
       th,
       td {
-        padding: 0.5rem 0;
+        padding: 0.5rem;
         vertical-align: top;
+        line-height: 2rem;
+        background-color: var(--color-platinum);
+
       }
 
       th {
         padding-right: 2rem;
+      }
+
+      tr {
+        &:nth-child(2n + 1) {
+          td,
+          th {
+            background-color: var(--color-platinum--dark);
+          }
+        }
       }
     }
   }
@@ -50,5 +64,27 @@
     .network-status__badge {
       background-color: var(--color-sea-green);
     }
+  }
+}
+
+
+.network-status-badge {
+  --badge-offset: -0.1rem;
+  --badge-size: 1rem;
+  background-color: var(--color-tomato);
+  border-radius: calc(var(--badge-size) * 0.5);
+  bottom: var(--badge-offset);
+  position: relative;
+  display: inline-flex;
+  font-size: 0.9rem;
+  height: var(--badge-size);
+  line-height: 1.2;
+  width: var(--badge-size);
+
+  &--ok {
+    background-color: var(--color-sea-green);
+  }
+  &--error {
+    background-color: var(--color-tomato);
   }
 }

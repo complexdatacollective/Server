@@ -4,9 +4,15 @@ import AdminApiClient from '../utils/adminApiClient';
 import InfoWindow from '../components/InfoWindow';
 import ClipboardText from '../components/ClipboardText';
 
+const getMdnsLabel = mdnsStatus => ({
+  error: 'Unsupported',
+  ok: 'Active',
+  pending: 'Pending',
+}[mdnsStatus]);
+
 const getMdnsStatus = ({ isAdvertising, mdnsIsSupported }) => {
-  if (!mdnsIsSupported) { return 'Unsupported'; }
-  return isAdvertising ? 'Active' : 'Pending';
+  if (!mdnsIsSupported) { return 'error'; }
+  return isAdvertising ? 'ok' : 'pending';
 };
 
 const initialState = {
@@ -29,12 +35,13 @@ const NetworkStatus = () => {
         const ip = resp.serverStatus.ip && resp.serverStatus.ip.address;
 
         setNetworkState({
-          hostname: resp.serverStatus.hostname,
+          ...resp.serverStatus,
+          // hostname: resp.serverStatus.hostname,
           ip: ip && ip.address,
-          deviceApiPort: resp.serverStatus.deviceApiPort,
-          mdnsStatus: getMdnsStatus(resp.serverStatus),
-          publicAddresses: resp.serverStatus.publicAddresses,
-          uptime: resp.serverStatus.uptime,
+          // deviceApiPort: resp.serverStatus.deviceApiPort,
+          // mdnsStatus: getMdnsStatus(resp.serverStatus),
+          // publicAddresses: resp.serverStatus.publicAddresses,
+          // uptime: resp.serverStatus.uptime,
         });
       })
       .catch((e) => {
@@ -47,8 +54,11 @@ const NetworkStatus = () => {
     { 'network-status--is-active': !!networkState.uptime },
   );
 
-
+  const uptimeBadge = networkState.uptime > 0
+    ? <div className="network-status-badge network-status-badge--ok" />
+    : <div className="network-status-badge network-status-badge--error" />;
   const uptimeDisplay = networkState.uptime && `${parseInt(networkState.uptime / 1000 / 60, 10)}m`;
+  const mdnsBadge = <div className={`network-status-badge network-status-badge--${getMdnsStatus(networkState)}`} />;
 
   return [
     <button
@@ -73,10 +83,10 @@ const NetworkStatus = () => {
           <th>Computer name</th><td>{networkState.hostname}</td>
         </tr>
         <tr>
-          <th>Discoverable</th><td>{networkState.mdnsStatus}</td>
+          <th>Uptime</th><td>{uptimeBadge} {uptimeDisplay}</td>
         </tr>
         <tr>
-          <th>Uptime</th><td>{uptimeDisplay}</td>
+          <th>Discoverable</th><td>{mdnsBadge} {getMdnsLabel(getMdnsStatus(networkState))}</td>
         </tr>
         <tr>
           <th>Address</th>
