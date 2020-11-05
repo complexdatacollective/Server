@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import logger from 'electron-log';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { ipcRenderer, shell, remote } from 'electron';
+import { ipcRenderer, remote } from 'electron';
 import { withRouter } from 'react-router-dom';
 import DialogManager from '../components/DialogManager';
 import AppRoutes from './AppRoutes';
@@ -22,6 +22,7 @@ import { actionCreators as messageActionCreators } from '../ducks/modules/appMes
 import { actionCreators as toastActions } from '../ducks/modules/toasts';
 import { isFrameless } from '../utils/environment';
 import ToastManager from '../components/ToastManager';
+import useUpdater from '../hooks/useUpdater';
 
 const IPC = {
   REQUEST_API_INFO: 'REQUEST_API_INFO',
@@ -46,16 +47,6 @@ const preventGlobalDragDrop = () => {
   });
 };
 
-const enableExternalLinks = () => {
-  // Open all links in external browser
-  document.addEventListener('click', (event) => {
-    if (event.target && event.target.tagName === 'A' && event.target.classList.contains('external-link')) {
-      event.preventDefault();
-      shell.openExternal(event.target.href);
-    }
-  });
-};
-
 /**
  * Main app container.
  */
@@ -72,7 +63,6 @@ class App extends Component {
     };
 
     preventGlobalDragDrop();
-    enableExternalLinks();
 
     const updateAPIInfo = (connectionInfo) => {
       if (connectionInfo.adminService) {
@@ -135,6 +125,8 @@ class App extends Component {
     const versionParts = appVersion.split('-');
 
     const handleDismissal = timestamp => dismissAppMessage(timestamp);
+
+    // useUpdater('https://api.github.com/repos/complexdatacollective/Server/releases/latest', 2500);
 
     return (
       <div className={appClass}>
