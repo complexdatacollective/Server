@@ -9,13 +9,18 @@ const InfoWindow = ({ onClose, show, children, className }) => (
     <AnimatePresence>
       { show &&
         <motion.div
-          className={cx('info-window', className)}
+          className="info-window__container"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          <button className="info-window__close" onClick={onClose}><Icon name="close" /></button>
-          {children}
+          <motion.div
+            className={cx('info-window', className)}
+            layout
+          >
+            <button className="info-window__close" onClick={onClose}><Icon name="close" /></button>
+            {children}
+          </motion.div>
         </motion.div>
       }
     </AnimatePresence>

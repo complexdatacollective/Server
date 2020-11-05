@@ -64,6 +64,7 @@ const NetworkStatus = () => {
     <button
       className={networkStatusClasses}
       onClick={() => setShowNetworkModal(true)}
+      key="button"
     >
       <div className="network-status__icon">
         <span className="network-status__badge" />
@@ -75,8 +76,9 @@ const NetworkStatus = () => {
       show={showNetworkModal}
       className="network-status__window"
       onClose={() => setShowNetworkModal(false)}
+      key="window"
     >
-      <h2>Network Status</h2>
+      <h1>Network Status</h1>
 
       <table>
         <tr>
@@ -89,15 +91,18 @@ const NetworkStatus = () => {
           <th>Discoverable</th><td>{mdnsBadge} {getMdnsLabel(getMdnsStatus(networkState))}</td>
         </tr>
         <tr>
+          <th>Port</th>
+          <td>
+            <div><ClipboardText>{networkState.deviceApiPort}</ClipboardText></div>
+          </td>
+        </tr>
+        <tr>
           <th>Address</th>
           <td>
             {networkState.publicAddresses &&
-              networkState.publicAddresses.map((ip) => {
-                const ipText = /[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/.test(ip)
-                  ? `http://${ip}:${networkState.deviceApiPort}`
-                  : `http://[${ip}]:${networkState.deviceApiPort}`;
-                return <div><ClipboardText>{ipText}</ClipboardText></div>;
-              })
+              networkState.publicAddresses.map(ip =>
+                <div><ClipboardText>{ip}</ClipboardText></div>,
+              )
             }
           </td>
         </tr>

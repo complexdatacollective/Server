@@ -3,10 +3,10 @@ $block: instructions;
 .#{$block} {
   --icon-height: 2rem;
 
-  align-items: center;
   display: flex;
   flex-direction: column;
   line-height: var(--icon-height);
+  margin-top: 2rem;
 
   code {
     white-space: nowrap;
@@ -14,7 +14,6 @@ $block: instructions;
 
   @include element(section) {
     margin-top: 1rem;
-    width: 80%;
     background: var(--color-platinum);
     padding: spacing(large);
     border-radius: var(--border-radius);

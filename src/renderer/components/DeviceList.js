@@ -2,19 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Button } from '@codaco/ui';
 import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
-import Instructions from './Instructions';
-import DeviceDetails from './DeviceDetails';
+import DeviceCard from './DeviceCard';
 
-const EmptyDeviceList = () => (
-  <div>
-    <h2>No devices found.</h2>
-    <Instructions showImportInstructions={false} />
-  </div>
-);
-
-const DeviceList = ({ deleteDevice, devices, openDialog }) => {
+const DeviceList = ({ deleteDevice, devices, openDialog, showInstructions }) => {
   const confirmDelete = (deviceId) => {
     if (deleteDevice) { // eslint-disable-line no-alert
       openDialog({
@@ -27,27 +18,25 @@ const DeviceList = ({ deleteDevice, devices, openDialog }) => {
     }
   };
 
-  if (!devices || !devices.length) {
-    return <EmptyDeviceList />;
-  }
+  const renderedDevices = devices.map((device, index) => (
+    <DeviceCard key={index} {...device} onClickHandler={() => confirmDelete(device.id)} />
+  ));
 
-  return devices.map(device => (
-    <div className="device-list__device" key={device.id}>
-      <div className="device-icon" />
-      <DeviceDetails device={device} />
-      {
-        deleteDevice &&
-        <Button color="neon-coral" onClick={() => confirmDelete(device.id)}>
-          Unpair
-        </Button>
+  return (
+    <div className="device-list">
+      {renderedDevices}
+
+      { devices.length === 0 &&
+        <h2>No devices found.</h2>
+        <p><a onClick={showInstructions}>Click here to view pairing instructions.</a></p>
       }
     </div>
-  ));
+  );
 };
 
 DeviceList.defaultProps = {
   deleteDevice: null,
-  devices: null,
+  devices: [],
 };
 
 DeviceList.propTypes = {

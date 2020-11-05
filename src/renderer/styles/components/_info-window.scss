@@ -1,21 +1,18 @@
 .info-window {
-  position: absolute;
-  width: 75vh;
-  max-height: 75vh;
-  top: 50%;
-  left: 50%;
-  overflow-y: auto;
-  transform: translate(-50%, -50%);
+  overflow: hidden;
   background: var(--base-background-color);
   // color: var(--text-color);
   padding: (2 * spacing(medium)) spacing(large) spacing(large);
   border-radius: spacing(large);
-  -webkit-user-select: text;
-  -webkit-touch-callout: text;
-  -moz-user-select: text;
-  -ms-user-select: text;
-  user-select: text;
-  user-select: text;
+
+  &__container {
+    position: absolute;
+    min-width: 75vh;
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+  }
 
   &__close {
     @include reset-button;
