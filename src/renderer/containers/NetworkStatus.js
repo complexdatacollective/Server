@@ -1,8 +1,8 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import cx from 'classnames';
-import AdminApiClient from '../utils/adminApiClient';
 import InfoWindow from '../components/InfoWindow';
 import ClipboardText from '../components/ClipboardText';
+import useNetworkStatus from '../hooks/useNetworkStatus';
 
 const getMdnsLabel = mdnsStatus => ({
   error: 'Unsupported',
@@ -15,50 +15,20 @@ const getMdnsStatus = ({ isAdvertising, mdnsIsSupported }) => {
   return isAdvertising ? 'ok' : 'pending';
 };
 
-const initialState = {
-  hostname: '',
-  ip: null,
-  deviceApiPort: null,
-  mdnsStatus: null,
-  publicAddresses: [],
-  uptime: 0,
-};
-
 const NetworkStatus = () => {
-  const apiClient = useRef(new AdminApiClient());
+  const networkStatus = useNetworkStatus();
   const [showNetworkModal, setShowNetworkModal] = useState(false);
-  const [networkState, setNetworkState] = useState(initialState);
-
-  useEffect(() => {
-    apiClient.current.get('/health')
-      .then((resp) => {
-        const ip = resp.serverStatus.ip && resp.serverStatus.ip.address;
-
-        setNetworkState({
-          ...resp.serverStatus,
-          // hostname: resp.serverStatus.hostname,
-          ip: ip && ip.address,
-          // deviceApiPort: resp.serverStatus.deviceApiPort,
-          // mdnsStatus: getMdnsStatus(resp.serverStatus),
-          // publicAddresses: resp.serverStatus.publicAddresses,
-          // uptime: resp.serverStatus.uptime,
-        });
-      })
-      .catch((e) => {
-        setNetworkState({ error: e.toString(), ...initialState });
-      });
-  }, []);
 
   const networkStatusClasses = cx(
     'network-status',
-    { 'network-status--is-active': !!networkState.uptime },
+    { 'network-status--is-active': !!networkStatus.uptime },
   );
 
-  const uptimeBadge = networkState.uptime > 0
+  const uptimeBadge = networkStatus.uptime > 0
     ? <div className="network-status-badge network-status-badge--ok" />
     : <div className="network-status-badge network-status-badge--error" />;
-  const uptimeDisplay = networkState.uptime && `${parseInt(networkState.uptime / 1000 / 60, 10)}m`;
-  const mdnsBadge = <div className={`network-status-badge network-status-badge--${getMdnsStatus(networkState)}`} />;
+  const uptimeDisplay = networkStatus.uptime && `${parseInt(networkStatus.uptime / 1000 / 60, 10)}m`;
+  const mdnsBadge = <div className={`network-status-badge network-status-badge--${getMdnsStatus(networkStatus)}`} />;
 
   return [
     <button
@@ -82,25 +52,25 @@ const NetworkStatus = () => {
 
       <table>
         <tr>
-          <th>Computer name</th><td>{networkState.hostname}</td>
+          <th>Computer name</th><td>{networkStatus.hostname}</td>
         </tr>
         <tr>
           <th>Uptime</th><td>{uptimeBadge} {uptimeDisplay}</td>
         </tr>
         <tr>
-          <th>Discoverable</th><td>{mdnsBadge} {getMdnsLabel(getMdnsStatus(networkState))}</td>
+          <th>Discoverable</th><td>{mdnsBadge} {getMdnsLabel(getMdnsStatus(networkStatus))}</td>
         </tr>
         <tr>
           <th>Port</th>
           <td>
-            <div><ClipboardText>{networkState.deviceApiPort}</ClipboardText></div>
+            <div><ClipboardText>{networkStatus.deviceApiPort}</ClipboardText></div>
           </td>
         </tr>
         <tr>
           <th>Address</th>
           <td>
-            {networkState.publicAddresses &&
-              networkState.publicAddresses.map(ip =>
+            {networkStatus.publicAddresses &&
+              networkStatus.publicAddresses.map(ip =>
                 <div><ClipboardText>{ip}</ClipboardText></div>,
               )
             }

@@ -54,7 +54,7 @@ const DeviceStatus = ({
     }
   };
 
-  const renderedDevices = devices.length > 0
+  const renderedDevices = devices && devices.length > 0
     ? devices.map((device, index) => (
       <DeviceCard key={index} {...device} onClickHandler={() => confirmDelete(device.id)} />
     ))
