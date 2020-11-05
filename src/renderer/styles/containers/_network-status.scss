@@ -31,19 +31,13 @@
     right: var(--badge-offset);
     width: var(--badge-size);
   }
-
-  &--is-active {
-    .network-status__badge {
-      background-color: var(--color-sea-green);
-    }
-  }
 }
 
 
 .network-status-badge {
   --badge-offset: -0.1rem;
   --badge-size: 1rem;
-  background-color: var(--color-tomato);
+  background-color: var(--color-neon-carrot);
   border-radius: calc(var(--badge-size) * 0.5);
   bottom: var(--badge-offset);
   position: relative;
@@ -56,7 +50,12 @@
   &--ok {
     background-color: var(--color-sea-green);
   }
+
   &--error {
     background-color: var(--color-tomato);
+  }
+
+  &--pending {
+    background-color: var(--color-neon-carrot);
   }
 }
