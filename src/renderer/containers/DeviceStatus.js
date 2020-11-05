@@ -90,7 +90,7 @@ const DeviceStatus = ({
 
               <p>Devices that have been paired with the server are listed below:</p>
 
-              <div className="device-list" layout>
+              <div className="device-status__list" layout>
                 {renderedDevices}
               </div>
 

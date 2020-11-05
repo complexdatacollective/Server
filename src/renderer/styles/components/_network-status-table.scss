@@ -1,7 +1,8 @@
 .network-status-table {
+  @include panel;
+
   table {
-    margin: 0 spacing('large') 2rem;
-    width: calc(100% - #{spacing('large') * 2});
+    width: 100%;
     border-radius: spacing('small');
     overflow: hidden;
 
@@ -10,7 +11,7 @@
       padding: spacing('small') spacing('medium');
       vertical-align: top;
       line-height: 2rem;
-      background-color: var(--color-platinum);
+      background-color: var(--color-white);
 
     }
 
@@ -23,7 +24,7 @@
       &:nth-child(2n + 1) {
         td,
         th {
-          background-color: var(--color-platinum--dark);
+          background-color: var(--color-platinum);
         }
       }
     }

@@ -3,6 +3,8 @@ $block: instructions;
 .#{$block} {
   --icon-height: 2rem;
 
+  @include panel;
+
   display: flex;
   flex-direction: column;
   line-height: var(--icon-height);
