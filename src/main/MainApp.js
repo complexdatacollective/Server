@@ -9,7 +9,6 @@ const { createTray } = require('./components/tray');
 const { buildMockData } = require('./utils/buildMockData');
 
 const guiProxy = require('./guiProxy');
-const Updater = require('./Updater');
 
 // TODO: move/centralize
 const FileImportUpdated = 'FILE_IMPORT_UPDATED';
@@ -25,14 +24,6 @@ const createApp = () => {
 
   const openMainWindow = () => mainWindow.open();
   const reloadHomeScreen = () => mainWindow.open('/overview');
-
-  // Instantiate the updater class, and check for update once on startup.
-  // Do not notify the user if there are no updates.
-  const updater = Updater();
-
-  if (!process.env.NODE_ENV === 'development') {
-    updater.checkForUpdates(true);
-  }
 
   const regenerateCertificates = () => {
     dialog.showMessageBox(mainWindow.window, {
@@ -105,10 +96,6 @@ const createApp = () => {
   const appMenu = {
     label: 'App',
     submenu: [
-      {
-        label: 'Check for Updates...',
-        click: () => updater.checkForUpdates(),
-      },
       { type: 'separator' },
       { role: 'quit' },
     ],
