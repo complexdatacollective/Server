@@ -1,19 +1,8 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
 import InfoWindow from '../components/InfoWindow';
-import ClipboardText from '../components/ClipboardText';
+import NetworkStatusTable from '../components/NetworkStatusTable';
 import useNetworkStatus from '../hooks/useNetworkStatus';
-
-const getMdnsLabel = mdnsStatus => ({
-  error: 'Unsupported',
-  ok: 'Active',
-  pending: 'Pending',
-}[mdnsStatus]);
-
-const getMdnsStatus = ({ isAdvertising, mdnsIsSupported }) => {
-  if (!mdnsIsSupported) { return 'error'; }
-  return isAdvertising ? 'ok' : 'pending';
-};
 
 const NetworkStatus = () => {
   const networkStatus = useNetworkStatus();
@@ -23,12 +12,6 @@ const NetworkStatus = () => {
     'network-status',
     { 'network-status--is-active': !!networkStatus.uptime },
   );
-
-  const uptimeBadge = networkStatus.uptime > 0
-    ? <div className="network-status-badge network-status-badge--ok" />
-    : <div className="network-status-badge network-status-badge--error" />;
-  const uptimeDisplay = networkStatus.uptime && `${parseInt(networkStatus.uptime / 1000 / 60, 10)}m`;
-  const mdnsBadge = <div className={`network-status-badge network-status-badge--${getMdnsStatus(networkStatus)}`} />;
 
   return [
     <button
@@ -50,33 +33,7 @@ const NetworkStatus = () => {
     >
       <h1>Network Status</h1>
 
-      <table>
-        <tr>
-          <th>Computer name</th><td>{networkStatus.hostname}</td>
-        </tr>
-        <tr>
-          <th>Uptime</th><td>{uptimeBadge} {uptimeDisplay}</td>
-        </tr>
-        <tr>
-          <th>Discoverable</th><td>{mdnsBadge} {getMdnsLabel(getMdnsStatus(networkStatus))}</td>
-        </tr>
-        <tr>
-          <th>Port</th>
-          <td>
-            <div><ClipboardText>{networkStatus.deviceApiPort}</ClipboardText></div>
-          </td>
-        </tr>
-        <tr>
-          <th>Address</th>
-          <td>
-            {networkStatus.publicAddresses &&
-              networkStatus.publicAddresses.map(ip =>
-                <div><ClipboardText>{ip}</ClipboardText></div>,
-              )
-            }
-          </td>
-        </tr>
-      </table>
+      <NetworkStatusTable networkStatus={networkStatus} />
     </InfoWindow>,
   ];
 };

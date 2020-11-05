@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { compose } from 'recompose';
-import { flatten, times } from 'lodash';
 import { bindActionCreators } from 'redux';
 import { motion, AnimateSharedLayout } from 'framer-motion';
 import { connect } from 'react-redux';
@@ -14,8 +13,9 @@ import { actionCreators } from '../ducks/modules/devices';
 import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 import { selectors } from '../ducks/modules/pairingRequest';
 import InfoWindow from '../components/InfoWindow';
-import Instructions from '../components/Instructions';
+import PairingInstructions from '../components/PairingInstructions';
 import DeviceCard from '../components/DeviceCard';
+import useNetworkStatus from '../hooks/useNetworkStatus';
 
 const DeviceStatus = ({
   devices,
@@ -24,6 +24,7 @@ const DeviceStatus = ({
   deleteDevice,
   openDialog,
 }) => {
+  const networkStatus = useNetworkStatus();
   const [showDevicesModal, setShowDevicesModal] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
 
@@ -103,7 +104,7 @@ const DeviceStatus = ({
           { showInstructions &&
             <motion.div layoutId="content" key="instructions" layout>
               <h1>Pairing Instructions</h1>
-              <Instructions compact showPairingInstructions showImportInstructions={false} showImportSessionInstructions={false} />
+              <PairingInstructions compact networkStatus={networkStatus} />
 
               <p>
                 <Button size="small" onClick={() => setShowInstructions(false)}>

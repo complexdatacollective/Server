@@ -1,0 +1,31 @@
+.network-status-table {
+  table {
+    margin: 0 spacing('large') 2rem;
+    width: calc(100% - #{spacing('large') * 2});
+    border-radius: spacing('small');
+    overflow: hidden;
+
+    th,
+    td {
+      padding: spacing('small') spacing('medium');
+      vertical-align: top;
+      line-height: 2rem;
+      background-color: var(--color-platinum);
+
+    }
+
+    th {
+      padding-right: 2rem;
+      vertical-align: top;
+    }
+
+    tr {
+      &:nth-child(2n + 1) {
+        td,
+        th {
+          background-color: var(--color-platinum--dark);
+        }
+      }
+    }
+  }
+}

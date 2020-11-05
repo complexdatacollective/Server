@@ -4,7 +4,7 @@ import { Icon } from '@codaco/ui';
 import Types from '../types';
 
 const Instructions = ({
-  compact, apiInfo, showPairingInstructions, showImportInstructions, showImportSessionInstructions,
+  compact, apiInfo, showPairingInstructions, showImportInstructions, showImportSessionInstructions, networkStatus,
 }) => (
   <div className={`instructions ${compact ? 'instructions--compact' : ''}`}>
     {
