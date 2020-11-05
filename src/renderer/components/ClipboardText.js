@@ -44,18 +44,21 @@ const ClipboardText = ({
       className={classes}
       onClick={handleCopy}
     >
-      {children}
+      <motion.span className="clipboard-text__text">
+        {children}
+
+        <motion.div
+          initial="hide"
+          variants={animations}
+          transition={{ duration: 0.9 }}
+          style={{ translateX: '-50%' }}
+          animate={copied ? 'copied' : 'hide'}
+          className="clipboard-text__copied"
+        >
+          {children}
+        </motion.div>
+      </motion.span>
       { showTag && <span className="clipboard-text__copy">copy</span> }
-      <motion.div
-        initial="hide"
-        variants={animations}
-        transition={{ duration: 0.9 }}
-        style={{ translateX: '-50%' }}
-        animate={copied ? 'copied' : 'hide'}
-        className="clipboard-text__copied"
-      >
-        Copied!
-      </motion.div>
     </button>
   );
 };
