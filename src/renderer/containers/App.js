@@ -62,6 +62,7 @@ const App = ({
   resetApp,
   loadProtocols,
   dismissAppMessages,
+  history,
 }) => {
   const [apiReady, setApiReady] = useState(false);
   const insecure = remote.app.commandLine.hasSwitch('unsafe-pairing-code');

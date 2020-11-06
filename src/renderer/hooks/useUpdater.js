@@ -56,7 +56,7 @@ const checkEndpoint = updateEndpoint => new Promise((resolve) => {
   fetch(updateEndpoint)
     .then(response => response.json())
     .then(({ name, body, assets }) => {
-      if (compareVersions.compare(currentVersion, name, '<') || true) {
+      if (compareVersions.compare(currentVersion, name, '<')) {
         resolve({
           newVersion: name,
           releaseNotes: body,
@@ -79,8 +79,6 @@ const checkEndpoint = updateEndpoint => new Promise((resolve) => {
 const useUpdater = (updateEndpoint, timeout = 0) => {
   const dispatch = useDispatch();
   const [dismissedUpdates, dismissUpdate] = useDismissedUpdatesState();
-
-  console.log('dismissed', dismissedUpdates);
 
   const handleDismiss = (version) => {
     dismissUpdate(version);

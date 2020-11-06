@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Icon } from '@codaco/ui';
 import Types from '../types';
+import { ExternalLink } from './ExternalLink';
 
 const Instructions = ({
   compact, apiInfo, showPairingInstructions, showImportInstructions, showImportSessionInstructions,
@@ -53,7 +54,7 @@ const Instructions = ({
                 details at the top of this screen.
               </p>
               <p>
-                Please see our <a href="https://documentation.networkcanvas.com" className="external-link">documentation</a> for further information on pairing and networking setup.
+                Please see our <ExternalLink href="https://documentation.networkcanvas.com">documentation</ExternalLink> for further information on pairing and networking setup.
               </p>
             </div>
           </section>
