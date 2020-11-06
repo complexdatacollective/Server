@@ -56,7 +56,7 @@ const checkEndpoint = updateEndpoint => new Promise((resolve) => {
   fetch(updateEndpoint)
     .then(response => response.json())
     .then(({ name, body, assets }) => {
-      if (compareVersions.compare(currentVersion, name, '<')) {
+      if (compareVersions.compare(currentVersion, name, '<') || true) {
         resolve({
           newVersion: name,
           releaseNotes: body,
@@ -94,7 +94,7 @@ const useUpdater = (updateEndpoint, timeout = 0) => {
       confirmLabel: buttonText,
       onConfirm: onClickHandler,
       message: (
-        <div className="dialog-release-notes">
+        <div className="dialog-release-notes allow-text-selection">
           <p>
             Please read the following release notes carefully, as changes in the software
             may impact your ability to recieve and export data.

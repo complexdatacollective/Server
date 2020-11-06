@@ -65,7 +65,7 @@ body {
 
 // Override UI defaults for toasts for better display on desktop
 .toast {
-  width: 40rem;
+  width: 50rem;
   background: var(--color-cyber-grape);
   color: var(--text-light);
 
@@ -86,6 +86,16 @@ body {
         }
       }
     }
+  }
+}
+
+.dialog-release-notes {
+  &__notes {
+    max-height: 50vh;
+    overflow-y: auto;
+    background: var(--color-navy-taupe);
+    padding: 0 1.2rem;
+    border-radius: var(--border-radius);
   }
 }
 
