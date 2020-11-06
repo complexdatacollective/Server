@@ -78,10 +78,12 @@ const checkEndpoint = updateEndpoint => new Promise((resolve) => {
 
 const useUpdater = (updateEndpoint, timeout = 0) => {
   const dispatch = useDispatch();
-  const [dismissedVersion, setDismissedVersion] = useDismissedUpdatesState('dismissedVersion');
+  const [dismissedUpdates, dismissUpdate] = useDismissedUpdatesState();
+
+  console.log('dismissed', dismissedUpdates);
 
   const handleDismiss = (version) => {
-    setDismissedVersion(version);
+    dismissUpdate(version);
     dispatch(toastActions.removeToast('update-toast'));
   };
 
@@ -120,7 +122,7 @@ const useUpdater = (updateEndpoint, timeout = 0) => {
     } = updateAvailable;
 
     // Don't notify the user if they have dismissed this version.
-    if (dismissedVersion && dismissedVersion.includes(newVersion)) {
+    if (dismissedUpdates.includes(newVersion)) {
       return;
     }
 
@@ -149,7 +151,7 @@ const useUpdater = (updateEndpoint, timeout = 0) => {
     const delay = setTimeout(checkForUpdate, timeout);
 
     return () => clearTimeout(delay);
-  }, [updateEndpoint]);
+  }, [updateEndpoint, dismissedUpdates]);
 };
 
 export default useUpdater;
