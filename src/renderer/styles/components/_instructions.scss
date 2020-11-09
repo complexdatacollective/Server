@@ -82,4 +82,9 @@ $block: instructions;
       }
     }
   }
+
+  &--inline {
+    box-shadow: none;
+    margin: 0;
+  }
 }

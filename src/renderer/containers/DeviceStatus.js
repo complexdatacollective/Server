@@ -77,43 +77,38 @@ const DeviceStatus = ({
       Devices
     </button>,
     <Overlay
-      show={showDevicesModal}
+      show={showDevicesModal && !showInstructions}
       onClose={() => setShowDevicesModal(false)}
       title="Paired Devices"
+      className="device-status__overlay"
       key="window"
     >
-      <motion.div layout>
-        <AnimateSharedLayout>
-          { !showInstructions &&
-            <motion.div layoutId="content" key="devices" layout>
+      <p>Devices that have been paired with the server are listed below:</p>
 
-              <p>Devices that have been paired with the server are listed below:</p>
+      <div className="device-status__list" layout>
+        {renderedDevices}
+      </div>
 
-              <div className="device-status__list" layout>
-                {renderedDevices}
-              </div>
+      <div className="device-status__overlay-controls">
+        <Button onClick={() => setShowInstructions(true)}>
+          View pairing instructions.
+        </Button>
+      </div>
+    </Overlay>,
+    <Overlay
+      show={showDevicesModal && showInstructions}
+      onClose={() => setShowInstructions(false)}
+      title="Pairing Instructions"
+      className="device-status__overlay"
+      key="window"
+    >
+      <PairingInstructions compact networkStatus={networkStatus} />
 
-              <p>
-                <Button size="small" onClick={() => setShowInstructions(true)}>
-                  View pairing instructions.
-                </Button>
-              </p>
-            </motion.div>
-          }
-          { showInstructions &&
-            <motion.div layoutId="content" key="instructions" layout>
-              <h1>Pairing Instructions</h1>
-              <PairingInstructions compact networkStatus={networkStatus} />
-
-              <p>
-                <Button size="small" onClick={() => setShowInstructions(false)}>
-                  View paired devices.
-                </Button>
-              </p>
-            </motion.div>
-          }
-        </AnimateSharedLayout>
-      </motion.div>
+      <div className="device-status__overlay-controls">
+        <Button onClick={() => setShowInstructions(false)}>
+          View paired devices.
+        </Button>
+      </div>
     </Overlay>,
   ];
 };

@@ -6,7 +6,6 @@
 
   &__icon {
     @include reset-button;
-
     background: center / contain no-repeat url('../images/devices-dark.png');
     cursor: pointer;
     height: 2.5rem;
@@ -51,6 +50,17 @@
       &:first-child {
         margin: 0 2rem 2rem 0;
       }
+    }
+  }
+
+  &__overlay {
+    &-controls {
+      text-align: right;
+      margin-top: 2rem;
+    }
+
+    .instructions__subsection {
+      color: var(--text-dark);
     }
   }
 }
