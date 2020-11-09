@@ -6,7 +6,7 @@ import { find } from 'lodash';
 import { remote } from 'electron';
 import compareVersions from 'compare-versions';
 import ReactMarkdown from 'react-markdown';
-import { isMacOS, isWindows } from '../utils/environment';
+import { isMacOS, isWindows, isLinux } from '../utils/environment';
 import { actionCreators as toastActions } from '../ducks/modules/toasts';
 import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 import { ExternalLink, openExternalLink } from '../components/ExternalLink';
@@ -41,6 +41,13 @@ const getPlatformSpecificContent = (assets) => {
     return {
       buttonText: 'Download Installer',
       onClickHandler: () => openExternalLink(exe.browser_download_url),
+    };
+  }
+
+  if (isLinux()) {
+    return {
+      buttonText: 'Open GitHub Release',
+      onClickHandler: () => openExternalLink('https://github.com/complexdatacollective/Server/releases/latest'),
     };
   }
 
