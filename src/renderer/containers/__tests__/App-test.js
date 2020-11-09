@@ -65,12 +65,6 @@ describe('<App />', () => {
     expect(wrapper.find('AppRoutes')).toHaveLength(0);
   });
 
-  // it('renders its routes once API is ready', () => {
-  //   const wrapper = shallow(<App {...mockDispatched} />);
-  //   wrapper.setState({ apiReady: true });
-  //   expect(wrapper.find('AppRoutes')).toHaveLength(1);
-  // });
-
   it('renders queued messages', () => {
     const wrapper = shallow(<App {...mockDispatched} appMessages={[mockMsg]} />);
     expect(wrapper.find('AppMessage')).toHaveLength(1);
