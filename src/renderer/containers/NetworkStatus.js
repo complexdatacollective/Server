@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
-import InfoWindow from '../components/InfoWindow';
+import Overlay from '../components/Overlay';
 import NetworkStatusTable from '../components/NetworkStatusTable';
 import useNetworkStatus from '../hooks/useNetworkStatus';
 
@@ -33,16 +33,15 @@ const NetworkStatus = () => {
 
       Network
     </button>,
-    <InfoWindow
+    <Overlay
       show={showNetworkModal}
-      className="network-status__window"
+      title="Network Status"
       onClose={() => setShowNetworkModal(false)}
+      className="network-status__overlay"
       key="window"
     >
-      <h1>Network Status</h1>
-
       <NetworkStatusTable networkStatus={networkStatus} />
-    </InfoWindow>,
+    </Overlay>,
   ];
 };
 

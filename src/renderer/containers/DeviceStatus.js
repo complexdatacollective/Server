@@ -12,7 +12,7 @@ import { actionCreators } from '../ducks/modules/devices';
 
 import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 import { selectors } from '../ducks/modules/pairingRequest';
-import InfoWindow from '../components/InfoWindow';
+import Overlay from '../components/Overlay';
 import PairingInstructions from '../components/PairingInstructions';
 import DeviceCard from '../components/DeviceCard';
 import useNetworkStatus from '../hooks/useNetworkStatus';
@@ -76,17 +76,16 @@ const DeviceStatus = ({
 
       Devices
     </button>,
-    <InfoWindow
+    <Overlay
       show={showDevicesModal}
-      className="device-status__window"
       onClose={() => setShowDevicesModal(false)}
+      title="Paired Devices"
       key="window"
     >
       <motion.div layout>
         <AnimateSharedLayout>
           { !showInstructions &&
             <motion.div layoutId="content" key="devices" layout>
-              <h1>Paired Devices</h1>
 
               <p>Devices that have been paired with the server are listed below:</p>
 
@@ -115,7 +114,7 @@ const DeviceStatus = ({
           }
         </AnimateSharedLayout>
       </motion.div>
-    </InfoWindow>,
+    </Overlay>,
   ];
 };
 

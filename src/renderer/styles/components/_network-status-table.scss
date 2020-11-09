@@ -1,5 +1,7 @@
 .network-status-table {
   @include panel;
+  color: var(--text-dark);
+  margin: 0;
 
   table {
     width: 100%;
