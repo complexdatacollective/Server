@@ -74,18 +74,18 @@ const App = ({
 
   useUpdater('https://api.github.com/repos/complexdatacollective/Server/releases/latest', 2500);
 
+  const updateAPIInfo = (connectionInfo) => {
+    if (connectionInfo.adminService) {
+      AdminApiClient.setPort(connectionInfo.adminService.port);
+    } else {
+      logger.warn('Admin API unavailable');
+    }
+    setConnectionInfo(connectionInfo);
+    setApiReady(true);
+  };
+
   useEffect(() => {
     preventGlobalDragDrop();
-
-    const updateAPIInfo = (connectionInfo) => {
-      if (connectionInfo.adminService) {
-        AdminApiClient.setPort(connectionInfo.adminService.port);
-      } else {
-        logger.warn('Admin API unavailable');
-      }
-      setConnectionInfo(connectionInfo);
-      setApiReady(true);
-    };
 
     // Initialise UI with back end API details
     ipcRenderer.send(IPC.REQUEST_API_INFO);
