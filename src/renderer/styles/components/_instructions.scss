@@ -8,15 +8,15 @@ $block: instructions;
   display: flex;
   flex-direction: column;
   line-height: var(--icon-height);
-  margin-top: 2rem;
+  margin-top: 2.2rem;
 
   code {
     white-space: nowrap;
   }
 
   @include element(section) {
-    margin-top: 1rem;
-    background: var(--color-platinum);
+    margin-top: 2.2rem;
+    background: var(--color-white);
     padding: spacing(large);
     border-radius: var(--border-radius);
 

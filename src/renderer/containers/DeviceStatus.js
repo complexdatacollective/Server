@@ -75,7 +75,9 @@ const DeviceStatus = ({
       className="device-status__overlay"
       key="instructions"
     >
-      <PairingInstructions compact networkStatus={networkStatus} />
+      <PairingInstructions
+        networkStatus={networkStatus}
+      />
 
       <div className="device-status__overlay-controls">
         <Button onClick={() => setShowInstructions(false)}>
