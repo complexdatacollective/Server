@@ -5,6 +5,9 @@
   $grid-gap: spacing(medium);
 
   @include element(panel) {
+    @include panel;
+    margin: 0;
+
     @include modifier(chart) {
       display: flex;
       flex-direction: column;

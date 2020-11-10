@@ -122,26 +122,6 @@ class WorkspaceScreen extends Component {
 
     return (
       <div className="workspace" ref={this.myRef}>
-        {/* <div className="workspace-panel welcome-panel">
-          <h1>Welcome to your protocol!</h1>
-          <p>
-            This is the overview dashboard for this protocol. It summarizes the data you
-            have collected so far, and generates charts for each variable (tip: try dragging
-            the charts to rearrange them). Use the buttons in the panel below to export data, or
-            access settings associated with this protocol.
-          </p>
-          <p>
-            At the top of the screen you will find connection details for pairing this installation
-            of Server with your Network Canvas devices, so that you can deploy your protocol
-            and start uploading data.
-          </p>
-          <p>
-            To learn more about using Server, please visit our <a href="https://documentation.networkcanvas.com" className="external-link">documentation website</a>.
-          </p>
-          <div className="workspace-panel__buttons">
-            <Button color="platinum">Dismiss message</Button>
-          </div>
-        </div> */}
         <ProtocolPanel protocol={protocol} workspaceId={workspaceId} />
         <SortablePanels
           getContainer={() => this.props.scrollContainerRef.current}
