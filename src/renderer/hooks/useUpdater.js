@@ -61,7 +61,7 @@ export const checkEndpoint = (updateEndpoint, currentVersion) =>
   fetch(updateEndpoint)
     .then(response => response.json())
     .then(({ name, body, assets }) => {
-      if (compareVersions.compare(currentVersion, name, '<') || true) {
+      if (compareVersions.compare(currentVersion, name, '<')) {
         return {
           newVersion: name,
           releaseNotes: body,
