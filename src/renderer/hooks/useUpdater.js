@@ -61,11 +61,11 @@ export const checkEndpoint = (updateEndpoint, currentVersion) =>
   fetch(updateEndpoint)
     .then(response => response.json())
     .then(({ name, body, assets }) => {
-      if (compareVersions.compare(currentVersion, name, '<')) {
+      if (compareVersions.compare(currentVersion, name, '<') || true) {
         return {
           newVersion: name,
           releaseNotes: body,
-          releaseAssets: assets,
+          releaseButtonContent: getPlatformSpecificContent(assets),
         };
       }
       // eslint-disable-next-line no-console
