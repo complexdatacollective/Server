@@ -64,16 +64,18 @@ body {
 }
 
 // Override UI defaults for toasts for better display on desktop
+.toast-container-list {
+  align-items: flex-end;
+}
+
 .toast {
   width: 40rem;
-  background: var(--color-cyber-grape);
-  color: var(--text-light);
 
   .toast-content {
     font-weight: normal;
 
     .progress-bar {
-      background: var(--transparent-light);
+      // background: var(--transparent-light);
     }
 
     .toast-button-group {
@@ -86,6 +88,20 @@ body {
         }
       }
     }
+  }
+}
+
+.update-available-toast {
+  width: 50rem;
+}
+
+.dialog-release-notes {
+  &__notes {
+    max-height: 50vh;
+    overflow-y: auto;
+    background: var(--color-navy-taupe);
+    padding: 0 1.2rem;
+    border-radius: var(--border-radius);
   }
 }
 

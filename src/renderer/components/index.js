@@ -26,3 +26,4 @@ export { default as SessionHistoryPanel } from './workspace/SessionHistoryPanel'
 export { default as SessionPanel } from './workspace/SessionPanel';
 export { default as SortablePanel } from './workspace/SortablePanel';
 export { default as SortablePanels } from './workspace/SortablePanels';
+export { default as ExternalLink } from './ExternalLink';
