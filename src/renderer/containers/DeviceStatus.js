@@ -59,7 +59,7 @@ const DeviceStatus = ({
       className="device-status__overlay"
       key="devices"
     >
-      <p>Devices that have been paired with the server are listed below:</p>
+      <p>Devices that have been paired with the server are listed below.</p>
       <DeviceList devices={devices} />
 
       <div className="device-status__overlay-controls">

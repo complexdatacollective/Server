@@ -4,6 +4,8 @@ import cx from 'classnames';
 import { DateTime } from 'luxon';
 import HoverMarquee from '@codaco/ui/lib/components/HoverMarquee';
 import icon from '../images/devices.png';
+import CloseButton from './CloseButton';
+
 /**
  * Renders a device icon & label.
  */
@@ -23,7 +25,7 @@ const DeviceCard = ({
   const createdLabel = DateTime.fromJSDate(createdAt).toFormat('yyyy-LL-dd @ HH:mm');
 
   return (
-    <div className={modifierClasses} onClick={onClickHandler}>
+    <div className={modifierClasses}>
       <div className="device-card__icon-section">
         <div className="device-icon">
           <img src={icon} alt="" />
@@ -33,6 +35,14 @@ const DeviceCard = ({
         <h2 className="device-name"><HoverMarquee>{name}</HoverMarquee></h2>
         <h6><HoverMarquee>{id}</HoverMarquee></h6>
         <h6><HoverMarquee>{createdLabel}</HoverMarquee></h6>
+      </div>
+      <div
+        className="device-card__delete"
+        onClick={onClickHandler}
+        role="button"
+        tabIndex={0}
+      >
+        <CloseButton className="device-card__delete-button" />
       </div>
     </div>
   );

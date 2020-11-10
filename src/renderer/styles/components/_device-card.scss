@@ -7,6 +7,7 @@ $component: 'device-card';
   display: flex;
   overflow: hidden;
   margin-top: 2rem;
+  cursor: default;
 
   &__icon-section {
     display: flex;
@@ -46,8 +47,30 @@ $component: 'device-card';
 
   }
 
+  &__delete {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--color-sea-green);
+    flex-direction: row;
+    width: 7rem;
+    cursor: pointer;
+
+    &-button {
+      color: var(--color-white);
+      width: 1.5rem;
+      height: 1.5rem;
+
+      .icon {
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+    }
+  }
+
   &--clickable {
     @include clickable(2);
+    cursor: default !important; // sass-lint:disable-line no-important
   }
 
   &--disabled {

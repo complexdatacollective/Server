@@ -105,7 +105,11 @@ const DeviceList = ({
                         exit="hide"
                         layout
                       >
-                        <DeviceCard key={device.id} {...device} onClickHandler={() => confirmDelete(device.id)} />
+                        <DeviceCard
+                          {...device}
+                          key={device.id}
+                          onClickHandler={() => confirmDelete(device.id)}
+                        />
                       </motion.div>
                     ))
                   }
