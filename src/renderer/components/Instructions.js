@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Types from '../types';
 import PairingInstructions from './PairingInstructions';
 
 const Instructions = ({
   compact,
+  networkStatus,
   showPairingInstructions,
   showImportInstructions,
   showImportSessionInstructions,
@@ -32,7 +32,9 @@ const Instructions = ({
 
     {
       showPairingInstructions &&
-      <PairingInstructions />
+      <section className="instructions__section">
+        <PairingInstructions networkStatus={networkStatus} />
+      </section>
     }
 
     {
@@ -51,7 +53,7 @@ const Instructions = ({
 
 Instructions.defaultProps = {
   compact: false,
-  apiInfo: null,
+  networkStatus: null,
   showPairingInstructions: true,
   showImportInstructions: true,
   showImportSessionInstructions: true,
@@ -59,7 +61,7 @@ Instructions.defaultProps = {
 
 Instructions.propTypes = {
   compact: PropTypes.bool,
-  apiInfo: Types.deviceApiInfo,
+  networkStatus: PropTypes.object,
   showPairingInstructions: PropTypes.bool,
   showImportInstructions: PropTypes.bool,
   showImportSessionInstructions: PropTypes.bool,
