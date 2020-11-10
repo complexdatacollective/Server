@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { Button } from '@codaco/ui';
 import { find } from 'lodash';
+import { remote } from 'electron';
 import compareVersions from 'compare-versions';
 import ReactMarkdown from 'react-markdown';
 import { isMacOS, isWindows, isLinux } from '../utils/environment';
@@ -112,7 +113,8 @@ const useUpdater = (updateEndpoint, timeout = 0) => {
   };
 
   const checkForUpdate = async () => {
-    const updateAvailable = await checkEndpoint(updateEndpoint);
+    const version = remote.app.getVersion();
+    const updateAvailable = await checkEndpoint(updateEndpoint, version);
     if (!updateAvailable) { return; }
 
     const {
