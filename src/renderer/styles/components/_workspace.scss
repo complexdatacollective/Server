@@ -1,5 +1,4 @@
 .workspace {
-  padding: 0 0 3.3rem 0;
 
   @include element(panel) {
     background-color: var(--color-white);
@@ -11,6 +10,8 @@
     justify-content: center;
   }
 
+  padding: 0 0 3.3rem;
+
   .protocol-card {
     margin-bottom: 2.2rem;
   }
@@ -19,7 +20,6 @@
     @include panel;
     padding: 2.2rem;
     margin-bottom: 2.2rem;
-    // border-radius: var(--border-radius);
 
     &__buttons {
       text-align: right;

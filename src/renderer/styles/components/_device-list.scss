@@ -1,6 +1,6 @@
 .device-list {
-  --input-background: rgba(0, 0, 0, 0.33);
-  --transparent-background:rgba(0, 0, 0, 0.2);
+  --input-background: rgba(0, 0, 0, 0.33); // sass-lint:disable-line no-color-literals
+  --transparent-background: rgba(0, 0, 0, 0.2); // sass-lint:disable-line no-color-literals
   background: var(--transparent-background);
   border-radius: var(--border-radius);
   color: var(--text);
@@ -26,6 +26,7 @@
       margin-bottom: 0;
       background-color: var(--input-background);
       color: var(--text);
+
       &:focus {
         outline: none;
       }

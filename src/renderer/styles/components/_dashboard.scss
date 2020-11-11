@@ -6,7 +6,6 @@
 
   @include element(panel) {
     @include panel;
-    margin: 0;
 
     @include modifier(chart) {
       display: flex;
@@ -63,6 +62,7 @@
     display: block;
   }
 
+  margin: 0;
   display: grid;
   grid-auto-rows: minmax($min-grid-row, $max-grid-row);
   // Drag handles are rendered as bars below each panel; add extra vertical gap to accommodate:

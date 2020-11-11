@@ -78,7 +78,8 @@ $component: 'device-card';
       background: var(--color-platinum--dark);
     }
 
-    .device-name, h6 {
+    .device-name,
+    h6 {
       opacity: 0.35;
     }
   }

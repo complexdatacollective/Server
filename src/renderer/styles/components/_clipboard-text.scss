@@ -1,4 +1,8 @@
+
+
 .clipboard-text {
+  --desaturate-background: rgba(180, 180, 180, 0.25); // sass-lint:disable-line no-color-literals
+
   @include reset-button;
   padding: 0;
   color: inherit;
@@ -8,7 +12,7 @@
   }
 
   &__copy {
-    background: rgba(180, 180, 180, 0.25);
+    background: var(--desaturate-background);
     border-radius: 1rem;
     padding: 0 0.25rem;
     margin: 0 0.5rem;
