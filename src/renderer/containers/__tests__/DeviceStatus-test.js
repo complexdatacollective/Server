@@ -37,36 +37,33 @@ describe('<DeviceStatus />', () => {
 
   it('renders the paired device count', () => {
     const subject = shallow(<DeviceStatus history={{}} devices={mockDevices} />);
-    expect(subject.text()).toMatch(new RegExp(`\\b${mockDevices.length}\\b`));
+    expect(subject.find('.device-status__badge').text()).toMatch(new RegExp(`\\b${mockDevices.length}\\b`));
   });
 
-  it('requests devices to display', () => {
+  it('requests devices to display', async () => {
     const mockLoader = jest.fn();
-    shallow(<DeviceStatus history={{}} loadDevices={mockLoader} />);
+    await act(async () => {
+      await mount(<DeviceStatus history={{}} loadDevices={mockLoader} />);
+    });
     expect(mockLoader).toHaveBeenCalledTimes(1);
   });
 
-  it('renders an empty badge before load', () => {
-    const subject = shallow(<DeviceStatus history={{}} devices={null} />);
-    expect(subject.find('.device-icon__badge').text()).toEqual('');
-  });
+  it('Instructions modals behave correctly', async () => {
+    const deviceStatus = mount(
+      React.createElement(
+        props => (
+          <Provider store={store}>
+            <DeviceStatus history={{}} devices={[]} {...props} />
+          </Provider>
+        ),
+      ),
+    );
 
-  it('renders a dark button variant', () => {
-    const subject = shallow(<DeviceStatus history={{}} dark />);
-    const btnClass = subject.find('button').prop('className');
-    expect(btnClass).toContain('--dark');
-  });
-
-  it('Instructions modals', async () => {
-    const deviceStatus = mount((
-      <Provider store={store}>
-        <DeviceStatus history={{}} devices={[]} />
-      </Provider>
-    ));
-
+    // They start closed
     expect(deviceStatus.find('Overlay[title="Paired Devices"]').prop('show')).toBe(false);
     expect(deviceStatus.find('Overlay[title="Pairing Instructions"]').prop('show')).toBe(false);
 
+    // Paired devices overlay opens when the button is clicked
     await act(async () => {
       await deviceStatus.find('button[data-test="view-device-panel"]').simulate('click');
     });
@@ -76,6 +73,7 @@ describe('<DeviceStatus />', () => {
     expect(deviceStatus.find('Overlay[title="Paired Devices"]').prop('show')).toBe(true);
     expect(deviceStatus.find('Overlay[title="Pairing Instructions"]').prop('show')).toBe(false);
 
+    // Instructions can be opened from the paired devices overlay
     await act(async () => {
       await deviceStatus.find('button[data-test="view-pairing-instructions"]').simulate('click');
     });
@@ -84,6 +82,13 @@ describe('<DeviceStatus />', () => {
 
     expect(deviceStatus.find('Overlay[title="Paired Devices"]').prop('show')).toBe(false);
     expect(deviceStatus.find('Overlay[title="Pairing Instructions"]').prop('show')).toBe(true);
+
+    // If hasPendingRequest changes, overlays are closed.
+    deviceStatus.setProps({ hasPendingRequest: true });
+    deviceStatus.update();
+
+    expect(deviceStatus.find('Overlay[title="Paired Devices"]').prop('show')).toBe(false);
+    expect(deviceStatus.find('Overlay[title="Pairing Instructions"]').prop('show')).toBe(false);
   });
 
   describe('Connected', () => {
