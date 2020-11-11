@@ -7,7 +7,8 @@ import ProtocolPanel from '../ProtocolPanel';
 
 describe('ProtocolPanel', () => {
   it('renders a protocol name', () => {
-    const wrapper = shallow(<ProtocolPanel workspaceId="workspace-id" protocol={mockProtocol} />);
+    const wrapper = shallow(<ProtocolPanel workspaceId="workspace-id" protocol={mockProtocol} />)
+      .find('ProtocolCard').dive();
     expect(wrapper.text()).toContain(mockProtocol.name);
   });
 });
