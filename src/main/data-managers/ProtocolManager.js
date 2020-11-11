@@ -627,12 +627,20 @@ class ProtocolManager {
     const protocolId = graphs && graphs[0].getAttribute('nc:remoteProtocolID');
     const protocolName = graphs && graphs[0].getAttribute('nc:protocolName');
     const caseId = graphs && graphs[0].getAttribute('nc:caseId');
+    const codebookHash = graphs && graphs[0].getAttribute('nc:codebookHash');
 
     return this.getProtocol(protocolId)
       .then((protocol) => {
         if (!protocol) {
           throw new RequestError(`The protocol used ("${protocolName}") has not been imported into Server. Import it, and then try again.`);
         }
+
+        const ourCodebookHash = objectHash(protocol.codebook);
+
+        if (ourCodebookHash !== codebookHash) {
+          throw new RequestError(`The version of the protocol ("${protocolName}") used to create this session does not match the version installed in Server. Ensure you have matching versions of your protocols installed in Interviewer and Server, and try again.`);
+        }
+
         return convertGraphML(xmlDoc, protocol);
       }).catch(err => Promise.reject(constructErrorObject(err.message, caseId)));
   }
