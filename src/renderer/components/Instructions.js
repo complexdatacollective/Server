@@ -37,7 +37,7 @@ const Instructions = ({
             Keep this window open
           </li>
           <li className="instructions__step">
-            Open the Network Canvas app on a tablet or computer
+            Open the Interviewer app on a tablet or computer
           </li>
           <li className="instructions__step">
             Tap the Server pairing button on the device’s setup screen

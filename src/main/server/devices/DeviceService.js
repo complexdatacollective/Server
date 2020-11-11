@@ -12,7 +12,7 @@ const emittedEvents = {
 
 /**
  * Provides APIs for external client devices running
- * [Network Canvas]{@link https://github.com/codaco/Network-Canvas}.
+ * [Network Canvas Interviewer]{@link https://github.com/complexdatacollective/Interviewer}.
  *
  * Services:
  * - Device Pairing

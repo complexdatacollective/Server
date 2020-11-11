@@ -252,7 +252,7 @@ const SessionFileDropTarget = ({
               </div>
               <h2>Import interview sessions to Server</h2>
               <p>
-                Drop <code>.graphml</code> session files from Network Canvas here
+                Drop <code>.graphml</code> session files from Network Canvas Interviewer here
                 to import them into Server.
               </p>
             </motion.div>

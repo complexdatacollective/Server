@@ -132,8 +132,8 @@ class WorkspaceScreen extends Component {
           </p>
           <p>
             At the top of the screen you will find connection details for pairing this installation
-            of Server with your Network Canvas devices, so that you can deploy your protocol
-            and start uploading data.
+            of Server with your Network Canvas Interviewer devices, so that you can deploy your
+            protocol and start uploading data.
           </p>
           <p>
             To learn more about using Server, please visit our <a href="https://documentation.networkcanvas.com" className="external-link">documentation website</a>.

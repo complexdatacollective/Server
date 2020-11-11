@@ -11,7 +11,8 @@ import { selectors as protocolSelectors } from '../../ducks/modules/protocols';
 import { DismissButton, ScrollingPanelItem } from '../../components';
 import { formatDate } from '../../utils/formatters';
 
-const emptyContent = (<p>Interviews you import from Network Canvas will appear here.</p>);
+const emptyContent = (<p>
+  Interviews you import from Network Canvas Interviewer will appear here.</p>);
 const maxRecentSessions = 5;
 
 class SessionPanel extends Component {
