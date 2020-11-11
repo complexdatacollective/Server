@@ -1,17 +1,39 @@
 /* eslint-env jest */
 import React from 'react';
+import { act } from 'react-dom/test-utils';
 import { createStore } from 'redux';
-import { shallow } from 'enzyme';
+import { Provider } from 'react-redux';
+import { shallow, mount } from 'enzyme';
 
 import ConnectedDeviceStatus, { UnconnectedDeviceStatus as DeviceStatus } from '../DeviceStatus';
 import { PairingStatus } from '../../ducks/modules/pairingRequest';
 
-jest.mock('../../utils/adminApiClient');
+jest.mock('../../utils/adminApiClient', () => {
+  class MockAdminApiClient {
+    get = () => Promise.resolve({
+      serverStatus: {
+        deviceApiPort: '',
+      },
+    });
+  }
+
+  return MockAdminApiClient;
+});
 
 const mockDevice = { id: '1', name: '1', createdAt: new Date() };
 
+const state = {
+  devices: [{ id: 'device1', name: '1', createdAt: new Date() }],
+  pairingRequest: { status: PairingStatus.Pending },
+};
+
 describe('<DeviceStatus />', () => {
+  let store;
   const mockDevices = [mockDevice, mockDevice];
+
+  beforeEach(() => {
+    store = createStore(() => state);
+  });
 
   it('renders the paired device count', () => {
     const subject = shallow(<DeviceStatus history={{}} devices={mockDevices} />);
@@ -35,28 +57,36 @@ describe('<DeviceStatus />', () => {
     expect(btnClass).toContain('--dark');
   });
 
-  it('hides the instructions modal when a pairing request arrives', () => {
-    const state = { showModal: true };
-    const newState = DeviceStatus.getDerivedStateFromProps({ hasPendingRequest: true }, state);
-    expect(newState.showModal).toBe(false);
-  });
+  it('Instructions modals', async () => {
+    const deviceStatus = mount((
+      <Provider store={store}>
+        <DeviceStatus history={{}} devices={[]} />
+      </Provider>
+    ));
 
-  it('keeps the instructions modal when other props update', () => {
-    const state = { showModal: true };
-    const newState = DeviceStatus.getDerivedStateFromProps({ hasPendingRequest: false }, state);
-    expect(newState.showModal).toBe(true);
+    expect(deviceStatus.find('Overlay[title="Paired Devices"]').prop('show')).toBe(false);
+    expect(deviceStatus.find('Overlay[title="Pairing Instructions"]').prop('show')).toBe(false);
+
+    await act(async () => {
+      await deviceStatus.find('button[data-test="view-device-panel"]').simulate('click');
+    });
+
+    deviceStatus.update();
+
+    expect(deviceStatus.find('Overlay[title="Paired Devices"]').prop('show')).toBe(true);
+    expect(deviceStatus.find('Overlay[title="Pairing Instructions"]').prop('show')).toBe(false);
+
+    await act(async () => {
+      await deviceStatus.find('button[data-test="view-pairing-instructions"]').simulate('click');
+    });
+
+    deviceStatus.update();
+
+    expect(deviceStatus.find('Overlay[title="Paired Devices"]').prop('show')).toBe(false);
+    expect(deviceStatus.find('Overlay[title="Pairing Instructions"]').prop('show')).toBe(true);
   });
 
   describe('Connected', () => {
-    const state = {
-      devices: [{ id: 'device1', name: '1', createdAt: new Date() }],
-      pairingRequest: { status: PairingStatus.Pending },
-    };
-    let store;
-    beforeEach(() => {
-      store = createStore(() => state);
-    });
-
     it('maps a dispatched loadDevices fn to props', () => {
       const subject = shallow(<ConnectedDeviceStatus store={store} />).dive();
       expect(subject.prop('loadDevices')).toBeInstanceOf(Function);

@@ -37,10 +37,10 @@ const DeviceStatus = ({
     loadDevices();
   }, [hasPendingRequest]);
 
-
   return [
     <button
       className="device-status"
+      data-test="view-device-panel"
       onClick={() => setShowDevicesModal(true)}
       key="button"
     >
@@ -63,7 +63,10 @@ const DeviceStatus = ({
       <DeviceList devices={devices} />
 
       <div className="device-status__overlay-controls">
-        <Button onClick={() => setShowInstructions(true)}>
+        <Button
+          data-test="view-pairing-instructions"
+          onClick={() => setShowInstructions(true)}
+        >
           View pairing instructions
         </Button>
       </div>

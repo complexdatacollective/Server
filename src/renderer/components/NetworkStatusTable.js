@@ -30,41 +30,43 @@ const NetworkStatusTable = ({
   return (
     <div className="network-status-table">
       <table>
-        { hostname &&
-          <tr>
-            <th>Computer name</th><td>{networkStatus.hostname}</td>
-          </tr>
-        }
-        { uptime &&
-          <tr>
-            <th>Uptime</th><td>{uptimeBadge} {uptimeDisplay}</td>
-          </tr>
-        }
-        { discoverable &&
-          <tr>
-            <th>Discoverable</th><td>{mdnsBadge} {getMdnsLabel(getMdnsStatus(networkStatus))}</td>
-          </tr>
-        }
-        { port &&
-          <tr>
-            <th>Port</th>
-            <td>
-              <div><ClipboardText>{networkStatus.deviceApiPort}</ClipboardText></div>
-            </td>
-          </tr>
-        }
-        { addresses &&
-          <tr>
-            <th>Addresses</th>
-            <td>
-              {networkStatus.publicAddresses &&
-                networkStatus.publicAddresses.map(ip =>
-                  <div><ClipboardText>{ip}</ClipboardText></div>,
-                )
-              }
-            </td>
-          </tr>
-        }
+        <tbody>
+          { hostname &&
+            <tr>
+              <th>Computer name</th><td>{networkStatus.hostname}</td>
+            </tr>
+          }
+          { uptime &&
+            <tr>
+              <th>Uptime</th><td>{uptimeBadge} {uptimeDisplay}</td>
+            </tr>
+          }
+          { discoverable &&
+            <tr>
+              <th>Discoverable</th><td>{mdnsBadge} {getMdnsLabel(getMdnsStatus(networkStatus))}</td>
+            </tr>
+          }
+          { port &&
+            <tr>
+              <th>Port</th>
+              <td>
+                <div><ClipboardText>{networkStatus.deviceApiPort}</ClipboardText></div>
+              </td>
+            </tr>
+          }
+          { addresses &&
+            <tr>
+              <th>Addresses</th>
+              <td>
+                {networkStatus.publicAddresses &&
+                  networkStatus.publicAddresses.map(ip =>
+                    <div><ClipboardText>{ip}</ClipboardText></div>,
+                  )
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
       </table>
     </div>
   );
@@ -81,11 +83,11 @@ NetworkStatusTable.defaultProps = {
 
 NetworkStatusTable.propTypes = {
   networkStatus: PropTypes.object,
-  hostname: PropTypes.string,
-  uptime: PropTypes.string,
-  discoverable: PropTypes.string,
-  port: PropTypes.string,
-  addresses: PropTypes.string,
+  hostname: PropTypes.bool,
+  uptime: PropTypes.bool,
+  discoverable: PropTypes.bool,
+  port: PropTypes.bool,
+  addresses: PropTypes.bool,
 };
 
 export default NetworkStatusTable;

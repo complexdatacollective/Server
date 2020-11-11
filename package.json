@@ -64,7 +64,7 @@
         "electron-notarize": "^1.0.0",
         "electron-updater": "^4.3.4",
         "enzyme": "^3.11.0",
-        "enzyme-adapter-react-16": "^1.15.3",
+        "enzyme-adapter-react-16": "^1.15.5",
         "enzyme-to-json": "^3.5.0",
         "eslint": "^4.1.1",
         "eslint-config-airbnb": "^15.0.1",
@@ -220,7 +220,8 @@
         ],
         "moduleNameMapper": {
             "^react-native$": "react-native-web"
-        }
+        },
+        "timers": "fake"
     },
     "eslintConfig": {
         "extends": "react-app"
