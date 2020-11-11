@@ -23,6 +23,9 @@
 
     &__buttons {
       text-align: right;
+      .button {
+        margin-left: 1.1rem;
+      }
     }
 
     &.welcome-panel {

@@ -6,6 +6,7 @@
 
   @include element(panel) {
     @include panel;
+    margin: 0;
 
     @include modifier(chart) {
       display: flex;
