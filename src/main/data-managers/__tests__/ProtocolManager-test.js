@@ -2,6 +2,7 @@
 import fs from 'fs';
 import JSZip from 'jszip';
 import path from 'path';
+import objectHash from 'object-hash';
 import { dialog } from 'electron';
 import ProtocolManager from '../ProtocolManager';
 import promisedFs from '../../utils/promised-fs';
@@ -10,6 +11,7 @@ jest.mock('fs');
 jest.mock('electron');
 jest.mock('electron-log');
 jest.mock('jszip');
+jest.mock('object-hash');
 jest.mock('../../utils/promised-fs');
 jest.mock('../ProtocolDB');
 jest.mock('../SessionDB');
@@ -23,6 +25,7 @@ describe('ProtocolManager', () => {
 
   beforeAll(() => {
     promisedFs.tryUnlink.mockResolvedValue(undefined);
+    objectHash.mockReturnValue(null);
   });
 
   beforeEach(() => {
@@ -76,38 +79,6 @@ describe('ProtocolManager', () => {
           expect(fs.mkdir).toHaveBeenCalledWith(manager.protocolDir, expect.any(Function));
         });
     });
-
-    // describe('with a valid directory', () => {
-    //   beforeEach(() => {
-    //     manager.ensureDataDir = jest.fn(() => Promise.resolve());
-    //   });
-
-    //   it('requires a valid file extension', () => {
-    //     manager.validateAndImportProtocols(['file.unknownextension'])
-    //       .then((results) => {
-    //         expect(results)
-    //           .rejects.toMatchErrorMessage(errorMessages.InvalidContainerFileExtension);
-    //       });
-    //   });
-
-    //   it('allows multiple files', () => {
-    //     const mockFiles = ['a.netcanvas', 'b.netcanvas', 'c.netcanvas'];
-    //     manager.validateAndImportProtocols(mockFiles)
-    //       .then((results) => {
-    //         expect(results)
-    //           .resolves.toMatchObject({ completed: mockFiles.join(', ') });
-    //       });
-    //   });
-
-    //   it('imports & promises one file', async () => {
-    //     manager.importFile = jest.fn(infile => `copy-${infile}`);
-    //     manager.processFile = jest.fn(filename => Promise.resolve(filename));
-    //     const mockFilename = 'a.netcanvas';
-    //     const result = await manager.validateAndImportProtocols([mockFilename]);
-    //     expect(result.completed).toEqual(mockFilename);
-    //     expect(manager.importFile).toHaveBeenCalledTimes(1);
-    //   });
-    // });
   });
 
   describe('ensureDataDir()', () => {
@@ -415,6 +386,12 @@ describe('ProtocolManager', () => {
 
       it('rejects if adding to an unknown protocol', async () => {
         manager.db.get = jest.fn().mockResolvedValue(null);
+        await expect(manager.addSessionData(null, []))
+          .rejects.toEqual(expect.anything());
+      });
+
+      it('rejects if codebook hash doesnt match', async () => {
+        objectHash.mockReturnValue('123');
         await expect(manager.addSessionData(null, []))
           .rejects.toEqual(expect.anything());
       });

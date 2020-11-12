@@ -17,6 +17,7 @@ const { Version } = require('../../apiConfig').DeviceAPIConfig;
 const { PairingRequestService } = require('./PairingRequestService');
 const { IncompletePairingError } = require('../../errors/IncompletePairingError');
 const { encrypt } = require('../../utils/shared-api/cipher');
+const { ErrorMessages, RequestError } = require('../../errors/RequestError');
 
 /**
  * @swagger
@@ -144,25 +145,27 @@ const PairingThrottleSettings = {
  *         example: 'error'
  */
 const buildErrorResponse = (err, res) => {
-  if (err instanceof Error) {
-    logger.log('build error response for error', err);
-    const body = { status: 'error', message: err.message || 'Unknown Error' };
-    let statusCode;
-
-    if (err instanceof IncompletePairingError) {
-      // TODO: review; 5xx is probably correct, but weird bc of user involvement
-      statusCode = 400;
-    } else if (!err.statusCode) {
-      logger.log('error with no status code:', err);
-      body.message = 'Unknown Server Error';
-      statusCode = 500;
-    }
-    res.json(err.statusCode || statusCode, body);
+  logger.log('build error response for error', err);
+  if (!(err instanceof Error)) {
+    // Handle non Error error objects
+    res.json(500, { status: 'error', message: err.message, caseID: err.caseID, file: err.file });
     return;
   }
 
-  // Handle non Error error objects
-  res.json(500, { status: 'error', message: err.message, caseID: err.caseID, file: err.file });
+  const body = { status: 'error', message: err.message || 'Unknown Error' };
+  let statusCode;
+  if (err instanceof RequestError) {
+    const is404 = err.message === ErrorMessages.NotFound;
+    statusCode = is404 ? 404 : 400;
+  } else if (err instanceof IncompletePairingError) {
+    // TODO: review; 5xx is probably correct, but weird bc of user involvement
+    statusCode = 400;
+  } else if (!err.statusCode) {
+    logger.error(err);
+    body.message = 'Unknown Server Error';
+    statusCode = 500;
+  }
+  res.json(err.statusCode || statusCode, body);
 };
 
 // TODO: handle all error responses here instead of buildErrorResponse
