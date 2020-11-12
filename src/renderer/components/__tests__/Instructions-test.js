@@ -12,7 +12,7 @@ describe('<Instructions />', () => {
 
   it('renders device pairing instructions by default', () => {
     const subject = shallow(<Instructions />);
-    expect(subject.text()).toMatch('To pair a device');
+    expect(subject.find('PairingInstructions').dive().text()).toMatch('To pair a device');
   });
 
   it('hides protocol instructions if instructed', () => {
