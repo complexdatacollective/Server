@@ -6,7 +6,6 @@
 
   @include element(panel) {
     @include panel;
-    margin: 0;
 
     @include modifier(chart) {
       display: flex;
@@ -28,6 +27,7 @@
       }
     }
 
+    margin: 0;
     background-color: var(--color-platinum);
     height: 100%;
     padding: spacing(large);

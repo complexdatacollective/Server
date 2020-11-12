@@ -1,5 +1,6 @@
+
 .sortable {
-  margin: 1.1rem 0;
+  --lighten-color: rgba(255, 255, 255, 0.5); // sass-lint:disable-line no-color-literals
   @include element(handle) {
     background-color: var(--draggable-color);
     cursor: grab;
@@ -15,7 +16,7 @@
 
     &::after {
       content: '=';
-      color: rgba(255, 255, 255, 0.5);
+      color: var(--lighten-color);
       display: block;
     }
   }
@@ -31,5 +32,6 @@
     }
   }
 
+  margin: 1.1rem 0;
   position: relative;
 }
