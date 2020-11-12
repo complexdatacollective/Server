@@ -35,6 +35,7 @@ const mockDispatched = {
   },
 };
 
+
 // This is madness. See here: https://github.com/enzymejs/enzyme/issues/2086
 jest.mock('react', () => ({
   ...jest.requireActual('react'),

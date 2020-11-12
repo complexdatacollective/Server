@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import logger from 'electron-log';
 import { bindActionCreators } from 'redux';
-import { connect, useDispatch } from 'react-redux';
+import { connect } from 'react-redux';
 import { ipcRenderer, remote } from 'electron';
 import { withRouter } from 'react-router-dom';
 import DialogManager from '../components/DialogManager';
@@ -57,7 +57,6 @@ const App = ({
   history,
 }) => {
   const [apiReady, setApiReady] = useState(false);
-  const dispatch = useDispatch();
   const insecure = remote.app.commandLine.hasSwitch('unsafe-pairing-code');
 
   const appClass = isFrameless() ? 'app app--frameless' : 'app';
@@ -84,18 +83,8 @@ const App = ({
     ipcRenderer.send(ipcChannels.REQUEST_API_INFO);
     ipcRenderer.once(ipcChannels.API_INFO, (_, connectionInfo) => updateAPIInfo(connectionInfo));
 
-    // Listen for protocol data changes
-    ipcRenderer.on(ipcChannels.DATA_IS_STALE, () => {
-      // eslint-disable-next-line no-console
-      console.log('IPC - Data is stale.');
-      dispatch(protocolActionCreators.loadProtocols());
-    });
-
-    // ipcRenderer.on(ipcChannels.DEVICES_ARE_STALE, () => {
-    // });
-
     // Handle pairing
-    ipcRenderer.on(ipcChannels.PAIRING_CODE_AVAILABLE, (event, data) => {
+    ipcRenderer.on(ipcChannels.PAIRING_CODE_AVAILABLE, (_, data) => {
       newPairingRequest(data.id, data.pairingCode);
     });
 
@@ -121,11 +110,6 @@ const App = ({
     });
 
     dismissAppMessages();
-
-
-    // return () => {
-    //   //cleanup
-    // };
   }, []);
 
   return (

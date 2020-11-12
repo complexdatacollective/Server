@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import logger from 'electron-log';
 import { ipcRenderer } from 'electron';
 import { debounce, pull } from 'lodash';
-
+import ipcChannels from '../../utils/ipcChannels';
 import Types from '../../types';
 import AdminApiClient from '../../utils/adminApiClient';
 import viewModelMapper from '../../utils/baseViewModelMapper';
@@ -58,7 +58,8 @@ const withSessions = WrappedComponent =>
 
     componentDidMount() {
       this.loadSessions();
-      ipcRenderer.on('SESSIONS_IMPORTED', this.onSessionsImported);
+      // Listen for protocol data changes
+      ipcRenderer.on(ipcChannels.DATA_IS_STALE, this.onSessionsImported);
     }
 
     componentDidUpdate() {
@@ -70,7 +71,7 @@ const withSessions = WrappedComponent =>
     componentWillUnmount() {
       this.loadPromises = this.loadPromises.map(
         loadPromise => ({ ...loadPromise, cancelled: true }));
-      ipcRenderer.removeListener('SESSIONS_IMPORTED', this.onSessionsImported);
+      ipcRenderer.removeListener(ipcChannels.DATA_IS_STALE, this.onSessionsImported);
     }
 
     onSessionsImported = () => this.reloadSessions();

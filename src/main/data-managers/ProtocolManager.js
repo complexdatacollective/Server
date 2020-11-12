@@ -31,7 +31,7 @@ const emittedEvents = {
   DATA_IS_STALE: 'DATA_IS_STALE',
 };
 
-const emitDataStale = debounce(() => sendToGui(emittedEvents.DATA_IS_STALE), 300, {
+const emitDataStale = debounce(() => sendToGui(emittedEvents.DATA_IS_STALE), 500, {
   leading: false,
   trailing: true,
 });
@@ -669,7 +669,7 @@ class ProtocolManager {
    * @return {number} removed count
    */
   deleteProtocolSessions(protocolId, sessionId = null) {
-    return this.sessionDb.delete(protocolId, sessionId);
+    return promiseWithStaleEmitter(this.sessionDb.delete(protocolId, sessionId));
   }
 
   /**
@@ -703,7 +703,7 @@ class ProtocolManager {
   }
 
   destroyAllSessions() {
-    return this.sessionDb.deleteAll();
+    return promiseWithStaleEmitter(this.sessionDb.deleteAll());
   }
 }
 
