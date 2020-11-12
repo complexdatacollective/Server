@@ -5,7 +5,7 @@ const restify = require('restify');
 const corsMiddleware = require('restify-cors-middleware');
 const logger = require('electron-log');
 const { app } = require('electron');
-const { ConflictError, NotAcceptableError } = require('restify-errors');
+const { NotAcceptableError } = require('restify-errors');
 const { EventEmitter } = require('events');
 const { sendToGui } = require('../../guiProxy');
 const versionGatekeeper = require('./versionGatekeeper');
@@ -15,7 +15,6 @@ const apiRequestLogger = require('../apiRequestLogger');
 const deviceAuthenticator = require('./deviceAuthenticator');
 const { Version } = require('../../apiConfig').DeviceAPIConfig;
 const { PairingRequestService } = require('./PairingRequestService');
-const { ErrorMessages, RequestError } = require('../../errors/RequestError');
 const { IncompletePairingError } = require('../../errors/IncompletePairingError');
 const { encrypt } = require('../../utils/shared-api/cipher');
 
@@ -145,20 +144,25 @@ const PairingThrottleSettings = {
  *         example: 'error'
  */
 const buildErrorResponse = (err, res) => {
-  const body = { status: 'error', message: err.message || 'Unknown Error' };
-  let statusCode;
-  if (err instanceof RequestError) {
-    const is404 = err.message === ErrorMessages.NotFound;
-    statusCode = is404 ? 404 : 400;
-  } else if (err instanceof IncompletePairingError) {
-    // TODO: review; 5xx is probably correct, but weird bc of user involvement
-    statusCode = 400;
-  } else if (!err.statusCode) {
-    logger.error(err);
-    body.message = 'Unknown Server Error';
-    statusCode = 500;
+  if (err instanceof Error) {
+    logger.log('build error response for error', err);
+    const body = { status: 'error', message: err.message || 'Unknown Error' };
+    let statusCode;
+
+    if (err instanceof IncompletePairingError) {
+      // TODO: review; 5xx is probably correct, but weird bc of user involvement
+      statusCode = 400;
+    } else if (!err.statusCode) {
+      logger.log('error with no status code:', err);
+      body.message = 'Unknown Server Error';
+      statusCode = 500;
+    }
+    res.json(err.statusCode || statusCode, body);
+    return;
   }
-  res.json(err.statusCode || statusCode, body);
+
+  // Handle non Error error objects
+  res.json(500, { status: 'error', message: err.message, caseID: err.caseID, file: err.file });
 };
 
 // TODO: handle all error responses here instead of buildErrorResponse
@@ -692,14 +696,7 @@ class DeviceAPI extends EventEmitter {
           .then(docs => sendToGui(emittedEvents.SESSIONS_IMPORTED, docs.map(doc =>
             doc.data && doc.data.sessionVariables && doc.data.sessionVariables.caseId).join(', ')))
           .catch((err) => {
-            if (err.errorType === 'uniqueViolated') { // from nedb
-              const session = Array.isArray(sessionData) ? sessionData[0] : sessionData;
-              this.handlers.onError(new ConflictError(`${ErrorMessages.SessionAlreadyExists}:
-                ${session.data && session.data.sessionVariables &&
-                session.data.sessionVariables.caseId}`), res);
-            } else {
-              this.handlers.onError(err, res);
-            }
+            this.handlers.onError(err, res);
           })
           .then(() => next());
       },

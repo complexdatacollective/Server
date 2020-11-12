@@ -698,13 +698,20 @@ class ProtocolManager {
         return this.sessionDb.insertAllForProtocol(sessionOrSessions, protocol);
       })
       .catch((insertErr) => {
-        logger.error(insertErr);
+        // Protocol not imported or version mismatch
+        if (!(insertErr instanceof Error)) {
+          return Promise.reject(insertErr);
+        }
+
+        // Session already exists
         if (insertErr.errorType === 'uniqueViolated') {
           return Promise.reject(constructErrorObject(
             ErrorMessages.SessionAlreadyExists,
             get(session, 'data.sessionVariables.caseId', null),
           ));
         }
+
+        // Actual error
         throw insertErr;
       });
   }
