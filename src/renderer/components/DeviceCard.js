@@ -51,7 +51,7 @@ const DeviceCard = ({
 DeviceCard.propTypes = {
   name: PropTypes.string,
   id: PropTypes.string,
-  createdAt: PropTypes.string,
+  createdAt: PropTypes.object, // JS Date object
   onClickHandler: PropTypes.func,
   disabled: PropTypes.bool,
 };

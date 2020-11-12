@@ -106,6 +106,7 @@ const DeviceList = ({
                         layout
                       >
                         <DeviceCard
+
                           {...device}
                           key={device.id}
                           onClickHandler={() => confirmDelete(device.id)}

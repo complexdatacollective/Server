@@ -19,22 +19,6 @@ describe('<DeviceList />', () => {
         <DeviceList devices={[mockDevice]} />
       </Provider>,
     );
-    expect(wrapper.find('DeviceDetails')).toHaveLength(1);
-  });
-
-  it('renders instructions when no devices saved', () => {
-    const wrapper = mount(<Provider store={mockStore}><DeviceList devices={[]} /></Provider>);
-    expect(wrapper.find('Instructions')).toHaveLength(1);
-  });
-
-  it('renders an unpair button when needed', () => {
-    const wrapper = mount(
-      <Provider store={mockStore}>
-        <DeviceList devices={[mockDevice]} deleteDevice={() => {}} />
-      </Provider>,
-    );
-    const button = wrapper.find('Button');
-    expect(button).toHaveLength(1);
-    expect(button.text()).toMatch('Unpair');
+    expect(wrapper.find('DeviceCard')).toHaveLength(1);
   });
 });
