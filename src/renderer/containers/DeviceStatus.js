@@ -50,7 +50,7 @@ const DeviceStatus = ({
 
       {hasPendingRequest }
 
-      Devices
+      Paired Devices
     </button>,
     <Overlay
       show={showDevicesModal && !showInstructions}

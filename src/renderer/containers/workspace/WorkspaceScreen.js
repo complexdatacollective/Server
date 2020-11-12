@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { arrayMove } from 'react-sortable-hoc';
-import { Spinner } from '@codaco/ui';
+import { Spinner, Button } from '@codaco/ui';
 import Types from '../../types';
 import InterviewStatsPanel from './InterviewStatsPanel';
 import ProtocolCountsPanel from './ProtocolCountsPanel';
@@ -123,6 +123,26 @@ class WorkspaceScreen extends Component {
     return (
       <div className="workspace" ref={this.myRef}>
         <ProtocolPanel protocol={protocol} workspaceId={workspaceId} />
+        <div className="workspace-panel welcome-panel">
+          <h1>Your protocol workspace</h1>
+          <p>
+            This is the overview dashboard for this protocol. It summarizes the data you
+            have collected so far, and generates charts for each variable (tip: try dragging
+            the charts to rearrange them). Use the buttons in the panel below to export data, or
+            access settings associated with this protocol.
+          </p>
+          <p>
+            At the top of the screen you will find connection details for pairing this installation
+            of Server with your Network Canvas devices, so that you can deploy your protocol
+            and start uploading data.
+          </p>
+          <p>
+            To learn more about using Server, please visit our <a href="https://documentation.networkcanvas.com" className="external-link">documentation website</a>.
+          </p>
+          <div className="workspace-panel__buttons">
+            <Button color="platinum">Dismiss message</Button>
+          </div>
+        </div>
         <SortablePanels
           getContainer={() => this.props.scrollContainerRef.current}
           className="dashboard"

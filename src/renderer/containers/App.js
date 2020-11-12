@@ -9,9 +9,7 @@ import DialogManager from '../components/DialogManager';
 import AppRoutes from './AppRoutes';
 import ProtocolNav from './ProtocolNav';
 import AdminApiClient from '../utils/adminApiClient';
-import { appVersion, codename } from '../utils/appVersion';
-import NCLogo from '../images/NC-Mark.svg';
-import { AppMessage } from '../components';
+import { AppMessage, ServerPanel, WorkspaceNav } from '../components';
 import SessionFileDropTarget from '../containers/SessionFileDropTarget';
 import { AnimatedPairPrompt } from '../components/pairing/PairPrompt';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
@@ -132,7 +130,6 @@ class App extends Component {
     } = this.state;
 
     const appClass = isFrameless() ? 'app app--frameless' : 'app';
-    const versionParts = appVersion.split('-');
 
     const handleDismissal = timestamp => dismissAppMessage(timestamp);
 
@@ -151,11 +148,13 @@ class App extends Component {
           />
         }
         <div className="app__titlebar" />
+        <ServerPanel />
         <div className="app__content">
           {
             apiReady && (
               <React.Fragment>
                 <ProtocolNav className="app__sidebar" />
+                <WorkspaceNav />
                 <SessionFileDropTarget>
                   <div className="app__screen">
                     { insecure &&
@@ -174,14 +173,6 @@ class App extends Component {
                 </SessionFileDropTarget>
               </React.Fragment>
             )
-          }
-        </div>
-        <div className="app__version">
-          <img src={NCLogo} alt="" />
-          <div>{versionParts[0]} {versionParts[1]}</div>
-          {
-            codename &&
-            <div className="app__codename">{codename}</div>
           }
         </div>
         <DialogManager />

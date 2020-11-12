@@ -13,3 +13,43 @@ $font-path: '~@codaco/ui/lib/assets/fonts'; // relative to here
 
 @import 'containers/all';
 @import 'components/all';
+
+.workspace-nav {
+  background: var(--color-cerulean-blue);
+
+  ul, li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  ul {
+    padding: unit(2) 0;
+  }
+
+  li {
+    padding: unit(2) unit(4);
+    width: 20rem;
+    color: var(--color-white);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .15rem;
+    font-family: var(--heading-font-family);
+    display: flex;
+    align-items: center;
+
+    img {
+      margin-right: unit(1);
+    }
+
+    &:hover {
+      background: rgba(0, 0, 0, .3); // sass-lint:disable-line no-color-literals
+      cursor: pointer;
+    }
+
+    &.active {
+      background: rgba(0, 0, 0, .3); // sass-lint:disable-line no-color-literals
+    }
+  }
+}

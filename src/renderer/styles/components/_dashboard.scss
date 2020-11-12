@@ -1,7 +1,6 @@
 .dashboard {
   $min-grid-row: 0;
   $max-grid-row: 27rem;
-  $column-count: 3;
   $grid-gap: spacing(medium);
 
   @include element(panel) {
@@ -68,5 +67,9 @@
   grid-auto-rows: minmax($min-grid-row, $max-grid-row);
   // Drag handles are rendered as bars below each panel; add extra vertical gap to accommodate:
   grid-gap: calc(#{$grid-gap} + var(--draggable-height)) $grid-gap;
-  grid-template-columns: repeat($column-count, 1fr);
+  grid-template-columns: repeat(2, 1fr);
+
+  @media screen and (min-width: 1400px) /* Desktop */ {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }

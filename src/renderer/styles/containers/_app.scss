@@ -55,6 +55,7 @@
     height: 100%;
     width: var(--app-sidebar-width);
 
+
     // Ensure contained content fills entire height
     > * {
       border: 1px solid transparent; // force to top
@@ -79,20 +80,6 @@
     .paired-device-list {
       max-width: 1400px;
       margin: 0 auto;
-    }
-  }
-
-  @include element(version) {
-    bottom: 0.5rem;
-    color: var(--color-platinum--dark);
-    font-size: 0.9rem;
-    left: 0.5rem;
-    position: absolute;
-    text-align: center;
-
-    img {
-      width: 7rem;
-      margin-bottom: 1rem;
     }
   }
 

@@ -31,7 +31,7 @@ const NetworkStatus = () => {
         <span className={`network-status__badge network-status-badge--${networkIndicatorStatus}`} />
       </div>
 
-      Network
+      Network Status
     </button>,
     <Overlay
       show={showNetworkModal}
