@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import logger from 'electron-log';
 import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import { ipcRenderer, remote } from 'electron';
 import { withRouter } from 'react-router-dom';
 import DialogManager from '../components/DialogManager';
@@ -20,17 +20,9 @@ import { actionCreators as deviceActionCreators } from '../ducks/modules/devices
 import { actionCreators as protocolActionCreators } from '../ducks/modules/protocols';
 import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
 import { isFrameless } from '../utils/environment';
+import ipcChannels from '../utils/ipcChannels';
 import ToastManager from '../components/ToastManager';
 import useUpdater from '../hooks/useUpdater';
-
-const IPC = {
-  REQUEST_API_INFO: 'REQUEST_API_INFO',
-  API_INFO: 'API_INFO',
-  PAIRING_CODE_AVAILABLE: 'PAIRING_CODE_AVAILABLE',
-  PAIRING_TIMED_OUT: 'PAIRING_TIMED_OUT',
-  PAIRING_COMPLETE: 'PAIRING_COMPLETE',
-  RESET_APP: 'RESET_APP',
-};
 
 // This prevents user from being able to drop a file anywhere on the app
 // (which by default triggers a 'save' dialog). If we want to support this,
@@ -65,6 +57,7 @@ const App = ({
   history,
 }) => {
   const [apiReady, setApiReady] = useState(false);
+  const dispatch = useDispatch();
   const insecure = remote.app.commandLine.hasSwitch('unsafe-pairing-code');
 
   const appClass = isFrameless() ? 'app app--frameless' : 'app';
@@ -88,28 +81,38 @@ const App = ({
     preventGlobalDragDrop();
 
     // Initialise UI with back end API details
-    ipcRenderer.send(IPC.REQUEST_API_INFO);
-    ipcRenderer.once(IPC.API_INFO, (event, connectionInfo) => updateAPIInfo(connectionInfo));
+    ipcRenderer.send(ipcChannels.REQUEST_API_INFO);
+    ipcRenderer.once(ipcChannels.API_INFO, (_, connectionInfo) => updateAPIInfo(connectionInfo));
+
+    // Listen for protocol data changes
+    ipcRenderer.on(ipcChannels.DATA_IS_STALE, () => {
+      // eslint-disable-next-line no-console
+      console.log('IPC - Data is stale.');
+      dispatch(protocolActionCreators.loadProtocols());
+    });
+
+    // ipcRenderer.on(ipcChannels.DEVICES_ARE_STALE, () => {
+    // });
 
     // Handle pairing
-    ipcRenderer.on(IPC.PAIRING_CODE_AVAILABLE, (event, data) => {
+    ipcRenderer.on(ipcChannels.PAIRING_CODE_AVAILABLE, (event, data) => {
       newPairingRequest(data.id, data.pairingCode);
     });
 
-    ipcRenderer.on(IPC.PAIRING_TIMED_OUT, () => {
+    ipcRenderer.on(ipcChannels.PAIRING_TIMED_OUT, () => {
       dismissPairingRequest();
     });
 
-    ipcRenderer.on(IPC.PAIRING_COMPLETE, () => {
+    ipcRenderer.on(ipcChannels.PAIRING_COMPLETE, () => {
       completedPairingRequest();
       loadDevices();
     });
 
     // Respond to backend data reset
-    ipcRenderer.on(IPC.RESET_APP, () => {
+    ipcRenderer.on(ipcChannels.RESET_APP, () => {
       resetApp(); // Reset state to initial state
-      ipcRenderer.send(IPC.REQUEST_API_INFO); // Recover backend API info
-      ipcRenderer.once(IPC.API_INFO, (event, connectionInfo) => updateAPIInfo(connectionInfo));
+      ipcRenderer.send(ipcChannels.REQUEST_API_INFO); // Recover backend API info
+      ipcRenderer.once(ipcChannels.API_INFO, (_, connectionInfo) => updateAPIInfo(connectionInfo));
 
       loadDevices(); // Request device data
       loadProtocols(); // Request protocol data
@@ -238,5 +241,4 @@ export default withRouter(ConnectedApp);
 export {
   App as UnconnectedApp,
   ConnectedApp,
-  IPC,
 };

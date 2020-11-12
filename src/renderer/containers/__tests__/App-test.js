@@ -5,7 +5,8 @@ import { createStore } from 'redux';
 import { Provider } from 'react-redux';
 import { ipcRenderer } from 'electron';
 import AdminApiClient from '../../utils/adminApiClient';
-import { ConnectedApp, UnconnectedApp as App, IPC } from '../App';
+import { ConnectedApp, UnconnectedApp as App } from '../App';
+import ipcChannels from '../../utils/ipcChannels';
 import { isFrameless } from '../../utils/environment';
 
 jest.mock('electron-log');
@@ -83,13 +84,13 @@ describe('<App />', () => {
   describe('API IPC', () => {
     it('requests connection info when created', () => {
       shallow(<App {...mockDispatched} />);
-      expect(ipcRenderer.send).toHaveBeenCalledWith(IPC.REQUEST_API_INFO);
+      expect(ipcRenderer.send).toHaveBeenCalledWith(ipcChannels.REQUEST_API_INFO);
     });
 
     it('registers a callback for connection info', () => {
       shallow(<App {...mockDispatched} />);
       expect(ipcRenderer.once).toHaveBeenCalledWith(
-        IPC.API_INFO,
+        ipcChannels.API_INFO,
         expect.any(Function),
       );
     });
@@ -104,20 +105,20 @@ describe('<App />', () => {
 
       it('sets the dynamic port for all clients', () => {
         shallow(<App {...mockDispatched} />);
-        callOnce(IPC.ApiConnectionInfoChannel, { adminService: { port: 12345 } });
+        callOnce(ipcChannels.ApiConnectionInfoChannel, { adminService: { port: 12345 } });
         expect(AdminApiClient.setPort).toHaveBeenCalledWith(12345);
       });
 
       it('sets redux state', () => {
         const connectionInfo = { adminService: { port: 12345 } };
         shallow(<App {...mockDispatched} />);
-        callOnce(IPC.ApiConnectionInfoChannel, connectionInfo);
+        callOnce(ipcChannels.ApiConnectionInfoChannel, connectionInfo);
         expect(mockDispatched.setConnectionInfo).toHaveBeenCalledWith(connectionInfo);
       });
 
       it('does not crash when adminService unavailable', () => {
         shallow(<App {...mockDispatched} />);
-        callOnce(IPC.ApiConnectionInfoChannel, {});
+        callOnce(ipcChannels.ApiConnectionInfoChannel, {});
         expect(mockDispatched.setConnectionInfo).toHaveBeenCalled();
       });
     });
