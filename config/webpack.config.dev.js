@@ -102,7 +102,7 @@ const config = {
       // For now, hardcode to current version (react-error-overlay@5.0.0-next.3e165448)
       REACT_APP_SCRIPT_SRC_CSP: "'sha256-krS8bpkNCT0q3QRkQCSGbnVy53cU1MDnfjOgdAhnj7w='",
       // Whitelist dev server websockets content in Content Security Policy
-      REACT_APP_CONNECT_SRC_CSP: 'ws://localhost:* wss://localhost:*',
+      REACT_APP_CONNECT_SRC_CSP: 'ws://*:* wss://*:* https://*:* http://*:*',
     }),
     // Add module names to factory functions so they appear in browser profiler.
     new webpack.NamedModulesPlugin(),

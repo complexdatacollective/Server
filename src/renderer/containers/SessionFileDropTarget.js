@@ -70,14 +70,14 @@ const SessionFileDropTarget = ({
               { importErrors.length > 0 && (
                 <details className="error-section">
                   <summary> <h2>Session errors ({importErrors.length})</h2></summary>
-                  {Object.keys(importErrorsByFile).map(fileWithError => (
-                    <div className="error-item">
+                  {Object.keys(importErrorsByFile).map((fileWithError, index) => (
+                    <div className="error-item" key={index}>
                       <h4>
                         <span role="img" aria-label="warning">⚠️</span> {fileWithError}:
                       </h4>
                       <ul>
-                        {importErrorsByFile[fileWithError].map(importFileError =>
-                          <li>{importFileError.caseID ? `Case ID: ${importFileError.caseID} - ` : null}{importFileError.message}</li>)}
+                        {importErrorsByFile[fileWithError].map((importFileError, fileIndex) =>
+                          <li key={fileIndex}>{importFileError.caseID ? `Case ID: ${importFileError.caseID} - ` : null}{importFileError.message}</li>)}
                       </ul>
                     </div>
                   ))}
@@ -86,8 +86,8 @@ const SessionFileDropTarget = ({
               { fileErrors.length > 0 && (
                 <details className="error-section">
                   <summary><h2>File errors ({fileErrors.length})</h2></summary>
-                  {fileErrors.map(fileWithError => (
-                    <div className="error-item">
+                  {fileErrors.map((fileWithError, errorIndex) => (
+                    <div className="error-item" key={errorIndex}>
                       <h4>
                         <span role="img" aria-label="warning">⚠️</span> {fileWithError.file}: {fileWithError.message}
                       </h4>
@@ -119,7 +119,7 @@ const SessionFileDropTarget = ({
               error during import.
             </p>
             <div className="toast-button-group">
-              <Button size="small" color="platinum" onClick={() => dispatch(toastActions.removeToast('import-result'))}>Dismiss</Button>
+              <Button size="small" color="platinum--dark" onClick={() => dispatch(toastActions.removeToast('import-result'))}>Dismiss</Button>
               <Button color="neon-coral" size="small" onClick={showMoreInfo}>More Information</Button>
             </div>
           </React.Fragment>

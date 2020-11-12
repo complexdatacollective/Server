@@ -9,6 +9,7 @@ import dialogs from './dialogs';
 import toasts from './toasts';
 import panelLayoutOrders from './panelLayoutOrders';
 import protocols from './protocols';
+import dismissedUpdates from './dismissedUpdates';
 
 const appReducer = combineReducers({
   appMessages,
@@ -20,6 +21,7 @@ const appReducer = combineReducers({
   pairingRequest,
   panelLayoutOrders,
   protocols,
+  dismissedUpdates,
 });
 
 const rootReducer = (state, action) => {

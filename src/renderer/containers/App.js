@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import logger from 'electron-log';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { ipcRenderer, shell, remote } from 'electron';
+import { ipcRenderer, remote } from 'electron';
 import { withRouter } from 'react-router-dom';
 import DialogManager from '../components/DialogManager';
 import AppRoutes from './AppRoutes';
@@ -17,9 +17,9 @@ import { actionCreators as connectionInfoActionCreators } from '../ducks/modules
 import { actionCreators as deviceActionCreators } from '../ducks/modules/devices';
 import { actionCreators as protocolActionCreators } from '../ducks/modules/protocols';
 import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
-import { actionCreators as toastActions } from '../ducks/modules/toasts';
 import { isFrameless } from '../utils/environment';
 import ToastManager from '../components/ToastManager';
+import useUpdater from '../hooks/useUpdater';
 
 const IPC = {
   REQUEST_API_INFO: 'REQUEST_API_INFO',
@@ -44,43 +44,45 @@ const preventGlobalDragDrop = () => {
   });
 };
 
-const enableExternalLinks = () => {
-  // Open all links in external browser
-  document.addEventListener('click', (event) => {
-    if (event.target && event.target.tagName === 'A' && event.target.classList.contains('external-link')) {
-      event.preventDefault();
-      shell.openExternal(event.target.href);
-    }
-  });
-};
-
 /**
  * Main app container.
  */
-class App extends Component {
-  constructor(props) {
-    super(props);
+const App = ({
+  ackPairingRequest,
+  dismissAppMessage,
+  dismissPairingRequest,
+  appMessages,
+  pairingRequest,
+  setConnectionInfo,
+  newPairingRequest,
+  completedPairingRequest,
+  loadDevices,
+  resetApp,
+  loadProtocols,
+  dismissAppMessages,
+  history,
+}) => {
+  const [apiReady, setApiReady] = useState(false);
+  const insecure = remote.app.commandLine.hasSwitch('unsafe-pairing-code');
 
-    this.protocolImportToastID = 'protocolImportToast';
-    this.protocolImportCancelled = false;
+  const appClass = isFrameless() ? 'app app--frameless' : 'app';
 
-    this.state = {
-      apiReady: false,
-      insecure: remote.app.commandLine.hasSwitch('unsafe-pairing-code'),
-    };
+  const handleDismissal = timestamp => dismissAppMessage(timestamp);
 
+  useUpdater('https://api.github.com/repos/complexdatacollective/Server/releases/latest', 2500);
+
+  const updateAPIInfo = (connectionInfo) => {
+    if (connectionInfo.adminService) {
+      AdminApiClient.setPort(connectionInfo.adminService.port);
+    } else {
+      logger.warn('Admin API unavailable');
+    }
+    setConnectionInfo(connectionInfo);
+    setApiReady(true);
+  };
+
+  useEffect(() => {
     preventGlobalDragDrop();
-    enableExternalLinks();
-
-    const updateAPIInfo = (connectionInfo) => {
-      if (connectionInfo.adminService) {
-        AdminApiClient.setPort(connectionInfo.adminService.port);
-      } else {
-        logger.warn('Admin API unavailable');
-      }
-      this.props.setConnectionInfo(connectionInfo);
-      this.setState({ apiReady: true });
-    };
 
     // Initialise UI with back end API details
     ipcRenderer.send(IPC.REQUEST_API_INFO);
@@ -88,99 +90,85 @@ class App extends Component {
 
     // Handle pairing
     ipcRenderer.on(IPC.PAIRING_CODE_AVAILABLE, (event, data) => {
-      props.newPairingRequest(data.id, data.pairingCode);
+      newPairingRequest(data.id, data.pairingCode);
     });
 
     ipcRenderer.on(IPC.PAIRING_TIMED_OUT, () => {
-      props.dismissPairingRequest();
+      dismissPairingRequest();
     });
 
     ipcRenderer.on(IPC.PAIRING_COMPLETE, () => {
-      props.completedPairingRequest();
-      props.loadDevices();
+      completedPairingRequest();
+      loadDevices();
     });
 
     // Respond to backend data reset
     ipcRenderer.on(IPC.RESET_APP, () => {
-      props.resetApp(); // Reset state to initial state
+      resetApp(); // Reset state to initial state
       ipcRenderer.send(IPC.REQUEST_API_INFO); // Recover backend API info
       ipcRenderer.once(IPC.API_INFO, (event, connectionInfo) => updateAPIInfo(connectionInfo));
 
-      props.loadDevices(); // Request device data
-      props.loadProtocols(); // Request protocol data
+      loadDevices(); // Request device data
+      loadProtocols(); // Request protocol data
 
-      this.props.history.push('/overview'); // Navigate to overview screen
+      history.push('/overview'); // Navigate to overview screen
     });
 
-    this.props.dismissAppMessages();
-  }
+    dismissAppMessages();
 
-  render() {
-    const {
-      ackPairingRequest,
-      dismissAppMessage,
-      dismissPairingRequest,
-      appMessages,
-      pairingRequest,
-    } = this.props;
 
-    const {
-      apiReady,
-      insecure,
-    } = this.state;
+    // return () => {
+    //   //cleanup
+    // };
+  }, []);
 
-    const appClass = isFrameless() ? 'app app--frameless' : 'app';
-
-    const handleDismissal = timestamp => dismissAppMessage(timestamp);
-
-    return (
-      <div className={appClass}>
-        <div className="app__flash">
-          { appMessages.map(msg => (
-            <AppMessage key={msg.timestamp} {...msg} handleDismissal={handleDismissal} />
-          )) }
-        </div>
-        {
-          <AnimatedPairPrompt
-            show={pairingRequest.status === PairingStatus.Pending}
-            onAcknowledge={ackPairingRequest}
-            onDismiss={dismissPairingRequest}
-          />
-        }
-        <div className="app__titlebar" />
-        <ServerPanel />
-        <div className="app__content">
-          {
-            apiReady && (
-              <React.Fragment>
-                <ProtocolNav className="app__sidebar" />
-                <WorkspaceNav />
-                <SessionFileDropTarget>
-                  <div className="app__screen">
-                    { insecure &&
-                      <div className="unsafe-pairing-warning">
-                        <h3>Warning: Unsafe Pairing Enabled!</h3>
-                        <p>
-                          You have started Server with the <code>unsafe-pairing-code</code>
-                          option set. This option severely undermines the security of Server,
-                          and should <strong>not be used when conducting a study under any
-                            circumstances</strong>.
-                        </p>
-                      </div>
-                    }
-                    <AppRoutes />
-                  </div>
-                </SessionFileDropTarget>
-              </React.Fragment>
-            )
-          }
-        </div>
-        <DialogManager />
-        <ToastManager />
+  return (
+    <div className={appClass}>
+      <div className="app__flash">
+        { appMessages.map(msg => (
+          <AppMessage key={msg.timestamp} {...msg} handleDismissal={handleDismissal} />
+        )) }
       </div>
-    );
-  }
-}
+      {
+        <AnimatedPairPrompt
+          show={pairingRequest.status === PairingStatus.Pending}
+          onAcknowledge={ackPairingRequest}
+          onDismiss={dismissPairingRequest}
+        />
+      }
+      <div className="app__titlebar" />
+      <ServerPanel />
+      <div className="app__content">
+        {
+          apiReady && (
+            <React.Fragment>
+              <ProtocolNav className="app__sidebar" />
+              <WorkspaceNav />
+              <SessionFileDropTarget>
+                <div className="app__screen">
+                  { insecure &&
+                    <div className="unsafe-pairing-warning">
+                      <h3>Warning: Unsafe Pairing Enabled!</h3>
+                      <p>
+                        You have started Server with the <code>unsafe-pairing-code</code>
+                        option set. This option severely undermines the security of Server,
+                        and should <strong>not be used when conducting a study under any
+                          circumstances</strong>.
+                      </p>
+                    </div>
+                  }
+                  <AppRoutes />
+                </div>
+              </SessionFileDropTarget>
+            </React.Fragment>
+          )
+        }
+      </div>
+      <DialogManager />
+      <ToastManager />
+    </div>
+  );
+};
 
 App.propTypes = {
   ackPairingRequest: PropTypes.func.isRequired,
@@ -201,13 +189,11 @@ App.propTypes = {
   setConnectionInfo: PropTypes.func.isRequired,
   showConfirmationMessage: PropTypes.func,
   dismissAppMessages: PropTypes.func.isRequired,
-  addToast: PropTypes.func,
 };
 
 App.defaultProps = {
   appMessages: [],
   pairingRequest: {},
-  addToast: () => {},
   showConfirmationMessage: () => {},
   history: {
     push: () => {},
@@ -233,9 +219,6 @@ function mapDispatchToProps(dispatch) {
     dismissAppMessage: bindActionCreators(messageActionCreators.dismissAppMessage, dispatch),
     dismissAppMessages: bindActionCreators(messageActionCreators.dismissAppMessages, dispatch),
     setConnectionInfo: bindActionCreators(connectionInfoActionCreators.setConnectionInfo, dispatch),
-    addToast: bindActionCreators(toastActions.addToast, dispatch),
-    updateToast: bindActionCreators(toastActions.updateToast, dispatch),
-    removeToast: bindActionCreators(toastActions.removeToast, dispatch),
   };
 }
 
