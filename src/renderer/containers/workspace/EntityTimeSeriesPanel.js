@@ -1,16 +1,24 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
+import { selectors as protocolSelectors } from '../../ducks/modules/protocols';
 import { EmptyData, TimeSeriesChart } from '../../components';
 import withApiClient from '../../components/withApiClient';
 
+const { currentCodebook } = protocolSelectors;
+
 // Data series are keyed with node_[subtype] and edge_[subtype]; we can assume subtypes are
 // meaningfully unique and label with just the subtype
-const subtypeLabel = subtype => ({ key: subtype, label: `${subtype.split('_')[1]}` });
+const subtypeLabel = subtype => subtype.split('_')[1];
+const codebookSubtypeLabel = (codebook, entityType, subtype) => (
+  (codebook && codebook[entityType][subtypeLabel(subtype)] &&
+    codebook[entityType][subtypeLabel(subtype)].name) || subtypeLabel(subtype)
+);
 
 // Based on the API response, determine which series to render.
 // If there's only one node subtype (e.g., 'person'), don't render it.
-const dataSeries = (timeSeriesKeys = []) => {
+const dataSeries = (timeSeriesKeys = [], codebook) => {
   const series = [];
   const nodeSubtypes = timeSeriesKeys.filter(key => (/node_/).test(key));
   const edgeSubtypes = timeSeriesKeys.filter(key => (/edge_/).test(key));
@@ -18,13 +26,15 @@ const dataSeries = (timeSeriesKeys = []) => {
     series.push({ key: 'node', label: 'node' });
   }
   if (nodeSubtypes.length > 1) {
-    series.push(...nodeSubtypes.map(subtypeLabel));
+    series.push(...nodeSubtypes.map(subtype =>
+      ({ key: subtype, label: codebookSubtypeLabel(codebook, 'node', subtype) })));
   }
   if (timeSeriesKeys.includes('edge')) {
     series.push({ key: 'edge', label: 'edge' });
   }
   if (edgeSubtypes.length > 1) {
-    series.push(...edgeSubtypes.map(subtypeLabel));
+    series.push(...edgeSubtypes.map(subtype =>
+      ({ key: subtype, label: codebookSubtypeLabel(codebook, 'edge', subtype) })));
   }
   return series;
 };
@@ -67,9 +77,10 @@ class EntityTimeSeriesPanel extends PureComponent {
 
   render() {
     const { timeSeriesData, timeSeriesKeys } = this.state;
+    const { codebook } = this.props;
     let content;
     if (timeSeriesData.length > 0) {
-      const series = dataSeries(timeSeriesKeys);
+      const series = dataSeries(timeSeriesKeys, codebook);
       content = <TimeSeriesChart data={this.state.timeSeriesData} series={series} />;
     } else {
       content = <EmptyData />;
@@ -90,16 +101,24 @@ class EntityTimeSeriesPanel extends PureComponent {
 EntityTimeSeriesPanel.defaultProps = {
   apiClient: null,
   sessionCount: null,
+  codebook: {},
 };
 
 EntityTimeSeriesPanel.propTypes = {
   apiClient: PropTypes.object,
   protocolId: PropTypes.string.isRequired,
   sessionCount: PropTypes.number,
+  codebook: PropTypes.object,
 };
 
-export default withApiClient(EntityTimeSeriesPanel);
+const mapStateToProps = (state, ownProps) => ({
+  codebook: currentCodebook(state, ownProps),
+});
+
+const UnconnectedEntityTimeSeriesPanel = (withApiClient(EntityTimeSeriesPanel));
+
+export default connect(mapStateToProps)(withApiClient(EntityTimeSeriesPanel));
 
 export {
-  EntityTimeSeriesPanel as UnconnectedEntityTimeSeriesPanel,
+  UnconnectedEntityTimeSeriesPanel,
 };

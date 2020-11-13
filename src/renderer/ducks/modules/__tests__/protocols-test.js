@@ -102,7 +102,7 @@ describe('the protocols module', () => {
       isDistributionVariable,
       ordinalAndCategoricalVariables,
       protocolsHaveLoaded,
-      transposedCodebook,
+      currentCodebook,
     } = selectors;
 
     describe('currentProtocol', () => {
@@ -136,7 +136,7 @@ describe('the protocols module', () => {
         };
         const state = { protocols: [{ id: '1', codebook }] };
         const props = { match: { params: { id: '1' } } };
-        expect(ordinalAndCategoricalVariables(state, props)).toEqual({ nodes: { person: ['catVar'] }, edges: { friend: ['ordVar'] }, ego: { ego: ['catVar'] } });
+        expect(ordinalAndCategoricalVariables(state, props)).toEqual({ nodes: { 'node-type-id': ['var-id-1'] }, edges: { 'edge-type-id': ['var-id-2'] }, ego: { ego: ['var-id-3'] } });
       });
 
       it('ignores sections without these variables', () => {
@@ -167,8 +167,8 @@ describe('the protocols module', () => {
       });
     });
 
-    describe('transposedCodebook', () => {
-      it('returns a modified codebook', () => {
+    describe('currentCodebook', () => {
+      it('returns a codebook', () => {
         const codebook = {
           node: { 'node-type-id': { name: 'person', variables: {} } },
           edge: { 'edge-type-id': { name: 'friend', variables: {} } },
@@ -176,13 +176,13 @@ describe('the protocols module', () => {
         };
         const state = { protocols: [{ id: '1', codebook }] };
         const props = { match: { params: { id: '1' } } };
-        const transposed = transposedCodebook(state, props);
-        expect(transposed).toHaveProperty('node');
-        expect(transposed.node).toHaveProperty('person');
-        expect(transposed).toHaveProperty('edge');
-        expect(transposed.edge).toHaveProperty('friend');
-        expect(transposed).toHaveProperty('ego');
-        expect(transposed.ego.variables).toHaveProperty('ordVar');
+        const codebook2 = currentCodebook(state, props);
+        expect(codebook2).toHaveProperty('node');
+        expect(codebook2.node).toHaveProperty('node-type-id');
+        expect(codebook2).toHaveProperty('edge');
+        expect(codebook2.edge).toHaveProperty('edge-type-id');
+        expect(codebook2).toHaveProperty('ego');
+        expect(codebook2.ego.variables).toHaveProperty('var-id-1');
       });
 
       it('does not require edge variables', () => {
@@ -192,8 +192,8 @@ describe('the protocols module', () => {
         };
         const state = { protocols: [{ id: '1', codebook }] };
         const props = { match: { params: { id: '1' } } };
-        const transposed = transposedCodebook(state, props);
-        expect(transposed.edge).toEqual({ 'edge-name': { name: 'edge-name' } });
+        const codebook2 = currentCodebook(state, props);
+        expect(codebook2.edge).toEqual({ 'edge-type-id': { name: 'edge-name' } });
       });
     });
   });
