@@ -455,7 +455,7 @@ class ProtocolManager {
     if (invalidFileList.length > 0) {
       processFilePromises.push(
         Promise.reject(invalidFileList.map(invalidFile => constructErrorObject(
-          ErrorMessages.InvalidFileExtension,
+          ErrorMessages.InvalidSessionFileExtension,
           null,
           invalidFile,
         ))),
