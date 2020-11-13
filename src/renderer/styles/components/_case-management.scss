@@ -64,12 +64,12 @@
 }
 
 .case-management {
-  height: calc(100% - var(--app-titlebar-height) - 5rem);
-  overflow: hidden;
-  padding: 0 3.6rem 6rem;
-  left: calc(var(--app-sidebar-width));
-  position: fixed;
-  width: calc(100% - var(--app-sidebar-width));
+  // height: calc(100% - var(--app-titlebar-height) - 5rem);
+  // overflow: hidden;
+  // padding: 0 3.6rem 6rem;
+  // left: calc(var(--app-sidebar-width));
+  // position: fixed;
+  // width: calc(100% - var(--app-sidebar-width));
 
   &__checkbox > div {
     display: flex;
@@ -96,19 +96,5 @@
   &--loading {
     display: flex;
     justify-content: center;
-  }
-
-  &__footer {
-    position: fixed;
-    bottom: 0;
-    width: calc(100% - var(--app-sidebar-width));
-    right: 0;
-    background: var(--color-cyber-grape);
-    margin-left: -3.6rem;
-    height: 6rem;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 0 spacing(large);
   }
 }

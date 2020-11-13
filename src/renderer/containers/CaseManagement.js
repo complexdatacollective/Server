@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { Redirect, withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
 import { includes, without } from 'lodash';
-import { Button, Spinner } from '@codaco/ui';
+import { Spinner } from '@codaco/ui';
 import { Text } from '@codaco/ui/lib/components/Fields';
 import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 import { selectors as protocolSelectors } from '../ducks/modules/protocols';
@@ -142,6 +142,7 @@ class CaseManagement extends Component {
     } else {
       content = (
         <React.Fragment>
+          <h1>Manage Cases</h1>
           <div className="case-management__header">{this.header}</div>
           {(sessions && sessions.length === 0) && emptyContent }
           {
@@ -163,9 +164,6 @@ class CaseManagement extends Component {
                 />
               </div>
           }
-          <div className="case-management__footer">
-            <Button color="primary" onClick={() => history.goBack()}>Finished</Button>
-          </div>
         </React.Fragment>
       );
       classes = 'case-management';

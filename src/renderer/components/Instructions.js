@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import PairingInstructions from './PairingInstructions';
-import { ExternalLink } from './ExternalLink';
 
 const Instructions = ({
   compact,

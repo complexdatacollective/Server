@@ -1,20 +1,23 @@
 import React from 'react';
+import { NavLink, withRouter } from 'react-router-dom';
 import overview from '../images/overview.svg';
 import share from '../images/share.svg';
 import cases from '../images/cases.svg';
 import settings from '../images/settings.svg';
 
-function WorkspaceNav() {
+function WorkspaceNav(props) {
+  console.log('pro', props);
+  const protocolId = props.match.params.id;
   return (
     <div className="workspace-nav">
       <ul>
-        <li className="active"><img src={overview} alt="overview" /> Overview</li>
-        <li><img src={cases} alt="cases" /> View Cases</li>
-        <li><img src={share} alt="share" /> Export</li>
-        <li><img src={settings} alt="settings" /> Settings</li>
+        <NavLink exact activeClassName="active" to={`/workspaces/${protocolId}`}><li><img src={overview} alt="overview" />Overview</li></NavLink>
+        <NavLink exact activeClassName="active" to={`/workspaces/${protocolId}/casemanagement`}><li><img src={cases} alt="cases" />Manage Cases</li></NavLink>
+        <NavLink exact activeClassName="active" to={`/workspaces/${protocolId}/export`}><li><img src={share} alt="share" />Export Data</li></NavLink>
+        <NavLink exact activeClassName="active" to={`/workspaces/${protocolId}/settings`}><li><img src={settings} alt="settings" />Settings</li></NavLink>
       </ul>
     </div>
   );
 }
 
-export default WorkspaceNav;
+export default withRouter(WorkspaceNav);

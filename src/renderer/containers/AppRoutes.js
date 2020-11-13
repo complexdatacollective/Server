@@ -3,7 +3,10 @@ import {
   Route,
   Redirect,
   Switch,
+  BrowserRouter as Router,
 } from 'react-router-dom';
+import { WorkspaceNav } from '../components';
+
 import { CaseManagement, ExportScreen, OverviewScreen, PairDevice, SettingsScreen, WorkspaceScreen } from './';
 
 class AppRoutes extends Component {
@@ -20,16 +23,20 @@ class AppRoutes extends Component {
 
     return (
       <main className="app__main" ref={this.scrollContainerRef}>
-        <Switch>
-          <Route path="/overview" component={OverviewScreen} />
-          <Route exact path="/workspaces/:id/" render={workspaceRenderer} />
-          <Route exact path="/workspaces/:id/casemanagement" component={CaseManagement} />
-          <Route exact path="/workspaces/:id/settings" component={SettingsScreen} />
-          <Route exact path="/workspaces/:id/export" component={ExportScreen} />
-          <Route>
-            <Redirect to="/overview" />
-          </Route>
-        </Switch>
+        <Router>
+          <React.Fragment>
+            <Route path="/workspaces/:id/" component={WorkspaceNav} />
+            <Switch>
+              <div className="workspace-wrapper">
+                <Route path="/overview" component={OverviewScreen} />
+                <Route exact path="/workspaces/:id/" render={workspaceRenderer} />
+                <Route exact path="/workspaces/:id/casemanagement" component={CaseManagement} />
+                <Route exact path="/workspaces/:id/settings" component={SettingsScreen} />
+                <Route exact path="/workspaces/:id/export" component={ExportScreen} />
+              </div>
+            </Switch>
+          </React.Fragment>
+        </Router>
         <PairDevice />
       </main>
     );

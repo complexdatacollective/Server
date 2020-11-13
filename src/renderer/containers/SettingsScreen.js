@@ -80,7 +80,7 @@ class SettingsScreen extends Component {
   }
 
   render() {
-    const { protocol, protocolsHaveLoaded, history } = this.props;
+    const { protocol, protocolsHaveLoaded } = this.props;
 
     if (protocolsHaveLoaded && !protocol) { // This protocol doesn't exist
       return <Redirect to="/" />;
@@ -108,9 +108,6 @@ class SettingsScreen extends Component {
           </div>
         </div>
         { this.chartConfigSection }
-        <div className="settings__footer">
-          <Button color="primary" onClick={() => history.goBack()}>Finished</Button>
-        </div>
       </div>
     );
   }
@@ -145,7 +142,6 @@ SettingsScreen.propTypes = {
   protocolsHaveLoaded: PropTypes.bool.isRequired,
   setExcludedVariables: PropTypes.func.isRequired,
   openDialog: PropTypes.func.isRequired,
-  history: PropTypes.object.isRequired,
 };
 
 export default compose(

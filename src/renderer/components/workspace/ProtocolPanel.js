@@ -13,11 +13,11 @@ const ProtocolPanel = ({ protocol, workspaceId }) => (
       name={protocol.name}
       description={protocol.description}
     />
-    <div className="workspace-panel__buttons">
+    {/* <div className="workspace-panel__buttons">
       <LinkButton to={`/workspaces/${workspaceId}/settings`} color="mustard">Settings</LinkButton>&nbsp;
       <LinkButton to={`/workspaces/${workspaceId}/casemanagement`} color="slate-blue">Manage Interview Sessions</LinkButton>&nbsp;
       <LinkButton to={`/workspaces/${workspaceId}/export`} color="neon-coral">Export data</LinkButton>
-    </div>
+    </div> */}
   </div>
 );
 

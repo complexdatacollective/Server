@@ -15,7 +15,7 @@ $font-path: '~@codaco/ui/lib/assets/fonts'; // relative to here
 @import 'components/all';
 
 .workspace-nav {
-  background: var(--color-cerulean-blue);
+  background: var(--color-slate-blue);
 
   ul, li {
     list-style: none;
@@ -25,6 +25,16 @@ $font-path: '~@codaco/ui/lib/assets/fonts'; // relative to here
 
   ul {
     padding: unit(2) 0;
+  }
+
+  a {
+    text-decoration: none;
+
+    &.active {
+      li {
+        background: rgba(0, 0, 0, .3); // sass-lint:disable-line no-color-literals
+      }
+    }
   }
 
   li {
@@ -40,7 +50,7 @@ $font-path: '~@codaco/ui/lib/assets/fonts'; // relative to here
     align-items: center;
 
     img {
-      margin-right: unit(1);
+      margin-right: unit(2);
     }
 
     &:hover {
@@ -48,8 +58,5 @@ $font-path: '~@codaco/ui/lib/assets/fonts'; // relative to here
       cursor: pointer;
     }
 
-    &.active {
-      background: rgba(0, 0, 0, .3); // sass-lint:disable-line no-color-literals
-    }
   }
 }

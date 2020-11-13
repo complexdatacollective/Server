@@ -197,9 +197,6 @@ const ExportScreen = ({
               }
             </AnimatePresence>
           </AnimateSharedLayout>
-        </div>
-        <div className="export__footer">
-          <Button color="platinum" onClick={() => history.goBack()}>Cancel</Button>&nbsp;
           <Button type="submit" disabled={exportInProgress}>Export</Button>
         </div>
       </form>

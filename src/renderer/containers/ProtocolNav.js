@@ -42,15 +42,17 @@ class ProtocolNav extends Component {
   render() {
     const { className, location, protocols } = this.props;
     return (
-      <nav className={className}>
-        <FileDropTarget>
-          <ProtocolThumbnails
-            location={location}
-            protocols={protocols}
-            onClickAddProtocol={promptFileImport}
-          />
-        </FileDropTarget>
-      </nav>
+      <React.Fragment>
+        <nav className={className}>
+          <FileDropTarget>
+            <ProtocolThumbnails
+              location={location}
+              protocols={protocols}
+              onClickAddProtocol={promptFileImport}
+            />
+          </FileDropTarget>
+        </nav>
+      </React.Fragment>
     );
   }
 }

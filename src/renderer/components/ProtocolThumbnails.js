@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import ReactTooltip from 'react-tooltip';
+import { sortBy } from 'lodash';
 import ProtocolThumbnail from './ProtocolThumbnail';
 import Types from '../types';
 
@@ -8,20 +9,22 @@ const ProtocolThumbnails = ({ location, protocols, onClickAddProtocol }) => {
   useEffect(() => {
     ReactTooltip.rebuild();
   });
+
+  const sortedProtocols = sortBy(protocols, 'name');
+
   return (
     <div className="protocol-thumbnails">
       {
-        protocols && protocols.sort().map(protocol => (
-          <div data-tip={protocol.name} data-for="foo" key={protocol.id}><ProtocolThumbnail location={location} protocol={protocol} /></div>
+        sortedProtocols && sortedProtocols.map(protocol => (
+          <div data-tip={protocol.name} data-for="protocol-tooltip" key={protocol.id}><ProtocolThumbnail location={location} protocol={protocol} /></div>
         ))
       }
       <button
         className="protocol-thumbnail protocol-thumbnail--add"
         onClick={onClickAddProtocol}
       />
-      <p data-tip="hello world" data-for="foo">Tooltip</p>
       <ReactTooltip
-        id="foo"
+        id="protocol-tooltip"
         delayShow={300}
         place="right"
         effect="solid"

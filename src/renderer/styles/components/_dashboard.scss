@@ -62,14 +62,14 @@
     display: block;
   }
 
-  margin: 0;
+  margin: unit(4) auto;
   display: grid;
   grid-auto-rows: minmax($min-grid-row, $max-grid-row);
   // Drag handles are rendered as bars below each panel; add extra vertical gap to accommodate:
   grid-gap: calc(#{$grid-gap} + var(--draggable-height)) $grid-gap;
   grid-template-columns: repeat(2, 1fr);
 
-  @media screen and (min-width: 1400px) /* Desktop */ {
+  @media screen and (min-width: 1500px) {
     grid-template-columns: repeat(3, 1fr);
   }
 }

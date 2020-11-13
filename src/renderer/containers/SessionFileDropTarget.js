@@ -227,7 +227,7 @@ const SessionFileDropTarget = ({
   }, []);
 
   return (
-    <div {...getRootProps()} style={{ flex: 1, overflowY: 'auto' }}>
+    <div {...getRootProps()} style={{ flex: 1, overflowY: 'auto', display: 'flex' }}>
       <input {...getInputProps()} />
       <AnimatePresence>
         { isDragActive && !isImporting &&

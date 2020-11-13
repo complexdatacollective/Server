@@ -143,7 +143,6 @@ const App = ({
           apiReady && (
             <React.Fragment>
               <ProtocolNav className="app__sidebar" />
-              <WorkspaceNav />
               <SessionFileDropTarget>
                 <div className="app__screen">
                   { insecure &&

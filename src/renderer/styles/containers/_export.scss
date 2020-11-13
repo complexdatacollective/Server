@@ -35,20 +35,6 @@
     &:last-child { margin-bottom: 0; }
   }
 
-  &__footer {
-    position: fixed;
-    bottom: 0;
-    width: calc(100% - var(--app-sidebar-width));
-    right: 0;
-    background: var(--color-cyber-grape);
-    margin-left: -3.6rem;
-    height: 6rem;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 0 spacing(large);
-  }
-
   &__ego-info {
     float: right;
     font-style: italic;
