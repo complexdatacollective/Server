@@ -23,10 +23,17 @@ const entityVariableType = (codebook, entity, section) => (
   codebook && codebook[entityName(entity)] && codebook[entityName(entity)][section] &&
     codebook[entityName(entity)][section].name);
 
-const entityVariableName = (codebook, entity, section, variable) => (
-  codebook && codebook[entityName(entity)] && codebook[entityName(entity)][section] &&
-  codebook[entityName(entity)][section].variables[variable] &&
-  codebook[entityName(entity)][section].variables[variable].name);
+const entityVariableName = (codebook, entity, section, variable) => {
+  if (entity === 'ego') {
+    return (codebook && codebook[entityName(entity)] && codebook[entityName(entity)].variables &&
+      codebook[entityName(entity)].variables[variable] &&
+      codebook[entityName(entity)].variables[variable].name) || variable;
+  }
+
+  return (codebook && codebook[entityName(entity)] && codebook[entityName(entity)][section] &&
+    codebook[entityName(entity)][section].variables[variable] &&
+    codebook[entityName(entity)][section].variables[variable].name) || variable;
+};
 
 class SettingsScreen extends Component {
   constructor(props) {

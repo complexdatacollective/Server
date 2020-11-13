@@ -96,7 +96,7 @@ const ordinalAndCategoricalVariables = (state, props) => {
 
   return { nodes: ordinalAndCategoricalVariablesByEntity(codebook.node),
     edges: ordinalAndCategoricalVariablesByEntity(codebook.edge),
-    ego: ordinalAndCategoricalVariablesByEntity(codebook.ego) };
+    ego: ordinalAndCategoricalVariablesByEntity({ ...codebook.ego, name: 'ego' }) };
 };
 
 const protocolsHaveLoaded = state => state.protocols !== initialState;
