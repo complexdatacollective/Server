@@ -12,12 +12,7 @@ import { actionCreators as protocolActionCreators } from '../ducks/modules/proto
 import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 import { actionCreators as toastActions } from '../ducks/modules/toasts';
 import AdminApiClient from '../utils/adminApiClient';
-
-const IPC = {
-  SESSIONS_IMPORTED: 'SESSIONS_IMPORTED',
-  SESSIONS_IMPORT_STARTED: 'SESSIONS_IMPORT_STARTED',
-  SESSIONS_IMPORT_COMPLETE: 'SESSIONS_IMPORT_COMPLETE',
-};
+import ipcChannels from '../utils/ipcChannels';
 
 const SessionFileDropTarget = ({
   children,
@@ -218,11 +213,11 @@ const SessionFileDropTarget = ({
   };
 
   useEffect(() => {
-    ipcRenderer.on(IPC.SESSIONS_IMPORT_STARTED, showStartSessionImportToast);
-    ipcRenderer.on(IPC.SESSIONS_IMPORT_COMPLETE, handleSessionImportComplete);
+    ipcRenderer.on(ipcChannels.SESSIONS_IMPORT_STARTED, showStartSessionImportToast);
+    ipcRenderer.on(ipcChannels.SESSIONS_IMPORT_COMPLETE, handleSessionImportComplete);
     return () => {
-      ipcRenderer.removeListener(IPC.SESSIONS_IMPORT_STARTED, showStartSessionImportToast);
-      ipcRenderer.removeListener(IPC.SESSIONS_IMPORT_COMPLETE, handleSessionImportComplete);
+      ipcRenderer.removeListener(ipcChannels.SESSIONS_IMPORT_STARTED, showStartSessionImportToast);
+      ipcRenderer.removeListener(ipcChannels.SESSIONS_IMPORT_COMPLETE, handleSessionImportComplete);
     };
   }, []);
 

@@ -403,6 +403,7 @@ describe('ProtocolManager', () => {
 
       it('adds a session', async () => {
         const mockSession = { uid: '1' };
+        manager.sessionDb.insertAllForProtocol.mockResolvedValue([]);
         await manager.addSessionData(protocolId, mockSession);
         expect(manager.sessionDb.insertAllForProtocol)
           .toHaveBeenCalledWith(mockSession, mockProtocol);
