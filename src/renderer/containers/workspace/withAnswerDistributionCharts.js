@@ -8,7 +8,7 @@ import { selectors as protocolSelectors } from '../../ducks/modules/protocols';
 import { selectors as variableSelectors } from '../../ducks/modules/excludedChartVariables';
 import Types from '../../types';
 
-const { currentProtocolId, isDistributionVariable, transposedCodebook } = protocolSelectors;
+const { currentProtocolId, isDistributionVariable, currentCodebook } = protocolSelectors;
 const { excludedVariablesForCurrentProtocol } = variableSelectors;
 
 const hasData = bucket => bucket && Object.keys(bucket).length > 0;
@@ -24,17 +24,18 @@ const hasData = bucket => bucket && Object.keys(bucket).length > 0;
  *
  * @private
  *
- * @param {Object} transposedNodeCodebook `transposedCodebook.node`, with transposed names
+ * @param {Object} nodeCodebook `codebook.node`
  * @param {Object} buckets The API response from `option_buckets`
  * @return {Array} chartDefinitions
  */
 const shapeBucketDataByType = (
-  transposedNodeCodebook, buckets, excludedChartVariables, entityKey) =>
-  Object.entries(transposedNodeCodebook).reduce((acc, [entityType, { variables }]) => {
+  nodeCodebook, buckets, excludedChartVariables, entityKey) =>
+  Object.entries(nodeCodebook).reduce((acc, [entityType, { variables }]) => {
     const excludedSectionVariables = (excludedChartVariables[entityKey] &&
       excludedChartVariables[entityKey][entityType]) || [];
-    Object.entries(variables || []).forEach(([variableName, def]) => {
-      if (!isDistributionVariable(def) || excludedSectionVariables.includes(def.name)) {
+    Object.keys(variables || []).forEach((variableName) => {
+      const def = variables[variableName];
+      if (!isDistributionVariable(def) || excludedSectionVariables.includes(variableName)) {
         return;
       }
       const dataPath = entityKey === 'ego' ? [variableName] : [entityType, variableName];
@@ -53,7 +54,7 @@ const shapeBucketDataByType = (
       });
       acc.push({
         entityKey,
-        entityType,
+        entityType: nodeCodebook[entityType].name,
         variableType: def.type,
         variableDefinition: def,
         chartData: values || [],
@@ -85,7 +86,7 @@ const withAnswerDistributionCharts = (WrappedComponent) => {
       excludedChartVariables: PropTypes.object,
       protocolId: PropTypes.string,
       totalSessionsCount: PropTypes.number,
-      transposedCodebook: Types.codebook.isRequired,
+      codebook: Types.codebook.isRequired,
     }
 
     static defaultProps = {
@@ -123,23 +124,23 @@ const withAnswerDistributionCharts = (WrappedComponent) => {
       const {
         excludedChartVariables,
         protocolId,
-        transposedCodebook: {
+        codebook: {
           node: nodeCodebook = {},
           edge: edgeCodebook = {},
           ego: egoCodebook = {},
         },
       } = this.props;
 
-      const nodeNames = Object.values(nodeCodebook).reduce((acc, nodeTypeDefinition) => (
+      const nodeNames = Object.keys(nodeCodebook).reduce((acc, nodeType) => (
         {
           ...acc,
-          [nodeTypeDefinition.name]: Object.keys(nodeTypeDefinition.variables || {}),
+          [nodeType]: Object.keys(nodeCodebook[nodeType].variables || {}),
         }
       ), {});
-      const edgeNames = Object.values(edgeCodebook).reduce((acc, edgeTypeDefinition) => (
+      const edgeNames = Object.keys(edgeCodebook).reduce((acc, edgeType) => (
         {
           ...acc,
-          [edgeTypeDefinition.name]: Object.keys(edgeTypeDefinition.variables || {}),
+          [edgeType]: Object.keys(edgeCodebook[edgeType].variables || {}),
         }
       ), {});
       const egoNames = Object.keys(egoCodebook.variables || {});
@@ -168,7 +169,7 @@ const withAnswerDistributionCharts = (WrappedComponent) => {
   const mapStateToProps = (state, ownProps) => ({
     excludedChartVariables: excludedVariablesForCurrentProtocol(state, ownProps),
     protocolId: currentProtocolId(state, ownProps),
-    transposedCodebook: transposedCodebook(state, ownProps),
+    codebook: currentCodebook(state, ownProps),
   });
 
   return connect(mapStateToProps)(AnswerDistributionPanels);

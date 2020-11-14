@@ -2,7 +2,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import EntityTimeSeriesPanel from '../EntityTimeSeriesPanel';
+import { UnconnectedEntityTimeSeriesPanel } from '../EntityTimeSeriesPanel';
 import AdminApiClient from '../../../utils/adminApiClient';
 
 jest.mock('recharts');
@@ -24,7 +24,7 @@ describe('ProtocolCountsPanel', () => {
 
   beforeEach(() => {
     mockApiClient = new AdminApiClient();
-    subject = mount(<EntityTimeSeriesPanel {...props} />);
+    subject = mount(<UnconnectedEntityTimeSeriesPanel {...props} />);
   });
 
   it('renders a dashboard panel', () => {
