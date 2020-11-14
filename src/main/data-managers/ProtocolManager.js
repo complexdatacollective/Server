@@ -12,7 +12,7 @@ const { readFile, rename, tryUnlink } = require('../utils/promised-fs');
 const { validateGraphML, convertGraphML } = require('../utils/importGraphML');
 const { hexDigest } = require('../utils/sha256');
 const { sendToGui } = require('../guiProxy');
-const { get } = require('lodash');
+const { get, debounce } = require('lodash');
 
 const validProtocolFileExts = ['netcanvas'];
 const validSessionFileExts = ['graphml'];
@@ -29,7 +29,20 @@ const emittedEvents = {
   PROTOCOL_IMPORT_FAILURE: 'PROTOCOL_IMPORT_FAILURE',
   SESSIONS_IMPORT_STARTED: 'SESSIONS_IMPORT_STARTED',
   SESSIONS_IMPORT_COMPLETE: 'SESSIONS_IMPORT_COMPLETE',
+  DATA_IS_STALE: 'DATA_IS_STALE',
 };
+
+const emitDataStale = debounce(() => sendToGui(emittedEvents.DATA_IS_STALE), 500, {
+  leading: false,
+  trailing: true,
+});
+
+const promiseWithStaleEmitter = wrappedPromise => new Promise((resolve, reject) => {
+  wrappedPromise.then((result) => {
+    emitDataStale();
+    resolve(result);
+  }).catch(err => reject(err));
+});
 
 const constructErrorObject = (message, caseID = null, file = null) => ({
   message,
@@ -665,7 +678,7 @@ class ProtocolManager {
    * @return {number} removed count
    */
   deleteProtocolSessions(protocolId, sessionId = null) {
-    return this.sessionDb.delete(protocolId, sessionId);
+    return promiseWithStaleEmitter(this.sessionDb.delete(protocolId, sessionId));
   }
 
   /**
@@ -695,7 +708,8 @@ class ProtocolManager {
           return Promise.reject(constructErrorObject(`The version of the protocol ("${protocolName}") used to create this session does not match the version installed in Server. Ensure you have matching versions of your protocols installed in Interviewer and Server, and try again.`, caseID));
         }
 
-        return this.sessionDb.insertAllForProtocol(sessionOrSessions, protocol);
+        return promiseWithStaleEmitter(
+          this.sessionDb.insertAllForProtocol(sessionOrSessions, protocol));
       })
       .catch((insertErr) => {
         // Protocol not imported or version mismatch
@@ -717,7 +731,7 @@ class ProtocolManager {
   }
 
   destroyAllSessions() {
-    return this.sessionDb.deleteAll();
+    return promiseWithStaleEmitter(this.sessionDb.deleteAll());
   }
 }
 
