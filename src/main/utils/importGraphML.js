@@ -134,6 +134,7 @@ const convertGraphML = (xmlDoc, protocol) => {
         sessionExported: graph.getAttribute('nc:sessionExportTime'),
         sessionStart: graph.getAttribute('nc:sessionStartTime'),
         sessionFinish: graph.getAttribute('nc:sessionFinishTime'),
+        codebookHash: graph.getAttribute('nc:codebookHash'),
       },
     };
 

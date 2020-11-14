@@ -10,16 +10,11 @@ import AdminApiClient from '../utils/adminApiClient';
 import { actionCreators as toastActions } from '../ducks/modules/toasts';
 import { actionCreators as protocolActionCreators } from '../ducks/modules/protocols';
 import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
+import ipcChannels from '../utils/ipcChannels';
 
 const onDragOver = (evt) => {
   evt.preventDefault();
   evt.dataTransfer.dropEffect = 'copy';
-};
-
-const IPC = {
-  PROTOCOL_IMPORT_START: 'PROTOCOL_IMPORT_START',
-  PROTOCOL_IMPORT_SUCCESS: 'PROTOCOL_IMPORT_SUCCESS',
-  PROTOCOL_IMPORT_FAILURE: 'PROTOCOL_IMPORT_FAILURE',
 };
 
 class FileDropTarget extends Component {
@@ -34,15 +29,18 @@ class FileDropTarget extends Component {
   }
 
   componentDidMount() {
-    ipcRenderer.on(IPC.PROTOCOL_IMPORT_START, this.showStartProtocolImportToast);
-    ipcRenderer.on(IPC.PROTOCOL_IMPORT_FAILURE, this.showProtocolImportFailureToast);
-    ipcRenderer.on(IPC.PROTOCOL_IMPORT_SUCCESS, this.showCompleteProtocolImportToast);
+    ipcRenderer.on(ipcChannels.PROTOCOL_IMPORT_START, this.showStartProtocolImportToast);
+    ipcRenderer.on(ipcChannels.PROTOCOL_IMPORT_FAILURE, this.showProtocolImportFailureToast);
+    ipcRenderer.on(ipcChannels.PROTOCOL_IMPORT_SUCCESS, this.showCompleteProtocolImportToast);
   }
 
   componentWillUnmount() {
-    ipcRenderer.removeListener(IPC.PROTOCOL_IMPORT_START, this.showStartProtocolImportToast);
-    ipcRenderer.removeListener(IPC.PROTOCOL_IMPORT_FAILURE, this.showProtocolImportFailureToast);
-    ipcRenderer.removeListener(IPC.PROTOCOL_IMPORT_SUCCESS, this.showCompleteProtocolImportToast);
+    ipcRenderer.removeListener(
+      ipcChannels.PROTOCOL_IMPORT_START, this.showStartProtocolImportToast);
+    ipcRenderer.removeListener(
+      ipcChannels.PROTOCOL_IMPORT_FAILURE, this.showProtocolImportFailureToast);
+    ipcRenderer.removeListener(
+      ipcChannels.PROTOCOL_IMPORT_SUCCESS, this.showCompleteProtocolImportToast);
   }
 
   onDragEnter() {

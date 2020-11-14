@@ -13,7 +13,9 @@ import { CaseTable, DismissButton } from '../components';
 import withSessions from './workspace/withSessions';
 import Types from '../types';
 
-const emptyContent = (<p>Interviews you import from Network Canvas will appear here.</p>);
+const emptyContent = (<p>
+  Interviews you import from Network Canvas Interviewer will appear here.
+</p>);
 
 class CaseManagement extends Component {
   constructor(props) {
