@@ -293,9 +293,9 @@ describe('the DeviceAPI', () => {
           }));
         });
 
-        it('rejects with a conflict', async () => {
+        it('rejects', async () => {
           await expect(secureClient.post(makeUrl('/protocols/1/sessions', deviceApi.sslServer.url), {}))
-            .rejects.toMatchObject({ statusCode: 409 });
+            .rejects.toMatchObject({ statusCode: 500 });
         });
       });
 
