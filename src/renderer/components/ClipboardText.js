@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { throttle } from 'lodash';
 import { motion } from 'framer-motion';
 import cx from 'classnames';
+import copy from '../images/copy.svg';
 
 const clipboard = electron.remote.clipboard;
 
@@ -58,7 +59,7 @@ const ClipboardText = ({
           {children}
         </motion.div>
       </motion.span>
-      { showTag && <span className="clipboard-text__copy">copy</span> }
+      { showTag && <div className="clipboard-text__copy"><img src={copy} alt="copy" /></div> }
     </button>
   );
 };

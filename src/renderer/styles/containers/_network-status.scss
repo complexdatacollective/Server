@@ -28,15 +28,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: unit(2);
-    width: unit(2);
+    height: 0.8rem;
+    width: 0.8rem;
   }
 }
 
 
 .network-status-badge {
   --badge-offset: -0.1rem;
-  --badge-size: 1rem;
+  --badge-size: 0.8em;
   background-color: var(--color-neon-carrot);
   border-radius: calc(var(--badge-size) * 0.5);
   bottom: var(--badge-offset);
@@ -56,7 +56,7 @@
       }
 
       70% {
-        box-shadow: 0 0 0 2rem rgba(var(--color-sea-green---rgb), 0);
+        box-shadow: 0 0 0 0.8rem rgba(var(--color-sea-green---rgb), 0);
       }
 
       100% {

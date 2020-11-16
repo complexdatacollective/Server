@@ -12,11 +12,19 @@
   }
 
   &__copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background: var(--desaturate-background);
-    border-radius: 1rem;
-    padding: 0 0.25rem;
+    border-radius: 50%;
+    padding: 0.25rem;
     margin: 0 0.5rem;
+    height: 1.5rem;
     cursor: pointer;
+
+    img {
+      height: 100%;
+    }
   }
 
   &__text {

@@ -124,7 +124,7 @@ const App = ({
         />
       }
       <div className="app__titlebar" />
-      <ServerPanel />
+      {apiReady && <ServerPanel />}
       <div className="app__content">
         {
           apiReady && (
