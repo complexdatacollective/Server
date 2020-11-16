@@ -55,6 +55,22 @@
     height: 100%;
     width: var(--app-sidebar-width);
 
+    .app-version {
+      position: absolute;
+      bottom: unit(1);
+      left: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: var(--app-sidebar-width);
+      height: unit(4);
+      font-size: 0.9rem;
+
+      img {
+        width: 1.8rem;
+      }
+    }
+
 
     // Ensure contained content fills entire height
     > * {

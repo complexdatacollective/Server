@@ -1,36 +1,37 @@
 .device-status {
-  --darken-background: rgba(0, 0, 0, 0.2); // sass-lint:disable-line no-color-literals
   display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  margin-right: spacing(large);
+  flex: 0 0 auto;
 
   &__icon {
-    @include reset-button;
-    background: center / contain no-repeat url('../images/devices-dark.png');
     cursor: pointer;
-    height: 2.5rem;
-    margin: 0.5rem spacing('medium');
+    height: unit(6);
     position: relative;
-    width: 2.5rem;
+    width: unit(6);
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+
+    &::before {
+      content: '';
+      background: center / contain no-repeat url('../images/devices.svg');
+      height: 100%;
+      width: 100%;
+    }
   }
 
   @include element(badge) {
-    --badge-offset: -0.4rem;
-    --badge-size: 1.4rem;
+    position: absolute;
     background-color: var(--color-sea-green);
-    border-radius: calc(var(--badge-size) * 0.5);
+    border-radius: 50%;
     bottom: var(--badge-offset);
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--color-white);
     font-size: 0.9rem;
-    height: var(--badge-size);
+    height: unit(2);
     line-height: 1.2;
-    position: absolute;
-    right: var(--badge-offset);
-    width: var(--badge-size);
+    width: unit(2);
   }
 
   &__overlay {

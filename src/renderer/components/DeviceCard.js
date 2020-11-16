@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { DateTime } from 'luxon';
 import HoverMarquee from '@codaco/ui/lib/components/HoverMarquee';
-import icon from '../images/devices.png';
+import icon from '../images/devices.svg';
 import CloseButton from './CloseButton';
 
 /**

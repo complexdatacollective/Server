@@ -22,17 +22,17 @@ const NetworkStatus = () => {
   const networkIndicatorStatus = getNetworkIndicatorStatus(networkStatus);
 
   return [
-    <button
+    <div
       className={networkStatusClasses}
       onClick={() => setShowNetworkModal(true)}
       key="button"
+      role="button"
+      tabIndex={0}
     >
       <div className="network-status__icon">
         <span className={`network-status__badge network-status-badge--${networkIndicatorStatus}`} />
       </div>
-
-      Network Status
-    </button>,
+    </div>,
     <Overlay
       show={showNetworkModal}
       title="Network Status"

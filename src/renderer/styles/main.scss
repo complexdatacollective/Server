@@ -17,7 +17,8 @@ $font-path: '~@codaco/ui/lib/assets/fonts'; // relative to here
 .workspace-nav {
   background: var(--color-platinum--dark);
 
-  ul, li {
+  ul,
+  li {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -47,7 +48,7 @@ $font-path: '~@codaco/ui/lib/assets/fonts'; // relative to here
   }
 
   li {
-    padding: unit(2) unit(3);
+    padding: unit(2);
     width: 15rem;
     font-size: 0.8rem;
     font-weight: 700;
@@ -56,9 +57,10 @@ $font-path: '~@codaco/ui/lib/assets/fonts'; // relative to here
     font-family: var(--heading-font-family);
     display: inline-flex;
     align-items: center;
+    justify-content: center;
 
     img {
-      margin-right: unit(2);
+      margin-right: unit(1);
     }
 
 

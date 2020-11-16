@@ -38,20 +38,19 @@ const DeviceStatus = ({
   }, [hasPendingRequest]);
 
   return [
-    <button
+    <div
       className="device-status"
       data-test="view-device-panel"
       onClick={() => setShowDevicesModal(true)}
       key="button"
+      role="button"
+      tabIndex={0}
     >
       <div className="device-status__icon">
-        <span className="device-status__badge">{devices ? devices.length : ''}</span>
+        <span className="device-status__badge">{devices ? devices.length : '6'}</span>
       </div>
-
       {hasPendingRequest }
-
-      Paired Devices
-    </button>,
+    </div>,
     <Overlay
       show={showDevicesModal && !showInstructions}
       onClose={() => setShowDevicesModal(false)}

@@ -4,16 +4,20 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { ipcRenderer } from 'electron';
 import { withRouter } from 'react-router-dom';
-
+import { appVersion } from '../utils/appVersion';
 import Types from '../types';
 import { actionCreators } from '../ducks/modules/protocols';
 import FileDropTarget from './FileDropTarget';
 import ProtocolThumbnails from '../components/ProtocolThumbnails';
 import AdminApiClient from '../utils/adminApiClient';
+import NCLogo from '../images/NC-Mark.svg';
+import ServerLogo from '../images/Srv-Flat.svg';
 
 // TODO: centralize ipc or events
 const RequestFileImportDialog = 'REQUEST_FILE_IMPORT_DIALOG';
 const FileImportUpdated = 'FILE_IMPORT_UPDATED';
+
+const versionParts = appVersion.split('-');
 
 const ipcChannels = {
   FileImportUpdated,
@@ -51,6 +55,7 @@ class ProtocolNav extends Component {
               onClickAddProtocol={promptFileImport}
             />
           </FileDropTarget>
+          <div className="app-version">Version {versionParts[0]} {versionParts[1]}</div>
         </nav>
       </React.Fragment>
     );

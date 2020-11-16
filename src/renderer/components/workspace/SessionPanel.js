@@ -91,7 +91,7 @@ class SessionPanel extends Component {
             return '';
           })}
         </ul>
-        <Link to={`/workspaces/${currentProtocolId}/casemanagement`} className="session-panel__link">Additional case details</Link>
+        <Link to={`/workspaces/${currentProtocolId}/casemanagement`} className="session-panel__link">Manage Cases</Link>
       </ScrollingPanelItem>
     );
   }

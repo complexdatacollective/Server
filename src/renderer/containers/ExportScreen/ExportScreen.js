@@ -95,7 +95,7 @@ const ExportScreen = ({
         <div className="export__options">
           <AnimateSharedLayout>
             <div className="export__section">
-              <h3>File Types</h3>
+              <h3>1. Select File Types</h3>
               <p>
                 Choose export formats. If multiple files are produced, they’ll be archived in a ZIP
                 for download.
@@ -112,7 +112,7 @@ const ExportScreen = ({
               </div>
             </div>
             <div className="export__section">
-              <h3>Export Options</h3>
+              <h3>2. Choose Export Options</h3>
               <p>These options apply to both GraphML and CSV exports.</p>
               <div className="export__row">
                 <Checkbox
@@ -170,7 +170,7 @@ const ExportScreen = ({
                   initial={expandVariants.initial}
                   layout
                 >
-                  <h3>CSV File Options</h3>
+                  <h3>3. CSV Specific File Options</h3>
                   <p>Select which files to include in the CSV export.</p>
                   <p><em>Ego Attribute List contains session data and is required.</em></p>
                   <div className="export__row">
@@ -178,8 +178,9 @@ const ExportScreen = ({
                         label="Ego Attribute List (required)"
                         input={{
                           value: true,
+                          onChange: () => {},
                         }}
-                        disabled="disabled"
+                        disabled={true}
                       />
                     </div>
                   {[CSVOptions.map(({ label, key }) => (
