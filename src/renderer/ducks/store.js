@@ -11,7 +11,7 @@ const persistConfig = {
   whitelist: [
     'excludedChartVariables',
     'panelLayoutOrders',
-    'dismissedUpdates',
+    'dismissibleState',
   ],
 };
 

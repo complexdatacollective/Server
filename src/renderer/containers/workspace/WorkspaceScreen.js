@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { arrayMove } from 'react-sortable-hoc';
-import { Spinner, Button } from '@codaco/ui';
+import { Spinner } from '@codaco/ui';
 import Types from '../../types';
 import InterviewStatsPanel from './InterviewStatsPanel';
 import ProtocolCardPanel from './ProtocolCardPanel';
@@ -18,45 +18,11 @@ import {
 } from '../../ducks/modules/panelLayoutOrders';
 import {
   AnswerDistributionPanel,
-  ExternalLink,
   SessionHistoryPanel,
   SessionPanel,
   SortablePanels,
 } from '../../components';
-
-const WelcomePanel = () => (
-  <div className="welcome-panel">
-    <div className="welcome-panel__content">
-      <div className="welcome-content__text">
-        <h1>Your protocol workspace</h1>
-        <p>
-          You are currently viewing at the overview screen for this workspace. It is
-          designed to give you an &apos;at a glance&apos; summary of the data you have
-          collected so far. Below you will see summary charts for each variable, which will populate
-          as soon as data is available. Try dragging the charts to rearrange them (you can also
-          hide or show charts from the settings tab).
-        </p>
-        <p>
-          Use the tabs in this workspace to switch between exporting data, managing cases,
-          or accessing settings.
-        </p>
-        <p>
-          To import data into Server, either use the menu item (<code>File -&gt; Import Interview
-            Files</code>), drag and drop files into this workspace, or upload sessions directly
-          from a device running Interviewer. Click the &pos;Network Status&pos; icon at the top
-          of the screen for instructions for pairing.
-        </p>
-        <p>
-          To learn more about using Server, please visit our <ExternalLink href="https://documentation.networkcanvas.com">documentation website</ExternalLink>.
-        </p>
-      </div>
-      <div className="welcome-content__image" />
-    </div>
-    <div className="welcome-panel__buttons">
-      <Button color="platinum">Dismiss message</Button>
-    </div>
-  </div>
-);
+import WelcomePanel from './WelcomePanel';
 
 class WorkspaceScreen extends Component {
   /**
@@ -161,7 +127,7 @@ class WorkspaceScreen extends Component {
     return (
       <div className="workspace" ref={this.myRef}>
         <h1>Overview</h1>
-        <WelcomePanel />
+        <WelcomePanel protocolName={protocol.name} />
         <SortablePanels
           getContainer={() => this.props.scrollContainerRef.current}
           className="dashboard"

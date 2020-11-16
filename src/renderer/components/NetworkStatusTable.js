@@ -60,7 +60,7 @@ const NetworkStatusTable = ({
               <td>
                 {networkStatus.publicAddresses &&
                   networkStatus.publicAddresses.map(ip =>
-                    <div><ClipboardText>{ip}</ClipboardText></div>,
+                    <div key={ip}><ClipboardText>{ip}</ClipboardText></div>,
                   )
                 }
               </td>
