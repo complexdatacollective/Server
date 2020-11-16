@@ -6,6 +6,7 @@ import { LinkButton } from '../';
 
 const ProtocolPanel = ({ protocol, workspaceId }) => (
   <div className="workspace-panel overview-panel">
+    <h1 style={{ marginTop: 0 }}>Protocol</h1>
     <ProtocolCard
       schemaVersion={protocol.schemaVersion}
       lastModified={DateTime.fromJSDate(protocol.lastModified).toISO()}
@@ -13,11 +14,6 @@ const ProtocolPanel = ({ protocol, workspaceId }) => (
       name={protocol.name}
       description={protocol.description}
     />
-    {/* <div className="workspace-panel__buttons">
-      <LinkButton to={`/workspaces/${workspaceId}/settings`} color="mustard">Settings</LinkButton>&nbsp;
-      <LinkButton to={`/workspaces/${workspaceId}/casemanagement`} color="slate-blue">Manage Interview Sessions</LinkButton>&nbsp;
-      <LinkButton to={`/workspaces/${workspaceId}/export`} color="neon-coral">Export data</LinkButton>
-    </div> */}
   </div>
 );
 

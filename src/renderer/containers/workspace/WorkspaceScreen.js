@@ -149,6 +149,7 @@ class WorkspaceScreen extends Component {
 
     return (
       <div className="workspace" ref={this.myRef}>
+        <h1>Overview</h1>
         <WelcomePanel />
         <ProtocolPanel protocol={protocol} workspaceId={workspaceId} />
         <SortablePanels

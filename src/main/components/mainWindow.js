@@ -4,14 +4,14 @@ const { BrowserWindow } = require('electron');
 
 const loadDevToolsExtensions = require('./loadDevToolsExtensions');
 
-const DefaultHomeRoute = '/overview';
+const DefaultHomeRoute = '/';
 
 /**
  * Convert an app route to a full URL using hash-based routing.
  * If the route is already a URL, return it unchanged
  * @private
- * @param  {string} path or URL (Example: '/overview')
- * @return {string} full app URL (Example: 'file:///www/index.html#/overview')
+ * @param  {string} path or URL (Example: '/')
+ * @return {string} full app URL (Example: 'file:///www/index.html#/')
  */
 const getAppUrl = (route) => {
   if (url.parse(route).protocol) {
@@ -86,7 +86,7 @@ class MainWindow {
    * Open the window with the provided route.
    * If no route is given and a URL is already loaded, then maintain the current URL
    * without reloading.
-   * @param {string?} route A route ('/overview') or URL to open
+   * @param {string?} route A route ('/') or URL to open
    */
   open(route) {
     this.create();

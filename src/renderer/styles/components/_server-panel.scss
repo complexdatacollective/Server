@@ -1,6 +1,7 @@
 .server-panel {
   position: sticky;
-  background-color: var(--color-platinum--dark);
+  background-color: var(--color-mustard);
+  border-bottom: 0.3rem solid var(--color-mustard--dark);
   padding: unit(1) 0;
   width: 100%;
   color: var(--server-panel-text);

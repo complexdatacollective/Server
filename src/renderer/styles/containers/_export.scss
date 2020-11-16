@@ -1,14 +1,10 @@
 .export {
-  @include element(options) {
-    align-items: stretch;
-    border-top: 1px solid var(--base-border-color);
-    display: flex;
-    flex-direction: column;
-    padding: spacing(large) 0;
-  }
 
   @include element(section) {
-    margin: 0 0 spacing(medium);
+    --input-background: var(--color-white);
+    @include panel;
+    padding: spacing(large);
+    background: var(--color-platinum);
   }
 
   @include element(row) {

@@ -50,7 +50,7 @@
     position: relative;
     z-index: 9;
     width: 100%;
-    background: radial-gradient(circle at center, rgba(45, 41, 85, 0) 37%, rgba(0, 0, 0, 0.671) 100%); // sass-lint:disable-line no-color-literals
+    background: radial-gradient(circle at center, rgba(45, 41, 85, 0) 25%, rgba(0, 0, 0, 0.671) 100%); // sass-lint:disable-line no-color-literals
     text-shadow: 0 0 4px #000, 0 0 6rem rgb(0, 0, 0); // sass-lint:disable-line no-color-literals
   }
 

@@ -2,10 +2,9 @@
   margin-bottom: 6rem; // height of footer
 
   &__section {
-    align-items: center;
-    border-top: 1px solid var(--base-border-color);
-    display: flex;
-    padding: spacing(large) 0;
+    @include panel;
+    padding: spacing(large);
+    background: var(--color-platinum);
   }
 
   @include element(description) {

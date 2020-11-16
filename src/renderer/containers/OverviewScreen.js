@@ -19,6 +19,7 @@ const OverviewScreen = ({
   }, []);
 
   if (protocols && protocols.length) {
+    console.log('returning redirect');
     return <Redirect to={`/workspaces/${protocols[0].id}`} />;
   }
   if (protocols && devices) {

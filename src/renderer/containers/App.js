@@ -111,7 +111,7 @@ const App = ({
       loadDevices(); // Request device data
       loadProtocols(); // Request protocol data
 
-      history.push('/overview'); // Navigate to overview screen
+      history.push('/'); // Navigate to overview screen
     });
 
     dismissAppMessages();

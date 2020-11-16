@@ -28,10 +28,10 @@ class SettingsScreen extends Component {
     return (
       <div className="settings__section">
         <div className="settings__description">
-          <h3>Chart Variable Distributions</h3>
+          <h3>Overview screen charts</h3>
           <p>
-            Display an Overview chart for distributions of the following ordinal and
-            categorical variables
+            Display a chart on the overview screen for distributions of the following ordinal and
+            categorical variables.
           </p>
           {
             distributionVariables &&
@@ -95,7 +95,7 @@ class SettingsScreen extends Component {
         <h1>Settings</h1>
         <div className="settings__section">
           <div className="settings__description">
-            <h3>Delete this protocol</h3>
+            <h3>Delete this workspace</h3>
             <p>
               This will permanently remove this Server’s copy of the protocol file
               and any associated data that has been imported.

@@ -22,7 +22,7 @@ describe('<AppRoutes />', () => {
   });
 
   it('should contain a dashboard overview', () => {
-    expect(routesMatching(wrapper.find('Route'), /overview/)).toHaveLength(1);
+    expect(routesMatching(wrapper.find('Route'), '/')).toHaveLength(1);
   });
 
   it('should contain settings', () => {
@@ -36,6 +36,6 @@ describe('<AppRoutes />', () => {
   it('should redirect to overview by default', () => {
     const defaultRedirect = wrapper.find(Redirect);
     expect(defaultRedirect).toHaveLength(1);
-    expect(defaultRedirect.prop('to')).toMatch(/overview/);
+    expect(defaultRedirect.prop('to')).toMatch('/');
   });
 });

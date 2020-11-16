@@ -29,7 +29,7 @@ class ProtocolThumbnail extends PureComponent {
     const protocolColorClasses = cx(
       'protocol-thumbnail',
     );
-
+    console.log('rendering protocolthumb', protocol.id);
     return (
       <NavLink
         className={protocolColorClasses}

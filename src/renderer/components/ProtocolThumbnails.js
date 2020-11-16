@@ -19,10 +19,12 @@ const ProtocolThumbnails = ({ location, protocols, onClickAddProtocol }) => {
           <div data-tip={protocol.name} data-for="protocol-tooltip" key={protocol.id}><ProtocolThumbnail location={location} protocol={protocol} /></div>
         ))
       }
-      <button
-        className="protocol-thumbnail protocol-thumbnail--add"
-        onClick={onClickAddProtocol}
-      />
+      <div data-tip="Create a new workspace from a protocol" data-for="protocol-tooltip">
+        <button
+          className="protocol-thumbnail protocol-thumbnail--add"
+          onClick={onClickAddProtocol}
+        />
+      </div>
       <ReactTooltip
         id="protocol-tooltip"
         delayShow={300}
