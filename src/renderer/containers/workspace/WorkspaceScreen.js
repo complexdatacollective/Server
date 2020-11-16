@@ -25,23 +25,34 @@ import {
 } from '../../components';
 
 const WelcomePanel = () => (
-  <div className="workspace-panel welcome-panel">
-    <h1>Your protocol workspace</h1>
-    <p>
-      This is the overview dashboard for this protocol. It summarizes the data you
-      have collected so far, and generates charts for each variable (tip: try dragging
-      the charts to rearrange them). Use the buttons in the panel below to export data, or
-      access settings associated with this protocol.
-    </p>
-    <p>
-      At the top of the screen you will find connection details for pairing this installation
-      of Server with your Network Canvas devices, so that you can deploy your protocol
-      and start uploading data.
-    </p>
-    <p>
-      To learn more about using Server, please visit our <ExternalLink href="https://documentation.networkcanvas.com">documentation website</ExternalLink>.
-    </p>
-    <div className="workspace-panel__buttons">
+  <div className="welcome-panel">
+    <div className="welcome-panel__content">
+      <div className="welcome-content__text">
+        <h1>Your protocol workspace</h1>
+        <p>
+          You are currently viewing at the overview screen for this workspace. It is
+          designed to give you an &apos;at a glance&apos; summary of the data you have
+          collected so far. Below you will see summary charts for each variable, which will populate
+          as soon as data is available. Try dragging the charts to rearrange them (you can also
+          hide or show charts from the settings tab).
+        </p>
+        <p>
+          Use the tabs in this workspace to switch between exporting data, managing cases,
+          or accessing settings.
+        </p>
+        <p>
+          To import data into Server, either use the menu item (<code>File -&gt; Import Interview
+            Files</code>), drag and drop files into this workspace, or upload sessions directly
+          from a device running Interviewer. Click the &pos;Network Status&pos; icon at the top
+          of the screen for instructions for pairing.
+        </p>
+        <p>
+          To learn more about using Server, please visit our <ExternalLink href="https://documentation.networkcanvas.com">documentation website</ExternalLink>.
+        </p>
+      </div>
+      <div className="welcome-content__image" />
+    </div>
+    <div className="welcome-panel__buttons">
       <Button color="platinum">Dismiss message</Button>
     </div>
   </div>
