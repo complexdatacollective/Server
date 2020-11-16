@@ -11,11 +11,11 @@ const versionParts = appVersion.split('-');
 const ServerPanel = ({ className }) => (
   <div className={`server-panel ${className}`}>
     <div className="app-version">
-      <img src={NCLogo} alt="Network Canvas Project" />
-      <h6>Network Canvas</h6>
-      <div>{versionParts[0]} {versionParts[1]}</div>
-      <img src={ServerLogo} alt="Network Canvas Server" />
-      <h4>Server</h4>
+      {/* Server is part of the <img src={NCLogo} alt="Network Canvas Project" /> Network Canvas Project.
+      <h6>Network Canvas</h6> */}
+      <div>Version {versionParts[0]} {versionParts[1]}</div>
+      {/* <img src={ServerLogo} alt="Network Canvas Server" /> */}
+      {/* <h4>Server</h4> */}
     </div>
     <div className="server-panel__wrapper">
       <NetworkStatus />

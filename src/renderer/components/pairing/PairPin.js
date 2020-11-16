@@ -17,8 +17,8 @@ const PairPin = ({ code, dismissPairingRequest }) => {
     <div className="pairing-pin">
       <h1>Pairing Code</h1>
       <p className="pairing-pin__description">
-        To pair your Network Canvas client with this installation of Server,
-        type the code shown below into the prompt on the device running Network Canvas.
+        To pair your Network Canvas Interviewer client with this installation of Server,
+        type the code shown below into the prompt on the device running Interviewer.
       </p>
       <div className="pairing-pin__code allow-text-selection">
         {chars.map((c, i) => <PinChar key={`${i}.${c}`} char={c} />)}

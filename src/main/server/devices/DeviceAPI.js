@@ -5,7 +5,7 @@ const restify = require('restify');
 const corsMiddleware = require('restify-cors-middleware');
 const logger = require('electron-log');
 const { app } = require('electron');
-const { ConflictError, NotAcceptableError } = require('restify-errors');
+const { NotAcceptableError } = require('restify-errors');
 const { EventEmitter } = require('events');
 const { sendToGui } = require('../../guiProxy');
 const versionGatekeeper = require('./versionGatekeeper');
@@ -15,9 +15,9 @@ const apiRequestLogger = require('../apiRequestLogger');
 const deviceAuthenticator = require('./deviceAuthenticator');
 const { Version } = require('../../apiConfig').DeviceAPIConfig;
 const { PairingRequestService } = require('./PairingRequestService');
-const { ErrorMessages, RequestError } = require('../../errors/RequestError');
 const { IncompletePairingError } = require('../../errors/IncompletePairingError');
 const { encrypt } = require('../../utils/shared-api/cipher');
+const { ErrorMessages, RequestError } = require('../../errors/RequestError');
 
 /**
  * @swagger
@@ -145,6 +145,13 @@ const PairingThrottleSettings = {
  *         example: 'error'
  */
 const buildErrorResponse = (err, res) => {
+  logger.log('build error response for error', err);
+  if (!(err instanceof Error)) {
+    // Handle non Error error objects
+    res.json(500, { status: 'error', message: err.message, caseID: err.caseID, file: err.file });
+    return;
+  }
+
   const body = { status: 'error', message: err.message || 'Unknown Error' };
   let statusCode;
   if (err instanceof RequestError) {
@@ -692,14 +699,7 @@ class DeviceAPI extends EventEmitter {
           .then(docs => sendToGui(emittedEvents.SESSIONS_IMPORTED, docs.map(doc =>
             doc.data && doc.data.sessionVariables && doc.data.sessionVariables.caseId).join(', ')))
           .catch((err) => {
-            if (err.errorType === 'uniqueViolated') { // from nedb
-              const session = Array.isArray(sessionData) ? sessionData[0] : sessionData;
-              this.handlers.onError(new ConflictError(`${ErrorMessages.SessionAlreadyExists}:
-                ${session.data && session.data.sessionVariables &&
-                session.data.sessionVariables.caseId}`), res);
-            } else {
-              this.handlers.onError(err, res);
-            }
+            this.handlers.onError(err, res);
           })
           .then(() => next());
       },

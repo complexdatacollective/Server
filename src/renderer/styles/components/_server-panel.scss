@@ -2,7 +2,7 @@
   position: sticky;
   background-color: var(--color-mustard);
   border-bottom: 0.3rem solid var(--color-mustard--dark);
-  padding: unit(1) 0;
+  padding: unit(1) 2rem;
   width: 100%;
   color: var(--server-panel-text);
   display: flex;
@@ -25,8 +25,11 @@
 
   &__wrapper {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
-    padding: 0 spacing(large);
+
+    > * {
+      flex: 1;
+    }
   }
 }

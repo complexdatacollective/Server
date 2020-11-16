@@ -1,7 +1,6 @@
 import AdminApiClient from '../../utils/adminApiClient';
 import viewModelMapper from '../../utils/baseViewModelMapper';
 import { actionCreators as messageActionCreators } from './appMessages';
-import { transposedCodebook as networkTransposedCodebook } from '../../../main/utils/formatters/network'; // TODO: move
 
 const LOAD_PROTOCOLS = 'LOAD_PROTOCOLS';
 const PROTOCOLS_LOADED = 'PROTOCOLS_LOADED';
@@ -47,16 +46,13 @@ const currentProtocolId = (state, props) => {
   return protocol && protocol.id;
 };
 
-// Transpose all types & variable IDs to names
-// Imported data is transposed; this allows utility components from Architect to work as-is.
-const transposedCodebook = (state, props) => {
+const currentCodebook = (state, props) => {
   const protocol = currentProtocol(state, props);
   if (!protocol) {
     return {};
   }
 
-  const codebook = protocol.codebook || {};
-  return networkTransposedCodebook(codebook);
+  return protocol.codebook || {};
 };
 
 const distributionVariableTypes = ['ordinal', 'categorical'];
@@ -93,14 +89,14 @@ const ordinalAndCategoricalVariablesByEntity = (entities) => {
  * @return {Object} all node ordinal & categorical variable names, sectioned by node type
  */
 const ordinalAndCategoricalVariables = (state, props) => {
-  const codebook = transposedCodebook(state, props);
+  const codebook = currentCodebook(state, props);
   if (!codebook) {
     return {};
   }
 
   return { nodes: ordinalAndCategoricalVariablesByEntity(codebook.node),
     edges: ordinalAndCategoricalVariablesByEntity(codebook.edge),
-    ego: ordinalAndCategoricalVariablesByEntity(codebook.ego) };
+    ego: ordinalAndCategoricalVariablesByEntity({ ...codebook.ego, name: 'ego' }) };
 };
 
 const protocolsHaveLoaded = state => state.protocols !== initialState;
@@ -154,9 +150,9 @@ const actionTypes = {
 const selectors = {
   currentProtocol,
   currentProtocolId,
+  currentCodebook,
   isDistributionVariable,
   protocolsHaveLoaded,
-  transposedCodebook,
   ordinalAndCategoricalVariables,
 };
 

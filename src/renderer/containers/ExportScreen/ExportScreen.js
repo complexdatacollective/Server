@@ -17,7 +17,7 @@ import useAdminClient from '../../hooks/useAdminClient';
 import useExportOptions, { exportFormats } from './useExportOptions';
 
 const CSVOptions = [
-  { label: 'Adjacency Matrix', key: 'adjacencyMatrix' },
+  { label: 'Adjacency Matrix. Please not that this format can produce extremely large files. Only select this option if you are certain that you need it.', key: 'adjacencyMatrix' },
   { label: 'Attribute List', key: 'attributeList' },
   { label: 'Edge List', key: 'edgeList' },
 ];

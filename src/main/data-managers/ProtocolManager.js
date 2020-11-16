@@ -4,6 +4,7 @@ const jszip = require('jszip');
 const logger = require('electron-log');
 const path = require('path');
 const uuid = require('uuid/v4');
+const objectHash = require('object-hash');
 const ProtocolDB = require('./ProtocolDB');
 const SessionDB = require('./SessionDB');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
@@ -11,7 +12,7 @@ const { readFile, rename, tryUnlink } = require('../utils/promised-fs');
 const { validateGraphML, convertGraphML } = require('../utils/importGraphML');
 const { hexDigest } = require('../utils/sha256');
 const { sendToGui } = require('../guiProxy');
-const { get } = require('lodash');
+const { get, debounce } = require('lodash');
 
 const validProtocolFileExts = ['netcanvas'];
 const validSessionFileExts = ['graphml'];
@@ -28,7 +29,20 @@ const emittedEvents = {
   PROTOCOL_IMPORT_FAILURE: 'PROTOCOL_IMPORT_FAILURE',
   SESSIONS_IMPORT_STARTED: 'SESSIONS_IMPORT_STARTED',
   SESSIONS_IMPORT_COMPLETE: 'SESSIONS_IMPORT_COMPLETE',
+  DATA_IS_STALE: 'DATA_IS_STALE',
 };
+
+const emitDataStale = debounce(() => sendToGui(emittedEvents.DATA_IS_STALE), 500, {
+  leading: false,
+  trailing: true,
+});
+
+const promiseWithStaleEmitter = wrappedPromise => new Promise((resolve, reject) => {
+  wrappedPromise.then((result) => {
+    emitDataStale();
+    resolve(result);
+  }).catch(err => reject(err));
+});
 
 const constructErrorObject = (message, caseID = null, file = null) => ({
   message,
@@ -455,7 +469,7 @@ class ProtocolManager {
     if (invalidFileList.length > 0) {
       processFilePromises.push(
         Promise.reject(invalidFileList.map(invalidFile => constructErrorObject(
-          ErrorMessages.InvalidFileExtension,
+          ErrorMessages.InvalidSessionFileExtension,
           null,
           invalidFile,
         ))),
@@ -626,12 +640,20 @@ class ProtocolManager {
     const protocolId = graphs && graphs[0].getAttribute('nc:remoteProtocolID');
     const protocolName = graphs && graphs[0].getAttribute('nc:protocolName');
     const caseId = graphs && graphs[0].getAttribute('nc:caseId');
+    const codebookHash = graphs && graphs[0].getAttribute('nc:codebookHash');
 
     return this.getProtocol(protocolId)
       .then((protocol) => {
         if (!protocol) {
           throw new RequestError(`The protocol used ("${protocolName}") has not been imported into Server. Import it, and then try again.`);
         }
+
+        const ourCodebookHash = objectHash(protocol.codebook);
+
+        if (ourCodebookHash !== codebookHash) {
+          throw new RequestError(`The version of the protocol ("${protocolName}") used to create this session does not match the version installed in Server. Ensure you have matching versions of your protocols installed in Interviewer and Server, and try again.`);
+        }
+
         return convertGraphML(xmlDoc, protocol);
       }).catch(err => Promise.reject(constructErrorObject(err.message, caseId)));
   }
@@ -656,7 +678,7 @@ class ProtocolManager {
    * @return {number} removed count
    */
   deleteProtocolSessions(protocolId, sessionId = null) {
-    return this.sessionDb.delete(protocolId, sessionId);
+    return promiseWithStaleEmitter(this.sessionDb.delete(protocolId, sessionId));
   }
 
   /**
@@ -670,26 +692,46 @@ class ProtocolManager {
     return this.getProtocol(protocolId)
       .then((protocol) => {
         if (!protocol) {
-          const protocolName = get(session, 'data,sessionVariables.protocolName', 'Unknown Protocol');
+          const protocolName = get(session, 'data.sessionVariables.protocolName', 'Unknown Protocol');
           const caseID = get(session, 'data.sessionVariables.caseId', null);
+
           return Promise.reject(constructErrorObject(`The protocol ("${protocolName}") used by this session has not been imported into Server. Import it first, and try again.`, caseID));
         }
-        return this.sessionDb.insertAllForProtocol(sessionOrSessions, protocol);
+
+        const ourCodebookHash = objectHash(protocol.codebook);
+        const incomingCodebookHash = get(session, 'data.sessionVariables.codebookHash', null);
+
+        if (ourCodebookHash !== incomingCodebookHash) {
+          const protocolName = get(session, 'data.sessionVariables.protocolName', 'Unknown Protocol');
+          const caseID = get(session, 'data.sessionVariables.caseId', null);
+
+          return Promise.reject(constructErrorObject(`The version of the protocol ("${protocolName}") used to create this session does not match the version installed in Server. Ensure you have matching versions of your protocols installed in Interviewer and Server, and try again.`, caseID));
+        }
+
+        return promiseWithStaleEmitter(
+          this.sessionDb.insertAllForProtocol(sessionOrSessions, protocol));
       })
       .catch((insertErr) => {
-        logger.error(insertErr);
+        // Protocol not imported or version mismatch
+        if (!(insertErr instanceof Error)) {
+          return Promise.reject(insertErr);
+        }
+
+        // Session already exists
         if (insertErr.errorType === 'uniqueViolated') {
           return Promise.reject(constructErrorObject(
             ErrorMessages.SessionAlreadyExists,
             get(session, 'data.sessionVariables.caseId', null),
           ));
         }
+
+        // Actual error
         throw insertErr;
       });
   }
 
   destroyAllSessions() {
-    return this.sessionDb.deleteAll();
+    return promiseWithStaleEmitter(this.sessionDb.deleteAll());
   }
 }
 

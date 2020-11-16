@@ -12,6 +12,29 @@ import Types from '../types';
 import { actionCreators, selectors as protocolSelectors } from '../ducks/modules/protocols';
 import { actionCreators as chartActionCreators, selectors as chartSelectors } from '../ducks/modules/excludedChartVariables';
 
+const entityName = (entityKey) => {
+  if (entityKey === 'nodes') return 'node';
+  if (entityKey === 'edges') return 'edge';
+  if (entityKey === 'ego') return 'ego';
+  return null;
+};
+
+const entityVariableType = (codebook, entity, section) => (
+  codebook && codebook[entityName(entity)] && codebook[entityName(entity)][section] &&
+    codebook[entityName(entity)][section].name);
+
+const entityVariableName = (codebook, entity, section, variable) => {
+  if (entity === 'ego') {
+    return (codebook && codebook[entityName(entity)] && codebook[entityName(entity)].variables &&
+      codebook[entityName(entity)].variables[variable] &&
+      codebook[entityName(entity)].variables[variable].name) || variable;
+  }
+
+  return (codebook && codebook[entityName(entity)] && codebook[entityName(entity)][section] &&
+    codebook[entityName(entity)][section].variables[variable] &&
+    codebook[entityName(entity)][section].variables[variable].name) || variable;
+};
+
 class SettingsScreen extends Component {
   constructor(props) {
     super(props);
@@ -21,7 +44,7 @@ class SettingsScreen extends Component {
   }
 
   get chartConfigSection() {
-    const { distributionVariables, protocol, setExcludedVariables } = this.props;
+    const { distributionVariables, protocol, codebook, setExcludedVariables } = this.props;
     if (!Object.keys(distributionVariables).length) {
       return null;
     }
@@ -40,7 +63,7 @@ class SettingsScreen extends Component {
                 <CheckboxGroup
                   key={section}
                   className="settings__checkbox-group"
-                  label={entityLabel(entity, section)}
+                  label={entityLabel(entity, entityVariableType(codebook, entity, section))}
                   input={{
                     value: this.includedChartVariablesForSection(entity, section),
                     onChange: (newValue) => {
@@ -48,7 +71,8 @@ class SettingsScreen extends Component {
                       setExcludedVariables(protocol.id, entity, section, newExcluded);
                     },
                   }}
-                  options={vars.map(v => ({ value: v, label: v }))}
+                  options={vars.map(v =>
+                    ({ value: v, label: entityVariableName(codebook, entity, section, v) }))}
                 />
               ))))
           }
@@ -117,6 +141,7 @@ const mapStateToProps = (state, ownProps) => ({
   excludedChartVariables: chartSelectors.excludedVariablesForCurrentProtocol(state, ownProps),
   protocolsHaveLoaded: protocolSelectors.protocolsHaveLoaded(state),
   protocol: protocolSelectors.currentProtocol(state, ownProps),
+  codebook: protocolSelectors.currentCodebook(state, ownProps),
   distributionVariables: protocolSelectors.ordinalAndCategoricalVariables(state, ownProps),
 });
 
@@ -130,6 +155,7 @@ SettingsScreen.defaultProps = {
   apiClient: null,
   distributionVariables: {},
   excludedChartVariables: {},
+  codebook: {},
   protocol: null,
 };
 
@@ -138,6 +164,7 @@ SettingsScreen.propTypes = {
   distributionVariables: PropTypes.object,
   match: PropTypes.object.isRequired,
   excludedChartVariables: PropTypes.object,
+  codebook: PropTypes.object,
   protocol: Types.protocol,
   protocolsHaveLoaded: PropTypes.bool.isRequired,
   setExcludedVariables: PropTypes.func.isRequired,

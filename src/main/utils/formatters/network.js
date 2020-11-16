@@ -93,37 +93,6 @@ const insertEgoInNetworks = networks => (
   networks.map(network => insertNetworkEgo(network))
 );
 
-const transposedCodebookVariables = (sectionCodebook, definition) => {
-  if (!definition.variables) { // not required for edges
-    sectionCodebook[definition.name] = definition; // eslint-disable-line no-param-reassign
-    return sectionCodebook;
-  }
-
-  const displayVariable = definition.variables[definition.displayVariable];
-
-  const variables = Object.values(definition.variables).reduce((acc, variable) => {
-    acc[variable.name] = variable;
-    return acc;
-  }, {});
-  sectionCodebook[definition.name] = { // eslint-disable-line no-param-reassign
-    ...definition,
-    displayVariable: displayVariable && displayVariable.name,
-    variables,
-  };
-  return sectionCodebook;
-};
-
-const transposedCodebookSection = (section = {}) =>
-  Object.values(section).reduce((sectionCodebook, definition) => (
-    transposedCodebookVariables(sectionCodebook, definition)
-  ), {});
-
-const transposedCodebook = (codebook = {}) => ({
-  edge: transposedCodebookSection(codebook.edge),
-  node: transposedCodebookSection(codebook.node),
-  ego: transposedCodebookVariables({}, { ...codebook.ego, name: 'ego' }).ego,
-});
-
 module.exports = {
   convertUuidToDecimal,
   filterNetworkEntities,
@@ -136,7 +105,5 @@ module.exports = {
   caseProperty,
   nodePrimaryKeyProperty,
   processEntityVariables,
-  transposedCodebook,
-  transposedCodebookSection,
   unionOfNetworks,
 };

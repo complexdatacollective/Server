@@ -14,7 +14,7 @@ if (!fs.existsSync(deviceApiSource)) {
   throw new Error(`Device API source not found at ${deviceApiSource}`);
 }
 
-const description = `This REST API provides endpoints for communication with [Network Canvas](https://github.com/codaco/Network-Canvas) clients.
+const description = `This REST API provides endpoints for communication with [Network Canvas Interviewer](https://github.com/complexdatacollective/Interviewer) clients.
 
 HTTP endpoints cover initial client/server pairing, which uses an out-of-band pairing
 code for security.
@@ -33,7 +33,7 @@ const options = {
       version: DeviceAPIConfig.Version,
       license: {
         name: 'GNU General Public License v3.0',
-        url: 'https://github.com/codaco/Server/blob/master/LICENSE',
+        url: 'https://github.com/complexdatacollective/Server/blob/master/LICENSE',
       },
     },
   },
