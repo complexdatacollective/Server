@@ -63,7 +63,7 @@ class WorkspaceScreen extends Component {
     const { deleteAllSessions, deleteSession, sessions, totalSessionsCount } = this.props;
     return [
       <ProtocolCardPanel
-        key="ProtocolCountsPanel"
+        key="ProtocolCardPanel"
         protocol={protocol}
       />,
       <ProtocolCountsPanel

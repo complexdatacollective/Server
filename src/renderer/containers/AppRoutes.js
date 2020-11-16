@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import {
   Route,
-  Redirect,
   Switch,
 } from 'react-router-dom';
 import { WorkspaceNav } from '../components';
@@ -31,9 +30,6 @@ class AppRoutes extends Component {
               <Route exact path="/workspaces/:id/casemanagement" component={CaseManagement} />
               <Route exact path="/workspaces/:id/settings" component={SettingsScreen} />
               <Route exact path="/workspaces/:id/export" component={ExportScreen} />
-              <Route>
-                <Redirect to="/overview" />
-              </Route>
             </div>
           </Switch>
         </React.Fragment>

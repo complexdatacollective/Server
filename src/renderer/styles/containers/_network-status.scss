@@ -13,7 +13,7 @@
     align-items: center;
     justify-content: center;
 
-    &::after {
+    &::before {
       content: '';
       background: center / contain no-repeat url('../images/network.svg');
       height: unit(6);
@@ -30,6 +30,7 @@
     justify-content: center;
     height: 0.8rem;
     width: 0.8rem;
+    z-index: 9;
   }
 }
 

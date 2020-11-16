@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
+import ReactTooltip from 'react-tooltip';
 import Overlay from '../components/Overlay';
 import NetworkStatusTable from '../components/NetworkStatusTable';
 import useNetworkStatus from '../hooks/useNetworkStatus';
@@ -21,8 +22,26 @@ const NetworkStatus = () => {
 
   const networkIndicatorStatus = getNetworkIndicatorStatus(networkStatus);
 
+  const tooltip = () => {
+    if (networkIndicatorStatus === 'ok') {
+      return 'Server advertising: available<br /><br />View network status';
+    }
+
+    if (networkIndicatorStatus === 'error') {
+      return 'Server advertising: error<br /><br />View network status';
+    }
+
+    if (networkIndicatorStatus === 'pending') {
+      return 'Server advertising: unavailable<br /><br />View network status';
+    }
+
+    return 'View network status';
+  };
+
   return [
     <div
+      data-tip={tooltip()}
+      data-for="network-status-tooltip"
       className={networkStatusClasses}
       onClick={() => setShowNetworkModal(true)}
       key="button"
@@ -42,6 +61,14 @@ const NetworkStatus = () => {
     >
       <NetworkStatusTable networkStatus={networkStatus} />
     </Overlay>,
+    <ReactTooltip
+      key="network-status-tooltip"
+      id="network-status-tooltip"
+      delayShow={300}
+      place="bottom"
+      effect="solid"
+      multiline
+    />,
   ];
 };
 
