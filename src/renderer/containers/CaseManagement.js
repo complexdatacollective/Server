@@ -12,6 +12,7 @@ import { selectors as protocolSelectors } from '../ducks/modules/protocols';
 import { CaseTable, DismissButton } from '../components';
 import withSessions from './workspace/withSessions';
 import Types from '../types';
+import { AutoSizer } from 'react-virtualized';
 
 const emptyContent = (<p>
   Interviews you import from Network Canvas Interviewer will appear here.
@@ -149,20 +150,24 @@ class CaseManagement extends Component {
           {
             (sessions && sessions.length !== 0) &&
               <div className="case-management__table">
-                <CaseTable
-                  list={sessions}
-                  loadMoreSessions={loadMoreSessions}
-                  sortType={sortType}
-                  sortDirection={sortDirection}
-                  sortSessions={sortSessions}
-                  totalSessionsCount={totalSessionsCount}
-                  updateSessionsToDelete={this.updateSessionsToDelete}
-                  isSessionSelected={this.isSessionSelected}
-                  allSessionsSelected={this.allSessionsSelected}
-                  toggleAllSessions={this.toggleAllSessions}
-                  width={this.state.width}
-                  height={this.state.height - 160}
-                />
+                <AutoSizer>
+                  {({ height, width }) => (
+                    <CaseTable
+                      list={sessions}
+                      loadMoreSessions={loadMoreSessions}
+                      sortType={sortType}
+                      sortDirection={sortDirection}
+                      sortSessions={sortSessions}
+                      totalSessionsCount={totalSessionsCount}
+                      updateSessionsToDelete={this.updateSessionsToDelete}
+                      isSessionSelected={this.isSessionSelected}
+                      allSessionsSelected={this.allSessionsSelected}
+                      toggleAllSessions={this.toggleAllSessions}
+                      width={width}
+                      height={height}
+                    />
+                  )}
+                </AutoSizer>
               </div>
           }
         </React.Fragment>

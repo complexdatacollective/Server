@@ -4,16 +4,13 @@
   $grid-gap: spacing(medium);
 
   @include element(panel) {
+    
     @include panel;
 
     @include modifier(chart) {
       display: flex;
       flex-direction: column;
       justify-content: center;
-    }
-
-    .protocol-card {
-      background: var(--color-white);
     }
 
     @include modifier(scrollable) {
@@ -36,6 +33,11 @@
     padding: spacing(large);
     position: relative;
     width: 100%;
+    margin-bottom: unit(4);
+
+    .protocol-card {
+      background: var(--color-white);
+    }
   }
 
   @include element(chartContainer) {
