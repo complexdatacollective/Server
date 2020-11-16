@@ -1,4 +1,5 @@
 import React from 'react';
+import { get } from 'lodash';
 import { NavLink, withRouter } from 'react-router-dom';
 import overview from '../images/overview.svg';
 import share from '../images/share.svg';
@@ -6,8 +7,7 @@ import cases from '../images/cases.svg';
 import settings from '../images/settings.svg';
 
 function WorkspaceNav(props) {
-  console.log('pro', props);
-  const protocolId = props.match.params.id;
+  const protocolId = get(props, 'match.params.id');
   return (
     <div className="workspace-nav">
       <ul>

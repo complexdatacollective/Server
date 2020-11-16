@@ -9,7 +9,7 @@ import DialogManager from '../components/DialogManager';
 import AppRoutes from './AppRoutes';
 import ProtocolNav from './ProtocolNav';
 import AdminApiClient from '../utils/adminApiClient';
-import { AppMessage, ServerPanel, WorkspaceNav } from '../components';
+import { AppMessage, ServerPanel } from '../components';
 import SessionFileDropTarget from '../containers/SessionFileDropTarget';
 import { AnimatedPairPrompt } from '../components/pairing/PairPrompt';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';

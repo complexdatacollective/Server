@@ -6,6 +6,7 @@ import { arrayMove } from 'react-sortable-hoc';
 import { Spinner, Button } from '@codaco/ui';
 import Types from '../../types';
 import InterviewStatsPanel from './InterviewStatsPanel';
+import ProtocolCardPanel from './ProtocolCardPanel';
 import ProtocolCountsPanel from './ProtocolCountsPanel';
 import EntityTimeSeriesPanel from './EntityTimeSeriesPanel';
 import withAnswerDistributionCharts from './withAnswerDistributionCharts';
@@ -18,37 +19,33 @@ import {
 import {
   AnswerDistributionPanel,
   ExternalLink,
-  ProtocolPanel,
   SessionHistoryPanel,
   SessionPanel,
   SortablePanels,
 } from '../../components';
 
-const WelcomePanel = () => {
-  return (
-    <div className="workspace-panel welcome-panel">
-      <h1>Your protocol workspace</h1>
-      <p>
-        This is the overview dashboard for this protocol. It summarizes the data you
-        have collected so far, and generates charts for each variable (tip: try dragging
-        the charts to rearrange them). Use the buttons in the panel below to export data, or
-        access settings associated with this protocol.
-      </p>
-      <p>
-        At the top of the screen you will find connection details for pairing this installation
-        of Server with your Network Canvas devices, so that you can deploy your protocol
-        and start uploading data.
-      </p>
-      <p>
-        To learn more about using Server, please visit our <ExternalLink href="https://documentation.networkcanvas.com">documentation website</ExternalLink>.
-      </p>
-      <div className="workspace-panel__buttons">
-        <Button color="platinum">Dismiss message</Button>
-      </div>
+const WelcomePanel = () => (
+  <div className="workspace-panel welcome-panel">
+    <h1>Your protocol workspace</h1>
+    <p>
+      This is the overview dashboard for this protocol. It summarizes the data you
+      have collected so far, and generates charts for each variable (tip: try dragging
+      the charts to rearrange them). Use the buttons in the panel below to export data, or
+      access settings associated with this protocol.
+    </p>
+    <p>
+      At the top of the screen you will find connection details for pairing this installation
+      of Server with your Network Canvas devices, so that you can deploy your protocol
+      and start uploading data.
+    </p>
+    <p>
+      To learn more about using Server, please visit our <ExternalLink href="https://documentation.networkcanvas.com">documentation website</ExternalLink>.
+    </p>
+    <div className="workspace-panel__buttons">
+      <Button color="platinum">Dismiss message</Button>
     </div>
-  );
-};
-
+  </div>
+);
 
 class WorkspaceScreen extends Component {
   /**
@@ -65,6 +62,10 @@ class WorkspaceScreen extends Component {
     // session-related props are provided by `withSessions`
     const { deleteAllSessions, deleteSession, sessions, totalSessionsCount } = this.props;
     return [
+      <ProtocolCardPanel
+        key="ProtocolCountsPanel"
+        protocol={protocol}
+      />,
       <ProtocolCountsPanel
         key="ProtocolCountsPanel"
         protocolId={protocol.id}
@@ -132,8 +133,7 @@ class WorkspaceScreen extends Component {
   }
 
   render() {
-    const { protocol, sessions, setPanelLayoutOrder, match } = this.props;
-    const workspaceId = match.params.id;
+    const { protocol, sessions, setPanelLayoutOrder } = this.props;
 
     if (!protocol || !sessions) {
       return <div className="workspace--loading"><Spinner /></div>;
@@ -151,7 +151,6 @@ class WorkspaceScreen extends Component {
       <div className="workspace" ref={this.myRef}>
         <h1>Overview</h1>
         <WelcomePanel />
-        <ProtocolPanel protocol={protocol} workspaceId={workspaceId} />
         <SortablePanels
           getContainer={() => this.props.scrollContainerRef.current}
           className="dashboard"

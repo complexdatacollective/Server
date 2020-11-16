@@ -57,7 +57,7 @@
 
     .app-version {
       position: absolute;
-      bottom: unit(1);
+      bottom: unit(2);
       left: 0;
       display: flex;
       align-items: center;
@@ -66,8 +66,12 @@
       height: unit(4);
       font-size: 0.9rem;
 
+      span {
+        margin-left: unit(1);
+      }
+
       img {
-        width: 1.8rem;
+        width: unit(4);
       }
     }
 

@@ -12,6 +12,10 @@
       justify-content: center;
     }
 
+    .protocol-card {
+      background: var(--color-white);
+    }
+
     @include modifier(scrollable) {
       --scrolling-panel-header-height: 1rem;
       --scrolling-panel-header-margin: #{spacing(medium)};

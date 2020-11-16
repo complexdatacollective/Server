@@ -17,10 +17,8 @@ class AppRoutes extends Component {
   render() {
     // WorkspaceScreen takes a scrollContainerRef prop for sortable panels. This allows
     // the main content area to scroll when a panel is being dragged.
-    const workspaceRenderer = (props) => {
-      console.log('workspace renderer', props.match.params.id);
-      return <WorkspaceScreen scrollContainerRef={this.scrollContainerRef} {...props} />;
-    };
+    const workspaceRenderer = props =>
+      <WorkspaceScreen scrollContainerRef={this.scrollContainerRef} {...props} />;
 
     return (
       <main className="app__main" ref={this.scrollContainerRef}>
@@ -33,6 +31,9 @@ class AppRoutes extends Component {
               <Route exact path="/workspaces/:id/casemanagement" component={CaseManagement} />
               <Route exact path="/workspaces/:id/settings" component={SettingsScreen} />
               <Route exact path="/workspaces/:id/export" component={ExportScreen} />
+              <Route>
+                <Redirect to="/overview" />
+              </Route>
             </div>
           </Switch>
         </React.Fragment>

@@ -16,7 +16,6 @@ export { default as PanelItem } from './workspace/PanelItem';
 export { default as PairPrompt } from './pairing/PairPrompt';
 export { default as PairPin } from './pairing/PairPin';
 export { default as PieChart } from './charts/PieChart';
-export { default as ProtocolPanel } from './workspace/ProtocolPanel';
 export { default as Scrollable } from './Scrollable';
 export { default as ScrollingPanelItem } from './ScrollingPanelItem';
 export { default as ServerPanel } from './workspace/ServerPanel';

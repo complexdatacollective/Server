@@ -10,8 +10,7 @@ import { actionCreators } from '../ducks/modules/protocols';
 import FileDropTarget from './FileDropTarget';
 import ProtocolThumbnails from '../components/ProtocolThumbnails';
 import AdminApiClient from '../utils/adminApiClient';
-import NCLogo from '../images/NC-Mark.svg';
-import ServerLogo from '../images/Srv-Flat.svg';
+import server from '../images/Srv-Flat.svg';
 
 // TODO: centralize ipc or events
 const RequestFileImportDialog = 'REQUEST_FILE_IMPORT_DIALOG';
@@ -55,7 +54,10 @@ class ProtocolNav extends Component {
               onClickAddProtocol={promptFileImport}
             />
           </FileDropTarget>
-          <div className="app-version">Version {versionParts[0]} {versionParts[1]}</div>
+          <div className="app-version">
+            <img src={server} alt="Network Canvas Server" />
+            <span>{versionParts[0]} {versionParts[1]}</span>
+          </div>
         </nav>
       </React.Fragment>
     );

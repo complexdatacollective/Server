@@ -47,7 +47,7 @@ const DeviceStatus = ({
       tabIndex={0}
     >
       <div className="device-status__icon">
-        <span className="device-status__badge">{devices ? devices.length : '6'}</span>
+        <span className="device-status__badge">{devices ? devices.length : '0'}</span>
       </div>
       {hasPendingRequest }
     </div>,

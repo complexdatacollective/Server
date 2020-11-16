@@ -7,6 +7,7 @@ const ServerPanel = ({ className }) => (
   <div className={`server-panel ${className}`}>
     <div className="server-panel__wrapper">
       <NetworkStatus />
+      <div className="divider" />
       <DeviceStatus />
     </div>
   </div>

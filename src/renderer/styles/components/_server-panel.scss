@@ -17,5 +17,13 @@
     > * {
       flex: 1;
     }
+
+    .divider {
+      height: unit(4);
+      width: 0.2rem;
+      background-color: var(--color-cyber-grape);
+      margin: 0 unit(2);
+      border-radius: 1rem;
+    }
   }
 }

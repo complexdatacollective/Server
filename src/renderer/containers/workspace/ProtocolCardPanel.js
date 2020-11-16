@@ -1,12 +1,11 @@
 import React from 'react';
 import { DateTime } from 'luxon';
 import { ProtocolCard } from '@codaco/ui/lib/components/Cards';
-import Types, { PropTypes } from '../../types';
-import { LinkButton } from '../';
+import Types from '../../types';
 
-const ProtocolPanel = ({ protocol, workspaceId }) => (
-  <div className="workspace-panel overview-panel">
-    <h1 style={{ marginTop: 0 }}>Protocol</h1>
+const ProtocolCardPanel = ({ protocol }) => (
+  <div className="dashboard__panel">
+    <h4>Protocol Card</h4>
     <ProtocolCard
       schemaVersion={protocol.schemaVersion}
       lastModified={DateTime.fromJSDate(protocol.lastModified).toISO()}
@@ -17,9 +16,8 @@ const ProtocolPanel = ({ protocol, workspaceId }) => (
   </div>
 );
 
-ProtocolPanel.propTypes = {
+ProtocolCardPanel.propTypes = {
   protocol: Types.protocol.isRequired,
-  workspaceId: PropTypes.string.isRequired,
 };
 
-export default ProtocolPanel;
+export default ProtocolCardPanel;
