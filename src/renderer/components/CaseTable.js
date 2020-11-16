@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Column, InfiniteLoader, Table } from 'react-virtualized';
 import Draggable from 'react-draggable';
 import Checkbox from '@codaco/ui/lib/components/Fields/Checkbox';
+import { caseProperty } from '../../main/utils/network-exporters/src/utils/reservedAttributes';
 import { formatDate } from '../utils/formatters';
 
 class CaseTable extends Component {
@@ -143,7 +144,7 @@ class CaseTable extends Component {
               caseId: list[index] && list[index].data &&
                 list[index].data.sessionVariables ?
                 // eslint-disable-next-line no-underscore-dangle
-                list[index].data.sessionVariables._caseID || list[index].data.sessionVariables.caseId : '...',
+                list[index].data.sessionVariables[caseProperty] : '...',
               sessionId: list[index] ? list[index].id : '...',
             })}
             rowClassName={({ index }) => {

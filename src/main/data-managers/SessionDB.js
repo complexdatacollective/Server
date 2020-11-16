@@ -3,6 +3,7 @@ const DatabaseAdapter = require('./DatabaseAdapter');
 const Reportable = require('./Reportable');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
 const { mostRecentlyCreated, resolveOrReject } = require('../utils/db');
+const { caseProperty } = require('../utils/network-exporters/src/utils/reservedAttributes');
 
 // The ID & data properties documented for the API request
 const sessionUidField = 'uuid';
@@ -60,7 +61,7 @@ class SessionDB extends Reportable(DatabaseAdapter) {
   findAll(protocolId, limit = null, projection = { updatedAt: 1, createdAt: 1, 'data.sessionVariables': 1 }, sort = mostRecentlyCreated, filterValue = '') {
     return new Promise((resolve, reject) => {
       const exp = new RegExp(filterValue);
-      let cursor = this.db.find({ protocolId, $or: [{ 'data.sessionVariables._caseID': exp }, { _id: exp }] }, projection || undefined);
+      let cursor = this.db.find({ protocolId, $or: [{ [`data.sessionVariables.${caseProperty}`]: exp }, { _id: exp }] }, projection || undefined);
       cursor = cursor.sort(sort);
       if (limit) { cursor = cursor.limit(limit); }
       cursor.exec((err, docs) => {

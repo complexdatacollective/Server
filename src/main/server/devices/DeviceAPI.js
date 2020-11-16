@@ -18,6 +18,7 @@ const { PairingRequestService } = require('./PairingRequestService');
 const { IncompletePairingError } = require('../../errors/IncompletePairingError');
 const { encrypt } = require('../../utils/shared-api/cipher');
 const { ErrorMessages, RequestError } = require('../../errors/RequestError');
+const { caseProperty } = require('../../utils/network-exporters/src/utils/reservedAttributes');
 
 /**
  * @swagger
@@ -697,7 +698,7 @@ class DeviceAPI extends EventEmitter {
             return docs;
           })
           .then(docs => sendToGui(emittedEvents.SESSIONS_IMPORTED, docs.map(doc =>
-            doc.data && doc.data.sessionVariables && doc.data.sessionVariables.caseId).join(', ')))
+            doc.data && doc.data.sessionVariables && doc.data.sessionVariables[caseProperty]).join(', ')))
           .catch((err) => {
             this.handlers.onError(err, res);
           })

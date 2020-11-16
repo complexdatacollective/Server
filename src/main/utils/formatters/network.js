@@ -1,18 +1,13 @@
 const { includes } = require('lodash');
 const bigInt = require('big-integer');
 
+const { egoProperty, entityPrimaryKeyProperty, entityAttributesProperty } = require('../network-exporters/src/utils/reservedAttributes');
 const getQuery = require('../network-query/query').default;
 const getFilter = require('../network-query/filter').default;
 
-// TODO: share with other places this is defined
-const nodePrimaryKeyProperty = '_uid';
-const egoProperty = '_egoID';
-const caseProperty = '_caseID';
 const entityTypeProperty = '_type'; // NC sends as 'type' at the top level, but this will allow us to also look for a user attribute named type
 
-const nodeAttributesProperty = 'attributes';
-
-const getEntityAttributes = node => (node && node[nodeAttributesProperty]) || {};
+const getEntityAttributes = node => (node && node[entityAttributesProperty]) || {};
 
 const convertUuidToDecimal = uuid => (
   // BigInt support is in node 10.4, this poly-fills for now
@@ -80,10 +75,10 @@ const insertNetworkEgo = network => (
   {
     ...network,
     nodes: network.nodes.map(node => (
-      { [egoProperty]: network.ego[nodePrimaryKeyProperty], ...node }
+      { [egoProperty]: network.ego[entityPrimaryKeyProperty], ...node }
     )),
     edges: network.edges.map(edge => (
-      { [egoProperty]: network.ego[nodePrimaryKeyProperty], ...edge }
+      { [egoProperty]: network.ego[entityPrimaryKeyProperty], ...edge }
     )),
     ego: { ...network.sessionVariables, ...network.ego },
   }
@@ -99,11 +94,7 @@ module.exports = {
   filterNetworksWithQuery,
   getEntityAttributes,
   insertEgoInNetworks,
-  nodeAttributesProperty,
   entityTypeProperty,
-  egoProperty,
-  caseProperty,
-  nodePrimaryKeyProperty,
   processEntityVariables,
   unionOfNetworks,
 };

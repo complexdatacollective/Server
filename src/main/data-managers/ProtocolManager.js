@@ -10,6 +10,7 @@ const SessionDB = require('./SessionDB');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
 const { readFile, rename, tryUnlink } = require('../utils/promised-fs');
 const { validateGraphML, convertGraphML } = require('../utils/importGraphML');
+const { caseProperty, protocolName: protocolNameProperty, codebookHashProperty } = require('../utils/network-exporters/src/utils/reservedAttributes');
 const { hexDigest } = require('../utils/sha256');
 const { sendToGui } = require('../guiProxy');
 const { get, debounce } = require('lodash');
@@ -692,18 +693,18 @@ class ProtocolManager {
     return this.getProtocol(protocolId)
       .then((protocol) => {
         if (!protocol) {
-          const protocolName = get(session, 'data.sessionVariables.protocolName', 'Unknown Protocol');
-          const caseID = get(session, 'data.sessionVariables.caseId', null);
+          const protocolName = get(session, `data.sessionVariables.${protocolNameProperty}`, 'Unknown Protocol');
+          const caseID = get(session, `data.sessionVariables.${caseProperty}`, null);
 
           return Promise.reject(constructErrorObject(`The protocol ("${protocolName}") used by this session has not been imported into Server. Import it first, and try again.`, caseID));
         }
 
         const ourCodebookHash = objectHash(protocol.codebook);
-        const incomingCodebookHash = get(session, 'data.sessionVariables.codebookHash', null);
+        const incomingCodebookHash = get(session, `data.sessionVariables.${codebookHashProperty}`, null);
 
         if (ourCodebookHash !== incomingCodebookHash) {
-          const protocolName = get(session, 'data.sessionVariables.protocolName', 'Unknown Protocol');
-          const caseID = get(session, 'data.sessionVariables.caseId', null);
+          const protocolName = get(session, `data.sessionVariables.${protocolNameProperty}`, 'Unknown Protocol');
+          const caseID = get(session, `data.sessionVariables.${caseProperty}`, null);
 
           return Promise.reject(constructErrorObject(`The version of the protocol ("${protocolName}") used to create this session does not match the version installed in Server. Ensure you have matching versions of your protocols installed in Interviewer and Server, and try again.`, caseID));
         }
@@ -721,7 +722,7 @@ class ProtocolManager {
         if (insertErr.errorType === 'uniqueViolated') {
           return Promise.reject(constructErrorObject(
             ErrorMessages.SessionAlreadyExists,
-            get(session, 'data.sessionVariables.caseId', null),
+            get(session, `data.sessionVariables.${caseProperty}`, null),
           ));
         }
 

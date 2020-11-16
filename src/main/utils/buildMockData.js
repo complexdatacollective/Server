@@ -3,10 +3,6 @@ const faker = require('faker');
 const { has, times } = require('lodash');
 const crypto = require('crypto');
 
-// const nodePrimaryKeyProperty = '_uid';
-// const nodeAttributesProperty = 'attributes';
-// const caseProperty = 'caseID';
-
 const {
   entityPrimaryKeyProperty,
   entityAttributesProperty,
