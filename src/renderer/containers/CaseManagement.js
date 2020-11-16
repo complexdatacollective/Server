@@ -1,4 +1,4 @@
-import React, { Component, createRef } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -6,13 +6,13 @@ import { Redirect, withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
 import { includes, without } from 'lodash';
 import { Spinner } from '@codaco/ui';
+import { AutoSizer } from 'react-virtualized';
 import { Text } from '@codaco/ui/lib/components/Fields';
 import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 import { selectors as protocolSelectors } from '../ducks/modules/protocols';
 import { CaseTable, DismissButton } from '../components';
 import withSessions from './workspace/withSessions';
 import Types from '../types';
-import { AutoSizer } from 'react-virtualized';
 
 const emptyContent = (<p>
   Interviews you import from Network Canvas Interviewer will appear here.
@@ -21,17 +21,7 @@ const emptyContent = (<p>
 class CaseManagement extends Component {
   constructor(props) {
     super(props);
-    this.state = { sessionsToDelete: [], width: 500, height: 300 };
-    this.resizeObserver = null;
-    this.resizeSubject = createRef();
-  }
-
-  componentDidMount() {
-    this.observe(ResizeObserver);
-  }
-
-  componentWillUnmount() {
-    this.resizeObserver.disconnect();
+    this.state = { sessionsToDelete: [] };
   }
 
   get header() {
@@ -63,20 +53,6 @@ class CaseManagement extends Component {
       </div>
     );
   }
-
-  observe = (RO) => {
-    this.resizeObserver = new RO((entries) => {
-      const {
-        width,
-        height,
-      } = entries[0].contentRect;
-      this.setState({ width, height });
-    });
-
-    if (this.resizeSubject.current) {
-      this.resizeObserver.observe(this.resizeSubject.current);
-    }
-  };
 
   isSessionSelected = id => includes(this.state.sessionsToDelete, id);
 

@@ -25,7 +25,6 @@ const useNetworkStatus = () => {
         });
       })
       .catch((e) => {
-        console.log('usernetwork status caught', e);
         setNetworkState({ error: e.toString(), ...initialState });
       });
   }, []);

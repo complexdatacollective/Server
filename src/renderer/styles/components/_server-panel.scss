@@ -2,8 +2,9 @@
   position: sticky;
   background-color: var(--color-mustard);
   border-bottom: 0.3rem solid var(--color-mustard--dark);
-  padding: unit(1) 2rem;
+  padding: 0 unit(4);
   width: 100%;
+  height: unit(8);
   color: var(--server-panel-text);
   display: flex;
   align-items: center;
