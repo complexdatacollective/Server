@@ -6,7 +6,6 @@ import { compose } from 'recompose';
 import { Modal } from '@codaco/ui';
 import withApiClient from '../components/withApiClient';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
-import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
 import { PairPin } from '../components';
 
 const DefaultExpiredCheckInterval = 1000;
@@ -79,15 +78,10 @@ PairDevice.propTypes = {
     pairingCode: PropTypes.string,
     status: PropTypes.string,
   }).isRequired,
-  showErrorMessage: PropTypes.func.isRequired,
-  showConfirmationMessage: PropTypes.func.isRequired,
 };
 
 const mapDispatchToProps = dispatch => ({
   dismissPairingRequest: bindActionCreators(actionCreators.dismissPairingRequest, dispatch),
-  showErrorMessage: bindActionCreators(messageActionCreators.showErrorMessage, dispatch),
-  showConfirmationMessage:
-    bindActionCreators(messageActionCreators.showConfirmationMessage, dispatch),
 });
 
 const mapStateToProps = ({ pairingRequest }) => ({

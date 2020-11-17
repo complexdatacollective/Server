@@ -1,6 +1,5 @@
 import AdminApiClient from '../../utils/adminApiClient';
 import viewModelMapper from '../../utils/baseViewModelMapper';
-import { actionCreators as messageActionCreators } from './appMessages';
 
 const LOAD_DEVICES = 'LOAD_DEVICES';
 const DEVICES_LOADED = 'DEVICES_LOADED';

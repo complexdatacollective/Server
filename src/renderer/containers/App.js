@@ -9,14 +9,13 @@ import DialogManager from '../components/DialogManager';
 import AppRoutes from './AppRoutes';
 import ProtocolNav from './ProtocolNav';
 import AdminApiClient from '../utils/adminApiClient';
-import { AppMessage, ServerPanel } from '../components';
+import { ServerPanel } from '../components';
 import SessionFileDropTarget from '../containers/SessionFileDropTarget';
 import { AnimatedPairPrompt } from '../components/pairing/PairPrompt';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
 import { actionCreators as connectionInfoActionCreators } from '../ducks/modules/connectionInfo';
 import { actionCreators as deviceActionCreators } from '../ducks/modules/devices';
 import { actionCreators as protocolActionCreators } from '../ducks/modules/protocols';
-import { actionCreators as messageActionCreators } from '../ducks/modules/appMessages';
 import { isFrameless } from '../utils/environment';
 import ipcChannels from '../utils/ipcChannels';
 import ToastManager from '../components/ToastManager';
@@ -41,9 +40,7 @@ const preventGlobalDragDrop = () => {
  */
 const App = ({
   ackPairingRequest,
-  dismissAppMessage,
   dismissPairingRequest,
-  appMessages,
   pairingRequest,
   setConnectionInfo,
   newPairingRequest,
@@ -51,15 +48,12 @@ const App = ({
   loadDevices,
   resetApp,
   loadProtocols,
-  dismissAppMessages,
   history,
 }) => {
   const [apiReady, setApiReady] = useState(false);
   const insecure = remote.app.commandLine.hasSwitch('unsafe-pairing-code');
 
   const appClass = isFrameless() ? 'app app--frameless' : 'app';
-
-  const handleDismissal = timestamp => dismissAppMessage(timestamp);
 
   useUpdater('https://api.github.com/repos/complexdatacollective/Server/releases/latest', 2500);
 
@@ -105,17 +99,10 @@ const App = ({
 
       history.push('/'); // Navigate to overview screen
     });
-
-    dismissAppMessages();
   }, []);
 
   return (
     <div className={appClass}>
-      <div className="app__flash">
-        { appMessages.map(msg => (
-          <AppMessage key={msg.timestamp} {...msg} handleDismissal={handleDismissal} />
-        )) }
-      </div>
       {
         <AnimatedPairPrompt
           show={pairingRequest.status === PairingStatus.Pending}
@@ -158,9 +145,7 @@ const App = ({
 
 App.propTypes = {
   ackPairingRequest: PropTypes.func.isRequired,
-  appMessages: PropTypes.array,
   completedPairingRequest: PropTypes.func.isRequired,
-  dismissAppMessage: PropTypes.func.isRequired,
   dismissPairingRequest: PropTypes.func.isRequired,
   loadDevices: PropTypes.func.isRequired,
   loadProtocols: PropTypes.func.isRequired,
@@ -173,12 +158,9 @@ App.propTypes = {
     push: PropTypes.func.isRequired,
   }),
   setConnectionInfo: PropTypes.func.isRequired,
-  showConfirmationMessage: PropTypes.func,
-  dismissAppMessages: PropTypes.func.isRequired,
 };
 
 App.defaultProps = {
-  appMessages: [],
   pairingRequest: {},
   showConfirmationMessage: () => {},
   history: {
@@ -186,9 +168,8 @@ App.defaultProps = {
   },
 };
 
-const mapStateToProps = ({ pairingRequest, appMessages }) => ({
+const mapStateToProps = ({ pairingRequest }) => ({
   pairingRequest,
-  appMessages,
 });
 
 function mapDispatchToProps(dispatch) {
@@ -199,11 +180,7 @@ function mapDispatchToProps(dispatch) {
     loadProtocols: bindActionCreators(protocolActionCreators.loadProtocols, dispatch),
     resetApp: () => dispatch({ type: 'RESET_APP' }),
     newPairingRequest: bindActionCreators(actionCreators.newPairingRequest, dispatch),
-    showConfirmationMessage:
-      bindActionCreators(messageActionCreators.showConfirmationMessage, dispatch),
     dismissPairingRequest: bindActionCreators(actionCreators.dismissPairingRequest, dispatch),
-    dismissAppMessage: bindActionCreators(messageActionCreators.dismissAppMessage, dispatch),
-    dismissAppMessages: bindActionCreators(messageActionCreators.dismissAppMessages, dispatch),
     setConnectionInfo: bindActionCreators(connectionInfoActionCreators.setConnectionInfo, dispatch),
   };
 }

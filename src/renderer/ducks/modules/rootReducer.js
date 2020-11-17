@@ -1,6 +1,4 @@
 import { combineReducers } from 'redux';
-
-import appMessages from './appMessages';
 import connectionInfo from './connectionInfo';
 import devices from './devices';
 import excludedChartVariables from './excludedChartVariables';
@@ -12,7 +10,6 @@ import protocols from './protocols';
 import dismissibleState from './dismissibleState';
 
 const appReducer = combineReducers({
-  appMessages,
   dialogs,
   toasts,
   connectionInfo,

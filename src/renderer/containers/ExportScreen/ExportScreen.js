@@ -1,5 +1,4 @@
-/* eslint-disable */
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Redirect, withRouter } from 'react-router-dom';
@@ -8,14 +7,13 @@ import { AnimatePresence, AnimateSharedLayout, motion } from 'framer-motion';
 import { Button, Spinner } from '@codaco/ui';
 import CheckboxGroup from '@codaco/ui/lib/components/Fields/CheckboxGroup';
 import Checkbox from '@codaco/ui/lib/components/Fields/Checkbox';
+import { Toggle } from '@codaco/ui/lib/components/Fields';
 import Number from '@codaco/ui/lib/components/Fields/Number';
 import Types from '../../types';
 import ExportModal from '../../components/ExportModal';
 import { selectors } from '../../ducks/modules/protocols';
-import { actionCreators as messageActionCreators } from '../../ducks/modules/appMessages';
 import useAdminClient from '../../hooks/useAdminClient';
 import useExportOptions, { exportFormats } from './useExportOptions';
-import { Toggle } from '@codaco/ui/lib/components/Fields';
 
 const CSVOptions = [
   { label: 'Adjacency Matrix. Please not that this format can produce extremely large files. Only select this option if you are certain that you need it.', key: 'adjacencyMatrix' },
@@ -32,8 +30,6 @@ const expandVariants = {
 const ExportScreen = ({
   protocol,
   protocolsHaveLoaded,
-  history,
-  showError,
 }) => {
   const [state, setState] = useState({
     exportInProgress: false,
@@ -224,7 +220,6 @@ ExportScreen.propTypes = {
   apiClient: PropTypes.object,
   protocol: Types.protocol,
   protocolsHaveLoaded: PropTypes.bool.isRequired,
-  showError: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
 };
 
@@ -238,7 +233,6 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 const mapDispatchToProps = {
-  showError: messageActionCreators.showErrorMessage,
 };
 
 export {

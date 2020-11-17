@@ -21,8 +21,6 @@ const mockDispatched = {
   completedPairingRequest: jest.fn(),
   newPairingRequest: jest.fn(),
   dismissPairingRequest: jest.fn(),
-  dismissAppMessage: jest.fn(),
-  dismissAppMessages: jest.fn(),
   loadDevices: jest.fn(),
   loadProtocols: jest.fn(),
   resetApp: jest.fn(),
@@ -52,10 +50,8 @@ describe('<App />', () => {
   });
 
   const mockPairRequest = {};
-  const mockMsg = { timestamp: 1529338487695, text: 'ok' };
   const mockStore = createStore(() => (
     {
-      appMessages: [mockMsg],
       pairingRequest: mockPairRequest,
       toasts: [],
       dialogs: { dialogs: [] },
@@ -65,11 +61,6 @@ describe('<App />', () => {
   it('does not render routes before API is ready', () => {
     const wrapper = shallow(<App {...mockDispatched} />);
     expect(wrapper.find('AppRoutes')).toHaveLength(0);
-  });
-
-  it('renders queued messages', () => {
-    const wrapper = shallow(<App {...mockDispatched} appMessages={[mockMsg]} />);
-    expect(wrapper.find('AppMessage')).toHaveLength(1);
   });
 
   it('renders device pairing prompt when a pending request exists', () => {
@@ -174,10 +165,6 @@ describe('<App />', () => {
     });
 
     it('maps messages from state', () => {
-      expect(app.prop('appMessages')).toContain(mockMsg);
-    });
-
-    it('maps messages from state', () => {
       expect(app.prop('pairingRequest')).toBe(mockPairRequest);
     });
 
@@ -187,11 +174,6 @@ describe('<App />', () => {
       expect(wrapper.prop('completedPairingRequest')).toBeInstanceOf(Function);
       expect(wrapper.prop('dismissPairingRequest')).toBeInstanceOf(Function);
       expect(wrapper.prop('newPairingRequest')).toBeInstanceOf(Function);
-    });
-
-    it('provides message dismissal', () => {
-      const wrapper = shallow(<ConnectedApp store={mockStore} />).dive();
-      expect(wrapper.prop('dismissAppMessage')).toBeInstanceOf(Function);
     });
   });
 });
