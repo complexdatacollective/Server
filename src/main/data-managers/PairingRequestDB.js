@@ -6,7 +6,8 @@ const dbConfig = {
   inMemoryOnly: true,
 };
 
-const DeviceRequestTTLSeconds = 5 * 60;
+// Used for various API request timeouts.
+const DeviceRequestTTLSeconds = 5 * 60; // 5 minutes.
 
 class PairingRequestDB extends DatabaseAdapter {
   constructor(dbName, additionalConfig = {}) {

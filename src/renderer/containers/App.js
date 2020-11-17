@@ -2,20 +2,21 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import logger from 'electron-log';
 import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import { ipcRenderer, remote } from 'electron';
 import { withRouter } from 'react-router-dom';
+import { Button } from '@codaco/ui';
 import DialogManager from '../components/DialogManager';
 import AppRoutes from './AppRoutes';
 import ProtocolNav from './ProtocolNav';
 import AdminApiClient from '../utils/adminApiClient';
 import { ServerPanel } from '../components';
 import SessionFileDropTarget from '../containers/SessionFileDropTarget';
-import { AnimatedPairPrompt } from '../components/pairing/PairPrompt';
-import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
+import { actionCreators } from '../ducks/modules/pairingRequest';
 import { actionCreators as connectionInfoActionCreators } from '../ducks/modules/connectionInfo';
 import { actionCreators as deviceActionCreators } from '../ducks/modules/devices';
 import { actionCreators as protocolActionCreators } from '../ducks/modules/protocols';
+import { actionCreators as toastActions } from '../ducks/modules/toasts';
 import { isFrameless } from '../utils/environment';
 import ipcChannels from '../utils/ipcChannels';
 import ToastManager from '../components/ToastManager';
@@ -41,7 +42,6 @@ const preventGlobalDragDrop = () => {
 const App = ({
   ackPairingRequest,
   dismissPairingRequest,
-  pairingRequest,
   setConnectionInfo,
   newPairingRequest,
   completedPairingRequest,
@@ -52,6 +52,7 @@ const App = ({
 }) => {
   const [apiReady, setApiReady] = useState(false);
   const insecure = remote.app.commandLine.hasSwitch('unsafe-pairing-code');
+  const dispatch = useDispatch();
 
   const appClass = isFrameless() ? 'app app--frameless' : 'app';
 
@@ -76,6 +77,33 @@ const App = ({
 
     // Handle pairing
     ipcRenderer.on(ipcChannels.PAIRING_CODE_AVAILABLE, (_, data) => {
+      // Remove any prior request toast
+      toastActions.removeToast('pairing-request-toast');
+
+      const handleToastDismiss = action => () => {
+        dispatch(toastActions.removeToast('pairing-request-toast'));
+        action();
+      };
+
+      dispatch(toastActions.addToast({
+        id: 'pairing-request-toast',
+        type: 'info',
+        classNames: 'toast--wide',
+        title: 'Pair Device?',
+        autoDismiss: false,
+        content: (
+          <React.Fragment>
+            <p>
+              A device is attempting to pair with this computer.
+              This will give it access to your interview protocols and allow it to upload data.
+            </p>
+            <div className="toast-button-group">
+              <Button color="platinum--dark" onClick={handleToastDismiss(dismissPairingRequest)}>Dismiss</Button>
+              <Button color="neon-coral" onClick={handleToastDismiss(ackPairingRequest)}>Pair With Device</Button>
+            </div>
+          </React.Fragment>
+        ),
+      }));
       newPairingRequest(data.id, data.pairingCode);
     });
 
@@ -97,19 +125,12 @@ const App = ({
       loadDevices(); // Request device data
       loadProtocols(); // Request protocol data
 
-      history.push('/'); // Navigate to overview screen
+      history.push('/'); // Root -> Overview -> GetStarted
     });
   }, []);
 
   return (
     <div className={appClass}>
-      {
-        <AnimatedPairPrompt
-          show={pairingRequest.status === PairingStatus.Pending}
-          onAcknowledge={ackPairingRequest}
-          onDismiss={dismissPairingRequest}
-        />
-      }
       <div className="app__titlebar" />
       {apiReady && <ServerPanel />}
       <div className="app__content">
@@ -151,9 +172,6 @@ App.propTypes = {
   loadProtocols: PropTypes.func.isRequired,
   resetApp: PropTypes.func.isRequired,
   newPairingRequest: PropTypes.func.isRequired,
-  pairingRequest: PropTypes.shape({
-    status: PropTypes.string,
-  }),
   history: PropTypes.shape({
     push: PropTypes.func.isRequired,
   }),
@@ -161,16 +179,11 @@ App.propTypes = {
 };
 
 App.defaultProps = {
-  pairingRequest: {},
   showConfirmationMessage: () => {},
   history: {
     push: () => {},
   },
 };
-
-const mapStateToProps = ({ pairingRequest }) => ({
-  pairingRequest,
-});
 
 function mapDispatchToProps(dispatch) {
   return {
@@ -185,7 +198,7 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-const ConnectedApp = connect(mapStateToProps, mapDispatchToProps)(App);
+const ConnectedApp = connect(null, mapDispatchToProps)(App);
 
 export default withRouter(ConnectedApp);
 

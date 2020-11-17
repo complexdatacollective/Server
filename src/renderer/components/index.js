@@ -12,7 +12,6 @@ export { default as LinkButton } from './LinkButton';
 export { default as TimeSeriesChart } from './charts/TimeSeriesChart';
 export { default as Overflow } from './Overflow';
 export { default as PanelItem } from './workspace/PanelItem';
-export { default as PairPrompt } from './pairing/PairPrompt';
 export { default as PairPin } from './pairing/PairPin';
 export { default as PieChart } from './charts/PieChart';
 export { default as Scrollable } from './Scrollable';

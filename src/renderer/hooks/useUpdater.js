@@ -131,7 +131,7 @@ const useUpdater = (updateEndpoint, timeout = 0) => {
     dispatch(toastActions.addToast({
       id: 'update-toast',
       type: 'info',
-      classNames: 'update-available-toast',
+      classNames: 'toast--wide',
       title: `Version ${newVersion} available`,
       autoDismiss: false,
       content: (

@@ -6,6 +6,7 @@ import { compose } from 'recompose';
 import { Modal } from '@codaco/ui';
 import withApiClient from '../components/withApiClient';
 import { actionCreators, PairingStatus } from '../ducks/modules/pairingRequest';
+import { actionCreators as toastActions } from '../ducks/modules/toasts';
 import { PairPin } from '../components';
 
 const DefaultExpiredCheckInterval = 1000;
@@ -14,13 +15,29 @@ class PairDevice extends Component {
   componentDidUpdate() {
     if (!this.timer &&
         this.props.pairingRequest.status === PairingStatus.Acknowledged) {
-      const { apiClient, dismissPairingRequest, showErrorMessage, pairingRequest } = this.props;
+      const { apiClient, dismissPairingRequest, pairingRequest } = this.props;
       const doCheck = () => {
         apiClient.checkPairingCodeExpired(pairingRequest.id)
           .then(({ isExpired, expiresAt }) => {
+            const expires = new Date(expiresAt) - new Date();
+            console.log('Pairing code...checking expiry. Expires at:', expires);
             if (isExpired) {
               dismissPairingRequest();
-              showErrorMessage('Pairing timed out');
+              this.props.removeToast('pairing-error-toast');
+              this.props.addToast({
+                id: 'pairing-error-toast',
+                type: 'error',
+                title: 'Pairing timed out',
+                content: (
+                  <React.Fragment>
+                    <p>
+                      A valid pairing code was not entered in time, so pairing was cancelled
+                      automatically.
+                    </p>
+                  </React.Fragment>
+                ),
+              });
+
               this.timer = null;
             } else {
               let expiresIn = new Date(expiresAt) - new Date();
@@ -40,7 +57,20 @@ class PairDevice extends Component {
     }
 
     if (this.props.pairingRequest.status === PairingStatus.Complete) {
-      this.props.showConfirmationMessage('Your device is now paired with this installation of Server. You can access interview protocols stored on Server and upload data securely from this device.');
+      this.props.addToast({
+        id: 'pairing-success-toast',
+        type: 'success',
+        title: 'Pairing complete!',
+        content: (
+          <React.Fragment>
+            <p>
+              Your device is now paired with this installation of Server. You can
+              access interview protocols stored on Server and upload data securely
+              from this device.
+            </p>
+          </React.Fragment>
+        ),
+      });
       this.props.dismissPairingRequest();
     }
   }
@@ -78,10 +108,14 @@ PairDevice.propTypes = {
     pairingCode: PropTypes.string,
     status: PropTypes.string,
   }).isRequired,
+  addToast: PropTypes.func.isRequired,
+  removeToast: PropTypes.func.isRequired,
 };
 
 const mapDispatchToProps = dispatch => ({
   dismissPairingRequest: bindActionCreators(actionCreators.dismissPairingRequest, dispatch),
+  addToast: bindActionCreators(toastActions.addToast, dispatch),
+  removeToast: bindActionCreators(toastActions.removeToast, dispatch),
 });
 
 const mapStateToProps = ({ pairingRequest }) => ({
