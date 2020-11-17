@@ -1,5 +1,6 @@
 import AdminApiClient from '../../utils/adminApiClient';
 import viewModelMapper from '../../utils/baseViewModelMapper';
+import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
 
 const LOAD_DEVICES = 'LOAD_DEVICES';
 const DEVICES_LOADED = 'DEVICES_LOADED';
@@ -41,7 +42,13 @@ const loadDevices = () => (dispatch) => {
   return getApiClient().get('/devices')
     .then(resp => resp.devices)
     .then(devices => dispatch(devicesLoadedAction(devices)))
-    .catch(err => messageActionCreators.showErrorMessage(err.message)(dispatch));
+    .catch((err) => {
+      dispatch(dialogActions.openDialog({
+        type: 'Error',
+        title: 'Error Loading Devices',
+        error: err,
+      }));
+    });
 };
 
 const deleteDeviceAction = deviceId => ({
@@ -53,7 +60,13 @@ const deleteDevice = deviceId => (dispatch) => {
   dispatch(deleteDeviceAction(deviceId));
   return getApiClient().delete(`devices/${deviceId}`)
     .then(() => loadDevices()(dispatch))
-    .catch(err => messageActionCreators.showErrorMessage(err.message)(dispatch));
+    .catch((err) => {
+      dispatch(dialogActions.openDialog({
+        type: 'Error',
+        title: 'Error Deleting Device',
+        error: err,
+      }));
+    });
 };
 
 const actionCreators = {

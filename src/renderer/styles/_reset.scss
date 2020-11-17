@@ -5,6 +5,11 @@ body {
   position: fixed;
   width: 100%;
   color: var(--color-rich-black);
+  line-height: 1.25;
+}
+
+li {
+  margin-bottom: unit(1);
 }
 
 .app-root {

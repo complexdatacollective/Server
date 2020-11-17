@@ -8,10 +8,6 @@ $block: instructions;
   flex-direction: column;
   line-height: var(--icon-height);
 
-  code {
-    white-space: nowrap;
-  }
-
   @include element(section) {
     @include panel;
     --input-background: transparent;

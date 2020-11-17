@@ -100,6 +100,9 @@
 
     .content {
       padding: spacing(1) spacing(3);
+      height: 100%;
+      width: 100%;
+      overflow-y: auto;
     }
   }
 
@@ -119,7 +122,7 @@
 code {
   background: var(--color-cerulean-blue);
   color: var(--text-light);
-  padding: 0.25rem 0.5rem;
+  padding: 0.1rem 0.5rem;
   border-radius: 1rem;
   word-break: keep-all;
   white-space: nowrap;

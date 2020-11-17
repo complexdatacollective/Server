@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { Redirect, withRouter } from 'react-router-dom';
+import { connect, useDispatch } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 import { compose } from 'recompose';
 import { AnimatePresence, AnimateSharedLayout, motion } from 'framer-motion';
 import { Button, Spinner } from '@codaco/ui';
@@ -12,6 +12,7 @@ import Number from '@codaco/ui/lib/components/Fields/Number';
 import Types from '../../types';
 import ExportModal from '../../components/ExportModal';
 import { selectors } from '../../ducks/modules/protocols';
+import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
 import useAdminClient from '../../hooks/useAdminClient';
 import useExportOptions, { exportFormats } from './useExportOptions';
 
@@ -35,6 +36,8 @@ const ExportScreen = ({
     exportInProgress: false,
   });
 
+  const dispatch = useDispatch();
+
   const [exportOptions, exportOptionsFormState, handleUpdateFormState] = useExportOptions();
 
   const { exportToFile } = useAdminClient();
@@ -44,24 +47,17 @@ const ExportScreen = ({
 
     return exportToFile(protocol, exportOptions)
       .catch((e) => {
-        showError(e.message);
+        dispatch(dialogActions.openDialog({
+          type: 'Error',
+          title: 'Error During Export',
+          error: e.message,
+        }));
+
         setState({ exportInProgress: false });
       });
   };
 
   const handleSubmit = () => {
-    const { exportCSV, exportGraphML } = exportOptions;
-
-    if (!exportCSV && !exportGraphML) {
-      showError('Please select at least one type of export');
-      return;
-    }
-
-    if (!!exportCSV && Object.values(exportCSV).every(toggled => !toggled)) {
-      showError('Please select at least one file type to export for CSV');
-      return;
-    }
-
     promptAndExport();
   };
 
@@ -74,10 +70,11 @@ const ExportScreen = ({
   }
 
   if (!protocol) { // This protocol hasn't loaded yet
-    return <div className="settings--loading"><Spinner /></div>;
+    return <div className="export--loading"><Spinner /></div>;
   }
 
   const { exportInProgress } = state;
+  const noFormatSelected = exportOptionsFormState.exportFormats.length === 0;
 
   return (
     <React.Fragment>
@@ -94,8 +91,8 @@ const ExportScreen = ({
             <div className="export__section">
               <h3>1. Select File Types</h3>
               <p>
-                Choose one or more export formats. At the end of the process, all files will be archived in a single ZIP
-                for download.
+                Choose one or more export formats. At the end of the process, all files will be
+                archived in a single ZIP for download.
               </p>
               <div className="export__row">
                 <CheckboxGroup
@@ -105,13 +102,28 @@ const ExportScreen = ({
                     value: exportOptionsFormState.exportFormats,
                     onChange: value => handleUpdateFormState('exportFormats', value),
                   }}
+                  meta={{
+                    touched: true,
+                    invalid: noFormatSelected,
+                    error: 'You must select at least one type of file for export',
+                  }}
                 />
                 <p>
-                GraphML is the main file format used by the Network Canvas software. GraphML files can be used to manually import your data into Server, and can be opened by many other pieces of network analysis software.
+                  GraphML is the main file format used by the Network Canvas software because it is
+                  modern, robust, and an open standard. GraphML files can be opened by many
+                  other pieces of network analysis software, but you should check that the software
+                  you intend to use supports this format.
                 </p>
                 <p>
-                CSV is a widely used format for storing network data, but this wider compatibility comes at the expense of robustness. If you enable this format, your networks will be exported as an <strong>attribute list file</strong> for each node type, an <strong>edge list file</strong> for each edge type, and an <strong>ego attribute file</strong> that also contains session data.
+                  CSV is a widely used format for storing network data, but this wider compatibility
+                  comes at the expense of robustness. If you enable this format, your networks will
+                  be exported as a series of CSV files:
                 </p>
+                <ul>
+                  <li>an <strong>attribute list file</strong> for each node type</li>
+                  <li>an <strong>edge list file</strong> for each edge type</li>
+                  <li>an <strong>egoattribute file</strong> that also contains session data</li>
+                </ul>
               </div>
             </div>
             <div className="export__section">
@@ -127,7 +139,12 @@ const ExportScreen = ({
                   }}
                 />
                 <p>
-                If you enable this option, exporting multiple sessions at the same time will cause them to be merged into a single file, on a per-protocol basis. In the case of CSV export, you will receive one of each type of file for each protocol. In the case of GraphML you will receive a single GraphML file with multiple <code>&lt;graph&gt;</code> elements. Please note that most software does not yet support multiple graphs in a single GraphML file. 
+                  If you enable this option, exporting multiple sessions at the same time will
+                  causethem to be merged into a single file, on a per-protocol basis. In the case
+                  of CSV export, you will receive one of each type of file for each protocol. In
+                  the case of GraphML you will receive a single GraphML file with
+                  multiple <code>&lt;graph&gt;</code> elements. Please note that most software
+                  does not yet support multiple graphs in a single GraphML file.
                 </p>
               </div>
               <div className="export__row">
@@ -140,7 +157,10 @@ const ExportScreen = ({
                   }}
                 />
                 <p>
-                By default, Interviewer exports sociogram node coordinates as normalized X/Y values (a number between 0 and 1 for each axis, with the origin in the top left). Enabling this option will store coordinates as screen space pixel values, with the same origin.
+                  By default, Interviewer exports sociogram node coordinates as normalized X/Y
+                  values (a number between 0 and 1 for each axis, with the origin in the top left).
+                  Enabling this option will create an <em>additional</em> variable that represents
+                  these coordinates as screen space pixel values.
                 </p>
               </div>
               <AnimatePresence>
@@ -183,22 +203,22 @@ const ExportScreen = ({
                   <p>Select which files to include in the CSV export.</p>
                   <p><em>Ego Attribute List contains session data and is required.</em></p>
                   <div className="export__row">
-                      <Checkbox
-                        label="Ego Attribute List (required)"
-                        input={{
-                          value: true,
-                          onChange: () => {},
-                        }}
-                        disabled={true}
-                      />
-                    </div>
+                    <Checkbox
+                      label="Ego Attribute List (required)"
+                      input={{
+                        value: true,
+                        onChange: () => {},
+                      }}
+                      disabled
+                    />
+                  </div>
                   {[CSVOptions.map(({ label, key }) => (
                     <div key={key} className="export__row">
                       <Checkbox
                         label={label}
                         input={{
                           value: exportOptionsFormState[key],
-                          onChange: value => handleUpdateFormState(key, !exportOptionsFormState[key]),
+                          onChange: () => handleUpdateFormState(key, !exportOptionsFormState[key]),
                         }}
                       />
                     </div>
@@ -208,7 +228,7 @@ const ExportScreen = ({
             </AnimatePresence>
           </AnimateSharedLayout>
           <div className="buttons">
-            <Button type="submit" disabled={exportInProgress}>Begin Export</Button>
+            <Button type="submit" disabled={exportInProgress || noFormatSelected}>Begin Export</Button>
           </div>
         </div>
       </form>
@@ -217,10 +237,8 @@ const ExportScreen = ({
 };
 
 ExportScreen.propTypes = {
-  apiClient: PropTypes.object,
   protocol: Types.protocol,
   protocolsHaveLoaded: PropTypes.bool.isRequired,
-  history: PropTypes.object.isRequired,
 };
 
 ExportScreen.defaultProps = {
@@ -240,6 +258,5 @@ export {
 };
 
 export default compose(
-  withRouter,
   connect(mapStateToProps, mapDispatchToProps),
 )(ExportScreen);

@@ -26,7 +26,7 @@ const WelcomePanel = ({
             rearrange them (you can also hide or show charts from the settings tab).
           </p>
           <p>
-            Use the tabs in this workspace to switch between exporting data, managing cases,
+            Use the tabs in this workspace to switch between managing cases, exporting data,
             or accessing settings.
           </p>
           <p>

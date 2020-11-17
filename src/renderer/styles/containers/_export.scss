@@ -1,6 +1,13 @@
 .export {
   flex: 1;
 
+  @include modifier(loading) {
+    display: flex;
+    justify-content: center;
+    height: 100%;
+    align-items: center;
+  }
+
   @include element(section) {
     @include panel;
     --input-background: transparent;
@@ -31,8 +38,6 @@
   @include element(subpanel-content) {
     padding: 1rem 0;
   }
-
-  margin-bottom: 6rem; // height of footer
 
   .form-field {
     &:last-child { margin-bottom: 0; }

@@ -19,8 +19,6 @@ class PairDevice extends Component {
       const doCheck = () => {
         apiClient.checkPairingCodeExpired(pairingRequest.id)
           .then(({ isExpired, expiresAt }) => {
-            const expires = new Date(expiresAt) - new Date();
-            console.log('Pairing code...checking expiry. Expires at:', expires);
             if (isExpired) {
               dismissPairingRequest();
               this.props.removeToast('pairing-error-toast');
