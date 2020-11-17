@@ -91,17 +91,15 @@
   }
 
   @include element(main) {
-    width: 100%;
     display: flex;
     flex-direction: column;
     height: 100%;
+    width: 100%;
+    overflow-y: auto;
+    flex: 1 auto;
 
-    .workspace-wrapper {
-      height: 100%;
-      width: 100%;
-      overflow-y: auto;
+    .content {
       padding: spacing(1) spacing(3);
-      flex: 1 auto;
     }
   }
 

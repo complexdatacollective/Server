@@ -4,7 +4,6 @@ import PairingInstructions from './PairingInstructions';
 
 const Instructions = ({
   compact,
-  networkStatus,
   showPairingInstructions,
   showImportInstructions,
   showImportSessionInstructions,
@@ -13,11 +12,11 @@ const Instructions = ({
     {
       showImportInstructions &&
       <section className="instructions__section">
-        <h2>To import a protocol:</h2>
+        <h2>To create a workspace:</h2>
         <p>
           Import a <code>.netcanvas</code> protocol file by dragging it to the sidebar,
-          using the <code>+</code> button, or selecting <code>Import Protocol...</code> from
-          the <code>File</code> menu.
+          using the <code>+</code> button, or selecting <code>Import Protocol</code> from
+          the File menu.
         </p>
       </section>
     }
@@ -33,14 +32,14 @@ const Instructions = ({
     {
       showPairingInstructions &&
       <section className="instructions__section">
-        <PairingInstructions networkStatus={networkStatus} />
+        <PairingInstructions />
       </section>
     }
 
     {
       showImportSessionInstructions &&
       <section className="instructions__section">
-        <h2>To import a case:</h2>
+        <h2>To import interview data:</h2>
         <p>
           Once you have a protocol imported, you can import a <code>.graphml</code> case file by
           dragging it to the protocol overview section, or
@@ -53,7 +52,6 @@ const Instructions = ({
 
 Instructions.defaultProps = {
   compact: false,
-  networkStatus: null,
   showPairingInstructions: true,
   showImportInstructions: true,
   showImportSessionInstructions: true,
@@ -61,7 +59,6 @@ Instructions.defaultProps = {
 
 Instructions.propTypes = {
   compact: PropTypes.bool,
-  networkStatus: PropTypes.object,
   showPairingInstructions: PropTypes.bool,
   showImportInstructions: PropTypes.bool,
   showImportSessionInstructions: PropTypes.bool,

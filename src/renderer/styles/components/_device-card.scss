@@ -18,11 +18,12 @@ $component: 'device-card';
     width: 7rem;
 
     .device-icon {
-      width: 4rem;
-      height: 4rem;
+      width: unit(6);
+      height: unit(6);
 
       img {
         height: 100%;
+        padding: unit(1);
       }
     }
   }
@@ -51,26 +52,8 @@ $component: 'device-card';
     display: flex;
     justify-content: center;
     align-items: center;
-    background: var(--color-sea-green);
     flex-direction: row;
-    width: 7rem;
-    cursor: pointer;
-
-    &-button {
-      color: var(--color-white);
-      width: 1.5rem;
-      height: 1.5rem;
-
-      .icon {
-        width: 1.5rem;
-        height: 1.5rem;
-      }
-    }
-  }
-
-  &--clickable {
-    @include clickable(2);
-    cursor: default !important; // sass-lint:disable-line no-important
+    width: 20rem;
   }
 
   &--disabled {

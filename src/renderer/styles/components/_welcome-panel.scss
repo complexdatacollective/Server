@@ -1,0 +1,45 @@
+.welcome-panel {
+  @include panel;
+  background-color: var(--primary);
+  color: var(--text-light);
+  max-width: 90rem;
+
+  code {
+    background: var(--color-sea-green--dark);
+  }
+
+  a {
+    color: var(--color-cyber-grape);
+  }
+
+  &__content {
+    padding: unit(1) unit(4);
+    display: flex;
+    flex-direction: row;
+
+    .welcome-content {
+      &__image {
+        flex: 0 0 30rem;
+        display: flex;
+        align-items: center;
+        margin-top: unit(4); //approximate height of h1
+        background-image: url('../images/visual-data.svg');
+        background-size: 25rem;
+        background-position: center;
+        background-repeat: no-repeat;
+        min-height: 18rem;
+      }
+
+      &__text {
+        flex: 1 auto;
+      }
+    }
+  }
+
+  &__buttons {
+    padding: unit(1) unit(4);
+    background: var(--color-sea-green--dark);
+    display: flex;
+    justify-content: flex-end;
+  }
+}

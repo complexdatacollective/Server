@@ -4,7 +4,6 @@
   $grid-gap: spacing(medium);
 
   @include element(panel) {
-    
     @include panel;
 
     @include modifier(chart) {
@@ -30,7 +29,7 @@
     margin: 0;
     background-color: var(--color-platinum);
     height: 100%;
-    padding: spacing(large);
+    padding: unit(2) unit(4);
     position: relative;
     width: 100%;
     margin-bottom: unit(4);

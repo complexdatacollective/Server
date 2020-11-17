@@ -26,10 +26,10 @@ const ClipboardText = ({
     timer.current = setTimeout(() => setCopied(false), 899);
   }, 900);
 
-  const text = typeof children === 'string' && clipboardText.length === 0 ? children : clipboardText;
+  const text = clipboardText.toString().length === 0 ? children : clipboardText;
 
   const handleCopy = () => {
-    clipboard.writeText(text);
+    clipboard.writeText(text.toString());
     showCopied.current();
   };
 

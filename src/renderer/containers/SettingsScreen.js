@@ -60,20 +60,21 @@ class SettingsScreen extends Component {
             distributionVariables &&
             Object.entries(distributionVariables).map(([entity, varsWithTypes]) => (
               Object.entries(varsWithTypes).map(([section, vars]) => (
-                <CheckboxGroup
-                  key={section}
-                  className="settings__checkbox-group"
-                  label={entityLabel(entity, entityVariableType(codebook, entity, section))}
-                  input={{
-                    value: this.includedChartVariablesForSection(entity, section),
-                    onChange: (newValue) => {
-                      const newExcluded = vars.filter(v => !newValue.includes(v));
-                      setExcludedVariables(protocol.id, entity, section, newExcluded);
-                    },
-                  }}
-                  options={vars.map(v =>
-                    ({ value: v, label: entityVariableName(codebook, entity, section, v) }))}
-                />
+                <div className="chart-section" key={section}>
+                  <h4>{entityLabel(entity, entityVariableType(codebook, entity, section))}</h4>
+                  <CheckboxGroup
+                    className="settings__checkbox-group"
+                    input={{
+                      value: this.includedChartVariablesForSection(entity, section),
+                      onChange: (newValue) => {
+                        const newExcluded = vars.filter(v => !newValue.includes(v));
+                        setExcludedVariables(protocol.id, entity, section, newExcluded);
+                      },
+                    }}
+                    options={vars.map(v =>
+                      ({ value: v, label: entityVariableName(codebook, entity, section, v) }))}
+                  />
+                </div>
               ))))
           }
         </div>
@@ -115,7 +116,7 @@ class SettingsScreen extends Component {
     }
 
     return (
-      <div className="settings">
+      <div className="content settings">
         <h1>Settings</h1>
         <div className="settings__section">
           <div className="settings__description">

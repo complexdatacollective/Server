@@ -4,34 +4,21 @@ $block: instructions;
   --icon-height: 2rem;
 
   @include panel;
-
   display: flex;
   flex-direction: column;
   line-height: var(--icon-height);
-  margin-top: 2.2rem;
+  margin-top: unit(1);
 
   code {
     white-space: nowrap;
   }
 
   @include element(section) {
-    margin-top: 2.2rem;
-    background: var(--color-white);
-    padding: spacing(large);
     border-radius: var(--border-radius);
-
-    p {
-      line-height: 2;
-    }
   }
 
   @include element(steps) {
     list-style-type: decimal;
-    margin-bottom: 2rem;
-  }
-
-  @include element(step) {
-    margin-bottom: 1rem;
   }
 
   @include element(add-icon) {

@@ -2,10 +2,20 @@
   flex: 1;
 
   @include element(section) {
-    --input-background: var(--color-white);
     @include panel;
-    padding: spacing(large);
+    --input-background: transparent;
+    --input-border: var(--color-white);
+    padding: unit(2) unit(4);
     background: var(--color-platinum);
+
+    .form-field-container {
+      margin: 0;
+
+      label {
+        padding: 0;
+        min-height: auto;
+      }
+    }
   }
 
   @include element(row) {
@@ -36,5 +46,14 @@
     float: right;
     font-style: italic;
     font-size: small;
+  }
+
+  .buttons {
+    @include panel;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: unit(2) unit(4);
+    background: var(--color-cyber-grape);
   }
 }

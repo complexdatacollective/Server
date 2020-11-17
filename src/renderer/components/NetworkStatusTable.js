@@ -4,7 +4,7 @@ import ClipboardText from '../components/ClipboardText';
 
 const getMdnsLabel = mdnsStatus => ({
   error: 'Unsupported',
-  ok: 'Active',
+  ok: 'Enabled and Broadcasting',
   pending: 'Pending',
 }[mdnsStatus]);
 
@@ -43,7 +43,8 @@ const NetworkStatusTable = ({
           }
           { discoverable &&
             <tr>
-              <th>Discoverable</th><td>{mdnsBadge} {getMdnsLabel(getMdnsStatus(networkStatus))}</td>
+              <th>Automatic Server Discovery</th>
+              <td>{mdnsBadge} {getMdnsLabel(getMdnsStatus(networkStatus))}</td>
             </tr>
           }
           { port &&
@@ -56,7 +57,7 @@ const NetworkStatusTable = ({
           }
           { addresses &&
             <tr>
-              <th>Addresses</th>
+              <th>IP Address{networkStatus.publicAddresses.length > 0 ? 'es' : ''}</th>
               <td>
                 {networkStatus.publicAddresses &&
                   networkStatus.publicAddresses.map(ip =>

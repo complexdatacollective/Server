@@ -64,11 +64,22 @@ const DeviceList = ({
   };
 
   const filteredDevices = filterTerm.length > 0
-    ? devices.filter(({ name }) => name.includes(filterTerm))
+    ? devices.filter(({ name }) => name.toLowerCase().includes(filterTerm.toLowerCase()))
     : devices;
 
   return (
     <div className="device-list">
+      <div className="device-list__header">
+        <h4>Filter: </h4>
+        <Text
+          type="search"
+          placeholder="Filter..."
+          className="new-filterable-list__filter"
+          input={{
+            onChange: onFilterChange,
+          }}
+        />
+      </div>
       { filteredDevices.length === 0 &&
         <div className="device-list__empty">
           <h4>No paired devices.</h4>
@@ -76,17 +87,6 @@ const DeviceList = ({
       }
       { filteredDevices.length !== 0 &&
         <React.Fragment>
-          <div className="device-list__header">
-            <h4>Filter: </h4>
-            <Text
-              type="search"
-              placeholder="Filter..."
-              className="new-filterable-list__filter"
-              input={{
-                onChange: onFilterChange,
-              }}
-            />
-          </div>
           <div className="device-list__list">
             <Scroller>
               <motion.div
@@ -106,10 +106,9 @@ const DeviceList = ({
                         layout
                       >
                         <DeviceCard
-
                           {...device}
                           key={device.id}
-                          onClickHandler={() => confirmDelete(device.id)}
+                          onDeleteHandler={() => confirmDelete(device.id)}
                         />
                       </motion.div>
                     ))

@@ -64,13 +64,18 @@ const DeviceStatus = ({
     >
       <p>Devices that have been paired with the server are listed below.</p>
       <DeviceList devices={devices} />
-
       <div className="device-status__overlay-controls">
         <Button
+          color="platinum"
           data-test="view-pairing-instructions"
           onClick={() => setShowInstructions(true)}
         >
           View pairing instructions
+        </Button>
+        <Button
+          onClick={() => setShowDevicesModal(false)}
+        >
+          Close
         </Button>
       </div>
     </Overlay>,
@@ -86,8 +91,13 @@ const DeviceStatus = ({
       />
 
       <div className="device-status__overlay-controls">
-        <Button onClick={() => setShowInstructions(false)}>
+        <Button color="platinum" onClick={() => setShowInstructions(false)}>
           View paired devices
+        </Button>
+        <Button
+          onClick={() => setShowDevicesModal(false)}
+        >
+          Close
         </Button>
       </div>
     </Overlay>,

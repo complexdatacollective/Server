@@ -23,15 +23,15 @@ class AppRoutes extends Component {
       <main className="app__main" ref={this.scrollContainerRef}>
         <React.Fragment>
           <Route path="/workspaces/:id" component={WorkspaceNav} />
+          {/* <div className="workspace-wrapper"> */}
           <Switch>
-            <div className="workspace-wrapper">
-              <Route exact path="/" component={OverviewScreen} />
-              <Route exact path="/workspaces/:id" render={workspaceRenderer} />
-              <Route exact path="/workspaces/:id/casemanagement" component={CaseManagement} />
-              <Route exact path="/workspaces/:id/settings" component={SettingsScreen} />
-              <Route exact path="/workspaces/:id/export" component={ExportScreen} />
-            </div>
+            <Route exact path="/" component={OverviewScreen} />
+            <Route exact path="/workspaces/:id" render={workspaceRenderer} />
+            <Route exact path="/workspaces/:id/casemanagement" component={CaseManagement} />
+            <Route exact path="/workspaces/:id/settings" component={SettingsScreen} />
+            <Route exact path="/workspaces/:id/export" component={ExportScreen} />
           </Switch>
+          {/* </div> */}
         </React.Fragment>
         <PairDevice />
       </main>

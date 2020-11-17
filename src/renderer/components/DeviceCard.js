@@ -2,23 +2,21 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { DateTime } from 'luxon';
+import { Button } from '@codaco/ui';
 import HoverMarquee from '@codaco/ui/lib/components/HoverMarquee';
 import icon from '../images/devices.svg';
-import CloseButton from './CloseButton';
 
 /**
  * Renders a device icon & label.
  */
 const DeviceCard = ({
   name,
-  id,
   createdAt,
   disabled,
-  onClickHandler,
+  onDeleteHandler,
 }) => {
   const modifierClasses = cx(
     'device-card',
-    { 'device-card--clickable': onClickHandler },
     { 'device-card--disabled': disabled },
   );
 
@@ -33,16 +31,15 @@ const DeviceCard = ({
       </div>
       <div className="device-card__main-section">
         <h2 className="device-name"><HoverMarquee>{name}</HoverMarquee></h2>
-        <h6><HoverMarquee>{id}</HoverMarquee></h6>
-        <h6><HoverMarquee>{createdLabel}</HoverMarquee></h6>
+        <h6><HoverMarquee>Paired: {createdLabel}</HoverMarquee></h6>
       </div>
       <div
         className="device-card__delete"
-        onClick={onClickHandler}
+        onClick={onDeleteHandler}
         role="button"
         tabIndex={0}
       >
-        <CloseButton className="device-card__delete-button" />
+        <Button size="small" color="neon-coral" icon="delete">Remove</Button>
       </div>
     </div>
   );
@@ -50,15 +47,14 @@ const DeviceCard = ({
 
 DeviceCard.propTypes = {
   name: PropTypes.string,
-  id: PropTypes.string,
   createdAt: PropTypes.object, // JS Date object
-  onClickHandler: PropTypes.func,
+  onDeleteHandler: PropTypes.func,
   disabled: PropTypes.bool,
 };
 
 DeviceCard.defaultProps = {
   name: undefined,
-  onClickHandler: undefined,
+  onDeleteHandler: undefined,
   id: null,
   createdAt: null,
   disabled: false,

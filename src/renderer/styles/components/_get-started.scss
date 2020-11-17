@@ -4,6 +4,11 @@
   @include element(header) {
     display: flex;
     align-items: center;
+
+    img {
+      width: unit(10);
+      margin-right: unit(2);
+    }
   }
 
   @include element(device-status) {
@@ -18,11 +23,6 @@
   background: var(--color-platinum);
   padding: 2.2rem;
   border-radius: var(--border-radius);
-
-  img {
-    width: 10rem;
-    margin-right: 2rem;
-  }
 
   h1 {
     margin: 0;

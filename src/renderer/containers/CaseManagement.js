@@ -148,7 +148,7 @@ class CaseManagement extends Component {
           }
         </React.Fragment>
       );
-      classes = 'case-management';
+      classes = 'content case-management';
     }
 
     return (
