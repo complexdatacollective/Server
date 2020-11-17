@@ -7,14 +7,23 @@ $block: instructions;
   display: flex;
   flex-direction: column;
   line-height: var(--icon-height);
-  margin-top: unit(1);
 
   code {
     white-space: nowrap;
   }
 
   @include element(section) {
-    border-radius: var(--border-radius);
+    @include panel;
+    --input-background: transparent;
+    --input-border: var(--color-white);
+    padding: unit(2) unit(4);
+    background: var(--color-platinum);
+    margin: 0;
+    margin-top: unit(4);
+
+    &:last-of-type {
+      margin-bottom: unit(4);
+    }
   }
 
   @include element(steps) {
