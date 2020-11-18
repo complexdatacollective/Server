@@ -7,7 +7,7 @@ import Instructions from '../Instructions';
 describe('<Instructions />', () => {
   it('renders protocol import instructions by default', () => {
     const subject = shallow(<Instructions />);
-    expect(subject.text()).toMatch('To import a protocol:');
+    expect(subject.text()).toMatch('To create a workspace:');
   });
 
   it('renders device pairing instructions by default', () => {

@@ -12,9 +12,9 @@ const makeProps = status => ({
   apiClient: {
     checkPairingCodeExpired: jest.fn().mockResolvedValue({}),
   },
-  showConfirmationMessage: jest.fn(),
-  showErrorMessage: jest.fn(),
   dismissPairingRequest: jest.fn(),
+  addToast: jest.fn(),
+  removeToast: jest.fn(),
   pairingRequest: {
     pairingCode: status ? mockPin : null,
     status,
