@@ -16,12 +16,14 @@ $font-path: '~@codaco/ui/lib/assets/fonts'; // relative to here
 
 .workspace-nav {
   background: var(--color-platinum--dark);
+  height: 100%;
 
   ul,
   li {
     list-style: none;
     margin: 0;
     padding: 0;
+    height: 100%;
   }
 
   a {
@@ -39,7 +41,7 @@ $font-path: '~@codaco/ui/lib/assets/fonts'; // relative to here
     &:not(.active) {
       li {
         &:hover {
-          background: var(--color-slate-blue--dark); // sass-lint:disable-line no-color-literals
+          background: var(--color-slate-blue--dark);
           color: var(--color-white);
           cursor: pointer;
         }

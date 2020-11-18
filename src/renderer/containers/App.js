@@ -10,7 +10,6 @@ import DialogManager from '../components/DialogManager';
 import AppRoutes from './AppRoutes';
 import ProtocolNav from './ProtocolNav';
 import AdminApiClient from '../utils/adminApiClient';
-import { ServerPanel } from '../components';
 import SessionFileDropTarget from '../containers/SessionFileDropTarget';
 import { actionCreators } from '../ducks/modules/pairingRequest';
 import { actionCreators as connectionInfoActionCreators } from '../ducks/modules/connectionInfo';
@@ -132,7 +131,6 @@ const App = ({
   return (
     <div className={appClass}>
       <div className="app__titlebar" />
-      {apiReady && <ServerPanel />}
       <div className="app__content">
         {
           apiReady && (

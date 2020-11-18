@@ -10,7 +10,7 @@ const PairingInstructions = ({
   const networkStatus = useNetworkStatus();
 
   return (
-    <div className="instructions instructions--inline">
+    <div className="pairing-instructions">
       <h2>To pair a device:</h2>
       <ol className="instructions__steps">
         <li className="instructions__step">

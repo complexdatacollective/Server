@@ -16,7 +16,7 @@ export { default as PairPin } from './pairing/PairPin';
 export { default as PieChart } from './charts/PieChart';
 export { default as Scrollable } from './Scrollable';
 export { default as ScrollingPanelItem } from './ScrollingPanelItem';
-export { default as ServerPanel } from './workspace/ServerPanel';
+export { default as TopPanel } from './workspace/TopPanel';
 export { default as SessionHistoryPanel } from './workspace/SessionHistoryPanel';
 export { default as SessionPanel } from './workspace/SessionPanel';
 export { default as SortablePanel } from './workspace/SortablePanel';

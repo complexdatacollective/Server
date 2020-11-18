@@ -1,7 +1,7 @@
 .welcome-panel {
   @include panel;
   background-color: var(--primary);
-  color: var(--text-light);
+  color: var(--color-white);
   max-width: 90rem;
 
   code {

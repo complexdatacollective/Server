@@ -3,12 +3,12 @@ import PropTypes from 'prop-types';
 import PairingInstructions from './PairingInstructions';
 
 const Instructions = ({
-  compact,
+  inline,
   showPairingInstructions,
   showImportInstructions,
   showImportSessionInstructions,
 }) => (
-  <div className={`instructions instructions--inline ${compact ? 'instructions--compact' : ''}`}>
+  <div className={`instructions ${inline ? 'instructions--inline' : ''}`}>
     {
       showImportInstructions &&
       <section className="instructions__section">
@@ -51,14 +51,14 @@ const Instructions = ({
 );
 
 Instructions.defaultProps = {
-  compact: false,
+  inline: false,
   showPairingInstructions: true,
   showImportInstructions: true,
   showImportSessionInstructions: true,
 };
 
 Instructions.propTypes = {
-  compact: PropTypes.bool,
+  inline: PropTypes.bool,
   showPairingInstructions: PropTypes.bool,
   showImportInstructions: PropTypes.bool,
   showImportSessionInstructions: PropTypes.bool,

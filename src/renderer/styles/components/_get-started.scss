@@ -4,16 +4,33 @@
     --input-background: transparent;
     --input-border: var(--color-white);
     padding: unit(2) unit(4);
-    background: var(--color-platinum);
-    margin: 0;
+    background: var(--color-cyber-grape);
+    color: white;
+    max-width: 80rem;
+    margin: 0 auto;
+    background-image: url('../images/wave.svg');
+    background-position-y: 4rem;
+    background-repeat: no-repeat;
+    background-size: cover;
   }
 
   @include element(content) {
     display: flex;
+    margin-bottom: unit(2);
+
+    .content-text {
+      margin-left: unit(6);
+      margin-right: unit(8);
+    }
 
     .content-image {
-      flex: 0 0 40%;
-      margin-left: unit(2);
+      flex: 0 0 35%;
+      margin-left: unit(4);
+      margin-right: unit(8);
+
+      img {
+        width: 100%;
+      }
     }
   }
 
@@ -34,7 +51,7 @@
     }
 
     .header-mark {
-      flex: 0 0 auto;
+      flex: 0 0 40rem;
       margin-left: 1.2rem;
 
       .project-tag {
@@ -49,6 +66,7 @@
           font-weight: 900;
           letter-spacing: .15em;
           margin: 0;
+          line-height: 1.25;
         }
       }
 
@@ -56,7 +74,6 @@
         font-size: 3.052rem;
         letter-spacing: .15em;
         margin: 0;
-        margin-bottom: 0.6rem;
       }
 
       h4 {
@@ -73,13 +90,8 @@
     top: spacing(medium);
   }
 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   padding: unit(4);
   border-radius: var(--border-radius);
-  max-width: 80rem;
-  margin: 0 auto;
 
   h1 {
     margin: 0;

@@ -5,7 +5,7 @@ import nc from '../images/NC-Mark.svg';
 import getStarted from '../images/charts.svg';
 
 const GetStarted = () => (
-  <div className="get-started">
+  <div className="content get-started">
     <section className="get-started__section">
       <div className="get-started__header">
         <div className="header-brand">
@@ -21,8 +21,8 @@ const GetStarted = () => (
         </div>
       </div>
       <div className="get-started__content">
-        <div>
-          <h4>Getting Started</h4>
+        <div className="content-text">
+          <h2>Getting Started</h2>
           <p>
             Thank you for installing Server, and supporting the Network Canvas project!
           </p>

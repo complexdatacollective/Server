@@ -24,9 +24,4 @@ describe('<Instructions />', () => {
     const subject = shallow(<Instructions showPairingInstructions={false} />);
     expect(subject.text()).not.toMatch('To pair a device');
   });
-
-  it('has a compact variant', () => {
-    const subject = shallow(<Instructions compact />);
-    expect(subject.find('.instructions').prop('className')).toMatch('--compact');
-  });
 });

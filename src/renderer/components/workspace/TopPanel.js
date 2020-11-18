@@ -3,26 +3,28 @@ import PropTypes from 'prop-types';
 import DeviceStatus from '../../containers/DeviceStatus';
 import NetworkStatus from '../../containers/NetworkStatus';
 
-const ServerPanel = ({ className }) => (
-  <div className={`server-panel ${className}`}>
-    <div className="server-panel__wrapper">
+const TopPanel = ({ className, children }) => (
+  <div className={`top-panel ${className}`}>
+    <div className="top-panel__wrapper">
       <NetworkStatus />
       <div className="divider" />
       <DeviceStatus />
     </div>
+    {children}
   </div>
 );
 
-ServerPanel.defaultProps = {
+TopPanel.defaultProps = {
   className: '',
 };
 
-ServerPanel.propTypes = {
+TopPanel.propTypes = {
   className: PropTypes.string,
+  children: PropTypes.node.isRequired,
 };
 
 export {
-  ServerPanel as UnwrappedServerPanel,
+  TopPanel as UnwrappedTopPanel,
 };
 
-export default ServerPanel;
+export default TopPanel;

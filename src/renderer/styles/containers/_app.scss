@@ -20,7 +20,7 @@
 
   .unsafe-pairing-warning {
     background: var(--error);
-    color: var(--text-light);
+    color: var(--color-white);
     padding: unit(2);
     width: 100%;
   }
@@ -44,7 +44,7 @@
   @include element(content) {
     display: flex;
     flex-direction: row;
-    height: calc(100% - #{unit(8)});
+    height: 100%;
     width: 100%;
   }
 
@@ -121,7 +121,7 @@
 
 code {
   background: var(--color-cerulean-blue);
-  color: var(--text-light);
+  color: var(--color-white);
   padding: 0.1rem 0.5rem;
   border-radius: 1rem;
   word-break: keep-all;

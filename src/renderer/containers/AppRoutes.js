@@ -3,7 +3,7 @@ import {
   Route,
   Switch,
 } from 'react-router-dom';
-import { WorkspaceNav } from '../components';
+import { TopPanel, WorkspaceNav } from '../components';
 
 import { CaseManagement, ExportScreen, OverviewScreen, PairDevice, SettingsScreen, WorkspaceScreen } from './';
 
@@ -22,8 +22,9 @@ class AppRoutes extends Component {
     return (
       <main className="app__main" ref={this.scrollContainerRef}>
         <React.Fragment>
-          <Route path="/workspaces/:id" component={WorkspaceNav} />
-          {/* <div className="workspace-wrapper"> */}
+          <TopPanel>
+            <Route path="/workspaces/:id" component={WorkspaceNav} />
+          </TopPanel>
           <Switch>
             <Route exact path="/" component={OverviewScreen} />
             <Route exact path="/workspaces/:id" render={workspaceRenderer} />
@@ -31,7 +32,6 @@ class AppRoutes extends Component {
             <Route exact path="/workspaces/:id/settings" component={SettingsScreen} />
             <Route exact path="/workspaces/:id/export" component={ExportScreen} />
           </Switch>
-          {/* </div> */}
         </React.Fragment>
         <PairDevice />
       </main>
