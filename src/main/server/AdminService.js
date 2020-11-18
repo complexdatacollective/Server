@@ -332,9 +332,8 @@ class AdminService {
         }) => {
           const reportUpdate = throttle((data) => {
             // Don't send updates to the log, there are too many of them
-            logger.debug('update', data);
             sender.webContents.send('EXPORT/UPDATE', { ...data, id });
-          }, 50);
+          }, 1000);
 
           fileExportManager.on('begin', (data) => {
             logger.log('begin', { data });

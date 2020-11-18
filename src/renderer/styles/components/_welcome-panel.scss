@@ -13,7 +13,8 @@
   }
 
   &__content {
-    padding: unit(1) unit(4);
+    padding: unit(2) unit(8);
+    padding-bottom: 0;
     display: flex;
     flex-direction: row;
 
@@ -37,7 +38,8 @@
   }
 
   &__buttons {
-    padding: unit(1) unit(4);
+    padding: unit(2) unit(8);
+    padding-top: 0;
     display: flex;
     justify-content: flex-end;
   }

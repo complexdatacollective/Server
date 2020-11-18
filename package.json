@@ -115,6 +115,7 @@
     "@codaco/ui": "^3.9.1",
     "animejs": "^2.2.0",
     "archiver": "^4.0.1",
+    "async": "^3.2.0",
     "big-integer": "^1.6.43",
     "classnames": "^2.2.6",
     "compare-versions": "^3.6.0",

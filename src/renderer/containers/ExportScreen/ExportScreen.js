@@ -10,7 +10,7 @@ import Checkbox from '@codaco/ui/lib/components/Fields/Checkbox';
 import { Toggle } from '@codaco/ui/lib/components/Fields';
 import Number from '@codaco/ui/lib/components/Fields/Number';
 import Types from '../../types';
-import ExportModal from '../../components/ExportModal';
+import useExportStatus from '../../hooks/useExportStatus';
 import { selectors } from '../../ducks/modules/protocols';
 import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
 import useAdminClient from '../../hooks/useAdminClient';
@@ -39,6 +39,7 @@ const ExportScreen = ({
   const dispatch = useDispatch();
 
   const [exportOptions, exportOptionsFormState, handleUpdateFormState] = useExportOptions();
+  useExportStatus(() => setState({ exportInProgress: false }));
 
   const { exportToFile } = useAdminClient();
 
@@ -61,10 +62,6 @@ const ExportScreen = ({
     promptAndExport();
   };
 
-  const handleCompleteExport = () => {
-    setState({ exportInProgress: false });
-  };
-
   if (protocolsHaveLoaded && !protocol) { // This protocol doesn't exist
     return <Redirect to="/" />;
   }
@@ -78,12 +75,6 @@ const ExportScreen = ({
 
   return (
     <React.Fragment>
-      <ExportModal
-        className="modal--export"
-        show={exportInProgress}
-        onCancel={handleCompleteExport}
-        onComplete={handleCompleteExport}
-      />
       <form className="content export" onSubmit={handleSubmit}>
         <h1>Export Session Data</h1>
         <div className="export__options">

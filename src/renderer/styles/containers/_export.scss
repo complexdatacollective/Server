@@ -26,7 +26,7 @@
   }
 
   @include element(row) {
-    padding: 1rem 0 0;
+    margin: 1rem 0;
   }
 
   @include element(subpanel) {
@@ -40,6 +40,7 @@
   }
 
   .form-field {
+    padding: 0;
     &:last-child { margin-bottom: 0; }
   }
 
