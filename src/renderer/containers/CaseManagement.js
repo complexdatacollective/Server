@@ -56,7 +56,8 @@ class CaseManagement extends Component {
 
   isSessionSelected = id => includes(this.state.sessionsToDelete, id);
 
-  allSessionsSelected = () => this.state.sessionsToDelete.length === this.props.sessions.length;
+  allSessionsSelected = () => this.state.sessionsToDelete.length === this.props.sessions.filter(
+    session => !!session).length;
 
   updateSessionsToDelete = (id) => {
     if (includes(this.state.sessionsToDelete, id)) {
@@ -74,7 +75,8 @@ class CaseManagement extends Component {
   toggleAllSessions = () => {
     let selectedSessions = [];
     if (this.state.sessionsToDelete.length !== this.props.sessions.length) {
-      selectedSessions = this.props.sessions.map(session => session.id);
+      selectedSessions = this.props.sessions.filter(
+        session => !!session).map(session => session.id);
     }
     this.setState({
       sessionsToDelete: [...selectedSessions],
