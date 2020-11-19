@@ -4,10 +4,6 @@ const { has, times } = require('lodash');
 const crypto = require('crypto');
 const objectHash = require('object-hash');
 
-// const nodePrimaryKeyProperty = '_uid';
-// const nodeAttributesProperty = 'attributes';
-// const caseProperty = 'caseID';
-
 const {
   entityPrimaryKeyProperty,
   entityAttributesProperty,

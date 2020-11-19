@@ -21,6 +21,7 @@
 const fs = require('fs');
 const uuidv4 = require('uuid/v4');
 const SessionDB = require('../src/main/data-managers/SessionDB');
+const { caseProperty, remoteProtocolProperty, entityPrimaryKeyProperty, entityAttributesProperty } = require('../src/main/utils/network-exporters/src/utils/reservedAttributes');
 
 const resetDb = !process.env.SKIP_RESET;
 
@@ -30,9 +31,6 @@ const printResult = (taskDesc, result, hrtimeDiff) => {
   const ns = hrtimeDiff[0] * nsPerSec + hrtimeDiff[1];
   console.log(`[${(ns / nsPerSec).toLocaleString()}s]`, taskDesc, result);
 }
-
-const nodePrimaryKeyProperty = '_uid';
-const nodeAttributesProperty = 'attributes';
 
 const dbFile = 'perf-test-sessions.db';
 let db;
@@ -74,10 +72,10 @@ function buildMockData({ sessionCount = SessionCount, edgesPerSession = EdgesPer
    * Note that variable IDs are already transposed to names.
    */
   const mockNode = {
-    [nodePrimaryKeyProperty]: 'person_3',
+    [entityPrimaryKeyProperty]: 'person_3',
     type: 'person',
     itemType: 'NEW_NODE',
-    [nodeAttributesProperty]: {
+    [entityAttributesProperty]: {
       name: 'Carlito',
       nickname: 'Carl',
       age: '25',
@@ -101,8 +99,8 @@ function buildMockData({ sessionCount = SessionCount, edgesPerSession = EdgesPer
     if (edges.length) { edges[edges.length - 1].from = 13; }
 
     if (useRealIds) {
-      const pickNodeUid = () => nodes[~~(Math.random() * nodes.length)][nodePrimaryKeyProperty];
-      nodes = nodes.map(node => ({ ...node, [nodePrimaryKeyProperty]: uuidv4(), age: ~~(Math.random() * 80) + 20 }))
+      const pickNodeUid = () => nodes[~~(Math.random() * nodes.length)][entityPrimaryKeyProperty];
+      nodes = nodes.map(node => ({ ...node, [entityPrimaryKeyProperty]: uuidv4(), age: ~~(Math.random() * 80) + 20 }))
       edges = edges.map(edge => ({ ...edge, from: pickNodeUid(), to: pickNodeUid() }))
 
       if (includeEgo) {
@@ -113,7 +111,7 @@ function buildMockData({ sessionCount = SessionCount, edgesPerSession = EdgesPer
     return {
       nodes,
       edges,
-      sessionVariables: { _caseID: `a_${index++}`, _remoteProtocolID: "629aa7b8a90c8ca577ae8c6b3e245ba1e0f1fad99035d6cddd19265186e375cf" },
+      sessionVariables: { [caseProperty]: `a_${index++}`, [remoteProtocolProperty]: "629aa7b8a90c8ca577ae8c6b3e245ba1e0f1fad99035d6cddd19265186e375cf" },
     };
   }
 

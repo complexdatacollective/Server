@@ -1,5 +1,19 @@
 const dom = require('xmldom');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
+const {
+  caseProperty,
+  entityPrimaryKeyProperty,
+  remoteProtocolProperty,
+  protocolName,
+  ncTypeProperty,
+  ncUUIDProperty,
+  ncSourceUUID,
+  ncTargetUUID,
+  codebookHashProperty,
+  sessionStartTimeProperty,
+  sessionExportTimeProperty,
+  sessionFinishTimeProperty,
+} = require('./network-exporters/src/utils/reservedAttributes');
 
 // TODO: Update this to validate against XML Schema: https://github.com/complexdatacollective/graphml-schemas
 const validateGraphML = (bufferContents) => {
@@ -20,7 +34,7 @@ const validateGraphML = (bufferContents) => {
   }
   let graphmlProtocolId;
   Array.from(graphs).forEach((graph) => {
-    const protocolId = graph.getAttribute('nc:remoteProtocolID');
+    const protocolId = graph.getAttribute(`nc:${remoteProtocolProperty}`);
     if (!graphmlProtocolId) {
       graphmlProtocolId = protocolId;
     } else if (graphmlProtocolId !== protocolId) {
@@ -38,7 +52,7 @@ const lookUpEntityType = (entityElement, codebookEntity) => {
   Array.from(entityElement).forEach((entityData) => {
     if (entityData.nodeType === 1) {
       const keyValue = entityData.getAttributeNode('key').value;
-      if (keyValue === 'networkCanvasType') {
+      if (keyValue === ncTypeProperty) {
         typeUUID = Object.keys(codebookEntity).find(
           key => codebookEntity[key].name === entityData.textContent);
         typeUUID = typeUUID || entityData.textContent;
@@ -50,17 +64,17 @@ const lookUpEntityType = (entityElement, codebookEntity) => {
 
 const processVariable = (element, entity, xmlDoc, codebookEntity, entityType = '') => {
   let keyValue = element.getAttributeNode('key').value;
-  if (keyValue === 'networkCanvasUUID') {
+  if (keyValue === ncUUIDProperty) {
     // eslint-disable-next-line no-underscore-dangle
-    return { ...entity, _uid: element.textContent };
+    return { ...entity, [entityPrimaryKeyProperty]: element.textContent };
   } else if (keyValue === 'label') {
     // can ignore since this was just for gephi
     return entity;
-  } else if (keyValue === 'networkCanvasType') {
+  } else if (keyValue === ncTypeProperty) {
     return { ...entity, type: entityType };
-  } else if (keyValue === 'networkCanvasSourceUUID') {
+  } else if (keyValue === ncSourceUUID) {
     return { ...entity, from: element.textContent };
-  } else if (keyValue === 'networkCanvasTargetUUID') {
+  } else if (keyValue === ncTargetUUID) {
     return { ...entity, to: element.textContent };
   } else if (!keyValue.includes('_')) {
     const graphmlKey = xmlDoc.getElementById(keyValue);
@@ -119,7 +133,7 @@ const convertGraphML = (xmlDoc, protocol) => {
 
   const sessions = [];
   const graphs = graphml[0].getElementsByTagName('graph');
-  const protocolId = graphs && graphs[0].getAttribute('nc:remoteProtocolID');
+  const protocolId = graphs && graphs[0].getAttribute(`nc:${remoteProtocolProperty}`);
   Array.from(graphs).forEach((graph) => {
     // process session variables
     const session = {};
@@ -128,13 +142,13 @@ const convertGraphML = (xmlDoc, protocol) => {
     session.data = {
       sessionVariables: {
         sessionId,
-        caseId: graph.getAttribute('nc:caseId'),
-        remoteProtocolID: protocolId,
-        protocolName: graph.getAttribute('nc:protocolName'),
-        sessionExported: graph.getAttribute('nc:sessionExportTime'),
-        sessionStart: graph.getAttribute('nc:sessionStartTime'),
-        sessionFinish: graph.getAttribute('nc:sessionFinishTime'),
-        codebookHash: graph.getAttribute('nc:codebookHash'),
+        [caseProperty]: graph.getAttribute(`nc:${caseProperty}`),
+        [remoteProtocolProperty]: protocolId,
+        [protocolName]: graph.getAttribute(`nc:${protocolName}`),
+        [sessionExportTimeProperty]: graph.getAttribute('nc:sessionExportTime'),
+        [sessionStartTimeProperty]: graph.getAttribute('nc:sessionStartTime'),
+        [sessionFinishTimeProperty]: graph.getAttribute('nc:sessionFinishTime'),
+        [codebookHashProperty]: graph.getAttribute(`nc:${codebookHashProperty}`),
       },
     };
 
