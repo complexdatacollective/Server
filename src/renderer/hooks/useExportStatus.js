@@ -29,6 +29,12 @@ const useExportStatus = ({
     </React.Fragment>
   );
 
+  // Cancelled from UI
+  const handleCancelExport = useCallback(() => {
+    ipcRenderer.send('EXPORT/ABORT', state.id);
+    setState({ ...initialState });
+  }, [setState, state.id]);
+
   const handleStartExport = useCallback((_, data) => {
     setState(s => ({ ...s, ...data }));
     dispatch(toastActions.addToast({
@@ -36,12 +42,13 @@ const useExportStatus = ({
       type: 'info',
       title: 'Exporting...',
       autoDismiss: false,
+      dismissHandler: handleCancelExport,
+      CustomIcon: (<Spinner small />),
       content: renderStatus(data),
     }));
   }, [setState]);
 
   const handleExportStatus = useCallback((_, data) => {
-    console.log('export status update', data);
     setState(s => ({ ...s, ...data }));
     dispatch(toastActions.updateToast('export-status-toast', {
       content: renderStatus(data),
@@ -71,12 +78,6 @@ const useExportStatus = ({
   const handleExportCancelled = useCallback(() => {
     setState({ ...initialState });
   }, [setState]);
-
-  // Cancelled from UI
-  const handleCancelExport = useCallback(() => {
-    ipcRenderer.send('EXPORT/ABORT', state.id);
-    setState({ ...initialState });
-  }, [setState, state.id]);
 
   useEffect(() => {
     const unmount = () => {

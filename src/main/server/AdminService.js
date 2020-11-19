@@ -327,8 +327,8 @@ class AdminService {
           this.exportManager.exportSessions(protocol, req.body),
         )
         .then(({
-          exportSessions,
-          fileExportManager,
+          exportSessions, // Export promise decorated with abord method
+          fileExportManager, // Instance of FileExportManager for event binding
         }) => {
           const reportUpdate = throttle((data) => {
             // Don't send updates to the log, there are too many of them
@@ -357,15 +357,18 @@ class AdminService {
             sender.webContents.send('EXPORT/CANCELLED', { ...data, id });
           });
 
-          const exportRequest = exportSessions();
+          logger.log('About to execute', exportSessions);
 
-          abortRequest = exportRequest.abort;
-
-          ipcMain.on('EXPORT/ABORT', (_, abortId) => {
-            logger.warn('abort export');
-            if (abortId !== id) { return; }
-            abortRequest();
-          });
+          const exportRequest = exportSessions()
+            .then(({ run, abort }) => {
+              ipcMain.on('EXPORT/ABORT', (_, abortId) => {
+                // throw new Error(`abort "${abortId}", "${id}"`);
+                logger.warn('abort export');
+                // if (abortId !== id) { return; }
+                abort();
+              });
+              return run();
+            });
 
           return exportRequest;
         })

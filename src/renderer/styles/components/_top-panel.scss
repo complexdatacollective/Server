@@ -2,7 +2,7 @@
   position: sticky;
   background-color: var(--color-platinum--dark);
   width: 100%;
-  height: unit(9);
+  height: unit(8);
   color: var(--top-panel-text);
   display: flex;
   align-items: center;
@@ -13,7 +13,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: unit(2);
+    padding-right: unit(2);
 
     > * {
       flex: 1;
