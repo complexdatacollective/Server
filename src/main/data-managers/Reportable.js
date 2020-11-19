@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */ // disabled for reducers
-const attributesProperty = require('../utils/network-query/nodeAttributesProperty');
 const { leastRecentlyCreated, resolveOrReject } = require('../utils/db');
+const { entityAttributesProperty } = require('../utils/network-exporters/src/utils/reservedAttributes');
 
 // This is a dummy field used for projections when counting network members.
 // When we don't need to know anything about members other than size, returning
@@ -217,7 +217,7 @@ const Reportable = Super => class extends Super {
               acc[variableName] = acc[variableName] || {};
 
               const optionValue =
-                entity[attributesProperty] && entity[attributesProperty][variableName];
+                entity[entityAttributesProperty] && entity[entityAttributesProperty][variableName];
 
               if (optionValue !== undefined) {
                 // Categorical values are expressed as arrays of multiple options
@@ -235,7 +235,7 @@ const Reportable = Super => class extends Super {
               acc[entity.type][variableName] = acc[entity.type][variableName] || {};
 
               const optionValue =
-                entity[attributesProperty] && entity[attributesProperty][variableName];
+                entity[entityAttributesProperty] && entity[entityAttributesProperty][variableName];
 
               if (optionValue !== undefined) {
                 // Categorical values are expressed as arrays of multiple options
