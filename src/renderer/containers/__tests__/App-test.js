@@ -15,6 +15,10 @@ jest.mock('../DeviceStatus');
 jest.mock('../../utils/environment');
 jest.mock('../../utils/adminApiClient', () => ({ setPort: jest.fn() }));
 jest.mock('../../hooks/useUpdater');
+jest.mock('react-redux', () => ({
+  ...(jest.requireActual('react-redux')),
+  useDispatch: jest.fn(),
+}));
 
 const mockDispatched = {
   ackPairingRequest: jest.fn(),
@@ -49,10 +53,8 @@ describe('<App />', () => {
     });
   });
 
-  const mockPairRequest = {};
   const mockStore = createStore(() => (
     {
-      pairingRequest: mockPairRequest,
       toasts: [],
       dialogs: { dialogs: [] },
     }
@@ -63,19 +65,9 @@ describe('<App />', () => {
     expect(wrapper.find('AppRoutes')).toHaveLength(0);
   });
 
-  it('renders device pairing prompt when a pending request exists', () => {
-    const wrapper = mount(<Provider store={mockStore}><App {...mockDispatched} pairingRequest={{ status: 'pending' }} /></Provider>);
-    expect(wrapper.find('PairPrompt')).toHaveLength(1);
-  });
-
-  it('does not render device pairing prompt after request acked', () => {
-    const wrapper = mount(<Provider store={mockStore}><App {...mockDispatched} pairingRequest={{ status: 'acknowledged' }} /></Provider>);
-    expect(wrapper.find('PairPrompt')).toHaveLength(0);
-  });
-
   describe('API IPC', () => {
     it('requests connection info when created', () => {
-      shallow(<App {...mockDispatched} />);
+      mount(<Provider store={mockStore}><App {...mockDispatched} /></Provider>);
       expect(ipcRenderer.send).toHaveBeenCalledWith(ipcChannels.REQUEST_API_INFO);
     });
 
@@ -159,17 +151,8 @@ describe('<App />', () => {
   });
 
   describe('when connected', () => {
-    let app;
-    beforeEach(() => {
-      app = shallow(<ConnectedApp store={mockStore} {...mockDispatched} />).dive();
-    });
-
-    it('maps messages from state', () => {
-      expect(app.prop('pairingRequest')).toBe(mockPairRequest);
-    });
-
     it('provides pairing actions', () => {
-      const wrapper = shallow(<ConnectedApp store={mockStore} />).dive();
+      const wrapper = shallow(<ConnectedApp store={mockStore} />);
       expect(wrapper.prop('ackPairingRequest')).toBeInstanceOf(Function);
       expect(wrapper.prop('completedPairingRequest')).toBeInstanceOf(Function);
       expect(wrapper.prop('dismissPairingRequest')).toBeInstanceOf(Function);

@@ -76,7 +76,7 @@ describe('the protocols module', () => {
         const err = new Error('mock error');
         mockApiClient.get.mockRejectedValue(err);
         await actionCreators.loadProtocols()(dispatcher);
-        expect(dispatcher).toHaveBeenCalledWith(expect.objectContaining({ text: err.message }));
+        expect(dispatcher).toHaveBeenCalledWith(expect.objectContaining(err));
       });
     });
 
@@ -91,7 +91,7 @@ describe('the protocols module', () => {
         const err = new Error('mock error');
         mockApiClient.delete.mockRejectedValue(err);
         await actionCreators.deleteProtocol('1')(dispatcher);
-        expect(dispatcher).toHaveBeenCalledWith(expect.objectContaining({ text: err.message }));
+        expect(dispatcher).toHaveBeenCalledWith(expect.objectContaining(err));
       });
     });
   });

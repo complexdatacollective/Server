@@ -20,6 +20,13 @@ jest.mock('../../utils/adminApiClient', () => {
   return MockAdminApiClient;
 });
 
+jest.mock('../../hooks/useNetworkStatus', () =>
+  () => ({
+    deviceApiPort: '123.1.1',
+    publicAddresses: [],
+  }),
+);
+
 const mockDevice = { id: '1', name: '1', createdAt: new Date() };
 
 const state = {
@@ -65,7 +72,7 @@ describe('<DeviceStatus />', () => {
 
     // Paired devices overlay opens when the button is clicked
     await act(async () => {
-      await deviceStatus.find('button[data-test="view-device-panel"]').simulate('click');
+      await deviceStatus.find('div[data-test="view-device-panel"]').simulate('click');
     });
 
     deviceStatus.update();

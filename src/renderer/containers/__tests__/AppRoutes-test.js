@@ -1,14 +1,13 @@
 /* eslint-env jest */
 import React from 'react';
 import { shallow } from 'enzyme';
-import { Redirect } from 'react-router';
 
 import AppRoutes from '../AppRoutes';
 
-jest.mock('../PairDevice');
-jest.mock('../OverviewScreen');
-jest.mock('../SettingsScreen');
-jest.mock('../ExportScreen');
+jest.mock('../PairDevice', () => () => <div>Pair</div>);
+jest.mock('../OverviewScreen', () => () => <div>Overview</div>);
+jest.mock('../SettingsScreen', () => () => <div>Settings</div>);
+jest.mock('../ExportScreen', () => () => <div>Export</div>);
 jest.mock('../workspace/WorkspaceScreen', () => () => <div>Workspace</div>);
 
 describe('<AppRoutes />', () => {
@@ -22,7 +21,7 @@ describe('<AppRoutes />', () => {
   });
 
   it('should contain a dashboard overview', () => {
-    expect(routesMatching(wrapper.find('Route'), '/')).toHaveLength(1);
+    expect(routesMatching(wrapper.find('Route'), '^/$')).toHaveLength(1);
   });
 
   it('should contain settings', () => {
@@ -33,9 +32,7 @@ describe('<AppRoutes />', () => {
     expect(routesMatching(wrapper.find('Route'), /export/)).toHaveLength(1);
   });
 
-  it('should redirect to overview by default', () => {
-    const defaultRedirect = wrapper.find(Redirect);
-    expect(defaultRedirect).toHaveLength(1);
-    expect(defaultRedirect.prop('to')).toMatch('/');
+  it('should contain case management', () => {
+    expect(routesMatching(wrapper.find('Route'), /casemanagement/)).toHaveLength(1);
   });
 });
