@@ -460,6 +460,34 @@ class DeviceAPI extends EventEmitter {
 
     /**
      * @swagger
+     * /health:
+     *   get:
+     *     summary: Server status for NC clients
+     *     description: Provides an endpoint for NC clients to check their connection to Server.
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       200:
+     *         description: Server available
+     *         schema:
+     *           type: object
+     *           properties:
+     *             status:
+     *               type: string
+     *               example: ok
+     *             data:
+     *               type: array
+     *               items:
+     *                 $ref: '#/definitions/Protocol'
+     *       500:
+     *         description: Server reachable, but internal error prevents use.
+     *         schema:
+     *           $ref: '#/definitions/Error'
+     */
+    server.get('/health', this.handlers.protocolList);
+
+    /**
+     * @swagger
      * /protocols:
      *   get:
      *     summary: Protocol list
@@ -608,6 +636,15 @@ class DeviceAPI extends EventEmitter {
     return {
       // Secondary handler for error cases in req/res chain
       onError: buildErrorResponse,
+
+      health: (req, res, next) => {
+        logger.debug('Client requested health.');
+        // Respond to client
+        res.json({
+          status: 'ok',
+          data: {},
+        });
+      },
 
       onPairingRequest: (req, res, next) => {
         let abortRequest;
