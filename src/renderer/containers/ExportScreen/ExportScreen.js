@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect, useDispatch } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import { compose } from 'recompose';
 import { AnimatePresence, AnimateSharedLayout, motion } from 'framer-motion';
-import { Button, Spinner } from '@codaco/ui';
+import { Button, Spinner, ProgressBar, Icon } from '@codaco/ui';
 import CheckboxGroup from '@codaco/ui/lib/components/Fields/CheckboxGroup';
 import Checkbox from '@codaco/ui/lib/components/Fields/Checkbox';
 import { Toggle } from '@codaco/ui/lib/components/Fields';
@@ -13,11 +13,11 @@ import Types from '../../types';
 import useExportStatus from '../../hooks/useExportStatus';
 import { selectors } from '../../ducks/modules/protocols';
 import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
-import useAdminClient from '../../hooks/useAdminClient';
+import { actionCreators as toastActions } from '../../ducks/modules/toasts';
 import useExportOptions, { exportFormats } from './useExportOptions';
 
 const CSVOptions = [
-  { label: 'Adjacency Matrix. Please not that this format can produce extremely large files. Only select this option if you are certain that you need it.', key: 'adjacencyMatrix' },
+  { label: 'Adjacency Matrix. Note: do not use when exporting 1000+ sessions.', key: 'adjacencyMatrix' },
   { label: 'Attribute List', key: 'attributeList' },
   { label: 'Edge List', key: 'edgeList' },
 ];
@@ -28,35 +28,117 @@ const expandVariants = {
   animate: { opacity: 1 },
 };
 
+const renderStatus = data => (
+  <React.Fragment>
+    <p>{data.statusText}</p>
+    <ProgressBar orientation="horizontal" percentProgress={data.progress} />
+  </React.Fragment>
+);
+
+const renderErrors = errors => (
+  <div className="export-modal">
+    <p>
+      Your export completed, but non-fatal errors were encountered during the process. This
+      may mean that not all sessions or all formats were able to be exported.
+      Review the details of these errors below, and ensure that you check the data you
+      received.
+    </p>
+    <h4>Errors:</h4>
+    <ul className="export-modal__error-list">
+      {errors.map((error, index) => (
+        <li key={index}>{error}</li>
+      ))}
+    </ul>
+  </div>
+);
+
+const EXPORT_UPDATE_TOAST = 'export-status-toast';
+const EXPORT_COMPLETE_TOAST = 'export-complete-toast';
+
 const ExportScreen = ({
   protocol,
   protocolsHaveLoaded,
 }) => {
-  const [state, setState] = useState({
-    exportInProgress: false,
-  });
-
   const dispatch = useDispatch();
 
   const [exportOptions, exportOptionsFormState, handleUpdateFormState] = useExportOptions();
-  useExportStatus(() => setState({ exportInProgress: false }));
 
-  const { exportToFile } = useAdminClient();
+  const { exportToFile, exportStatus, resetState, cancelExport } = useExportStatus();
 
-  const promptAndExport = () => {
-    setState({ exportInProgress: true });
+  const handleExportFinished = (fatalError = false) => {
+    dispatch(toastActions.removeToast(EXPORT_UPDATE_TOAST));
 
-    return exportToFile(protocol, exportOptions)
-      .catch((e) => {
-        dispatch(dialogActions.openDialog({
-          type: 'Error',
-          title: 'Error During Export',
-          error: e.message,
-        }));
+    if (fatalError) {
+      return;
+    }
 
-        setState({ exportInProgress: false });
-      });
+    // If there were errors, show a dialog
+    if (exportStatus.errors.length > 0) {
+      dispatch(dialogActions.openDialog({
+        type: 'Warning',
+        title: 'Export finished, but with errors',
+        message: renderErrors(exportStatus.errors),
+        canCancel: false,
+      }));
+
+      return;
+    }
+
+    dispatch(toastActions.addToast({
+      id: EXPORT_COMPLETE_TOAST,
+      type: 'success',
+      title: 'Export complete!',
+      content: (
+        <React.Fragment>
+          <p>Your export finished successfully.</p>
+        </React.Fragment>
+      ),
+    }));
   };
+
+  const handleExportUpdate = () => {
+    if (exportStatus.status === 'starting') {
+      dispatch(toastActions.addToast({
+        id: EXPORT_UPDATE_TOAST,
+        type: 'info',
+        title: 'Exporting...',
+        autoDismiss: false,
+        dismissHandler: cancelExport,
+        CustomIcon: (<Spinner small />),
+        content: renderStatus(exportStatus),
+      }));
+      return;
+    }
+
+    if (exportStatus.status === 'finished') {
+      handleExportFinished();
+      return;
+    }
+
+    const exportHasErrors = exportStatus.errors && exportStatus.errors.length > 0;
+
+    dispatch(toastActions.updateToast(EXPORT_UPDATE_TOAST, {
+      title: exportHasErrors ? 'Exporting (Non-fatal errors encountered)...' : 'Exporting...',
+      CustomIcon: exportHasErrors ? (<Icon name="warning" />) : (<Spinner small />),
+      content: renderStatus(exportStatus),
+    }));
+  };
+
+  useEffect(() => {
+    handleExportUpdate();
+  }, [exportStatus.status, exportStatus.progress, exportStatus.errors]);
+
+  const promptAndExport = () => exportToFile(protocol, exportOptions)
+    .catch((e) => { // These are fatal errors with the process
+      dispatch(dialogActions.openDialog({
+        type: 'Error',
+        title: 'Fatal Error Encountered During Export',
+        error: e.message,
+      }));
+
+      handleExportFinished(true);
+      resetState();
+    });
 
   const handleSubmit = () => {
     promptAndExport();
@@ -70,7 +152,7 @@ const ExportScreen = ({
     return <div className="export--loading"><Spinner /></div>;
   }
 
-  const { exportInProgress } = state;
+  const { exportInProgress } = exportStatus;
   const noFormatSelected = exportOptionsFormState.exportFormats.length === 0;
 
   return (

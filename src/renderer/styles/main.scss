@@ -104,3 +104,12 @@ $font-path: '~@codaco/ui/lib/assets/fonts'; // relative to here
     display: block;
   }
 }
+
+.export-modal {
+  &__error-list {
+    @include allow-text-selection;
+    max-height: 40vh;
+    overflow-y: auto;
+    margin: 0;
+  }
+}

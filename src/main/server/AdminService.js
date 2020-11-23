@@ -319,8 +319,7 @@ class AdminService {
       req.setTimeout(0);
       res.setTimeout(0);
 
-      const id = uuid();
-      const sender = BrowserWindow.getFocusedWindow();
+      const sender = BrowserWindow.getAllWindows()[0];
 
       this.protocolManager.getProtocol(req.params.protocolId)
         .then(protocol =>
@@ -332,39 +331,37 @@ class AdminService {
         }) => {
           const reportUpdate = throttle((data) => {
             // Don't send updates to the log, there are too many of them
-            sender.webContents.send('EXPORT/UPDATE', { ...data, id });
+            sender.webContents.send('EXPORT/UPDATE', { ...data, id: req.id() });
           }, 1000);
 
           fileExportManager.on('begin', (data) => {
-            logger.log('begin', { data });
-            sender.webContents.send('EXPORT/BEGIN', { ...data, id });
+            sender.webContents.send('EXPORT/BEGIN', { ...data, id: req.id() });
           });
 
           fileExportManager.on('update', reportUpdate);
 
           fileExportManager.on('error', (err) => {
-            logger.error('non-fatal error in export', err);
-            sender.webContents.send('EXPORT/ERROR', { error: err, id });
+            sender.webContents.send('EXPORT/ERROR', { error: err, id: req.id() });
           });
 
           fileExportManager.on('finished', (data) => {
             logger.log('finished', data);
-            sender.webContents.send('EXPORT/FINISHED', { ...data, id });
+            sender.webContents.send('EXPORT/FINISHED', { ...data, id: req.id() });
           });
 
           fileExportManager.on('cancelled', (data) => {
             logger.log('cancelled', data);
-            sender.webContents.send('EXPORT/CANCELLED', { ...data, id });
+            sender.webContents.send('EXPORT/CANCELLED', { ...data, id: req.id() });
           });
-
-          logger.log('About to execute', exportSessions);
 
           const exportRequest = exportSessions()
             .then(({ run, abort }) => {
               ipcMain.on('EXPORT/ABORT', (_, abortId) => {
-                // throw new Error(`abort "${abortId}", "${id}"`);
-                logger.warn('abort export');
-                // if (abortId !== id) { return; }
+                if (abortId !== req.id()) {
+                  logger.warn('Attempted to abort exportSessions() but abort ID was incorrect! Ignoring. Looking for', req.id(), 'was sent', abortId);
+                  return;
+                }
+                logger.log('Aborting exportSessions().');
                 abort();
               });
               return run();

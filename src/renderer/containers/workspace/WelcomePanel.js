@@ -32,7 +32,7 @@ const WelcomePanel = ({
           <p>
             To import data into Server, either use the menu item (<code>File -&gt; Import Interview
               Files</code>), drag and drop files into this workspace, or upload sessions directly
-            from a device running Interviewer. Click the &pos;Network Status&pos; icon at the top
+            from a device running Interviewer. Click the &apos;Network Status&apos; icon at the top
             of the screen for instructions for pairing.
           </p>
           <p>

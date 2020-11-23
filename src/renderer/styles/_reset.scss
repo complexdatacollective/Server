@@ -75,12 +75,14 @@ li {
 
 .toast {
   width: 40rem;
+  background: var(--color-cyber-grape);
+  color: var(--color-white);
 
   .toast-content {
     font-weight: normal;
 
     .progress-bar {
-      // background: var(--transparent-light);
+      background: var(--transparent-light);
     }
 
     .toast-button-group {
