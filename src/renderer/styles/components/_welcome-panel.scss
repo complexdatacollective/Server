@@ -3,6 +3,7 @@
   background-color: var(--primary);
   color: var(--color-white);
   max-width: 90rem;
+  position: relative;
 
   code {
     background: var(--color-sea-green--dark);
@@ -12,9 +13,14 @@
     color: var(--color-cyber-grape);
   }
 
+  &__close {
+    position: absolute;
+    top: unit(2);
+    right: unit(2);
+  }
+
   &__content {
     padding: unit(2) unit(8);
-    padding-bottom: 0;
     display: flex;
     flex-direction: row;
 
@@ -37,10 +43,5 @@
     }
   }
 
-  &__buttons {
-    padding: unit(2) unit(8);
-    padding-top: 0;
-    display: flex;
-    justify-content: flex-end;
-  }
+
 }

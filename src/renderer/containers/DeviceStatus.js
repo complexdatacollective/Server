@@ -72,11 +72,6 @@ const DeviceStatus = ({
         >
           View pairing instructions
         </Button>
-        <Button
-          onClick={() => setShowDevicesModal(false)}
-        >
-          Close
-        </Button>
       </div>
     </Overlay>,
     <Overlay

@@ -12,13 +12,13 @@
     td {
       padding: spacing('small') spacing('medium');
       vertical-align: top;
-      line-height: 2rem;
+      line-height: 1.2;
       background-color: var(--color-white);
 
     }
 
     th {
-      padding-right: 2rem;
+      padding-right: unit(2);
       vertical-align: top;
     }
 

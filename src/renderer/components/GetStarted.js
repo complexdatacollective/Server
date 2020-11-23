@@ -3,6 +3,7 @@ import Instructions from '../components/Instructions';
 import serverLogo from '../images/Srv-Flat.svg';
 import nc from '../images/NC-Mark.svg';
 import getStarted from '../images/charts.svg';
+import { ExternalLink } from './ExternalLink';
 
 const GetStarted = () => (
   <div className="content get-started">
@@ -27,14 +28,16 @@ const GetStarted = () => (
             Thank you for installing Server, and supporting the Network Canvas project!
           </p>
           <p>
-            Server is designed to support the backend data workflows required by networks
-            research. It provides a secure and convinient endpoint for data produced by Interviewer,
-            and lets you see realtime summary data about what you are collecting, while retaining
-            control over your data. It also provides a platform for exporting data for further
-            anaylsis using the tools you are used to working with.
+            Server is designed to handle the backend data workflows that networks
+            research often requires. It provides a secure and convinient home for data collected
+            with our Interviewer app, and lets you see realtime summary data about what you are
+            collecting, while retaining control over your data. It also provides a platform for
+            exporting data for further anaylsis using the tools you are used to working with.
           </p>
           <p>
-            Below you will find instructions for the first steps you should take with Server.
+            Below you will find instructions for the first steps you should take with Server,
+            including pairing a device, and creating a workspace. For further information, please
+            visit our <ExternalLink href="https://documentation.networkcanvas.com">documentation website</ExternalLink>.
           </p>
         </div>
         <div className="content-image">

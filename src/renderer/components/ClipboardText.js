@@ -67,12 +67,13 @@ const ClipboardText = ({
 ClipboardText.propTypes = {
   showTag: PropTypes.bool,
   className: PropTypes.string,
-  children: PropTypes.node.isRequired,
+  children: PropTypes.node,
   clipboardText: PropTypes.string,
 };
 
 ClipboardText.defaultProps = {
   clipboardText: '',
+  children: null,
   showTag: true,
   className: null,
 };

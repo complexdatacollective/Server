@@ -142,8 +142,8 @@ const App = ({
                     <div className="unsafe-pairing-warning">
                       <h3>Warning: Unsafe Pairing Enabled!</h3>
                       <p>
-                        You have started Server with the <code>unsafe-pairing-code</code>
-                        option set. This option severely undermines the security of Server,
+                        You have started Server with the <code>unsafe-pairing-code</code> option
+                        set. This option severely undermines the security of Server,
                         and should <strong>not be used when conducting a study under any
                           circumstances</strong>.
                       </p>

@@ -2,7 +2,6 @@
 
 .clipboard-text {
   --desaturate-background: rgba(180, 180, 180, 0.25); // sass-lint:disable-line no-color-literals
-
   @include reset-button;
   padding: 0;
   color: inherit;

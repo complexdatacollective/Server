@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from '@codaco/ui';
+import { CloseButton } from '@codaco/ui';
 import { ExternalLink } from '../../components';
 import useDismissibleState from '../../hooks/useDismissibleState';
 
@@ -41,9 +41,7 @@ const WelcomePanel = ({
         </div>
         <div className="welcome-content__image" />
       </div>
-      <div className="welcome-panel__buttons">
-        <Button color="platinum" onClick={() => dismissWelcome(protocolName)}>Dismiss message</Button>
-      </div>
+      <CloseButton className="overlay__close" onClick={() => dismissWelcome(protocolName)} />
     </div>
   );
 };

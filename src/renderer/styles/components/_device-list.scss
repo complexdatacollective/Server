@@ -4,9 +4,7 @@
   background: var(--transparent-background);
   border-radius: var(--border-radius);
   color: var(--text);
-  max-height: 70vh;
-  overflow-y: auto;
-  padding: 2rem;
+  padding: unit(2);
 
   &__header {
     display: flex;
@@ -42,11 +40,13 @@
   }
 
   &__list {
-    height: 50vh;
-    margin-top: 1rem;
+    flex: 1;
+    max-height: 40vh;
+    overflow-y: auto;
 
     .scrollable {
-      padding: 2rem 0;
+      margin-top: unit(2);
+      padding: unit(1);
     }
   }
 

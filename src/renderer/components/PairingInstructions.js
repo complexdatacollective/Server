@@ -48,7 +48,7 @@ const PairingInstructions = ({
         showNetworkInformation &&
         <section className="instructions__subsection">
           { networkStatus &&
-            <details open={!networkStatus.mdnsIsSupported}>
+            <details>
               <summary>Manual Connection Details</summary>
               <br />
               <NetworkStatusTable
