@@ -484,7 +484,7 @@ class DeviceAPI extends EventEmitter {
      *         schema:
      *           $ref: '#/definitions/Error'
      */
-    server.get('/health', this.handlers.protocolList);
+    server.get('/health', this.handlers.health);
 
     /**
      * @swagger
@@ -637,7 +637,7 @@ class DeviceAPI extends EventEmitter {
       // Secondary handler for error cases in req/res chain
       onError: buildErrorResponse,
 
-      health: (req, res, next) => {
+      health: (_, res) => {
         logger.debug('Client requested health.');
         // Respond to client
         res.json({

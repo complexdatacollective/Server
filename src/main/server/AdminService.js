@@ -1,6 +1,5 @@
 const restify = require('restify');
 const logger = require('electron-log');
-const uuid = require('uuid');
 const { BrowserWindow, ipcMain } = require('electron');
 const corsMiddleware = require('restify-cors-middleware');
 const detectPort = require('detect-port');
