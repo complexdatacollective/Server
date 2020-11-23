@@ -45,6 +45,8 @@ class MainWindow {
       height: 900,
       title: 'Network Canvas Server',
       width: 1440,
+      minWidth: 1280,
+      minHeight: 800,
       webPreferences: {
         nodeIntegration: true,
       },
