@@ -14,7 +14,7 @@ const barColors = getCSSValues(
 
 // 99% width to work around recharts problem with resizing
 const BarChart = ({ className, data, dataKeys, allowDecimals }) => (
-  <ResponsiveContainer height="100%" width="99%">
+  <ResponsiveContainer height="100%" width="99%" debounce={300}>
     <RechartBarChart
       data={data}
       barGap={0}

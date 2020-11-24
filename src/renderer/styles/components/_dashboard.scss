@@ -41,6 +41,27 @@
 
   @include element(chartContainer) {
     flex: 0 1 100%;
+    align-self: center;
+    height: 300px;
+    width: 430px;
+    @media screen and (min-width: 1500px) {
+      width: 340px;
+    }
+    @media screen and (min-width: 1920px) {
+      width: 450px;
+    }
+    @media screen and (min-width: 2220px) {
+      width: 550px;
+    }
+    @media screen and (min-width: 2560px) {
+      width: 650px;
+    }
+    @media screen and (min-width: 3110px) {
+      width: 800px;
+    }
+    @media screen and (min-width: 3440px) {
+      width: 950px;
+    }
   }
 
   @include element(chartFooter) {
