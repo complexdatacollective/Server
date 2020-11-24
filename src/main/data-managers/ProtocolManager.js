@@ -61,10 +61,10 @@ class ProtocolManager {
     this.presentImportSessionDialog = this.presentImportSessionDialog.bind(this);
     this.validateAndImportProtocols = this.validateAndImportProtocols.bind(this);
 
-    const dbFile = path.join(dataDir, 'db', 'protocols.db');
+    const dbFile = path.join(dataDir, 'db-6', 'protocols.db');
     this.db = new ProtocolDB(dbFile);
 
-    const sessionDbFile = path.join(dataDir, 'db', 'sessions.db');
+    const sessionDbFile = path.join(dataDir, 'db-6', 'sessions.db');
     this.sessionDb = new SessionDB(sessionDbFile);
     this.reportDb = this.sessionDb;
   }

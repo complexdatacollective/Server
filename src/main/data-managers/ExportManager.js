@@ -12,7 +12,7 @@ const { RequestError, ErrorMessages } = require('../errors/RequestError');
 class ExportManager {
   constructor(sessionDataDir) {
     // TODO: path is duplicated in ProtocolManager
-    const sessionDbFile = path.join(sessionDataDir, 'db', 'sessions.db');
+    const sessionDbFile = path.join(sessionDataDir, 'db-6', 'sessions.db');
     this.sessionDB = new SessionDB(sessionDbFile);
   }
 

@@ -4,7 +4,7 @@ const DeviceDB = require('./DeviceDB');
 
 class DeviceManager {
   constructor(dataDir) {
-    const dbFile = path.join(dataDir, 'db', 'devices.db');
+    const dbFile = path.join(dataDir, 'db-6', 'devices.db');
     this.db = new DeviceDB(dbFile);
   }
 
