@@ -1,0 +1,84 @@
+.network-status {
+  display: inline-flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex: 0 0 auto;
+
+  &__icon {
+    cursor: pointer;
+    height: unit(6);
+    position: relative;
+    width: unit(6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &::before {
+      content: '';
+      background: center / contain no-repeat url('../images/network.svg');
+      height: unit(6);
+      position: absolute;
+      width: unit(6);
+    }
+  }
+
+  &__badge {
+    background-color: var(--color-tomato);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 0.8rem;
+    width: 0.8rem;
+    z-index: 9;
+  }
+}
+
+
+.network-status-badge {
+  --badge-offset: -0.1rem;
+  --badge-size: 0.8em;
+  background-color: var(--color-neon-carrot);
+  border-radius: calc(var(--badge-size) * 0.5);
+  bottom: var(--badge-offset);
+  position: relative;
+  display: inline-flex;
+  font-size: 0.9rem;
+  height: var(--badge-size);
+  line-height: 1.2;
+  width: var(--badge-size);
+
+  &--ok {
+    background-color: var(--color-sea-green);
+    @keyframes pulse {
+      // sass-lint:disable-block no-color-literals
+      0% {
+        box-shadow: 0 0 0 0 rgba(var(--color-sea-green---rgb), 0.8);
+      }
+
+      70% {
+        box-shadow: 0 0 0 0.8rem rgba(var(--color-sea-green---rgb), 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(var(--color-sea-green---rgb), 0);
+      }
+    }
+
+    animation: pulse 2s infinite;
+  }
+
+  &--error {
+    background-color: var(--color-tomato);
+    @keyframes blinker {
+      50% {
+        opacity: 0;
+      }
+    }
+    animation: blinker 1s cubic-bezier(1, 0, 0, 1) infinite;
+  }
+
+  &--pending {
+    background-color: var(--color-neon-carrot);
+  }
+}

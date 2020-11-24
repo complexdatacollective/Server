@@ -1,11 +1,10 @@
 .settings {
-  margin-bottom: 6rem; // height of footer
+  flex: 1;
 
   &__section {
-    align-items: center;
-    border-top: 1px solid var(--base-border-color);
-    display: flex;
-    padding: spacing(large) 0;
+    @include panel;
+    padding: unit(2) unit(4);
+    background: var(--color-platinum);
   }
 
   @include element(description) {
@@ -17,25 +16,40 @@
     flex: 0 0 auto;
   }
 
+  .chart-section {
+    --input-background: transparent;
+    background: var(--color-platinum--dark);
+    padding: unit(2);
+    border-radius: var(--border-radius);
+    margin-bottom: unit(2);
+
+    h4 {
+      margin-top: 0;
+    }
+  }
+
+  .form-field-container {
+    margin: 0;
+  }
+
   @include element(checkbox-group) {
     .form-field {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       justify-items: left;
+      padding: 0;
+      margin: 0;
+
+      .form-field-checkbox {
+        margin-bottom: unit(1);
+      }
     }
   }
 
-  &__footer {
-    position: fixed;
-    bottom: 0;
-    width: calc(100% - var(--app-sidebar-width));
-    right: 0;
-    background: var(--color-cyber-grape);
-    margin-left: -3.6rem;
-    height: 6rem;
+  @include modifier(loading) {
     display: flex;
+    justify-content: center;
+    height: 100%;
     align-items: center;
-    justify-content: flex-end;
-    padding: 0 spacing(large);
   }
 }

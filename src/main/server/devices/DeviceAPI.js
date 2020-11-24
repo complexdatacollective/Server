@@ -18,6 +18,7 @@ const { PairingRequestService } = require('./PairingRequestService');
 const { IncompletePairingError } = require('../../errors/IncompletePairingError');
 const { encrypt } = require('../../utils/shared-api/cipher');
 const { ErrorMessages, RequestError } = require('../../errors/RequestError');
+const { caseProperty } = require('../../utils/network-exporters/src/utils/reservedAttributes');
 
 /**
  * @swagger
@@ -459,6 +460,34 @@ class DeviceAPI extends EventEmitter {
 
     /**
      * @swagger
+     * /health:
+     *   get:
+     *     summary: Server status for NC clients
+     *     description: Provides an endpoint for NC clients to check their connection to Server.
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       200:
+     *         description: Server available
+     *         schema:
+     *           type: object
+     *           properties:
+     *             status:
+     *               type: string
+     *               example: ok
+     *             data:
+     *               type: array
+     *               items:
+     *                 $ref: '#/definitions/Protocol'
+     *       500:
+     *         description: Server reachable, but internal error prevents use.
+     *         schema:
+     *           $ref: '#/definitions/Error'
+     */
+    server.get('/health', this.handlers.health);
+
+    /**
+     * @swagger
      * /protocols:
      *   get:
      *     summary: Protocol list
@@ -608,6 +637,15 @@ class DeviceAPI extends EventEmitter {
       // Secondary handler for error cases in req/res chain
       onError: buildErrorResponse,
 
+      health: (_, res) => {
+        logger.debug('Client requested health.');
+        // Respond to client
+        res.json({
+          status: 'ok',
+          data: {},
+        });
+      },
+
       onPairingRequest: (req, res, next) => {
         let abortRequest;
         req.on('aborted', () => {
@@ -697,7 +735,8 @@ class DeviceAPI extends EventEmitter {
             return docs;
           })
           .then(docs => sendToGui(emittedEvents.SESSIONS_IMPORTED, docs.map(doc =>
-            doc.data && doc.data.sessionVariables && doc.data.sessionVariables.caseId).join(', ')))
+            doc.data &&
+            doc.data.sessionVariables && doc.data.sessionVariables[caseProperty]).join(', ')))
           .catch((err) => {
             this.handlers.onError(err, res);
           })

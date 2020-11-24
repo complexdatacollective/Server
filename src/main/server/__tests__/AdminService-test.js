@@ -14,6 +14,7 @@ jest.mock('../devices/PairingRequestService');
 jest.mock('../../data-managers/ExportManager', () => class {
   exportSessions = jest.fn().mockResolvedValue({
     exportSessions: jest.fn(() => Promise.resolve({
+      run: jest.fn(() => Promise.resolve()),
       abort: jest.fn(),
     })),
     fileExportManager: {

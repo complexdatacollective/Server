@@ -44,7 +44,7 @@ describe('the devices module', () => {
         const err = new Error('mock error');
         mockApiClient.get.mockRejectedValue(err);
         await actionCreators.loadDevices()(dispatcher);
-        expect(dispatcher).toHaveBeenCalledWith(expect.objectContaining({ text: err.message }));
+        expect(dispatcher).toHaveBeenCalledWith(expect.objectContaining(err));
       });
     });
 
@@ -72,7 +72,7 @@ describe('the devices module', () => {
         const err = new Error('mock error');
         mockApiClient.get.mockRejectedValue(err);
         await actionCreators.deleteDevice('abc')(dispatcher);
-        expect(dispatcher).toHaveBeenCalledWith(expect.objectContaining({ text: err.message }));
+        expect(dispatcher).toHaveBeenCalledWith(expect.objectContaining(err));
       });
     });
   });

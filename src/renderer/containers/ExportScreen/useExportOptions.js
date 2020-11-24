@@ -42,7 +42,7 @@ const baseCSVOptions = {
 const initialState = {
   exportFormats: ['GRAPHML', 'CSV'],
   unifyNetworks: false,
-  useScreenLayoutCoordinates: true,
+  useScreenLayoutCoordinates: false,
   screenLayoutHeight: 1080,
   screenLayoutWidth: 1920,
   adjacencyMatrix: false,

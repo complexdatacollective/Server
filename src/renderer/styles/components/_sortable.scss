@@ -1,13 +1,24 @@
+
 .sortable {
+  --lighten-color: rgba(255, 255, 255, 0.5); // sass-lint:disable-line no-color-literals
   @include element(handle) {
     background-color: var(--draggable-color);
-    border-radius: var(--draggable-border-radius);
     cursor: grab;
-    height: var(--draggable-height);
+    height: calc(var(--draggable-height) * 2);
     width: 100%;
     position: absolute;
     bottom: 0;
     left: 0;
+    border-radius: 0 0 var(--border-radius) var(--border-radius) ;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    &::after {
+      content: '=';
+      color: var(--lighten-color);
+      display: block;
+    }
   }
 
   @include modifier(dragging) {
@@ -20,8 +31,5 @@
       cursor: grabbing;
     }
   }
-
-  border-radius: var(--border-radius);
   position: relative;
-  overflow: hidden;
 }

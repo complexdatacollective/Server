@@ -1,18 +1,32 @@
 .export {
-  @include element(options) {
-    align-items: stretch;
-    border-top: 1px solid var(--base-border-color);
+  flex: 1;
+
+  @include modifier(loading) {
     display: flex;
-    flex-direction: column;
-    padding: spacing(large) 0;
+    justify-content: center;
+    height: 100%;
+    align-items: center;
   }
 
   @include element(section) {
-    margin: 0 0 spacing(medium);
+    @include panel;
+    --input-background: transparent;
+    --input-border: var(--color-white);
+    padding: unit(2) unit(4);
+    background: var(--color-platinum);
+
+    .form-field-container {
+      margin: 0;
+
+      label {
+        padding: 0;
+        min-height: auto;
+      }
+    }
   }
 
   @include element(row) {
-    padding: 1rem 0 0;
+    margin: 1rem 0;
   }
 
   @include element(subpanel) {
@@ -25,8 +39,6 @@
     padding: 1rem 0;
   }
 
-  margin-bottom: 6rem; // height of footer
-
   .form-field {
     &:last-child { margin-bottom: 0; }
   }
@@ -35,23 +47,18 @@
     &:last-child { margin-bottom: 0; }
   }
 
-  &__footer {
-    position: fixed;
-    bottom: 0;
-    width: calc(100% - var(--app-sidebar-width));
-    right: 0;
-    background: var(--color-cyber-grape);
-    margin-left: -3.6rem;
-    height: 6rem;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 0 spacing(large);
-  }
-
   &__ego-info {
     float: right;
     font-style: italic;
     font-size: small;
+  }
+
+  .buttons {
+    @include panel;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: unit(2) unit(4);
+    background: var(--color-cyber-grape);
   }
 }

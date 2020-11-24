@@ -23,7 +23,7 @@ const createApp = () => {
   guiProxy.setMainWindow(mainWindow);
 
   const openMainWindow = () => mainWindow.open();
-  const reloadHomeScreen = () => mainWindow.open('/overview');
+  const reloadHomeScreen = () => mainWindow.open('/');
 
   const regenerateCertificates = () => {
     dialog.showMessageBox(mainWindow.window, {

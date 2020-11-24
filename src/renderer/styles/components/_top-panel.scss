@@ -1,0 +1,30 @@
+.top-panel {
+  position: sticky;
+  background-color: var(--color-platinum--dark);
+  width: 100%;
+  height: unit(8);
+  color: var(--top-panel-text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: row-reverse;
+
+  &__wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: unit(2);
+
+    > * {
+      flex: 1;
+    }
+
+    .divider {
+      height: unit(4);
+      width: 0.2rem;
+      background-color: #b8c1c3; // sass-lint:disable-line no-color-literals
+      margin: 0 unit(2);
+      border-radius: 1rem;
+    }
+  }
+}

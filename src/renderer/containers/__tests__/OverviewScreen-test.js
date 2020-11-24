@@ -1,7 +1,7 @@
 /* eslint-env jest */
 import React from 'react';
 import { createStore } from 'redux';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 import ConnectedOverviewScreen, { UnconnectedOverviewScreen as OverviewScreen } from '../OverviewScreen';
 
 describe('<OverviewScreen />', () => {
@@ -19,7 +19,7 @@ describe('<OverviewScreen />', () => {
   });
 
   it('loads devices on startup', () => {
-    shallow(<OverviewScreen loadDevices={loadDevices} />);
+    mount(<OverviewScreen loadDevices={loadDevices} />);
     expect(loadDevices).toHaveBeenCalled();
   });
 

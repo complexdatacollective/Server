@@ -1,0 +1,47 @@
+.welcome-panel {
+  @include panel;
+  background-color: var(--primary);
+  color: var(--color-white);
+  max-width: 90rem;
+  position: relative;
+
+  code {
+    background: var(--color-sea-green--dark);
+  }
+
+  a {
+    color: var(--color-cyber-grape);
+  }
+
+  &__close {
+    position: absolute;
+    top: unit(2);
+    right: unit(2);
+  }
+
+  &__content {
+    padding: unit(2) unit(8);
+    display: flex;
+    flex-direction: row;
+
+    .welcome-content {
+      &__image {
+        flex: 0 0 30rem;
+        display: flex;
+        align-items: center;
+        margin-top: unit(4); //approximate height of h1
+        background-image: url('../images/visual-data.svg');
+        background-size: 25rem;
+        background-position: center;
+        background-repeat: no-repeat;
+        min-height: 18rem;
+      }
+
+      &__text {
+        flex: 1 auto;
+      }
+    }
+  }
+
+
+}

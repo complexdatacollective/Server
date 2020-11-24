@@ -1,10 +1,11 @@
 .dashboard {
   $min-grid-row: 0;
   $max-grid-row: 27rem;
-  $column-count: 3;
   $grid-gap: spacing(medium);
 
   @include element(panel) {
+    @include panel;
+
     @include modifier(chart) {
       display: flex;
       flex-direction: column;
@@ -25,11 +26,17 @@
       }
     }
 
+    margin: 0;
     background-color: var(--color-platinum);
     height: 100%;
-    padding: spacing(large);
+    padding: unit(2) unit(4);
     position: relative;
     width: 100%;
+    margin-bottom: unit(4);
+
+    .protocol-card {
+      background: var(--color-white);
+    }
   }
 
   @include element(chartContainer) {
@@ -60,9 +67,14 @@
     display: block;
   }
 
+  margin: unit(4) auto;
   display: grid;
   grid-auto-rows: minmax($min-grid-row, $max-grid-row);
   // Drag handles are rendered as bars below each panel; add extra vertical gap to accommodate:
   grid-gap: calc(#{$grid-gap} + var(--draggable-height)) $grid-gap;
-  grid-template-columns: repeat($column-count, 1fr);
+  grid-template-columns: repeat(2, 1fr);
+
+  @media screen and (min-width: 1500px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }

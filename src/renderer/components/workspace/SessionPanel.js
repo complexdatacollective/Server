@@ -1,11 +1,10 @@
-/* eslint no-underscore-dangle: ["error", { "allow": ["_caseID"] }] */
-
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withRouter, Link } from 'react-router-dom';
 import { compose } from 'recompose';
+import { caseProperty } from '../../../main/utils/network-exporters/src/utils/reservedAttributes';
 import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
 import { selectors as protocolSelectors } from '../../ducks/modules/protocols';
 import { DismissButton, ScrollingPanelItem } from '../../components';
@@ -80,7 +79,7 @@ class SessionPanel extends Component {
                     <span>{formatDate(s.updatedAt)}</span>
                     <span className="session-panel__id">
                       {s.data && s.data.sessionVariables &&
-                        (s.data.sessionVariables._caseID || s.data.sessionVariables.caseId)}
+                        (s.data.sessionVariables[caseProperty])}
                       {' - '}
                       {s.id && s.id.substring(0, 13)}
                     </span>
@@ -91,7 +90,7 @@ class SessionPanel extends Component {
             return '';
           })}
         </ul>
-        <Link to={`/workspaces/${currentProtocolId}/casemanagement`} className="session-panel__link">Additional case details</Link>
+        <Link to={`/workspaces/${currentProtocolId}/casemanagement`} className="session-panel__link">Manage Cases</Link>
       </ScrollingPanelItem>
     );
   }

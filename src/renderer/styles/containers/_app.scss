@@ -20,7 +20,7 @@
 
   .unsafe-pairing-warning {
     background: var(--error);
-    color: var(--text-light);
+    color: var(--color-white);
     padding: unit(2);
     width: 100%;
   }
@@ -55,6 +55,27 @@
     height: 100%;
     width: var(--app-sidebar-width);
 
+    .app-version {
+      position: absolute;
+      bottom: unit(2);
+      left: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: var(--app-sidebar-width);
+      height: unit(4);
+      font-size: 0.9rem;
+
+      span {
+        margin-left: unit(1);
+      }
+
+      img {
+        width: unit(4);
+      }
+    }
+
+
     // Ensure contained content fills entire height
     > * {
       border: 1px solid transparent; // force to top
@@ -70,29 +91,18 @@
   }
 
   @include element(main) {
-    flex: auto;
-    overflow: auto;
-    padding: spacing(1) spacing(3);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
     width: 100%;
+    overflow-y: auto;
+    flex: 1 auto;
 
-    .workspace,
-    .paired-device-list {
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-  }
-
-  @include element(version) {
-    bottom: 0.5rem;
-    color: var(--color-platinum--dark);
-    font-size: 0.9rem;
-    left: 0.5rem;
-    position: absolute;
-    text-align: center;
-
-    img {
-      width: 7rem;
-      margin-bottom: 1rem;
+    .content {
+      padding: spacing(1) spacing(3);
+      height: 100%;
+      width: 100%;
+      overflow-y: auto;
     }
   }
 
@@ -111,7 +121,9 @@
 
 code {
   background: var(--color-cerulean-blue);
-  color: var(--text-light);
-  padding: 0.25rem 0.5rem;
+  color: var(--color-white);
+  padding: 0.1rem 0.5rem;
   border-radius: 1rem;
+  word-break: keep-all;
+  white-space: nowrap;
 }

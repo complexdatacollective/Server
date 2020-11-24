@@ -17,34 +17,42 @@
     }
   }
 
-  --border-selected: #{$protocol-border-selected};
+  --border-selected: var(--color-mustard);
   --border-highlight: #{$protocol-border-highlight};
   --border-transparent: #{$protocol-border-transparent};
   --border-width: 6px;
   --thumbnail-size: calc(var(--app-sidebar-width) * 0.6);
 
-  background-color: var(--color-cyber-grape);
-  @for $i from 1 through 9 {
-    &.protocol-thumbnail__schema-color-seq-#{$i} {
-      background-color: var(--schema-color-seq-#{$i});
-    }
-  }
-
+  background-color: var(--color-navy-taupe);
   border: var(--border-width) solid var(--border-transparent);
-  border-radius: 0.75rem;
+  border-radius: 1rem;
   color: var(--color-white);
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 2rem;
   height: var(--thumbnail-size);
   line-height: calc(var(--thumbnail-size) - 2 * var(--border-width));
   margin: spacing('medium') auto;
-  overflow: visible;
+  overflow: hidden;
   position: relative;
   text-align: center;
   text-decoration: none;
   transition-duration: var(--animation-duration-fast);
   transition-property: border-color, background-color;
   width: var(--thumbnail-size);
+
+  .identicon {
+    position: absolute;
+  }
+
+  .label {
+    position: relative;
+    z-index: 9;
+    width: 100%;
+    background: radial-gradient(circle at center, rgba(45, 41, 85, 0) 25%, rgba(0, 0, 0, 0.671) 100%); // sass-lint:disable-line no-color-literals
+    text-shadow: 0 0 4px #000, 0 0 6rem rgb(0, 0, 0); // sass-lint:disable-line no-color-literals
+  }
 
   &:hover {
     &:not(.protocol-thumbnail--active) {

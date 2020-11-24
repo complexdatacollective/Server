@@ -1,22 +1,39 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-
+import ReactTooltip from 'react-tooltip';
+import { sortBy } from 'lodash';
 import ProtocolThumbnail from './ProtocolThumbnail';
 import Types from '../types';
 
-const ProtocolThumbnails = ({ location, protocols, onClickAddProtocol }) => (
-  <div className="protocol-thumbnails">
-    {
-      protocols && protocols.map(protocol => (
-        <ProtocolThumbnail location={location} protocol={protocol} key={protocol.id} />
-      ))
-    }
-    <button
-      className="protocol-thumbnail protocol-thumbnail--add"
-      onClick={onClickAddProtocol}
-    />
-  </div>
-);
+const ProtocolThumbnails = ({ location, protocols, onClickAddProtocol }) => {
+  useEffect(() => {
+    ReactTooltip.rebuild();
+  });
+
+  const sortedProtocols = sortBy(protocols, 'name');
+
+  return (
+    <div className="protocol-thumbnails">
+      {
+        sortedProtocols && sortedProtocols.map(protocol => (
+          <div data-tip={protocol.name} data-for="protocol-tooltip" key={protocol.id}><ProtocolThumbnail location={location} protocol={protocol} /></div>
+        ))
+      }
+      <div data-tip="Create a new workspace from a protocol" data-for="protocol-tooltip">
+        <button
+          className="protocol-thumbnail protocol-thumbnail--add"
+          onClick={onClickAddProtocol}
+        />
+      </div>
+      <ReactTooltip
+        id="protocol-tooltip"
+        delayShow={300}
+        place="right"
+        effect="solid"
+      />
+    </div>
+  );
+};
 
 ProtocolThumbnails.defaultProps = {
   location: {},

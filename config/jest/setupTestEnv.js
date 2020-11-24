@@ -181,7 +181,8 @@ const mockProtocol = {
   name: 'MyProtocol',
   createdAt: new Date(),
   updatedAt: new Date(),
-  schemaVersion: '1',
+  lastModified: new Date(),
+  schemaVersion: 1,
   version: '2.0',
 };
 

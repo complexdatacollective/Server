@@ -1,7 +1,89 @@
 .get-started {
+  @include element(section) {
+    @include panel;
+    --input-background: transparent;
+    --input-border: var(--color-white);
+    padding: unit(2) unit(4);
+    background: var(--color-cyber-grape);
+    color: white;
+    max-width: 80rem;
+    margin: 0 auto;
+    background-image: url('../images/wave.svg');
+    background-position-y: 4rem;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+  @include element(content) {
+    display: flex;
+    margin-bottom: unit(2);
+
+    .content-text {
+      margin-left: unit(6);
+      margin-right: unit(8);
+    }
+
+    .content-image {
+      flex: 0 0 35%;
+      margin-left: unit(4);
+      margin-right: unit(8);
+      display: flex;
+      align-items: flex-end;
+
+      img {
+        width: 100%;
+      }
+    }
+  }
+
   @include element(header) {
     display: flex;
+    justify-content: center;
     align-items: center;
+    width: 100%;
+    padding: 1.2rem 2.4rem 2.4rem;
+
+    .header-brand {
+      flex: 0 0 9rem;
+      z-index: var(--z-global-ui);
+
+      img {
+        filter: drop-shadow(0 0 0.8rem rgba(0, 0, 0, 0.25));  // sass-lint:disable-line no-color-literals
+      }
+    }
+
+    .header-mark {
+      flex: 0 0 40rem;
+      margin-left: 1.2rem;
+
+      .project-tag {
+        img {
+          height: 2.4rem;
+          width: 2.4rem;
+        }
+
+        h5 {
+          display: inline-block;
+          font-family: var(--heading-font-family);
+          font-weight: 900;
+          letter-spacing: .15em;
+          margin: 0;
+          line-height: 1.25;
+        }
+      }
+
+      h1 {
+        font-size: 3.052rem;
+        letter-spacing: .15em;
+        margin-bottom: unit(1);
+      }
+
+      h4 {
+        font-size: 1.25rem;
+        font-weight: lighter;
+        margin: 0;
+      }
+    }
   }
 
   @include element(device-status) {
@@ -10,17 +92,8 @@
     top: spacing(medium);
   }
 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: var(--color-platinum);
-  padding: spacing(medium);
+  padding: unit(4);
   border-radius: var(--border-radius);
-
-  img {
-    width: 10rem;
-    margin-right: 2rem;
-  }
 
   h1 {
     margin: 0;

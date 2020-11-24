@@ -1,0 +1,7 @@
+@mixin panel {
+  border-radius: var(--border-radius);
+  box-shadow: 0 unit(1) .2rem 0 rgba(0, 0, 0, 0.25); //sass-lint:disable-line no-color-literals
+  margin: unit(4) auto;
+  width: 100%;
+  overflow: hidden;
+}

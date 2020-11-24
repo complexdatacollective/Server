@@ -1,7 +1,7 @@
 .rule {
   @include flex-inline;
   @include flex-align(left, middle);
-  color: var(--text-light);
+  color: var(--color-white);
   position: relative;
   z-index: var(--z-default);
 
@@ -11,7 +11,7 @@
     @include flex-inline;
     @include flex-align(center, middle);
     background-color: var(--architect-rule-control);
-    color: var(--text-light);
+    color: var(--color-white);
     border: 0;
     border-radius: $drag-button-size;
     width: $drag-button-size;
@@ -28,7 +28,7 @@
     @include flex-inline;
     @include flex-align(center, middle);
     background-color: var(--architect-rule-delete);
-    color: var(--text-light);
+    color: var(--color-white);
     border: 0;
     position: absolute;
     top: 0;

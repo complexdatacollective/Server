@@ -1,20 +1,56 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { bindActionCreators } from 'redux';
+import { compose } from 'recompose';
 import { connect } from 'react-redux';
-import { Button } from '@codaco/ui';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Text } from '@codaco/ui/lib/components/Fields';
+import { Scroller } from '@codaco/ui/lib/components';
+import DeviceCard from '../components/DeviceCard';
+import { actionCreators } from '../ducks/modules/devices';
 import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
-import Instructions from './Instructions';
-import DeviceDetails from './DeviceDetails';
 
-const EmptyDeviceList = () => (
-  <div>
-    <h2>No devices found.</h2>
-    <Instructions showImportInstructions={false} />
-  </div>
-);
+const containerVariants = {
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.09,
+      when: 'beforeChildren',
+    },
+  },
+  hide: {
+    opacity: 0,
+    transition: {
+      when: 'afterChildren',
+    },
+  },
+};
 
-const DeviceList = ({ deleteDevice, devices, openDialog }) => {
+const itemVariants = {
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: 'spring',
+    },
+  },
+  hide: {
+    opacity: 0,
+    y: 25,
+    transition: {
+      type: 'spring',
+    },
+  },
+};
+
+const DeviceList = ({
+  devices,
+  deleteDevice,
+  openDialog,
+}) => {
+  const [filterTerm, setFilterTerm] = useState('');
+
+  const onFilterChange = ({ target: { value } }) => setFilterTerm(value);
+
   const confirmDelete = (deviceId) => {
     if (deleteDevice) { // eslint-disable-line no-alert
       openDialog({
@@ -27,39 +63,83 @@ const DeviceList = ({ deleteDevice, devices, openDialog }) => {
     }
   };
 
-  if (!devices || !devices.length) {
-    return <EmptyDeviceList />;
-  }
+  const filteredDevices = filterTerm.length > 0
+    ? devices.filter(({ name }) => name.toLowerCase().includes(filterTerm.toLowerCase()))
+    : devices;
 
-  return devices.map(device => (
-    <div className="device-list__device" key={device.id}>
-      <div className="device-icon" />
-      <DeviceDetails device={device} />
-      {
-        deleteDevice &&
-        <Button color="neon-coral" onClick={() => confirmDelete(device.id)}>
-          Unpair
-        </Button>
+  return (
+    <div className="device-list">
+      <div className="device-list__header">
+        <h4>Filter: </h4>
+        <Text
+          type="search"
+          placeholder="Filter..."
+          className="new-filterable-list__filter"
+          input={{
+            onChange: onFilterChange,
+          }}
+        />
+      </div>
+      { filteredDevices.length === 0 &&
+        <div className="device-list__empty">
+          <h4>No paired devices.</h4>
+        </div>
+      }
+      { filteredDevices.length !== 0 &&
+        <React.Fragment>
+          <div className="device-list__list">
+            <Scroller>
+              <motion.div
+                variants={containerVariants}
+                key="filterable-list"
+                initial="hide"
+                animate="show"
+                className="filterable-list-scroller"
+              >
+                <AnimatePresence>
+                  {
+                    filteredDevices.map(device => (
+                      <motion.div
+                        variants={itemVariants}
+                        key={device.id}
+                        exit="hide"
+                        layout
+                      >
+                        <DeviceCard
+                          {...device}
+                          key={device.id}
+                          onDeleteHandler={() => confirmDelete(device.id)}
+                        />
+                      </motion.div>
+                    ))
+                  }
+                </AnimatePresence>
+              </motion.div>
+            </Scroller>
+          </div>
+        </React.Fragment>
       }
     </div>
-  ));
-};
-
-DeviceList.defaultProps = {
-  deleteDevice: null,
-  devices: null,
+  );
 };
 
 DeviceList.propTypes = {
-  deleteDevice: PropTypes.func,
   devices: PropTypes.array,
+  deleteDevice: PropTypes.func.isRequired,
   openDialog: PropTypes.func.isRequired,
 };
 
-function mapDispatchToProps(dispatch) {
-  return {
-    openDialog: bindActionCreators(dialogActions.openDialog, dispatch),
-  };
-}
+DeviceList.defaultProps = {
+  devices: [],
+};
 
-export default connect(null, mapDispatchToProps)(DeviceList);
+const mapStateToProps = () => ({});
+
+const mapDispatchToProps = {
+  deleteDevice: actionCreators.deleteDevice,
+  openDialog: dialogActions.openDialog,
+};
+
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+)(DeviceList);

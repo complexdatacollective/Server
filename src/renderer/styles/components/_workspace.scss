@@ -1,4 +1,5 @@
 .workspace {
+
   @include element(panel) {
     background-color: var(--color-white);
     padding: spacing(small);
@@ -7,29 +8,20 @@
   @include modifier(loading) {
     display: flex;
     justify-content: center;
+    height: 100%;
+    align-items: center;
   }
 
   .workspace-panel {
+    @include panel;
     padding: 2.2rem;
-    margin-bottom: 1.2rem;
-    border-radius: var(--border-radius);
 
     &__buttons {
       text-align: right;
-    }
 
-    &.welcome-panel {
-      background-color: var(--primary);
-      color: var(--text-light);
-
-      a {
-        color: var(--color-cyber-grape);
+      .button {
+        margin-left: 1.1rem;
       }
-    }
-
-    &.overview-panel {
-      color: var(--color-white);
-      background-color: var(--color-cyber-grape);
     }
   }
 }

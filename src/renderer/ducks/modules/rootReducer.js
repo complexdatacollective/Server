@@ -1,6 +1,4 @@
 import { combineReducers } from 'redux';
-
-import appMessages from './appMessages';
 import connectionInfo from './connectionInfo';
 import devices from './devices';
 import excludedChartVariables from './excludedChartVariables';
@@ -9,10 +7,9 @@ import dialogs from './dialogs';
 import toasts from './toasts';
 import panelLayoutOrders from './panelLayoutOrders';
 import protocols from './protocols';
-import dismissedUpdates from './dismissedUpdates';
+import dismissibleState from './dismissibleState';
 
 const appReducer = combineReducers({
-  appMessages,
   dialogs,
   toasts,
   connectionInfo,
@@ -21,7 +18,7 @@ const appReducer = combineReducers({
   pairingRequest,
   panelLayoutOrders,
   protocols,
-  dismissedUpdates,
+  dismissibleState,
 });
 
 const rootReducer = (state, action) => {

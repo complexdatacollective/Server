@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -8,23 +8,25 @@ import Types from '../types';
 import { GetStarted } from '../components';
 import { actionCreators } from '../ducks/modules/devices';
 
-class OverviewScreen extends Component {
-  componentDidMount() {
-    this.props.loadDevices();
-  }
+const OverviewScreen = ({
+  loadDevices,
+  deviceApiInfo,
+  devices,
+  protocols,
+}) => {
+  useEffect(() => {
+    loadDevices();
+  }, []);
 
-  render() {
-    const { deviceApiInfo, devices, protocols } = this.props;
-    if (protocols && protocols.length) {
-      return <Redirect to={`/workspaces/${protocols[0].id}`} />;
-    }
-    if (protocols && devices) {
-      return <GetStarted devices={devices} apiInfo={deviceApiInfo} />;
-    }
-    // else still loading...
-    return null;
+  if (protocols && protocols.length) {
+    return <Redirect to={`/workspaces/${protocols[0].id}`} />;
   }
-}
+  if (protocols && devices) {
+    return <GetStarted devices={devices} apiInfo={deviceApiInfo} />;
+  }
+  // else still loading...
+  return null;
+};
 
 OverviewScreen.defaultProps = {
   deviceApiInfo: null,

@@ -1,0 +1,42 @@
+.info-window {
+  overflow: hidden;
+  background: var(--base-background-color);
+  // color: var(--text-color);
+  padding: (2 * spacing(medium)) 4rem spacing(large);
+  border-radius: spacing(large);
+  width: 100%;
+
+  &__container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 70vw;
+
+    transform: translate(-50%, -50%);
+  }
+
+  &__close {
+    @include reset-button;
+    position: absolute;
+    top: spacing(medium);
+    right: spacing(medium);
+    // color: var(--inverse-text-color);
+    padding: 0.5rem;
+    cursor: pointer;
+
+    &:focus {
+      outline: none;
+    }
+
+    .icon {
+      height: 1rem;
+      width: 1rem;
+    }
+  }
+
+  h2 {
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+}

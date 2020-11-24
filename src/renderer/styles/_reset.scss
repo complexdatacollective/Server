@@ -5,6 +5,11 @@ body {
   position: fixed;
   width: 100%;
   color: var(--color-rich-black);
+  line-height: 1.25;
+}
+
+li {
+  margin-bottom: unit(1);
 }
 
 .app-root {
@@ -70,12 +75,14 @@ body {
 
 .toast {
   width: 40rem;
+  background: var(--color-cyber-grape);
+  color: var(--color-white);
 
   .toast-content {
     font-weight: normal;
 
     .progress-bar {
-      // background: var(--transparent-light);
+      background: var(--transparent-light);
     }
 
     .toast-button-group {
@@ -91,7 +98,7 @@ body {
   }
 }
 
-.update-available-toast {
+.toast--wide {
   width: 50rem;
 }
 

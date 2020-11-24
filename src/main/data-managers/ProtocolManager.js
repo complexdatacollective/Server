@@ -10,6 +10,7 @@ const SessionDB = require('./SessionDB');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
 const { readFile, rename, tryUnlink } = require('../utils/promised-fs');
 const { validateGraphML, convertGraphML } = require('../utils/importGraphML');
+const { caseProperty, protocolName: protocolNameProperty, remoteProtocolProperty, codebookHashProperty } = require('../utils/network-exporters/src/utils/reservedAttributes');
 const { hexDigest } = require('../utils/sha256');
 const { sendToGui } = require('../guiProxy');
 const { get, debounce } = require('lodash');
@@ -637,10 +638,10 @@ class ProtocolManager {
     // to all be based on the same protocol
     const graphml = xmlDoc.getElementsByTagName('graphml');
     const graphs = graphml[0].getElementsByTagName('graph');
-    const protocolId = graphs && graphs[0].getAttribute('nc:remoteProtocolID');
-    const protocolName = graphs && graphs[0].getAttribute('nc:protocolName');
-    const caseId = graphs && graphs[0].getAttribute('nc:caseId');
-    const codebookHash = graphs && graphs[0].getAttribute('nc:codebookHash');
+    const protocolId = graphs && graphs[0].getAttribute(`nc:${remoteProtocolProperty}`);
+    const protocolName = graphs && graphs[0].getAttribute(`nc:${protocolNameProperty}`);
+    const caseId = graphs && graphs[0].getAttribute(`nc:${caseProperty}`);
+    const codebookHash = graphs && graphs[0].getAttribute(`nc:${codebookHashProperty}`);
 
     return this.getProtocol(protocolId)
       .then((protocol) => {
@@ -692,18 +693,18 @@ class ProtocolManager {
     return this.getProtocol(protocolId)
       .then((protocol) => {
         if (!protocol) {
-          const protocolName = get(session, 'data.sessionVariables.protocolName', 'Unknown Protocol');
-          const caseID = get(session, 'data.sessionVariables.caseId', null);
+          const protocolName = get(session, `data.sessionVariables.${protocolNameProperty}`, 'Unknown Protocol');
+          const caseID = get(session, `data.sessionVariables.${caseProperty}`, null);
 
           return Promise.reject(constructErrorObject(`The protocol ("${protocolName}") used by this session has not been imported into Server. Import it first, and try again.`, caseID));
         }
 
         const ourCodebookHash = objectHash(protocol.codebook);
-        const incomingCodebookHash = get(session, 'data.sessionVariables.codebookHash', null);
+        const incomingCodebookHash = get(session, `data.sessionVariables.${codebookHashProperty}`, null);
 
         if (ourCodebookHash !== incomingCodebookHash) {
-          const protocolName = get(session, 'data.sessionVariables.protocolName', 'Unknown Protocol');
-          const caseID = get(session, 'data.sessionVariables.caseId', null);
+          const protocolName = get(session, `data.sessionVariables.${protocolNameProperty}`, 'Unknown Protocol');
+          const caseID = get(session, `data.sessionVariables.${caseProperty}`, null);
 
           return Promise.reject(constructErrorObject(`The version of the protocol ("${protocolName}") used to create this session does not match the version installed in Server. Ensure you have matching versions of your protocols installed in Interviewer and Server, and try again.`, caseID));
         }
@@ -721,7 +722,7 @@ class ProtocolManager {
         if (insertErr.errorType === 'uniqueViolated') {
           return Promise.reject(constructErrorObject(
             ErrorMessages.SessionAlreadyExists,
-            get(session, 'data.sessionVariables.caseId', null),
+            get(session, `data.sessionVariables.${caseProperty}`, null),
           ));
         }
 

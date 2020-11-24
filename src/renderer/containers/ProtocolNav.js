@@ -4,16 +4,19 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { ipcRenderer } from 'electron';
 import { withRouter } from 'react-router-dom';
-
+import { appVersion } from '../utils/appVersion';
 import Types from '../types';
 import { actionCreators } from '../ducks/modules/protocols';
 import FileDropTarget from './FileDropTarget';
 import ProtocolThumbnails from '../components/ProtocolThumbnails';
 import AdminApiClient from '../utils/adminApiClient';
+import server from '../images/Srv-Flat.svg';
 
 // TODO: centralize ipc or events
 const RequestFileImportDialog = 'REQUEST_FILE_IMPORT_DIALOG';
 const FileImportUpdated = 'FILE_IMPORT_UPDATED';
+
+const versionParts = appVersion.split('-');
 
 const ipcChannels = {
   FileImportUpdated,
@@ -42,15 +45,21 @@ class ProtocolNav extends Component {
   render() {
     const { className, location, protocols } = this.props;
     return (
-      <nav className={className}>
-        <FileDropTarget>
-          <ProtocolThumbnails
-            location={location}
-            protocols={protocols}
-            onClickAddProtocol={promptFileImport}
-          />
-        </FileDropTarget>
-      </nav>
+      <React.Fragment>
+        <nav className={className}>
+          <FileDropTarget>
+            <ProtocolThumbnails
+              location={location}
+              protocols={protocols}
+              onClickAddProtocol={promptFileImport}
+            />
+          </FileDropTarget>
+          <div className="app-version">
+            <img src={server} alt="Network Canvas Server" />
+            <span>{versionParts[0]} {versionParts[1]}</span>
+          </div>
+        </nav>
+      </React.Fragment>
     );
   }
 }

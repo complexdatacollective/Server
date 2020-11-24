@@ -51,29 +51,30 @@ class SettingsScreen extends Component {
     return (
       <div className="settings__section">
         <div className="settings__description">
-          <h3>Chart Variable Distributions</h3>
+          <h3>Overview screen charts</h3>
           <p>
-            Display an Overview chart for distributions of the following ordinal and
-            categorical variables
+            Display a chart on the overview screen for distributions of the following ordinal and
+            categorical variables.
           </p>
           {
             distributionVariables &&
             Object.entries(distributionVariables).map(([entity, varsWithTypes]) => (
               Object.entries(varsWithTypes).map(([section, vars]) => (
-                <CheckboxGroup
-                  key={section}
-                  className="settings__checkbox-group"
-                  label={entityLabel(entity, entityVariableType(codebook, entity, section))}
-                  input={{
-                    value: this.includedChartVariablesForSection(entity, section),
-                    onChange: (newValue) => {
-                      const newExcluded = vars.filter(v => !newValue.includes(v));
-                      setExcludedVariables(protocol.id, entity, section, newExcluded);
-                    },
-                  }}
-                  options={vars.map(v =>
-                    ({ value: v, label: entityVariableName(codebook, entity, section, v) }))}
-                />
+                <div className="chart-section" key={section}>
+                  <h4>{entityLabel(entity, entityVariableType(codebook, entity, section))}</h4>
+                  <CheckboxGroup
+                    className="settings__checkbox-group"
+                    input={{
+                      value: this.includedChartVariablesForSection(entity, section),
+                      onChange: (newValue) => {
+                        const newExcluded = vars.filter(v => !newValue.includes(v));
+                        setExcludedVariables(protocol.id, entity, section, newExcluded);
+                      },
+                    }}
+                    options={vars.map(v =>
+                      ({ value: v, label: entityVariableName(codebook, entity, section, v) }))}
+                  />
+                </div>
               ))))
           }
         </div>
@@ -104,7 +105,7 @@ class SettingsScreen extends Component {
   }
 
   render() {
-    const { protocol, protocolsHaveLoaded, history } = this.props;
+    const { protocol, protocolsHaveLoaded } = this.props;
 
     if (protocolsHaveLoaded && !protocol) { // This protocol doesn't exist
       return <Redirect to="/" />;
@@ -115,11 +116,11 @@ class SettingsScreen extends Component {
     }
 
     return (
-      <div className="settings">
+      <div className="content settings">
         <h1>Settings</h1>
         <div className="settings__section">
           <div className="settings__description">
-            <h3>Delete this protocol</h3>
+            <h3>Delete this workspace</h3>
             <p>
               This will permanently remove this Server’s copy of the protocol file
               and any associated data that has been imported.
@@ -132,9 +133,6 @@ class SettingsScreen extends Component {
           </div>
         </div>
         { this.chartConfigSection }
-        <div className="settings__footer">
-          <Button color="primary" onClick={() => history.goBack()}>Finished</Button>
-        </div>
       </div>
     );
   }
@@ -172,7 +170,6 @@ SettingsScreen.propTypes = {
   protocolsHaveLoaded: PropTypes.bool.isRequired,
   setExcludedVariables: PropTypes.func.isRequired,
   openDialog: PropTypes.func.isRequired,
-  history: PropTypes.object.isRequired,
 };
 
 export default compose(

@@ -1,11 +1,12 @@
-import React, { Component, createRef } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Redirect, withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
 import { includes, without } from 'lodash';
-import { Button, Spinner } from '@codaco/ui';
+import { Spinner } from '@codaco/ui';
+import { AutoSizer } from 'react-virtualized';
 import { Text } from '@codaco/ui/lib/components/Fields';
 import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 import { selectors as protocolSelectors } from '../ducks/modules/protocols';
@@ -20,17 +21,7 @@ const emptyContent = (<p>
 class CaseManagement extends Component {
   constructor(props) {
     super(props);
-    this.state = { sessionsToDelete: [], width: 500, height: 300 };
-    this.resizeObserver = null;
-    this.resizeSubject = createRef();
-  }
-
-  componentDidMount() {
-    this.observe(ResizeObserver);
-  }
-
-  componentWillUnmount() {
-    this.resizeObserver.disconnect();
+    this.state = { sessionsToDelete: [] };
   }
 
   get header() {
@@ -63,23 +54,10 @@ class CaseManagement extends Component {
     );
   }
 
-  observe = (RO) => {
-    this.resizeObserver = new RO((entries) => {
-      const {
-        width,
-        height,
-      } = entries[0].contentRect;
-      this.setState({ width, height });
-    });
-
-    if (this.resizeSubject.current) {
-      this.resizeObserver.observe(this.resizeSubject.current);
-    }
-  };
-
   isSessionSelected = id => includes(this.state.sessionsToDelete, id);
 
-  allSessionsSelected = () => this.state.sessionsToDelete.length === this.props.sessions.length;
+  allSessionsSelected = () => this.state.sessionsToDelete.length === this.props.sessions.filter(
+    session => !!session).length;
 
   updateSessionsToDelete = (id) => {
     if (includes(this.state.sessionsToDelete, id)) {
@@ -97,7 +75,8 @@ class CaseManagement extends Component {
   toggleAllSessions = () => {
     let selectedSessions = [];
     if (this.state.sessionsToDelete.length !== this.props.sessions.length) {
-      selectedSessions = this.props.sessions.map(session => session.id);
+      selectedSessions = this.props.sessions.filter(
+        session => !!session).map(session => session.id);
     }
     this.setState({
       sessionsToDelete: [...selectedSessions],
@@ -124,7 +103,6 @@ class CaseManagement extends Component {
       sessions,
       protocol,
       protocolsHaveLoaded,
-      history,
       loadMoreSessions,
       totalSessionsCount,
       sortType,
@@ -144,33 +122,35 @@ class CaseManagement extends Component {
     } else {
       content = (
         <React.Fragment>
+          <h1>Manage Cases</h1>
           <div className="case-management__header">{this.header}</div>
           {(sessions && sessions.length === 0) && emptyContent }
           {
             (sessions && sessions.length !== 0) &&
               <div className="case-management__table">
-                <CaseTable
-                  list={sessions}
-                  loadMoreSessions={loadMoreSessions}
-                  sortType={sortType}
-                  sortDirection={sortDirection}
-                  sortSessions={sortSessions}
-                  totalSessionsCount={totalSessionsCount}
-                  updateSessionsToDelete={this.updateSessionsToDelete}
-                  isSessionSelected={this.isSessionSelected}
-                  allSessionsSelected={this.allSessionsSelected}
-                  toggleAllSessions={this.toggleAllSessions}
-                  width={this.state.width}
-                  height={this.state.height - 160}
-                />
+                <AutoSizer>
+                  {({ height, width }) => (
+                    <CaseTable
+                      list={sessions}
+                      loadMoreSessions={loadMoreSessions}
+                      sortType={sortType}
+                      sortDirection={sortDirection}
+                      sortSessions={sortSessions}
+                      totalSessionsCount={totalSessionsCount}
+                      updateSessionsToDelete={this.updateSessionsToDelete}
+                      isSessionSelected={this.isSessionSelected}
+                      allSessionsSelected={this.allSessionsSelected}
+                      toggleAllSessions={this.toggleAllSessions}
+                      width={width}
+                      height={height}
+                    />
+                  )}
+                </AutoSizer>
               </div>
           }
-          <div className="case-management__footer">
-            <Button color="primary" onClick={() => history.goBack()}>Finished</Button>
-          </div>
         </React.Fragment>
       );
-      classes = 'case-management';
+      classes = 'content case-management';
     }
 
     return (
@@ -193,7 +173,6 @@ CaseManagement.propTypes = {
   sessions: PropTypes.array,
   totalSessionsCount: PropTypes.number,
   openDialog: PropTypes.func.isRequired,
-  history: PropTypes.object.isRequired,
   protocol: Types.protocol,
   protocolsHaveLoaded: PropTypes.bool.isRequired,
   filterValue: PropTypes.string.isRequired,

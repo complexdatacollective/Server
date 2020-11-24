@@ -2,10 +2,7 @@ const uuid = require('uuid/v4');
 const faker = require('faker');
 const { has, times } = require('lodash');
 const crypto = require('crypto');
-
-// const nodePrimaryKeyProperty = '_uid';
-// const nodeAttributesProperty = 'attributes';
-// const caseProperty = 'caseID';
+const objectHash = require('object-hash');
 
 const {
   entityPrimaryKeyProperty,
@@ -17,6 +14,7 @@ const {
   protocolProperty,
   // sessionStartTimeProperty,
   // sessionFinishTimeProperty,
+  codebookHashProperty,
   sessionExportTimeProperty,
 } = require('./network-exporters/src/utils/reservedAttributes');
 
@@ -143,6 +141,7 @@ const makeSession = (protocol) => {
     // These are needed by server?:
     [protocolName]: protocol.name,
     [protocolProperty]: nameDigest(protocol.name),
+    [codebookHashProperty]: objectHash(protocol.codebook),
   };
 
   return {

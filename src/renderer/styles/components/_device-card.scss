@@ -1,0 +1,69 @@
+$component: 'device-card';
+
+.#{$component} {
+  background: var(--color-platinum);
+  color: var(--color-navy-taupe);
+  border-radius: var(--border-radius);
+  display: flex;
+  overflow: hidden;
+  margin-top: 2rem;
+  cursor: default;
+
+  &__icon-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--color-mustard);
+    flex-direction: row;
+    width: 7rem;
+
+    .device-icon {
+      width: unit(6);
+      height: unit(6);
+
+      img {
+        height: 100%;
+        padding: unit(1);
+      }
+    }
+  }
+
+  &__main-section {
+    width: calc(100% - 7rem);
+    padding: unit(2) unit(4);
+
+    .device-name {
+      margin: 0;
+    }
+
+    h6 {
+      margin: 0.3rem 0;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      font-size: 0.64rem;
+    }
+
+  }
+
+  &__delete {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    width: 20rem;
+  }
+
+  &--disabled {
+    .#{$component}__icon-section {
+      background: var(--color-platinum--dark);
+    }
+
+    .device-name,
+    h6 {
+      opacity: 0.35;
+    }
+  }
+}

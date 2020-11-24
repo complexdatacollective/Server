@@ -7,12 +7,12 @@ import Instructions from '../Instructions';
 describe('<Instructions />', () => {
   it('renders protocol import instructions by default', () => {
     const subject = shallow(<Instructions />);
-    expect(subject.text()).toMatch('To import a protocol:');
+    expect(subject.text()).toMatch('To create a workspace:');
   });
 
   it('renders device pairing instructions by default', () => {
     const subject = shallow(<Instructions />);
-    expect(subject.text()).toMatch('To pair a device');
+    expect(subject.find('PairingInstructions').dive().text()).toMatch('To pair a device');
   });
 
   it('hides protocol instructions if instructed', () => {
@@ -23,10 +23,5 @@ describe('<Instructions />', () => {
   it('hides pairing instructions if directed', () => {
     const subject = shallow(<Instructions showPairingInstructions={false} />);
     expect(subject.text()).not.toMatch('To pair a device');
-  });
-
-  it('has a compact variant', () => {
-    const subject = shallow(<Instructions compact />);
-    expect(subject.find('.instructions').prop('className')).toMatch('--compact');
   });
 });

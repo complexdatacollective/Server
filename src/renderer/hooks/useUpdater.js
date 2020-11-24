@@ -10,7 +10,7 @@ import { isMacOS, isWindows, isLinux } from '../utils/environment';
 import { actionCreators as toastActions } from '../ducks/modules/toasts';
 import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 import { ExternalLink, openExternalLink } from '../components/ExternalLink';
-import useDismissedUpdatesState from './useDismissedUpdatesState';
+import useDismissibleState from './useDismissibleState';
 
 // Custom renderer for links so that they open correctly in an external browser
 const renderers = {
@@ -81,7 +81,7 @@ export const checkEndpoint = (updateEndpoint, currentVersion) =>
 
 const useUpdater = (updateEndpoint, timeout = 0) => {
   const dispatch = useDispatch();
-  const [dismissedUpdates, dismissUpdate] = useDismissedUpdatesState();
+  const [dismissedUpdates, dismissUpdate] = useDismissibleState('dismissedUpdates');
 
   const handleDismiss = (version) => {
     dismissUpdate(version);
@@ -131,7 +131,7 @@ const useUpdater = (updateEndpoint, timeout = 0) => {
     dispatch(toastActions.addToast({
       id: 'update-toast',
       type: 'info',
-      classNames: 'update-available-toast',
+      classNames: 'toast--wide',
       title: `Version ${newVersion} available`,
       autoDismiss: false,
       content: (
@@ -153,7 +153,7 @@ const useUpdater = (updateEndpoint, timeout = 0) => {
     const delay = setTimeout(checkForUpdate, timeout);
 
     return () => clearTimeout(delay);
-  }, [updateEndpoint, dismissedUpdates]);
+  }, []);
 };
 
 export default useUpdater;

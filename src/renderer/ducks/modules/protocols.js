@@ -1,6 +1,6 @@
 import AdminApiClient from '../../utils/adminApiClient';
 import viewModelMapper from '../../utils/baseViewModelMapper';
-import { actionCreators as messageActionCreators } from './appMessages';
+import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
 
 const LOAD_PROTOCOLS = 'LOAD_PROTOCOLS';
 const PROTOCOLS_LOADED = 'PROTOCOLS_LOADED';
@@ -125,14 +125,26 @@ const loadProtocols = () => (dispatch) => {
   return getApiClient().get('/protocols')
     .then(resp => resp.protocols)
     .then(protocols => dispatch(protocolsLoadedDispatch(protocols)))
-    .catch(err => messageActionCreators.showErrorMessage(err.message)(dispatch));
+    .catch((err) => {
+      dispatch(dialogActions.openDialog({
+        type: 'Error',
+        title: 'Error Loading Protocols',
+        error: err,
+      }));
+    });
 };
 
 const deleteProtocol = id => (dispatch) => {
   dispatch(deleteProtocolDispatch(id));
   return getApiClient().delete(`/protocols/${id}`)
     .then(() => dispatch(protocolDeletedDispatch(id)))
-    .catch(err => messageActionCreators.showErrorMessage(err.message)(dispatch));
+    .catch((err) => {
+      dispatch(dialogActions.openDialog({
+        type: 'Error',
+        title: 'Error Deleting Protocol',
+        error: err,
+      }));
+    });
 };
 
 const actionCreators = {
