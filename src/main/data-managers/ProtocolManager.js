@@ -340,7 +340,6 @@ class ProtocolManager {
    * @async
    */
   destroyProtocolDirectory() {
-    console.log('ran me', this.protocolDir);
     return fse.emptyDir(this.protocolDir);
   }
 
