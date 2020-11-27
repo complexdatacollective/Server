@@ -1,5 +1,6 @@
 const { dialog } = require('electron');
 const fs = require('fs');
+const fse = require('fs-extra');
 const jszip = require('jszip');
 const logger = require('electron-log');
 const path = require('path');
@@ -325,10 +326,22 @@ class ProtocolManager {
     return this.allProtocols()
       .then(protocols => protocols.map(p => this.destroyProtocol(p)))
       .then(promises => Promise.all(promises))
+      .then(() => this.destroyProtocolDirectory())
       .catch((err) => {
         logger.error(err);
         throw err;
       });
+  }
+
+  /**
+   * This cleans up the protocol directory in it's entirity, in the
+   * in the case that there are protocols here that don't exist in the
+   * database.
+   * @async
+   */
+  destroyProtocolDirectory() {
+    console.log('ran me', this.protocolDir);
+    return fse.emptyDir(this.protocolDir);
   }
 
   /**
