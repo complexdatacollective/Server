@@ -95,6 +95,21 @@
     display: flex;
   }
 
+  &__delete-section {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: unit(2) unit(4);
+    background: var(--color-platinum--dark);
+    margin: 0 0 0.5rem 0;
+    border-radius: var(--border-radius);
+
+    .button {
+      margin: 0 0.5rem;
+    }
+
+  }
+
   @include modifier(loading) {
     display: flex;
     justify-content: center;

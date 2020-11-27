@@ -5,12 +5,12 @@ import { connect } from 'react-redux';
 import { Redirect, withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
 import { includes, without } from 'lodash';
-import { Spinner } from '@codaco/ui';
+import { Spinner, Button } from '@codaco/ui';
 import { AutoSizer } from 'react-virtualized';
 import { Text } from '@codaco/ui/lib/components/Fields';
 import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 import { selectors as protocolSelectors } from '../ducks/modules/protocols';
-import { CaseTable, DismissButton } from '../components';
+import { CaseTable } from '../components';
 import withSessions from './workspace/withSessions';
 import Types from '../types';
 
@@ -25,7 +25,7 @@ class CaseManagement extends Component {
   }
 
   get header() {
-    const { sessions, filterValue, changeFilter } = this.props;
+    const { filterValue, changeFilter } = this.props;
     return (
       <div className="case-management__header-text">
         <div className="case-management__filter">
@@ -40,15 +40,31 @@ class CaseManagement extends Component {
             }}
           />
         </div>
-        {
-          sessions && sessions.length > 0 &&
-          <DismissButton
-            small
-            inline
-            onClick={() => this.deleteSelectedSessions(this.state.sessionsToDelete)}
-          >
-            Delete selected
-          </DismissButton>
+      </div>
+    );
+  }
+
+  get deleteSection() {
+    const { totalSessionsCount } = this.props;
+    const { sessionsToDelete } = this.state;
+
+    return (
+      <div>
+        { this.state.sessionsToDelete.length > 0 &&
+          <div className="case-management__delete-section">
+            {sessionsToDelete.length} cases are selected.
+            <Button size="small" onClick={() => this.deleteSelectedSessions(this.state.sessionsToDelete)}>
+              Delete selected cases
+            </Button>
+            { this.allSessionsSelected() && sessionsToDelete.length !== totalSessionsCount &&
+              <React.Fragment>
+                or
+                <Button size="small" color="tomato" onClick={() => this.deleteAllSessions()}>
+                  Delete all {totalSessionsCount} cases
+                </Button>
+              </React.Fragment>
+            }
+          </div>
         }
       </div>
     );
@@ -98,6 +114,17 @@ class CaseManagement extends Component {
     });
   }
 
+
+  deleteAllSessions = () => {
+    this.props.openDialog({
+      type: 'Warning',
+      title: 'Delete all interview sessions?',
+      confirmLabel: 'Delete all sessions',
+      onConfirm: () => this.props.deleteAllSessions(),
+      message: 'Are you sure you want to delete all interview sessions? This action cannot be undone!',
+    });
+  }
+
   render() {
     const {
       sessions,
@@ -124,6 +151,7 @@ class CaseManagement extends Component {
         <React.Fragment>
           <h1>Manage Cases</h1>
           <div className="case-management__header">{this.header}</div>
+          {this.deleteSection}
           {(sessions && sessions.length === 0) && emptyContent }
           {
             (sessions && sessions.length !== 0) &&
@@ -169,6 +197,7 @@ CaseManagement.defaultProps = {
 
 CaseManagement.propTypes = {
   deleteSelectedSessions: PropTypes.func.isRequired,
+  deleteAllSessions: PropTypes.func.isRequired,
   loadMoreSessions: PropTypes.func.isRequired,
   sessions: PropTypes.array,
   totalSessionsCount: PropTypes.number,
