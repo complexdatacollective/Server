@@ -52,7 +52,7 @@ class CaseManagement extends Component {
       <div>
         { this.state.sessionsToDelete.length > 0 &&
           <div className="case-management__delete-section">
-            {sessionsToDelete.length} cases are selected.
+            {sessionsToDelete.length} cases are selected
             <Button size="small" onClick={() => this.deleteSelectedSessions(this.state.sessionsToDelete)}>
               Delete selected cases
             </Button>
