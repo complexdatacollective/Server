@@ -1,6 +1,6 @@
 .dashboard {
   $min-grid-row: 0;
-  $max-grid-row: 27rem;
+  $max-grid-row: 30rem;
   $grid-gap: spacing(medium);
 
   @include element(panel) {
@@ -10,6 +10,7 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
+      padding-bottom: unit(4);
     }
 
     @include modifier(scrollable) {
@@ -32,7 +33,6 @@
     padding: unit(2) unit(4);
     position: relative;
     width: 100%;
-    margin-bottom: unit(4);
 
     .protocol-card {
       background: var(--color-white);
@@ -74,7 +74,7 @@
   grid-gap: calc(#{$grid-gap} + var(--draggable-height)) $grid-gap;
   grid-template-columns: repeat(2, 1fr);
 
-  @media screen and (min-width: 1500px) {
+  @media screen and (min-width: 1600px) {
     grid-template-columns: repeat(3, 1fr);
   }
 }
