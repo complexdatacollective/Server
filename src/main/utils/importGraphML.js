@@ -3,7 +3,7 @@ const { ErrorMessages, RequestError } = require('../errors/RequestError');
 const {
   caseProperty,
   entityPrimaryKeyProperty,
-  remoteProtocolProperty,
+  protocolProperty,
   protocolName,
   ncTypeProperty,
   ncUUIDProperty,
@@ -34,7 +34,7 @@ const validateGraphML = (bufferContents) => {
   }
   let graphmlProtocolId;
   Array.from(graphs).forEach((graph) => {
-    const protocolId = graph.getAttribute(`nc:${remoteProtocolProperty}`);
+    const protocolId = graph.getAttribute(`nc:${protocolProperty}`);
     if (!graphmlProtocolId) {
       graphmlProtocolId = protocolId;
     } else if (graphmlProtocolId !== protocolId) {
@@ -133,7 +133,7 @@ const convertGraphML = (xmlDoc, protocol) => {
 
   const sessions = [];
   const graphs = graphml[0].getElementsByTagName('graph');
-  const protocolId = graphs && graphs[0].getAttribute(`nc:${remoteProtocolProperty}`);
+  const protocolId = graphs && graphs[0].getAttribute(`nc:${protocolProperty}`);
   Array.from(graphs).forEach((graph) => {
     // process session variables
     const session = {};
@@ -143,7 +143,7 @@ const convertGraphML = (xmlDoc, protocol) => {
       sessionVariables: {
         sessionId,
         [caseProperty]: graph.getAttribute(`nc:${caseProperty}`),
-        [remoteProtocolProperty]: protocolId,
+        [protocolProperty]: protocolId,
         [protocolName]: graph.getAttribute(`nc:${protocolName}`),
         [sessionExportTimeProperty]: graph.getAttribute('nc:sessionExportTime'),
         [sessionStartTimeProperty]: graph.getAttribute('nc:sessionStartTime'),

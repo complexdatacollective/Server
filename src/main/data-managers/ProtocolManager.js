@@ -10,7 +10,7 @@ const SessionDB = require('./SessionDB');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
 const { readFile, rename, tryUnlink } = require('../utils/promised-fs');
 const { validateGraphML, convertGraphML } = require('../utils/importGraphML');
-const { caseProperty, protocolName: protocolNameProperty, remoteProtocolProperty, codebookHashProperty } = require('../utils/network-exporters/src/utils/reservedAttributes');
+const { caseProperty, protocolName: protocolNameProperty, protocolProperty, codebookHashProperty } = require('../utils/network-exporters/src/utils/reservedAttributes');
 const { hexDigest } = require('../utils/sha256');
 const { sendToGui } = require('../guiProxy');
 const { get, debounce } = require('lodash');
@@ -638,7 +638,7 @@ class ProtocolManager {
     // to all be based on the same protocol
     const graphml = xmlDoc.getElementsByTagName('graphml');
     const graphs = graphml[0].getElementsByTagName('graph');
-    const protocolId = graphs && graphs[0].getAttribute(`nc:${remoteProtocolProperty}`);
+    const protocolId = graphs && graphs[0].getAttribute(`nc:${protocolProperty}`);
     const protocolName = graphs && graphs[0].getAttribute(`nc:${protocolNameProperty}`);
     const caseId = graphs && graphs[0].getAttribute(`nc:${caseProperty}`);
     const codebookHash = graphs && graphs[0].getAttribute(`nc:${codebookHashProperty}`);

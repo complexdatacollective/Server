@@ -45,13 +45,17 @@ class ExportManager {
       return Promise.reject(new RequestError(ErrorMessages.NotFound));
     }
 
+    // Get all sessions associated with this protocol
     const exporter = this.sessionDB.findAll(protocol._id, null, null)
       .then(sessions =>
         sessions.map(session => ({ ...session.data })),
       )
       .then((sessions) => {
+        // This is a valid assumption for Server, because we only ever export from within a
+        // single protocol context - all sessions should have the same protocol.
         const protocolUID = get(sessions, '[0].sessionVariables.protocolUID');
         const protocols = { [protocolUID]: protocol };
+
         const fileExportManager = new FileExportManager(options);
 
         const exportSessions = () =>
