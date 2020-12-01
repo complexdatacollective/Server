@@ -29,10 +29,10 @@ const GetStarted = () => (
           </p>
           <p>
             Server is designed to handle the backend data workflows that networks
-            research often requires. It provides a secure and convinient home for data collected
+            research often requires. It provides a secure and convenient home for data collected
             with our Interviewer app, and lets you see realtime summary data about what you are
             collecting, while retaining control over your data. It also provides a platform for
-            exporting data for further anaylsis using the tools you are used to working with.
+            exporting data for further analysis using the tools you are used to working with.
           </p>
           <p>
             Below you will find instructions for the first steps you should take with Server,
