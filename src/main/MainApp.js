@@ -106,7 +106,7 @@ const createApp = () => {
       label: 'File',
       submenu: [
         {
-          label: 'Import Protocol...',
+          label: 'Create Workspace from Protocol...',
           click: showImportProtocolDialog,
         },
         { type: 'separator' },
