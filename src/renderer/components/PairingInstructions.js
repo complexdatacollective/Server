@@ -18,20 +18,20 @@ const PairingInstructions = ({
           device.
         </li>
         <li className="instructions__step">
-          Scroll down the start screen to the &apos;Server Status&apos; panel.
+          Within the Interviewer app, scroll down the start screen to the &apos;Server
+          Status&apos; panel.
         </li>
         { networkStatus.mdnsIsSupported && (
           <React.Fragment>
             <li className="instructions__step">
-              The automatic discovery service is available on this computer, which means that this
-              computer will be visible in the server discovery panel within Interviewer, providing
-              both devices are connected to the same network. If this Server appears in the panel,
+              Still in Interviewer, check to see if your computer running Server appears in panel
+              titled &apos;Looking for nearby Servers&apos;. If this Server appears in the panel,
               tap it to begin the pairing process.
             </li>
             <li>
-              If this computer does not appear in the automatic discovery panel, you can provide
-              manual connection details to pair. Expand the section below to view this
-              computer&apos;s IP address(es) and port.
+              If the computer running Server does not appear in the automatic discovery panel,
+              you can provide manual connection details to pair. Expand the section below to
+              view this computer&apos;s IP address(es) and port.
             </li>
           </React.Fragment>
         )}
