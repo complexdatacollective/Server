@@ -5,6 +5,7 @@
 /build
 /release-builds
 **/db
+**/db-6
 /www
 /electron-dev
 /docs
