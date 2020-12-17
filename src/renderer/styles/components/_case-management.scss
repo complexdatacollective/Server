@@ -78,11 +78,15 @@
   }
 
   &__header {
-    height: 5rem;
+    @include panel;
+    padding: unit(2) unit(4);
+    background: var(--color-cyber-grape);
+    margin: 1rem 0 1.5rem;
+    color: var(--color-white);
 
-    .dismiss-button {
-      height: 1rem;
-      margin-top: 1rem;
+    .form-field-container,
+    .form-field {
+      margin: 0;
     }
   }
 
@@ -93,6 +97,21 @@
 
   &__filter {
     display: flex;
+  }
+
+  &__delete-section {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: unit(2) unit(4);
+    background: var(--color-platinum--dark);
+    margin: 0 0 1rem;
+    border-radius: var(--border-radius);
+
+    .button {
+      margin: 0 0.5rem;
+    }
+
   }
 
   @include modifier(loading) {

@@ -1,5 +1,6 @@
 /* eslint-env jest */
 import fs from 'fs';
+import fse from 'fs-extra';
 import JSZip from 'jszip';
 import path from 'path';
 import objectHash from 'object-hash';
@@ -8,6 +9,7 @@ import ProtocolManager from '../ProtocolManager';
 import promisedFs from '../../utils/promised-fs';
 
 jest.mock('fs');
+jest.mock('fs-extra');
 jest.mock('electron');
 jest.mock('electron-log');
 jest.mock('jszip');
@@ -319,6 +321,7 @@ describe('ProtocolManager', () => {
     });
 
     it('removes all protocols', async () => {
+      fse.emptyDir.mockResolvedValue(true);
       const mockProtocols = [{ filename: 'a' }, { filename: 'b' }];
       manager.db.all.mockResolvedValue(mockProtocols);
       manager.db.destroy.mockResolvedValue(1);

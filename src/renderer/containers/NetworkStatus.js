@@ -12,8 +12,8 @@ const getNetworkIndicatorStatus = (networkStatus) => {
 };
 
 const NetworkStatus = () => {
-  const networkStatus = useNetworkStatus();
   const [showNetworkModal, setShowNetworkModal] = useState(false);
+  const networkStatus = useNetworkStatus([showNetworkModal]);
 
   const networkStatusClasses = cx(
     'network-status',

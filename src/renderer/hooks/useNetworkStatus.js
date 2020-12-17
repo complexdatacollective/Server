@@ -10,9 +10,10 @@ const initialState = {
   uptime: 0,
 };
 
-const useNetworkStatus = () => {
+const useNetworkStatus = (deps = []) => {
   const apiClient = useRef(new AdminApiClient());
   const [networkState, setNetworkState] = useState(initialState);
+
 
   useEffect(() => {
     apiClient.current.get('/health')
@@ -27,7 +28,7 @@ const useNetworkStatus = () => {
       .catch((e) => {
         setNetworkState({ error: e.toString(), ...initialState });
       });
-  }, []);
+  }, deps);
 
   return networkState;
 };

@@ -1,3 +1,9 @@
+.app--frameless {
+  .file-drop-target {
+    padding-top: unit(2);
+  }
+}
+
 .file-drop-target {
   @include modifier(active) {
     background-color: var(--color-slate-blue--dark);

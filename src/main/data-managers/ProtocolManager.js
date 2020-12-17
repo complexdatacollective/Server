@@ -1,5 +1,6 @@
 const { dialog } = require('electron');
 const fs = require('fs');
+const fse = require('fs-extra');
 const jszip = require('jszip');
 const logger = require('electron-log');
 const path = require('path');
@@ -10,7 +11,7 @@ const SessionDB = require('./SessionDB');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
 const { readFile, rename, tryUnlink } = require('../utils/promised-fs');
 const { validateGraphML, convertGraphML } = require('../utils/importGraphML');
-const { caseProperty, protocolName: protocolNameProperty, remoteProtocolProperty, codebookHashProperty } = require('../utils/network-exporters/src/utils/reservedAttributes');
+const { caseProperty, protocolName: protocolNameProperty, protocolProperty, codebookHashProperty } = require('../utils/network-exporters/src/utils/reservedAttributes');
 const { hexDigest } = require('../utils/sha256');
 const { sendToGui } = require('../guiProxy');
 const { get, debounce } = require('lodash');
@@ -61,10 +62,10 @@ class ProtocolManager {
     this.presentImportSessionDialog = this.presentImportSessionDialog.bind(this);
     this.validateAndImportProtocols = this.validateAndImportProtocols.bind(this);
 
-    const dbFile = path.join(dataDir, 'db', 'protocols.db');
+    const dbFile = path.join(dataDir, 'db-6', 'protocols.db');
     this.db = new ProtocolDB(dbFile);
 
-    const sessionDbFile = path.join(dataDir, 'db', 'sessions.db');
+    const sessionDbFile = path.join(dataDir, 'db-6', 'sessions.db');
     this.sessionDb = new SessionDB(sessionDbFile);
     this.reportDb = this.sessionDb;
   }
@@ -325,10 +326,21 @@ class ProtocolManager {
     return this.allProtocols()
       .then(protocols => protocols.map(p => this.destroyProtocol(p)))
       .then(promises => Promise.all(promises))
+      .then(() => this.destroyProtocolDirectory())
       .catch((err) => {
         logger.error(err);
         throw err;
       });
+  }
+
+  /**
+   * This cleans up the protocol directory in it's entirity, in the
+   * in the case that there are protocols here that don't exist in the
+   * database.
+   * @async
+   */
+  destroyProtocolDirectory() {
+    return fse.emptyDir(this.protocolDir);
   }
 
   /**
@@ -638,7 +650,7 @@ class ProtocolManager {
     // to all be based on the same protocol
     const graphml = xmlDoc.getElementsByTagName('graphml');
     const graphs = graphml[0].getElementsByTagName('graph');
-    const protocolId = graphs && graphs[0].getAttribute(`nc:${remoteProtocolProperty}`);
+    const protocolId = graphs && graphs[0].getAttribute(`nc:${protocolProperty}`);
     const protocolName = graphs && graphs[0].getAttribute(`nc:${protocolNameProperty}`);
     const caseId = graphs && graphs[0].getAttribute(`nc:${caseProperty}`);
     const codebookHash = graphs && graphs[0].getAttribute(`nc:${codebookHashProperty}`);

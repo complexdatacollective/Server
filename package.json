@@ -112,7 +112,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.11.2",
-    "@codaco/ui": "^3.9.1",
+    "@codaco/ui": "^4.0.1",
     "animejs": "^2.2.0",
     "archiver": "^4.0.1",
     "async": "^3.2.0",

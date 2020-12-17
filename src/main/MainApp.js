@@ -71,11 +71,11 @@ const createApp = () => {
         dialog.showErrorBox('Session Import Error', err && err.message);
       });
 
-  const generateTestSessions = () => {
+  const generateTestSessions = (number) => {
     protocolManager.allProtocols().then((allProtocols) => {
       const developmentProtocol = find(allProtocols, ['name', 'Development']);
       if (!developmentProtocol) { return; }
-      const mockSessions = buildMockData(developmentProtocol);
+      const mockSessions = buildMockData(developmentProtocol, number);
       const developmentProtocolId = get(developmentProtocol, '_id');
       protocolManager.addSessionData(developmentProtocolId, mockSessions);
     });
@@ -106,7 +106,7 @@ const createApp = () => {
       label: 'File',
       submenu: [
         {
-          label: 'Import Protocol...',
+          label: 'Create Workspace from Protocol...',
           click: showImportProtocolDialog,
         },
         { type: 'separator' },
@@ -146,8 +146,12 @@ const createApp = () => {
         { role: 'toggledevtools' },
         { type: 'separator' },
         {
-          label: 'Generate test sessions...',
-          click: generateTestSessions,
+          label: 'Generate large test dataset...',
+          click: () => generateTestSessions(4500),
+        },
+        {
+          label: 'Generate small test dataset...',
+          click: () => generateTestSessions(100),
         },
         { type: 'separator' },
         {

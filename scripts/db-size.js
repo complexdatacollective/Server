@@ -21,7 +21,7 @@
 const fs = require('fs');
 const uuidv4 = require('uuid/v4');
 const SessionDB = require('../src/main/data-managers/SessionDB');
-const { caseProperty, remoteProtocolProperty, entityPrimaryKeyProperty, entityAttributesProperty } = require('../src/main/utils/network-exporters/src/utils/reservedAttributes');
+const { caseProperty, protocolProperty, entityPrimaryKeyProperty, entityAttributesProperty } = require('../src/main/utils/network-exporters/src/utils/reservedAttributes');
 
 const resetDb = !process.env.SKIP_RESET;
 
@@ -111,7 +111,7 @@ function buildMockData({ sessionCount = SessionCount, edgesPerSession = EdgesPer
     return {
       nodes,
       edges,
-      sessionVariables: { [caseProperty]: `a_${index++}`, [remoteProtocolProperty]: "629aa7b8a90c8ca577ae8c6b3e245ba1e0f1fad99035d6cddd19265186e375cf" },
+      sessionVariables: { [caseProperty]: `a_${index++}`, [protocolProperty]: "629aa7b8a90c8ca577ae8c6b3e245ba1e0f1fad99035d6cddd19265186e375cf" },
     };
   }
 

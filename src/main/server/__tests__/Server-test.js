@@ -11,7 +11,7 @@ const os = require('os');
 const { deviceServiceEvents } = require('../devices/DeviceService');
 
 const testPortNumber = 51999;
-const serverOpts = { dataDir: 'db' };
+const serverOpts = { dataDir: 'db-6' };
 const mockDeviceService = { on: jest.fn(), stop: jest.fn() };
 
 jest.mock('electron-log');

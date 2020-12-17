@@ -29,24 +29,8 @@ class SessionPanel extends Component {
             {countText}
           </small>
         </h4>
-        {
-          sessions && sessions.length > 0 &&
-          <DismissButton small inline onClick={() => this.deleteAllSessions()}>
-            Delete all
-          </DismissButton>
-        }
       </div>
     );
-  }
-
-  deleteAllSessions() {
-    this.props.openDialog({
-      type: 'Warning',
-      title: 'Delete all interview sessions?',
-      confirmLabel: 'Delete all sessions',
-      onConfirm: () => this.props.deleteAllSessions(),
-      message: 'Are you sure you want to delete all interview sessions? This action cannot be undone!',
-    });
   }
 
   deleteSession(sessionId) {
@@ -105,7 +89,6 @@ SessionPanel.defaultProps = {
 SessionPanel.propTypes = {
   currentProtocolId: PropTypes.string,
   deleteSession: PropTypes.func.isRequired,
-  deleteAllSessions: PropTypes.func.isRequired,
   sessions: PropTypes.array,
   totalCount: PropTypes.number,
   openDialog: PropTypes.func.isRequired,

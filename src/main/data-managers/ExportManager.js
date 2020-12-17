@@ -12,7 +12,7 @@ const { RequestError, ErrorMessages } = require('../errors/RequestError');
 class ExportManager {
   constructor(sessionDataDir) {
     // TODO: path is duplicated in ProtocolManager
-    const sessionDbFile = path.join(sessionDataDir, 'db', 'sessions.db');
+    const sessionDbFile = path.join(sessionDataDir, 'db-6', 'sessions.db');
     this.sessionDB = new SessionDB(sessionDbFile);
   }
 
@@ -45,13 +45,17 @@ class ExportManager {
       return Promise.reject(new RequestError(ErrorMessages.NotFound));
     }
 
+    // Get all sessions associated with this protocol
     const exporter = this.sessionDB.findAll(protocol._id, null, null)
       .then(sessions =>
         sessions.map(session => ({ ...session.data })),
       )
       .then((sessions) => {
+        // This is a valid assumption for Server, because we only ever export from within a
+        // single protocol context - all sessions should have the same protocol.
         const protocolUID = get(sessions, '[0].sessionVariables.protocolUID');
         const protocols = { [protocolUID]: protocol };
+
         const fileExportManager = new FileExportManager(options);
 
         const exportSessions = () =>

@@ -9,9 +9,8 @@ const {
   entityAttributesProperty,
   caseProperty,
   sessionProperty,
-  remoteProtocolProperty,
-  protocolName,
   protocolProperty,
+  protocolName,
   // sessionStartTimeProperty,
   // sessionFinishTimeProperty,
   codebookHashProperty,
@@ -136,11 +135,10 @@ const makeSession = (protocol) => {
     // These are needed by export?:
     [caseProperty]: caseId,
     [sessionProperty]: sessionId,
-    [remoteProtocolProperty]: nameDigest(protocol.name),
+    [protocolProperty]: nameDigest(protocol.name),
     [sessionExportTimeProperty]: new Date().toISOString(),
     // These are needed by server?:
     [protocolName]: protocol.name,
-    [protocolProperty]: nameDigest(protocol.name),
     [codebookHashProperty]: objectHash(protocol.codebook),
   };
 

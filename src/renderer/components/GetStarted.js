@@ -1,9 +1,10 @@
 import React from 'react';
+import { Button } from '@codaco/ui';
 import Instructions from '../components/Instructions';
 import serverLogo from '../images/Srv-Flat.svg';
 import nc from '../images/NC-Mark.svg';
 import getStarted from '../images/charts.svg';
-import { ExternalLink } from './ExternalLink';
+import { openExternalLink } from './ExternalLink';
 
 const GetStarted = () => (
   <div className="content get-started">
@@ -25,19 +26,20 @@ const GetStarted = () => (
         <div className="content-text">
           <h2>Getting Started</h2>
           <p>
-            Thank you for installing Server, and supporting the Network Canvas project!
-          </p>
-          <p>
             Server is designed to handle the backend data workflows that networks
-            research often requires. It provides a secure and convinient home for data collected
-            with our Interviewer app, and lets you see realtime summary data about what you are
-            collecting, while retaining control over your data. It also provides a platform for
-            exporting data for further anaylsis using the tools you are used to working with.
+            research requires. It provides a secure and convenient home for your data in the
+            form of protocol-based workspaces, and allows for data to be imported either by pairing
+            with your field devices running Interviewer, or using an entirely offline workflow.
+            Server also allows you to see realtime summary data, before exporting for further
+            analysis in formats compatible with your existing workflow.
           </p>
           <p>
             Below you will find instructions for the first steps you should take with Server,
             including pairing a device, and creating a workspace. For further information, please
-            visit our <ExternalLink href="https://documentation.networkcanvas.com">documentation website</ExternalLink>.
+            visit our documentation website.
+          </p>
+          <p>
+            <Button onClick={() => openExternalLink('https://documentation.networkcanvas.com')}>Visit Documentation Website</Button>
           </p>
         </div>
         <div className="content-image">

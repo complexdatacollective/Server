@@ -19,7 +19,7 @@ const WelcomePanel = ({
         <div className="welcome-content__text">
           <h1>Your protocol workspace</h1>
           <p>
-            You are currently viewing at the overview screen for this workspace. It is
+            You are currently viewing the overview screen for this workspace. It is
             designed to give you an &apos;at a glance&apos; summary of the data you have
             collected so far. Below you will see summary charts for each variable, which
             will populate as soon as data is available. Try dragging the charts to
