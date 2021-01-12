@@ -29,7 +29,7 @@ class AppRoutes extends Component {
             <Route exact path="/" render={() => (<OverviewScreen />)} />
             <Route exact path="/workspaces/:id" render={workspaceRenderer} />
             <Route exact path="/workspaces/:id/casemanagement" component={CaseManagement} />
-            <Route exact path="/workspaces/:id/settings" component={SettingsScreen} />
+            <Route exact path="/workspaces/:id/settings" render={props => (<SettingsScreen {...props} />)} />
             <Route exact path="/workspaces/:id/export" render={props => (<ExportScreen {...props} />)} />
           </Switch>
         </React.Fragment>

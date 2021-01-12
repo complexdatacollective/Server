@@ -173,8 +173,8 @@ SettingsScreen.propTypes = {
 };
 
 export default compose(
-  withRouter,
   connect(mapStateToProps, mapDispatchToProps),
+  withRouter,
 )(SettingsScreen);
 
 export {
