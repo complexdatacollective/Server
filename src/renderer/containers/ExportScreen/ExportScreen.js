@@ -247,14 +247,14 @@ const ExportScreen = ({
                       <Number
                         label="Screen Layout Height"
                         input={{
-                          value: exportOptionsFormState.screenLayoutHeight,
+                          value: exportOptionsFormState.screenLayoutHeight || '',
                           onChange: value => handleUpdateFormState('screenLayoutHeight', value),
                         }}
                       />
                       <Number
                         label="Screen Layout Width"
                         input={{
-                          value: exportOptionsFormState.screenLayoutWidth,
+                          value: exportOptionsFormState.screenLayoutWidth || '',
                           onChange: value => handleUpdateFormState('screenLayoutWidth', value),
                         }}
                       />
