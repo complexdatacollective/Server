@@ -670,16 +670,22 @@ class DeviceAPI extends EventEmitter {
             if (app.commandLine.hasSwitch('unsafe-pairing-code')) {
               return pairingRequest;
             }
+
             // Send code up to UI, and wait for user response
             const ack = this.outOfBandDelegate.pairingDidBeginWithRequest(pairingRequest);
             // Provide hook to abort from client-side
             abortRequest = ack.abort;
-            return ack.promise;
+            return ack.promise
+              .catch((err) => {
+                this.requestService.cancelRequest(pairingRequest._id);
+                throw err;
+              });
           })
           .then(acknowledgedRequest)
           .catch(err => this.handlers.onError(err, res))
           .then(() => next());
       },
+
       onPairingConfirm: (req, res, next) => {
         const encryptedMsg = req.body && req.body.message;
         this.requestService.verifyAndExpireEncryptedRequest(encryptedMsg)
