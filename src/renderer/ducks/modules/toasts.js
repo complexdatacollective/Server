@@ -30,11 +30,11 @@ const updateToast = (id, toast) =>
     toast,
   });
 
-const removeToast = id =>
+const removeToast = (id, callback = true) =>
   (dispatch, getState) => {
     const toast = getToast(getState(), id);
 
-    if (toast.onDismiss) {
+    if (toast.onDismiss && callback) {
       toast.onDismiss();
     }
 

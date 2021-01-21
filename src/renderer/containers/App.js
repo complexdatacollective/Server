@@ -79,9 +79,14 @@ const App = ({
       // Remove any prior request toast
       toastActions.removeToast('pairing-request-toast');
 
-      const handleToastDismiss = action => () => {
+      const handleDismissPair = () => {
         dispatch(toastActions.removeToast('pairing-request-toast'));
-        action();
+        dismissPairingRequest();
+      };
+
+      const handleAcknowledgePair = () => {
+        dispatch(toastActions.removeToast('pairing-request-toast', false));
+        ackPairingRequest();
       };
 
       dispatch(toastActions.addToast({
@@ -98,8 +103,8 @@ const App = ({
               This will give it access to your interview protocols and allow it to upload data.
             </p>
             <div className="toast-button-group">
-              <Button color="platinum--dark" onClick={handleToastDismiss(dismissPairingRequest)}>Dismiss</Button>
-              <Button color="neon-coral" onClick={handleToastDismiss(ackPairingRequest)}>Pair With Device</Button>
+              <Button color="platinum--dark" onClick={handleDismissPair}>Dismiss</Button>
+              <Button color="neon-coral" onClick={handleAcknowledgePair}>Pair With Device</Button>
             </div>
           </React.Fragment>
         ),
