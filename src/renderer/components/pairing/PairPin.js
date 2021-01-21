@@ -24,7 +24,7 @@ const PairPin = ({ code, dismissPairingRequest }) => {
         {chars.map((c, i) => <PinChar key={`${i}.${c}`} char={c} />)}
       </div>
       <div className="button-footer">
-        <Button color="platinum" onClick={dismissPairingRequest}>Cancel</Button>
+        <Button color="platinum" onClick={() => dismissPairingRequest(true)}>Cancel</Button>
       </div>
     </div>
   );

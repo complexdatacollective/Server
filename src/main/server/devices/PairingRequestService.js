@@ -1,6 +1,7 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
 const uuidv4 = require('uuid/v4');
 const logger = require('electron-log');
+const { ipcMain } = require('electron');
 
 const PairingRequestDB = require('../../data-managers/PairingRequestDB');
 const PairingCodeFactory = require('./PairingCodeFactory');
@@ -16,6 +17,11 @@ const {
 class PairingRequestService {
   constructor() {
     this.sharedDb = new PairingRequestDB('PairingRequestDB');
+
+    ipcMain.on('PAIRING_CANCELLED', (_, id) => {
+      if (!id) { return; }
+      this.cancelRequest(id);
+    });
   }
 
   // Pairing code is used to derive a shared secret.
