@@ -90,6 +90,7 @@ const App = ({
         classNames: 'toast--wide',
         title: 'Pair Device?',
         autoDismiss: false,
+        onDismiss: dismissPairingRequest,
         content: (
           <React.Fragment>
             <p>
