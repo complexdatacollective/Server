@@ -1,9 +1,6 @@
 $block: instructions;
 
 .#{$block} {
-  max-width: 80rem;
-  margin: 0 auto;
-
   @include element(section) {
     @include panel;
     --input-background: transparent;
@@ -57,9 +54,10 @@ $block: instructions;
     }
   }
 
-  @include modifier(inline) {
-    
-  }
+  @include modifier(inline);
+
+  max-width: 80rem;
+  margin: 0 auto;
 
 }
 
