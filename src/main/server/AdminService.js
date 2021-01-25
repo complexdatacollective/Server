@@ -9,6 +9,8 @@ const apiRequestLogger = require('./apiRequestLogger');
 const DeviceManager = require('../data-managers/DeviceManager');
 const ProtocolManager = require('../data-managers/ProtocolManager');
 const ExportManager = require('../data-managers/ExportManager');
+
+const ResolverManager = require('../data-managers/ResolverManager');
 const { resetPemKeyPair } = require('./certificateManager');
 const { PairingRequestService } = require('./devices/PairingRequestService');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
@@ -300,6 +302,56 @@ class AdminService {
           res.send(500, { status: 'error' });
         })
         .then(() => next());
+    });
+
+
+    api.get('/protocols/:protocolId/resolutions', (req, res, next) => {
+      // apiRequestLogger('AdminAPI')(req, { statusCode: 0 }); // log request start
+
+      // this.protocolManager.getResolutionsIndex(req.params.protocolId)
+      //   .then(results =>
+      //     res.send({ status: 'ok', ...results }),
+      //   )
+      //   .catch((err) => {
+      //     logger.error(err);
+      //     res.send(500, { status: 'error' });
+      //   })
+      //   .then(() => next());
+    });
+
+    api.post('/protocols/:protocolId/resolutions', (req, res, next) => {
+      // apiRequestLogger('AdminAPI')(req, { statusCode: 0 }); // log request start
+
+      // const { parameters, resolution } = req.body;
+
+      // this.protocolManager.saveResolution(
+      //   req.params.protocolId,
+      //   parameters,
+      //   resolution,
+      // )
+      //   .then(({ _id: resolutionId }) =>
+      //     res.send({ status: 'ok', resolutionId }),
+      //   )
+      //   .catch((err) => {
+      //     logger.error(err);
+      //     res.send(codeForError(err), { status: 'error', message: err.message });
+      //   })
+      //   .then(() => next());
+    });
+
+    api.del('/protocols/:protocolId/resolutions/:resolutionId', (req, res, next) => {
+      // apiRequestLogger('AdminAPI')(req, { statusCode: 0 }); // log request start
+
+      // this.protocolManager.deleteResolutionsSince(
+      //   req.params.protocolId,
+      //   req.params.resolutionId,
+      // )
+      //   .then(ids => res.send({ status: 'ok', ids }))
+      //   .catch((err) => {
+      //     logger.error(err);
+      //     res.send(codeForError(err), { status: 'error', message: err.message });
+      //   })
+      //   .finally(next);
     });
 
     // See ExportManager#createExportFile for possible req body params
