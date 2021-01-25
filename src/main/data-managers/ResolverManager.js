@@ -130,7 +130,8 @@ class ResolverManager {
   }
 
   // Delete all resolutions after and INCLUDING resolutionId
-  deleteResolutionsSince(protocolId, resolutionId) {
+  deleteResolutions(protocolId, { from: resolutionId } = {}) {
+    if (!resolutionId) { throw Error('No resolution id specified: `deleteResolutions(protocolId, { from: resolutionId })`'); }
     return this.getResolutions(protocolId)
       // Get all resolutions up to and including resolutionId
       .then((resolutions) => {

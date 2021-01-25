@@ -307,7 +307,7 @@ class AdminService {
     api.get('/protocols/:protocolId/resolutions', (req, res, next) => {
       apiRequestLogger('AdminAPI')(req, { statusCode: 0 }); // log request start
 
-      this.resolverManager.getResolutionsStatus(req.params.protocolId)
+      this.resolverManager.getResolutionsWithSessionCounts(req.params.protocolId)
         .then(results =>
           res.send({ status: 'ok', ...results }),
         )
