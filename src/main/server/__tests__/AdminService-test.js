@@ -22,6 +22,17 @@ jest.mock('../../data-managers/ExportManager', () => class {
     },
   })
 });
+// jest.mock('../../data-managers/ResolverManager', () => {
+//   class ResolverManager {
+//     resolveNetwork = jest.fn().mockResolvedValue({ abort: jest.fn() })
+//   }
+
+//   return {
+//     ResolverManager,
+//     default: ResolverManager,
+//   };
+// });
+
 
 const testPortNumber = 52001;
 
@@ -325,6 +336,22 @@ describe('the AdminService', () => {
           const res = await jsonClient.post(endpoint, {});
           expect(res.json.status).toBe('ok');
         });
+      });
+
+      describe.only('resolutions', () => {
+        it('GET /resolutions', async () => {
+          const endpoint = makeUrl('protocols/1/resolutions', apiBase);
+          // const error = new Error('Mock Invalid Options');
+          // adminService.exportManager.exportSessions.mockRejectedValueOnce(error);
+          await expect(jsonClient.get(endpoint, {})).resolves.toMatchObject({
+            json: {
+              status: 'ok',
+              resolutions: null,
+            },
+          });
+        });
+        it.todo('POST /resolutions');
+        it.todo('DEL /resolutions/:resolutionId');
       });
     });
   });

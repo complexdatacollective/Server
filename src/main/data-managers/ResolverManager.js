@@ -1,10 +1,21 @@
 /* eslint-disable no-underscore-dangle */
 
-const { last, get } = require('lodash');
+const path = require('path');
+const { last, get, findLast } = require('lodash');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
 const { getNetworkResolver } = require('../utils/getNetworkResolver');
 const { transformSessions } = require('../utils/resolver/transformSessions');
+const ResolverDB = require('./ResolverDB');
+const SessionDB = require('./SessionDB');
 // const { formatSessionAsNetwork, insertEgoInNetworks } = require('../utils/formatters/network');
+
+const formatResolution = resolution => ({
+  // ...resolution,
+  _id: resolution._id,
+  date: resolution.updatedAt,
+  transformCount: resolution.transforms.length,
+  transforms: resolution.transforms,
+});
 
 const defaultNetworkOptions = {
   enableEntityResolution: true,
@@ -16,8 +27,12 @@ const defaultNetworkOptions = {
  * Interface for data resolution
  */
 class ResolverManager {
-  constructor(protocolManager) {
-    this.protocolManager = protocolManager;
+  constructor(dataDir) {
+    const dbFile = path.join(dataDir, 'db-6', 'resolver.db');
+    this.db = new ResolverDB(dbFile);
+
+    const sessionDbFile = path.join(dataDir, 'db-6', 'sessions.db');
+    this.sessionDb = new SessionDB(sessionDbFile);
   }
 
   getResolvedNetwork(
@@ -78,51 +93,40 @@ class ResolverManager {
       .then(([network]) => getNetworkResolver(requestId, command, protocol.codebook, network));
   }
 
+  getResolutions(protocolId) {
+    return this.db.getResolutions(protocolId)
+      .then(resolutions => resolutions.map(formatResolution));
+  }
 
-  // resolutions is in format:
-  // [{ id, date }, ...]
-  getResolutionSessionCounts(protocolId, resolutions = []) {
-    return this.sessionDb.findAll(protocolId, null, { updatedAt: 1 })
-      .then((sessions) => {
-        if (resolutions.length === 0) { return { _unresolved: sessions.length }; }
-        const counts = sessions
+  getResolutionsWithSessionCounts(protocolId) {
+    return Promise.all([
+      this.getResolutions(protocolId),
+      this.sessionDb.findAll(protocolId, null, { updatedAt: 1 }),
+    ])
+      .then(([resolutions, sessions]) => {
+        const sessionCounts = sessions
           .reduce((acc, session) => {
-            const { _id } = findLast(resolutions, ({ _date }) => _date > session.updatedAt) || { id: '_unresolved' };
+            const { _id } = findLast(resolutions, ({ date }) => date > session.updatedAt) || { _id: '_unresolved' };
             return {
               ...acc,
               [_id]: get(acc, _id, 0) + 1,
             };
           }, {});
 
-        return counts;
+        const unresolved = get(sessionCounts, '_unresolved', 0);
+
+        const resolutionsWithCount = resolutions
+          .map(resolution => ({
+            ...resolution,
+            sessionCount: get(sessionCounts, resolution._id, 0),
+          }));
+
+        return { resolutions: resolutionsWithCount, unresolved };
       });
   }
 
-  getResolutions(protocolId) {
-    return this.resolverDB.getResolutions(protocolId)
-      .then(resolutions => resolutions.map(formatResolution));
-  }
-
-  getResolutionsIndex(protocolId) {
-    return this.getResolutions(protocolId)
-      .then(resolutions =>
-        this.getResolutionSessionCounts(protocolId, resolutions)
-          .then((sessionCounts) => {
-            const unresolved = get(sessionCounts, '_unresolved', 0);
-
-            const resolutionsWithCount = resolutions
-              .map(resolution => ({
-                ...resolution,
-                _sessionCount: get(sessionCounts, resolution._id, 0),
-              }));
-
-            return { resolutions: resolutionsWithCount, unresolved };
-          }),
-      );
-  }
-
   saveResolution(protocolId, parameters, transforms) {
-    return this.resolverDB.insertResolution(protocolId, parameters, transforms);
+    return this.db.insertResolution(protocolId, parameters, transforms);
   }
 
   // Delete all resolutions after and INCLUDING resolutionId
@@ -137,7 +141,7 @@ class ResolverManager {
       })
       .then(resolutions => resolutions.map(({ _id }) => _id))
       .then(resolutionIds =>
-        this.resolverDB.deleteResolutions(resolutionIds)
+        this.db.deleteResolutions(resolutionIds)
           .then(() => resolutionIds),
       );
   }
@@ -146,11 +150,8 @@ class ResolverManager {
   // Used when we delete that protocol, or sessions connected
   // to that protocol
   deleteProtocolResolutions(protocolId) {
-    return this.resolverDB.deleteProtocolResolutions(protocolId);
+    return this.db.deleteProtocolResolutions(protocolId);
   }
 }
 
-module.exports = {
-  ResolverManager,
-  default: ResolverManager,
-};
+module.exports = ResolverManager;
