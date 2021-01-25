@@ -2,11 +2,13 @@
 
 const path = require('path');
 const { last, get, findLast } = require('lodash');
-const { RequestError, ErrorMessages } = require('../errors/RequestError');
+// const { RequestError, ErrorMessages } = require('../errors/RequestError');
 const { getNetworkResolver } = require('../utils/getNetworkResolver');
 const { transformSessions } = require('../utils/resolver/transformSessions');
 const ResolverDB = require('./ResolverDB');
 const SessionDB = require('./SessionDB');
+const ProtocolDB = require('./ProtocolDB');
+const { dbFilePaths } = require('./config');
 // const { formatSessionAsNetwork, insertEgoInNetworks } = require('../utils/formatters/network');
 
 const formatResolution = resolution => ({
@@ -17,46 +19,79 @@ const formatResolution = resolution => ({
   transforms: resolution.transforms,
 });
 
-const defaultNetworkOptions = {
-  enableEntityResolution: true,
-  includeUnresolved: true,
-  resolutionId: null,
-};
+// const defaultNetworkOptions = {
+//   enableEntityResolution: true,
+//   includeUnresolved: true,
+//   resolutionId: null,
+// };
 
 /**
  * Interface for data resolution
  */
 class ResolverManager {
   constructor(dataDir) {
-    const dbFile = path.join(dataDir, 'db-6', 'resolver.db');
+    const dbFile = path.join(dataDir, ...dbFilePaths.resolver);
     this.db = new ResolverDB(dbFile);
 
-    const sessionDbFile = path.join(dataDir, 'db-6', 'sessions.db');
+    const sessionDbFile = path.join(dataDir, ...dbFilePaths.sessions);
     this.sessionDb = new SessionDB(sessionDbFile);
+
+    const protocolDbFile = path.join(dataDir, ...dbFilePaths.protocols);
+    this.protocolDb = new ProtocolDB(protocolDbFile);
+  }
+
+  resolveProtocol(
+    protocolId,
+    resolverOptions,
+    requestId,
+  ) {
+    const command = [
+      resolverOptions.interpreterPath,
+      resolverOptions.resolverPath,
+      resolverOptions.args,
+    ];
+
+    return Promise.all(
+      this.protocolDb.get(protocolId),
+      this.getSessionNetworks(protocolId),
+    )
+      .then(
+        ([protocol, network]) =>
+          getNetworkResolver(requestId, command, protocol.codebook, network),
+      );
+  }
+
+  getSessionNetworks(protocolId) {
+    return this.protocolManager.sessionDb.findAll(protocolId, null, null);
+    // .then(sessions => sessions.map(formatSessionAsNetwork))
+    // .then(networks => insertEgoInNetworks(networks));
+  }
+
+  getResolutions(protocolId) {
+    return this.db.getResolutions(protocolId)
+      .then(resolutions => resolutions.map(formatResolution));
   }
 
   getResolvedNetwork(
     protocol,
-    networkOptions,
+    resolutionOptions,
   ) {
     const protocolId = protocol._id;
 
-    const optionsWithDefaults = { ...defaultNetworkOptions, ...networkOptions };
-
     return Promise.all([
       this.getSessionNetworks(protocolId),
-      this.protocolManager.getResolutions(protocolId),
+      this.getResolutions(protocolId),
     ])
       .then(
         ([sessions, resolutions]) => {
           const lastResolution = last(resolutions);
 
-          // Assumption: All exports henceforce will have the same ego cast type
-          const egoCastType = get(lastResolution, ['parameters', 'egoCastType']);
+          // Assumption: All exports henceforth will have the same ego cast type
+          const egoCastType = get(lastResolution, ['parameters', 'egoCastType'], resolutionOptions.egoCastType);
 
           const transformOptions = {
-            resolutionId: optionsWithDefaults.resolutionId,
-            includeUnresolved: optionsWithDefaults.includeUnresolved,
+            resolutionId: resolutionOptions.resolutionId,
+            includeUnresolved: resolutionOptions.includeUnresolved,
             egoCastType,
           };
 
@@ -64,38 +99,6 @@ class ResolverManager {
         },
       )
       .then(network => ([network]));
-  }
-
-  getSessionNetworks(protocolId) {
-    return this.protocolManager.sessionDb.findAll(protocolId, null, null);
-      // .then(sessions => sessions.map(formatSessionAsNetwork))
-      // .then(networks => insertEgoInNetworks(networks));
-  }
-
-  resolveProtocol(
-    requestId,
-    protocol,
-    options,
-  ) {
-    if (!protocol) {
-      return Promise.reject(new RequestError(ErrorMessages.NotFound));
-    }
-
-    const resolverOptions = options.resolverOptions;
-
-    const command = [
-      resolverOptions.interpreterPath,
-      resolverOptions.resolverPath,
-      resolverOptions.args,
-    ];
-
-    return this.getNetwork(protocol, options)
-      .then(([network]) => getNetworkResolver(requestId, command, protocol.codebook, network));
-  }
-
-  getResolutions(protocolId) {
-    return this.db.getResolutions(protocolId)
-      .then(resolutions => resolutions.map(formatResolution));
   }
 
   getResolutionsWithSessionCounts(protocolId) {
