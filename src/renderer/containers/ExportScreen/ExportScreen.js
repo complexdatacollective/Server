@@ -66,8 +66,6 @@ const ExportScreen = ({
 
   const { exportToFile, exportStatus, resetState, cancelExport } = useExportStatus();
 
-  console.log({ exportOptions, exportOptionsFormState });
-
   const handleExportFinished = (fatalError = false) => {
     dispatch(toastActions.removeToast(EXPORT_UPDATE_TOAST));
 
