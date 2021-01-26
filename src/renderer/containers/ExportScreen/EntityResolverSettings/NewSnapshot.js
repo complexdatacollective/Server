@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import { isEmpty } from 'lodash';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import Text from '@codaco/ui/lib/components/Fields/Text';
-import Tip from '%components/Tip';
-import BrowseInput from '%components/BrowseInput';
+import Tip from '../../../components/Tip';
+import BrowseInput from '../../../components/BrowseInput';
 import withValidation from './withValidation';
 
 const variants = {
@@ -33,7 +33,7 @@ const NewSnapshot = ({
   isSelected,
   newSessionCount,
   nodeTypes,
-  onSelectCreateNewResolution,
+  onSelect,
   onUpdateOption,
   options,
 }) => {
@@ -49,7 +49,7 @@ const NewSnapshot = ({
             input={{
               name: 'create_new_snapshot',
               checked: isSelected,
-              onChange: onSelectCreateNewResolution,
+              onChange: () => onSelect(),
             }}
           />
         </td>
@@ -153,7 +153,7 @@ NewSnapshot.propTypes = {
   isSelected: PropTypes.bool.isRequired,
   newSessionCount: PropTypes.number,
   nodeTypes: PropTypes.array,
-  onSelectCreateNewResolution: PropTypes.func.isRequired,
+  onSelect: PropTypes.func.isRequired,
   onUpdateOption: PropTypes.func.isRequired,
   options: PropTypes.shape({
     args: PropTypes.string,
