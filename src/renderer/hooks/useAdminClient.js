@@ -14,6 +14,10 @@ const useAdminClient = () => {
     } = protocol;
 
     // TODO: if resolver enabled, use IPC.
+    if (exportOptions.resolveEntities !== false) {
+      console.log({ exportOptions }, 'ipc');
+      return Promise.resolve();
+    }
 
     return client
       .current
