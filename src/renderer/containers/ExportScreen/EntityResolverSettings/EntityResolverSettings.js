@@ -23,7 +23,7 @@ const initialState = {
   selectedResolution: null,
   options: {
     egoCastType: null,
-    interpreterPath: '',
+    interpreterPath: 'python3',
     resolverPath: '',
     args: '',
   },
@@ -36,7 +36,7 @@ const EntityResolverSettings = ({
   openDialog,
   protocolId,
 }) => {
-  const [enabled, setEnabled] = useState(false);
+  const [enabled, setEnabled] = useState(true);
   const toggleEnabled = () => setEnabled(s => !s);
 
   const [
@@ -44,7 +44,15 @@ const EntityResolverSettings = ({
     { deleteResolution },
   ] = useResolutionsClient(apiClient, protocolId);
 
-  const [state, setState] = useState(initialState);
+  const [state, setState] = useState({
+    selectedResolution: '_new',
+    options: {
+      egoCastType: null,
+      interpreterPath: 'python3',
+      resolverPath: '/home/steve/Code/Clients/complexdatacollective/entity-resolution/Entity-Resolution-Sample/testing/Random.py',
+      args: '',
+    },
+  });
 
   const updateState = (obj = {}) =>
     setState(s => ({ ...s, ...obj }));

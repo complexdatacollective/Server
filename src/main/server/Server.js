@@ -4,6 +4,7 @@ const logger = require('electron-log');
 
 const { DeviceService, deviceServiceEvents } = require('./devices/DeviceService');
 const { AdminService } = require('./AdminService');
+const { ResolverService } = require('./ResolverService');
 const { mdns, mdnsIsSupported } = require('./mdnsProvider');
 
 class Server extends EventEmitter {
@@ -22,10 +23,12 @@ class Server extends EventEmitter {
     const dataDir = this.options.dataDir;
     const keys = this.options.keys;
     this.adminService = new AdminService({ statusDelegate: this, dataDir });
+    this.resolverService = new ResolverService({ dataDir });
     this.deviceService = new DeviceService({ dataDir, keys });
 
     return Promise.all([
       this.adminService.start(),
+      this.resolverService.start(),
       this.deviceService
         .start(httpPort, httpsPort)
         .then(service => this.advertiseDeviceService(service)),
@@ -52,6 +55,9 @@ class Server extends EventEmitter {
     }
     if (this.adminService) {
       promises.push(this.adminService.stop());
+    }
+    if (this.resolverService) {
+      promises.push(this.resolverService.stop());
     }
     this.stopAdvertisements();
     return Promise.all(promises);

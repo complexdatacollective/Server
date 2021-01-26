@@ -1,8 +1,8 @@
 import { useRef, useReducer, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { isEmpty } from 'lodash';
-import resolverClient from '%utils/resolverClient';
-import { actionCreators as dialogActions } from '%modules/dialogs';
+import resolverClient from '../utils/resolverClient';
+import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 
 const initialState = {
   protocol: null,
@@ -132,58 +132,36 @@ const useResolver = () => {
   // cleanup on unmount
   useEffect(() => () => cleanupResolver(), []);
 
-  const resolveProtocol = (protocol, exportSettings) => {
+  const resolveProtocol = (protocol, exportOptions) => {
     const {
       id: protocolId,
     } = protocol;
 
     const {
-      csvTypes,
-      exportFormat,
-      exportNetworkUnion,
-      resolutionId,
-      resolverOptions,
-      useDirectedEdges,
-      useEgoData,
-    } = exportSettings;
+      resolveEntities: { options },
+    } = exportOptions;
 
-    startResolve({ exportSettings, protocol });
+    startResolve({ exportOptions, protocol });
 
-    const csvTypesNoEgo = new Set(exportSettings.csvTypes);
-    csvTypesNoEgo.delete('ego');
-    const exportCsvTypes = useEgoData ? csvTypes : csvTypesNoEgo;
-    const showCsvOpts = exportFormat === 'csv';
-
-    if (isEmpty(resolverOptions.egoCastType)) {
+    if (isEmpty(options.egoCastType)) {
       const e = new Error('Please specify an ego cast type');
       handleError(e);
       return Promise.reject(e);
     }
 
-    if (isEmpty(resolverOptions.resolverPath)) {
+    if (isEmpty(options.resolverPath)) {
       const e = new Error('Please specify a resolver path');
       handleError(e);
       return Promise.reject(e);
     }
 
-    if (isEmpty(resolverOptions.interpreterPath)) {
+    if (isEmpty(options.interpreterPath)) {
       const e = new Error('Please specify a interpreter path');
       handleError(e);
       return Promise.reject(e);
     }
 
-    return resolverClient(
-      protocolId,
-      {
-        enableEntityResolution: true,
-        exportFormats: (exportFormat === 'csv' && [...exportCsvTypes]) || [exportFormat],
-        exportNetworkUnion,
-        resolutionId,
-        resolverOptions,
-        useDirectedEdges,
-        useEgoData: useEgoData && showCsvOpts,
-      },
-    )
+    return resolverClient(protocolId, exportOptions)
       .then(handleResolve)
       .catch(handleError);
   };
