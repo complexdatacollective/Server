@@ -61,7 +61,7 @@ class ResolverService {
       handleError(new Error('This requestId already exists'));
     }
 
-    this.resolveProtocol(requestId, protocolId, options)
+    this.resolverManager.resolveProtocol(protocolId, requestId, options)
       .then((resolverStream) => {
         this.resolvers[requestId] = resolverStream;
 
@@ -82,11 +82,6 @@ class ResolverService {
         });
       })
       .catch(handleError);
-  }
-
-  resolveProtocol(requestId, protocolId, options) {
-    return this.protocolManager.getProtocol(protocolId)
-      .then(protocol => this.resolverManager.resolveProtocol(requestId, protocol, options));
   }
 }
 
