@@ -66,6 +66,8 @@ const ExportScreen = ({
 
   const { exportToFile, exportStatus, resetState, cancelExport } = useExportStatus();
 
+  console.log({ exportOptions, exportOptionsFormState });
+
   const handleExportFinished = (fatalError = false) => {
     dispatch(toastActions.removeToast(EXPORT_UPDATE_TOAST));
 
@@ -305,7 +307,7 @@ const ExportScreen = ({
               <p>Use an external application to resolve nodes in a unified network.</p>
               <EntityResolverSettings
                 protocolId={protocol.id}
-                onUpdate={console.log}
+                onUpdate={resolverSettings => handleUpdateFormState('resolverSettings', resolverSettings)}
               />
             </div>
           </AnimateSharedLayout>

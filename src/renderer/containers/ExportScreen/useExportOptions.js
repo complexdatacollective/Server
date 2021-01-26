@@ -49,6 +49,7 @@ const initialState = {
   attributeList: true,
   edgeList: true,
   egoAttributeList: true,
+  resolverSettings: {},
 };
 
 const useExportOptions = () => {

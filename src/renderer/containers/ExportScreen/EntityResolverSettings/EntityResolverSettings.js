@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
@@ -26,16 +26,16 @@ const EntityResolverSettings = ({
 
   const [state, setState] = useState({
     selectedResolution: null,
-    options: {},
+    options: {
+      egoCastType: null,
+      interpreterPath: '',
+      resolverPath: '',
+      args: '',
+    },
   });
 
   const updateState = (obj = {}) =>
     setState(s => ({ ...s, ...obj }));
-
-  // const updateSettings = (newResolverSettings) => {
-  //   updateState(newResolverSettings);
-  //   onUpdate(newResolverSettings);
-  // };
 
   const updateOption = (option, value) => {
     const options = {
@@ -47,9 +47,12 @@ const EntityResolverSettings = ({
   };
 
   const updateSelected = (id = '_new') => {
-    console.log({ selectedResolution: id });
     updateState({ selectedResolution: id });
   };
+
+  useEffect(() => {
+    onUpdate(state);
+  }, [JSON.stringify(state)]);
 
   const handleDelete = (rId) => {
     openDialog({
@@ -110,6 +113,7 @@ EntityResolverSettings.propTypes = {
   apiClient: PropTypes.object.isRequired,
   nodeTypes: PropTypes.array.isRequired,
   openDialog: PropTypes.func.isRequired,
+  onUpdate: PropTypes.func.isRequired,
   protocolId: PropTypes.string,
 };
 
