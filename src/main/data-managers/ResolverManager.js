@@ -72,8 +72,8 @@ class ResolverManager {
       this.getResolvedSessions(protocolId, options),
     ])
       .then(
-        (protocol, [network]) =>
-          getNetworkResolver(requestId, command, protocol.codebook, network),
+        ([{ codebook }, [network]]) =>
+          getNetworkResolver(requestId, command, codebook, network),
       );
   }
 

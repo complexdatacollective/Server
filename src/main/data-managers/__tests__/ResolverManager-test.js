@@ -1,7 +1,8 @@
 /* eslint-env jest */
 
+const miss = require('mississippi');
 const ResolverManager = require('../ResolverManager');
-const getNetworkResolver = require('../../utils/getNetworkResolver');
+const { getNetworkResolver } = require('../../utils/getNetworkResolver');
 const { transformSessions } = require('../../utils/resolver/transformSessions');
 
 jest.mock('nedb');
@@ -9,7 +10,7 @@ jest.mock('electron-log');
 
 jest.mock('../../utils/resolver/transformSessions');
 
-// jest.mock('../../utils/getNetworkResolver', () => jest.fn(() => Promise.reject()));
+jest.mock('../../utils/getNetworkResolver');
 
 jest.mock('../ProtocolDB', () => (function MockSessionDB() {
   return {
@@ -121,28 +122,40 @@ describe('ResolverManager', () => {
     });
   });
 
-  // describe('resolveProtocol()', () => {
-  //   it.only('returns a resolver promise', async () => {
-  //     const protocolId = '1234';
-  //     const requestId = '5678';
-  //     const options = {
-  //       resolveEntities: {
-  //         options: {
-  //           interpreterPath: '',
-  //           resolverPath: '',
-  //           args: '',
-  //         },
-  //       },
-  //     };
+  describe('resolveProtocol()', () => {
+    it.only('resolves to a stream', (done) => {
+      const protocolId = '1234';
+      const requestId = '5678';
+      const options = {
+        resolver: {
+          interpreterPath: '',
+          resolverPath: '',
+          args: '',
+        },
+      };
 
-  //     const resolver = await manager.resolveProtocol(
-  //       protocolId,
-  //       requestId,
-  //       options,
-  //     );
+      const mockStream = () => miss.through(
+        (chunk, enc, cb) => {
+          cb(null, chunk.toString());
+        },
+      );
 
-  //     expect(resolver).toEqual(null);
-  //     // expect(getNetworkResolver.mock).toBe(null);
-  //   });
-  // });
+      transformSessions.mockResolvedValueOnce({ nodes: [], edges: [] });
+      manager.protocolDb.get.mockResolvedValueOnce({ codebook: {} });
+      getNetworkResolver.mockImplementationOnce(
+        () => Promise.resolve(mockStream()),
+      );
+
+      manager.resolveProtocol(
+        protocolId,
+        requestId,
+        options,
+      )
+        .then((resolver) => {
+          resolver.on('finish', () => done());
+          resolver.write('hi');
+          resolver.end();
+        });
+    });
+  });
 });
