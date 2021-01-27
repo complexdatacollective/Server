@@ -1,9 +1,21 @@
 /* eslint-env jest */
 
-import ResolverManager from '../ResolverManager';
+const ResolverManager = require('../ResolverManager');
+const getNetworkResolver = require('../../utils/getNetworkResolver');
+const { transformSessions } = require('../../utils/resolver/transformSessions');
 
 jest.mock('nedb');
 jest.mock('electron-log');
+
+jest.mock('../../utils/resolver/transformSessions');
+
+// jest.mock('../../utils/getNetworkResolver', () => jest.fn(() => Promise.reject()));
+
+jest.mock('../ProtocolDB', () => (function MockSessionDB() {
+  return {
+    get: jest.fn().mockResolvedValue({}),
+  };
+}));
 
 jest.mock('../SessionDB', () => (function MockSessionDB() {
   return {
@@ -56,7 +68,6 @@ describe('ResolverManager', () => {
 
     manager.sessionDb.findAll.mockResolvedValueOnce(sessions);
 
-
     await expect(manager.getResolutionsWithSessionCounts(null, null))
       .resolves.toMatchObject({
         resolutions: [
@@ -76,4 +87,62 @@ describe('ResolverManager', () => {
         unresolved: 2,
       });
   });
+
+  describe('getResolvedSessions()', () => {
+    it('returns a resolver promise', async () => {
+      const protocolId = '1234';
+
+      const options = {
+        egoCastType: 'person',
+        resolutionId: '5678',
+        resolver: {
+          interpreterPath: '',
+          resolverPath: '',
+          args: '',
+        },
+      };
+
+      const sessions = await manager.getResolvedSessions(
+        protocolId,
+        options,
+      );
+
+      // TODO: update transformSessions to take resolutions and no resolutionId
+      // so that this works as expected
+      // getResolutions should be able to specify the last resolution to select
+      // expect(sessions).toMatchObject({ nodes: [], edges: [] });
+
+      expect(transformSessions.mock.calls[0]).toEqual([
+        {},
+        [],
+        [],
+        { egoCastType: 'person', includeUnresolved: true, resolutionId: '5678' },
+      ]);
+    });
+  });
+
+  // describe('resolveProtocol()', () => {
+  //   it.only('returns a resolver promise', async () => {
+  //     const protocolId = '1234';
+  //     const requestId = '5678';
+  //     const options = {
+  //       resolveEntities: {
+  //         options: {
+  //           interpreterPath: '',
+  //           resolverPath: '',
+  //           args: '',
+  //         },
+  //       },
+  //     };
+
+  //     const resolver = await manager.resolveProtocol(
+  //       protocolId,
+  //       requestId,
+  //       options,
+  //     );
+
+  //     expect(resolver).toEqual(null);
+  //     // expect(getNetworkResolver.mock).toBe(null);
+  //   });
+  // });
 });

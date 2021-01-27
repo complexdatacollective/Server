@@ -11,19 +11,19 @@ const ProtocolDB = require('./ProtocolDB');
 const { dbFilePaths } = require('./config');
 // const { formatSessionAsNetwork, insertEgoInNetworks } = require('../utils/formatters/network');
 
-const nodePrimaryKeyProperty = '_uid';
-const egoProperty = 'egoID';
-const caseProperty = 'caseId';
+// const nodePrimaryKeyProperty = '_uid';
+// const egoProperty = 'egoID';
+// const caseProperty = 'caseId';
 
-// Format sessions with case and ego data and insert ego?
-const nodeOnlySession = ({ data }) => {
-  const { ego, sessionVariables } = data;
-  const egoId = ego[nodePrimaryKeyProperty];
-  const caseId = sessionVariables[caseProperty];
-  const nodes = data.nodes
-    .map(node => ({ ...node, [egoProperty]: egoId, [caseProperty]: caseId }));
-  return { nodes: [...nodes, ego] };
-};
+// // Format sessions with case and ego data and insert ego?
+// const nodeOnlySession = ({ data }) => {
+//   const { ego, sessionVariables } = data;
+//   const egoId = ego[nodePrimaryKeyProperty];
+//   const caseId = sessionVariables[caseProperty];
+//   const nodes = data.nodes
+//     .map(node => ({ ...node, [egoProperty]: egoId, [caseProperty]: caseId }));
+//   return { nodes: [...nodes, ego] };
+// };
 
 const formatResolution = resolution => ({
   // ...resolution,
@@ -59,24 +59,30 @@ class ResolverManager {
     requestId,
     options,
   ) {
-    const resolveOptions = options.resolveEntities.options;
+    const resolver = options.resolver;
+
     const command = [
-      resolveOptions.interpreterPath,
-      resolveOptions.resolverPath,
-      resolveOptions.args,
+      resolver.interpreterPath,
+      resolver.resolverPath,
+      resolver.args,
     ];
 
-    console.log({ options, protocolId, command });
-
-    return this.getResolvedNetwork(protocol, options)
-      .then(([network]) => getNetworkResolver(requestId, command, protocol.codebook, network));
+    return Promise.all([
+      this.protocolDb.get(protocolId),
+      this.getResolvedSessions(protocolId, options),
+    ])
+      .then(
+        (protocol, [network]) =>
+          getNetworkResolver(requestId, command, protocol.codebook, network),
+      );
   }
 
   getSessions(protocolId) {
-    return this.sessionDb.findAll(protocolId, null, null)
-      .then(sessions => sessions.map(nodeOnlySession));
+    return this.sessionDb.findAll(protocolId, null, null);
+    // .then(sessions => sessions.map(nodeOnlySession));
   }
 
+  // TODO: prior to resolution id?
   getResolutions(protocolId) {
     return this.db.getResolutions(protocolId)
       .then(resolutions => resolutions.map(formatResolution));
@@ -84,24 +90,22 @@ class ResolverManager {
 
   // Returns sessions as a resolved network
   // Formatted as `[session]`, so that it is similar to a list of sessions.
-  getResolvedSessions(protocolId, options) {
-    const resolveOptions = options.resolveEntities;
-
+  getResolvedSessions(protocolId, options, includeUnresolved = true) {
     return Promise.all([
       this.protocolDb.get(protocolId),
-      this.getSessionNetworks(protocolId),
-      this.protocolManager.getResolutions(protocolId),
+      this.getSessions(protocolId),
+      this.getResolutions(protocolId),
     ])
       .then(
         ([protocol, sessions, resolutions]) => {
           const lastResolution = last(resolutions);
 
-          // Assumption: All exports henceforce will have the same ego cast type
-          const egoCastType = get(lastResolution, ['parameters', 'egoCastType'], resolveOptions.egoCastType);
+          // Assumption: All exports henceforth will have the same ego cast type
+          const egoCastType = get(lastResolution, ['parameters', 'egoCastType'], options.egoCastType);
 
           const transformOptions = {
-            resolutionId: resolveOptions.resolutionId,
-            includeUnresolved: resolveOptions.includeUnresolved,
+            resolutionId: options.resolutionId,
+            includeUnresolved,
             egoCastType,
           };
 
