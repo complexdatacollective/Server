@@ -24,8 +24,9 @@ const isRequired = (value) => {
 const NewSnapshot = ({
   hasResolutionHistory,
   isSelected,
-  newSessionCount,
+  unresolved,
   nodeTypes,
+  egoCastType,
   onUpdate,
   options,
 }) => {
@@ -35,7 +36,7 @@ const NewSnapshot = ({
   return (
     <div className="new-snapshot">
       <p>
-        There are <strong>{`${formatSessionCount(newSessionCount)}`}</strong> since the last resolution.
+        There are <strong>{`${formatSessionCount(unresolved)}`}</strong> since the last resolution.
       </p>
       <table className="new-snapshot__options">
         <tbody>
@@ -48,7 +49,7 @@ const NewSnapshot = ({
                 className="select-field"
                 onChange={handleUpdateEgoCastType}
                 value={options.egoCastType || ''}
-                disabled={hasResolutionHistory || !isSelected}
+                disabled={!!egoCastType}
                 required
               >
                 <option value="">&mdash; Select a node type to convert the ego to&mdash;</option>
@@ -119,9 +120,10 @@ const NewSnapshot = ({
 NewSnapshot.propTypes = {
   hasResolutionHistory: PropTypes.bool,
   isSelected: PropTypes.bool.isRequired,
-  newSessionCount: PropTypes.number,
+  unresolved: PropTypes.number,
   nodeTypes: PropTypes.array,
   onUpdate: PropTypes.func.isRequired,
+  egoCastType: PropTypes.string,
   options: PropTypes.shape({
     args: PropTypes.string,
     egoCastType: PropTypes.string,
@@ -135,7 +137,7 @@ NewSnapshot.defaultProps = {
   entityResolutionArguments: '',
   entityResolutionPath: '',
   hasResolutionHistory: false,
-  newSessionCount: 0,
+  unresolved: 0,
   nodeTypes: [],
   options: {},
 };
