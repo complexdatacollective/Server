@@ -7,24 +7,30 @@ import { AnimateSharedLayout } from 'framer-motion';
 import { Button, Spinner } from '@codaco/ui';
 import Types from '../../types';
 import { selectors } from '../../ducks/modules/protocols';
+import useResolutionsClient from '../../hooks/useResolutionsClient';
 import Snapshots from './Snapshots';
 import NewResolution from './NewResolution';
 
 const EntityResolverScreen = ({
-  protocol,
+  protocolId,
+  nodeTypes,
   protocolsHaveLoaded,
 }) => {
   const dispatch = useDispatch();
   const [resolverOptions, setResolverOptions] = useState({});
+  const [
+    { resolutions, unresolved, egoCastType },
+    { deleteResolution },
+  ] = useResolutionsClient(protocolId);
 
   const handleSubmit = () => {};
   const canSubmit = true;
 
-  if (protocolsHaveLoaded && !protocol) { // This protocol doesn't exist
+  if (protocolsHaveLoaded && !protocolId) { // This protocol doesn't exist
     return <Redirect to="/" />;
   }
 
-  if (!protocol) { // This protocol hasn't loaded yet
+  if (!protocolId) { // This protocol hasn't loaded yet
     return <div className="export--loading"><Spinner /></div>;
   }
 
@@ -37,20 +43,27 @@ const EntityResolverScreen = ({
             <div className="export__section">
               <h3>1. Existing Snapshots</h3>
               <p>Manage existing resolutions.</p>
-              <Snapshots />
+              <Snapshots
+                protocolId={protocolId}
+                nodeTypes={nodeTypes}
+                resolutions={resolutions}
+                onDeleteResolution={deleteResolution}
+              />
             </div>
             <div className="export__section">
               <h3>2. Resolve Sessions</h3>
               <p>Use an external application to resolve nodes in a unified network.</p>
               <NewResolution
-                protocolId={protocol.id}
+                unresolved={unresolved}
+                nodeTypes={nodeTypes}
+                egoCastType={egoCastType}
+                options={resolverOptions}
                 onUpdate={setResolverOptions}
               />
             </div>
           </AnimateSharedLayout>
           <div className="buttons">
             <Button type="submit" disabled={!canSubmit}>Begin Entity Resolution</Button>
-            <Button type="submit" disabled={!canSubmit}>Begin Export</Button>
           </div>
         </div>
       </form>
@@ -67,10 +80,31 @@ EntityResolverScreen.defaultProps = {
   protocol: null,
 };
 
-const mapStateToProps = (state, ownProps) => ({
-  protocolsHaveLoaded: selectors.protocolsHaveLoaded(state),
-  protocol: selectors.currentProtocol(state, ownProps),
-});
+
+const nodeDefinitionsAsOptions = (nodeDefinitions) => {
+  const options = Object.keys(nodeDefinitions)
+    .map(nodeType => ({
+      label: nodeDefinitions[nodeType].name,
+      value: nodeType,
+    }));
+
+  return options;
+};
+
+const mapStateToProps = (state, ownProps) => {
+  const protocol = selectors.currentProtocol(state, ownProps);
+  const nodeTypes = protocol
+    ? nodeDefinitionsAsOptions(
+      selectors.nodeDefinitions(state, protocol.id),
+    )
+    : [];
+
+  return {
+    protocolsHaveLoaded: selectors.protocolsHaveLoaded(state),
+    protocolId: protocol && protocol.id,
+    nodeTypes,
+  };
+};
 
 const mapDispatchToProps = {
 };

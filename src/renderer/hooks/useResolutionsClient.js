@@ -1,14 +1,18 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { last, get } from 'lodash';
+import AdminApiClient from '../utils/adminApiClient';
+import useResolver from './useResolver';
 
-const useResolutions = (apiClient, protocolId, deps = []) => {
+const useResolutions = (protocolId, deps = []) => {
+  const adminClient = useRef(new AdminApiClient());
+  const [resolverState, resolveProtocol, abortResolution] = useResolver();
   const [resolutions, setResolutions] = useState([]);
   const [unresolved, setUnresolved] = useState(0);
   const [egoCastType, setEgoCastType] = useState(null);
 
   const getResolutions = useCallback(
     () =>
-      apiClient
+      adminClient.current
         .get(`/protocols/${protocolId}/resolutions`)
         .then(({
           resolutions: _resolutions,
@@ -35,7 +39,7 @@ const useResolutions = (apiClient, protocolId, deps = []) => {
 
   const deleteResolution = useCallback(
     id =>
-      apiClient
+      adminClient.current
         .delete(`/protocols/${protocolId}/resolutions/${id}`)
         .then(({ ids }) => {
           getResolutions();

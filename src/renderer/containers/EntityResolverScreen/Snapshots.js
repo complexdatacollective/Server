@@ -1,9 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { compose } from 'redux';
-import { selectors } from '../../ducks/modules/protocols';
 import Snapshot from './Snapshot';
 import './EntityResolution.scss';
 
@@ -22,6 +19,10 @@ const Snapshots = ({
       onConfirm: () => onDeleteSnapshot(rId),
       message: 'This will remove this resolution and also remove all subsequent resolutions.',
     });
+  };
+
+  const handleExport = (rId) => {
+    // TODO
   };
 
   return (
@@ -71,22 +72,4 @@ Snapshots.defaultProps = {
   resolutions: [],
 };
 
-const nodeDefinitionsAsOptions = (nodeDefinitions) => {
-  const options = Object.keys(nodeDefinitions)
-    .map(nodeType => ({
-      label: nodeDefinitions[nodeType].name,
-      value: nodeType,
-    }));
-
-  return options;
-};
-
-const mapStateToProps = (state, props) => ({
-  nodeTypes: nodeDefinitionsAsOptions(
-    selectors.nodeDefinitions(state, props.protocolId),
-  ),
-});
-
-export default compose(
-  connect(mapStateToProps, {}),
-)(Snapshots);
+export default Snapshots;
