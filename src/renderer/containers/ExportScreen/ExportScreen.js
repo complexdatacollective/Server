@@ -15,7 +15,6 @@ import { selectors } from '../../ducks/modules/protocols';
 import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
 import { actionCreators as toastActions } from '../../ducks/modules/toasts';
 import useExportOptions, { exportFormats } from './useExportOptions';
-import EntityResolverSettings from './EntityResolverSettings';
 
 const CSVOptions = [
   { label: 'Adjacency Matrix. Note: do not use when exporting 1000+ sessions.', key: 'adjacencyMatrix' },
@@ -300,14 +299,6 @@ const ExportScreen = ({
                 </motion.div>
               }
             </AnimatePresence>
-            <div className="export__section">
-              <h3>{exportOptionsFormState.exportFormats.includes('CSV') ? '4' : '3' }. Entity Resolver</h3>
-              <p>Use an external application to resolve nodes in a unified network.</p>
-              <EntityResolverSettings
-                protocolId={protocol.id}
-                onUpdate={resolverSettings => handleUpdateFormState('resolverSettings', resolverSettings)}
-              />
-            </div>
           </AnimateSharedLayout>
           <div className="buttons">
             <Button type="submit" disabled={exportInProgress || noFormatSelected}>Begin Export</Button>

@@ -3,8 +3,6 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
-import { motion } from 'framer-motion';
-import Toggle from '@codaco/ui/lib/components/Fields/Toggle';
 import withApiClient from '../../../components/withApiClient';
 import { actionCreators as dialogActions } from '../../../ducks/modules/dialogs';
 import { selectors } from '../../../ducks/modules/protocols';
@@ -13,11 +11,6 @@ import Snapshot from './Snapshot';
 import NewSnapshot from './NewSnapshot';
 import useResolutionsClient from './useResolutionsClient';
 import './EntityResolution.scss';
-
-const variants = {
-  hide: { height: 0, opacity: 0 },
-  show: { height: 'auto', opacity: 1 },
-};
 
 const initialState = {
   selectedResolution: null,
@@ -36,9 +29,6 @@ const EntityResolverSettings = ({
   openDialog,
   protocolId,
 }) => {
-  const [enabled, setEnabled] = useState(true);
-  const toggleEnabled = () => setEnabled(s => !s);
-
   const [
     { resolutions, unresolved },
     { deleteResolution },
@@ -71,11 +61,6 @@ const EntityResolverSettings = ({
   };
 
   useEffect(() => {
-    if (enabled) { return; }
-    setState(initialState);
-  }, [enabled]);
-
-  useEffect(() => {
     onUpdate(state);
   }, [JSON.stringify(state)]);
 
@@ -91,59 +76,45 @@ const EntityResolverSettings = ({
 
   return (
     <div className="entity-resolution">
-      <Toggle
-        label="Enable entity resolution"
-        input={{
-          value: enabled,
-          onChange: toggleEnabled,
-        }}
-      />
-      <motion.div
-        className="entity-resolution"
-        variants={variants}
-        initial="hide"
-        animate={enabled ? 'show' : 'hide'}
-      >
-        <table className="snapshots">
-          <thead>
-            <tr>
-              <th>Resolution</th>
-              <th>Sessions</th>
-              <th>Resolutions</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {
-              resolutions
-                .map(resolution => (
-                  <Snapshot
-                    key={resolution._id}
-                    onSelect={updateSelected}
-                    onDelete={handleDelete}
-                    canDelete
-                    isSelected={state.selectedResolution === resolution._id}
-                    id={resolution._id}
-                    nodeTypes={nodeTypes}
-                    parameters={resolution.parameters}
-                    date={resolution._date}
-                    sessionCount={resolution._sessionCount}
-                    transformCount={resolution._transformCount}
-                  />
-                ))
-            }
-            <NewSnapshot
-              hasResolutionHistory={resolutions.length > 0}
-              isSelected={state.selectedResolution === '_new'}
-              newSessionCount={unresolved}
-              nodeTypes={nodeTypes}
-              onSelect={updateSelected}
-              onUpdateOption={updateOption}
-              options={state.options}
-            />
-          </tbody>
-        </table>
-      </motion.div>
+      <table className="snapshots">
+        <thead>
+          <tr>
+            <th>Resolution</th>
+            <th>Sessions</th>
+            <th>Resolutions</th>
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {
+            resolutions
+              .map(resolution => (
+                <Snapshot
+                  key={resolution._id}
+                  onSelect={updateSelected}
+                  onDelete={handleDelete}
+                  canDelete
+                  isSelected={state.selectedResolution === resolution._id}
+                  id={resolution._id}
+                  nodeTypes={nodeTypes}
+                  parameters={resolution.parameters}
+                  date={resolution._date}
+                  sessionCount={resolution._sessionCount}
+                  transformCount={resolution._transformCount}
+                />
+              ))
+          }
+          <NewSnapshot
+            hasResolutionHistory={resolutions.length > 0}
+            isSelected={state.selectedResolution === '_new'}
+            newSessionCount={unresolved}
+            nodeTypes={nodeTypes}
+            onSelect={updateSelected}
+            onUpdateOption={updateOption}
+            options={state.options}
+          />
+        </tbody>
+      </table>
     </div>
   );
 };
