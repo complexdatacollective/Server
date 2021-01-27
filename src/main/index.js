@@ -1,4 +1,4 @@
-const { ipcMain } = require('electron');
+const { ipcMain, dialog } = require('electron');
 const logger = require('electron-log');
 
 const { createApp, userDataDir } = require('./MainApp');
@@ -31,5 +31,6 @@ createServer(userDataDir).then((runningServer) => {
 
 process.on('unhandledRejection', (err) => {
   logger.error('unhandledRejection:', err);
+  dialog.showMessageBoxSync({ type: 'error', message: `Unexpected error occurred: ${err.stack}`, title: 'Error' });
   process.exit(1);
 });

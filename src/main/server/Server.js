@@ -59,19 +59,24 @@ class Server extends EventEmitter {
 
   advertiseDeviceService(deviceService) {
     const serviceType = { name: 'nc-server-6', protocol: 'tcp' };
-    if (!mdnsIsSupported) {
-      return;
+    try {
+      if (!mdnsIsSupported) {
+        return;
+      }
+      if (this.deviceAdvertisement) {
+        this.deviceAdvertisement.stop();
+      }
+      this.deviceAdvertisement = mdns.createAdvertisement(
+        serviceType,
+        deviceService.httpPort,
+        { name: os.hostname() },
+      );
+      this.deviceAdvertisement.start();
+      logger.info(`MDNS: advertising ${JSON.stringify(serviceType)} on ${deviceService.httpPort}`);
+    } catch (err) {
+      logger.warn('MDNS unavailable');
+      logger.warn(err);
     }
-    if (this.deviceAdvertisement) {
-      this.deviceAdvertisement.stop();
-    }
-    this.deviceAdvertisement = mdns.createAdvertisement(
-      serviceType,
-      deviceService.httpPort,
-      { name: os.hostname() },
-    );
-    this.deviceAdvertisement.start();
-    logger.info(`MDNS: advertising ${JSON.stringify(serviceType)} on ${deviceService.httpPort}`);
   }
 
   stopAdvertisements() {
