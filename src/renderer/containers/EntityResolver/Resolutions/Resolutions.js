@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { get, reduce } from 'lodash';
 import cx from 'classnames';
 import { Modal, ProgressBar } from '@codaco/ui';
-import useResolver from '%renderer/hooks/useResolver';
-import useAdminClient from '%renderer/hooks/useAdminClient';
+import useResolver from '../../../hooks/useResolver';
+import useAdminClient from '../../../hooks/useAdminClient';
 import Loading from './Loading';
 import NoResults from './NoResults';
 import Review from './Review';
@@ -162,6 +162,8 @@ const Resolutions = React.forwardRef(({
     ),
   }[status];
 
+  console.log({ status, match: resolutionsState.match, resolutionsState });
+
   const content = {
     [states.LOADING]: <Loading key="loading" />,
     [states.WAITING]: <Loading key="waiting" />,
@@ -194,7 +196,7 @@ const Resolutions = React.forwardRef(({
   );
 
   return (
-    <Modal show={resolverState.showResolver}>
+    <Modal show={resolverState.isActive}>
       <div className="resolver">
         <div className="resolver__heading">
           {heading}

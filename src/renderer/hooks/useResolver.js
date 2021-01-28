@@ -9,7 +9,7 @@ const initialState = {
   exportSettings: {},
   requestId: null,
   matches: [],
-  showResolver: false,
+  isActive: false,
   isLoadingMatches: false,
   errorLoadingMatches: null,
 };
@@ -31,7 +31,7 @@ const resolverReducer = (state, action) => {
         ...state,
         protocol: action.payload.protocol,
         exportSettings: action.payload.exportSettings,
-        showResolver: true,
+        isActive: true,
         isLoadingMatches: true,
         matches: [],
       };
@@ -44,7 +44,7 @@ const resolverReducer = (state, action) => {
             protocol: null,
             exportSettings: {},
             isLoadingMatches: false,
-            showResolver: false,
+            isActive: false,
             errorLoadingMatches: null,
             matches: [],
           }
@@ -99,7 +99,7 @@ const useResolver = () => {
     updateState({
       errorLoadingMatches: error,
       matches: [],
-      showResolver: false,
+      isActive: false,
     });
   };
 

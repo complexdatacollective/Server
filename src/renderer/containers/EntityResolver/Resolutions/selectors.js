@@ -1,5 +1,5 @@
 import { findKey, get } from 'lodash';
-import { nodePrimaryKeyProperty, getEntityAttributes } from '%main/utils/formatters/network';
+import { nodePrimaryKeyProperty, getEntityAttributes } from '../../../../main/utils/formatters/network';
 
 export const getMatch = (matches, index) => {
   if (matches.length < index + 1) { return null; }

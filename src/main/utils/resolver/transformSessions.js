@@ -96,9 +96,6 @@ const transformSessions = (
   const sessionsByResolution = getSessionsByResolution(priorResolutions, sessions);
   const egoCaster = castEgoAsNode(protocol.codebook, egoCastType);
 
-  console.log(sessions);
-  return sessions;
-
   // For each resolution, cumulatively merge any new sessions and apply resolution
   const resultNetwork = reduce(
     priorResolutions,

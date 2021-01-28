@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
@@ -8,6 +8,7 @@ import { Button, Spinner } from '@codaco/ui';
 import Types from '../../types';
 import { selectors as protocolSelectors } from '../../ducks/modules/protocols';
 import useResolver from '../../hooks/useResolver';
+import EntityResolver from '../EntityResolver/Resolutions';
 // import Snapshots from './Snapshots';
 import NewResolution from './NewResolution';
 
@@ -17,15 +18,16 @@ const EntityResolverScreen = ({
   protocolsHaveLoaded,
 }) => {
   const [resolverOptions, setResolverOptions] = useState({});
-  const [resolverState, resolveProtocol, abortResolution] = useResolver();
+  const resolver = useRef();
+  // const [resolverState, resolveProtocol, abortResolution] = useResolver();
 
-  useEffect(() => {
-    console.log({ resolverState });
-  }, [JSON.stringify(resolverState)]);
+  // useEffect(() => {
+  //   console.log({ resolverState });
+  // }, [JSON.stringify(resolverState)]);
 
   const handleSubmit = () => {
     console.log({ resolverOptions });
-    resolveProtocol(protocol, resolverOptions);
+    resolver.current.resolveProtocol(protocol, resolverOptions);
   };
   const canSubmit = true;
 
@@ -39,6 +41,7 @@ const EntityResolverScreen = ({
 
   return (
     <React.Fragment>
+      <EntityResolver onComplete={console.log} ref={resolver} />
       <form className="content export" onSubmit={handleSubmit}>
         <h1>Entity Resolver</h1>
         <div className="export__options">
