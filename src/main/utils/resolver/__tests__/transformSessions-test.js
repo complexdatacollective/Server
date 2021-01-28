@@ -86,48 +86,6 @@ ${JSON.stringify(attributes, null, 2)}`,
   },
 });
 
-describe('getPriorResolutions', () => {
-  const resolutions = Object.freeze([
-    { _id: 'foo', _date: DateTime.local().toJSDate() },
-    { _id: 'bar', _date: DateTime.local().minus({ hours: 1 }).toJSDate() },
-    { _id: 'bazz', _date: DateTime.local().plus({ hours: 5 }).toJSDate() },
-    { _id: 'buzz', _date: DateTime.local().minus({ hours: 5 }).toJSDate() },
-  ]);
-
-  it('sorts resolutions by date (oldest to newest)', () => {
-    const prior = map(getPriorResolutions(resolutions, null), '_id');
-
-    expect(prior)
-      .toEqual([
-        'buzz',
-        'bar',
-        'foo',
-        'bazz',
-      ]);
-  });
-
-  it('returns resolutions if no resolutionsId', () => {
-    expect(getPriorResolutions(resolutions, null))
-      .toHaveLength(4);
-  });
-
-  it('throws if resolution id is missing', () => {
-    expect(() => {
-      getPriorResolutions(resolutions, 'fizz');
-    }).toThrow('Resolution "fizz" could not be found');
-  });
-
-  it('returns resolutions before and including resolution id', () => {
-    const prior = map(getPriorResolutions(resolutions, 'bar'), '_id');
-
-    expect(prior)
-      .toEqual([
-        'buzz',
-        'bar',
-      ]);
-  });
-});
-
 describe('getSessionsByResolution', () => {
   const resolutions = Object.freeze([
     { _id: 'foo', transforms: [], nodes: [], _date: DateTime.fromISO('2019-05-30').toJSDate() },

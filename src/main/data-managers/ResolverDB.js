@@ -46,9 +46,19 @@ class ResolverDB extends DatabaseAdapter {
     });
   }
 
-  getResolutions(protocolId) {
-    const query = protocolId ? { protocolId } : {};
-    return this.find(query);
+  getResolutions(protocolId, resolutionId = null) {
+    if (!resolutionId) {
+      return this.find({ protocolId })
+        .sort({ _date: 1 });
+    }
+
+    // Get resolutions up to and including resolutionId
+    return this.find({ _id: resolutionId }, { _date: 1 })
+      .then(({ _date }) =>
+        // eslint-disable-next-line no-underscore-dangle
+        this.find({ $where: function beforeDate() { return this._date <= _date; } })
+          .sort({ _date: 1 }),
+      );
   }
 
   deleteProtocolResolutions(protocolId) {

@@ -59,12 +59,10 @@ class ResolverManager {
     requestId,
     options,
   ) {
-    const resolver = options.resolver;
-
     const command = [
-      resolver.interpreterPath,
-      resolver.resolverPath,
-      resolver.args,
+      options.interpreterPath,
+      options.resolverPath,
+      options.args,
     ];
 
     return Promise.all([
@@ -83,8 +81,8 @@ class ResolverManager {
   }
 
   // TODO: prior to resolution id?
-  getResolutions(protocolId) {
-    return this.db.getResolutions(protocolId)
+  getResolutions(protocolId, resolutionId = null) {
+    return this.db.getResolutions(protocolId, resolutionId)
       .then(resolutions => resolutions.map(formatResolution));
   }
 
@@ -104,7 +102,6 @@ class ResolverManager {
           const egoCastType = get(lastResolution, ['parameters', 'egoCastType'], options.egoCastType);
 
           const transformOptions = {
-            resolutionId: options.resolutionId,
             includeUnresolved,
             egoCastType,
           };

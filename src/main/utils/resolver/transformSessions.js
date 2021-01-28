@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 const { DateTime } = require('luxon');
-const { get, find, findIndex, reduce, uniq } = require('lodash');
+const { get, find, reduce, uniq } = require('lodash');
 const {
   unionOfNetworks,
   nodePrimaryKeyProperty,
@@ -9,22 +9,6 @@ const {
   caseProperty,
 } = require('../formatters/network');
 const castEgoAsNode = require('./castEgoAsNode');
-
-const getPriorResolutions = (resolutions, resolutionId) => {
-  // from oldest to newest
-  const sortedResolutions = [...resolutions]
-    .sort((a, b) => DateTime.fromJSDate(a._date) - DateTime.fromJSDate(b._date));
-
-  if (!resolutionId) { return sortedResolutions; }
-
-  const lastResolution = findIndex(sortedResolutions, ['_id', resolutionId]);
-
-  if (lastResolution === -1) {
-    throw new Error(`Resolution "${resolutionId}" could not be found`);
-  }
-
-  return sortedResolutions.slice(0, lastResolution + 1);
-};
 
 // 1. chunk sessions by resolutions
 // Maybe resolutions should include references to included sessions rather than
@@ -99,16 +83,16 @@ const applyTransform = (network, transform) => {
 const transformSessions = (
   protocol,
   sessions,
-  resolutions,
+  priorResolutions,
   options,
 ) => {
   // default options
-  const { egoCastType, fromResolution: resolutionId, includeUnresolved } = {
+  const { egoCastType, includeUnresolved } = {
     includeUnresolved: true,
     ...options,
   };
 
-  const priorResolutions = getPriorResolutions(resolutions, resolutionId);
+  // const priorResolutions = getPriorResolutions(resolutions, resolutionId);
   const sessionsByResolution = getSessionsByResolution(priorResolutions, sessions);
   const egoCaster = castEgoAsNode(protocol.codebook, egoCastType);
 
@@ -152,7 +136,6 @@ const transformSessions = (
 };
 
 module.exports = {
-  getPriorResolutions,
   getSessionsByResolution,
   applyTransform,
   transformSessions,
