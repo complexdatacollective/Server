@@ -40,24 +40,22 @@ class ResolverDB extends DatabaseAdapter {
     });
   }
 
-  find(query) {
+  find(...args) {
     return new Promise((resolve, reject) => {
-      this.db.find(query).sort(leastRecentlyCreated).exec(resolveOrReject(resolve, reject));
+      this.db.find(...args).sort(leastRecentlyCreated).exec(resolveOrReject(resolve, reject));
     });
   }
 
   getResolutions(protocolId, resolutionId = null) {
     if (!resolutionId) {
-      return this.find({ protocolId })
-        .sort({ _date: 1 });
+      return this.find({ protocolId });
     }
 
     // Get resolutions up to and including resolutionId
     return this.find({ _id: resolutionId }, { _date: 1 })
       .then(({ _date }) =>
         // eslint-disable-next-line no-underscore-dangle
-        this.find({ $where: function beforeDate() { return this._date <= _date; } })
-          .sort({ _date: 1 }),
+        this.find({ $where: function beforeDate() { return this._date <= _date; } }),
       );
   }
 

@@ -11,19 +11,7 @@ const ProtocolDB = require('./ProtocolDB');
 const { dbFilePaths } = require('./config');
 // const { formatSessionAsNetwork, insertEgoInNetworks } = require('../utils/formatters/network');
 
-// const nodePrimaryKeyProperty = '_uid';
-// const egoProperty = 'egoID';
-// const caseProperty = 'caseId';
-
-// // Format sessions with case and ego data and insert ego?
-// const nodeOnlySession = ({ data }) => {
-//   const { ego, sessionVariables } = data;
-//   const egoId = ego[nodePrimaryKeyProperty];
-//   const caseId = sessionVariables[caseProperty];
-//   const nodes = data.nodes
-//     .map(node => ({ ...node, [egoProperty]: egoId, [caseProperty]: caseId }));
-//   return { nodes: [...nodes, ego] };
-// };
+const formatSession = ({ data }) => data;
 
 const formatResolution = resolution => ({
   // ...resolution,
@@ -76,8 +64,8 @@ class ResolverManager {
   }
 
   getSessions(protocolId) {
-    return this.sessionDb.findAll(protocolId, null, null);
-    // .then(sessions => sessions.map(nodeOnlySession));
+    return this.sessionDb.findAll(protocolId, null, null)
+      .then(sessions => sessions.map(formatSession));
   }
 
   // TODO: prior to resolution id?
@@ -92,7 +80,7 @@ class ResolverManager {
     return Promise.all([
       this.protocolDb.get(protocolId),
       this.getSessions(protocolId),
-      this.getResolutions(protocolId),
+      this.getResolutions(protocolId, get(options, 'resolutionId')),
     ])
       .then(
         ([protocol, sessions, resolutions]) => {
