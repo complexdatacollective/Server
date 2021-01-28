@@ -1,29 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { connect, useDispatch } from 'react-redux';
+import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import { compose } from 'recompose';
 import { AnimateSharedLayout } from 'framer-motion';
 import { Button, Spinner } from '@codaco/ui';
 import Types from '../../types';
-import { selectors } from '../../ducks/modules/protocols';
-import useResolutionsClient from '../../hooks/useResolutionsClient';
-import Snapshots from './Snapshots';
+import { selectors as protocolSelectors } from '../../ducks/modules/protocols';
+import useResolver from '../../hooks/useResolver';
+// import Snapshots from './Snapshots';
 import NewResolution from './NewResolution';
 
 const EntityResolverScreen = ({
   protocolId,
-  nodeTypes,
+  protocol,
   protocolsHaveLoaded,
 }) => {
-  const dispatch = useDispatch();
   const [resolverOptions, setResolverOptions] = useState({});
-  const [
-    { resolutions, unresolved, egoCastType },
-    { deleteResolution },
-  ] = useResolutionsClient(protocolId);
+  const [resolverState, resolveProtocol, abortResolution] = useResolver();
 
-  const handleSubmit = () => {};
+  useEffect(() => {
+    console.log({ resolverState });
+  }, [JSON.stringify(resolverState)]);
+
+  const handleSubmit = () => {
+    console.log({ resolverOptions });
+    resolveProtocol(protocol, resolverOptions);
+  };
   const canSubmit = true;
 
   if (protocolsHaveLoaded && !protocolId) { // This protocol doesn't exist
@@ -40,7 +43,7 @@ const EntityResolverScreen = ({
         <h1>Entity Resolver</h1>
         <div className="export__options">
           <AnimateSharedLayout>
-            <div className="export__section">
+            {/* <div className="export__section">
               <h3>1. Existing Snapshots</h3>
               <p>Manage existing resolutions.</p>
               <Snapshots
@@ -49,15 +52,12 @@ const EntityResolverScreen = ({
                 resolutions={resolutions}
                 onDeleteResolution={deleteResolution}
               />
-            </div>
+            </div> */}
             <div className="export__section">
               <h3>2. Resolve Sessions</h3>
               <p>Use an external application to resolve nodes in a unified network.</p>
               <NewResolution
-                unresolved={unresolved}
-                nodeTypes={nodeTypes}
-                egoCastType={egoCastType}
-                options={resolverOptions}
+                protocolId={protocolId}
                 onUpdate={setResolverOptions}
               />
             </div>
@@ -72,41 +72,24 @@ const EntityResolverScreen = ({
 };
 
 EntityResolverScreen.propTypes = {
+  protocolId: PropTypes.string,
   protocol: Types.protocol,
   protocolsHaveLoaded: PropTypes.bool.isRequired,
 };
 
 EntityResolverScreen.defaultProps = {
   protocol: null,
-};
-
-
-const nodeDefinitionsAsOptions = (nodeDefinitions) => {
-  const options = Object.keys(nodeDefinitions)
-    .map(nodeType => ({
-      label: nodeDefinitions[nodeType].name,
-      value: nodeType,
-    }));
-
-  return options;
+  protocolId: null,
 };
 
 const mapStateToProps = (state, ownProps) => {
-  const protocol = selectors.currentProtocol(state, ownProps);
-  const nodeTypes = protocol
-    ? nodeDefinitionsAsOptions(
-      selectors.nodeDefinitions(state, protocol.id),
-    )
-    : [];
+  const protocol = protocolSelectors.currentProtocol(state, ownProps);
 
   return {
-    protocolsHaveLoaded: selectors.protocolsHaveLoaded(state),
+    protocolsHaveLoaded: protocolSelectors.protocolsHaveLoaded(state),
+    protocol,
     protocolId: protocol && protocol.id,
-    nodeTypes,
   };
-};
-
-const mapDispatchToProps = {
 };
 
 export {
@@ -114,5 +97,5 @@ export {
 };
 
 export default compose(
-  connect(mapStateToProps, mapDispatchToProps),
+  connect(mapStateToProps, {}),
 )(EntityResolverScreen);

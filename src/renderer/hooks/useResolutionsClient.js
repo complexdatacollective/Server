@@ -1,11 +1,9 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { last, get } from 'lodash';
 import AdminApiClient from '../utils/adminApiClient';
-import useResolver from './useResolver';
 
 const useResolutions = (protocolId, deps = []) => {
   const adminClient = useRef(new AdminApiClient());
-  const [resolverState, resolveProtocol, abortResolution] = useResolver();
   const [resolutions, setResolutions] = useState([]);
   const [unresolved, setUnresolved] = useState(0);
   const [egoCastType, setEgoCastType] = useState(null);

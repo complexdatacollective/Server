@@ -132,16 +132,12 @@ const useResolver = () => {
   // cleanup on unmount
   useEffect(() => () => cleanupResolver(), []);
 
-  const resolveProtocol = (protocol, exportOptions) => {
+  const resolveProtocol = (protocol, options) => {
     const {
       id: protocolId,
     } = protocol;
 
-    const {
-      resolveEntities: { options },
-    } = exportOptions;
-
-    startResolve({ exportOptions, protocol });
+    startResolve({ options, protocol });
 
     if (isEmpty(options.egoCastType)) {
       const e = new Error('Please specify an ego cast type');
@@ -161,7 +157,7 @@ const useResolver = () => {
       return Promise.reject(e);
     }
 
-    return resolverClient(protocolId, exportOptions)
+    return resolverClient(protocolId, options)
       .then(handleResolve)
       .catch(handleError);
   };

@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
+import { useSelector } from 'react-redux';
 import Text from '@codaco/ui/lib/components/Fields/Text';
 import Tip from '../../components/Tip';
 import BrowseInput from '../../components/BrowseInput';
+import useResolutionsClient from '../../hooks/useResolutionsClient';
 import withValidation from './withValidation';
+import { getNodeTypes } from './selectors';
 
 const ValidatedBrowseInput = withValidation(BrowseInput);
 
@@ -21,17 +24,29 @@ const isRequired = (value) => {
   return 'Required';
 };
 
-const NewSnapshot = ({
-  hasResolutionHistory,
-  isSelected,
-  unresolved,
-  nodeTypes,
-  egoCastType,
+const getSelectValue = e =>
+  (isEmpty(e.target.value) ? undefined : e.target.value);
+
+const NewResolution = ({
   onUpdate,
-  options,
+  protocolId,
+  initialOptions,
 }) => {
-  const handleUpdateEgoCastType = e =>
-    onUpdate('egoCastType', isEmpty(e.target.value) ? undefined : e.target.value);
+  const [options, setOptions] = useState(initialOptions);
+  const nodeTypes = useSelector(state => getNodeTypes(state, protocolId));
+  const [{ unresolved, egoCastType }] = useResolutionsClient(protocolId);
+
+  const handleUpdateOption = key => value =>
+    setOptions(s => ({ ...s, [key]: value }));
+
+  useEffect(() => {
+    if (egoCastType === null) { return; }
+    handleUpdateOption('egoCastType')(egoCastType);
+  }, [egoCastType]);
+
+  useEffect(() => {
+    onUpdate(options);
+  }, [JSON.stringify(options)]);
 
   return (
     <div className="new-snapshot">
@@ -47,7 +62,7 @@ const NewSnapshot = ({
             <td>
               <select
                 className="select-field"
-                onChange={handleUpdateEgoCastType}
+                onChange={e => handleUpdateOption('egoCastType')(getSelectValue(e))}
                 value={options.egoCastType || ''}
                 disabled={!!egoCastType}
                 required
@@ -57,7 +72,7 @@ const NewSnapshot = ({
                   <option value={value} key={value}>{label}</option>
                 ))}
               </select>
-              { (hasResolutionHistory || !isSelected) &&
+              { (egoCastType) &&
                 <Tip type="warning">
                   <p>
                     Ego node cast type cannot be changed whilst there are
@@ -75,8 +90,7 @@ const NewSnapshot = ({
               <ValidatedBrowseInput
                 input={{
                   value: options.interpreterPath,
-                  onChange: value => onUpdate('interpreterPath', value),
-                  disabled: !isSelected,
+                  onChange: value => handleUpdateOption('interpreterPath')(value),
                 }}
                 validate={isRequired}
               />
@@ -90,8 +104,7 @@ const NewSnapshot = ({
               <ValidatedBrowseInput
                 input={{
                   value: options.resolverPath,
-                  onChange: value => onUpdate('resolverPath', value),
-                  disabled: !isSelected,
+                  onChange: value => handleUpdateOption('resolverPath')(value),
                 }}
                 validate={isRequired}
               />
@@ -105,8 +118,7 @@ const NewSnapshot = ({
               <Text
                 input={{
                   value: options.args,
-                  onChange: e => onUpdate('args', e.target.value),
-                  disabled: !isSelected,
+                  onChange: e => handleUpdateOption('args')(e.target.value),
                 }}
               />
             </td>
@@ -117,29 +129,20 @@ const NewSnapshot = ({
   );
 };
 
-NewSnapshot.propTypes = {
-  hasResolutionHistory: PropTypes.bool,
-  isSelected: PropTypes.bool.isRequired,
-  unresolved: PropTypes.number,
-  nodeTypes: PropTypes.array,
+NewResolution.propTypes = {
   onUpdate: PropTypes.func.isRequired,
-  egoCastType: PropTypes.string,
-  options: PropTypes.shape({
-    args: PropTypes.string,
-    egoCastType: PropTypes.string,
-    interpreterPath: PropTypes.string,
-    resolverPath: PropTypes.string,
-  }),
+  protocolId: PropTypes.string,
+  initialOptions: PropTypes.object,
 };
 
-NewSnapshot.defaultProps = {
-  egoCastType: '',
-  entityResolutionArguments: '',
-  entityResolutionPath: '',
-  hasResolutionHistory: false,
-  unresolved: 0,
-  nodeTypes: [],
-  options: {},
+NewResolution.defaultProps = {
+  protocolId: null,
+  initialOptions: {
+    interpreterPath: 'python3',
+    resolverPath: '',
+    args: '--minimumThreshold',
+    egoCastType: null,
+  },
 };
 
-export default NewSnapshot;
+export default NewResolution;
