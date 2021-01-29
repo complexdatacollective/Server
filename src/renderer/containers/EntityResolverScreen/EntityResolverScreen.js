@@ -7,7 +7,6 @@ import { AnimateSharedLayout } from 'framer-motion';
 import { Button, Spinner } from '@codaco/ui';
 import Types from '../../types';
 import { selectors as protocolSelectors } from '../../ducks/modules/protocols';
-import useResolver from '../../hooks/useResolver';
 import EntityResolver from '../EntityResolver/Resolutions';
 // import Snapshots from './Snapshots';
 import NewResolution from './NewResolution';
@@ -19,11 +18,6 @@ const EntityResolverScreen = ({
 }) => {
   const [resolverOptions, setResolverOptions] = useState({});
   const resolver = useRef();
-  // const [resolverState, resolveProtocol, abortResolution] = useResolver();
-
-  // useEffect(() => {
-  //   console.log({ resolverState });
-  // }, [JSON.stringify(resolverState)]);
 
   const handleSubmit = () => {
     console.log({ resolverOptions });

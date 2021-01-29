@@ -46,13 +46,20 @@ const useResolutions = (protocolId, deps = []) => {
     [protocolId, getResolutions],
   );
 
+  const saveResolution = useCallback(
+    (parameters, resolution) =>
+      adminClient.current
+        .post(`/protocols/${protocolId}/resolutions`, { parameters, resolution }),
+    [protocolId],
+  );
+
   useEffect(() => {
     getResolutions();
   }, deps);
 
   return [
     { resolutions, unresolved, egoCastType },
-    { deleteResolution, getResolutions },
+    { deleteResolution, getResolutions, saveResolution },
   ];
 };
 

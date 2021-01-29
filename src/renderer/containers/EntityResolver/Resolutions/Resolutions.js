@@ -4,7 +4,7 @@ import { get, reduce } from 'lodash';
 import cx from 'classnames';
 import { Modal, ProgressBar } from '@codaco/ui';
 import useResolver from '../../../hooks/useResolver';
-import useAdminClient from '../../../hooks/useAdminClient';
+import useResolutionsClient from '../../../hooks/useResolutionsClient';
 import Loading from './Loading';
 import NoResults from './NoResults';
 import Review from './Review';
@@ -26,9 +26,13 @@ const initialDiffState = {
 const Resolutions = React.forwardRef(({
   onComplete,
 }, ref) => {
-  const { saveResolution } = useAdminClient();
+  // const { saveResolution } = useAdminClient();
 
   const [resolverState, resolveProtocol, abortResolution] = useResolver();
+
+  const protocolId = get(resolverState, ['protocol', 'id']);
+
+  const [, { saveResolution }] = useResolutionsClient(protocolId);
 
   useEffect(() => {
     if (ref && !ref.current) {
@@ -43,7 +47,7 @@ const Resolutions = React.forwardRef(({
 
   const codebook = get(resolverState, ['protocol', 'codebook'], {});
 
-  const egoCastType = get(resolverState, 'exportSettings.resolverOptions.egoCastType');
+  const egoCastType = get(resolverState, ['options', 'egoCastType']);
   const nodeTypeDefinition = getNodeTypeDefinition(codebook, egoCastType);
 
   const [diffState, setDiffState] = useState(initialDiffState);
@@ -93,8 +97,7 @@ const Resolutions = React.forwardRef(({
     const finalizedResolutions = finializeResolutions(resolutionsState.resolutions);
 
     saveResolution(
-      resolverState.protocol,
-      resolverState.exportSettings,
+      resolverState.options,
       finalizedResolutions,
     ) // adminApi
       .then(({ resolutionId }) => onComplete({
@@ -162,8 +165,6 @@ const Resolutions = React.forwardRef(({
     ),
   }[status];
 
-  console.log({ status, match: resolutionsState.match, resolutionsState });
-
   const content = {
     [states.LOADING]: <Loading key="loading" />,
     [states.WAITING]: <Loading key="waiting" />,
@@ -186,6 +187,8 @@ const Resolutions = React.forwardRef(({
       />
     ),
   }[status];
+
+  console.log({ content });
 
   const contentClasses = cx(
     'resolver__main',

@@ -13,22 +13,24 @@ const Review = ({
   return (
     <div className="review">
       <table className="review__stats">
-        <tr>
-          <th>Total matches</th>
-          <td>{matches.length}</td>
-        </tr>
-        <tr>
-          <th>Resolved</th>
-          <td>{resolvedCount}</td>
-        </tr>
-        <tr>
-          <th>Implicit</th>
-          <td>{implicitCount}</td>
-        </tr>
-        <tr>
-          <th>Skipped</th>
-          <td>{skipCount}</td>
-        </tr>
+        <tbody>
+          <tr>
+            <th>Total matches</th>
+            <td>{matches.length}</td>
+          </tr>
+          <tr>
+            <th>Resolved</th>
+            <td>{resolvedCount}</td>
+          </tr>
+          <tr>
+            <th>Implicit</th>
+            <td>{implicitCount}</td>
+          </tr>
+          <tr>
+            <th>Skipped</th>
+            <td>{skipCount}</td>
+          </tr>
+        </tbody>
       </table>
     </div>
   );

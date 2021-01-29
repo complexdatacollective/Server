@@ -6,7 +6,7 @@ import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 
 const initialState = {
   protocol: null,
-  exportSettings: {},
+  options: {},
   requestId: null,
   matches: [],
   isActive: false,
@@ -30,7 +30,7 @@ const resolverReducer = (state, action) => {
       return {
         ...state,
         protocol: action.payload.protocol,
-        exportSettings: action.payload.exportSettings,
+        options: action.payload.options,
         isActive: true,
         isLoadingMatches: true,
         matches: [],
@@ -42,7 +42,7 @@ const resolverReducer = (state, action) => {
           {
             ...state,
             protocol: null,
-            exportSettings: {},
+            options: {},
             isLoadingMatches: false,
             isActive: false,
             errorLoadingMatches: null,

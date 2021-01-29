@@ -4,6 +4,7 @@ import useResolver from './useResolver';
 
 const useAdminClient = () => {
   const client = useRef(new AdminApiClient());
+  // TODO: remove this
   const [resolverState, resolveProtocol, abortResolution] = useResolver();
 
   const exportToFile = (protocol, exportOptions) => {
