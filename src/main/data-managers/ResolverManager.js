@@ -127,8 +127,8 @@ class ResolverManager {
       });
   }
 
-  saveResolution(protocolId, parameters, transforms) {
-    return this.db.insertResolution(protocolId, parameters, transforms);
+  saveResolution(protocolId, options, transforms) {
+    return this.db.insertResolution(protocolId, options, transforms);
   }
 
   // Delete all resolutions after and INCLUDING resolutionId

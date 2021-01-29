@@ -47,9 +47,9 @@ const useResolutions = (protocolId, deps = []) => {
   );
 
   const saveResolution = useCallback(
-    (parameters, resolution) =>
+    (options, transforms) =>
       adminClient.current
-        .post(`/protocols/${protocolId}/resolutions`, { parameters, resolution }),
+        .post(`/protocols/${protocolId}/resolutions`, { options, transforms }),
     [protocolId],
   );
 

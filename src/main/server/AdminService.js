@@ -321,12 +321,12 @@ class AdminService {
     api.post('/protocols/:protocolId/resolutions', (req, res, next) => {
       apiRequestLogger('AdminAPI')(req, { statusCode: 0 }); // log request start
 
-      const { parameters, resolution } = req.body;
+      const { options, transforms } = req.body;
 
-      this.protocolManager.saveResolution(
+      this.resolverManager.saveResolution(
         req.params.protocolId,
-        parameters,
-        resolution,
+        options,
+        transforms,
       )
         .then(({ _id: resolutionId }) =>
           res.send({ status: 'ok', resolutionId }),
