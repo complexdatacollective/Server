@@ -13,12 +13,17 @@ const { dbFilePaths } = require('./config');
 
 const formatSession = ({ data }) => data;
 
-const formatResolution = resolution => ({
-  // ...resolution,
-  _id: resolution._id,
-  date: resolution.updatedAt,
-  transformCount: resolution.transforms.length,
-  transforms: resolution.transforms,
+const formatResolution = ({
+  _id,
+  updatedAt,
+  transforms,
+  options,
+}) => ({
+  id: _id,
+  date: updatedAt,
+  transformCount: transforms.length,
+  options,
+  transforms,
 });
 
 // const defaultNetworkOptions = {
@@ -127,8 +132,8 @@ class ResolverManager {
       });
   }
 
-  saveResolution(protocolId, options, transforms) {
-    return this.db.insertResolution(protocolId, options, transforms);
+  saveResolution(protocolId, resolution) {
+    return this.db.insertResolution(protocolId, resolution);
   }
 
   // Delete all resolutions after and INCLUDING resolutionId

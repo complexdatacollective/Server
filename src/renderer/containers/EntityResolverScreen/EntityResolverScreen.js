@@ -8,7 +8,7 @@ import { Button, Spinner } from '@codaco/ui';
 import Types from '../../types';
 import { selectors as protocolSelectors } from '../../ducks/modules/protocols';
 import EntityResolver from '../EntityResolver/Resolutions';
-// import Snapshots from './Snapshots';
+import Snapshots from './Snapshots';
 import NewResolution from './NewResolution';
 
 const EntityResolverScreen = ({
@@ -40,16 +40,13 @@ const EntityResolverScreen = ({
         <h1>Entity Resolver</h1>
         <div className="export__options">
           <AnimateSharedLayout>
-            {/* <div className="export__section">
+            <div className="export__section">
               <h3>1. Existing Snapshots</h3>
               <p>Manage existing resolutions.</p>
               <Snapshots
                 protocolId={protocolId}
-                nodeTypes={nodeTypes}
-                resolutions={resolutions}
-                onDeleteResolution={deleteResolution}
               />
-            </div> */}
+            </div>
             <div className="export__section">
               <h3>2. Resolve Sessions</h3>
               <p>Use an external application to resolve nodes in a unified network.</p>

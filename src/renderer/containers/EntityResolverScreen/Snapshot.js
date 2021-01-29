@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { DateTime } from 'luxon';
 import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
@@ -9,34 +9,24 @@ import { Button } from '@codaco/ui';
 const Snapshot = ({
   id,
   date,
-  isSelected,
-  onSelect,
   onDelete,
   canDelete,
   sessionCount,
   transformCount,
-  parameters,
+  options,
   nodeTypes,
 }) => {
+  const [isSelected, setSelected] = useState(false);
+  const toggleSelected = () => setSelected(s => !s);
   const displayDate = DateTime.fromISO(date).toHTTP();
 
-  const egoCastType = get(parameters, 'egoCastType');
+  const egoCastType = get(options, 'egoCastType');
 
   const egoCastTypeLabel = get(find(nodeTypes, ['value', egoCastType]), 'label');
 
   return [
-    <tr>
-      <td>
-        <Radio
-          input={{
-            name: `${id}[]`,
-            checked: isSelected,
-            value: id,
-            onChange: () => onSelect(id),
-          }}
-          label={displayDate}
-        />
-      </td>
+    <tr onClick={toggleSelected}>
+      <td>{displayDate}</td>
       <td>{sessionCount}</td>
       <td>{transformCount}</td>
       <td>
@@ -66,15 +56,15 @@ const Snapshot = ({
                 </tr>
                 <tr>
                   <th>Interpreter Path</th>
-                  <td>{get(parameters, 'interpreterPath')}</td>
+                  <td>{get(options, 'interpreterPath')}</td>
                 </tr>
                 <tr>
                   <th>Resolver Script Path</th>
-                  <td>{get(parameters, 'resolverPath')}</td>
+                  <td>{get(options, 'resolverPath')}</td>
                 </tr>
                 <tr>
                   <th>Resolver Script Arguments</th>
-                  <td>{get(parameters, 'args')}</td>
+                  <td>{get(options, 'args')}</td>
                 </tr>
               </table>
             </motion.div>
@@ -88,8 +78,6 @@ const Snapshot = ({
 Snapshot.propTypes = {
   date: PropTypes.string.isRequired,
   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-  isSelected: PropTypes.bool,
-  onSelect: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
   canDelete: PropTypes.bool,
   transformCount: PropTypes.number,

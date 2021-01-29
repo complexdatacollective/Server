@@ -20,7 +20,7 @@ const useResolutions = (protocolId, deps = []) => {
           setUnresolved(_unresolved);
 
           const lastResolution = last(_resolutions);
-          const _egoCastType = get(lastResolution, ['parameters', 'egoCastType']); // eslint-disable-line no-underscore-dangle
+          const _egoCastType = get(lastResolution, ['options', 'egoCastType']); // eslint-disable-line no-underscore-dangle
 
           if (_egoCastType) {
             setEgoCastType(_egoCastType);
@@ -49,7 +49,7 @@ const useResolutions = (protocolId, deps = []) => {
   const saveResolution = useCallback(
     (options, transforms) =>
       adminClient.current
-        .post(`/protocols/${protocolId}/resolutions`, { options, transforms }),
+        .post(`/protocols/${protocolId}/resolutions`, { resolution: { options, transforms } }),
     [protocolId],
   );
 

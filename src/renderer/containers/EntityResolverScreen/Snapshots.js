@@ -1,22 +1,25 @@
 /* eslint-disable no-underscore-dangle */
 import React from 'react';
+import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
+import useResolutionsClient from '../../hooks/useResolutionsClient';
+import { getNodeTypes } from './selectors';
 import Snapshot from './Snapshot';
 import './EntityResolution.scss';
 
 const Snapshots = ({
-  resolutions,
-  onDeleteSnapshot,
-  nodeTypes,
   openDialog,
+  protocolId,
 }) => {
+  const nodeTypes = useSelector(state => getNodeTypes(state, protocolId));
+  const [{ resolutions }, { deleteResolution }] = useResolutionsClient(protocolId);
 
   const handleDelete = (rId) => {
     openDialog({
       type: 'Confirm',
       title: 'Remove Resolution(s)?',
       confirmLabel: 'Remove Resolution(s)',
-      onConfirm: () => onDeleteSnapshot(rId),
+      onConfirm: () => deleteResolution(rId),
       message: 'This will remove this resolution and also remove all subsequent resolutions.',
     });
   };
@@ -46,10 +49,10 @@ const Snapshots = ({
                   canDelete
                   id={resolution._id}
                   nodeTypes={nodeTypes}
-                  parameters={resolution.parameters}
-                  date={resolution._date}
+                  options={resolution.options}
+                  date={resolution.date}
                   sessionCount={resolution._sessionCount}
-                  transformCount={resolution._transformCount}
+                  transformCount={resolution.transformCount}
                 />
               ))
           }
@@ -60,16 +63,12 @@ const Snapshots = ({
 };
 
 Snapshots.propTypes = {
-  resolutions: PropTypes.array,
-  nodeTypes: PropTypes.array.isRequired,
   openDialog: PropTypes.func.isRequired,
-  onDeleteSnapshot: PropTypes.func.isRequired,
   protocolId: PropTypes.string,
 };
 
 Snapshots.defaultProps = {
   protocolId: null,
-  resolutions: [],
 };
 
 export default Snapshots;

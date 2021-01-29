@@ -17,7 +17,7 @@ class ResolverDB extends DatabaseAdapter {
    * @return {Array} saved resolutions
    * @throws {RequestError|Error}
    */
-  insertResolution(protocolId, options, transforms) {
+  insertResolution(protocolId, resolution) {
     return new Promise((resolve, reject) => {
       if (!protocolId) {
         reject(new RequestError(ErrorMessages.NotFound));
@@ -26,8 +26,7 @@ class ResolverDB extends DatabaseAdapter {
 
       const doc = {
         protocolId,
-        options,
-        transforms,
+        ...resolution,
       };
 
       this.db.insert(doc, (err, docs) => {
