@@ -188,8 +188,6 @@ const Resolutions = React.forwardRef(({
     ),
   }[status];
 
-  console.log({ content });
-
   const contentClasses = cx(
     'resolver__main',
     {

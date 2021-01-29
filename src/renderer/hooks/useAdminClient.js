@@ -1,11 +1,8 @@
 import { useRef } from 'react';
 import AdminApiClient from '../utils/adminApiClient';
-import useResolver from './useResolver';
 
 const useAdminClient = () => {
   const client = useRef(new AdminApiClient());
-  // TODO: remove this
-  const [resolverState, resolveProtocol, abortResolution] = useResolver();
 
   const exportToFile = (protocol, exportOptions) => {
     if (!client.current) {
@@ -15,13 +12,6 @@ const useAdminClient = () => {
     const {
       id: protocolId,
     } = protocol;
-
-    // TODO: if resolver enabled, use IPC.
-    if (exportOptions.resolveEntities !== false) {
-      console.log({ exportOptions }, 'ipc');
-      resolveProtocol(protocol, exportOptions);
-      return Promise.resolve();
-    }
 
     return client
       .current

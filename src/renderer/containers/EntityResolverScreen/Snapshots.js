@@ -14,17 +14,17 @@ const Snapshots = ({
   const nodeTypes = useSelector(state => getNodeTypes(state, protocolId));
   const [{ resolutions }, { deleteResolution }] = useResolutionsClient(protocolId);
 
-  const handleDelete = (rId) => {
+  const handleDelete = (resolutionId) => {
     openDialog({
       type: 'Confirm',
       title: 'Remove Resolution(s)?',
       confirmLabel: 'Remove Resolution(s)',
-      onConfirm: () => deleteResolution(rId),
+      onConfirm: () => deleteResolution(resolutionId),
       message: 'This will remove this resolution and also remove all subsequent resolutions.',
     });
   };
 
-  const handleExport = (rId) => {
+  const handleExport = () => {
     // TODO
   };
 

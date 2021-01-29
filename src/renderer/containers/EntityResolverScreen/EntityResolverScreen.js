@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
@@ -23,7 +23,6 @@ const EntityResolverScreen = ({
     console.log({ resolverOptions });
     resolver.current.resolveProtocol(protocol, resolverOptions);
   };
-  const canSubmit = true;
 
   if (protocolsHaveLoaded && !protocolId) { // This protocol doesn't exist
     return <Redirect to="/" />;
@@ -57,7 +56,7 @@ const EntityResolverScreen = ({
             </div>
           </AnimateSharedLayout>
           <div className="buttons">
-            <Button type="submit" disabled={!canSubmit}>Begin Entity Resolution</Button>
+            <Button type="submit">Begin Entity Resolution</Button>
           </div>
         </div>
       </form>

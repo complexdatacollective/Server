@@ -3,7 +3,6 @@ import { DateTime } from 'luxon';
 import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
 import { get, find } from 'lodash';
-import Radio from '@codaco/ui/lib/components/Fields/Radio';
 import { Button } from '@codaco/ui';
 
 const Snapshot = ({
