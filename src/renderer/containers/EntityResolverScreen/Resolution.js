@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { get, find } from 'lodash';
 import { Button } from '@codaco/ui';
 
-const Snapshot = ({
+const Resolution = ({
   id,
   date,
   onDelete,
@@ -74,7 +74,7 @@ const Snapshot = ({
   ];
 };
 
-Snapshot.propTypes = {
+Resolution.propTypes = {
   date: PropTypes.string.isRequired,
   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   onDelete: PropTypes.func.isRequired,
@@ -84,7 +84,7 @@ Snapshot.propTypes = {
   parameters: PropTypes.object,
 };
 
-Snapshot.defaultProps = {
+Resolution.defaultProps = {
   isSelected: false,
   canDelete: false,
   transformCount: 0,
@@ -92,4 +92,4 @@ Snapshot.defaultProps = {
   parameters: {},
 };
 
-export default Snapshot;
+export default Resolution;

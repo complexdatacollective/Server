@@ -8,7 +8,7 @@ import { Button, Spinner } from '@codaco/ui';
 import Types from '../../types';
 import { selectors as protocolSelectors } from '../../ducks/modules/protocols';
 import EntityResolver from '../EntityResolver';
-import Snapshots from './Snapshots';
+import Resolutions from './Resolutions';
 import NewResolution from './NewResolution';
 
 const EntityResolverScreen = ({
@@ -42,7 +42,7 @@ const EntityResolverScreen = ({
             <div className="export__section">
               <h3>1. Existing Snapshots</h3>
               <p>Manage existing resolutions.</p>
-              <Snapshots
+              <Resolutions
                 protocolId={protocolId}
               />
             </div>

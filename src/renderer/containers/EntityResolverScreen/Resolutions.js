@@ -4,10 +4,10 @@ import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import useResolutionsClient from '../../hooks/useResolutionsClient';
 import { getNodeTypes } from './selectors';
-import Snapshot from './Snapshot';
+import Resolution from './Resolution';
 import './EntityResolution.scss';
 
-const Snapshots = ({
+const Resolutions = ({
   openDialog,
   protocolId,
 }) => {
@@ -43,7 +43,7 @@ const Snapshots = ({
           {
             resolutions
               .map(resolution => (
-                <Snapshot
+                <Resolution
                   key={resolution._id}
                   onDelete={handleDelete}
                   canDelete
@@ -62,13 +62,13 @@ const Snapshots = ({
   );
 };
 
-Snapshots.propTypes = {
+Resolutions.propTypes = {
   openDialog: PropTypes.func.isRequired,
   protocolId: PropTypes.string,
 };
 
-Snapshots.defaultProps = {
+Resolutions.defaultProps = {
   protocolId: null,
 };
 
-export default Snapshots;
+export default Resolutions;
