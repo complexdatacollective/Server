@@ -1,18 +1,21 @@
 /* eslint-disable no-underscore-dangle */
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import useResolutionsClient from '../../hooks/useResolutionsClient';
+import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
 import { getNodeTypes } from './selectors';
 import Resolution from './Resolution';
 import './EntityResolution.scss';
 
 const Resolutions = ({
-  openDialog,
   protocolId,
 }) => {
+  const dispatch = useDispatch();
   const nodeTypes = useSelector(state => getNodeTypes(state, protocolId));
   const [{ resolutions }, { deleteResolution }] = useResolutionsClient(protocolId);
+
+  const openDialog = dialog => dispatch(dialogActions.openDialog(dialog));
 
   const handleDelete = (resolutionId) => {
     openDialog({
@@ -44,14 +47,13 @@ const Resolutions = ({
             resolutions
               .map(resolution => (
                 <Resolution
-                  key={resolution._id}
+                  key={resolution.id}
                   onDelete={handleDelete}
-                  canDelete
-                  id={resolution._id}
+                  id={resolution.id}
                   nodeTypes={nodeTypes}
                   options={resolution.options}
                   date={resolution.date}
-                  sessionCount={resolution._sessionCount}
+                  sessionCount={resolution.sessionCount}
                   transformCount={resolution.transformCount}
                 />
               ))
@@ -63,7 +65,6 @@ const Resolutions = ({
 };
 
 Resolutions.propTypes = {
-  openDialog: PropTypes.func.isRequired,
   protocolId: PropTypes.string,
 };
 

@@ -340,7 +340,7 @@ class AdminService {
     api.del('/protocols/:protocolId/resolutions/:resolutionId', (req, res, next) => {
       apiRequestLogger('AdminAPI')(req, { statusCode: 0 }); // log request start
 
-      this.protocolManager.deleteResolutions(
+      this.resolverManager.deleteResolutions(
         req.params.protocolId,
         { from: req.params.resolutionId },
       )

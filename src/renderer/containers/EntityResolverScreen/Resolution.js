@@ -9,7 +9,7 @@ const Resolution = ({
   id,
   date,
   onDelete,
-  canDelete,
+  onExport,
   sessionCount,
   transformCount,
   options,
@@ -29,11 +29,9 @@ const Resolution = ({
       <td>{sessionCount}</td>
       <td>{transformCount}</td>
       <td>
-        { canDelete &&
-          <div className="snapshot__delete">
-            <Button onClick={() => onDelete(id)} size="small" color="coral">Delete</Button>
-          </div>
-        }
+        <div className="snapshot__delete">
+          <Button onClick={() => onExport(id)} color="coral">Export</Button>
+        </div>
       </td>
     </tr>,
     <tr>
@@ -66,6 +64,8 @@ const Resolution = ({
                   <td>{get(options, 'args')}</td>
                 </tr>
               </table>
+
+              <Button onClick={() => onDelete(id)} color="tomato">Delete</Button>
             </motion.div>
           }
         </AnimatePresence>
@@ -78,18 +78,17 @@ Resolution.propTypes = {
   date: PropTypes.string.isRequired,
   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   onDelete: PropTypes.func.isRequired,
-  canDelete: PropTypes.bool,
+  onExport: PropTypes.func.isRequired,
   transformCount: PropTypes.number,
   sessionCount: PropTypes.number,
-  parameters: PropTypes.object,
+  options: PropTypes.object,
 };
 
 Resolution.defaultProps = {
   isSelected: false,
-  canDelete: false,
   transformCount: 0,
   sessionCount: 0,
-  parameters: {},
+  options: {},
 };
 
 export default Resolution;

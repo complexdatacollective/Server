@@ -140,14 +140,19 @@ class ResolverManager {
   deleteResolutions(protocolId, { from: resolutionId } = {}) {
     if (!resolutionId) { throw Error('No resolution id specified: `deleteResolutions(protocolId, { from: resolutionId })`'); }
     return this.getResolutions(protocolId)
-      // Get all resolutions up to and including resolutionId
+      // Get all resolutions after and including resolutionId
       .then((resolutions) => {
         const resolutionIndex = resolutions
-          .findIndex(resolution => resolution._id === resolutionId);
+          .findIndex(resolution => resolution.id === resolutionId);
 
-        return resolutions.slice(resolutionIndex);
+        if (resolutionIndex === -1) { return []; }
+
+        const ids = resolutions
+          .slice(resolutionIndex)
+          .map(({ id }) => id);
+
+        return ids;
       })
-      .then(resolutions => resolutions.map(({ _id }) => _id))
       .then(resolutionIds =>
         this.db.deleteResolutions(resolutionIds)
           .then(() => resolutionIds),
