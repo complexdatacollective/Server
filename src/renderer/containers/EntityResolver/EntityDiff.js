@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { isNil, get, isArray } from 'lodash';
 import { Button, Node } from '@codaco/ui';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
-import { nodePrimaryKeyProperty, caseProperty } from '../../../../main/utils/formatters/network';
+import { nodePrimaryKeyProperty, caseProperty } from '../../../main/utils/formatters/network';
 import { getLabel, getMatchId } from './selectors';
 import VariableControl, { formatVariable } from './VariableControl';
 import useEntityState from './useEntityState';

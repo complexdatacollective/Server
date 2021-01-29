@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { get, reduce } from 'lodash';
 import cx from 'classnames';
 import { Modal, ProgressBar } from '@codaco/ui';
-import useResolver from '../../../hooks/useResolver';
-import useResolutionsClient from '../../../hooks/useResolutionsClient';
+import useResolver from '../../hooks/useResolver';
+import useResolutionsClient from '../../hooks/useResolutionsClient';
 import Loading from './Loading';
 import NoResults from './NoResults';
 import Review from './Review';
@@ -14,7 +14,7 @@ import useResolutionsState from './useResolutionsState';
 import finializeResolutions from './finalizeResolutions';
 import states, { getStatus } from './states';
 import { getNodeTypeDefinition } from './selectors';
-import './Resolver.scss';
+import './EntityResolver.scss';
 
 const initialDiffState = {
   isTouched: false,
@@ -23,7 +23,7 @@ const initialDiffState = {
   isMatchType: null,
 };
 
-const Resolutions = React.forwardRef(({
+const EntityResolver = React.forwardRef(({
   onComplete,
 }, ref) => {
   // const { saveResolution } = useAdminClient();
@@ -224,8 +224,8 @@ const Resolutions = React.forwardRef(({
   );
 });
 
-Resolutions.propTypes = {
+EntityResolver.propTypes = {
   onComplete: PropTypes.func.isRequired,
 };
 
-export default Resolutions;
+export default EntityResolver;

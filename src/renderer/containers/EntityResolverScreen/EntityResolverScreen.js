@@ -7,7 +7,7 @@ import { AnimateSharedLayout } from 'framer-motion';
 import { Button, Spinner } from '@codaco/ui';
 import Types from '../../types';
 import { selectors as protocolSelectors } from '../../ducks/modules/protocols';
-import EntityResolver from '../EntityResolver/Resolutions';
+import EntityResolver from '../EntityResolver';
 import Snapshots from './Snapshots';
 import NewResolution from './NewResolution';
 
