@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { get, reduce } from 'lodash';
+import { get, reduce, noop } from 'lodash';
 import cx from 'classnames';
 import { Modal, ProgressBar } from '@codaco/ui';
 import useResolver from '../../hooks/useResolver';
@@ -93,13 +93,8 @@ const EntityResolver = React.forwardRef(({
     onSaveResolution(
       resolverState.options,
       finalizedResolutions,
-    ) // adminApi
-      .then(({ resolutionId }) => onComplete({
-        resolutionId,
-        enableEntityResolution: true,
-        createNewResolution: false,
-        resolutionsKey: resolutionId, // trigger reload of resolutions
-      }))
+    )
+      .then(({ resolutionId }) => onComplete({ resolutionId }))
       .finally(abortResolution); // for good measure
   };
 
@@ -219,8 +214,12 @@ const EntityResolver = React.forwardRef(({
 });
 
 EntityResolver.propTypes = {
-  onComplete: PropTypes.func.isRequired,
+  onComplete: PropTypes.func,
   onSaveResolution: PropTypes.func.isRequired,
+};
+
+EntityResolver.defaultProps = {
+  onComplete: noop,
 };
 
 export default EntityResolver;

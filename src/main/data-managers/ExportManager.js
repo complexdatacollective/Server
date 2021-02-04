@@ -3,7 +3,7 @@ const path = require('path');
 const { get } = require('lodash');
 const logger = require('electron-log');
 const FileExportManager = require('../utils/network-exporters');
-
+const ResolverManager = require('./ResolverManager');
 const SessionDB = require('./SessionDB');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
 
@@ -15,6 +15,25 @@ class ExportManager {
     // TODO: path is duplicated in ProtocolManager
     const sessionDbFile = path.join(sessionDataDir, 'db-6', 'sessions.db');
     this.sessionDB = new SessionDB(sessionDbFile);
+    this.resolverManager = new ResolverManager(sessionDataDir);
+  }
+
+  getSessions(protocolId, options) {
+    logger.info('resolutionid', options.resolutionId);
+
+    if (options.resolutionId) {
+      return this.resolverManager.getResolvedSessions(protocolId, options.resolutionId)
+        .then((sessions) => {
+          logger.info(JSON.stringify(sessions, null, 2))
+          return sessions;
+        });
+    }
+
+    // Get all sessions associated with this protocol
+    return this.sessionDB.findAll(protocol._id, null, null)
+      .then(sessions =>
+        sessions.map(session => ({ ...session.data })),
+      );
   }
 
   /**
@@ -46,15 +65,7 @@ class ExportManager {
       return Promise.reject(new RequestError(ErrorMessages.NotFound));
     }
 
-    // TODO: use resolutions here?
-
-    logger.info('resolutionid', options.resolutionId);
-
-    // Get all sessions associated with this protocol
-    const exporter = this.sessionDB.findAll(protocol._id, null, null)
-      .then(sessions =>
-        sessions.map(session => ({ ...session.data })),
-      )
+    const exporter = this.getSessions(protocol._id, options)
       .then((sessions) => {
         // This is a valid assumption for Server, because we only ever export from within a
         // single protocol context - all sessions should have the same protocol.

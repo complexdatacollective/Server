@@ -51,7 +51,7 @@ const EntityResolverScreen = ({
       {
         ...defaultExportOptions,
         resolutionId,
-      }
+      },
     );
   };
 
@@ -70,7 +70,6 @@ const EntityResolverScreen = ({
   return (
     <React.Fragment>
       <EntityResolver
-        onComplete={console.log}
         ref={resolver}
         onSaveResolution={saveResolution}
       />

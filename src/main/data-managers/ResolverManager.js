@@ -60,7 +60,7 @@ class ResolverManager {
 
     return Promise.all([
       this.protocolDb.get(protocolId),
-      this.getResolvedSessions(protocolId, options),
+      this.getResolvedSessions(protocolId, options.resolutionId, options.egoCastType),
     ])
       .then(
         ([{ codebook }, [network]]) =>
@@ -81,18 +81,20 @@ class ResolverManager {
 
   // Returns sessions as a resolved network
   // Formatted as `[session]`, so that it is similar to a list of sessions.
-  getResolvedSessions(protocolId, options, includeUnresolved = true) {
+  getResolvedSessions(protocolId, resolutionId, egoCastType = undefined, includeUnresolved = true) {
     return Promise.all([
       this.protocolDb.get(protocolId),
       this.getSessions(protocolId),
-      this.getResolutions(protocolId, get(options, 'resolutionId')),
+      this.getResolutions(protocolId, resolutionId),
     ])
       .then(
         ([protocol, sessions, resolutions]) => {
           const lastResolution = last(resolutions);
 
           // Assumption: All exports henceforth will have the same ego cast type
-          const egoCastType = get(lastResolution, ['parameters', 'egoCastType'], options.egoCastType);
+          const egoCastType = get(lastResolution, ['parameters', 'egoCastType'], egoCastType);
+
+          if (!egoCastType) { throw new Error('No ego cast type provided'); }
 
           const transformOptions = {
             includeUnresolved,
