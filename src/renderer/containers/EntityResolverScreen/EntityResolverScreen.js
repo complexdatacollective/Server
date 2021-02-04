@@ -11,6 +11,24 @@ import EntityResolver from '../EntityResolver';
 import Resolutions from './Resolutions';
 import NewResolution from './NewResolution';
 import useResolutionsClient from '../../hooks/useResolutionsClient';
+import useExportManager from '../../hooks/useExportManager';
+
+const defaultExportOptions = {
+  exportGraphML: true,
+  exportCSV: {
+    adjacencyMatrix: false,
+    attributeList: true,
+    edgeList: true,
+    egoAttributeList: true,
+  },
+  globalOptions: {
+    unifyNetworks: false,
+    useDirectedEdges: false,
+    useScreenLayoutCoordinates: true,
+    screenLayoutHeight: 1080,
+    screenLayoutWidth: 1920,
+  },
+};
 
 const EntityResolverScreen = ({
   protocolId,
@@ -19,11 +37,23 @@ const EntityResolverScreen = ({
 }) => {
   const [
     { resolutions, unresolved, egoCastType },
-    { saveResolution, deleteResolution, exportResolution },
+    { saveResolution, deleteResolution },
   ] = useResolutionsClient(protocolId);
+
+  const { exportToFile } = useExportManager();
 
   const [resolverOptions, setResolverOptions] = useState({});
   const resolver = useRef();
+
+  const handleExportResolution = (resolutionId) => {
+    exportToFile(
+      protocol,
+      {
+        ...defaultExportOptions,
+        resolutionId,
+      }
+    );
+  };
 
   const handleSubmit = () => {
     resolver.current.resolveProtocol(protocol, resolverOptions);
@@ -54,7 +84,7 @@ const EntityResolverScreen = ({
               <Resolutions
                 protocolId={protocolId}
                 resolutions={resolutions}
-                onExportResolution={exportResolution}
+                onExportResolution={handleExportResolution}
                 onDeleteResolution={deleteResolution}
               />
             </div>
