@@ -101,7 +101,7 @@ const useExportManager = () => {
     handleExportUpdate();
   }, [exportStatus.status, exportStatus.progress, exportStatus.errors]);
 
-  const handleExportToFile = ( ...options) =>
+  const handleExportToFile = (...options) =>
     exportToFile(...options)
       .catch((e) => {
         handleExportFinished(true);

@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect, useDispatch } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import { compose } from 'recompose';
 import { AnimatePresence, AnimateSharedLayout, motion } from 'framer-motion';
-import { Button, Spinner, ProgressBar, Icon } from '@codaco/ui';
+import { Button, Spinner } from '@codaco/ui';
 import CheckboxGroup from '@codaco/ui/lib/components/Fields/CheckboxGroup';
 import Checkbox from '@codaco/ui/lib/components/Fields/Checkbox';
 import { Toggle } from '@codaco/ui/lib/components/Fields';
@@ -13,7 +13,6 @@ import Types from '../../types';
 import useExportManager from '../../hooks/useExportManager';
 import { selectors } from '../../ducks/modules/protocols';
 import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
-import { actionCreators as toastActions } from '../../ducks/modules/toasts';
 import useExportOptions, { exportFormats } from './useExportOptions';
 
 const CSVOptions = [
