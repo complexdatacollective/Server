@@ -2,6 +2,7 @@
 
 const path = require('path');
 const { last, get, findLast } = require('lodash');
+const logger = require('electron-log');
 // const { RequestError, ErrorMessages } = require('../errors/RequestError');
 const { getNetworkResolver } = require('../utils/getNetworkResolver');
 const { transformSessions } = require('../utils/resolver/transformSessions');
@@ -81,7 +82,7 @@ class ResolverManager {
 
   // Returns sessions as a resolved network
   // Formatted as `[session]`, so that it is similar to a list of sessions.
-  getResolvedSessions(protocolId, resolutionId, egoCastType = undefined, includeUnresolved = true) {
+  getResolvedSessions(protocolId, resolutionId, initialEgoCastType = undefined, includeUnresolved = true) {
     return Promise.all([
       this.protocolDb.get(protocolId),
       this.getSessions(protocolId),
@@ -92,7 +93,7 @@ class ResolverManager {
           const lastResolution = last(resolutions);
 
           // Assumption: All exports henceforth will have the same ego cast type
-          const egoCastType = get(lastResolution, ['parameters', 'egoCastType'], egoCastType);
+          const egoCastType = get(lastResolution, ['options', 'egoCastType'], initialEgoCastType);
 
           if (!egoCastType) { throw new Error('No ego cast type provided'); }
 
@@ -104,7 +105,21 @@ class ResolverManager {
           return transformSessions(protocol, sessions, resolutions, transformOptions);
         },
       )
-      .then(network => ([network]));
+      .then(network => ([{
+        ...network,
+         // TODO: hack fix for ego/sessionVariables
+        ego: {},
+        sessionVariables: {
+          caseId: resolutionId,
+          sessionId: 'resolved',
+          protocolUID: protocolId,
+          protocolName: 'Development', // Use actual name
+          codebookHash: '825cbadabc6ea1786099fdbcf5cf3a08d2dd1e23', // what is this for?
+          sessionStart: new Date(), // use date of resolution or omit?
+          sessionFinish: new Date(),
+          sessionExported: new Date(),
+        }
+      }]));
   }
 
   getResolutionsWithSessionCounts(protocolId) {

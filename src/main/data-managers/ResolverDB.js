@@ -1,3 +1,4 @@
+const logger = require('electron-log');
 const DatabaseAdapter = require('./DatabaseAdapter');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
 const { leastRecentlyCreated, resolveOrReject } = require('../utils/db');
@@ -51,11 +52,12 @@ class ResolverDB extends DatabaseAdapter {
     }
 
     // Get resolutions up to and including resolutionId
-    return this.find({ _id: resolutionId }, { _date: 1 })
-      .then(({ _date }) =>
-        // eslint-disable-next-line no-underscore-dangle
-        this.find({ $where: function beforeDate() { return this._date <= _date; } }),
-      );
+    return this.find({ _id: resolutionId }, { createdAt: 1 })
+      .then(([{ createdAt }]) => {
+        return this.find({ $where: function beforeDate() {
+          return this.createdAt <= createdAt;
+        } });
+      });
   }
 
   deleteProtocolResolutions(protocolId) {

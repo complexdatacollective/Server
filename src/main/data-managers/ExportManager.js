@@ -2,10 +2,17 @@
 const path = require('path');
 const { get } = require('lodash');
 const logger = require('electron-log');
+const fse = require('fs-extra');
 const FileExportManager = require('../utils/network-exporters');
 const ResolverManager = require('./ResolverManager');
 const SessionDB = require('./SessionDB');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
+
+const sessionLogger = name =>
+  (sessions) => {
+    fse.writeFile(`/tmp/exports/session_${name}.json`, JSON.stringify(sessions[0], null, 2))
+    return sessions;
+  };
 
 /**
  * Interface for all data exports
@@ -22,18 +29,16 @@ class ExportManager {
     logger.info('resolutionid', options.resolutionId);
 
     if (options.resolutionId) {
-      return this.resolverManager.getResolvedSessions(protocolId, options.resolutionId)
-        .then((sessions) => {
-          logger.info(JSON.stringify(sessions, null, 2))
-          return sessions;
-        });
+      return this.resolverManager.getResolvedSessions(protocolId, options.resolutionId);
+        // .then(sessionLogger('resolved'));
     }
 
     // Get all sessions associated with this protocol
-    return this.sessionDB.findAll(protocol._id, null, null)
+    return this.sessionDB.findAll(protocolId, null, null)
       .then(sessions =>
         sessions.map(session => ({ ...session.data })),
       );
+      // .then(sessionLogger('regular'));
   }
 
   /**
