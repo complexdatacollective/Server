@@ -4,7 +4,6 @@ import { get, reduce } from 'lodash';
 import cx from 'classnames';
 import { Modal, ProgressBar } from '@codaco/ui';
 import useResolver from '../../hooks/useResolver';
-import useResolutionsClient from '../../hooks/useResolutionsClient';
 import Loading from './Loading';
 import NoResults from './NoResults';
 import Review from './Review';
@@ -25,14 +24,9 @@ const initialDiffState = {
 
 const EntityResolver = React.forwardRef(({
   onComplete,
+  onSaveResolution,
 }, ref) => {
-  // const { saveResolution } = useAdminClient();
-
   const [resolverState, resolveProtocol, abortResolution] = useResolver();
-
-  const protocolId = get(resolverState, ['protocol', 'id']);
-
-  const [, { saveResolution }] = useResolutionsClient(protocolId);
 
   useEffect(() => {
     if (ref && !ref.current) {
@@ -96,7 +90,7 @@ const EntityResolver = React.forwardRef(({
   const handleFinish = () => {
     const finalizedResolutions = finializeResolutions(resolutionsState.resolutions);
 
-    saveResolution(
+    onSaveResolution(
       resolverState.options,
       finalizedResolutions,
     ) // adminApi
@@ -226,6 +220,7 @@ const EntityResolver = React.forwardRef(({
 
 EntityResolver.propTypes = {
   onComplete: PropTypes.func.isRequired,
+  onSaveResolution: PropTypes.func.isRequired,
 };
 
 export default EntityResolver;

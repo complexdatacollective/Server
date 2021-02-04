@@ -10,17 +10,22 @@ import { selectors as protocolSelectors } from '../../ducks/modules/protocols';
 import EntityResolver from '../EntityResolver';
 import Resolutions from './Resolutions';
 import NewResolution from './NewResolution';
+import useResolutionsClient from '../../hooks/useResolutionsClient';
 
 const EntityResolverScreen = ({
   protocolId,
   protocol,
   protocolsHaveLoaded,
 }) => {
+  const [
+    { resolutions, unresolved, egoCastType },
+    { saveResolution, deleteResolution },
+  ] = useResolutionsClient(protocolId);
+
   const [resolverOptions, setResolverOptions] = useState({});
   const resolver = useRef();
 
   const handleSubmit = () => {
-    console.log({ resolverOptions });
     resolver.current.resolveProtocol(protocol, resolverOptions);
   };
 
@@ -34,7 +39,11 @@ const EntityResolverScreen = ({
 
   return (
     <React.Fragment>
-      <EntityResolver onComplete={console.log} ref={resolver} />
+      <EntityResolver
+        onComplete={console.log}
+        ref={resolver}
+        onSaveResolution={saveResolution}
+      />
       <form className="content export" onSubmit={handleSubmit}>
         <h1>Entity Resolver</h1>
         <div className="export__options">
@@ -44,6 +53,8 @@ const EntityResolverScreen = ({
               <p>Manage existing resolutions.</p>
               <Resolutions
                 protocolId={protocolId}
+                resolutions={resolutions}
+                onDeleteResolution={deleteResolution}
               />
             </div>
             <div className="export__section">
@@ -52,6 +63,8 @@ const EntityResolverScreen = ({
               <NewResolution
                 protocolId={protocolId}
                 onUpdate={setResolverOptions}
+                unresolved={unresolved}
+                egoCastType={egoCastType}
               />
             </div>
           </AnimateSharedLayout>

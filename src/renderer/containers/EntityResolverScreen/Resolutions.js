@@ -2,7 +2,6 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
-import useResolutionsClient from '../../hooks/useResolutionsClient';
 import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
 import { getNodeTypes } from './selectors';
 import Resolution from './Resolution';
@@ -10,10 +9,11 @@ import './EntityResolution.scss';
 
 const Resolutions = ({
   protocolId,
+  onDeleteResolution,
+  resolutions,
 }) => {
   const dispatch = useDispatch();
   const nodeTypes = useSelector(state => getNodeTypes(state, protocolId));
-  const [{ resolutions }, { deleteResolution }] = useResolutionsClient(protocolId);
 
   const openDialog = dialog => dispatch(dialogActions.openDialog(dialog));
 
@@ -22,7 +22,7 @@ const Resolutions = ({
       type: 'Confirm',
       title: 'Remove Resolution(s)?',
       confirmLabel: 'Remove Resolution(s)',
-      onConfirm: () => deleteResolution(resolutionId),
+      onConfirm: () => onDeleteResolution(resolutionId),
       message: 'This will remove this resolution and also remove all subsequent resolutions.',
     });
   };
@@ -66,10 +66,13 @@ const Resolutions = ({
 
 Resolutions.propTypes = {
   protocolId: PropTypes.string,
+  onDeleteResolution: PropTypes.func.isRequired,
+  resolutions: PropTypes.array,
 };
 
 Resolutions.defaultProps = {
   protocolId: null,
+  resolutions: [],
 };
 
 export default Resolutions;

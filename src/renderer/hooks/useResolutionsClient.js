@@ -9,8 +9,9 @@ const useResolutions = (protocolId, deps = []) => {
   const [egoCastType, setEgoCastType] = useState(null);
 
   const getResolutions = useCallback(
-    () =>
-      adminClient.current
+    () => {
+      if (!protocolId) { return Promise.resolve(null); }
+      return adminClient.current
         .get(`/protocols/${protocolId}/resolutions`)
         .then(({
           resolutions: _resolutions,
@@ -31,31 +32,37 @@ const useResolutions = (protocolId, deps = []) => {
             unresolved: _unresolved,
             egoCastType: _egoCastType,
           };
-        }),
+        });
+    },
     [protocolId],
   );
 
   const deleteResolution = useCallback(
-    id =>
-      adminClient.current
+    (id) => {
+      if (!protocolId) { return Promise.resolve(null); }
+      return adminClient.current
         .delete(`/protocols/${protocolId}/resolutions/${id}`)
         .then(({ ids }) => {
           getResolutions();
           return ids;
-        }),
+        });
+    },
     [protocolId, getResolutions],
   );
 
   const saveResolution = useCallback(
-    (options, transforms) =>
-      adminClient.current
-        .post(`/protocols/${protocolId}/resolutions`, { resolution: { options, transforms } }),
+    (options, transforms) => {
+      if (!protocolId) { return Promise.resolve(null); }
+      return adminClient.current
+        .post(`/protocols/${protocolId}/resolutions`, { resolution: { options, transforms } })
+        .finally(getResolutions);
+    },
     [protocolId],
   );
 
   useEffect(() => {
     getResolutions();
-  }, deps);
+  }, [protocolId, ...deps]);
 
   return [
     { resolutions, unresolved, egoCastType },

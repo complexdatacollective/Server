@@ -5,7 +5,6 @@ import { useSelector } from 'react-redux';
 import Text from '@codaco/ui/lib/components/Fields/Text';
 import Tip from '../../components/Tip';
 import BrowseInput from '../../components/BrowseInput';
-import useResolutionsClient from '../../hooks/useResolutionsClient';
 import withValidation from './withValidation';
 import { getNodeTypes } from './selectors';
 
@@ -31,10 +30,11 @@ const NewResolution = ({
   onUpdate,
   protocolId,
   initialOptions,
+  unresolved,
+  egoCastType,
 }) => {
   const [options, setOptions] = useState(initialOptions);
   const nodeTypes = useSelector(state => getNodeTypes(state, protocolId));
-  const [{ unresolved, egoCastType }] = useResolutionsClient(protocolId);
 
   const handleUpdateOption = key => value =>
     setOptions(s => ({ ...s, [key]: value }));
@@ -133,6 +133,8 @@ NewResolution.propTypes = {
   onUpdate: PropTypes.func.isRequired,
   protocolId: PropTypes.string,
   initialOptions: PropTypes.object,
+  unresolved: PropTypes.number,
+  egoCastType: PropTypes.string,
 };
 
 NewResolution.defaultProps = {
@@ -143,6 +145,8 @@ NewResolution.defaultProps = {
     args: '--minimumThreshold=0.9995',
     egoCastType: null,
   },
+  unresolved: null,
+  egoCastType: null,
 };
 
 export default NewResolution;
