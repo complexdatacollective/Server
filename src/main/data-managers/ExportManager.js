@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 const path = require('path');
 const { get } = require('lodash');
+const logger = require('electron-log');
 const FileExportManager = require('../utils/network-exporters');
 
 const SessionDB = require('./SessionDB');
@@ -44,6 +45,10 @@ class ExportManager {
     if (!protocol) {
       return Promise.reject(new RequestError(ErrorMessages.NotFound));
     }
+
+    // TODO: use resolutions here?
+
+    logger.info('resolutionid', options.resolutionId);
 
     // Get all sessions associated with this protocol
     const exporter = this.sessionDB.findAll(protocol._id, null, null)

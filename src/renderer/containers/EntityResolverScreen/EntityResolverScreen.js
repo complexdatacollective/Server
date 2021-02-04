@@ -19,7 +19,7 @@ const EntityResolverScreen = ({
 }) => {
   const [
     { resolutions, unresolved, egoCastType },
-    { saveResolution, deleteResolution },
+    { saveResolution, deleteResolution, exportResolution },
   ] = useResolutionsClient(protocolId);
 
   const [resolverOptions, setResolverOptions] = useState({});
@@ -54,6 +54,7 @@ const EntityResolverScreen = ({
               <Resolutions
                 protocolId={protocolId}
                 resolutions={resolutions}
+                onExportResolution={exportResolution}
                 onDeleteResolution={deleteResolution}
               />
             </div>

@@ -10,6 +10,7 @@ import './EntityResolution.scss';
 const Resolutions = ({
   protocolId,
   onDeleteResolution,
+  onExportResolution,
   resolutions,
 }) => {
   const dispatch = useDispatch();
@@ -25,10 +26,6 @@ const Resolutions = ({
       onConfirm: () => onDeleteResolution(resolutionId),
       message: 'This will remove this resolution and also remove all subsequent resolutions.',
     });
-  };
-
-  const handleExport = () => {
-    // TODO
   };
 
   return (
@@ -49,12 +46,9 @@ const Resolutions = ({
                 <Resolution
                   key={resolution.id}
                   onDelete={handleDelete}
-                  id={resolution.id}
+                  onExport={onExportResolution}
                   nodeTypes={nodeTypes}
-                  options={resolution.options}
-                  date={resolution.date}
-                  sessionCount={resolution.sessionCount}
-                  transformCount={resolution.transformCount}
+                  {...resolution}
                 />
               ))
           }
@@ -67,6 +61,7 @@ const Resolutions = ({
 Resolutions.propTypes = {
   protocolId: PropTypes.string,
   onDeleteResolution: PropTypes.func.isRequired,
+  onExportResolution: PropTypes.func.isRequired,
   resolutions: PropTypes.array,
 };
 

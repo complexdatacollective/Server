@@ -15,8 +15,8 @@ const Resolution = ({
   options,
   nodeTypes,
 }) => {
-  const [isSelected, setSelected] = useState(false);
-  const toggleSelected = () => setSelected(s => !s);
+  const [isOpen, setIsOpen] = useState(false);
+  const toggleOpen = () => setIsOpen(s => !s);
   const displayDate = DateTime.fromISO(date).toHTTP();
 
   const egoCastType = get(options, 'egoCastType');
@@ -24,7 +24,8 @@ const Resolution = ({
   const egoCastTypeLabel = get(find(nodeTypes, ['value', egoCastType]), 'label');
 
   return [
-    <tr onClick={toggleSelected}>
+    <tr key="summary">
+      <td><Button size="small" onClick={toggleOpen}>view more</Button></td>
       <td>{displayDate}</td>
       <td>{sessionCount}</td>
       <td>{transformCount}</td>
@@ -34,10 +35,10 @@ const Resolution = ({
         </div>
       </td>
     </tr>,
-    <tr>
+    <tr key="parameters">
       <td colSpan="4" className="snapshot__parameters">
         <AnimatePresence>
-          { isSelected &&
+          { isOpen &&
             <motion.div
               key="parameters-table"
               className="snapshot__parameters-container"
@@ -47,22 +48,24 @@ const Resolution = ({
               animate={{ opacity: 1 }}
             >
               <table className="snapshot__parameters-table">
-                <tr>
-                  <th>Node Type</th>
-                  <td>{egoCastType} ({egoCastTypeLabel})</td>
-                </tr>
-                <tr>
-                  <th>Interpreter Path</th>
-                  <td>{get(options, 'interpreterPath')}</td>
-                </tr>
-                <tr>
-                  <th>Resolver Script Path</th>
-                  <td>{get(options, 'resolverPath')}</td>
-                </tr>
-                <tr>
-                  <th>Resolver Script Arguments</th>
-                  <td>{get(options, 'args')}</td>
-                </tr>
+                <tbody>
+                  <tr>
+                    <th>Node Type</th>
+                    <td>{egoCastType} ({egoCastTypeLabel})</td>
+                  </tr>
+                  <tr>
+                    <th>Interpreter Path</th>
+                    <td>{get(options, 'interpreterPath')}</td>
+                  </tr>
+                  <tr>
+                    <th>Resolver Script Path</th>
+                    <td>{get(options, 'resolverPath')}</td>
+                  </tr>
+                  <tr>
+                    <th>Resolver Script Arguments</th>
+                    <td>{get(options, 'args')}</td>
+                  </tr>
+                </tbody>
               </table>
 
               <Button onClick={() => onDelete(id)} color="tomato">Delete</Button>
@@ -85,7 +88,6 @@ Resolution.propTypes = {
 };
 
 Resolution.defaultProps = {
-  isSelected: false,
   transformCount: 0,
   sessionCount: 0,
   options: {},

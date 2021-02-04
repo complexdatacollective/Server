@@ -2,11 +2,43 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { last, get } from 'lodash';
 import AdminApiClient from '../utils/adminApiClient';
 
+const defaultExportOptions = {
+  exportGraphML: true,
+  exportCSV: {
+    adjacencyMatrix: false,
+    attributeList: true,
+    edgeList: true,
+    egoAttributeList: true,
+  },
+  globalOptions: {
+    unifyNetworks: false,
+    useDirectedEdges: false,
+    useScreenLayoutCoordinates: true,
+    screenLayoutHeight: 1080,
+    screenLayoutWidth: 1920,
+  },
+};
+
 const useResolutions = (protocolId, deps = []) => {
   const adminClient = useRef(new AdminApiClient());
   const [resolutions, setResolutions] = useState([]);
   const [unresolved, setUnresolved] = useState(0);
   const [egoCastType, setEgoCastType] = useState(null);
+
+  const exportResolution = useCallback(
+    (id) => {
+      if (!protocolId) { return Promise.resolve(null); }
+
+      const options = {
+        ...defaultExportOptions,
+        resolutionId: id,
+      };
+
+      return adminClient.current
+        .post(`/protocols/${protocolId}/export_requests`, options);
+    },
+    [protocolId],
+  );
 
   const getResolutions = useCallback(
     () => {
@@ -66,7 +98,7 @@ const useResolutions = (protocolId, deps = []) => {
 
   return [
     { resolutions, unresolved, egoCastType },
-    { deleteResolution, getResolutions, saveResolution },
+    { deleteResolution, getResolutions, saveResolution, exportResolution },
   ];
 };
 
