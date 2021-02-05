@@ -3,6 +3,7 @@ import { DateTime } from 'luxon';
 import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
 import { get, find } from 'lodash';
+import cx from 'classnames';
 import { Button } from '@codaco/ui';
 
 const Resolution = ({
@@ -23,31 +24,41 @@ const Resolution = ({
 
   const egoCastTypeLabel = get(find(nodeTypes, ['value', egoCastType]), 'label');
 
+  const summaryClasses = cx(
+    'resolution__summary',
+    { 'resolution__summary--is-open': isOpen }
+  );
+
+  const toggleClasses = cx(
+    'resolution__toggle',
+    { 'resolution__toggle--is-open': isOpen }
+  );
+
   return [
-    <tr key="summary">
-      <td><Button size="small" onClick={handleOpen}>view more</Button></td>
+    <tr key="summary" className={summaryClasses}>
+      <td><div className={toggleClasses} onClick={handleOpen}>view more</div></td>
       <td>{displayDate}</td>
       <td>{sessionCount}</td>
       <td>{transformCount}</td>
       <td>
-        <div className="snapshot__delete">
+        <div className="resolution__delete">
           <Button onClick={() => onExport(id)} color="coral">Export</Button>
         </div>
       </td>
     </tr>,
-    <tr key="parameters">
-      <td colSpan="4" className="snapshot__parameters">
+    <tr key="parameters" className="resolution__parameters">
+      <td colSpan="5">
         <AnimatePresence>
           { isOpen &&
             <motion.div
-              key="parameters-table"
-              className="snapshot__parameters-container"
+              key="parameters-container"
+              className="resolution__parameters-container"
               layout
               initial={{ opacity: 0 }}
               exit={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              <table className="snapshot__parameters-table">
+              <table className="resolution__parameters-table">
                 <tbody>
                   <tr>
                     <th>Node Type</th>

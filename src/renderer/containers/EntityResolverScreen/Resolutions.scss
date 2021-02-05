@@ -1,0 +1,136 @@
+$color-heading: rgba(0, 0, 0, 0.05);
+$color-lighten-1: rgba(255, 255, 255, 0.5);
+$color-lighten-2: rgba(255, 255, 255, 1);
+
+.form-field-radio {
+  position: relative;
+
+  input {
+    position: absolute;
+    z-index: 0;
+  }
+}
+
+.resolutions {
+  margin-bottom: 4rem;
+  // background: lime;
+
+  & > table {
+    width: 100%;
+    // background: $color-darken;
+
+    & > thead > tr > th {
+      text-align: left;
+      padding: 2rem;
+      font-family: var(--heading-font-family);
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.05rem;
+      line-height: 1.1;
+      background: $color-heading;
+    }
+
+    & > tbody > tr {
+      & > td {
+        padding: 1rem 2rem;
+        background: $color-lighten-1;
+      }
+
+      &:nth-child(4n + 1) {
+        td {
+          background: $color-lighten-2;
+        }
+      }
+    }
+  }
+}
+
+.resolution__summary {
+  &--is-open {
+    & > td {
+      background: var(--color-cyber-grape) !important;
+      color: var(--color-white);
+    }
+  }
+}
+
+.resolution__parameters {
+  & > td {
+    padding: 0 !important; // sass-lint:disable-line no-important
+  }
+
+  &-container {
+    width: 100%;
+    background: var(--color-cyber-grape);
+    color: var(--color-white);
+    padding: 2rem 1rem;
+  }
+
+  &-table {
+    width: 100%;
+
+    th,
+    td {
+      padding: .5rem 1rem;
+    }
+
+    td {
+      font-family: monospace;
+    }
+  }
+}
+
+
+.new-snapshot {
+  width: 100%;
+  border-top: 2px solid var(--color-platinum);
+  // background: $color-light-grey-transparent;
+  padding: 1rem 2rem;
+
+  &__options {
+    width: 100%;
+
+    th {
+      text-align: left;
+      width: 14rem;
+      vertical-align: top;
+      line-height: 4rem;
+      padding-top: 0.5rem;
+    }
+
+    td {
+      padding: 0.5rem 0;
+
+      .form-field-container,
+      .form-field {
+        margin: 0;
+
+        input {
+          background-color: var(--color-white);
+        }
+      }
+    }
+  }
+}
+
+.select-field {
+  display: block;
+  border: 0;
+  font-size: 14px; // TODO
+  width: 100%;
+  -moz-appearance: none;  // sass-lint:disable-line no-vendor-prefixes
+  -webkit-appearance: none; // sass-lint:disable-line no-vendor-prefixes
+  appearance: none;
+  max-width: 100%;
+  min-height: 4rem;
+  font-family: var(--body-font-family);
+  border-radius: 1rem 1rem 0 0;
+  background-color: var(--color-white);
+  padding: 0.5rem 1rem;
+  border-bottom: 2px solid transparent;
+  transition: border-bottom-color var(--animation-easing) var(--animation-duration-standard);
+
+  &:hover {
+    border-bottom-color: var(--input-accent);
+  }
+}

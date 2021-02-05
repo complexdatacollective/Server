@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
 import { getNodeTypes } from './selectors';
 import Resolution from './Resolution';
-import './EntityResolution.scss';
+import './Resolutions.scss';
 
 const Resolutions = ({
   protocolId,
@@ -21,6 +21,8 @@ const Resolutions = ({
   const toggleActiveResolution = (resolutionId) =>
     setActiveResolution(s => (s === resolutionId ? undefined : resolutionId));
 
+  console.log({ activeResolution });
+
   const handleDelete = (resolutionId) => {
     openDialog({
       type: 'Confirm',
@@ -32,8 +34,8 @@ const Resolutions = ({
   };
 
   return (
-    <div className="entity-resolution">
-      <table className="snapshots">
+    <div className="resolutions">
+      <table>
         <thead>
           <tr>
             <th>Resolution</th>
