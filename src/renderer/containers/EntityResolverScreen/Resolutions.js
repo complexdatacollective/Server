@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import React from 'react';
+import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
@@ -15,8 +15,11 @@ const Resolutions = ({
 }) => {
   const dispatch = useDispatch();
   const nodeTypes = useSelector(state => getNodeTypes(state, protocolId));
-
   const openDialog = dialog => dispatch(dialogActions.openDialog(dialog));
+
+  const [activeResolution, setActiveResolution] = useState(undefined);
+  const toggleActiveResolution = (resolutionId) =>
+    setActiveResolution(s => (s === resolutionId ? undefined : resolutionId));
 
   const handleDelete = (resolutionId) => {
     openDialog({
@@ -34,8 +37,9 @@ const Resolutions = ({
         <thead>
           <tr>
             <th>Resolution</th>
-            <th>Sessions</th>
-            <th>Resolutions</th>
+            <th>Date</th>
+            <th>Included Sessions</th>
+            <th>Resolve Count</th>
             <th />
           </tr>
         </thead>
@@ -45,6 +49,8 @@ const Resolutions = ({
               .map(resolution => (
                 <Resolution
                   key={resolution.id}
+                  isOpen={resolution.id === activeResolution}
+                  onOpen={() => toggleActiveResolution(resolution.id)}
                   onDelete={handleDelete}
                   onExport={onExportResolution}
                   nodeTypes={nodeTypes}

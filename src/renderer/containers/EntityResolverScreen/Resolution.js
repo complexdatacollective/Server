@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { DateTime } from 'luxon';
 import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
@@ -8,6 +8,8 @@ import { Button } from '@codaco/ui';
 const Resolution = ({
   id,
   date,
+  isOpen,
+  onOpen: handleOpen,
   onDelete,
   onExport,
   sessionCount,
@@ -15,8 +17,6 @@ const Resolution = ({
   options,
   nodeTypes,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const toggleOpen = () => setIsOpen(s => !s);
   const displayDate = DateTime.fromISO(date).toHTTP();
 
   const egoCastType = get(options, 'egoCastType');
@@ -25,7 +25,7 @@ const Resolution = ({
 
   return [
     <tr key="summary">
-      <td><Button size="small" onClick={toggleOpen}>view more</Button></td>
+      <td><Button size="small" onClick={handleOpen}>view more</Button></td>
       <td>{displayDate}</td>
       <td>{sessionCount}</td>
       <td>{transformCount}</td>
@@ -82,6 +82,8 @@ Resolution.propTypes = {
   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   onDelete: PropTypes.func.isRequired,
   onExport: PropTypes.func.isRequired,
+  onOpen: PropTypes.func.isRequired,
+  isOpen: PropTypes.bool,
   transformCount: PropTypes.number,
   sessionCount: PropTypes.number,
   options: PropTypes.object,
@@ -91,6 +93,7 @@ Resolution.defaultProps = {
   transformCount: 0,
   sessionCount: 0,
   options: {},
+  isOpen: false,
 };
 
 export default Resolution;
