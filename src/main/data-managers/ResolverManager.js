@@ -3,35 +3,12 @@
 const path = require('path');
 const { last, get, findLast } = require('lodash');
 const logger = require('electron-log');
-// const { RequestError, ErrorMessages } = require('../errors/RequestError');
 const { getNetworkResolver } = require('../utils/getNetworkResolver');
-const { transformSessions } = require('../utils/resolver/transformSessions');
+const { transformSessions, formatSession, formatResolution } = require('../utils/resolver/transformSessions');
 const ResolverDB = require('./ResolverDB');
 const SessionDB = require('./SessionDB');
 const ProtocolDB = require('./ProtocolDB');
 const { dbFilePaths } = require('./config');
-// const { formatSessionAsNetwork, insertEgoInNetworks } = require('../utils/formatters/network');
-
-const formatSession = ({ data }) => data;
-
-const formatResolution = ({
-  _id,
-  updatedAt,
-  transforms,
-  options,
-}) => ({
-  id: _id,
-  date: updatedAt,
-  transformCount: transforms.length,
-  options,
-  transforms,
-});
-
-// const defaultNetworkOptions = {
-//   enableEntityResolution: true,
-//   includeUnresolved: true,
-//   resolutionId: null,
-// };
 
 /**
  * Interface for data resolution
@@ -91,6 +68,7 @@ class ResolverManager {
       .then(
         ([protocol, sessions, resolutions]) => {
           const lastResolution = last(resolutions);
+          const lastSession = last(sessions);
 
           // Assumption: All exports henceforth will have the same ego cast type
           const egoCastType = get(lastResolution, ['options', 'egoCastType'], initialEgoCastType);
@@ -102,35 +80,33 @@ class ResolverManager {
             egoCastType,
           };
 
-          return transformSessions(protocol, sessions, resolutions, transformOptions);
+          const network = transformSessions(protocol, sessions, resolutions, transformOptions);
+
+          return [{
+            ...network,
+            ego: {}, // TODO: hack fix for ego
+            sessionVariables: {
+              caseId: 'resolved',
+              sessionId: resolutionId,
+              protocolUID: protocolId,
+              protocolName: lastSession.sessionVariables.protocolName,
+              codebookHash: lastSession.sessionVariables.codebookHash,
+              sessionExported: new Date(),
+            }
+          }];
         },
-      )
-      .then(network => ([{
-        ...network,
-         // TODO: hack fix for ego/sessionVariables
-        ego: {},
-        sessionVariables: {
-          caseId: resolutionId,
-          sessionId: 'resolved',
-          protocolUID: protocolId,
-          protocolName: 'Development', // Use actual name
-          codebookHash: '825cbadabc6ea1786099fdbcf5cf3a08d2dd1e23', // what is this for?
-          sessionStart: new Date(), // use date of resolution or omit?
-          sessionFinish: new Date(),
-          sessionExported: new Date(),
-        }
-      }]));
+      );
   }
 
   getResolutionsWithSessionCounts(protocolId) {
     return Promise.all([
       this.getResolutions(protocolId),
-      this.sessionDb.findAll(protocolId, null, { updatedAt: 1 }),
+      this.sessionDb.findAll(protocolId, null, { createdAt: 1 }),
     ])
       .then(([resolutions, sessions]) => {
         const sessionCounts = sessions
           .reduce((acc, session) => {
-            const { _id } = findLast(resolutions, ({ date }) => date > session.updatedAt) || { _id: '_unresolved' };
+            const { _id } = findLast(resolutions, ({ date }) => date > session.createdAt) || { _id: '_unresolved' };
             return {
               ...acc,
               [_id]: get(acc, _id, 0) + 1,

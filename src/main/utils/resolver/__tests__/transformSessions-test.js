@@ -13,7 +13,6 @@ const {
   nodeAttributesProperty,
 } = require('../../formatters/network');
 const {
-  getPriorResolutions,
   getSessionsByResolution,
   applyTransform,
   transformSessions,
@@ -88,36 +87,36 @@ ${JSON.stringify(attributes, null, 2)}`,
 
 describe('getSessionsByResolution', () => {
   const resolutions = Object.freeze([
-    { _id: 'foo', transforms: [], nodes: [], _date: DateTime.fromISO('2019-05-30').toJSDate() },
-    { _id: 'bar', transforms: [], nodes: [], _date: DateTime.fromISO('2019-06-30').toJSDate() },
-    { _id: 'bazz', transforms: [], nodes: [], _date: DateTime.fromISO('2019-07-30').toJSDate() },
-    { _id: 'buzz', transforms: [], nodes: [], _date: DateTime.fromISO('2019-08-30').toJSDate() },
+    { id: 'foo', transforms: [], nodes: [], date: DateTime.fromISO('2019-05-30').toJSDate() },
+    { id: 'bar', transforms: [], nodes: [], date: DateTime.fromISO('2019-06-30').toJSDate() },
+    { id: 'bazz', transforms: [], nodes: [], date: DateTime.fromISO('2019-07-30').toJSDate() },
+    { id: 'buzz', transforms: [], nodes: [], date: DateTime.fromISO('2019-08-30').toJSDate() },
   ]);
 
   const sessions = Object.freeze([
-    { nodes: [], edges: [], _date: DateTime.fromISO('2019-05-25').toJSDate() },
-    { nodes: [], edges: [], _date: DateTime.fromISO('2019-05-26').toJSDate() },
-    { nodes: [], edges: [], _date: DateTime.fromISO('2019-06-25').toJSDate() },
-    { nodes: [], edges: [], _date: DateTime.fromISO('2019-06-26').toJSDate() },
-    { nodes: [], edges: [], _date: DateTime.fromISO('2019-06-27').toJSDate() },
-    { nodes: [], edges: [], _date: DateTime.fromISO('2019-09-25').toJSDate() },
-    { nodes: [], edges: [], _date: DateTime.fromISO('2019-09-26').toJSDate() },
+    { nodes: [], edges: [], date: DateTime.fromISO('2019-05-25').toJSDate() },
+    { nodes: [], edges: [], date: DateTime.fromISO('2019-05-26').toJSDate() },
+    { nodes: [], edges: [], date: DateTime.fromISO('2019-06-25').toJSDate() },
+    { nodes: [], edges: [], date: DateTime.fromISO('2019-06-26').toJSDate() },
+    { nodes: [], edges: [], date: DateTime.fromISO('2019-06-27').toJSDate() },
+    { nodes: [], edges: [], date: DateTime.fromISO('2019-09-25').toJSDate() },
+    { nodes: [], edges: [], date: DateTime.fromISO('2019-09-26').toJSDate() },
   ]);
 
   it('groups session by resolution id', () => {
     const expectedResult = {
       foo: [
-        { nodes: [], edges: [], _date: DateTime.fromISO('2019-05-25').toJSDate() },
-        { nodes: [], edges: [], _date: DateTime.fromISO('2019-05-26').toJSDate() },
+        { nodes: [], edges: [], date: DateTime.fromISO('2019-05-25').toJSDate() },
+        { nodes: [], edges: [], date: DateTime.fromISO('2019-05-26').toJSDate() },
       ],
       bar: [
-        { nodes: [], edges: [], _date: DateTime.fromISO('2019-06-25').toJSDate() },
-        { nodes: [], edges: [], _date: DateTime.fromISO('2019-06-26').toJSDate() },
-        { nodes: [], edges: [], _date: DateTime.fromISO('2019-06-27').toJSDate() },
+        { nodes: [], edges: [], date: DateTime.fromISO('2019-06-25').toJSDate() },
+        { nodes: [], edges: [], date: DateTime.fromISO('2019-06-26').toJSDate() },
+        { nodes: [], edges: [], date: DateTime.fromISO('2019-06-27').toJSDate() },
       ],
       _unresolved: [
-        { nodes: [], edges: [], _date: DateTime.fromISO('2019-09-25').toJSDate() },
-        { nodes: [], edges: [], _date: DateTime.fromISO('2019-09-26').toJSDate() },
+        { nodes: [], edges: [], date: DateTime.fromISO('2019-09-25').toJSDate() },
+        { nodes: [], edges: [], date: DateTime.fromISO('2019-09-26').toJSDate() },
       ],
     };
 
@@ -156,22 +155,30 @@ describe('applyTransform', () => {
 });
 
 describe('transformSessions', () => {
+  const protocol = {
+    codebook: {
+      node: {
+        bar: {
+          variables: {},
+        },
+      },
+      ego: {
+        variables: {},
+      },
+    },
+  };
+
   it('applies a resolution to a session', () => {
     // Set up a single session with a resolution with a single transform
     const sessions = [Factory.session.build(null, { size: 5 })];
     const resolutions = [
       Factory.resolution.build(
-        { _date: DateTime.fromJSDate(sessions[0]._date).plus({ days: 1 }).toJSDate() },
+        { date: DateTime.fromJSDate(sessions[0].date).plus({ days: 1 }).toJSDate() },
         { network: sessions[0], transformCount: 1, attributes: { foo: 'bar' } },
       ),
     ];
 
-    const protocol = {};
-
-    const options = {
-      fromResolution: resolutions[0]._id,
-      useEgoData: true,
-    };
+    const options = {};
 
     const transformedNetwork = transformSessions(protocol, sessions, resolutions, options);
 
@@ -181,7 +188,7 @@ describe('transformSessions', () => {
     // Nodes are removed from the transformed network
     expect(transformedNetwork).networkExcludesNodes(resolutions[0].transforms[0].nodes);
 
-    // ...but not all of thhem
+    // ...but not all of them
     expect(transformedNetwork.nodes.length).toBe(4);
 
     // Tranformed node has been added to the transformed network
@@ -195,28 +202,13 @@ describe('transformSessions', () => {
     const sessions = Factory.session.buildList(1, null, { size: 3 });
     const resolutions = [
       Factory.resolution.build(
-        { _date: DateTime.local().minus({ days: 10 }).toJSDate() },
+        { date: DateTime.local().minus({ days: 10 }).toJSDate() },
         { network: sessions[0], attributes: { foo: 'bar' } },
       ),
     ];
 
-    const protocol = {
-      codebook: {
-        node: {
-          bar: {
-            variables: {},
-          },
-        },
-        ego: {
-          variables: {},
-        },
-      },
-    };
-
     const options = {
-      fromResolution: resolutions[0]._id,
       egoCastType: 'bar',
-      useEgoData: true,
     };
 
     const transformedNetwork = transformSessions(protocol, sessions, resolutions, options);
@@ -233,11 +225,9 @@ describe('transformSessions', () => {
 
     const resolutions = [];
 
-    const protocol = {};
-
     resolutions.push(
       Factory.resolution.build({
-        _date: DateTime.fromJSDate(sessions[0]._date).plus({ months: 1 }).toJSDate(),
+        date: DateTime.fromJSDate(sessions[0].date).plus({ months: 1 }).toJSDate(),
         transforms: [
           Factory.transform.build({ attributes: { foo: 'bar' } }, { network: sessions[0] }),
         ],
@@ -246,24 +236,23 @@ describe('transformSessions', () => {
 
     resolutions.push(
       Factory.resolution.build({
-        _date: DateTime.fromJSDate(sessions[0]._date).plus({ months: 2 }).toJSDate(),
+        date: DateTime.fromJSDate(sessions[0].date).plus({ months: 2 }).toJSDate(),
         transforms: [
           Factory.transform.build({ attributes: { foo: 'bazz' } }, { nodes: [resolutions[0].transforms[0].id] }),
         ],
       }),
     );
 
-    resolutions.push(
-      Factory.resolution.build({
-        _date: DateTime.fromJSDate(sessions[0]._date).plus({ months: 3 }).toJSDate(),
-        transforms: [
-          Factory.transform.build({ attributes: { foo: 'buzz' } }, { nodes: [resolutions[1].transforms[0].id] }),
-        ],
-      }),
-    );
+    // resolutions.push(
+    //   Factory.resolution.build({
+    //     date: DateTime.fromJSDate(sessions[0].date).plus({ months: 3 }).toJSDate(),
+    //     transforms: [
+    //       Factory.transform.build({ attributes: { foo: 'buzz' } }, { nodes: [resolutions[1].transforms[0].id] }),
+    //     ],
+    //   }),
+    // );
 
     const options = {
-      fromResolution: resolutions[1]._id,
       useEgoData: true,
     };
 

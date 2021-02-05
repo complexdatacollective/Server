@@ -29,7 +29,7 @@ class ExportManager {
     logger.info('resolutionid', options.resolutionId);
 
     if (options.resolutionId) {
-      return this.resolverManager.getResolvedSessions(protocolId, options.resolutionId);
+      return this.resolverManager.getResolvedSessions(protocolId, options.resolutionId, undefined, false);
         // .then(sessionLogger('resolved'));
     }
 

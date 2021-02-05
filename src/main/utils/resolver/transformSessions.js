@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
+const logger = require('electron-log');
 const { DateTime } = require('luxon');
-const { get, find, reduce, uniq } = require('lodash');
+const { get, find, reduce, uniq, sortBy } = require('lodash');
 const {
   unionOfNetworks,
   nodePrimaryKeyProperty,
@@ -10,19 +11,34 @@ const {
 } = require('../formatters/network');
 const castEgoAsNode = require('./castEgoAsNode');
 
+const formatSession = ({ data, createdAt }) => ({ date: createdAt, ...data });
+
+const formatResolution = ({
+  _id,
+  createdAt,
+  transforms,
+  options,
+}) => ({
+  id: _id,
+  date: createdAt,
+  transformCount: transforms.length,
+  options,
+  transforms,
+});
+
 // 1. chunk sessions by resolutions
 // Maybe resolutions should include references to included sessions rather than
 // calculating it?
 const getSessionsByResolution = (resolutions, sessions) =>
   sessions.reduce((memo, session) => {
-    const sessionDate = DateTime.fromJSDate(session._date);
+    const sessionDate = DateTime.fromJSDate(session.date);
 
     const resolution = find(
       resolutions,
-      ({ _date }) => sessionDate < DateTime.fromJSDate(_date),
+      ({ date }) => DateTime.fromJSDate(date) > sessionDate,
     );
 
-    const resolutionId = (resolution && resolution._id) || '_unresolved';
+    const resolutionId = (resolution && resolution.id) || '_unresolved';
 
     const group = get(memo, [resolutionId], []);
 
@@ -83,7 +99,7 @@ const applyTransform = (network, transform) => {
 const transformSessions = (
   protocol,
   sessions,
-  priorResolutions,
+  resolutions,
   options,
 ) => {
   // default options
@@ -92,15 +108,17 @@ const transformSessions = (
     ...options,
   };
 
-  // const priorResolutions = getPriorResolutions(resolutions, resolutionId);
-  const sessionsByResolution = getSessionsByResolution(priorResolutions, sessions);
+  const sortedResolutions = sortBy(resolutions, ['date']);
+  const sortedSessions = sortBy(sessions, ['date']);
+
+  const sessionsByResolution = getSessionsByResolution(sortedResolutions, sortedSessions);
   const egoCaster = castEgoAsNode(protocol.codebook, egoCastType);
 
   // For each resolution, cumulatively merge any new sessions and apply resolution
   const resultNetwork = reduce(
-    priorResolutions,
-    (accNetwork, { transforms, _id }) => {
-      const sessionNetworks = sessionsByResolution[_id]; // array of networks
+    sortedResolutions,
+    (accNetwork, { transforms, id }) => {
+      const sessionNetworks = sessionsByResolution[id]; // array of networks
 
       // if no sessions tied to this specific resolution, we apply the transform
       // to the cumulative network so-far
@@ -136,6 +154,8 @@ const transformSessions = (
 };
 
 module.exports = {
+  formatSession,
+  formatResolution,
   getSessionsByResolution,
   applyTransform,
   transformSessions,
