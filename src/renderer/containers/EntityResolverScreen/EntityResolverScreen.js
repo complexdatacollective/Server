@@ -72,6 +72,7 @@ const EntityResolverScreen = ({
       <EntityResolver
         ref={resolver}
         onSaveResolution={saveResolution}
+        onComplete={handleExportResolution}
       />
       <form className="content export" onSubmit={handleSubmit}>
         <h1>Entity Resolver</h1>

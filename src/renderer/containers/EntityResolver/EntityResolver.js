@@ -94,7 +94,7 @@ const EntityResolver = React.forwardRef(({
       resolverState.options,
       finalizedResolutions,
     )
-      .then(({ resolutionId }) => onComplete({ resolutionId }))
+      .then(({ resolutionId }) => onComplete(resolutionId))
       .finally(abortResolution); // for good measure
   };
 
