@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
+import { AnimateSharedLayout, AnimatePresence, motion } from 'framer-motion';
 import { useSelector } from 'react-redux';
 import Text from '@codaco/ui/lib/components/Fields/Text';
 import Tip from '../../components/Tip';
@@ -48,80 +49,96 @@ const NewResolution = ({
     onUpdate(options);
   }, [JSON.stringify(options)]);
 
+  const showResolverPreview = options.interpreterPath || options.resolverPath;
+
   return (
-    <div className="new-resolution">
-      <p>
-        There are <strong>{`${formatSessionCount(unresolved)}`}</strong> since the last resolution.
-      </p>
-      <table className="new-resolution__options">
-        <tbody>
-          <tr>
-            <td>
-              <h4>Ego Node Cast Type</h4>
-              <select
-                className="select-field"
-                onChange={e => handleUpdateOption('egoCastType')(getSelectValue(e))}
-                value={options.egoCastType || ''}
-                disabled={!!egoCastType}
-                required
-              >
-                <option value="">&mdash; Select a node type to convert the ego to&mdash;</option>
-                {nodeTypes.map(({ label, value }) => (
-                  <option value={value} key={value}>{label}</option>
-                ))}
-              </select>
-              { (egoCastType) &&
-                <Tip type="warning">
-                  <p>
-                    Ego node cast type cannot be changed whilst there are
-                    existing resolutions because the results are cumulative.
-                  </p>
-                </Tip>
-              }
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <h4>Interpreter</h4>
-              <ValidatedBrowseInput
-                input={{
-                  value: options.interpreterPath,
-                  onChange: value => handleUpdateOption('interpreterPath')(value),
-                }}
-                validate={isRequired}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <h4>Resolver Script Path</h4>
-              <ValidatedBrowseInput
-                input={{
-                  value: options.resolverPath,
-                  onChange: value => handleUpdateOption('resolverPath')(value),
-                }}
-                validate={isRequired}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <h4>Resolver Script Arguments</h4>
-              <Text
-                input={{
-                  value: options.args,
-                  onChange: e => handleUpdateOption('args')(e.target.value),
-                }}
-              />
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div className="new-resolution__preview">
-        <h4>Resolver command preview</h4>
-        <code>{options.interpreterPath} {options.resolverPath} {options.args}</code>
-      </div>
-    </div>
+    <AnimateSharedLayout>
+      <motion.div layout className="new-resolution">
+        <motion.div layout>
+          <p>
+            There are <strong>{`${formatSessionCount(unresolved)}`}</strong> since the last resolution.
+          </p>
+          <table className="new-resolution__options">
+            <tbody>
+              <tr>
+                <td>
+                  <h4>Ego Node Cast Type</h4>
+                  <select
+                    className="select-field"
+                    onChange={e => handleUpdateOption('egoCastType')(getSelectValue(e))}
+                    value={options.egoCastType || ''}
+                    disabled={!!egoCastType}
+                    required
+                  >
+                    <option value="">&mdash; Select a node type to convert the ego to&mdash;</option>
+                    {nodeTypes.map(({ label, value }) => (
+                      <option value={value} key={value}>{label}</option>
+                    ))}
+                  </select>
+                  { (egoCastType) &&
+                    <Tip type="warning">
+                      <p>
+                        Ego node cast type cannot be changed whilst there are
+                        existing resolutions because the results are cumulative.
+                      </p>
+                    </Tip>
+                  }
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <h4>Interpreter</h4>
+                  <ValidatedBrowseInput
+                    input={{
+                      value: options.interpreterPath,
+                      onChange: value => handleUpdateOption('interpreterPath')(value),
+                    }}
+                    validate={isRequired}
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <h4>Resolver Script Path</h4>
+                  <ValidatedBrowseInput
+                    input={{
+                      value: options.resolverPath,
+                      onChange: value => handleUpdateOption('resolverPath')(value),
+                    }}
+                    validate={isRequired}
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <h4>Resolver Script Arguments</h4>
+                  <Text
+                    input={{
+                      value: options.args,
+                      onChange: e => handleUpdateOption('args')(e.target.value),
+                    }}
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </motion.div>
+        <AnimatePresence>
+          { showResolverPreview &&
+            <motion.div
+              layout
+              className="new-resolution__preview"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <h4>Resolver command preview</h4>
+              <code>{options.interpreterPath} {options.resolverPath} {options.args}</code>
+            </motion.div>
+          }
+        </AnimatePresence>
+      </motion.div>
+    </AnimateSharedLayout>
   );
 };
 
