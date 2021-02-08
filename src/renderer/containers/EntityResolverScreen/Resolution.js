@@ -5,6 +5,8 @@ import PropTypes from 'prop-types';
 import { get, find } from 'lodash';
 import cx from 'classnames';
 import { Button } from '@codaco/ui';
+import caretDownImage from '../../images/caret-down.svg';
+import caretRightImage from '../../images/caret-right.svg';
 
 const Resolution = ({
   id,
@@ -34,15 +36,23 @@ const Resolution = ({
     { 'resolution__toggle--is-open': isOpen }
   );
 
+  const handleExport = (e) => {
+    e.stopPropagation();
+    onExport(id);
+  };
+
   return [
-    <tr key="summary" className={summaryClasses}>
-      <td><div className={toggleClasses} onClick={handleOpen}>view more</div></td>
+    <tr key="summary" className={summaryClasses} onClick={handleOpen} >
+      <td className={toggleClasses}>
+        <img src={caretRightImage} className="resolution__toggle-icon-default" alt="View more" />
+        <img src={caretDownImage} className="resolution__toggle-icon-open" alt="Close" />
+      </td>
       <td>{displayDate}</td>
       <td>{sessionCount}</td>
       <td>{transformCount}</td>
       <td>
         <div className="resolution__delete">
-          <Button onClick={() => onExport(id)} color="coral">Export</Button>
+          <Button onClick={handleExport} color="coral">Export</Button>
         </div>
       </td>
     </tr>,
@@ -57,6 +67,7 @@ const Resolution = ({
               initial={{ opacity: 0 }}
               exit={{ opacity: 0 }}
               animate={{ opacity: 1 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
             >
               <table className="resolution__parameters-table">
                 <tbody>
@@ -78,8 +89,9 @@ const Resolution = ({
                   </tr>
                 </tbody>
               </table>
-
-              <Button onClick={() => onDelete(id)} color="tomato">Delete</Button>
+              <div className="resolution__parameters-controls">
+                <Button onClick={() => onDelete(id)} color="tomato" size="small">Delete resolution</Button>
+              </div>
             </motion.div>
           }
         </AnimatePresence>
