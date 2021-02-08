@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { AnimateSharedLayout } from 'framer-motion';
 import PropTypes from 'prop-types';
 import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
 import { getNodeTypes } from './selectors';
@@ -34,35 +35,37 @@ const Resolutions = ({
   };
 
   return (
-    <div className="resolutions">
-      <table>
-        <thead>
-          <tr>
-            <th>Resolution</th>
-            <th>Date</th>
-            <th>Included Sessions</th>
-            <th>Resolve Count</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {
-            resolutions
-              .map(resolution => (
-                <Resolution
-                  key={resolution.id}
-                  isOpen={resolution.id === activeResolution}
-                  onOpen={() => toggleActiveResolution(resolution.id)}
-                  onDelete={handleDelete}
-                  onExport={onExportResolution}
-                  nodeTypes={nodeTypes}
-                  {...resolution}
-                />
-              ))
-          }
-        </tbody>
-      </table>
-    </div>
+    <AnimateSharedLayout>
+      <div className="resolutions">
+        <table>
+          <thead>
+            <tr>
+              <th>Resolution</th>
+              <th>Date</th>
+              <th>Included Sessions</th>
+              <th>Resolve Count</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            {
+              resolutions
+                .map(resolution => (
+                  <Resolution
+                    key={resolution.id}
+                    isOpen={resolution.id === activeResolution}
+                    onOpen={() => toggleActiveResolution(resolution.id)}
+                    onDelete={handleDelete}
+                    onExport={onExportResolution}
+                    nodeTypes={nodeTypes}
+                    {...resolution}
+                  />
+                ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </AnimateSharedLayout>
   );
 };
 

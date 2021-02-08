@@ -42,7 +42,7 @@ const Resolution = ({
   };
 
   return [
-    <tr key="summary" className={summaryClasses} onClick={handleOpen} >
+    <motion.tr layout key="summary" className={summaryClasses} onClick={handleOpen} >
       <td className={toggleClasses}>
         <img src={caretRightImage} className="resolution__toggle-icon-default" alt="View more" />
         <img src={caretDownImage} className="resolution__toggle-icon-open" alt="Close" />
@@ -55,15 +55,14 @@ const Resolution = ({
           <Button onClick={handleExport} color="coral">Export</Button>
         </div>
       </td>
-    </tr>,
-    <tr key="parameters" className="resolution__parameters">
+    </motion.tr>,
+    <motion.tr layout key="parameters" className="resolution__parameters">
       <td colSpan="5">
         <AnimatePresence>
           { isOpen &&
             <motion.div
               key="parameters-container"
               className="resolution__parameters-container"
-              layout
               initial={{ opacity: 0 }}
               exit={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -96,7 +95,7 @@ const Resolution = ({
           }
         </AnimatePresence>
       </td>
-    </tr>,
+    </motion.tr>,
   ];
 };
 
