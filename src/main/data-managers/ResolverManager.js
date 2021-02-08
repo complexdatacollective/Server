@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 
 const path = require('path');
-const { last, get, findLast } = require('lodash');
+const { last, get, findLast, trim } = require('lodash');
 const logger = require('electron-log');
 const { getNetworkResolver } = require('../utils/getNetworkResolver');
 const { transformSessions, formatSession, formatResolution } = require('../utils/resolver/transformSessions');
@@ -9,6 +9,11 @@ const ResolverDB = require('./ResolverDB');
 const SessionDB = require('./SessionDB');
 const ProtocolDB = require('./ProtocolDB');
 const { dbFilePaths } = require('./config');
+
+const parseArgs = (args) => {
+  if (trim(args).length === 0) { return []; }
+  return trim(args).split(' ');
+};
 
 /**
  * Interface for data resolution
@@ -30,11 +35,17 @@ class ResolverManager {
     requestId,
     options,
   ) {
+    const args = parseArgs(options.args);
+
+    logger.warn({ args });
+
     const command = [
       options.interpreterPath,
       options.resolverPath,
-      options.args,
+      ...parseArgs(options.args),
     ];
+
+    logger.warn({ command });
 
     return Promise.all([
       this.protocolDb.get(protocolId),

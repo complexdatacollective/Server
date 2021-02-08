@@ -1,5 +1,6 @@
 const child = require('duplex-child-process');
 const fs = require('fs-extra');
+const logger = require('electron-log');
 
 /**
  * `command` should be an array in the format:
@@ -15,8 +16,11 @@ const spawnCommand = (command) => {
   return fs.pathExists(script)
     .catch(() => { throw new Error(`Could not find script "${script}"`); })
     .then(() => {
+      logger.warn({ args });
       const spawnArgs = [script, ...args];
+      logger.warn({ spawnArgs });
       const spawnProcess = () => child.spawn(interpreter, spawnArgs);
+      logger.warn({ interpreter, spawnArgs });
       return spawnProcess;
     });
 };
