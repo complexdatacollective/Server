@@ -49,17 +49,15 @@ const NewResolution = ({
   }, [JSON.stringify(options)]);
 
   return (
-    <div className="new-snapshot">
+    <div className="new-resolution">
       <p>
         There are <strong>{`${formatSessionCount(unresolved)}`}</strong> since the last resolution.
       </p>
-      <table className="new-snapshot__options">
+      <table className="new-resolution__options">
         <tbody>
           <tr>
-            <th>
-              Ego Node Cast Type
-            </th>
             <td>
+              <h4>Ego Node Cast Type</h4>
               <select
                 className="select-field"
                 onChange={e => handleUpdateOption('egoCastType')(getSelectValue(e))}
@@ -83,10 +81,8 @@ const NewResolution = ({
             </td>
           </tr>
           <tr>
-            <th>
-              Interpreter
-            </th>
             <td>
+              <h4>Interpreter</h4>
               <ValidatedBrowseInput
                 input={{
                   value: options.interpreterPath,
@@ -97,10 +93,8 @@ const NewResolution = ({
             </td>
           </tr>
           <tr>
-            <th>
-              Resolver Script Path
-            </th>
             <td>
+              <h4>Resolver Script Path</h4>
               <ValidatedBrowseInput
                 input={{
                   value: options.resolverPath,
@@ -111,10 +105,8 @@ const NewResolution = ({
             </td>
           </tr>
           <tr>
-            <th>
-              Resolver Script Arguments
-            </th>
             <td>
+              <h4>Resolver Script Arguments</h4>
               <Text
                 input={{
                   value: options.args,
@@ -125,6 +117,10 @@ const NewResolution = ({
           </tr>
         </tbody>
       </table>
+      <div className="new-resolution__preview">
+        <h4>Resolver command preview</h4>
+        <code>{options.interpreterPath} {options.resolverPath} {options.args}</code>
+      </div>
     </div>
   );
 };

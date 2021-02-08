@@ -109,25 +109,18 @@ $color-lighten-2: rgba(255, 255, 255, 1);
 }
 
 
-.new-snapshot {
+.new-resolution {
   width: 100%;
-  border-top: 2px solid var(--color-platinum);
-  // background: $color-light-grey-transparent;
-  padding: 1rem 2rem;
 
   &__options {
     width: 100%;
 
-    th {
-      text-align: left;
-      width: 14rem;
-      vertical-align: top;
-      line-height: 4rem;
-      padding-top: 0.5rem;
-    }
-
     td {
       padding: 0.5rem 0;
+
+      h4 {
+        margin: 1rem 0;
+      }
 
       .form-field-container,
       .form-field {
@@ -137,6 +130,40 @@ $color-lighten-2: rgba(255, 255, 255, 1);
           background-color: var(--color-white);
         }
       }
+    }
+  }
+
+  .tip {
+    margin-top: .75rem;
+    border-radius: 1rem;
+    padding: 0 1rem;
+
+    .icon {
+      margin-right: 1rem;
+    }
+  }
+
+  &__preview {
+    margin: 2rem -2.5rem -1.25rem;
+    padding: 3.5rem 2.5rem 2rem;
+    background: var(--color-rich-black);
+    color: var(--color-white);
+    position: relative;
+
+    h4 {
+      display: inline-block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      padding: 0.5rem 1rem;
+      margin: 0;
+      background: var(--color-navy-taupe);
+    }
+
+    code {
+      display: block;
+      background: none;
+      padding: 0;
     }
   }
 }
