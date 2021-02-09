@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import { compose } from 'recompose';
-import { AnimateSharedLayout } from 'framer-motion';
+import { AnimateSharedLayout, AnimatePresence, motion } from 'framer-motion';
 import { Button, Spinner } from '@codaco/ui';
 import logger from 'electron-log';
 import Types from '../../types';
@@ -81,17 +81,7 @@ const EntityResolverScreen = ({
         <div className="export__options">
           <AnimateSharedLayout>
             <div className="export__section">
-              <h3>1. Existing Snapshots</h3>
-              <p>Manage existing resolutions.</p>
-              <Resolutions
-                protocolId={protocolId}
-                resolutions={resolutions}
-                onExportResolution={handleExportResolution}
-                onDeleteResolution={deleteResolution}
-              />
-            </div>
-            <div className="export__section">
-              <h3>2. Resolve Sessions</h3>
+              <h3>1. Resolve Sessions</h3>
               <p>Use an external application to resolve nodes in a unified network.</p>
               <NewResolution
                 protocolId={protocolId}
@@ -100,6 +90,25 @@ const EntityResolverScreen = ({
                 egoCastType={egoCastType}
               />
             </div>
+
+            <AnimatePresence>
+              { resolutions.length > 0 &&
+                <motion.div
+                  className="export__section"
+                  initial={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <h3>2. Existing Snapshots</h3>
+                  <p>Manage existing resolutions.</p>
+                  <Resolutions
+                    protocolId={protocolId}
+                    resolutions={resolutions}
+                    onExportResolution={handleExportResolution}
+                    onDeleteResolution={deleteResolution}
+                  />
+                </motion.div>
+              }
+            </AnimatePresence>
           </AnimateSharedLayout>
           <div className="buttons">
             <Button type="submit">Begin Entity Resolution</Button>

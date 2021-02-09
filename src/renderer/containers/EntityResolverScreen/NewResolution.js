@@ -128,8 +128,7 @@ const NewResolution = ({
             <motion.div
               layout
               className="new-resolution__preview"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
               <h4>Resolver command preview</h4>
