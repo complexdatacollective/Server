@@ -16,11 +16,8 @@ const spawnCommand = (command) => {
   return fs.pathExists(script)
     .catch(() => { throw new Error(`Could not find script "${script}"`); })
     .then(() => {
-      logger.warn({ args });
       const spawnArgs = [script, ...args];
-      logger.warn({ spawnArgs });
       const spawnProcess = () => child.spawn(interpreter, spawnArgs);
-      logger.warn({ interpreter, spawnArgs });
       return spawnProcess;
     });
 };

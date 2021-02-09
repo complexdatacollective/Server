@@ -3,7 +3,7 @@
 const miss = require('mississippi');
 const ResolverManager = require('../ResolverManager');
 const { getNetworkResolver } = require('../../utils/getNetworkResolver');
-const { transformSessions } = require('../../utils/resolver/transformSessions');
+const { transformSessions, formatSession } = require('../../utils/resolver/transformSessions');
 
 jest.mock('nedb');
 jest.mock('electron-log');
@@ -127,11 +127,10 @@ describe('ResolverManager', () => {
       const protocolId = '1234';
       const requestId = '5678';
       const options = {
-        resolver: {
-          interpreterPath: '',
-          resolverPath: '',
-          args: '',
-        },
+        interpreterPath: '',
+        resolverPath: '',
+        args: '',
+        egoCastType: 'person',
       };
 
       const mockStream = () => miss.through(
@@ -140,7 +139,22 @@ describe('ResolverManager', () => {
         },
       );
 
-      transformSessions.mockResolvedValueOnce({ nodes: [], edges: [] });
+      formatSession.mockImplementation(({ data, createdAt }) => ({ date: createdAt, ...data }));
+
+      transformSessions.mockResolvedValueOnce({
+        nodes: [],
+        edges: [],
+
+      });
+      manager.sessionDb.findAll.mockResolvedValueOnce([{
+        createdAt: '',
+        data: {
+          sessionVariables: {
+            protocolName: '',
+            codebookHash: '',
+          },
+        },
+      }]);
       manager.protocolDb.get.mockResolvedValueOnce({ codebook: {} });
       getNetworkResolver.mockImplementationOnce(
         () => Promise.resolve(mockStream()),

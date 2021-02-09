@@ -67,9 +67,9 @@ describe('commandRunner', () => {
           done();
         });
         p.write('fizz\nbuzz');
-        setTimeout(() => {
+        setImmediate(() => {
           p.end();
-        }, 40);
+        });
       });
   });
 });

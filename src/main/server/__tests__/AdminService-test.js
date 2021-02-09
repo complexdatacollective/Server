@@ -22,6 +22,7 @@ jest.mock('../../data-managers/ExportManager', () => class {
     },
   })
 });
+jest.mock('../../data-managers/ResolverManager');
 // jest.mock('../../data-managers/ResolverManager', () => {
 //   class ResolverManager {
 //     resolveNetwork = jest.fn().mockResolvedValue({ abort: jest.fn() })
@@ -338,20 +339,61 @@ describe('the AdminService', () => {
         });
       });
 
-      describe.only('resolutions', () => {
+      describe('resolutions', () => {
         it('GET /resolutions', async () => {
           const endpoint = makeUrl('protocols/1/resolutions', apiBase);
-          // const error = new Error('Mock Invalid Options');
-          // adminService.exportManager.exportSessions.mockRejectedValueOnce(error);
+          const mockResult = {
+            resolutions: [
+              {
+                id: '1',
+                date: '2021-02-04T13:08:11.388Z',
+                transformCount: 0,
+                options: {},
+                transforms: [],
+                sessionCount: 3,
+              },
+              {
+                id: '2',
+                date: '2021-02-08T11:13:12.556Z',
+                transformCount: 0,
+                options: {},
+                transforms: [],
+                sessionCount: 2,
+              },
+            ],
+            unresolved: 4,
+          };
+          adminService.resolverManager.getResolutionsWithSessionCounts.mockResolvedValueOnce(mockResult);
           await expect(jsonClient.get(endpoint, {})).resolves.toMatchObject({
             json: {
               status: 'ok',
-              resolutions: null,
+              ...mockResult,
             },
           });
         });
-        it.todo('POST /resolutions');
-        it.todo('DEL /resolutions/:resolutionId');
+
+        it('POST /resolutions', async () => {
+          const endpoint = makeUrl('protocols/1/resolutions', apiBase);
+          adminService.resolverManager.saveResolution.mockResolvedValue({ _id: 'test' });
+          await expect(jsonClient.post(endpoint, {})).resolves.toMatchObject({
+            json: {
+              status: 'ok',
+              resolutionId: 'test',
+            },
+          });
+        });
+
+        // This endpoint deletes all subsequent resolutions too because they become nonsensical
+        it('DEL /resolutions/:resolutionId', async () => {
+          const endpoint = makeUrl('protocols/1/resolutions/2', apiBase);
+          adminService.resolverManager.deleteResolutions.mockResolvedValue(['2', '3']);
+          await expect(jsonClient.delete(endpoint, {})).resolves.toMatchObject({
+            json: {
+              status: 'ok',
+              ids: ['2', '3'],
+            },
+          });
+        });
       });
     });
   });
