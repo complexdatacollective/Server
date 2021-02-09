@@ -5,6 +5,7 @@ import { Redirect } from 'react-router-dom';
 import { compose } from 'recompose';
 import { AnimateSharedLayout } from 'framer-motion';
 import { Button, Spinner } from '@codaco/ui';
+import logger from 'electron-log';
 import Types from '../../types';
 import { selectors as protocolSelectors } from '../../ducks/modules/protocols';
 import EntityResolver from '../EntityResolver';
@@ -56,7 +57,8 @@ const EntityResolverScreen = ({
   };
 
   const handleSubmit = () => {
-    resolver.current.resolveProtocol(protocol, resolverOptions);
+    resolver.current.resolveProtocol(protocol, resolverOptions)
+      .catch(e => logger.error(e));
   };
 
   if (protocolsHaveLoaded && !protocolId) { // This protocol doesn't exist
