@@ -132,7 +132,9 @@ const NewResolution = ({
               exit={{ opacity: 0 }}
             >
               <h4>Resolver command preview</h4>
-              <code>{options.interpreterPath} {options.resolverPath} {options.args}</code>
+              <div className="new-resolution__preview-container">
+                <code>{options.interpreterPath} {options.resolverPath} {options.args}</code>
+              </div>
             </motion.div>
           }
         </AnimatePresence>

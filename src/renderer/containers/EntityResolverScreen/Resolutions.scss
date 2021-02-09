@@ -145,10 +145,10 @@ $color-lighten-2: rgba(255, 255, 255, 1);
 
   &__preview {
     margin: 2rem -2.5rem -1.25rem;
-    padding: 3.5rem 2.5rem 2rem;
     background: var(--color-rich-black);
     color: var(--color-white);
     position: relative;
+    height: 7rem;
 
     h4 {
       display: inline-block;
@@ -160,10 +160,19 @@ $color-lighten-2: rgba(255, 255, 255, 1);
       background: var(--color-navy-taupe);
     }
 
+    &-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow-x: auto;
+    }
+
     code {
-      display: block;
+      display: inline-block;
       background: none;
-      padding: 0;
+      padding: 3.75rem 2.5rem 2rem;
     }
   }
 }
