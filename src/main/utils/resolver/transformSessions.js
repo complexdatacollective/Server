@@ -1,5 +1,4 @@
 /* eslint-disable no-underscore-dangle */
-const logger = require('electron-log');
 const { DateTime } = require('luxon');
 const { get, find, reduce, uniq, sortBy } = require('lodash');
 const {

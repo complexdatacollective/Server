@@ -156,7 +156,7 @@ NewResolution.defaultProps = {
   initialOptions: {
     interpreterPath: 'python3',
     resolverPath: '',
-    args: '--minimumThreshold=0.9995',
+    args: '--minimumThreshold 0.9',
     egoCastType: null,
   },
   unresolved: null,

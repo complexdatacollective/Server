@@ -19,10 +19,8 @@ const Resolutions = ({
   const openDialog = dialog => dispatch(dialogActions.openDialog(dialog));
 
   const [activeResolution, setActiveResolution] = useState(undefined);
-  const toggleActiveResolution = (resolutionId) =>
+  const toggleActiveResolution = resolutionId =>
     setActiveResolution(s => (s === resolutionId ? undefined : resolutionId));
-
-  console.log({ activeResolution });
 
   const handleDelete = (resolutionId) => {
     openDialog({

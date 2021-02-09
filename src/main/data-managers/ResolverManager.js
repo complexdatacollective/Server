@@ -70,7 +70,12 @@ class ResolverManager {
 
   // Returns sessions as a resolved network
   // Formatted as `[session]`, so that it is similar to a list of sessions.
-  getResolvedSessions(protocolId, resolutionId, initialEgoCastType = undefined, includeUnresolved = true) {
+  getResolvedSessions(
+    protocolId,
+    resolutionId,
+    initialEgoCastType = undefined,
+    includeUnresolved = true,
+  ) {
     return Promise.all([
       this.protocolDb.get(protocolId),
       this.getSessions(protocolId),
@@ -103,7 +108,7 @@ class ResolverManager {
               protocolName: lastSession.sessionVariables.protocolName,
               codebookHash: lastSession.sessionVariables.codebookHash,
               sessionExported: new Date(),
-            }
+            },
           }];
         },
       );

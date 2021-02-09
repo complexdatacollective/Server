@@ -5,7 +5,6 @@ const {
   intersection,
   difference,
   isEqual,
-  map,
 } = require('lodash');
 const { Factory } = require('../../../../__factories__/Factory');
 const {
@@ -139,7 +138,7 @@ describe('applyTransform', () => {
     // Nodes are removed from the transformed network
     expect(newNetwork).networkExcludesNodes(transform.nodes);
 
-    // Tranformed node has been added to the transformed network
+    // Transformed node has been added to the transformed network
     expect(newNetwork)
       .networkHasNode(transform.id, transform.attributes);
   });
@@ -191,7 +190,7 @@ describe('transformSessions', () => {
     // ...but not all of them
     expect(transformedNetwork.nodes.length).toBe(4);
 
-    // Tranformed node has been added to the transformed network
+    // Transformed node has been added to the transformed network
     expect(transformedNetwork)
       .networkHasNode(resolutions[0].transforms[0].id, resolutions[0].transforms[0].attributes);
   });
@@ -243,15 +242,6 @@ describe('transformSessions', () => {
       }),
     );
 
-    // resolutions.push(
-    //   Factory.resolution.build({
-    //     date: DateTime.fromJSDate(sessions[0].date).plus({ months: 3 }).toJSDate(),
-    //     transforms: [
-    //       Factory.transform.build({ attributes: { foo: 'buzz' } }, { nodes: [resolutions[1].transforms[0].id] }),
-    //     ],
-    //   }),
-    // );
-
     const options = {
       useEgoData: true,
     };
@@ -262,7 +252,7 @@ describe('transformSessions', () => {
     expect(transformedNetwork).networkExcludesNodes(resolutions[0].transforms[0].nodes);
     expect(transformedNetwork).networkExcludesNodes(resolutions[1].transforms[0].nodes);
 
-    // most recent resolution should take precidence
+    // most recent resolution should take precedence
     expect(transformedNetwork)
       .networkHasNode(resolutions[1].transforms[0].id, resolutions[1].transforms[0].attributes);
   });

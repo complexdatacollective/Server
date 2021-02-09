@@ -40,7 +40,7 @@ describe('ResolverManager', () => {
 
   it('getResolutionsWithSessionCounts() returns resolutions with session counts', async () => {
     const anchorDate = Date.now();
-    // This must be decending order
+    // This must be descending order
     const resolutions = [
       {
         _id: 2,

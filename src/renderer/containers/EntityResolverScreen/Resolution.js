@@ -28,12 +28,12 @@ const Resolution = ({
 
   const summaryClasses = cx(
     'resolution__summary',
-    { 'resolution__summary--is-open': isOpen }
+    { 'resolution__summary--is-open': isOpen },
   );
 
   const toggleClasses = cx(
     'resolution__toggle',
-    { 'resolution__toggle--is-open': isOpen }
+    { 'resolution__toggle--is-open': isOpen },
   );
 
   const handleExport = (e) => {
