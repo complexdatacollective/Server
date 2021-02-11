@@ -17,7 +17,6 @@ const {
   transformSessions,
 } = require('../transformSessions');
 
-
 expect.extend({
   networkIncludesNodes(network, nodeIds) {
     const networkNodeIds = network.nodes.map(node => node[nodePrimaryKeyProperty]);
@@ -167,7 +166,7 @@ describe('transformSessions', () => {
     },
   };
 
-  it('applies a resolution to a session', () => {
+  it.only('applies a resolution to a session', () => {
     // Set up a single session with a resolution with a single transform
     const sessions = [Factory.session.build(null, { size: 5 })];
     const resolutions = [
@@ -188,6 +187,7 @@ describe('transformSessions', () => {
     expect(transformedNetwork).networkExcludesNodes(resolutions[0].transforms[0].nodes);
 
     // ...but not all of them
+    console.log(JSON.stringify({ transformedNetwork }, null, 2));
     expect(transformedNetwork.nodes.length).toBe(4);
 
     // Transformed node has been added to the transformed network
@@ -195,7 +195,7 @@ describe('transformSessions', () => {
       .networkHasNode(resolutions[0].transforms[0].id, resolutions[0].transforms[0].attributes);
   });
 
-  it.only('leaves sessions later than resolutions unresolved', () => {
+  it('leaves sessions later than resolutions unresolved', () => {
     // Set up a single session and a matching resolution with matching nodes, but a date
     // before that session
     const sessions = Factory.session.buildList(1, null, { size: 3 });
@@ -212,15 +212,14 @@ describe('transformSessions', () => {
 
     const transformedNetwork = transformSessions(protocol, sessions, resolutions, options);
 
-    console.log(JSON.stringify({
-      transformedNetwork,
-      sessions,
-    }, null, 2));
+    // console.log(
+    const transformedIds = transformedNetwork.nodes.map(({ _uid }) => _uid);
+    const originalIds = [
+      ...sessions[0].nodes.map(({ _uid }) => _uid),
+      sessions[0].ego._uid,
+    ];
 
-    expect(transformedNetwork.nodes).toEqual([
-      ...sessions[0].nodes,
-      { ...sessions[0].ego, type: 'person' }, // Ego is still appended
-    ]);
+    expect(transformedIds).toEqual(originalIds);
   });
 
   // blends sessions

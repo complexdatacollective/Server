@@ -1,14 +1,23 @@
 /* eslint-disable no-underscore-dangle */
 const { DateTime } = require('luxon');
 const { get, find, reduce, uniq, sortBy } = require('lodash');
+const { assign } = require('lodash/fp');
 const {
-  unionOfNetworks,
   nodePrimaryKeyProperty,
   nodeAttributesProperty,
   egoProperty,
   caseProperty,
 } = require('../formatters/network');
 const castEgoAsNode = require('./castEgoAsNode');
+
+const unionOfNetworks = networks =>
+  networks.reduce((union, network) => {
+    const meta = { caseId: [get(network, 'sessionVariables.caseId')] };
+    return {
+      nodes: [...union.nodes, ...network.nodes.map(assign(meta))],
+      edges: [...union.edges, ...network.edges.map(assign(meta))],
+    };
+  }, { nodes: [], edges: [] });
 
 const formatSession = ({ data, createdAt }) => ({ date: createdAt, ...data });
 
@@ -156,7 +165,8 @@ const transformSessions = (
       // to the cumulative network so-far
       if (!sessionNetworks) {
         // 1. Apply the resolutions to the network as-is
-        return transforms.reduce(applyTransform, accNetwork);
+        const network =  transforms.reduce(applyTransform, accNetwork);
+        return network;
       }
 
       // otherwise, we need to merge those new sessions first,

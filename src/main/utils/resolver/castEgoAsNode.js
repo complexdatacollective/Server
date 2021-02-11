@@ -11,9 +11,7 @@ const { get, toPairs } = require('lodash');
  */
 
 const castEgoAsNode = (codebook, nodeType) =>
-  (network) => {
-    const ego = network.ego;
-
+  ({ ego, ...network }) => {
     const nodeVariables = toPairs(get(codebook.node, [nodeType, 'variables'], {}));
     const egoVariables = toPairs(codebook.ego.variables);
 
@@ -38,6 +36,7 @@ const castEgoAsNode = (codebook, nodeType) =>
     };
 
     const newNetwork = {
+      ...network,
       nodes: [...network.nodes, egoAsNode],
       edges: network.edges,
     };

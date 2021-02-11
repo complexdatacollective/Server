@@ -19,15 +19,6 @@ const convertUuidToDecimal = uuid => (
   uuid ? bigInt(uuid.toString().replace(/-/g, ''), 16).toString(10) : uuid
 );
 
-// TODO: _meta: { id, caseID }
-const unionOfNetworks = networks =>
-  networks.reduce((union, network) => ({
-    nodes: [...union.nodes, ...network.nodes],
-    edges: [...union.edges, ...network.edges],
-    // ego is an object for a single network, and an array for a previously unified network
-    ego: [...union.ego, ...(!Array.isArray(network.ego) ? [network.ego] : network.ego)],
-  }), { nodes: [], edges: [], ego: [], _id: '' });
-
 const processEntityVariables = (entity, variables) => ({
   ...entity,
   attributes: Object.keys(getEntityAttributes(entity)).reduce(
@@ -163,6 +154,5 @@ module.exports = {
   processEntityVariables,
   transposedCodebook,
   transposedCodebookSection,
-  unionOfNetworks,
   formatSessionAsNetwork,
 };
