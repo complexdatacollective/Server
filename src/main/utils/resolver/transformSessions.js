@@ -94,15 +94,14 @@ const applyTransform = (network, transform) => {
           accNodes,
           {
             ...accProps, // previous props
-            [egoProperty]: [...accProps[egoProperty], node[egoProperty]],
-            [caseProperty]: uniq([...accProps[caseProperty], node[caseProperty]]),
+            ['caseId']: uniq([...accProps['caseId'], ...node['caseId']]),
             type: node.type,
           },
         ];
       },
       [
         [],
-        { [egoProperty]: [], [caseProperty]: [] },
+        { ['caseId']: [] },
       ],
     );
 
@@ -116,9 +115,7 @@ const applyTransform = (network, transform) => {
   // The transform includes the attributes for the replacement node, so we can
   // now append that to the list of nodes.
   const nodes = nodesWithTransformedTargetsRemoved.concat([{
-    ...transformTargetMetaData, // egoIds, type, etc.
-    // [egoProperty]: transformTargetMetaData[egoProperty][0], // exporter cannot handle arrays
-    // [caseProperty]: collectedProps[caseProperty][0], // exporter cannot handle arrays
+    ...transformTargetMetaData, // type, caseId etc.
     [nodePrimaryKeyProperty]: transform.id,
     [nodeAttributesProperty]: transform.attributes,
   }]);

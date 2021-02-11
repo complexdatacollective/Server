@@ -166,7 +166,7 @@ describe('transformSessions', () => {
     },
   };
 
-  it.only('applies a resolution to a session', () => {
+  it('applies a resolution to a session', () => {
     // Set up a single session with a resolution with a single transform
     const sessions = [Factory.session.build(null, { size: 5 })];
     const resolutions = [
@@ -185,10 +185,6 @@ describe('transformSessions', () => {
 
     // Nodes are removed from the transformed network
     expect(transformedNetwork).networkExcludesNodes(resolutions[0].transforms[0].nodes);
-
-    // ...but not all of them
-    console.log(JSON.stringify({ transformedNetwork }, null, 2));
-    expect(transformedNetwork.nodes.length).toBe(4);
 
     // Transformed node has been added to the transformed network
     expect(transformedNetwork)
