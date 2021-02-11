@@ -88,6 +88,7 @@ const applyTransform = (network, transform) => {
         }
 
         const caseId = uniq([...accProps['caseId'], ...get(node, 'caseId', [])]);
+        const parentId = uniq([...accProps['parentId'], ...get(node, 'parentId', [])]);
 
         // Otherwise, we remove the node from the list and collect some
         // meta data about the original session it belonged to (the caseId and egoId),
@@ -96,14 +97,15 @@ const applyTransform = (network, transform) => {
           accNodes,
           {
             ...accProps, // previous props
-            caseId: caseId,
+            caseId,
+            parentId,
             type: node.type,
           },
         ];
       },
       [
         [],
-        { ['caseId']: [] },
+        { caseId: [], parentId: [] },
       ],
     );
 
@@ -114,10 +116,13 @@ const applyTransform = (network, transform) => {
     return network;
   }
 
+  const parentId = uniq(...transformTargetMetaData.parentId, get(transform, 'nodes', []));
+
   // The transform includes the attributes for the replacement node, so we can
   // now append that to the list of nodes.
   const nodes = nodesWithTransformedTargetsRemoved.concat([{
     ...transformTargetMetaData, // type, caseId etc.
+    parentId: parentId,
     [nodePrimaryKeyProperty]: transform.id,
     [nodeAttributesProperty]: transform.attributes,
   }]);

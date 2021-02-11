@@ -98,6 +98,8 @@ class ResolverManager {
 
           const network = transformSessions(protocol, sessions, resolutions, transformOptions);
 
+          // TODO: Append egos here and blend codebooks?
+
           return [{
             ...network,
             ego: {}, // TODO: hack fix for ego

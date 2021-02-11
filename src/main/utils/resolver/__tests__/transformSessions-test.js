@@ -5,6 +5,7 @@ const {
   intersection,
   difference,
   isEqual,
+  thru,
 } = require('lodash');
 const { Factory } = require('../../../../__factories__/Factory');
 const {
@@ -124,7 +125,15 @@ describe('getSessionsByResolution', () => {
 });
 
 describe('applyTransform', () => {
-  const network = Object.freeze(Factory.network.build(20));
+  const network = Object.freeze(
+    thru(
+      Factory.network.build(20),
+      (network) => ({
+        ...network,
+        nodes: network.nodes.map(node => ({ ...node, caseId: ['1'] })),
+      }),
+    ),
+  );
 
   const transform = Factory.transform.build({ attributes: { foo: 'bar' } }, { network });
 
@@ -140,6 +149,16 @@ describe('applyTransform', () => {
     // Transformed node has been added to the transformed network
     expect(newNetwork)
       .networkHasNode(transform.id, transform.attributes);
+
+    
+    const newNode = newNetwork.nodes.find(({ _uid }) => _uid === transform.id);
+
+    // New nodes should collect parentIds
+    expect(newNode.parentId).toEqual(transform.nodes);
+
+    //New nodes should collect caseIds?
+    expect(newNode.caseId.length).toBe(1);
+    expect(newNode.caseId).toEqual(network.nodes[0].caseId);
   });
 
   it('each edge should be updated with the new ids', () => {
