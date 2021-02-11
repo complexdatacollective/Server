@@ -10,7 +10,7 @@ const transform = new Factory()
     if (nodes) { return nodes; }
     if (!network) { return []; }
 
-    const nodeCount = Math.ceil((network.nodes.length * 0.2 * Math.random()) + 1);
+    const nodeCount = Math.ceil((network.nodes.length * 0.3 * Math.random()) + 1);
 
     let networkNodes = [];
 

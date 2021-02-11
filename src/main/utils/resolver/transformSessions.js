@@ -47,41 +47,74 @@ const getSessionsByResolution = (resolutions, sessions) =>
     };
   }, {});
 
+/**
+ * Apply a single transformation to the network.
+ *
+ * A transform includes a list of nodes to be substituted,
+ * and the new id/attributes for the substitute node:
+ *
+ *     {
+ *       nodes: [ ...list of node ids ],
+ *       id: ...new node id,
+ *       attributes: {
+ *         ...node attributes for the substitute node
+ *       },
+ *     }
+ */
 const applyTransform = (network, transform) => {
-  const [withTransformNodesRemoved, collectedProps] = network.nodes
+  // Remove the transformed nodes from the network, and collect
+  // meta data about the origins of the removed nodes (caseId, and egoId),
+  // as well as the node type.
+  const [
+    nodesWithTransformedTargetsRemoved,
+    transformTargetMetaData,
+  ] = network.nodes
     .reduce(
-      ([nodes, props], node) => {
+      ([accNodes, accProps], node) => {
+        // `transform.nodes` is an array of node ids that the transform
+        // applies to. If the node is not being transformed, return it
+        // as is.
         if (!transform.nodes.includes(node[nodePrimaryKeyProperty])) {
-          return [[...nodes, node], props];
+          return [[...accNodes, node], accProps];
         }
 
-        // TODO: do we need any other props? Can we do this automatically? eg. `omit()`?
+        // Otherwise, we remove the node from the list and collect some
+        // meta data about the original session it belonged to (the caseId and egoId),
+        // and the node type.
         return [
-          nodes,
+          accNodes,
           {
-            ...props,
-            [egoProperty]: [...props[egoProperty], node[egoProperty]],
-            [caseProperty]: uniq([...props[caseProperty], node[caseProperty]]),
+            ...accProps, // previous props
+            [egoProperty]: [...accProps[egoProperty], node[egoProperty]],
+            [caseProperty]: uniq([...accProps[caseProperty], node[caseProperty]]),
             type: node.type,
           },
         ];
       },
-      [[], { [egoProperty]: [], [caseProperty]: [] }],
+      [
+        [],
+        { [egoProperty]: [], [caseProperty]: [] },
+      ],
     );
 
-  // nodes weren't found return original network
-  if (withTransformNodesRemoved.length !== network.nodes.length - transform.nodes.length) {
+  // If the truncated network is the same size as the original, then no matching
+  // nodes were found, meaning the transform has no effect and the original
+  // network can be returned.
+  if (nodesWithTransformedTargetsRemoved.length !== network.nodes.length - transform.nodes.length) {
     return network;
   }
 
-  const nodes = withTransformNodesRemoved.concat([{
-    ...collectedProps, // egoIds, type, etc.
-    [egoProperty]: collectedProps[egoProperty][0], // exporter cannot handle arrays
+  // The transform includes the attributes for the replacement node, so we can
+  // now append that to the list of nodes.
+  const nodes = nodesWithTransformedTargetsRemoved.concat([{
+    ...transformTargetMetaData, // egoIds, type, etc.
+    // [egoProperty]: transformTargetMetaData[egoProperty][0], // exporter cannot handle arrays
     // [caseProperty]: collectedProps[caseProperty][0], // exporter cannot handle arrays
     [nodePrimaryKeyProperty]: transform.id,
     [nodeAttributesProperty]: transform.attributes,
   }]);
 
+  // Update edges to point to this newly inserted node
   const edges = network.edges.map(edge => ({
     ...edge,
     from: transform.nodes.includes(edge.from) ? transform.id : edge.from,
@@ -130,8 +163,8 @@ const transformSessions = (
       // before then applying the transform
 
       // Convert egos into nodes
-      // const sessionNetworksWithEgos = sessionNetworks.map(egoCaster);
-      const sessionNetworksWithEgos = sessionNetworks;
+      const sessionNetworksWithEgos = sessionNetworks.map(egoCaster);
+      // const sessionNetworksWithEgos = sessionNetworks;
 
       // Combine new sessions with existing super network
       // (unifiedNetwork)

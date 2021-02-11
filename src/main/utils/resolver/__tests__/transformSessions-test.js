@@ -195,7 +195,7 @@ describe('transformSessions', () => {
       .networkHasNode(resolutions[0].transforms[0].id, resolutions[0].transforms[0].attributes);
   });
 
-  it('leaves sessions later than resolutions unresolved', () => {
+  it.only('leaves sessions later than resolutions unresolved', () => {
     // Set up a single session and a matching resolution with matching nodes, but a date
     // before that session
     const sessions = Factory.session.buildList(1, null, { size: 3 });
@@ -207,14 +207,19 @@ describe('transformSessions', () => {
     ];
 
     const options = {
-      egoCastType: 'bar',
+      egoCastType: 'person',
     };
 
     const transformedNetwork = transformSessions(protocol, sessions, resolutions, options);
 
+    console.log(JSON.stringify({
+      transformedNetwork,
+      sessions,
+    }, null, 2));
+
     expect(transformedNetwork.nodes).toEqual([
       ...sessions[0].nodes,
-      { ...sessions[0].ego, type: 'bar' }, // Ego is still appended
+      { ...sessions[0].ego, type: 'person' }, // Ego is still appended
     ]);
   });
 
