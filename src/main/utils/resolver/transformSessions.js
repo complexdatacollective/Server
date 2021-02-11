@@ -87,6 +87,8 @@ const applyTransform = (network, transform) => {
           return [[...accNodes, node], accProps];
         }
 
+        const caseId = uniq([...accProps['caseId'], ...get(node, 'caseId', [])]);
+
         // Otherwise, we remove the node from the list and collect some
         // meta data about the original session it belonged to (the caseId and egoId),
         // and the node type.
@@ -94,7 +96,7 @@ const applyTransform = (network, transform) => {
           accNodes,
           {
             ...accProps, // previous props
-            ['caseId']: uniq([...accProps['caseId'], ...node['caseId']]),
+            caseId: caseId,
             type: node.type,
           },
         ];
