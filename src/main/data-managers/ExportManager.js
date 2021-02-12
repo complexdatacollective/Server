@@ -7,6 +7,13 @@ const ResolverManager = require('./ResolverManager');
 const SessionDB = require('./SessionDB');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
 
+const formatProtocol = (protocol, sessions) => {
+  // This is a valid assumption for Server, because we only ever export from within a
+  // single protocol context - all sessions should have the same protocol.
+  const protocolUID = get(sessions, '[0].sessionVariables.protocolUID');
+  return { [protocolUID]: protocol };
+};
+
 /**
  * Interface for all data exports
  */
@@ -18,23 +25,24 @@ class ExportManager {
     this.resolverManager = new ResolverManager(sessionDataDir);
   }
 
-  getSessions(protocolId, options) {
-    logger.info('resolutionid', options.resolutionId);
-
+  async getSessions(protocol, options) {
     if (options.resolutionId) {
-      return this.resolverManager.getResolvedSessions(
-        protocolId,
+      logger.info('resolutionid', options.resolutionId);
+      const [resolvedSessions, resolvedProtocol] = await this.resolverManager.getResolvedSessions(
+        protocol._id,
         options.resolutionId,
         undefined,
         false,
       );
+
+      return [resolvedSessions, formatProtocol(resolvedProtocol, resolvedSessions)];
     }
 
     // Get all sessions associated with this protocol
-    return this.sessionDB.findAll(protocolId, null, null)
-      .then(sessions =>
-        sessions.map(session => ({ ...session.data })),
-      );
+    const sessions = await this.sessionDB.findAll(protocol._id, null, null)
+      .then(s => s.map(session => ({ ...session.data })));
+
+    return [sessions, formatProtocol(protocol, sessions)];
   }
 
   /**
@@ -66,13 +74,9 @@ class ExportManager {
       return Promise.reject(new RequestError(ErrorMessages.NotFound));
     }
 
-    const exporter = this.getSessions(protocol._id, options)
-      .then((sessions) => {
-        // This is a valid assumption for Server, because we only ever export from within a
-        // single protocol context - all sessions should have the same protocol.
-        const protocolUID = get(sessions, '[0].sessionVariables.protocolUID');
-        const protocols = { [protocolUID]: protocol };
-
+    const exporter = this.getSessions(protocol, options)
+      .then(([sessions, protocols]) => {
+        console.log({ protocols });
         const fileExportManager = new FileExportManager(options);
 
         const exportSessions = () =>

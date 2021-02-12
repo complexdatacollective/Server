@@ -47,13 +47,9 @@ class ResolverManager {
 
     logger.warn({ command });
 
-    return Promise.all([
-      this.protocolDb.get(protocolId),
-      this.getResolvedSessions(protocolId, options.resolutionId, options.egoCastType),
-    ])
-      .then(
-        ([{ codebook }, [network]]) =>
-          getNetworkResolver(requestId, command, codebook, network),
+    this.getResolvedSessions(protocolId, options.resolutionId, options.egoCastType)
+      .then(([[network], { codebook }]) =>
+        getNetworkResolver(requestId, command, codebook, network),
       );
   }
 
@@ -96,12 +92,12 @@ class ResolverManager {
             egoCastType,
           };
 
-          const network = transformSessions(protocol, sessions, resolutions, transformOptions);
+          const [resolvedNetwork, resolvedProtocol] = transformSessions(protocol, sessions, resolutions, transformOptions);
 
           // TODO: Append egos here and blend codebooks?
 
-          return [{
-            ...network,
+          const resolvedSessions = [{
+            ...resolvedNetwork,
             ego: {}, // TODO: hack fix for ego
             sessionVariables: {
               caseId: 'resolved',
@@ -112,6 +108,11 @@ class ResolverManager {
               sessionExported: new Date(),
             },
           }];
+
+          return [
+            resolvedSessions,
+            resolvedProtocol,
+          ];
         },
       );
   }

@@ -160,7 +160,7 @@ const transformSessions = (
   const egoCaster = castEgoAsNode(protocol.codebook, egoCastType);
 
   // For each resolution, cumulatively merge any new sessions and apply resolution
-  const resultNetwork = reduce(
+  const resolvedNetwork = reduce(
     sortedResolutions,
     (accNetwork, { transforms, id }) => {
       const sessionNetworks = sessionsByResolution[id]; // array of networks
@@ -169,8 +169,7 @@ const transformSessions = (
       // to the cumulative network so-far
       if (!sessionNetworks) {
         // 1. Apply the resolutions to the network as-is
-        const network =  transforms.reduce(applyTransform, accNetwork);
-        return network;
+        return transforms.reduce(applyTransform, accNetwork);
       }
 
       // otherwise, we need to merge those new sessions first,
@@ -193,10 +192,10 @@ const transformSessions = (
   if (includeUnresolved && sessionsByResolution._unresolved) {
     const unresolvedWithEgos = sessionsByResolution._unresolved.map(egoCaster);
 
-    return unionOfNetworks([resultNetwork, ...unresolvedWithEgos]);
+    return unionOfNetworks([resolvedNetwork, ...unresolvedWithEgos]);
   }
 
-  return resultNetwork;
+  return [resolvedNetwork, protocol];
 };
 
 module.exports = {
