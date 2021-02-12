@@ -5,10 +5,9 @@ const { assign } = require('lodash/fp');
 const {
   nodePrimaryKeyProperty,
   nodeAttributesProperty,
-  egoProperty,
-  caseProperty,
 } = require('../formatters/network');
 const castEgoAsNode = require('./castEgoAsNode');
+const castOrphanEgosAsEgoNodes = require('./castOrphanEgosAsEgoNodes');
 
 const unionOfNetworks = networks =>
   networks.reduce((union, network) => {
@@ -122,7 +121,7 @@ const applyTransform = (network, transform) => {
   // now append that to the list of nodes.
   const nodes = nodesWithTransformedTargetsRemoved.concat([{
     ...transformTargetMetaData, // type, caseId etc.
-    parentId: parentId,
+    parentId,
     [nodePrimaryKeyProperty]: transform.id,
     [nodeAttributesProperty]: transform.attributes,
   }]);
@@ -195,7 +194,7 @@ const transformSessions = (
     return unionOfNetworks([resolvedNetwork, ...unresolvedWithEgos]);
   }
 
-  return [resolvedNetwork, protocol];
+  return castOrphanEgosAsEgoNodes(sessions, protocol, resolvedNetwork);
 };
 
 module.exports = {
