@@ -4,7 +4,8 @@ const path = require('path');
 const { last, get, findLast, trim } = require('lodash');
 const logger = require('electron-log');
 const { getNetworkResolver } = require('../utils/getNetworkResolver');
-const { transformSessions, formatSession, formatResolution } = require('../utils/resolver/transformSessions');
+const { formatSession, formatResolution } = require('../utils/resolver/transformSessions');
+const resolve = require('../utils/resolver/resolve')
 const ResolverDB = require('./ResolverDB');
 const SessionDB = require('./SessionDB');
 const ProtocolDB = require('./ProtocolDB');
@@ -46,6 +47,7 @@ class ResolverManager {
     ];
 
     logger.warn({ command });
+    // TODO: fix
 
     this.getResolvedSessions(protocolId, options.resolutionId, options.egoCastType)
       .then(([[network], { codebook }]) =>
@@ -71,6 +73,7 @@ class ResolverManager {
     resolutionId,
     initialEgoCastType = undefined,
     includeUnresolved = true,
+    asExport = false,
   ) {
     return Promise.all([
       this.protocolDb.get(protocolId),
@@ -80,37 +83,19 @@ class ResolverManager {
       .then(
         ([protocol, sessions, resolutions]) => {
           const lastResolution = last(resolutions);
-          const lastSession = last(sessions);
 
           // Assumption: All exports henceforth will have the same ego cast type
           const egoCastType = get(lastResolution, ['options', 'egoCastType'], initialEgoCastType);
 
           if (!egoCastType) { throw new Error('No ego cast type provided'); }
 
-          const transformOptions = {
+          const resolveOptions = {
             includeUnresolved,
+            asExport,
             egoCastType,
           };
 
-          const [resolvedNetwork, resolvedProtocol] = transformSessions(protocol, sessions, resolutions, transformOptions);
-
-          const resolvedSessions = [{
-            ...resolvedNetwork,
-            ego: {}, // TODO: hack fix for ego
-            sessionVariables: {
-              caseId: 'resolved',
-              sessionId: resolutionId,
-              protocolUID: protocolId,
-              protocolName: lastSession.sessionVariables.protocolName,
-              codebookHash: lastSession.sessionVariables.codebookHash,
-              sessionExported: new Date(),
-            },
-          }];
-
-          return [
-            resolvedSessions,
-            resolvedProtocol,
-          ];
+          return resolve(protocol, sessions, resolutions, resolveOptions);
         },
       );
   }

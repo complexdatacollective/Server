@@ -33,6 +33,7 @@ class ExportManager {
         options.resolutionId,
         undefined,
         false,
+        true,
       );
 
       return [resolvedSessions, formatProtocol(resolvedProtocol, resolvedSessions)];

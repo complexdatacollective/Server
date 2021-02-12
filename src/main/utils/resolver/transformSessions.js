@@ -1,14 +1,12 @@
 /* eslint-disable no-underscore-dangle */
 const { DateTime } = require('luxon');
-const { get, find, reduce, uniq, sortBy, last } = require('lodash');
+const { get, find, reduce, uniq } = require('lodash');
 const { assign } = require('lodash/fp');
 const {
   nodePrimaryKeyProperty,
   nodeAttributesProperty,
 } = require('../formatters/network');
 const castEgoAsNode = require('./castEgoAsNode');
-const castOrphanEgosAsEgoNodes = require('./castOrphanEgosAsEgoNodes');
-const mergeResolutionMetaAsAttributes = require('./mergeResolutionMetaAsAttributes');
 
 const unionOfNetworks = networks =>
   networks.reduce((union, network) => {
@@ -143,8 +141,8 @@ const applyTransform = (network, transform) => {
 
 const transformSessions = (
   protocol,
-  sessions,
-  resolutions,
+  sortedSessions, // sortBy(sessions, ['date']);
+  sortedResolutions, // sortBy(resolutions, ['date']);
   options,
 ) => {
   // default options
@@ -153,17 +151,11 @@ const transformSessions = (
     ...options,
   };
 
-  const sortedResolutions = sortBy(resolutions, ['date']);
-  const sortedSessions = sortBy(sessions, ['date']);
-
-  const lastResolution = last(sortedResolutions);
-  const lastSession = last(sortedSessions);
-
   const sessionsByResolution = getSessionsByResolution(sortedResolutions, sortedSessions);
   const egoCaster = castEgoAsNode(protocol.codebook, egoCastType);
 
   // For each resolution, cumulatively merge any new sessions and apply resolution
-  let resolvedNetwork = reduce(
+  const resolvedNetwork = reduce(
     sortedResolutions,
     (accNetwork, { transforms, id }) => {
       const sessionNetworks = sessionsByResolution[id]; // array of networks
@@ -196,33 +188,10 @@ const transformSessions = (
   if (includeUnresolved && sessionsByResolution._unresolved) {
     const unresolvedWithEgos = sessionsByResolution._unresolved.map(egoCaster);
 
-    resolvedNetwork = unionOfNetworks([resolvedNetwork, ...unresolvedWithEgos]);
+    return unionOfNetworks([resolvedNetwork, ...unresolvedWithEgos]);
   }
 
-  // Convert any previous cast egos that are still orphans into a
-  // new node type '_ego', and add them to the network
-  const orphanEgoNetwork = castOrphanEgosAsEgoNodes(sessions, protocol, resolvedNetwork);
-
-  // Merge caseId and parentId into node.attributes
-  resolvedNetwork = mergeResolutionMetaAsAttributes(orphanEgoNetwork.network);
-
-  console.log(JSON.stringify({ nodes: resolvedNetwork.nodes }, null, 2));
-
-  return [
-    {
-      ...resolvedNetwork,
-      ego: {},
-      sessionVariables: {
-        caseId: 'resolved',
-        sessionId: lastResolution._uid,
-        protocolUID: protocol._id,
-        protocolName: lastSession.sessionVariables.protocolName,
-        codebookHash: lastSession.sessionVariables.codebookHash,
-        sessionExported: new Date(),
-      },
-    },
-    orphanEgoNetwork.protocol,
-  ];
+  return resolvedNetwork;
 };
 
 module.exports = {

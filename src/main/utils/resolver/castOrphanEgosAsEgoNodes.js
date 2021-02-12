@@ -47,7 +47,7 @@ const castOrphanEgosAsEgoNode = (sessions, protocol, resolvedNetwork) => {
   };
 
   // insert egos into network as ego type
-  return { network: modifiedNetwork, protocol: modifiedProtocol };
+  return [modifiedNetwork, modifiedProtocol];
 };
 
 module.exports = castOrphanEgosAsEgoNode;
