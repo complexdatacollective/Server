@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 const { DateTime } = require('luxon');
-const { get, find, reduce, uniq, sortBy } = require('lodash');
+const { get, find, reduce, uniq, sortBy, last } = require('lodash');
 const { assign } = require('lodash/fp');
 const {
   nodePrimaryKeyProperty,
@@ -86,8 +86,8 @@ const applyTransform = (network, transform) => {
           return [[...accNodes, node], accProps];
         }
 
-        const caseId = uniq([...accProps['caseId'], ...get(node, 'caseId', [])]);
-        const parentId = uniq([...accProps['parentId'], ...get(node, 'parentId', [])]);
+        const caseId = uniq([...accProps.caseId, ...get(node, 'caseId', [])]);
+        const parentId = uniq([...accProps.parentId, ...get(node, 'parentId', [])]);
 
         // Otherwise, we remove the node from the list and collect some
         // meta data about the original session it belonged to (the caseId and egoId),
@@ -155,11 +155,14 @@ const transformSessions = (
   const sortedResolutions = sortBy(resolutions, ['date']);
   const sortedSessions = sortBy(sessions, ['date']);
 
+  const lastResolution = last(sortedResolutions);
+  const lastSession = last(sortedSessions);
+
   const sessionsByResolution = getSessionsByResolution(sortedResolutions, sortedSessions);
   const egoCaster = castEgoAsNode(protocol.codebook, egoCastType);
 
   // For each resolution, cumulatively merge any new sessions and apply resolution
-  const resolvedNetwork = reduce(
+  let resolvedNetwork = reduce(
     sortedResolutions,
     (accNetwork, { transforms, id }) => {
       const sessionNetworks = sessionsByResolution[id]; // array of networks
@@ -191,10 +194,23 @@ const transformSessions = (
   if (includeUnresolved && sessionsByResolution._unresolved) {
     const unresolvedWithEgos = sessionsByResolution._unresolved.map(egoCaster);
 
-    return unionOfNetworks([resolvedNetwork, ...unresolvedWithEgos]);
+    resolvedNetwork = unionOfNetworks([resolvedNetwork, ...unresolvedWithEgos]);
   }
 
-  return castOrphanEgosAsEgoNodes(sessions, protocol, resolvedNetwork);
+  resolvedNetwork = castOrphanEgosAsEgoNodes(sessions, protocol, resolvedNetwork);
+
+  return {
+    ...resolvedNetwork,
+    ego: {}, // TODO: hack fix for ego
+    sessionVariables: {
+      caseId: 'resolved',
+      sessionId: lastResolution._uid,
+      protocolUID: protocol._id,
+      protocolName: lastSession.sessionVariables.protocolName,
+      codebookHash: lastSession.sessionVariables.codebookHash,
+      sessionExported: new Date(),
+    },
+  };
 };
 
 module.exports = {

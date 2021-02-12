@@ -94,7 +94,6 @@ class ResolverManager {
 
           const [resolvedNetwork, resolvedProtocol] = transformSessions(protocol, sessions, resolutions, transformOptions);
 
-          // TODO: Append egos here and blend codebooks?
 
           const resolvedSessions = [{
             ...resolvedNetwork,

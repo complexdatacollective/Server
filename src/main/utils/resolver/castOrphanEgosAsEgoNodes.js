@@ -1,8 +1,11 @@
+/* eslint-disable no-underscore-dangle */
+
 const castOrphanEgosAsEgoNode = (sessions, protocol, resolvedNetwork) => {
   // Collect all egos from sessions
   const egos = sessions.reduce(
     (acc, { ego }) => ({
       ...acc,
+      // TODO: inject caseId
       [ego._uid]: { ...ego, type: '_ego' }, // eslint-disable-line no-underscore-dangle
     }),
     {},
@@ -17,27 +20,31 @@ const castOrphanEgosAsEgoNode = (sessions, protocol, resolvedNetwork) => {
       ego: {},
       node: {
         ...protocol.codebook.node,
-        _ego: protocol.codebook.ego,
+        _ego: {
+          name: 'ego',
+          ...protocol.codebook.ego,
+        },
       },
     },
   };
 
   const modifiedNetwork = {
     ...resolvedNetwork,
-    nodes: resolvedNetwork.map(
+    nodes: resolvedNetwork.nodes.map(
       (node) => {
         const id = node._uid;
+
         if (egoIds.includes(id)) {
-          return ego[id];
+          return egos[id];
         }
 
         return node;
       },
-    );
+    ),
   };
 
   // insert egos into network as ego type
-  return [modifiedNetwork,  modifiedProtocol];
+  return [modifiedNetwork, modifiedProtocol];
 };
 
 module.exports = castOrphanEgosAsEgoNode;
