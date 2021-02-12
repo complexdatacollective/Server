@@ -8,6 +8,7 @@ const {
 } = require('../formatters/network');
 const castEgoAsNode = require('./castEgoAsNode');
 const castOrphanEgosAsEgoNodes = require('./castOrphanEgosAsEgoNodes');
+const mergeResolutionMetaAsAttributes = require('./mergeResolutionMetaAsAttributes');
 
 const unionOfNetworks = networks =>
   networks.reduce((union, network) => {
@@ -191,26 +192,37 @@ const transformSessions = (
     { nodes: [], edges: [] },
   );
 
+  // Add unresolved sessions if option selected
   if (includeUnresolved && sessionsByResolution._unresolved) {
     const unresolvedWithEgos = sessionsByResolution._unresolved.map(egoCaster);
 
     resolvedNetwork = unionOfNetworks([resolvedNetwork, ...unresolvedWithEgos]);
   }
 
-  resolvedNetwork = castOrphanEgosAsEgoNodes(sessions, protocol, resolvedNetwork);
+  // Convert any previous cast egos that are still orphans into a
+  // new node type '_ego', and add them to the network
+  const orphanEgoNetwork = castOrphanEgosAsEgoNodes(sessions, protocol, resolvedNetwork);
 
-  return {
-    ...resolvedNetwork,
-    ego: {}, // TODO: hack fix for ego
-    sessionVariables: {
-      caseId: 'resolved',
-      sessionId: lastResolution._uid,
-      protocolUID: protocol._id,
-      protocolName: lastSession.sessionVariables.protocolName,
-      codebookHash: lastSession.sessionVariables.codebookHash,
-      sessionExported: new Date(),
+  // Merge caseId and parentId into node.attributes
+  resolvedNetwork = mergeResolutionMetaAsAttributes(orphanEgoNetwork.network);
+
+  console.log(JSON.stringify({ nodes: resolvedNetwork.nodes }, null, 2));
+
+  return [
+    {
+      ...resolvedNetwork,
+      ego: {},
+      sessionVariables: {
+        caseId: 'resolved',
+        sessionId: lastResolution._uid,
+        protocolUID: protocol._id,
+        protocolName: lastSession.sessionVariables.protocolName,
+        codebookHash: lastSession.sessionVariables.codebookHash,
+        sessionExported: new Date(),
+      },
     },
-  };
+    orphanEgoNetwork.protocol,
+  ];
 };
 
 module.exports = {

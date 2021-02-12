@@ -94,7 +94,6 @@ class ResolverManager {
 
           const [resolvedNetwork, resolvedProtocol] = transformSessions(protocol, sessions, resolutions, transformOptions);
 
-
           const resolvedSessions = [{
             ...resolvedNetwork,
             ego: {}, // TODO: hack fix for ego
