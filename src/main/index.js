@@ -1,4 +1,4 @@
-const { ipcMain, dialog } = require('electron');
+const { ipcMain, BrowserWindow } = require('electron');
 const logger = require('electron-log');
 
 const { createApp, userDataDir } = require('./MainApp');
@@ -11,6 +11,7 @@ const RequestFileImportDialog = 'REQUEST_FILE_IMPORT_DIALOG';
 const { app, mainWindow, showImportProtocolDialog } = createApp();
 
 let server = null;
+let errorMessage = null;
 createServer(userDataDir).then((runningServer) => {
   server = runningServer;
 
@@ -29,8 +30,26 @@ createServer(userDataDir).then((runningServer) => {
   throw err;
 });
 
+const handleErrorAndClose = (err, errorType) => {
+  if (errorMessage) return; // already showing user a fatal error
+  errorMessage = err;
+  logger.error(`${errorType}:`, err);
+  const errorDialog = new BrowserWindow({
+    parent: (mainWindow && mainWindow.window),
+    modal: true,
+    show: false,
+    frame: false,
+  });
+  errorDialog.loadFile('utils/errorDialog.html', { query: { error: err.stack } });
+  errorDialog.on('closed', () => process.exit(1));
+  errorDialog.show();
+};
+
 process.on('unhandledRejection', (err) => {
-  logger.error('unhandledRejection:', err);
-  dialog.showMessageBoxSync({ type: 'error', message: `Unexpected error occurred: ${err.stack}`, title: 'Error' });
-  process.exit(1);
+  handleErrorAndClose(err, 'unhandledRejection');
+});
+
+
+process.on('uncaughtException', (err) => {
+  handleErrorAndClose(err, 'uncaughtException');
 });
