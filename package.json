@@ -153,6 +153,9 @@
   ],
   "build": {
     "extends": null,
+    "extraResources": [
+      "./build-resources/externals/**"
+    ],
     "appId": "Network-Canvas-Server-6",
     "afterSign": "./build-resources/scripts/afterSignHook.js",
     "directories": {
