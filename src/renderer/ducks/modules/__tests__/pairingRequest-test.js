@@ -1,5 +1,6 @@
 /* eslint-env jest */
 
+import { ipcRenderer } from 'electron';
 import reducer, { actionCreators, actionTypes, PairingStatus, selectors } from '../pairingRequest';
 
 const id = 'request1';
@@ -16,9 +17,15 @@ describe('the pairing request module', () => {
     });
 
     it('exports a dismiss action', () => {
-      expect(actionCreators.dismissPairingRequest()).toEqual({
+      const dispatch = jest.fn();
+      const getState = jest.fn(() => ({ pairingRequest: { id } }));
+      actionCreators.dismissPairingRequest(true)(dispatch, getState);
+
+      expect(dispatch.mock.calls[0][0]).toEqual({
         type: actionTypes.DISMISS_PAIRING_REQUEST,
       });
+
+      expect(ipcRenderer.send.mock.calls[0]).toEqual(['PAIRING_CANCELLED', 'request1']);
     });
 
     it('exports a complete action', () => {
@@ -56,9 +63,11 @@ describe('the pairing request module', () => {
       expect(state.pairingCode).toBeUndefined();
     });
 
-    it('handles dissmissing', () => {
+    it('handles dismissing', () => {
       const initialState = actionCreators.newPairingRequest(id, pairingCode);
-      const state = reducer(initialState, actionCreators.dismissPairingRequest());
+      const state = reducer(initialState, {
+        type: actionTypes.DISMISS_PAIRING_REQUEST,
+      });
       expect(state.status).toBeUndefined();
       expect(state.pairingCode).toBeUndefined();
     });
