@@ -200,15 +200,16 @@ describe('the AdminService', () => {
         });
 
         it('deletes a protocol', async () => {
+          adminService.resolverManager.deleteProtocolResolutions.mockResolvedValueOnce(true);
           const res = await jsonClient.delete(`${endpoint}/${mockProtocol.id}`);
           expect(res.json.status).toBe('ok');
         });
 
         describe('when manager fails', () => {
           const mockResp = { statusCode: 500 };
+          const mockError = { error: 'mock' };
 
           beforeAll(() => {
-            const mockError = { error: 'mock' };
             ProtocolManager.mockImplementation(() => ({
               validateAndImportProtocols: jest.fn().mockRejectedValue(mockError),
               allProtocols: jest.fn().mockRejectedValue(mockError),
@@ -226,6 +227,7 @@ describe('the AdminService', () => {
           });
 
           it('sends an error for delete', async () => {
+            adminService.resolverManager.deleteProtocolResolutions.mockRejectedValueOnce(mockError);
             await expect(jsonClient.delete(`${endpoint}/${mockProtocol.id}`)).rejects.toMatchObject(mockResp);
           });
         });
@@ -239,6 +241,7 @@ describe('the AdminService', () => {
           ProtocolManager.mockImplementation(() => ({
             getProtocolSessions: jest.fn().mockResolvedValue(mockSessions),
             deleteProtocolSessions: jest.fn().mockResolvedValue(1),
+            getProtocolSession: jest.fn().mockResolvedValue({ id: '1' }),
           }));
         });
 
@@ -248,22 +251,28 @@ describe('the AdminService', () => {
         });
 
         it('deletes sessions', async () => {
+          adminService.resolverManager.deleteProtocolResolutions
+            .mockResolvedValueOnce(true);
+
           const res = await jsonClient.delete(sessEndpoint);
           expect(res.json).toEqual({ status: 'ok' });
         });
 
         it('deletes one session', async () => {
+          adminService.resolverManager.deleteResolutionsSince.mockResolvedValueOnce(true);
+
           const res = await jsonClient.delete(`${sessEndpoint}/1`);
           expect(res.json).toEqual({ status: 'ok' });
         });
 
         describe('when manager fails', () => {
           const mockResp = { statusCode: 500 };
+          const mockError = new Error('mock error');
           beforeAll(() => {
-            const mockError = new Error('mock error');
             ProtocolManager.mockImplementation(() => ({
               getProtocolSessions: jest.fn().mockRejectedValue(mockError),
               deleteProtocolSessions: jest.fn().mockRejectedValue(mockError),
+              getProtocolSession: jest.fn().mockRejectedValue(mockError),
             }));
           });
 
@@ -272,6 +281,7 @@ describe('the AdminService', () => {
           });
 
           it('returns a server error (delete all)', async () => {
+            adminService.resolverManager.deleteProtocolResolutions.mockRejectedValueOnce(mockError);
             await expect(jsonClient.delete(sessEndpoint)).rejects.toMatchObject(mockResp);
           });
 
