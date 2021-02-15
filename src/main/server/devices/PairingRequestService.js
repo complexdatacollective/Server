@@ -16,7 +16,6 @@ const {
 class PairingRequestService {
   constructor() {
     this.sharedDb = new PairingRequestDB('PairingRequestDB');
-
   }
 
   // Pairing code is used to derive a shared secret.
