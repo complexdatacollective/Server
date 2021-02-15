@@ -1,9 +1,9 @@
 /* eslint-env jest */
 
 const miss = require('mississippi');
-const { csvEOL } = require('../../formatters/csv');
-const tableToCsv = require('../tableToCsv');
+const { tableToCsv } = require('../tableToCsv');
 
+const csvEOL = '\r\n';
 
 const streamLines = stream =>
   lines => new Promise((resolve, reject) => {

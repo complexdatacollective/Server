@@ -332,7 +332,7 @@ describe('the AdminService', () => {
           });
         });
 
-        it('reponds to a POST request', async () => {
+        it('responds to a POST request', async () => {
           const endpoint = makeUrl('protocols/1/export_requests', apiBase);
           const res = await jsonClient.post(endpoint, {});
           expect(res.json.status).toBe('ok');
@@ -363,7 +363,10 @@ describe('the AdminService', () => {
             ],
             unresolved: 4,
           };
-          adminService.resolverManager.getResolutionsWithSessionCounts.mockResolvedValueOnce(mockResult);
+
+          adminService.resolverManager.getResolutionsWithSessionCounts
+            .mockResolvedValueOnce(mockResult);
+
           await expect(jsonClient.get(endpoint, {})).resolves.toMatchObject({
             json: {
               status: 'ok',

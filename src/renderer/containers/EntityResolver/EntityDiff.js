@@ -23,7 +23,6 @@ const EntityDiff = ({
 }) => {
   if (!match || !entityDefinition) { return null; }
 
-  // todo, can we move this to diff'er?
   const [diffState, diffActions] = useEntityState(
     entityDefinition,
     match,

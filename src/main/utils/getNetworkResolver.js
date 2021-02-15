@@ -90,7 +90,7 @@ const getNetworkResolver = (
         resolverProcess,
         split(),
         csvToJson(),
-        sampleStream(`${requestId}:recieved`, 3),
+        sampleStream(`${requestId}:received`, 3),
         countStream(`${requestId}:received`),
         appendNodeNetworkData(network.nodes),
       );

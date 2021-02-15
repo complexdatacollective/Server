@@ -125,9 +125,9 @@ describe('applyTransform', () => {
   const network = Object.freeze(
     thru(
       Factory.network.build(20),
-      (network) => ({
-        ...network,
-        nodes: network.nodes.map(node => ({ ...node, caseId: ['1'] })),
+      _network => ({
+        ..._network,
+        nodes: _network.nodes.map(node => ({ ...node, caseId: ['1'] })),
       }),
     ),
   );
@@ -153,7 +153,7 @@ describe('applyTransform', () => {
     // New nodes should collect parentIds
     expect(newNode.parentId).toEqual(transform.nodes);
 
-    //New nodes should collect caseIds?
+    // New nodes should collect caseIds?
     expect(newNode.caseId.length).toBe(1);
     expect(newNode.caseId).toEqual(network.nodes[0].caseId);
   });
