@@ -3,7 +3,7 @@ import { createAction, handleActions } from 'redux-actions';
 import { uniq, findLast, get } from 'lodash';
 import { bindActionCreators } from 'redux';
 import uuid from 'uuid';
-import { nodePrimaryKeyProperty } from '../../../main/utils/formatters/network';
+import { properties } from '../../../main/utils/resolver/helpers';
 import { getMatch, getMatchOrResolved } from './selectors';
 
 const resolveTypes = {
@@ -54,8 +54,8 @@ const resolveMatchAction = createAction(
     match: {
       ...match,
       nodes: [
-        match.nodes[0][nodePrimaryKeyProperty],
-        match.nodes[1][nodePrimaryKeyProperty],
+        match.nodes[0][properties.nodePrimaryKey],
+        match.nodes[1][properties.nodePrimaryKey],
       ],
     },
     action,

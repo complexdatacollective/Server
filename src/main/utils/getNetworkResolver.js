@@ -7,11 +7,11 @@ const { sampleStream, countStream } = require('./streams/helpers');
 const nodesToTable = require('./streams/nodesToTable');
 const csvToJson = require('./streams/csvToJson');
 const tableToCsv = require('./streams/tableToCsv');
-const { nodePrimaryKeyProperty } = require('./formatters/network');
+const { properties } = require('./resolver/helpers');
 const commandRunner = require('./commandRunner');
 
 const getNode = (nodes, id) => {
-  const node = nodes.find(n => id === n[nodePrimaryKeyProperty]);
+  const node = nodes.find(n => id === n[properties.nodePrimaryKey]);
 
   if (!node) {
     throw new Error(
@@ -24,7 +24,7 @@ const getNode = (nodes, id) => {
 
 /**
  * Given a match which contains ids and a probability, append
- * network data for that node and parse the probabily as a float.
+ * network data for that node and parse the probability as a float.
  *
  * { networkCanvasAlterID_1, networkCanvasAlterID_2, prob: '0.0' } ->
  *   { nodes: [ { id, attributes }, { id, attributes } ], prob: 0.0 }

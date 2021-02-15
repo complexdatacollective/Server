@@ -1,14 +1,14 @@
 const miss = require('mississippi');
 const { reduce, toPairs, get } = require('lodash');
-const { nodePrimaryKeyProperty, nodeAttributesProperty, entityTypeProperty, egoProperty } = require('../formatters/network');
+const { properties } = require('../resolver/helpers');
 
 const defaultHeadings = {
-  [nodePrimaryKeyProperty]: 'networkCanvasAlterID',
-  [entityTypeProperty]: 'networkCanvasNodeType',
+  [properties.nodePrimaryKey]: 'networkCanvasAlterID',
+  [properties.type]: 'networkCanvasNodeType',
 };
 
 const egoHeading = {
-  [egoProperty]: 'networkCanvasEgoID',
+  [properties.ego]: 'networkCanvasEgoID',
 };
 
 const getHeadings = (codebook, initialHeadings = defaultHeadings) => {
@@ -30,15 +30,15 @@ const getHeadings = (codebook, initialHeadings = defaultHeadings) => {
 };
 
 const getAttributes = (headings, node) => {
-  const attributes = node[nodeAttributesProperty];
+  const attributes = node[properties.nodeAttributes];
 
   return headings.map(([id]) => {
     switch (id) {
-      case nodePrimaryKeyProperty:
-      case egoProperty:
+      case properties.nodePrimaryKey:
+      case properties.ego:
         return node[id];
-      case entityTypeProperty:
-        return node.type; // TODO: shim until we find out why "entityTypeProperty" is _type
+      case properties.type:
+        return node.type; // TODO: shim until we find out why "properties.type" is _type
       default:
         return attributes[id];
     }

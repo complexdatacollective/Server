@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { isNil, get, isArray } from 'lodash';
 import { Button, Node } from '@codaco/ui';
 import Radio from '@codaco/ui/lib/components/Fields/Radio';
-import { nodePrimaryKeyProperty, caseProperty } from '../../../main/utils/formatters/network';
+import { properties } from '../../../main/utils/resolver/helpers';
 import { getLabel, getMatchId } from './selectors';
 import VariableControl, { formatVariable } from './VariableControl';
 import useEntityState from './useEntityState';
@@ -94,10 +94,10 @@ const EntityDiff = ({
             </td>
             <td className="entity-diff__table-heading">
               <div className="entity-diff__table-heading-context">
-                {renderCaseID(get(a, caseProperty))}
+                {renderCaseID(get(a, properties.case))}
                 <Node {...nodePropsA} />
               </div>
-              <div className="entity-diff__table-heading-cell" title={a[nodePrimaryKeyProperty]}>
+              <div className="entity-diff__table-heading-cell" title={a[properties.nodePrimaryKey]}>
                 <Radio
                   label="Use all"
                   checked={isMatchType === 'LEFT'}
@@ -107,10 +107,10 @@ const EntityDiff = ({
             </td>
             <td className="entity-diff__table-heading">
               <div className="entity-diff__table-heading-context">
-                {renderCaseID(get(b, caseProperty))}
+                {renderCaseID(get(b, properties.case))}
                 <Node {...nodePropsB} />
               </div>
-              <div className="entity-diff__table-heading-cell" title={b[nodePrimaryKeyProperty]}>
+              <div className="entity-diff__table-heading-cell" title={b[properties.nodePrimaryKey]}>
                 <Radio
                   label="Use all"
                   checked={isMatchType === 'RIGHT'}
@@ -190,7 +190,7 @@ const EntityDiff = ({
 
 const EntityPropTypes = PropTypes.shape({
   attributes: PropTypes.object.isRequired,
-  [nodePrimaryKeyProperty]: PropTypes.string.isRequired,
+  [properties.nodePrimaryKey]: PropTypes.string.isRequired,
 });
 
 EntityDiff.propTypes = {

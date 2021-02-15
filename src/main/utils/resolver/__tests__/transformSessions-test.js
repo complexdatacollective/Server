@@ -8,10 +8,7 @@ const {
   thru,
 } = require('lodash');
 const { Factory } = require('../../../../__factories__/Factory');
-const {
-  nodePrimaryKeyProperty,
-  nodeAttributesProperty,
-} = require('../../formatters/network');
+const { properties } = require('../helpers');
 const {
   getSessionsByResolution,
   applyTransform,
@@ -20,7 +17,7 @@ const {
 
 expect.extend({
   networkIncludesNodes(network, nodeIds) {
-    const networkNodeIds = network.nodes.map(node => node[nodePrimaryKeyProperty]);
+    const networkNodeIds = network.nodes.map(node => node[properties.nodePrimaryKey]);
 
     const both = intersection(networkNodeIds, nodeIds);
 
@@ -39,7 +36,7 @@ expect.extend({
 
 expect.extend({
   networkExcludesNodes(network, nodeIds) {
-    const networkNodeIds = network.nodes.map(node => node[nodePrimaryKeyProperty]);
+    const networkNodeIds = network.nodes.map(node => node[properties.nodePrimaryKey]);
 
     const both = intersection(networkNodeIds, nodeIds);
 
@@ -56,7 +53,7 @@ expect.extend({
 
 expect.extend({
   networkHasNode(network, id, attributes) {
-    const node = network.nodes.find(n => n[nodePrimaryKeyProperty] === id);
+    const node = network.nodes.find(n => n[properties.nodePrimaryKey] === id);
 
     if (!node) {
       return {
@@ -65,7 +62,7 @@ expect.extend({
       };
     }
 
-    const equal = isEqual(node[nodeAttributesProperty], attributes);
+    const equal = isEqual(node[properties.nodeAttributes], attributes);
 
     if (equal) {
       return { pass: true };
@@ -76,7 +73,7 @@ expect.extend({
       message: () => `Node with id ${id} found but attributes differ:
 
 got:
-${JSON.stringify(node[nodeAttributesProperty], null, 2)}
+${JSON.stringify(node[properties.nodeAttributes], null, 2)}
 
 expected:
 ${JSON.stringify(attributes, null, 2)}`,
@@ -150,7 +147,7 @@ describe('applyTransform', () => {
     expect(newNetwork)
       .networkHasNode(transform.id, transform.attributes);
 
-    
+
     const newNode = newNetwork.nodes.find(({ _uid }) => _uid === transform.id);
 
     // New nodes should collect parentIds

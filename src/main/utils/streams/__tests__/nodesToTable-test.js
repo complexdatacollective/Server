@@ -1,7 +1,7 @@
 /* eslint-env jest */
 
 const miss = require('mississippi');
-const { nodePrimaryKeyProperty, nodeAttributesProperty, egoProperty } = require('../../formatters/network');
+const { properties } = require('../../resolver/helpers');
 const nodesToTable = require('../nodesToTable');
 
 const mockCodebook = {
@@ -52,10 +52,10 @@ describe('nodesToTable', () => {
     };
 
     const nodes = [{
-      [nodePrimaryKeyProperty]: 'cce4044d-c171-4f25-8377-b28616e90006',
+      [properties.nodePrimaryKey]: 'cce4044d-c171-4f25-8377-b28616e90006',
       // [entityTypeProperty]: 'person',
       type: 'person',
-      [nodeAttributesProperty]: {
+      [properties.nodeAttributes]: {
         '0c3cc033-aca6-424e-bde7-6cdff7c20da6': 'Bob',
         'e3e8a80b-7cf0-4a70-93f9-6b8049b2c347': 50,
       },
@@ -68,10 +68,10 @@ describe('nodesToTable', () => {
 
   it('writes a simple CSV', async () => {
     const nodes = [{
-      [nodePrimaryKeyProperty]: 'cce4044d-c171-4f25-8377-b28616e90006',
+      [properties.nodePrimaryKey]: 'cce4044d-c171-4f25-8377-b28616e90006',
       // [entityTypeProperty]: 'person',
       type: 'person',
-      [nodeAttributesProperty]: {
+      [properties.nodeAttributes]: {
         '0c3cc033-aca6-424e-bde7-6cdff7c20da6': 'Bob',
         'e3e8a80b-7cf0-4a70-93f9-6b8049b2c347': 50,
       },
@@ -84,11 +84,11 @@ describe('nodesToTable', () => {
 
   it('exports egoID', async () => {
     const nodes = [{
-      [nodePrimaryKeyProperty]: 'cce4044d-c171-4f25-8377-b28616e90006',
+      [properties.nodePrimaryKey]: 'cce4044d-c171-4f25-8377-b28616e90006',
       // [entityTypeProperty]: 'person',
       type: 'person',
-      [egoProperty]: '0861a8d7-736c-4edd-af04-1c02a9d4259f',
-      [nodeAttributesProperty]: {
+      [properties.ego]: '0861a8d7-736c-4edd-af04-1c02a9d4259f',
+      [properties.nodeAttributes]: {
         '0c3cc033-aca6-424e-bde7-6cdff7c20da6': false,
         'e3e8a80b-7cf0-4a70-93f9-6b8049b2c347': 50,
       },

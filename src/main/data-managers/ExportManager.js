@@ -77,7 +77,6 @@ class ExportManager {
 
     const exporter = this.getSessions(protocol, options)
       .then(([sessions, protocols]) => {
-        console.log({ protocols });
         const fileExportManager = new FileExportManager(options);
 
         const exportSessions = () =>

@@ -1,6 +1,6 @@
 /* eslint-env jest */
 
-import { nodePrimaryKeyProperty } from '../../../../main/utils/formatters/network';
+import { properties } from '../../../../main/utils/resolver/helpers';
 import { reduceResolutions as resolutionsReducer, reduceActions as getMatchActionReducer, actionCreators } from '../useResolutionsState';
 import Factory from '../__factories__';
 
@@ -125,7 +125,7 @@ describe('useResolutionsState', () => {
     it('RESOLVE deletes resolutions beyond the match index', () => {
       const nodeIds = ['abc', 'def'];
       const match = Factory.match.build(
-        { index: 2, nodes: nodeIds.map(id => ({ [nodePrimaryKeyProperty]: id })) },
+        { index: 2, nodes: nodeIds.map(id => ({ [properties.nodePrimaryKey]: id })) },
       );
 
       const resolveMatchAction = actionCreators.resolveMatch(
@@ -156,7 +156,7 @@ describe('useResolutionsState', () => {
       const nodeIds = ['d', 'f'];
 
       const match = Factory.match.build(
-        { index: 100, nodes: nodeIds.map(id => ({ [nodePrimaryKeyProperty]: id })) },
+        { index: 100, nodes: nodeIds.map(id => ({ [properties.nodePrimaryKey]: id })) },
       );
 
       const resolveMatchAction = actionCreators.resolveMatch(

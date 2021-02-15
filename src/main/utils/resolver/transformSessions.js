@@ -1,24 +1,13 @@
 /* eslint-disable no-underscore-dangle */
 const { DateTime } = require('luxon');
 const { get, find, reduce, uniq } = require('lodash');
-const { assign } = require('lodash/fp');
 const {
-  nodePrimaryKeyProperty,
-  nodeAttributesProperty,
-} = require('../formatters/network');
-const { formatSession, formatResolution } = require('./helpers');
+  formatSession,
+  formatResolution,
+  unionOfNetworks,
+  properties,
+} = require('./helpers');
 const castEgoAsNode = require('./castEgoAsNode');
-
-const unionOfNetworks = networks =>
-  networks.reduce((union, network) => {
-    const meta = { caseId: [get(network, 'sessionVariables.caseId')] };
-    return {
-      nodes: [...union.nodes, ...network.nodes.map(assign(meta))],
-      edges: [...union.edges, ...network.edges.map(assign(meta))],
-    };
-  }, { nodes: [], edges: [] });
-
-
 
 // 1. chunk sessions by resolutions
 // Maybe resolutions should include references to included sessions rather than
@@ -69,7 +58,7 @@ const applyTransform = (network, transform) => {
         // `transform.nodes` is an array of node ids that the transform
         // applies to. If the node is not being transformed, return it
         // as is.
-        if (!transform.nodes.includes(node[nodePrimaryKeyProperty])) {
+        if (!transform.nodes.includes(node[properties.nodePrimaryKey])) {
           return [[...accNodes, node], accProps];
         }
 
@@ -109,8 +98,8 @@ const applyTransform = (network, transform) => {
   const nodes = nodesWithTransformedTargetsRemoved.concat([{
     ...transformTargetMetaData, // type, caseId etc.
     parentId,
-    [nodePrimaryKeyProperty]: transform.id,
-    [nodeAttributesProperty]: transform.attributes,
+    [properties.nodePrimaryKey]: transform.id,
+    [properties.nodeAttributes]: transform.attributes,
   }]);
 
   // Update edges to point to this newly inserted node

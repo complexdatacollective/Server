@@ -1,5 +1,5 @@
 import { findKey, get } from 'lodash';
-import { nodePrimaryKeyProperty, getEntityAttributes } from '../../../main/utils/formatters/network';
+import { properties } from '../../../main/utils/resolver/helpers';
 
 export const getMatch = (matches, index) => {
   if (matches.length < index + 1) { return null; }
@@ -17,7 +17,7 @@ export const getMatchOrResolved = (match, resolutions) => {
 
   const nodes = match.nodes.map((node) => {
     const resolution = reversedResolutions
-      .find(r => r.nodes.includes(node[nodePrimaryKeyProperty]));
+      .find(r => r.nodes.includes(node[properties.nodePrimaryKey]));
 
     if (!resolution) { return node; }
 
@@ -94,7 +94,7 @@ export const getRequiredAttributes = (nodeTypeDefinition, match) => {
 };
 
 export const getLabel = (nodeTypeDefinition, node) => {
-  const nodeLabel = labelLogic(nodeTypeDefinition, getEntityAttributes(node));
+  const nodeLabel = labelLogic(nodeTypeDefinition, get(node, properties.nodeAttributes, {}));
   return nodeLabel;
 };
 
