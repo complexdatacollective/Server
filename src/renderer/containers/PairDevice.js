@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { compose } from 'recompose';
 import { Modal } from '@codaco/ui';
@@ -110,11 +109,11 @@ PairDevice.propTypes = {
   removeToast: PropTypes.func.isRequired,
 };
 
-const mapDispatchToProps = dispatch => ({
-  dismissPairingRequest: bindActionCreators(actionCreators.dismissPairingRequest, dispatch),
-  addToast: bindActionCreators(toastActions.addToast, dispatch),
-  removeToast: bindActionCreators(toastActions.removeToast, dispatch),
-});
+const mapDispatchToProps = {
+  dismissPairingRequest: actionCreators.dismissPairingRequest,
+  addToast: toastActions.addToast,
+  removeToast: toastActions.removeToast,
+};
 
 const mapStateToProps = ({ pairingRequest }) => ({
   pairingRequest,

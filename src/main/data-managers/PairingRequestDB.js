@@ -24,6 +24,15 @@ class PairingRequestDB extends DatabaseAdapter {
       'deviceRequestTTLSeconds',
       { configurable: false, writable: false, value: DeviceRequestTTLSeconds });
   }
+
+  remove(requestId) {
+    return new Promise((resolve, reject) => {
+      this.db.remove({ _id: requestId }, {}, (err, numRemoved) => {
+        if (err) { return reject(err); }
+        return resolve(numRemoved);
+      });
+    });
+  }
 }
 
 module.exports = PairingRequestDB;
