@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <style>
+    html {
+      height: 100%;
+    }
+
+    body {
+      color: rgb(58, 58, 117);
+      display: flex;
+      flex-direction: column;
+      font-family: system-ui, sans-serif;
+      height: calc(100% - 3rem);
+      margin: 1.5rem;
+    }
+
+    textarea {
+      background-color: rgb(242, 246, 247);
+      border: 0;
+      border-radius: .75rem;
+      color: rgb(109, 111, 118);
+      flex: 1;
+      font-size: 14px;
+      outline: none;
+      padding: 1rem;
+      resize: none;
+    }
+
+    button {
+      align-self: flex-end;
+      background-color: rgb(0, 201, 162);
+      border: 0;
+      border-radius: 2rem;
+      color: rgb(255, 255, 255);
+      font-size: .8rem;
+      font-weight: 700;
+      letter-spacing: .15em;
+      min-height: 3.5rem;
+      min-width: 3rem;
+      margin: 1rem 0;
+      outline: none;
+      padding: 0 2rem;
+      text-transform: uppercase;
+    }
+  </style>
+  <script>
+    function getErrorParam() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const errorParam = urlParams.get('error');
+      document.write(`<textarea readonly>${errorParam}</textarea>`);
+    }
+  </script>
+</head>
+
+<body>
+
+  <h1>Unexpected Error</h1>
+  <p>An unexpected error occurred, preventing Server from starting normally. If this persists upon restarting, the
+    following can be shared with the development team:</p>
+  <script>getErrorParam();</script>
+  <button id="closeButton" onclick="window.open('', '_self', ''); window.close();">Close</button>
+
+</body>
+
+</html>
