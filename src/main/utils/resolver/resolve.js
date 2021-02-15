@@ -19,20 +19,13 @@ const resolve = (
   const sortedResolutions = sortBy(resolutions, ['date']);
   const sortedSessions = sortBy(sessions, ['date']);
 
-  const lastResolution = last(sortedResolutions);
-  const lastSession = last(sortedSessions);
-
-  const sessionVariables = {
-    caseId: lastResolution.id,
-    sessionId: 'entity_resolution',
-    protocolUID: protocol._id,
-    protocolName: lastSession.sessionVariables.protocolName,
-    codebookHash: lastSession.sessionVariables.codebookHash,
-    sessionExported: new Date(),
-  };
-
   // Apply transforms to session and return resolved network
-  const resolvedNetwork = transformSessions(protocol, sortedSessions, sortedResolutions, optionsWithDefaults);
+  const resolvedNetwork = transformSessions(
+    protocol,
+    sortedSessions,
+    sortedResolutions,
+    optionsWithDefaults,
+  );
 
   // If we are only using this to feed the resolver script we don't need to
   // use the final export steps
@@ -40,9 +33,31 @@ const resolve = (
     return [[resolvedNetwork], protocol];
   }
 
+  const lastResolution = last(sortedResolutions);
+  const lastSession = last(sortedSessions);
+
+  if (!lastResolution) {
+    throw new Error('No resolution to export?');
+  }
+
+  const caseId = lastResolution.id;
+
+  const sessionVariables = {
+    caseId,
+    sessionId: 'entity_resolution',
+    protocolUID: protocol._id, // eslint-disable-line no-underscore-dangle
+    protocolName: lastSession.sessionVariables.protocolName,
+    codebookHash: lastSession.sessionVariables.codebookHash,
+    sessionExported: new Date(),
+  };
+
   // Convert any previous cast egos that are still orphans into a
   // new node type '_ego', and add them to the network
-  const [egoNetwork, egoProtocol] = castOrphanEgosAsEgoNodes(sortedSessions, protocol, resolvedNetwork);
+  const [egoNetwork, egoProtocol] = castOrphanEgosAsEgoNodes(
+    sortedSessions,
+    protocol,
+    resolvedNetwork,
+  );
 
   // Merge caseId and parentId into node.attributes
   const mergedNetwork = mergeResolutionMetaAsAttributes(egoNetwork);

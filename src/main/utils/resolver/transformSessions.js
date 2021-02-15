@@ -6,6 +6,7 @@ const {
   nodePrimaryKeyProperty,
   nodeAttributesProperty,
 } = require('../formatters/network');
+const { formatSession, formatResolution } = require('./helpers');
 const castEgoAsNode = require('./castEgoAsNode');
 
 const unionOfNetworks = networks =>
@@ -17,20 +18,7 @@ const unionOfNetworks = networks =>
     };
   }, { nodes: [], edges: [] });
 
-const formatSession = ({ data, createdAt }) => ({ date: createdAt, ...data });
 
-const formatResolution = ({
-  _id,
-  createdAt,
-  transforms,
-  options,
-}) => ({
-  id: _id,
-  date: createdAt,
-  transformCount: transforms.length,
-  options,
-  transforms,
-});
 
 // 1. chunk sessions by resolutions
 // Maybe resolutions should include references to included sessions rather than

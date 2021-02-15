@@ -49,7 +49,7 @@ class ResolverManager {
     logger.warn({ command });
     // TODO: fix
 
-    this.getResolvedSessions(protocolId, options.resolutionId, options.egoCastType)
+    return this.getResolvedSessions(protocolId, options.resolutionId, options.egoCastType)
       .then(([[network], { codebook }]) =>
         getNetworkResolver(requestId, command, codebook, network),
       );
@@ -72,8 +72,8 @@ class ResolverManager {
     protocolId,
     resolutionId,
     initialEgoCastType = undefined,
-    includeUnresolved = true,
-    asExport = false,
+    includeUnresolved = true, // Include unresolved _sessions_
+    asExport = false, // Convert unresolved (cast) egos, into ego nodes after resolution.
   ) {
     return Promise.all([
       this.protocolDb.get(protocolId),
