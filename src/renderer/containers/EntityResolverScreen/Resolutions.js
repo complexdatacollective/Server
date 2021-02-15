@@ -40,8 +40,8 @@ const Resolutions = ({
             <tr>
               <th>Resolution</th>
               <th>Date</th>
-              <th>Included Sessions</th>
-              <th>Resolve Count</th>
+              <th title="New sessions since they were last resolved">New Sessions</th>
+              <th>Resolved Nodes</th>
               <th />
             </tr>
           </thead>

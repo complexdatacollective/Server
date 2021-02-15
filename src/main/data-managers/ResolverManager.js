@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 
 const path = require('path');
-const { last, get, findLast, trim } = require('lodash');
+const { last, get, findLast, trim, sortBy } = require('lodash');
 const logger = require('electron-log');
 const { getNetworkResolver } = require('../utils/getNetworkResolver');
 const { formatSession, formatResolution } = require('../utils/resolver/helpers');
@@ -105,7 +105,9 @@ class ResolverManager {
       this.getResolutions(protocolId),
       this.sessionDb.findAll(protocolId, null, { createdAt: 1 }),
     ])
+      .then(([resolutions, sessions]) => ([sortBy(resolutions, 'date'), sortBy(sessions, 'createdAt')]))
       .then(([resolutions, sessions]) => {
+        resolutions.reverse();
         const sessionCounts = sessions
           .reduce((acc, session) => {
             const { id } = findLast(resolutions, ({ date }) => date > session.createdAt) || { id: '_unresolved' };
@@ -118,7 +120,7 @@ class ResolverManager {
         const unresolved = get(sessionCounts, '_unresolved', 0);
 
         const resolutionsWithCount = resolutions
-          .map(resolution => ({
+          .map(({ transforms, ...resolution }) => ({
             ...resolution,
             sessionCount: get(sessionCounts, resolution.id, 0),
           }));

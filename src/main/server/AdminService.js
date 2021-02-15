@@ -375,7 +375,7 @@ class AdminService {
           this.exportManager.exportSessions(protocol, req.body),
         )
         .then(({
-          exportSessions, // Export promise decorated with abord method
+          exportSessions, // Export promise decorated with abort method
           fileExportManager, // Instance of FileExportManager for event binding
         }) => {
           const reportUpdate = throttle((data) => {

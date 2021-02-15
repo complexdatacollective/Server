@@ -40,32 +40,34 @@ describe('ResolverManager', () => {
 
   it('getResolutionsWithSessionCounts() returns resolutions with session counts', async () => {
     const anchorDate = Date.now();
-    // This must be descending order
+
+    // intentionally out of order
     const resolutions = [
-      {
-        _id: 2,
-        createdAt: anchorDate + 100,
-        transforms: [undefined, undefined],
-        options: {},
-      },
       {
         _id: 1,
         createdAt: anchorDate,
         transforms: [undefined, undefined, undefined],
         options: {},
       },
+      {
+        _id: 2,
+        createdAt: anchorDate + 100,
+        transforms: [undefined, undefined],
+        options: {},
+      },
     ];
 
     manager.db.getResolutions.mockResolvedValueOnce(resolutions);
 
+    // intentionally out of order
     const sessions = [
       // resolved
-      { createdAt: anchorDate - 110 }, // 1
-      { createdAt: anchorDate - 110 }, // 1
       { createdAt: anchorDate - 110 }, // 1
       { createdAt: anchorDate + 10 }, // 2
       // un resolved
       { createdAt: anchorDate + 110 },
+      { createdAt: anchorDate - 110 }, // 1
+      { createdAt: anchorDate - 110 }, // 1
       { createdAt: anchorDate + 110 },
     ];
 
@@ -77,14 +79,14 @@ describe('ResolverManager', () => {
           {
             id: 2,
             date: anchorDate + 100,
-            transforms: [undefined, undefined],
             sessionCount: 1,
+            transformCount: 2,
           },
           {
             id: 1,
             date: anchorDate,
-            transforms: [undefined, undefined, undefined],
             sessionCount: 3,
+            transformCount: 3,
           },
         ],
         unresolved: 2,
