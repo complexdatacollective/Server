@@ -4,7 +4,7 @@ const path = require('path');
 const { last, get, findLast, trim } = require('lodash');
 const logger = require('electron-log');
 const { getNetworkResolver } = require('../utils/getNetworkResolver');
-const { formatSession, formatResolution } = require('../utils/resolver/transformSessions');
+const { formatSession, formatResolution } = require('../utils/resolver/helpers');
 const resolve = require('../utils/resolver/resolve');
 const ResolverDB = require('./ResolverDB');
 const SessionDB = require('./SessionDB');
@@ -108,10 +108,10 @@ class ResolverManager {
       .then(([resolutions, sessions]) => {
         const sessionCounts = sessions
           .reduce((acc, session) => {
-            const { _id } = findLast(resolutions, ({ date }) => date > session.createdAt) || { _id: '_unresolved' };
+            const { id } = findLast(resolutions, ({ date }) => date > session.createdAt) || { id: '_unresolved' };
             return {
               ...acc,
-              [_id]: get(acc, _id, 0) + 1,
+              [id]: get(acc, id, 0) + 1,
             };
           }, {});
 
@@ -120,7 +120,7 @@ class ResolverManager {
         const resolutionsWithCount = resolutions
           .map(resolution => ({
             ...resolution,
-            sessionCount: get(sessionCounts, resolution._id, 0),
+            sessionCount: get(sessionCounts, resolution.id, 0),
           }));
 
         return { resolutions: resolutionsWithCount, unresolved };

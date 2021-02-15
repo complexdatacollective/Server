@@ -3,7 +3,7 @@
 const miss = require('mississippi');
 const ResolverManager = require('../ResolverManager');
 const { getNetworkResolver } = require('../../utils/getNetworkResolver');
-const { transformSessions, formatSession } = require('../../utils/resolver/transformSessions');
+const { transformSessions } = require('../../utils/resolver/transformSessions');
 
 jest.mock('nedb');
 jest.mock('electron-log');
@@ -44,13 +44,15 @@ describe('ResolverManager', () => {
     const resolutions = [
       {
         _id: 2,
-        updatedAt: anchorDate + 100,
+        createdAt: anchorDate + 100,
         transforms: [undefined, undefined],
+        options: {},
       },
       {
         _id: 1,
-        updatedAt: anchorDate,
+        createdAt: anchorDate,
         transforms: [undefined, undefined, undefined],
+        options: {},
       },
     ];
 
@@ -58,13 +60,13 @@ describe('ResolverManager', () => {
 
     const sessions = [
       // resolved
-      { updatedAt: anchorDate - 110 }, // 1
-      { updatedAt: anchorDate - 110 }, // 1
-      { updatedAt: anchorDate - 110 }, // 1
-      { updatedAt: anchorDate + 10 }, // 2
+      { createdAt: anchorDate - 110 }, // 1
+      { createdAt: anchorDate - 110 }, // 1
+      { createdAt: anchorDate - 110 }, // 1
+      { createdAt: anchorDate + 10 }, // 2
       // un resolved
-      { updatedAt: anchorDate + 110 },
-      { updatedAt: anchorDate + 110 },
+      { createdAt: anchorDate + 110 },
+      { createdAt: anchorDate + 110 },
     ];
 
     manager.sessionDb.findAll.mockResolvedValueOnce(sessions);
@@ -73,13 +75,13 @@ describe('ResolverManager', () => {
       .resolves.toMatchObject({
         resolutions: [
           {
-            _id: 2,
+            id: 2,
             date: anchorDate + 100,
             transforms: [undefined, undefined],
             sessionCount: 1,
           },
           {
-            _id: 1,
+            id: 1,
             date: anchorDate,
             transforms: [undefined, undefined, undefined],
             sessionCount: 3,
@@ -123,7 +125,7 @@ describe('ResolverManager', () => {
   });
 
   describe('resolveProtocol()', () => {
-    it.only('resolves to a stream', (done) => {
+    it('resolves to a stream', (done) => {
       const protocolId = '1234';
       const requestId = '5678';
       const options = {
@@ -138,8 +140,6 @@ describe('ResolverManager', () => {
           cb(null, chunk.toString());
         },
       );
-
-      formatSession.mockImplementation(({ data, createdAt }) => ({ date: createdAt, ...data }));
 
       transformSessions.mockResolvedValueOnce({
         nodes: [],
