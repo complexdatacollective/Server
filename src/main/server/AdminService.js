@@ -68,6 +68,11 @@ class AdminService {
     this.pairingRequestService = new PairingRequestService();
     this.reportDb = this.protocolManager.reportDb;
     this.exportRequestState = [];
+
+    ipcMain.on('PAIRING_CANCELLED', (_, id) => {
+      if (!id) { return; }
+      this.pairingRequestService.cancelRequest(id);
+    });
   }
 
   /**

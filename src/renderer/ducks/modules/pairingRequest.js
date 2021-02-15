@@ -1,3 +1,7 @@
+import { get } from 'lodash';
+import { ipcRenderer } from 'electron';
+import ipcChannels from '../../utils/ipcChannels';
+
 const ACKNOWLEDGE_PAIRING_REQUEST = 'ACKNOWLEDGE_PAIRING_REQUEST';
 const COMPLETED_PAIRING_REQUEST = 'COMPLETED_PAIRING_REQUEST';
 const DISMISS_PAIRING_REQUEST = 'DISMISS_PAIRING_REQUEST';
@@ -55,11 +59,20 @@ const completedPairingRequest = () => (
   }
 );
 
-const dismissPairingRequest = () => (
-  {
-    type: DISMISS_PAIRING_REQUEST,
-  }
-);
+const dismissPairingRequest = (cancel = false) =>
+  (dispatch, getState) => {
+    if (cancel) {
+      const requestId = get(getState(), ['pairingRequest', 'id']);
+
+      if (requestId) {
+        ipcRenderer.send(ipcChannels.PAIRING_CANCELLED, requestId);
+      }
+    }
+
+    dispatch({
+      type: DISMISS_PAIRING_REQUEST,
+    });
+  };
 
 const newPairingRequest = (id, pairingCode) => (
   {

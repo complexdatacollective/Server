@@ -117,6 +117,10 @@ class PairingRequestService {
     return this.sharedDb.first({ _id: requestId, used: false });
   }
 
+  cancelRequest(requestId) {
+    return this.sharedDb.remove(requestId);
+  }
+
   get deviceRequestTTLSeconds() {
     return this.sharedDb.deviceRequestTTLSeconds;
   }
