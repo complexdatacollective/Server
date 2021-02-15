@@ -134,8 +134,8 @@ class ResolverManager {
   }
 
   // Delete all resolutions after and INCLUDING resolutionId
-  deleteResolutions(protocolId, { from: resolutionId } = {}) {
-    if (!resolutionId) { throw Error('No resolution id specified: `deleteResolutions(protocolId, { from: resolutionId })`'); }
+  deleteResolution(protocolId, resolutionId) {
+    if (!resolutionId) { throw Error('No resolution id specified: `deleteResolution(protocolId, resolutionId)`'); }
     return this.getResolutions(protocolId)
       // Get all resolutions after and including resolutionId
       .then((resolutions) => {
@@ -154,6 +154,12 @@ class ResolverManager {
         this.db.deleteResolutions(resolutionIds)
           .then(() => resolutionIds),
       );
+  }
+
+  // Delete all resolutions after and INCLUDING date
+  deleteResolutionsSince(protocolId, date) {
+    if (!date) { throw Error('No resolution date specified: `deleteResolutionsSince(protocolId, date)`'); }
+    return this.db.deleteResolutionsSince(protocolId, date);
   }
 
   // Delete all resolutions related to a protocol

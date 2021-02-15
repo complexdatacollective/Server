@@ -389,7 +389,7 @@ describe('the AdminService', () => {
         // This endpoint deletes all subsequent resolutions too because they become nonsensical
         it('DEL /resolutions/:resolutionId', async () => {
           const endpoint = makeUrl('protocols/1/resolutions/2', apiBase);
-          adminService.resolverManager.deleteResolutions.mockResolvedValue(['2', '3']);
+          adminService.resolverManager.deleteResolution.mockResolvedValue(['2', '3']);
           await expect(jsonClient.delete(endpoint, {})).resolves.toMatchObject({
             json: {
               status: 'ok',
