@@ -4,7 +4,7 @@ const { properties } = require('../resolver/helpers');
 
 const defaultHeadings = {
   [properties.nodePrimaryKey]: 'networkCanvasAlterID',
-  [properties.type]: 'networkCanvasNodeType',
+  [properties.entityType]: 'networkCanvasNodeType',
 };
 
 const egoHeading = {
@@ -37,7 +37,7 @@ const getAttributes = (headings, node) => {
       case properties.nodePrimaryKey:
       case properties.ego:
         return node[id];
-      case properties.type:
+      case properties.entityType:
         return node.type; // TODO: shim until we find out why "properties.type" is _type
       default:
         return attributes[id];

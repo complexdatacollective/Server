@@ -1,7 +1,7 @@
 /* eslint-env jest */
 
 const miss = require('mississippi');
-const { tableToCsv } = require('../tableToCsv');
+const tableToCsv = require('../tableToCsv');
 
 const csvEOL = '\r\n';
 
