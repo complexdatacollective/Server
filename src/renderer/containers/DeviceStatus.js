@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { compose } from 'recompose';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
 import { Button } from '@codaco/ui';
 import ReactTooltip from 'react-tooltip';
 import Types from '../types';
@@ -130,7 +129,6 @@ const mapDispatchToProps = {
 
 export default compose(
   connect(mapStateToProps, mapDispatchToProps),
-  withRouter,
 )(DeviceStatus);
 
 export {
