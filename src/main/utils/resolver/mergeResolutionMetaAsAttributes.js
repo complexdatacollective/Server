@@ -10,8 +10,8 @@ const mergeResolutionMetaAsAttributes = network => ({
     ...node,
     attributes: {
       ...node.attributes,
-      _caseId: get(node, 'caseId', []).join('|'),
-      _parentId: get(node, 'parentId', []).join('|'),
+      networkCanvasOriginCaseIDs: get(node, 'caseId', []).join('|'),
+      networkCanvasOriginUUIDs: get(node, 'parentId', []).join('|'),
     },
   })),
 });
