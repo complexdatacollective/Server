@@ -8,6 +8,6 @@ describe('<TopPanel />', () => {
   it('renders panel items', () => {
     const topPanel = shallow(<TopPanel>[]</TopPanel>);
     expect(topPanel.find('NetworkStatus').length).toBe(1);
-    expect(topPanel.find('Connect(withRouter(DeviceStatus))').length).toBe(1);
+    expect(topPanel.find('Connect(DeviceStatus)').length).toBe(1);
   });
 });
