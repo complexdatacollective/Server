@@ -41,7 +41,7 @@ const NewResolution = ({
     setOptions(s => ({ ...s, [key]: value }));
 
   useEffect(() => {
-    if (egoCastType === null) { return; }
+    if (egoCastType === null) { return; } // Use last selected when all resolutions are deleted
     handleUpdateOption('egoCastType')(egoCastType);
   }, [egoCastType]);
 

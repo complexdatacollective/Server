@@ -23,9 +23,7 @@ const useResolutions = (protocolId, deps = []) => {
           const lastResolution = last(_resolutions);
           const _egoCastType = get(lastResolution, ['options', 'egoCastType']); // eslint-disable-line no-underscore-dangle
 
-          if (_egoCastType) {
-            setEgoCastType(_egoCastType);
-          }
+          setEgoCastType(_egoCastType);
 
           return {
             resolutions: _resolutions,
