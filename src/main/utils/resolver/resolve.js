@@ -48,7 +48,7 @@ const resolve = (
     protocolUID: protocol._id, // eslint-disable-line no-underscore-dangle
     protocolName: lastSession.sessionVariables.protocolName,
     codebookHash: lastSession.sessionVariables.codebookHash,
-    sessionExported: new Date(),
+    sessionExported: new Date().toISOString(),
   };
 
   // Convert any previous cast egos that are still orphans into a
