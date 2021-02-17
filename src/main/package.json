@@ -29,6 +29,7 @@
         "prop-types": "^15.6.2",
         "restify": "^7.2.1",
         "restify-cors-middleware": "^1.1.1",
+        "restify-errors": "^5.0.0",
         "sanitize-filename": "^1.6.3",
         "selfsigned": "^1.10.3",
         "split": "^1.0.1",
@@ -38,7 +39,6 @@
         "mississippi": "^4.0.0"
     },
     "devDependencies": {
-      "restify-errors": "^5.0.0",
       "supertest": "^5.0.0",
       "electron": "^9.2.0"
     },
