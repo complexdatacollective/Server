@@ -1,6 +1,6 @@
 const { Factory } = require('rosie');
 const { uniq } = require('lodash');
-const uuid = require('uuid');
+const uuid = require('uuid/v4');
 
 const transform = new Factory()
   .attr('id', () => uuid())

@@ -1,6 +1,6 @@
 const { Factory } = require('rosie');
 const { DateTime } = require('luxon');
-const uuid = require('uuid');
+const uuid = require('uuid/v4');
 const { transform } = require('./transform');
 
 const resolution = new Factory()

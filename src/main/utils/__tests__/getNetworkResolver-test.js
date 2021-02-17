@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const uuid = require('uuid');
+const uuid = require('uuid/v4');
 const miss = require('mississippi');
 const { getNetworkResolver } = require('../getNetworkResolver');
 
