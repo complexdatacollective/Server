@@ -87,7 +87,7 @@ const EntityResolverScreen = ({
                   initial={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
-                  <h3>1. Existing Snapshots</h3>
+                  <h3>Existing Snapshots</h3>
                   <p>Manage existing resolutions.</p>
                   <Resolutions
                     protocolId={protocolId}
@@ -100,7 +100,7 @@ const EntityResolverScreen = ({
             </AnimatePresence>
 
             <div className="export__section">
-              <h3>{(resolutions.length === 0 ? '1.' : '2.')} Resolve Sessions</h3>
+              <h3>Resolve Sessions</h3>
               <p>Use an external application to resolve nodes in a unified network.</p>
               <NewResolution
                 protocolId={protocolId}
