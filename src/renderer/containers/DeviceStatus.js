@@ -115,7 +115,6 @@ DeviceStatus.defaultProps = {
 DeviceStatus.propTypes = {
   devices: Types.devices,
   loadDevices: PropTypes.func,
-  history: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({
