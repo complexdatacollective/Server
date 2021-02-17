@@ -77,6 +77,7 @@ class Server extends EventEmitter {
         deviceService.httpPort,
         { name: os.hostname() },
       );
+      this.deviceAdvertisement.on('error', logger.error);
       this.deviceAdvertisement.start();
       logger.info(`MDNS: advertising ${JSON.stringify(serviceType)} on ${deviceService.httpPort}`);
     } catch (err) {

@@ -1,3 +1,4 @@
+const uuid = require('uuid/v4');
 const DatabaseAdapter = require('./DatabaseAdapter');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
 const { leastRecentlyCreated, resolveOrReject } = require('../utils/db');
@@ -25,8 +26,9 @@ class ResolverDB extends DatabaseAdapter {
       }
 
       const doc = {
-        protocolId,
         ...resolution,
+        protocolId,
+        uuid: uuid(),
       };
 
       this.db.insert(doc, (err, docs) => {
@@ -57,6 +59,11 @@ class ResolverDB extends DatabaseAdapter {
       }));
   }
 
+  /**
+   * Delete any resolutions associated with a protocol
+   *
+   * @param {string} protocolId ID of related protocol
+   */
   deleteProtocolResolutions(protocolId) {
     return new Promise((resolve, reject) => {
       if (!protocolId) { reject(new Error(missingRequiredIdMessage)); }
@@ -69,6 +76,12 @@ class ResolverDB extends DatabaseAdapter {
     });
   }
 
+  /**
+   * Delete any resolutions after and including a certain date
+   *
+   * @param {string} protocolId ID of related protocol
+   * @param {Date} date Target date for deletion
+   */
   deleteResolutionsSince(protocolId, date) {
     return new Promise((done, reject) => {
       this.db.remove(
@@ -79,6 +92,11 @@ class ResolverDB extends DatabaseAdapter {
     });
   }
 
+  /**
+   * Delete a specific resolution
+   *
+   * @param {string} resolutionId ID of resolution
+   */
   deleteResolution(resolutionId) {
     return new Promise((resolve, reject) => {
       if (!resolutionId) { reject(new Error(missingRequiredIdMessage)); }
@@ -89,7 +107,11 @@ class ResolverDB extends DatabaseAdapter {
       );
     });
   }
-
+  /**
+   * Delete a specific resolution
+   *
+   * @param {array[string]} resolutionIds An array of resolution Id strings
+   */
   deleteResolutions(resolutionIds) {
     return new Promise((resolve, reject) => {
       if (!resolutionIds) { reject(new Error(missingRequiredIdMessage)); }

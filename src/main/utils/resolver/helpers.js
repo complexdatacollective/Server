@@ -16,8 +16,10 @@ const formatResolution = ({
   createdAt,
   transforms,
   options,
+  uuid,
 }) => ({
   id: _id,
+  uuid,
   date: createdAt,
   transformCount: transforms.length,
   options,

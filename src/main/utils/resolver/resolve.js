@@ -40,11 +40,11 @@ const resolve = (
     throw new Error('No resolution to export?');
   }
 
-  const caseId = lastResolution.id;
+  const sessionId = lastResolution.uuid;
 
   const sessionVariables = {
-    caseId,
-    sessionId: 'entity_resolution',
+    caseId: 'Entity Resolution',
+    sessionId,
     protocolUID: protocol._id, // eslint-disable-line no-underscore-dangle
     protocolName: lastSession.sessionVariables.protocolName,
     codebookHash: lastSession.sessionVariables.codebookHash,
