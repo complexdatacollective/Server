@@ -72,10 +72,11 @@ class Server extends EventEmitter {
         { name: os.hostname() },
       );
       const handleError = (error) => {
-        switch(error.errorCode) {
-            case mdns.kDNSServiceErr_BadReference:
-                this.deviceAdvertisement.stop();
-            default:
+        switch (error.errorCode) {
+          case mdns.kDNSServiceErr_BadReference:
+            this.deviceAdvertisement.stop();
+            break;
+          default:
         }
         logger.warn(error);
       };
@@ -98,6 +99,7 @@ class Server extends EventEmitter {
   status() {
     return {
       mdnsIsSupported,
+      // eslint-disable-next-line no-underscore-dangle
       isAdvertising: !!(this.deviceAdvertisement && this.deviceAdvertisement._watcherStarted),
       hostname: os.hostname(),
       publicAddresses: this.connectionInfo.deviceService.publicAddresses,
