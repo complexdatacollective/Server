@@ -1,23 +1,25 @@
 .review {
   width: 100%;
+  text-align: left;
 
   &__stats {
+    margin-top: 2rem;
     width: 100%;
+    background-color: var(--base-background-color);
+    color: var(--input-text);
 
     th {
       padding: 1rem;
-      background-color: var(--inverse-background-color);
-      color: var(--inverse-text-color);
+      font-weight: 200;
     }
 
     td {
-      background-color: var(--base-background-color);
-      color: var(--input-text);
+      font-size: 1.25rem;
     }
 
     tr {
       &:nth-child(2n) {
-        td {
+        td, th {
           background-color: var(--color-platinum);
         }
       }
@@ -26,11 +28,17 @@
       td {
         height: 4rem;
         vertical-align: center;
-        padding: 0 2rem;
+        padding: 0 1rem;
       }
 
       th {
-        width: 150px;
+        // width: 150px;
+      }
+
+      td {
+        text-align: center;
+        padding: 0 .5rem;
+        // width: 100%;
       }
     }
   }
