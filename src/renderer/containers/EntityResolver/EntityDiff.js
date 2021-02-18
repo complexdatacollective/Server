@@ -92,26 +92,26 @@ const EntityDiff = ({
               <div className="entity-diff__table-heading-fill" />
             </td>
             <td className="entity-diff__table-heading">
-              <div className="entity-diff__table-heading-context">
+              <div className="entity-diff__table-heading-context" title={a[properties.nodePrimaryKey]}>
                 {renderCaseID(get(a, properties.case))}
                 <Node {...nodePropsA} />
               </div>
-              <div className="entity-diff__table-heading-cell" title={a[properties.nodePrimaryKey]}>
+              <div className="entity-diff__table-heading-cell" title="Use all attributes from this node">
                 <Radio
-                  label="Use all"
+                  label="Use all attributes"
                   checked={isMatchType === 'LEFT'}
                   input={{ onChange: onSetLeft }}
                 />
               </div>
             </td>
-            <td className="entity-diff__table-heading">
+            <td className="entity-diff__table-heading" title={b[properties.nodePrimaryKey]}>
               <div className="entity-diff__table-heading-context">
                 {renderCaseID(get(b, properties.case))}
                 <Node {...nodePropsB} />
               </div>
-              <div className="entity-diff__table-heading-cell" title={b[properties.nodePrimaryKey]}>
+              <div className="entity-diff__table-heading-cell" title="Use all attributes from this node">
                 <Radio
-                  label="Use all"
+                  label="Use all attributes"
                   checked={isMatchType === 'RIGHT'}
                   input={{ onChange: onSetRight }}
                 />
