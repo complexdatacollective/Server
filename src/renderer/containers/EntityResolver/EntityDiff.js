@@ -80,6 +80,8 @@ const EntityDiff = ({
       ],
     }));
 
+  const matchingRowCount = rows.filter(({ required }) => !required).length;
+
   return (
     <div className="entity-diff">
       <table className="entity-diff__table" cellPadding="0" cellSpacing="0">
@@ -170,13 +172,13 @@ const EntityDiff = ({
               </tr>
             ))
           }
-          { !showHidden &&
+          { !showHidden && matchingRowCount > 0 &&
             <tr>
               <th />
               <td colSpan="3" className="hidden-rows">
 
                 <Button onClick={handleToggleHidden} size="small" color="platinum">
-                  {rows.filter(({ required }) => !required).length} matching rows...
+                  {matchingRowCount} matching rows...
                 </Button>
               </td>
             </tr>
