@@ -43,10 +43,12 @@ const ControlBar = ({
           <Button
             disabled={!isDiffComplete}
             onClick={onNext}
+            autoFocus
+            type="submit"
           >Next</Button>
         }
         { status === states.REVIEW &&
-          <Button onClick={onFinish}>Save and export</Button>
+          <Button onClick={onFinish} autoFocus type="submit">Save and export</Button>
         }
       </div>
     </div>

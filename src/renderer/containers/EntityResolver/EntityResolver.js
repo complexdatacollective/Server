@@ -17,7 +17,7 @@ import './EntityResolver.scss';
 
 const initialDiffState = {
   isTouched: false,
-  isDiffComplete: false,
+  isDiffComplete: true,
   resolvedAttributes: {},
   isMatchType: null,
 };
@@ -48,7 +48,7 @@ const EntityResolver = React.forwardRef(({
 
   const previousDiff = () => {
     if (!(
-      !diffState.isTouched ||
+      !diffState.isTouched || diffState.isMatchType === 'MISMATCH' && diffState.isTouched ||
       window.confirm('Looks like you have set some attributes, are you sure?') // eslint-disable-line
     )) {
       return;
@@ -187,28 +187,30 @@ const EntityResolver = React.forwardRef(({
 
   return (
     <Modal show={resolverState.isActive}>
-      <div className="resolver">
-        <div className="resolver__heading">
-          {heading}
-        </div>
-        <div key={status} className={contentClasses}>
-          <div className="resolver__content">
-            {content}
+      <form>
+        <div className="resolver">
+          <div className="resolver__heading">
+            {heading}
           </div>
+          <div key={status} className={contentClasses}>
+            <div className="resolver__content">
+              {content}
+            </div>
+          </div>
+          <ControlBar
+            currentMatch={currentMatch}
+            onBack={previousDiff}
+            onCancel={handleCancel}
+            onClose={handleClose}
+            onFinish={handleFinish}
+            onNext={nextDiff}
+            isDiffComplete={diffState.isDiffComplete}
+            isLoadingMatches={resolverState.isLoadingMatches}
+            status={status}
+            totalMatches={totalMatches}
+          />
         </div>
-        <ControlBar
-          currentMatch={currentMatch}
-          onBack={previousDiff}
-          onCancel={handleCancel}
-          onClose={handleClose}
-          onFinish={handleFinish}
-          onNext={nextDiff}
-          isDiffComplete={diffState.isDiffComplete}
-          isLoadingMatches={resolverState.isLoadingMatches}
-          status={status}
-          totalMatches={totalMatches}
-        />
-      </div>
+      </form>
     </Modal>
   );
 });

@@ -23,26 +23,26 @@ const EntityDiff = ({
 }) => {
   if (!match || !entityDefinition) { return null; }
 
-  const [diffState, diffActions] = useEntityState(
+  const [
+    {
+      requiredAttributes,
+      resolvedAttributes,
+      isMatchType,
+      isDiffComplete,
+      isTouched,
+    },
+    {
+      setAttributes: onSetAttributes,
+      setNotAMatch: onSetNotAMatch,
+      setLeft: onSetLeft,
+      setRight: onSetRight,
+    }
+  ] = useEntityState(
     entityDefinition,
     match,
     existingResolvedAttributes,
     existingAction,
   );
-
-  const {
-    requiredAttributes,
-    resolvedAttributes,
-    isMatchType,
-    isDiffComplete,
-    isTouched,
-  } = diffState;
-  const {
-    setAttributes: onSetAttributes,
-    setNotAMatch: onSetNotAMatch,
-    setLeft: onSetLeft,
-    setRight: onSetRight,
-  } = diffActions;
 
   const [showHidden, setShowHidden] = useState(false);
 

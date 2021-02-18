@@ -4,14 +4,12 @@ import { createAction, handleActions } from 'redux-actions';
 import { isEqual, isNil, get } from 'lodash';
 import { getRequiredAttributes, getMatchId } from './selectors';
 
-
 const matchTypes = {
   MISMATCH: 'MISMATCH',
   CUSTOM: 'CUSTOM',
   RIGHT: 'RIGHT',
   LEFT: 'LEFT',
 };
-
 
 const getIsDiffValid = (requiredAttributes, resolvedAttributes) =>
   isEqual(requiredAttributes.sort(), Object.keys(resolvedAttributes).sort());
@@ -63,6 +61,7 @@ const checkCompleted = (state) => {
     state.isMatchType === matchTypes.MISMATCH ||
     getIsDiffValid(state.requiredAttributes, state.resolvedAttributes)
   );
+
   const isDiffComplete = state.isTouched && isDiffValid;
 
   return {
@@ -75,7 +74,7 @@ const initialState = {
   match: null,
   entityDefinition: null,
   requiredAttributes: [],
-  isDiffComplete: false,
+  isDiffComplete: true,
   isTouched: false,
   isMatchType: null,
   resolvedAttributes: {},
@@ -121,8 +120,9 @@ const entityDiffReducer = handleActions({
       match: payload.match,
       entityDefinition: payload.entityDefinition,
       requiredAttributes: payload.requiredAttributes,
-      isTouched: false,
-      isMatchType: null,
+      isTouched: true,
+      isMatchType: matchTypes.MISMATCH,
+      isDiffComplete: true,
     };
 
     if (!payload.existingAction) {
