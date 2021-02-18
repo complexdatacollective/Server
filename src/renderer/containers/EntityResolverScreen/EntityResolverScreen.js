@@ -88,7 +88,15 @@ const EntityResolverScreen = ({
                   exit={{ opacity: 0 }}
                 >
                   <h3>Existing Snapshots</h3>
-                  <p>Manage existing resolutions.</p>
+                  <p>Existing resolutions can be managed here.</p>
+                  <p>
+                    'Export' will create a resolved network based on the cases
+                    that were available at that point in time. Later cases will be excluded.
+                  </p>
+                  <p>
+                    You may expand each resolution to see more details about the settings
+                    used to generate resolver matches.
+                  </p>
                   <Resolutions
                     protocolId={protocolId}
                     resolutions={resolutions}
