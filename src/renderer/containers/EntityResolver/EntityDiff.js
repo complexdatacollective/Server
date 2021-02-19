@@ -36,7 +36,7 @@ const EntityDiff = ({
       setNotAMatch: onSetNotAMatch,
       setLeft: onSetLeft,
       setRight: onSetRight,
-    }
+    },
   ] = useEntityState(
     entityDefinition,
     match,

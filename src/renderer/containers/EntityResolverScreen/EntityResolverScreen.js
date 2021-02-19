@@ -90,7 +90,7 @@ const EntityResolverScreen = ({
                   <h3>Existing Snapshots</h3>
                   <p>Existing resolutions can be managed here.</p>
                   <p>
-                    'Export' will create a resolved network based on the cases
+                    <em>Export</em> will create a resolved network based on the cases
                     that were available at that point in time. Later cases will be excluded.
                   </p>
                   <p>

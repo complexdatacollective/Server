@@ -22,18 +22,18 @@ const castEgoAsNode = (codebook, nodeType) =>
     const nodeVariables = toPairs(get(codebook, ['node', nodeType, 'variables'], {}));
     const egoVariables = toPairs(get(codebook, 'ego.variables'));
 
-    const castEgoAttributes = egoVariables.reduce((acc, [egoVariableId, egoVariableDefinition]) => {
+    const castEgoAttributes = egoVariables
+      .reduce((acc, [egoVariableId, egoVariableDefinition]) => {
+        const [castVariableId] = nodeVariables
+          .find(([, nodeVariableDefinition]) =>
+            matchVariable(nodeVariableDefinition, egoVariableDefinition),
+          ) || [egoVariableId]; // If match isn't found use the original egoVariableId
 
-      const [castVariableId] = nodeVariables.find(
-        ([, nodeVariableDefinition]) =>
-          matchVariable(nodeVariableDefinition, egoVariableDefinition),
-      ) || [egoVariableId]; // If match isn't found use the original egoVariableId
-
-      return {
-        ...acc,
-        [castVariableId]: get(ego.attributes, egoVariableId, undefined),
-      };
-    }, {});
+        return {
+          ...acc,
+          [castVariableId]: get(ego.attributes, egoVariableId, undefined),
+        };
+      }, {});
 
     const egoAsNode = {
       ...ego,
