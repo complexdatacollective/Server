@@ -19,7 +19,8 @@
 
     tr {
       &:nth-child(2n) {
-        td, th {
+        td,
+        th {
           background-color: var(--color-platinum);
         }
       }
@@ -29,10 +30,6 @@
         height: 4rem;
         vertical-align: center;
         padding: 0 1rem;
-      }
-
-      th {
-        // width: 150px;
       }
 
       td {
