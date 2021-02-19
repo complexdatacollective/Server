@@ -10,18 +10,24 @@ const { get, toPairs } = require('lodash');
  * or GraphML. We are open to other ways we might be able to handle this.
  */
 
+const matchVariable = (nodeVariableDefinition, egoVariableDefinition) => (
+  nodeVariableDefinition.name && egoVariableDefinition.name &&
+  nodeVariableDefinition.name === egoVariableDefinition.name &&
+  nodeVariableDefinition.type === egoVariableDefinition.type
+);
+
 const castEgoAsNode = (codebook, nodeType) =>
   ({ ego, ...network }) => {
-    const nodeVariables = toPairs(get(codebook.node, [nodeType, 'variables'], {}));
-    const egoVariables = toPairs(codebook.ego.variables);
+    if (!ego) { return network; }
+    const nodeVariables = toPairs(get(codebook, ['node', nodeType, 'variables'], {}));
+    const egoVariables = toPairs(get(codebook, 'ego.variables'));
 
     const castEgoAttributes = egoVariables.reduce((acc, [egoVariableId, egoVariableDefinition]) => {
+
       const [castVariableId] = nodeVariables.find(
-        ([, nodeVariableDefinition]) => (
-          nodeVariableDefinition.name === egoVariableDefinition.name &&
-            nodeVariableDefinition.type === egoVariableDefinition.type
-        ),
-      ) || [egoVariableId];
+        ([, nodeVariableDefinition]) =>
+          matchVariable(nodeVariableDefinition, egoVariableDefinition),
+      ) || [egoVariableId]; // If match isn't found use the original egoVariableId
 
       return {
         ...acc,
