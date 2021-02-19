@@ -1,8 +1,8 @@
 .tip {
   background-color: var(--color-mid-grey);
-  border-radius: unit(2);
-  padding: 0 unit(2);
-  margin: unit(2) 0;
+  border-radius: 1rem;
+  padding: 1rem 1rem;
+  margin: 1rem 0;
   font-size: .9rem;
   color: var(--text-light);
   display: flex;
@@ -11,7 +11,7 @@
   .icon {
     height: 2rem;
     width: 2rem;
-    margin-right: unit(1);
+    margin-right: 1rem;
   }
 
   &__info {
@@ -26,4 +26,3 @@
     background-color: var(--error);
   }
 }
-

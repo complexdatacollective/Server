@@ -8,6 +8,7 @@ import { Button, Spinner } from '@codaco/ui';
 import logger from 'electron-log';
 import Types from '../../types';
 import { selectors as protocolSelectors } from '../../ducks/modules/protocols';
+import Tip from '../../components/Tip';
 import EntityResolver from '../EntityResolver';
 import Resolutions from './Resolutions';
 import NewResolution from './NewResolution';
@@ -78,6 +79,19 @@ const EntityResolverScreen = ({
       />
       <form className="content export" onSubmit={handleSubmit}>
         <h1>Entity Resolver</h1>
+        <div className="export__section">
+          <h3>Introduction</h3>
+          <p>
+            Entity resolution allows you to find pairs of nodes (and egos) across different sessions
+            that represent the same person, place or object. You can then export the resulting
+            &quot;resolved&quot; nodes as a single combined network.
+          </p>
+          <p>
+            This feature is facilitated by sending a list of nodes to your script (typically written
+            in Python), which will returns a list of pairs with scores of the probability of
+            matching.
+          </p>
+        </div>
         <div className="export__options">
           <AnimateSharedLayout>
             <AnimatePresence>
@@ -87,15 +101,19 @@ const EntityResolverScreen = ({
                   initial={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
-                  <h3>Existing Snapshots</h3>
-                  <p>Existing resolutions can be managed here.</p>
+                  <h3>Existing Resolutions</h3>
+                  <p>Existing resolutions can be review, exported and deleted here.</p>
                   <p>
                     <em>Export</em> will create a resolved network based on the cases
                     that were available at that point in time. Later cases will be excluded.
                   </p>
                   <p>
                     You may expand each resolution to see more details about the settings
-                    used to generate resolver matches.
+                    used to generate resolver matches, or to delete the resolution.
+                  </p>
+                  <p>
+                    Because resolutions are cumulative, if you delete an earlier resolution,
+                    all subsequent resolutions will also be removed.
                   </p>
                   <Resolutions
                     protocolId={protocolId}
@@ -108,12 +126,29 @@ const EntityResolverScreen = ({
             </AnimatePresence>
 
             <div className="export__section">
-              <h3>Resolve Sessions</h3>
-              <p>Use an external application to resolve nodes in a unified network.</p>
+              <h3>
+                Resolve Sessions
+              </h3>
+              <p>
+                Create a new resolution using an external script to score nodes
+                according to their similarity. For example, you could use a fuzzy
+                matching algorithm to compare the name fields.
+              </p>
+              <p>
+                Resolutions are cumulative, meaning that the node list sent
+                to your script will have <em>earlier resolutions</em> applied,
+                with any nodes added since remaining unchanged. If you would prefer
+                to resolve all nodes from scratch, you will first need to delete any
+                earlier resolutions.
+              </p>
+
+              <Tip>
+                {unresolved} new session{unresolved === 1 ? '' : 's'} to resolve
+              </Tip>
+
               <NewResolution
                 protocolId={protocolId}
                 onUpdate={setResolverOptions}
-                unresolved={unresolved}
                 egoCastType={egoCastType}
               />
             </div>
