@@ -59,7 +59,7 @@ const resolverReducer = (state, action) => {
   }
 };
 
-const useQueue = () => {
+const useBuffer = () => {
   const queue = useRef([]);
 
   const add = (data) => {
@@ -75,7 +75,7 @@ const useQueue = () => {
 const useResolver = () => {
   const dispatch = useDispatch();
   const resolver = useRef(null);
-  const [addMatch, drainMatches] = useQueue();
+  const [addMatch, drainMatches] = useBuffer();
   const [resolverState, resolverDispatch] = useReducer(resolverReducer, initialState);
 
   const updateMatches = throttle(() => {
@@ -106,7 +106,7 @@ const useResolver = () => {
 
   const cleanupResolver = () => {
     if (!resolver.current) { return; }
-    abortResolver(); // may not be neccessary if we quit, but otherwise
+    abortResolver(); // may not be necessary if we quit, but otherwise
     resolver.current.removeAllListeners('match');
     resolver.current.removeAllListeners('end');
     resolver.current.removeAllListeners('error');
