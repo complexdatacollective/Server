@@ -190,6 +190,7 @@ const requireJsonRequest = (req, res, next) => {
 
 const emittedEvents = {
   SESSIONS_IMPORTED: 'SESSIONS_IMPORTED',
+  NETWORK_STATUS_UPDATE: 'NETWORK_STATUS_UPDATE',
 };
 
 // Any https routes not requiring auth can go here
@@ -254,6 +255,10 @@ class DeviceAPI extends EventEmitter {
   // In the absence of user config, choose the first available
   static get lanIP() {
     return this.publicAddresses[0];
+  }
+
+  static statusUpdate() {
+    sendToGui(emittedEvents.NETWORK_STATUS_UPDATE, true);
   }
 
   get name() { return this.server.name; }

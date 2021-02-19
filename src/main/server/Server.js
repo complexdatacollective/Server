@@ -75,6 +75,7 @@ class Server extends EventEmitter {
         switch (error.errorCode) {
           case mdns.kDNSServiceErr_BadReference:
             this.deviceAdvertisement.stop();
+            DeviceService.statusUpdate();
             break;
           default:
         }

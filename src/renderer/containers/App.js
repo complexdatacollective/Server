@@ -50,6 +50,8 @@ const App = ({
   history,
 }) => {
   const [apiReady, setApiReady] = useState(false);
+  const [networkStatusError, setNetworkStatusError] = useState(false);
+
   const insecure = remote.app.commandLine.hasSwitch('unsafe-pairing-code');
   const dispatch = useDispatch();
 
@@ -132,6 +134,11 @@ const App = ({
 
       history.push('/'); // Root -> Overview -> GetStarted
     });
+
+    // Notify renderer a status change has happened
+    ipcRenderer.on(ipcChannels.NETWORK_STATUS_UPDATE, (_, data) => {
+      setNetworkStatusError(data);
+    });
   }, []);
 
   return (
@@ -155,7 +162,7 @@ const App = ({
                       </p>
                     </div>
                   }
-                  <AppRoutes />
+                  <AppRoutes networkStatusError={networkStatusError} />
                 </div>
               </SessionFileDropTarget>
             </React.Fragment>
