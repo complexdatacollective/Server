@@ -11,9 +11,9 @@ const getNetworkIndicatorStatus = (networkStatus) => {
   return 'pending';
 };
 
-const NetworkStatus = () => {
+const NetworkStatus = (props) => {
   const [showNetworkModal, setShowNetworkModal] = useState(false);
-  const networkStatus = useNetworkStatus([showNetworkModal]);
+  const networkStatus = useNetworkStatus([showNetworkModal, props.networkStatusError]);
 
   const networkStatusClasses = cx(
     'network-status',

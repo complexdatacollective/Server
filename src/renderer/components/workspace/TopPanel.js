@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import DeviceStatus from '../../containers/DeviceStatus';
 import NetworkStatus from '../../containers/NetworkStatus';
 
-const TopPanel = ({ className, children }) => (
+const TopPanel = ({ className, children, networkStatusError }) => (
   <div className={`top-panel ${className}`}>
     <div className="top-panel__wrapper">
-      <NetworkStatus />
+      <NetworkStatus networkStatusError={networkStatusError} />
       <div className="divider" />
       <DeviceStatus />
     </div>
@@ -16,11 +16,13 @@ const TopPanel = ({ className, children }) => (
 
 TopPanel.defaultProps = {
   className: '',
+  networkStatusError: false,
 };
 
 TopPanel.propTypes = {
   className: PropTypes.string,
   children: PropTypes.node.isRequired,
+  networkStatusError: PropTypes.bool,
 };
 
 export {

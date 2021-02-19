@@ -102,6 +102,7 @@ describe('Server', () => {
       mockAdvert = {
         start: jest.fn(),
         stop: jest.fn(),
+        on: jest.fn(),
       };
       mdnsProvider.mdns.createAdvertisement.mockReturnValue(mockAdvert);
       deviceService = new DeviceService({});
