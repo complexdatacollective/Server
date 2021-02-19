@@ -1,6 +1,6 @@
 import { useRef, useReducer, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { isEmpty } from 'lodash';
+import { isEmpty, throttle } from 'lodash';
 import resolverClient from '../utils/resolverClient';
 import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 
@@ -25,6 +25,11 @@ const resolverReducer = (state, action) => {
       return {
         ...state,
         matches: [...state.matches, action.payload],
+      };
+    case 'ADD_MATCHES':
+      return {
+        ...state,
+        matches: [...state.matches, ...action.payload],
       };
     case 'START_RESOLVE':
       return {
@@ -54,13 +59,34 @@ const resolverReducer = (state, action) => {
   }
 };
 
+const useQueue = () => {
+  const queue = useRef([]);
+
+  const add = (data) => {
+    queue.current.push(data);
+  };
+
+  const drain = () =>
+    queue.current.splice(0, queue.current.length);
+
+  return [add, drain];
+};
+
 const useResolver = () => {
   const dispatch = useDispatch();
   const resolver = useRef(null);
+  const [addMatch, drainMatches] = useQueue();
   const [resolverState, resolverDispatch] = useReducer(resolverReducer, initialState);
 
-  const addMatch = data =>
-    resolverDispatch({ type: 'ADD_MATCH', payload: data });
+  const updateMatches = throttle(() => {
+    const matches = drainMatches();
+    resolverDispatch({ type: 'ADD_MATCHES', payload: matches });
+  }, 33); // Approx 30fps
+
+  const handleMatch = (data) => {
+    addMatch(data);
+    updateMatches();
+  };
 
   const updateState = props =>
     resolverDispatch({ type: 'UPDATE', payload: props });
@@ -68,8 +94,10 @@ const useResolver = () => {
   const resetState = (hard = false) =>
     resolverDispatch({ type: 'RESET', payload: { hard } });
 
-  const startResolve = settings =>
+  const startResolve = (settings) => {
+    drainMatches();
     resolverDispatch({ type: 'START_RESOLVE', payload: settings });
+  };
 
   const abortResolver = () => {
     if (!resolver.current) { return; }
@@ -86,8 +114,8 @@ const useResolver = () => {
   };
 
   const handleEnd = () => {
-    updateState({ isLoadingMatches: false });
     cleanupResolver();
+    updateState({ isLoadingMatches: false });
   };
 
   const handleError = (error) => {
@@ -110,7 +138,7 @@ const useResolver = () => {
 
     resolver.current = nextResolver;
 
-    resolver.current.on('match', addMatch);
+    resolver.current.on('match', handleMatch);
     resolver.current.on('end', handleEnd);
     resolver.current.on('error', handleError);
   };
