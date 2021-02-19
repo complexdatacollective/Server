@@ -48,8 +48,8 @@ const EntityResolver = React.forwardRef(({
 
   const previousDiff = () => {
     if (!(
-      !diffState.isTouched || diffState.isMatchType === 'MISMATCH' && diffState.isTouched ||
-      window.confirm('Looks like you have set some attributes, are you sure?') // eslint-disable-line
+      !diffState.isTouched || (diffState.isMatchType === 'MISMATCH' && diffState.isTouched) ||
+      window.confirm('Any choices for this match will be lost, continue?') // eslint-disable-line
     )) {
       return;
     }
