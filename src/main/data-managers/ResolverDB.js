@@ -110,7 +110,7 @@ class ResolverDB extends DatabaseAdapter {
   /**
    * Delete a specific resolution
    *
-   * @param {array[string]} resolutionIds An array of resolution Id strings
+   * @param {Array.<string>} resolutionIds An array of resolution Id strings
    */
   deleteResolutions(resolutionIds) {
     return new Promise((resolve, reject) => {
