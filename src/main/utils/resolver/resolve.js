@@ -1,4 +1,5 @@
-const { sortBy, last } = require('lodash');
+const { sortBy, last, pick } = require('lodash');
+const { writeJsonSync } = require('fs-extra');
 const { transformSessions } = require('./transformSessions');
 const castOrphanEgosAsEgoNodes = require('./castOrphanEgosAsEgoNodes');
 const mergeResolutionMetaAsAttributes = require('./mergeResolutionMetaAsAttributes');
@@ -62,9 +63,17 @@ const resolve = (
   // Merge caseId and parentId into node.attributes
   const mergedNetwork = mergeResolutionMetaAsAttributes(egoNetwork);
 
+  const resultNetwork = { ...mergedNetwork, ego: {}, sessionVariables };
+  const resultProtocol = { // remove ego from codebook
+    ...egoProtocol,
+    codebook: pick(egoProtocol.codebook, ['node', 'edge']),
+  };
+
+  writeJsonSync('/tmp/result.json', { resultNetwork, resultProtocol });
+
   return [
-    [{ ...mergedNetwork, ego: {}, sessionVariables }],
-    egoProtocol,
+    [resultNetwork], // expects an array of sessions
+    resultProtocol,
   ];
 };
 

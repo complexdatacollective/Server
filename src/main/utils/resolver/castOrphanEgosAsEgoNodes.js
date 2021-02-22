@@ -13,14 +13,22 @@ const castOrphanEgosAsEgoNode = (sessions, protocol, resolvedNetwork) => {
     }),
     {},
   );
+
   const egoIds = Object.keys(egos);
 
-  // Create ego type in codebook
+  if (egoIds.length === 0) {
+    return [resolvedNetwork, protocol];
+  }
+
+  /**
+   * Create a replacement node type for ego in codebook
+   * `{ codebook: { node: { _ego } } }`, and omit top
+   * level ego entry
+   */
   const modifiedProtocol = {
     ...protocol,
     codebook: {
-      ...protocol.codebook,
-      ego: {},
+      edge: protocol.codebook.edge,
       node: {
         ...protocol.codebook.node,
         _ego: {
