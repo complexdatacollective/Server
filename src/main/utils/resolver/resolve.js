@@ -1,4 +1,5 @@
 const { sortBy, last, pick } = require('lodash');
+const objectHash = require('object-hash');
 const { transformSessions } = require('./transformSessions');
 const castOrphanEgosAsEgoNodes = require('./castOrphanEgosAsEgoNodes');
 const mergeResolutionMetaAsAttributes = require('./mergeResolutionMetaAsAttributes');
@@ -40,17 +41,6 @@ const resolve = (
     throw new Error('No resolution to export?');
   }
 
-  const sessionId = lastResolution.uuid;
-
-  const sessionVariables = {
-    caseId: 'Entity Resolution',
-    sessionId,
-    protocolUID: protocol._id, // eslint-disable-line no-underscore-dangle
-    protocolName: lastSession.sessionVariables.protocolName,
-    codebookHash: lastSession.sessionVariables.codebookHash,
-    sessionExported: new Date().toISOString(),
-  };
-
   // Convert any previous cast egos that are still orphans into a
   // new node type '_ego', and add them to the network
   const [egoNetwork, egoProtocol] = castOrphanEgosAsEgoNodes(
@@ -62,12 +52,23 @@ const resolve = (
   // Merge caseId and parentId into node.attributes
   const mergedNetwork = mergeResolutionMetaAsAttributes(egoNetwork);
 
-  const resultNetwork = { ...mergedNetwork, ego: {}, sessionVariables };
+  const sessionId = lastResolution.uuid;
+
+  const sessionVariables = {
+    caseId: 'Entity Resolution',
+    sessionId,
+    protocolUID: protocol._id, // eslint-disable-line no-underscore-dangle
+    protocolName: lastSession.sessionVariables.protocolName,
+    codebookHash: objectHash(egoProtocol.codebook), // codebook has changed
+    sessionExported: new Date().toISOString(),
+  };
+
   const resultProtocol = { // remove ego from codebook
     ...egoProtocol,
     codebook: pick(egoProtocol.codebook, ['node', 'edge']),
   };
 
+  const resultNetwork = { ...mergedNetwork, ego: {}, sessionVariables };
 
   return [
     [resultNetwork], // expects an array of sessions
