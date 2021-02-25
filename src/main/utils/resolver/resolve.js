@@ -1,5 +1,4 @@
 const { sortBy, last, pick } = require('lodash');
-const { writeJsonSync } = require('fs-extra');
 const { transformSessions } = require('./transformSessions');
 const castOrphanEgosAsEgoNodes = require('./castOrphanEgosAsEgoNodes');
 const mergeResolutionMetaAsAttributes = require('./mergeResolutionMetaAsAttributes');
@@ -69,7 +68,6 @@ const resolve = (
     codebook: pick(egoProtocol.codebook, ['node', 'edge']),
   };
 
-  writeJsonSync('/tmp/result.json', { resultNetwork, resultProtocol });
 
   return [
     [resultNetwork], // expects an array of sessions
