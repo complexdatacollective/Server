@@ -23,7 +23,7 @@ class AppRoutes extends Component {
     return (
       <main className="app__main" ref={this.scrollContainerRef}>
         <React.Fragment>
-          <TopPanel>
+          <TopPanel {...this.props} >
             <Route path="/workspaces/:id" component={WorkspaceNav} />
           </TopPanel>
           <Switch>

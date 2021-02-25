@@ -27,6 +27,10 @@ class DeviceService extends EventEmitter {
     return DeviceAPI.publicAddresses;
   }
 
+  static statusUpdate(message) {
+    return DeviceAPI.statusUpdate(message);
+  }
+
   get httpPort() { return this.api.httpPort; }
   get httpsPort() { return this.api.httpsPort; }
 

@@ -77,7 +77,18 @@ class Server extends EventEmitter {
         deviceService.httpPort,
         { name: os.hostname() },
       );
-      this.deviceAdvertisement.on('error', logger.error);
+      const handleError = (error) => {
+        switch (error.errorCode) {
+          case mdns.kDNSServiceErr_BadReference:
+            this.deviceAdvertisement.stop();
+            DeviceService.statusUpdate();
+            break;
+          default:
+        }
+        logger.warn(error);
+      };
+      this.deviceAdvertisement.on('error', handleError);
+
       this.deviceAdvertisement.start();
       logger.info(`MDNS: advertising ${JSON.stringify(serviceType)} on ${deviceService.httpPort}`);
     } catch (err) {
@@ -95,7 +106,8 @@ class Server extends EventEmitter {
   status() {
     return {
       mdnsIsSupported,
-      isAdvertising: !!this.deviceAdvertisement,
+      // eslint-disable-next-line no-underscore-dangle
+      isAdvertising: !!(this.deviceAdvertisement && this.deviceAdvertisement._watcherStarted),
       hostname: os.hostname(),
       publicAddresses: this.connectionInfo.deviceService.publicAddresses,
       deviceApiPort: this.connectionInfo.deviceService.httpPort,
