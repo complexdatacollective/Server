@@ -57,7 +57,7 @@
         "cross-env": "^5.2.0",
         "css-loader": "^1.0.0",
         "dotenv": "^6.0.0",
-        "electron": "^9.2.0",
+        "electron": "9.4.4",
         "electron-builder": "^22.8.0",
         "electron-devtools-installer": "^2.2.4",
         "electron-log": "^4.2.4",
@@ -176,37 +176,37 @@
             "certificateSha1": "512E5573B1961B0ADCAFB21288935F8A3E6E656F"
         },
         "linux": {
-          "maintainer": "Joshua Melville <joshmelville@gmail.com>",
-          "target": [
-            {
-              "target": "deb",
-              "arch": [
-                "x64",
-                "arm64"
-              ]
-            },
-            {
-              "target": "rpm",
-              "arch": [
-                "x64",
-                "arm64"
-              ]
-            },
-            {
-              "target": "AppImage",
-              "arch": [
-                "x64",
-                "arm64"
-              ]
-            },
-            {
-              "target": "tar.gz",
-              "arch": [
-                "x64",
-                "arm64"
-              ]
-            }
-          ]
+            "maintainer": "Joshua Melville <joshmelville@gmail.com>",
+            "target": [
+                {
+                    "target": "deb",
+                    "arch": [
+                        "x64",
+                        "arm64"
+                    ]
+                },
+                {
+                    "target": "rpm",
+                    "arch": [
+                        "x64",
+                        "arm64"
+                    ]
+                },
+                {
+                    "target": "AppImage",
+                    "arch": [
+                        "x64",
+                        "arm64"
+                    ]
+                },
+                {
+                    "target": "tar.gz",
+                    "arch": [
+                        "x64",
+                        "arm64"
+                    ]
+                }
+            ]
         },
         "publish": [
             {
