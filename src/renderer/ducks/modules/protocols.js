@@ -55,6 +55,13 @@ const currentCodebook = (state, props) => {
   return protocol.codebook || {};
 };
 
+const nodeDefinitions = (state, protocolId) => {
+  const protocol = currentProtocol(state, { protocolId });
+  if (!protocol) { return []; }
+
+  return protocol.codebook.node || {};
+};
+
 const distributionVariableTypes = ['ordinal', 'categorical'];
 const isDistributionVariable = variable => distributionVariableTypes.includes(variable.type);
 
@@ -166,6 +173,7 @@ const selectors = {
   isDistributionVariable,
   protocolsHaveLoaded,
   ordinalAndCategoricalVariables,
+  nodeDefinitions,
 };
 
 export {

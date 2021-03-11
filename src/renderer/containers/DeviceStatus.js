@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { compose } from 'recompose';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
 import { Button } from '@codaco/ui';
 import ReactTooltip from 'react-tooltip';
 import Types from '../types';
@@ -116,7 +115,6 @@ DeviceStatus.defaultProps = {
 DeviceStatus.propTypes = {
   devices: Types.devices,
   loadDevices: PropTypes.func,
-  history: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -130,7 +128,6 @@ const mapDispatchToProps = {
 
 export default compose(
   connect(mapStateToProps, mapDispatchToProps),
-  withRouter,
 )(DeviceStatus);
 
 export {

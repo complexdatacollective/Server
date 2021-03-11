@@ -682,6 +682,14 @@ class ProtocolManager {
     return this.sessionDb.findAll(protocolId, limit, undefined, sort, filterValue);
   }
 
+  getProtocolSession(protocolId, sessionId) {
+    return this.sessionDb.find({ protocolId, _id: sessionId })
+      .then((result) => {
+        if (result.length === 0) { return null; }
+        return result[0];
+      });
+  }
+
   /**
    * Delete one or more sessions from a protocol
    * @param {string} protocolId ID of an existing protocol

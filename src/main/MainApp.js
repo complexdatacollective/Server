@@ -153,6 +153,10 @@ const createApp = () => {
           label: 'Generate small test dataset...',
           click: () => generateTestSessions(100),
         },
+        {
+          label: 'Generate tiny test dataset...',
+          click: () => generateTestSessions(3),
+        },
         { type: 'separator' },
         {
           label: 'Regenerate Certificates...',
