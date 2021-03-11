@@ -6,7 +6,7 @@ import {
 import { TopPanel, WorkspaceNav } from '../components';
 
 import { CaseManagement, ExportScreen, OverviewScreen, PairDevice, SettingsScreen, WorkspaceScreen } from './';
-import EntityResolverScreen from './EntityResolverScreen';
+// import EntityResolverScreen from './EntityResolverScreen';
 
 class AppRoutes extends Component {
   constructor(props) {
@@ -32,7 +32,13 @@ class AppRoutes extends Component {
             <Route exact path="/workspaces/:id/casemanagement" component={CaseManagement} />
             <Route exact path="/workspaces/:id/settings" render={props => (<SettingsScreen {...props} />)} />
             <Route exact path="/workspaces/:id/export" render={props => (<ExportScreen {...props} />)} />
-            <Route exact path="/workspaces/:id/resolve" render={props => (<EntityResolverScreen {...props} />)} />
+            {/*
+              <Route
+                exact
+                path="/workspaces/:id/resolve"
+                render={props => (<EntityResolverScreen {...props} />)}
+              />
+            */}
           </Switch>
         </React.Fragment>
         <PairDevice />
