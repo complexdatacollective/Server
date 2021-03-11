@@ -3,12 +3,12 @@ const logger = require('electron-log');
 const { BrowserWindow, ipcMain } = require('electron');
 const corsMiddleware = require('restify-cors-middleware');
 const detectPort = require('detect-port');
-const { toNumber, throttle } = require('lodash');
-
+const { toNumber, throttle, get } = require('lodash');
 const apiRequestLogger = require('./apiRequestLogger');
 const DeviceManager = require('../data-managers/DeviceManager');
 const ProtocolManager = require('../data-managers/ProtocolManager');
 const ExportManager = require('../data-managers/ExportManager');
+const ResolverManager = require('../data-managers/ResolverManager');
 const { resetPemKeyPair } = require('./certificateManager');
 const { PairingRequestService } = require('./devices/PairingRequestService');
 const { RequestError, ErrorMessages } = require('../errors/RequestError');
@@ -65,6 +65,7 @@ class AdminService {
     this.deviceManager = new DeviceManager(dataDir);
     this.protocolManager = new ProtocolManager(dataDir);
     this.exportManager = new ExportManager(dataDir);
+    this.resolverManager = new ResolverManager(dataDir);
     this.pairingRequestService = new PairingRequestService();
     this.reportDb = this.protocolManager.reportDb;
     this.exportRequestState = [];
@@ -307,6 +308,55 @@ class AdminService {
         .then(() => next());
     });
 
+
+    api.get('/protocols/:protocolId/resolutions', (req, res, next) => {
+      apiRequestLogger('AdminAPI')(req, { statusCode: 0 }); // log request start
+
+      this.resolverManager.getResolutionsWithSessionCounts(req.params.protocolId)
+        .then(results =>
+          res.send({ status: 'ok', ...results }),
+        )
+        .catch((err) => {
+          logger.error(err);
+          res.send(500, { status: 'error' });
+        })
+        .then(() => next());
+    });
+
+    api.post('/protocols/:protocolId/resolutions', (req, res, next) => {
+      apiRequestLogger('AdminAPI')(req, { statusCode: 0 }); // log request start
+
+      const { resolution } = req.body;
+
+      this.resolverManager.saveResolution(
+        req.params.protocolId,
+        resolution,
+      )
+        .then(({ _id: resolutionId }) =>
+          res.send({ status: 'ok', resolutionId }),
+        )
+        .catch((err) => {
+          logger.error(err);
+          res.send(codeForError(err), { status: 'error', message: err.message });
+        })
+        .then(() => next());
+    });
+
+    api.del('/protocols/:protocolId/resolutions/:resolutionId', (req, res, next) => {
+      apiRequestLogger('AdminAPI')(req, { statusCode: 0 }); // log request start
+
+      this.resolverManager.deleteResolution(
+        req.params.protocolId,
+        req.params.resolutionId,
+      )
+        .then(ids => res.send({ status: 'ok', ids }))
+        .catch((err) => {
+          logger.error(err);
+          res.send(codeForError(err), { status: 'error', message: err.message });
+        })
+        .finally(next);
+    });
+
     // See ExportManager#createExportFile for possible req body params
     // Handles export in a single, long-lived http request
     api.post('/protocols/:protocolId/export_requests', (req, res, next) => {
@@ -330,7 +380,7 @@ class AdminService {
           this.exportManager.exportSessions(protocol, req.body),
         )
         .then(({
-          exportSessions, // Export promise decorated with abord method
+          exportSessions, // Export promise decorated with abort method
           fileExportManager, // Instance of FileExportManager for event binding
         }) => {
           const reportUpdate = throttle((data) => {
@@ -385,7 +435,8 @@ class AdminService {
 
     api.del('/protocols/:protocolId', (req, res, next) => {
       const { protocolId } = req.params;
-      this.protocolManager.deleteProtocolSessions(protocolId)
+      this.resolverManager.deleteProtocolResolutions(protocolId)
+        .then(() => this.protocolManager.deleteProtocolSessions(protocolId))
         .then(() => this.protocolManager.getProtocol(protocolId))
         .then(protocol => this.protocolManager.destroyProtocol(protocol))
         .then(() => res.send({ status: 'ok' }))
@@ -397,7 +448,9 @@ class AdminService {
     });
 
     api.del('/protocols/:protocolId/sessions', (req, res, next) => {
-      this.protocolManager.deleteProtocolSessions(req.params.protocolId)
+      const protocolId = req.params.protocolId;
+      this.resolverManager.deleteProtocolResolutions(protocolId)
+        .then(() => this.protocolManager.deleteProtocolSessions(protocolId))
         .then(() => res.send({ status: 'ok' }))
         .catch((err) => {
           logger.error(err);
@@ -407,7 +460,16 @@ class AdminService {
     });
 
     api.del('/protocols/:protocolId/sessions/:id', (req, res, next) => {
-      this.protocolManager.deleteProtocolSessions(req.params.protocolId, req.params.id)
+      // Delete resolutions after session id?
+      const protocolId = req.params.protocolId;
+      const sessionId = req.params.id;
+
+      this.protocolManager.getProtocolSession(protocolId, sessionId)
+        .then((result) => {
+          const date = get(result, ['createdAt']);
+          return this.resolverManager.deleteResolutionsSince(protocolId, date);
+        })
+        .then(() => this.protocolManager.deleteProtocolSessions(protocolId, sessionId))
         .then(() => res.send({ status: 'ok' }))
         .catch((err) => {
           logger.error(err);

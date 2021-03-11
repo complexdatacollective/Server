@@ -49,6 +49,7 @@ const initialState = {
   attributeList: true,
   edgeList: true,
   egoAttributeList: true,
+  resolverSettings: {},
 };
 
 const useExportOptions = () => {
@@ -68,10 +69,13 @@ const useExportOptions = () => {
     ...pick(formState, Object.keys(baseGlobalOptions)),
   };
 
+  const resolverSettings = formState.resolverSettings;
+
   const exportOptions = {
     exportGraphML: formState.exportFormats.includes('GRAPHML'),
     exportCSV: !formState.exportFormats.includes('CSV') ? false : exportCSVOptions,
     globalOptions,
+    resolveEntities: resolverSettings.selectedResolution ? resolverSettings : false,
   };
 
   return [exportOptions, formState, handleUpdateFormState];

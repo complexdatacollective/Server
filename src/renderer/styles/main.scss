@@ -51,7 +51,7 @@ $font-path: '~@codaco/ui/lib/assets/fonts'; // relative to here
 
   li {
     padding: 0 unit(2);
-    width: 15rem;
+    width: 13.5rem; // can be reverted to 15rem when we remove the extra tab
     font-size: 0.8rem;
     font-weight: 700;
     text-transform: uppercase;

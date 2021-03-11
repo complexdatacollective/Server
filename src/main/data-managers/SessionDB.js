@@ -74,6 +74,12 @@ class SessionDB extends Reportable(DatabaseAdapter) {
     });
   }
 
+  find(query) {
+    return new Promise((resolve, reject) => {
+      this.db.find(query, { multi: true }, resolveOrReject(resolve, reject));
+    });
+  }
+
   /**
    * Delete (destroy) one or more sessions associated with a protocol
    */
