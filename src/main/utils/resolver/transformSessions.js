@@ -1,6 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 const { DateTime } = require('luxon');
-const { get, find, reduce, uniq } = require('lodash');
+const {
+  get, find, reduce, uniq,
+} = require('lodash');
 const {
   formatSession,
   formatResolution,
@@ -12,24 +14,23 @@ const castEgoAsNode = require('./castEgoAsNode');
 // 1. chunk sessions by resolutions
 // Maybe resolutions should include references to included sessions rather than
 // calculating it?
-const getSessionsByResolution = (resolutions, sessions) =>
-  sessions.reduce((memo, session) => {
-    const sessionDate = DateTime.fromJSDate(session.date);
+const getSessionsByResolution = (resolutions, sessions) => sessions.reduce((memo, session) => {
+  const sessionDate = DateTime.fromJSDate(session.date);
 
-    const resolution = find(
-      resolutions,
-      ({ date }) => DateTime.fromJSDate(date) > sessionDate,
-    );
+  const resolution = find(
+    resolutions,
+    ({ date }) => DateTime.fromJSDate(date) > sessionDate,
+  );
 
-    const resolutionId = (resolution && resolution.id) || '_unresolved';
+  const resolutionId = (resolution && resolution.id) || '_unresolved';
 
-    const group = get(memo, [resolutionId], []);
+  const group = get(memo, [resolutionId], []);
 
-    return {
-      ...memo,
-      [resolutionId]: [...group, session],
-    };
-  }, {});
+  return {
+    ...memo,
+    [resolutionId]: [...group, session],
+  };
+}, {});
 
 /**
  * Apply a single transformation to the network.
@@ -103,7 +104,7 @@ const applyTransform = (network, transform) => {
   }]);
 
   // Update edges to point to this newly inserted node
-  const edges = network.edges.map(edge => ({
+  const edges = network.edges.map((edge) => ({
     ...edge,
     from: transform.nodes.includes(edge.from) ? transform.id : edge.from,
     to: transform.nodes.includes(edge.to) ? transform.id : edge.to,

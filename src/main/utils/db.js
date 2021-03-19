@@ -1,4 +1,4 @@
-const { caseProperty } = require('../utils/network-exporters/src/utils/reservedAttributes');
+const { caseProperty } = require('./network-exporters/src/utils/reservedAttributes');
 
 const resolveOrReject = (resolve, reject) => (err, data) => {
   if (err) {

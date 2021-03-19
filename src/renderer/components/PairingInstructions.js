@@ -22,7 +22,7 @@ const PairingInstructions = ({
           Status&apos; panel.
         </li>
         { networkStatus.mdnsIsSupported && (
-          <React.Fragment>
+          <>
             <li className="instructions__step">
               Still in Interviewer, check to see if your computer running Server appears in panel
               titled &apos;Looking for nearby Servers&apos;. If this Server appears in the panel,
@@ -33,11 +33,14 @@ const PairingInstructions = ({
               you can provide manual connection details to pair. Expand the section below to
               view this computer&apos;s IP address(es) and port.
             </li>
-          </React.Fragment>
+          </>
         )}
         { !networkStatus.mdnsIsSupported && (
           <li>
-            The automatic discovery service is <strong>not functioning on this device</strong>, so
+            The automatic discovery service is
+            {' '}
+            <strong>not functioning on this device</strong>
+            , so
             you will need to provide manual connection details to your device running Interviewer.
             Consult the table below to find the IP address of this computer, along with the port.
             Enter these details into the manual connection details dialog within Interviewer.
@@ -45,9 +48,11 @@ const PairingInstructions = ({
         )}
       </ol>
       {
-        showNetworkInformation &&
+        showNetworkInformation
+        && (
         <section className="instructions__subsection">
-          { networkStatus &&
+          { networkStatus
+            && (
             <details>
               <summary>Manual Connection Details</summary>
               <br />
@@ -57,15 +62,22 @@ const PairingInstructions = ({
                 discoverable={false}
               />
               <p>
-                <strong>Tip:</strong> Use the copy button to easily copy the data below
+                <strong>Tip:</strong>
+                {' '}
+                Use the copy button to easily copy the data below
                 into your clipboard.
               </p>
             </details>
-          }
+            )}
         </section>
+        )
       }
       <p>
-        Please see our <ExternalLink href="https://documentation.networkcanvas.com/docs/key-concepts/pairing/">documentation</ExternalLink> for further information on pairing and networking setup.
+        Please see our
+        {' '}
+        <ExternalLink href="https://documentation.networkcanvas.com/docs/key-concepts/pairing/">documentation</ExternalLink>
+        {' '}
+        for further information on pairing and networking setup.
       </p>
     </div>
   );

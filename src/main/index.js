@@ -49,7 +49,6 @@ process.on('unhandledRejection', (err) => {
   handleErrorAndClose(err, 'unhandledRejection');
 });
 
-
 process.on('uncaughtException', (err) => {
   handleErrorAndClose(err, 'uncaughtException');
 });

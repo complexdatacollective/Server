@@ -11,43 +11,40 @@ const { get, toPairs } = require('lodash');
  */
 
 const matchVariable = (nodeVariableDefinition, egoVariableDefinition) => (
-  nodeVariableDefinition.name && egoVariableDefinition.name &&
-  nodeVariableDefinition.name === egoVariableDefinition.name &&
-  nodeVariableDefinition.type === egoVariableDefinition.type
+  nodeVariableDefinition.name && egoVariableDefinition.name
+  && nodeVariableDefinition.name === egoVariableDefinition.name
+  && nodeVariableDefinition.type === egoVariableDefinition.type
 );
 
-const castEgoAsNode = (codebook, nodeType) =>
-  ({ ego, ...network }) => {
-    if (!ego) { return network; }
-    const nodeVariables = toPairs(get(codebook, ['node', nodeType, 'variables'], {}));
-    const egoVariables = toPairs(get(codebook, 'ego.variables'));
+const castEgoAsNode = (codebook, nodeType) => ({ ego, ...network }) => {
+  if (!ego) { return network; }
+  const nodeVariables = toPairs(get(codebook, ['node', nodeType, 'variables'], {}));
+  const egoVariables = toPairs(get(codebook, 'ego.variables'));
 
-    const castEgoAttributes = egoVariables
-      .reduce((acc, [egoVariableId, egoVariableDefinition]) => {
-        const [castVariableId] = nodeVariables
-          .find(([, nodeVariableDefinition]) =>
-            matchVariable(nodeVariableDefinition, egoVariableDefinition),
-          ) || [egoVariableId]; // If match isn't found use the original egoVariableId
+  const castEgoAttributes = egoVariables
+    .reduce((acc, [egoVariableId, egoVariableDefinition]) => {
+      const [castVariableId] = nodeVariables
+        .find(([, nodeVariableDefinition]) => matchVariable(nodeVariableDefinition, egoVariableDefinition)) || [egoVariableId]; // If match isn't found use the original egoVariableId
 
-        return {
-          ...acc,
-          [castVariableId]: get(ego.attributes, egoVariableId, undefined),
-        };
-      }, {});
+      return {
+        ...acc,
+        [castVariableId]: get(ego.attributes, egoVariableId, undefined),
+      };
+    }, {});
 
-    const egoAsNode = {
-      ...ego,
-      type: nodeType,
-      attributes: castEgoAttributes,
-    };
-
-    const newNetwork = {
-      ...network,
-      nodes: [...network.nodes, egoAsNode],
-      edges: network.edges,
-    };
-
-    return newNetwork;
+  const egoAsNode = {
+    ...ego,
+    type: nodeType,
+    attributes: castEgoAttributes,
   };
+
+  const newNetwork = {
+    ...network,
+    nodes: [...network.nodes, egoAsNode],
+    edges: network.edges,
+  };
+
+  return newNetwork;
+};
 
 module.exports = castEgoAsNode;

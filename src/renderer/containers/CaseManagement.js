@@ -14,9 +14,11 @@ import { CaseTable } from '../components';
 import withSessions from './workspace/withSessions';
 import Types from '../types';
 
-const emptyContent = (<p>
-  Interviews you import from Network Canvas Interviewer will appear here.
-</p>);
+const emptyContent = (
+  <p>
+    Interviews you import from Network Canvas Interviewer will appear here.
+  </p>
+);
 
 class CaseManagement extends Component {
   constructor(props) {
@@ -50,30 +52,39 @@ class CaseManagement extends Component {
 
     return (
       <div>
-        { this.state.sessionsToDelete.length > 0 &&
+        { this.state.sessionsToDelete.length > 0
+          && (
           <div className="case-management__delete-section">
-            {sessionsToDelete.length} cases are selected
+            {sessionsToDelete.length}
+            {' '}
+            cases are selected
             <Button size="small" onClick={() => this.deleteSelectedSessions(this.state.sessionsToDelete)}>
               Delete selected cases
             </Button>
-            { this.allSessionsSelected() && sessionsToDelete.length !== totalSessionsCount &&
-              <React.Fragment>
+            { this.allSessionsSelected() && sessionsToDelete.length !== totalSessionsCount
+              && (
+              <>
                 or
                 <Button size="small" color="tomato" onClick={() => this.deleteAllSessions()}>
-                  Delete all {totalSessionsCount} cases
+                  Delete all
+                  {' '}
+                  {totalSessionsCount}
+                  {' '}
+                  cases
                 </Button>
-              </React.Fragment>
-            }
+              </>
+              )}
           </div>
-        }
+          )}
       </div>
     );
   }
 
-  isSessionSelected = id => includes(this.state.sessionsToDelete, id);
+  isSessionSelected = (id) => includes(this.state.sessionsToDelete, id);
 
   allSessionsSelected = () => this.state.sessionsToDelete.length === this.props.sessions.filter(
-    session => !!session).length;
+    (session) => !!session,
+  ).length;
 
   updateSessionsToDelete = (id) => {
     if (includes(this.state.sessionsToDelete, id)) {
@@ -92,7 +103,8 @@ class CaseManagement extends Component {
     let selectedSessions = [];
     if (this.state.sessionsToDelete.length !== this.props.sessions.length) {
       selectedSessions = this.props.sessions.filter(
-        session => !!session).map(session => session.id);
+        (session) => !!session,
+      ).map((session) => session.id);
     }
     this.setState({
       sessionsToDelete: [...selectedSessions],
@@ -113,7 +125,6 @@ class CaseManagement extends Component {
       message: 'Are you sure you want to delete selected interview sessions? This action cannot be undone!',
     });
   }
-
 
   deleteAllSessions = () => {
     this.props.openDialog({
@@ -148,13 +159,14 @@ class CaseManagement extends Component {
       classes = 'case-management--loading';
     } else {
       content = (
-        <React.Fragment>
+        <>
           <h1>Manage Cases</h1>
           <div className="case-management__header">{this.header}</div>
           {this.deleteSection}
           {(sessions && sessions.length === 0) && emptyContent }
           {
-            (sessions && sessions.length !== 0) &&
+            (sessions && sessions.length !== 0)
+              && (
               <div className="case-management__table">
                 <AutoSizer>
                   {({ height, width }) => (
@@ -175,8 +187,9 @@ class CaseManagement extends Component {
                   )}
                 </AutoSizer>
               </div>
+              )
           }
-        </React.Fragment>
+        </>
       );
       classes = 'content case-management';
     }

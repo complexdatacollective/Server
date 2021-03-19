@@ -2,7 +2,7 @@ const split = require('split');
 
 const args = process.argv.slice(2);
 
-const doThing = input =>
+const doThing = (input) =>
   // input.split('').reverse().join('');
   [input.toUpperCase(), '.end'].join('');
 

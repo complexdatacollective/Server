@@ -36,11 +36,14 @@ class FileDropTarget extends Component {
 
   componentWillUnmount() {
     ipcRenderer.removeListener(
-      ipcChannels.PROTOCOL_IMPORT_START, this.showStartProtocolImportToast);
+      ipcChannels.PROTOCOL_IMPORT_START, this.showStartProtocolImportToast,
+    );
     ipcRenderer.removeListener(
-      ipcChannels.PROTOCOL_IMPORT_FAILURE, this.showProtocolImportFailureToast);
+      ipcChannels.PROTOCOL_IMPORT_FAILURE, this.showProtocolImportFailureToast,
+    );
     ipcRenderer.removeListener(
-      ipcChannels.PROTOCOL_IMPORT_SUCCESS, this.showCompleteProtocolImportToast);
+      ipcChannels.PROTOCOL_IMPORT_SUCCESS, this.showCompleteProtocolImportToast,
+    );
   }
 
   onDragEnter() {
@@ -80,7 +83,7 @@ class FileDropTarget extends Component {
     this.apiClient
       .post('/importProtocols', { files })
       .then(() => loadProtocols()) // Refresh protocols
-      .catch(err => this.showErrorDialog(err.message || 'Could not save file'));
+      .catch((err) => this.showErrorDialog(err.message || 'Could not save file'));
   }
 
   showErrorDialog = (error) => {
@@ -100,12 +103,15 @@ class FileDropTarget extends Component {
       CustomIcon: (<Spinner small />),
       autoDismiss: false,
       content: (
-        <React.Fragment>
+        <>
           <p>
-            Importing {fileBasename}...
+            Importing
+            {' '}
+            {fileBasename}
+            ...
           </p>
           <ProgressBar orientation="horizontal" percentProgress={30} />
-        </React.Fragment>
+        </>
       ),
     });
   };
@@ -117,13 +123,17 @@ class FileDropTarget extends Component {
       CustomIcon: (<Icon name="error" />),
       autoDismiss: false,
       content: (
-        <React.Fragment>
+        <>
           <p>
-            Importing {fileBasename} failed!
+            Importing
+            {' '}
+            {fileBasename}
+            {' '}
+            failed!
           </p>
           <strong>Error details:</strong>
           <p>{(err && err.message) || err}</p>
-        </React.Fragment>
+        </>
       ),
     });
   };
@@ -135,11 +145,13 @@ class FileDropTarget extends Component {
       type: 'success',
       title: 'Import protocol complete!',
       content: (
-        <React.Fragment>
+        <>
           <p>
-            The protocol &quot;{protocolName}&quot; was imported successfully.
+            The protocol &quot;
+            {protocolName}
+            &quot; was imported successfully.
           </p>
-        </React.Fragment>
+        </>
       ),
     });
   };
@@ -185,7 +197,7 @@ FileDropTarget.propTypes = {
   updateToast: PropTypes.func,
 };
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   loadProtocols: bindActionCreators(protocolActionCreators.loadProtocols, dispatch),
   openDialog: bindActionCreators(dialogActions.openDialog, dispatch),
   addToast: bindActionCreators(toastActions.addToast, dispatch),

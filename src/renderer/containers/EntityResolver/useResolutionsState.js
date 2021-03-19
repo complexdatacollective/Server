@@ -40,9 +40,9 @@ const getNextMatchIndex = (resolutions, matches, actions) => {
 };
 
 const getPreviousMatchIndex = (actions, untilIndex) => {
-  const actionsUntilIndex = untilIndex ?
-    actions.filter(({ index }) => index < untilIndex) :
-    actions;
+  const actionsUntilIndex = untilIndex
+    ? actions.filter(({ index }) => index < untilIndex)
+    : actions;
   const { index } = findLast(actionsUntilIndex, ({ action }) => action !== resolveTypes.implicit);
 
   return index;
@@ -63,9 +63,8 @@ const resolveMatchAction = createAction(
   }),
 );
 
-const resolveMatch = (match, attributes) =>
-  resolveMatchAction(match, resolveTypes.match, attributes);
-const skipMatch = match => resolveMatchAction(match, resolveTypes.skip);
+const resolveMatch = (match, attributes) => resolveMatchAction(match, resolveTypes.match, attributes);
+const skipMatch = (match) => resolveMatchAction(match, resolveTypes.skip);
 const nextMatch = createAction('NEXT_ENTITY');
 const previousMatch = createAction('PREVIOUS_ENTITY');
 const reset = createAction('RESET');
@@ -77,14 +76,13 @@ export const actionCreators = {
   previousMatch,
 };
 
-export const reduceActions = matches =>
-  ({ actions, resolutions }, { payload: { match, action } }) => {
-    const newEntry = { index: match.index, action };
-    const matchIndex = actions.findIndex(({ index }) => index === match.index);
-    const priorMatches = matchIndex !== -1 ? actions.slice(0, matchIndex) : actions;
+export const reduceActions = (matches) => ({ actions, resolutions }, { payload: { match, action } }) => {
+  const newEntry = { index: match.index, action };
+  const matchIndex = actions.findIndex(({ index }) => index === match.index);
+  const priorMatches = matchIndex !== -1 ? actions.slice(0, matchIndex) : actions;
 
-    return getNextMatchIndex(resolutions, matches, [...priorMatches, newEntry]);
-  };
+  return getNextMatchIndex(resolutions, matches, [...priorMatches, newEntry]);
+};
 
 const getLatestXorResolutionNodes = (state, includeEntity, excludeEntity) => {
   const resolution = findLast(
@@ -132,52 +130,51 @@ const initialState = {
   currentMatchIndex: 0,
 };
 
-const entityResolutionReducer = matches =>
-  handleActions(
-    {
-      [resolveMatchAction]: (state, { payload: { match, action, attributes } }) => {
-        const resolutions = reduceResolutions(
-          state.resolutions,
-          { payload: { match, action, attributes } },
-        );
+const entityResolutionReducer = (matches) => handleActions(
+  {
+    [resolveMatchAction]: (state, { payload: { match, action, attributes } }) => {
+      const resolutions = reduceResolutions(
+        state.resolutions,
+        { payload: { match, action, attributes } },
+      );
 
-        const actions = reduceActions(matches)(
-          { actions: state.actions, resolutions },
-          { payload: { match, action } },
-        );
+      const actions = reduceActions(matches)(
+        { actions: state.actions, resolutions },
+        { payload: { match, action } },
+      );
 
-        const newState = {
-          ...state,
-          ...actions, // { actions, currentMatchIndex }
-          resolutions,
-        };
-
-        return newState;
-      },
-      [previousMatch]: (state) => {
-        const previousMatchIndex = getPreviousMatchIndex(state.actions, state.currentMatchIndex);
-
-        const actions = state.actions
-          .filter(({ index }) => index <= previousMatchIndex);
-        // keep the last resolution so that we can see it in entity diff
-        const resolutions = state.resolutions
-          .filter(({ matchIndex }) => matchIndex <= previousMatchIndex);
-
-        return {
-          ...state,
-          actions,
-          resolutions,
-          currentMatchIndex: previousMatchIndex,
-        };
-      },
-      [nextMatch]: state => ({
+      const newState = {
         ...state,
-        currentMatchIndex: state.currentMatchIndex + 1,
-      }),
-      [reset]: () => initialState,
+        ...actions, // { actions, currentMatchIndex }
+        resolutions,
+      };
+
+      return newState;
     },
-    initialState,
-  );
+    [previousMatch]: (state) => {
+      const previousMatchIndex = getPreviousMatchIndex(state.actions, state.currentMatchIndex);
+
+      const actions = state.actions
+        .filter(({ index }) => index <= previousMatchIndex);
+        // keep the last resolution so that we can see it in entity diff
+      const resolutions = state.resolutions
+        .filter(({ matchIndex }) => matchIndex <= previousMatchIndex);
+
+      return {
+        ...state,
+        actions,
+        resolutions,
+        currentMatchIndex: previousMatchIndex,
+      };
+    },
+    [nextMatch]: (state) => ({
+      ...state,
+      currentMatchIndex: state.currentMatchIndex + 1,
+    }),
+    [reset]: () => initialState,
+  },
+  initialState,
+);
 
 const useResolutionsState = (matches, resetOnProps) => {
   const [state, dispatch] = useReducer(entityResolutionReducer(matches), initialState);
@@ -199,8 +196,7 @@ const useResolutionsState = (matches, resetOnProps) => {
   // check if there is an existing resolution
   const existingResolution = state.resolutions
     .find(
-      ({ matchIndex: resolutionMatchIndex }) =>
-        resolutionMatchIndex === state.currentMatchIndex,
+      ({ matchIndex: resolutionMatchIndex }) => resolutionMatchIndex === state.currentMatchIndex,
     );
   const existingResolvedAttributes = get(existingResolution, 'attributes');
   const existingAction = state.actions

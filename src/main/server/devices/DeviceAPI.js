@@ -63,7 +63,7 @@ const Schema = {
    *         description: Name provided by the device during pairing confirmation
    *         example: Nexus 7 Tablet
    */
-  device: device => ({
+  device: (device) => ({
     id: device._id,
     salt: device.salt,
     name: device.name,
@@ -109,7 +109,7 @@ const Schema = {
    *         type: string
    *         example: 8f99051c91044bd8159a8cc0fa2aaa831961c4428ce1859b82612743c9720eef
    */
-  protocol: protocol => ({
+  protocol: (protocol) => ({
     id: protocol._id,
     name: protocol.name,
     description: protocol.description,
@@ -149,7 +149,9 @@ const buildErrorResponse = (err, res) => {
   logger.log('build error response for error', err);
   if (!(err instanceof Error)) {
     // Handle non Error error objects
-    res.json(500, { status: 'error', message: err.message, caseID: err.caseID, file: err.file });
+    res.json(500, {
+      status: 'error', message: err.message, caseID: err.caseID, file: err.file,
+    });
     return;
   }
 
@@ -245,11 +247,11 @@ class DeviceAPI extends EventEmitter {
   }
 
   static get publicAddresses() {
-    const isLinkLocal = addr => /^(fe80::|169\.254)/.test(addr);
+    const isLinkLocal = (addr) => /^(fe80::|169\.254)/.test(addr);
     const interfaces = Object.values(os.networkInterfaces());
     return [].concat(...interfaces)
-      .filter(iface => iface.internal === false && !isLinkLocal(iface.address))
-      .map(iface => iface.address);
+      .filter((iface) => iface.internal === false && !isLinkLocal(iface.address))
+      .map((iface) => iface.address);
   }
 
   // In the absence of user config, choose the first available
@@ -262,9 +264,13 @@ class DeviceAPI extends EventEmitter {
   }
 
   get name() { return this.server.name; }
+
   get httpBase() { return this.server.url.replace(ApiHostName, this.lanIP); }
+
   get httpsBase() { return this.secureUrl.replace(ApiHostName, this.lanIP); }
+
   get url() { return this.server.url; }
+
   get secureUrl() { return this.sslServer && this.sslServer.url; }
 
   // TODO: prevent multiple?
@@ -687,14 +693,14 @@ class DeviceAPI extends EventEmitter {
               });
           })
           .then(acknowledgedRequest)
-          .catch(err => this.handlers.onError(err, res))
+          .catch((err) => this.handlers.onError(err, res))
           .then(() => next());
       },
 
       onPairingConfirm: (req, res, next) => {
         const encryptedMsg = req.body && req.body.message;
         this.requestService.verifyAndExpireEncryptedRequest(encryptedMsg)
-          .then(pairingRequest => (
+          .then((pairingRequest) => (
             this.deviceManager.createDeviceDocument(
               pairingRequest.secretKey,
               pairingRequest.deviceName,
@@ -711,15 +717,15 @@ class DeviceAPI extends EventEmitter {
             });
             res.json({ status: 'ok', data: { message: encrypt(payload, device.secretKey) } });
           })
-          .catch(err => this.handlers.onError(err, res))
+          .catch((err) => this.handlers.onError(err, res))
           .then(() => next());
       },
 
       protocolList: (req, res, next) => {
         this.protocolManager.allProtocols()
-          .then(protocols => protocols.map(p => Schema.protocol(p, this.httpBase, this.httpsBase)))
-          .then(schemas => res.json({ status: 'ok', data: schemas }))
-          .catch(err => this.handlers.onError(err, res))
+          .then((protocols) => protocols.map((p) => Schema.protocol(p, this.httpBase, this.httpsBase)))
+          .then((schemas) => res.json({ status: 'ok', data: schemas }))
+          .catch((err) => this.handlers.onError(err, res))
           .then(() => next());
       },
 
@@ -729,7 +735,7 @@ class DeviceAPI extends EventEmitter {
             res.header('content-type', 'application/zip');
             res.send(fileBuf);
           })
-          .catch(err => this.handlers.onError(err, res))
+          .catch((err) => this.handlers.onError(err, res))
           .then(() => next());
       },
 
@@ -745,9 +751,8 @@ class DeviceAPI extends EventEmitter {
             res.json(201, { status: 'ok', data: { insertedCount: docs.length } });
             return docs;
           })
-          .then(docs => sendToGui(emittedEvents.SESSIONS_IMPORTED, docs.map(doc =>
-            doc.data &&
-            doc.data.sessionVariables && doc.data.sessionVariables[caseProperty]).join(', ')))
+          .then((docs) => sendToGui(emittedEvents.SESSIONS_IMPORTED, docs.map((doc) => doc.data
+            && doc.data.sessionVariables && doc.data.sessionVariables[caseProperty]).join(', ')))
           .catch((err) => {
             this.handlers.onError(err, res);
           })

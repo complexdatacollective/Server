@@ -5,7 +5,7 @@ const debug = (...args) => {
   console.log(...args); // eslint-disable-line
 };
 
-const debugStream = prefix => miss.through(
+const debugStream = (prefix) => miss.through(
   (chunk, enc, cb) => {
     debug(`[stream:${prefix}]`, chunk.toString()); // eslint-disable-line
     cb(null, chunk);

@@ -30,13 +30,20 @@ const WelcomePanel = ({
             or accessing settings.
           </p>
           <p>
-            To import data into Server, either use the menu item (<code>File -&gt; Import Interview
-              Files</code>), drag and drop files into this workspace, or upload sessions directly
+            To import data into Server, either use the menu item (
+            <code>
+              File -&gt; Import Interview
+              Files
+            </code>
+            ), drag and drop files into this workspace, or upload sessions directly
             from a device running Interviewer. Click the &apos;Network Status&apos; icon at the top
             of the screen for instructions for pairing.
           </p>
           <p>
-            To learn more about using Server, please visit our <ExternalLink href="https://documentation.networkcanvas.com">documentation website</ExternalLink>.
+            To learn more about using Server, please visit our
+            {' '}
+            <ExternalLink href="https://documentation.networkcanvas.com">documentation website</ExternalLink>
+            .
           </p>
         </div>
         <div className="welcome-content__image" />

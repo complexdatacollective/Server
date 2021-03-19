@@ -5,7 +5,7 @@
  * @param  {Object} json data from API response entity
  * @return {Object}
  */
-const baseViewModelMapper = json => ({
+const baseViewModelMapper = (json) => ({
   ...json,
   // Normalize IDs here
   id: json._id,

@@ -4,9 +4,9 @@ const { get } = require('lodash');
  * Move meta data used in resolutions into node
  * attributes where relevant.
  */
-const mergeResolutionMetaAsAttributes = network => ({
+const mergeResolutionMetaAsAttributes = (network) => ({
   ...network,
-  nodes: network.nodes.map(node => ({
+  nodes: network.nodes.map((node) => ({
     ...node,
     attributes: {
       ...node.attributes,

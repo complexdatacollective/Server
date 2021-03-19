@@ -6,14 +6,16 @@ import withApiClient from '../../components/withApiClient';
 import { formatDecimal } from '../../utils/formatters';
 
 const shapeStatsData = ({ nodes = {}, edges = {} }) => ([
-  { name: 'Node count',
+  {
+    name: 'Node count',
     data: [
       { name: 'Mean', count: formatDecimal(nodes.mean) },
       { name: 'Min', count: nodes.min },
       { name: 'Max', count: nodes.max },
     ],
   },
-  { name: 'Edge count',
+  {
+    name: 'Edge count',
     data: [
       { name: 'Mean', count: formatDecimal(edges.mean) },
       { name: 'Min', count: edges.min },

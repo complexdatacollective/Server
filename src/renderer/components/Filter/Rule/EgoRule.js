@@ -3,7 +3,9 @@ import { connect } from 'react-redux';
 import { compose } from 'recompose';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { toPairs, includes, find, get } from 'lodash';
+import {
+  toPairs, includes, find, get,
+} from 'lodash';
 import { SortableElement } from 'react-sortable-hoc';
 import DragHandle from './DragHandle';
 import DropDown from './DropDown';
@@ -53,8 +55,8 @@ class EgoRule extends PureComponent {
   }
 
   showValue() {
-    return !!this.props.options.operator &&
-      !includes(['EXISTS', 'NOT_EXISTS'], this.props.options.operator);
+    return !!this.props.options.operator
+      && !includes(['EXISTS', 'NOT_EXISTS'], this.props.options.operator);
   }
 
   render() {
@@ -72,37 +74,38 @@ class EgoRule extends PureComponent {
     return (
       <div className={cx('rule', 'rule--ego', className)}>
         <DragHandle />
-        { hasPersonType &&
+        { hasPersonType
+          && (
           <div className="rule__options">
             <div className="rule__option rule__option--attribute">
               <DropDown
                 options={nodeAttributes}
                 value={attribute}
                 placeholder="{variable}"
-                onChange={newValue => onUpdateRule(newValue, id, 'attribute')}
+                onChange={(newValue) => onUpdateRule(newValue, id, 'attribute')}
               />
             </div>
             { this.showOperator() && (
-              <div className="rule__option rule__option--operator">
-                <DropDown
-                  options={getOperatorsForType(valueInputType)}
-                  value={operator}
-                  placeholder="{rule}"
-                  onChange={newValue => onUpdateRule(newValue, id, 'operator')}
-                />
-              </div>
+            <div className="rule__option rule__option--operator">
+              <DropDown
+                options={getOperatorsForType(valueInputType)}
+                value={operator}
+                placeholder="{rule}"
+                onChange={(newValue) => onUpdateRule(newValue, id, 'operator')}
+              />
+            </div>
             )}
             {this.showValue() && (
-              <div className="rule__option rule__option--value">
-                <Input
-                  value={value}
-                  type={valueInputType}
-                  onChange={newValue => onUpdateRule(newValue, id, 'value')}
-                />
-              </div>
+            <div className="rule__option rule__option--value">
+              <Input
+                value={value}
+                type={valueInputType}
+                onChange={(newValue) => onUpdateRule(newValue, id, 'value')}
+              />
+            </div>
             )}
           </div>
-        }
+          )}
         { !hasPersonType && <div>No &quot;Person&quot; node type found!</div> }
         <button type="button" className="rule__delete" onClick={() => onDeleteRule(id)} />
       </div>
@@ -110,15 +113,14 @@ class EgoRule extends PureComponent {
   }
 }
 
-
 // TODO: person is an implicitly required node type
 function mapStateToProps(state, { options, codebook }) {
   // const codebook = getCodebook(state);
   const personType = find(toPairs(codebook.node), ([, node]) => node.name === 'person');
   const personId = personType && personType[0];
-  const valueInputType = options ?
-    get(codebook.node, [personId, 'variables', options.attribute, 'type']) :
-    undefined;
+  const valueInputType = options
+    ? get(codebook.node, [personId, 'variables', options.attribute, 'type'])
+    : undefined;
 
   return {
     hasPersonType: !!personType,

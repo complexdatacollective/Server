@@ -37,7 +37,9 @@ class WorkspaceScreen extends Component {
     }
 
     // session-related props are provided by `withSessions`
-    const { deleteAllSessions, deleteSession, sessions, totalSessionsCount } = this.props;
+    const {
+      deleteAllSessions, deleteSession, sessions, totalSessionsCount,
+    } = this.props;
     return [
       <ProtocolCardPanel
         key="ProtocolCardPanel"
@@ -59,7 +61,7 @@ class WorkspaceScreen extends Component {
         sessions={sessions}
         totalCount={totalSessionsCount}
         deleteAllSessions={() => deleteAllSessions()}
-        deleteSession={sessionId => deleteSession(sessionId)}
+        deleteSession={(sessionId) => deleteSession(sessionId)}
       />,
       <SessionHistoryPanel
         key="SessionHistoryPanel"
@@ -70,7 +72,7 @@ class WorkspaceScreen extends Component {
         protocolId={protocol.id}
         sessionCount={totalSessionsCount}
       />,
-      ...answerDistributionCharts.map(chart => (
+      ...answerDistributionCharts.map((chart) => (
         <AnswerDistributionPanel
           key={`AnswerDistributionPanel-${chart.variableType}-${chart.entityType}-${chart.variableDefinition.name}`}
           entityKey={chart.entityKey}
@@ -116,8 +118,8 @@ class WorkspaceScreen extends Component {
       return <div className="workspace--loading"><Spinner /></div>;
     }
 
-    const sortedPanels = this.sortedPanels;
-    const sortedPanelKeys = sortedPanels.map(panel => panel.key);
+    const { sortedPanels } = this;
+    const sortedPanelKeys = sortedPanels.map((panel) => panel.key);
     const onSortEnd = ({ oldIndex, newIndex }) => {
       if (oldIndex !== newIndex) {
         setPanelLayoutOrder(protocol.id, arrayMove(sortedPanelKeys, oldIndex, newIndex));
@@ -147,7 +149,7 @@ const mapStateToProps = (state, ownProps) => ({
   panelLayoutOrder: layoutSelectors.panelLayoutOrderForCurrentProtocol(state, ownProps),
 });
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   setPanelLayoutOrder: bindActionCreators(layoutActionCreators.setPanelLayoutOrder, dispatch),
 });
 

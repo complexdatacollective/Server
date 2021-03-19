@@ -1,7 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 
 const path = require('path');
-const { last, get, findLast, trim, sortBy } = require('lodash');
+const {
+  last, get, findLast, trim, sortBy,
+} = require('lodash');
 const logger = require('electron-log');
 const { getNetworkResolver } = require('../utils/getNetworkResolver');
 const { formatSession, formatResolution } = require('../utils/resolver/helpers');
@@ -50,20 +52,18 @@ class ResolverManager {
     // TODO: fix
 
     return this.getResolvedSessions(protocolId, options.resolutionId, options.egoCastType)
-      .then(([[network], { codebook }]) =>
-        getNetworkResolver(requestId, command, codebook, network),
-      );
+      .then(([[network], { codebook }]) => getNetworkResolver(requestId, command, codebook, network));
   }
 
   getSessions(protocolId) {
     return this.sessionDb.findAll(protocolId, null, null)
-      .then(sessions => sessions.map(formatSession));
+      .then((sessions) => sessions.map(formatSession));
   }
 
   // TODO: prior to resolution id?
   getResolutions(protocolId, resolutionId = null) {
     return this.db.getResolutions(protocolId, resolutionId)
-      .then(resolutions => resolutions.map(formatResolution));
+      .then((resolutions) => resolutions.map(formatResolution));
   }
 
   // Returns sessions as a resolved network
@@ -140,7 +140,7 @@ class ResolverManager {
       // Get all resolutions after and including resolutionId
       .then((resolutions) => {
         const resolutionIndex = resolutions
-          .findIndex(resolution => resolution.id === resolutionId);
+          .findIndex((resolution) => resolution.id === resolutionId);
 
         if (resolutionIndex === -1) { return []; }
 
@@ -150,10 +150,8 @@ class ResolverManager {
 
         return ids;
       })
-      .then(resolutionIds =>
-        this.db.deleteResolutions(resolutionIds)
-          .then(() => resolutionIds),
-      );
+      .then((resolutionIds) => this.db.deleteResolutions(resolutionIds)
+        .then(() => resolutionIds));
   }
 
   // Delete all resolutions after and INCLUDING date

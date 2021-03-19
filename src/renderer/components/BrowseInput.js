@@ -18,7 +18,7 @@ const BrowseInput = (props) => {
     ...props,
     input: {
       ...props.input,
-      onChange: e => props.input.onChange(e.target.value),
+      onChange: (e) => props.input.onChange(e.target.value),
     },
   };
 

@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { BarChart as RechartBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+  BarChart as RechartBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+} from 'recharts';
 
 import { getCSSValueDict, getCSSValues } from '../../utils/CSSVariables';
 
@@ -13,7 +15,9 @@ const barColors = getCSSValues(
 );
 
 // 99% width to work around recharts problem with resizing
-const BarChart = ({ className, data, dataKeys, allowDecimals }) => (
+const BarChart = ({
+  className, data, dataKeys, allowDecimals,
+}) => (
   <ResponsiveContainer height="100%" width="99%">
     <RechartBarChart
       data={data}

@@ -60,55 +60,54 @@ class CaseTable extends Component {
       <div className="ReactVirtualized__Table__headerTruncatedText" onClick={() => this.props.sortSessions(dataKey)} role="button" tabIndex={0}>
         {`${label} ${this.directionSymbol(dataKey)}`}
       </div>
-      {adjustable && <Draggable
+      {adjustable && (
+      <Draggable
         axis="x"
         defaultClassName="ReactVirtualized__DragHandle"
         defaultClassNameDragging="ReactVirtualized__DragHandleActive"
-        onDrag={(_, { deltaX }) =>
-          this.resizeRow({
-            dataKey,
-            deltaX,
-          })
-        }
+        onDrag={(_, { deltaX }) => this.resizeRow({
+          dataKey,
+          deltaX,
+        })}
         position={{ x: 0 }}
         zIndex={999}
       >
         <span className="ReactVirtualized__DragHandleIcon">⋮</span>
-      </Draggable>}
+      </Draggable>
+      )}
     </React.Fragment>
   );
 
-  resizeRow = ({ dataKey, deltaX }) =>
-    this.setState((prevState) => {
-      const prevWidths = prevState.widths;
-      const percentDelta = deltaX / this.props.width;
+  resizeRow = ({ dataKey, deltaX }) => this.setState((prevState) => {
+    const prevWidths = prevState.widths;
+    const percentDelta = deltaX / this.props.width;
 
-      let nextDataKey;
-      switch (dataKey) {
-        case 'checkbox':
-          nextDataKey = 'createdAt';
-          break;
-        case 'createdAt':
-          nextDataKey = 'updatedAt';
-          break;
-        case 'updatedAt':
-          nextDataKey = 'caseId';
-          break;
-        case 'caseId':
-          nextDataKey = 'sessionId';
-          break;
-        default:
-          nextDataKey = 'sessionId';
-      }
+    let nextDataKey;
+    switch (dataKey) {
+      case 'checkbox':
+        nextDataKey = 'createdAt';
+        break;
+      case 'createdAt':
+        nextDataKey = 'updatedAt';
+        break;
+      case 'updatedAt':
+        nextDataKey = 'caseId';
+        break;
+      case 'caseId':
+        nextDataKey = 'sessionId';
+        break;
+      default:
+        nextDataKey = 'sessionId';
+    }
 
-      return {
-        widths: {
-          ...prevWidths,
-          [dataKey]: prevWidths[dataKey] + percentDelta,
-          [nextDataKey]: prevWidths[nextDataKey] - percentDelta,
-        },
-      };
-    });
+    return {
+      widths: {
+        ...prevWidths,
+        [dataKey]: prevWidths[dataKey] + percentDelta,
+        [nextDataKey]: prevWidths[nextDataKey] - percentDelta,
+      },
+    };
+  });
 
   loadMore = ({ startIndex, stopIndex }) => {
     const { loadMoreSessions } = this.props;
@@ -141,9 +140,9 @@ class CaseTable extends Component {
               checkbox: list[index] ? list[index].id : '...',
               createdAt: list[index] ? formatDate(list[index] && list[index].createdAt) : '...',
               updatedAt: list[index] ? formatDate(list[index] && list[index].updatedAt) : '...',
-              caseId: list[index] && list[index].data &&
-                list[index].data.sessionVariables ?
-                list[index].data.sessionVariables[caseProperty] : '...',
+              caseId: list[index] && list[index].data
+                && list[index].data.sessionVariables
+                ? list[index].data.sessionVariables[caseProperty] : '...',
               sessionId: list[index] ? list[index].id : '...',
             })}
             rowClassName={({ index }) => {
@@ -179,7 +178,7 @@ class CaseTable extends Component {
               width={widths.caseId * width}
             />
             <Column
-              headerRenderer={options => this.headerRenderer(options, false)}
+              headerRenderer={(options) => this.headerRenderer(options, false)}
               dataKey="sessionId"
               label="Session ID"
               width={widths.sessionId * width}

@@ -1,6 +1,6 @@
 /* eslint-env jest */
-const apiRequestLogger = require('../apiRequestLogger');
 const logger = require('electron-log');
+const apiRequestLogger = require('../apiRequestLogger');
 
 jest.mock('electron-log');
 

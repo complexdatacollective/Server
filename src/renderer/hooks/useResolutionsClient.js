@@ -1,4 +1,6 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import {
+  useState, useCallback, useEffect, useRef,
+} from 'react';
 import { last, get } from 'lodash';
 import AdminApiClient from '../utils/adminApiClient';
 

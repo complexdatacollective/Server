@@ -15,7 +15,7 @@ const ProtocolThumbnails = ({ location, protocols, onClickAddProtocol }) => {
   return (
     <div className="protocol-thumbnails">
       {
-        sortedProtocols && sortedProtocols.map(protocol => (
+        sortedProtocols && sortedProtocols.map((protocol) => (
           <div data-tip={protocol.name} data-for="protocol-tooltip" key={protocol.id}><ProtocolThumbnail location={location} protocol={protocol} /></div>
         ))
       }

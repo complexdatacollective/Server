@@ -356,7 +356,8 @@ describe('ProtocolManager', () => {
     it('accepts a limit', () => {
       manager.getProtocolSessions(protocolId, 100);
       expect(manager.sessionDb.findAll).toHaveBeenCalledWith(
-        protocolId, 100, undefined, undefined, undefined);
+        protocolId, 100, undefined, undefined, undefined,
+      );
     });
 
     it('deletes a session via DB', () => {

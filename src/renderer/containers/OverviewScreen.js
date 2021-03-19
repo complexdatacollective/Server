@@ -47,7 +47,7 @@ const mapStateToProps = ({ connectionInfo, devices, protocols }) => ({
   deviceApiInfo: connectionInfo && connectionInfo.deviceService,
 });
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   loadDevices: bindActionCreators(actionCreators.loadDevices, dispatch),
 });
 

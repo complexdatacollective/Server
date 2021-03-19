@@ -6,7 +6,7 @@ const { resolveOrReject } = require('../utils/db');
 
 const missingRequiredIdMessage = 'Cannot delete device without an id';
 
-const withDefaultName = dbDevice => ({
+const withDefaultName = (dbDevice) => ({
   name: `Device ${dbDevice._id.substr(0, 6)}`,
   ...dbDevice,
 });
@@ -24,7 +24,7 @@ class DeviceDB extends DatabaseAdapter {
   }
 
   all() {
-    return super.all().then(docs => docs.map(withDefaultName));
+    return super.all().then((docs) => docs.map(withDefaultName));
   }
 
   destroyAll() {

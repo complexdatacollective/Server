@@ -12,8 +12,8 @@ const DefaultExpiredCheckInterval = 1000;
 
 class PairDevice extends Component {
   componentDidUpdate() {
-    if (!this.timer &&
-        this.props.pairingRequest.status === PairingStatus.Acknowledged) {
+    if (!this.timer
+        && this.props.pairingRequest.status === PairingStatus.Acknowledged) {
       const { apiClient, dismissPairingRequest, pairingRequest } = this.props;
       const doCheck = () => {
         apiClient.checkPairingCodeExpired(pairingRequest.id)
@@ -26,12 +26,12 @@ class PairDevice extends Component {
                 type: 'error',
                 title: 'Pairing timed out',
                 content: (
-                  <React.Fragment>
+                  <>
                     <p>
                       A valid pairing code was not entered in time, so pairing was cancelled
                       automatically.
                     </p>
-                  </React.Fragment>
+                  </>
                 ),
               });
 
@@ -59,13 +59,13 @@ class PairDevice extends Component {
         type: 'success',
         title: 'Pairing complete!',
         content: (
-          <React.Fragment>
+          <>
             <p>
               Your device is now paired with this installation of Server. You can
               access interview protocols stored on Server and upload data securely
               from this device.
             </p>
-          </React.Fragment>
+          </>
         ),
       });
       this.props.dismissPairingRequest();
@@ -85,12 +85,12 @@ class PairDevice extends Component {
           title="Pair a Device"
           unmountOnExit
         >
-          <React.Fragment>
+          <>
             <PairPin
               code={pairingRequest.pairingCode}
               dismissPairingRequest={dismissPairingRequest}
             />
-          </React.Fragment>
+          </>
         </Modal>
       </div>
     );

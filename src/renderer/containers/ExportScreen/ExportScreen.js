@@ -62,7 +62,7 @@ const ExportScreen = ({
   const noFormatSelected = exportOptionsFormState.exportFormats.length === 0;
 
   return (
-    <React.Fragment>
+    <>
       <form className="content export" onSubmit={handleSubmit}>
         <h1>Export Session Data</h1>
         <div className="export__options">
@@ -79,7 +79,7 @@ const ExportScreen = ({
                   input={{
                     name: 'exportFormats',
                     value: exportOptionsFormState.exportFormats,
-                    onChange: value => handleUpdateFormState('exportFormats', value),
+                    onChange: (value) => handleUpdateFormState('exportFormats', value),
                   }}
                   meta={{
                     touched: true,
@@ -99,9 +99,24 @@ const ExportScreen = ({
                   be exported as a series of CSV files:
                 </p>
                 <ul>
-                  <li>an <strong>attribute list file</strong> for each node type</li>
-                  <li>an <strong>edge list file</strong> for each edge type</li>
-                  <li>an <strong>egoattribute file</strong> that also contains session data</li>
+                  <li>
+                    an
+                    <strong>attribute list file</strong>
+                    {' '}
+                    for each node type
+                  </li>
+                  <li>
+                    an
+                    <strong>edge list file</strong>
+                    {' '}
+                    for each edge type
+                  </li>
+                  <li>
+                    an
+                    <strong>egoattribute file</strong>
+                    {' '}
+                    that also contains session data
+                  </li>
                 </ul>
               </div>
             </div>
@@ -113,8 +128,7 @@ const ExportScreen = ({
                   label="Merge Sessions by Protocol"
                   input={{
                     value: exportOptionsFormState.unifyNetworks,
-                    onChange: () =>
-                      handleUpdateFormState('unifyNetworks', !exportOptionsFormState.unifyNetworks),
+                    onChange: () => handleUpdateFormState('unifyNetworks', !exportOptionsFormState.unifyNetworks),
                   }}
                 />
                 <p>
@@ -122,7 +136,11 @@ const ExportScreen = ({
                   causethem to be merged into a single file, on a per-protocol basis. In the case
                   of CSV export, you will receive one of each type of file for each protocol. In
                   the case of GraphML you will receive a single GraphML file with
-                  multiple <code>&lt;graph&gt;</code> elements. Please note that most software
+                  multiple
+                  {' '}
+                  <code>&lt;graph&gt;</code>
+                  {' '}
+                  elements. Please note that most software
                   does not yet support multiple graphs in a single GraphML file.
                 </p>
               </div>
@@ -131,19 +149,23 @@ const ExportScreen = ({
                   label="Use Screen Layout Co-ordinates"
                   input={{
                     value: exportOptionsFormState.useScreenLayoutCoordinates,
-                    onChange: () =>
-                      handleUpdateFormState('useScreenLayoutCoordinates', !exportOptionsFormState.useScreenLayoutCoordinates),
+                    onChange: () => handleUpdateFormState('useScreenLayoutCoordinates', !exportOptionsFormState.useScreenLayoutCoordinates),
                   }}
                 />
                 <p>
                   By default, Interviewer exports sociogram node coordinates as normalized X/Y
                   values (a number between 0 and 1 for each axis, with the origin in the top left).
-                  Enabling this option will create an <em>additional</em> variable that represents
+                  Enabling this option will create an
+                  {' '}
+                  <em>additional</em>
+                  {' '}
+                  variable that represents
                   these coordinates as screen space pixel values.
                 </p>
               </div>
               <AnimatePresence>
-                { exportOptionsFormState.useScreenLayoutCoordinates &&
+                { exportOptionsFormState.useScreenLayoutCoordinates
+                  && (
                   <motion.div
                     animate={expandVariants.animate}
                     exit={expandVariants.exit}
@@ -154,23 +176,24 @@ const ExportScreen = ({
                         label="Screen Layout Height"
                         input={{
                           value: exportOptionsFormState.screenLayoutHeight || '',
-                          onChange: value => handleUpdateFormState('screenLayoutHeight', value),
+                          onChange: (value) => handleUpdateFormState('screenLayoutHeight', value),
                         }}
                       />
                       <Number
                         label="Screen Layout Width"
                         input={{
                           value: exportOptionsFormState.screenLayoutWidth || '',
-                          onChange: value => handleUpdateFormState('screenLayoutWidth', value),
+                          onChange: (value) => handleUpdateFormState('screenLayoutWidth', value),
                         }}
                       />
                     </div>
                   </motion.div>
-                }
+                  )}
               </AnimatePresence>
             </div>
             <AnimatePresence>
-              { exportOptionsFormState.exportFormats.includes('CSV') &&
+              { exportOptionsFormState.exportFormats.includes('CSV')
+                && (
                 <motion.div
                   className="export__section"
                   animate={expandVariants.animate}
@@ -203,7 +226,7 @@ const ExportScreen = ({
                     </div>
                   ))]}
                 </motion.div>
-              }
+                )}
             </AnimatePresence>
           </AnimateSharedLayout>
           <div className="buttons">
@@ -211,7 +234,7 @@ const ExportScreen = ({
           </div>
         </div>
       </form>
-    </React.Fragment>
+    </>
   );
 };
 

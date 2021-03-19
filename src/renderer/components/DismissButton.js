@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 
 import { Icon } from '@codaco/ui';
 
-const DismissButton = ({ children, className, inline, onClick, small, title }) => {
+const DismissButton = ({
+  children, className, inline, onClick, small, title,
+}) => {
   let baseClass = 'dismiss-button';
   if (className) { baseClass += ` ${className}`; }
   if (small) { baseClass += ' dismiss-button--small'; }

@@ -1,6 +1,6 @@
 import AdminApiClient from '../../utils/adminApiClient';
 import viewModelMapper from '../../utils/baseViewModelMapper';
-import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
+import { actionCreators as dialogActions } from './dialogs';
 
 const LOAD_PROTOCOLS = 'LOAD_PROTOCOLS';
 const PROTOCOLS_LOADED = 'PROTOCOLS_LOADED';
@@ -26,7 +26,7 @@ const reducer = (state = initialState, action = {}) => {
     case DELETE_PROTOCOL:
       return state;
     case PROTOCOL_DELETED:
-      return state.filter(protocol => protocol.id !== action.id);
+      return state.filter((protocol) => protocol.id !== action.id);
     default:
       return state;
   }
@@ -35,9 +35,9 @@ const reducer = (state = initialState, action = {}) => {
 // Select the current protocol based either on a `protocolId` prop or 'id' in the routing params
 // May return undefined
 const currentProtocol = (state, props) => {
-  const protocols = state.protocols;
+  const { protocols } = state;
   const id = props.protocolId || (props.match && props.match.params.id);
-  return protocols && id && protocols.find(p => p.id === id);
+  return protocols && id && protocols.find((p) => p.id === id);
 };
 
 // Return the ID of the current protocol, only if it exists.
@@ -63,9 +63,9 @@ const nodeDefinitions = (state, protocolId) => {
 };
 
 const distributionVariableTypes = ['ordinal', 'categorical'];
-const isDistributionVariable = variable => distributionVariableTypes.includes(variable.type);
+const isDistributionVariable = (variable) => distributionVariableTypes.includes(variable.type);
 
-const getDistributionVariableNames = variables => (
+const getDistributionVariableNames = (variables) => (
   Object.entries(variables || {}).reduce((arr, [variableName, variable]) => {
     if (isDistributionVariable(variable)) {
       arr.push(variableName);
@@ -101,28 +101,30 @@ const ordinalAndCategoricalVariables = (state, props) => {
     return {};
   }
 
-  return { nodes: ordinalAndCategoricalVariablesByEntity(codebook.node),
+  return {
+    nodes: ordinalAndCategoricalVariablesByEntity(codebook.node),
     edges: ordinalAndCategoricalVariablesByEntity(codebook.edge),
-    ego: ordinalAndCategoricalVariablesByEntity({ ...codebook.ego, name: 'ego' }) };
+    ego: ordinalAndCategoricalVariablesByEntity({ ...codebook.ego, name: 'ego' }),
+  };
 };
 
-const protocolsHaveLoaded = state => state.protocols !== initialState;
+const protocolsHaveLoaded = (state) => state.protocols !== initialState;
 
 const loadProtocolsDispatch = () => ({
   type: LOAD_PROTOCOLS,
 });
 
-const protocolsLoadedDispatch = protocols => ({
+const protocolsLoadedDispatch = (protocols) => ({
   type: PROTOCOLS_LOADED,
   protocols: protocols || [],
 });
 
-const deleteProtocolDispatch = id => ({
+const deleteProtocolDispatch = (id) => ({
   type: DELETE_PROTOCOL,
   id,
 });
 
-const protocolDeletedDispatch = id => ({
+const protocolDeletedDispatch = (id) => ({
   type: PROTOCOL_DELETED,
   id,
 });
@@ -130,8 +132,8 @@ const protocolDeletedDispatch = id => ({
 const loadProtocols = () => (dispatch) => {
   dispatch(loadProtocolsDispatch());
   return getApiClient().get('/protocols')
-    .then(resp => resp.protocols)
-    .then(protocols => dispatch(protocolsLoadedDispatch(protocols)))
+    .then((resp) => resp.protocols)
+    .then((protocols) => dispatch(protocolsLoadedDispatch(protocols)))
     .catch((err) => {
       dispatch(dialogActions.openDialog({
         type: 'Error',
@@ -141,7 +143,7 @@ const loadProtocols = () => (dispatch) => {
     });
 };
 
-const deleteProtocol = id => (dispatch) => {
+const deleteProtocol = (id) => (dispatch) => {
   dispatch(deleteProtocolDispatch(id));
   return getApiClient().delete(`/protocols/${id}`)
     .then(() => dispatch(protocolDeletedDispatch(id)))

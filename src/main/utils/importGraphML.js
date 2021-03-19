@@ -21,8 +21,8 @@ const validateGraphML = (bufferContents) => {
 
   // basic header validation
   const graphml = xmlDoc.getElementsByTagName('graphml');
-  if (!graphml || !graphml[0] || graphml[0].getAttribute('xmlns:nc') !== 'http://schema.networkcanvas.com/xmlns' ||
-    graphml[0].getAttribute('xmlns') !== 'http://graphml.graphdrawing.org/xmlns'
+  if (!graphml || !graphml[0] || graphml[0].getAttribute('xmlns:nc') !== 'http://schema.networkcanvas.com/xmlns'
+    || graphml[0].getAttribute('xmlns') !== 'http://graphml.graphdrawing.org/xmlns'
   ) {
     throw new RequestError(`${ErrorMessages.InvalidSessionFormat}: missing headers`);
   }
@@ -54,7 +54,8 @@ const lookUpEntityType = (entityElement, codebookEntity) => {
       const keyValue = entityData.getAttributeNode('key').value;
       if (keyValue === ncTypeProperty) {
         typeUUID = Object.keys(codebookEntity).find(
-          key => codebookEntity[key].name === entityData.textContent);
+          (key) => codebookEntity[key].name === entityData.textContent,
+        );
         typeUUID = typeUUID || entityData.textContent;
       }
     }
@@ -67,16 +68,16 @@ const processVariable = (element, entity, xmlDoc, codebookEntity, entityType = '
   if (keyValue === ncUUIDProperty) {
     // eslint-disable-next-line no-underscore-dangle
     return { ...entity, [entityPrimaryKeyProperty]: element.textContent };
-  } else if (keyValue === 'label') {
+  } if (keyValue === 'label') {
     // can ignore since this was just for gephi
     return entity;
-  } else if (keyValue === ncTypeProperty) {
+  } if (keyValue === ncTypeProperty) {
     return { ...entity, type: entityType };
-  } else if (keyValue === ncSourceUUID) {
+  } if (keyValue === ncSourceUUID) {
     return { ...entity, from: element.textContent };
-  } else if (keyValue === ncTargetUUID) {
+  } if (keyValue === ncTargetUUID) {
     return { ...entity, to: element.textContent };
-  } else if (!keyValue.includes('_')) {
+  } if (!keyValue.includes('_')) {
     const graphmlKey = xmlDoc.getElementById(keyValue);
     let text = element.textContent;
     switch (graphmlKey.getAttributeNode('attr.type').value) {
@@ -95,7 +96,7 @@ const processVariable = (element, entity, xmlDoc, codebookEntity, entityType = '
     // variables not in the codebook are external variables - use the name instead of uuid
     keyValue = codebookEntity.variables[keyValue] ? keyValue : graphmlKey.getAttributeNode('attr.name').value;
     return { ...entity, attributes: { ...entity.attributes, [keyValue]: text } };
-  } else if (keyValue.endsWith('_X')) { // process locations
+  } if (keyValue.endsWith('_X')) { // process locations
     const locationKey = keyValue.substring(0, keyValue.indexOf('_X'));
     const locationObject = (entity.attributes && entity.attributes[locationKey]) || {};
     const text = Number(element.textContent);
@@ -103,7 +104,7 @@ const processVariable = (element, entity, xmlDoc, codebookEntity, entityType = '
       ...entity,
       attributes: { ...entity.attributes, [locationKey]: { ...locationObject, x: text } },
     };
-  } else if (keyValue.endsWith('_Y')) { // process locations
+  } if (keyValue.endsWith('_Y')) { // process locations
     const locationKey = keyValue.substring(0, keyValue.indexOf('_Y'));
     const locationObject = (entity.attributes && entity.attributes[locationKey]) || {};
     const text = Number(element.textContent);
@@ -162,7 +163,8 @@ const convertGraphML = (xmlDoc, protocol) => {
         switch (entityElements[i].tagName) {
           case 'data': // process ego
             session.data.ego = processVariable(
-              entityElements[i], session.data.ego, xmlDoc, protocol.codebook.ego);
+              entityElements[i], session.data.ego, xmlDoc, protocol.codebook.ego,
+            );
             break;
           // eslint-disable-next-line no-case-declarations
           case 'node':
@@ -173,7 +175,8 @@ const convertGraphML = (xmlDoc, protocol) => {
             Array.from(nodeElement).forEach((nodeData) => {
               if (nodeData.nodeType === 1) {
                 node = processVariable(
-                  nodeData, node, xmlDoc, protocol.codebook.node[nodeType], nodeType);
+                  nodeData, node, xmlDoc, protocol.codebook.node[nodeType], nodeType,
+                );
               }
             });
             session.data.nodes.push(node);
@@ -187,7 +190,8 @@ const convertGraphML = (xmlDoc, protocol) => {
             Array.from(edgeElement).forEach((edgeData) => {
               if (edgeData.nodeType === 1) {
                 edge = processVariable(
-                  edgeData, edge, xmlDoc, protocol.codebook.edge[edgeType], edgeType);
+                  edgeData, edge, xmlDoc, protocol.codebook.edge[edgeType], edgeType,
+                );
               }
             });
             session.data.edges.push(edge);

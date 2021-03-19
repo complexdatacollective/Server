@@ -6,7 +6,7 @@ const loadDevToolsExtensions = () => {
     return;
   }
   try {
-    extensions.split(';').forEach(filepath => BrowserWindow.addDevToolsExtension(filepath));
+    extensions.split(';').forEach((filepath) => BrowserWindow.addDevToolsExtension(filepath));
   } catch (err) {
     /* eslint-disable no-console, global-require */
     const chalk = require('chalk');

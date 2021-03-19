@@ -5,7 +5,9 @@ const request = require('supertest');
 const ProtocolManager = require('../../../data-managers/ProtocolManager');
 const { DeviceAPIConfig } = require('../../../apiConfig');
 const { DeviceAPI } = require('../DeviceAPI');
-const { jsonClient, secureClient, makeUrl, httpsCert, httpsPrivateKey } = require('../../../../../config/jest/setupTestEnv');
+const {
+  jsonClient, secureClient, makeUrl, httpsCert, httpsPrivateKey,
+} = require('../../../../../config/jest/setupTestEnv');
 const { ErrorMessages, RequestError } = require('../../../errors/RequestError');
 const { IncompletePairingError } = require('../../../errors/IncompletePairingError');
 

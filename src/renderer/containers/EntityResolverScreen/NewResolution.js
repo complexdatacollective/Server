@@ -16,8 +16,7 @@ const isRequired = (value) => {
   return 'Required';
 };
 
-const getSelectValue = e =>
-  (isEmpty(e.target.value) ? undefined : e.target.value);
+const getSelectValue = (e) => (isEmpty(e.target.value) ? undefined : e.target.value);
 
 const NewResolution = ({
   onUpdate,
@@ -26,10 +25,9 @@ const NewResolution = ({
   egoCastType,
 }) => {
   const [options, setOptions] = useState(initialOptions);
-  const nodeTypes = useSelector(state => getNodeTypes(state, protocolId));
+  const nodeTypes = useSelector((state) => getNodeTypes(state, protocolId));
 
-  const handleUpdateOption = key => value =>
-    setOptions(s => ({ ...s, [key]: value }));
+  const handleUpdateOption = (key) => (value) => setOptions((s) => ({ ...s, [key]: value }));
 
   useEffect(() => {
     if (egoCastType === null) { return; } // Use last selected when all resolutions are deleted
@@ -57,15 +55,16 @@ const NewResolution = ({
                     attempt to find a field with the same name on ego, and the resulting node will
                     be used for resolution.
                   </p>
-                  { (egoCastType) &&
+                  { (egoCastType)
+                    && (
                     <Tip type="warning">
                       Ego node cast type cannot be changed whilst there are
                       existing resolutions because the results are cumulative.
                     </Tip>
-                  }
+                    )}
                   <select
                     className="select-field"
-                    onChange={e => handleUpdateOption('egoCastType')(getSelectValue(e))}
+                    onChange={(e) => handleUpdateOption('egoCastType')(getSelectValue(e))}
                     value={options.egoCastType || ''}
                     disabled={!!egoCastType}
                     required
@@ -82,15 +81,26 @@ const NewResolution = ({
                   <h4>Interpreter</h4>
                   <p>
                     This should point to the binary of your script interpreter,
-                    if your <code>$PATH</code> environment variable is set up
-                    correctly, <code>python3</code> should suffice, otherwise
+                    if your
+                    {' '}
+                    <code>$PATH</code>
+                    {' '}
+                    environment variable is set up
+                    correctly,
+                    {' '}
+                    <code>python3</code>
+                    {' '}
+                    should suffice, otherwise
                     you may need to enter the full path of the binary,
-                    e.g. <code>/usr/bin/python3</code>.
+                    e.g.
+                    {' '}
+                    <code>/usr/bin/python3</code>
+                    .
                   </p>
                   <ValidatedBrowseInput
                     input={{
                       value: options.interpreterPath,
-                      onChange: value => handleUpdateOption('interpreterPath')(value),
+                      onChange: (value) => handleUpdateOption('interpreterPath')(value),
                     }}
                     validate={isRequired}
                   />
@@ -101,13 +111,18 @@ const NewResolution = ({
                   <h4>Resolver Script Path</h4>
                   <p>
                     This should be the path of your custom resolver script. Please
-                    read the documentation for more information on <a href="">how
-                      to create a resolver script</a>.
+                    read the documentation for more information on
+                    {' '}
+                    <a href="">
+                      how
+                      to create a resolver script
+                    </a>
+                    .
                   </p>
                   <ValidatedBrowseInput
                     input={{
                       value: options.resolverPath,
-                      onChange: value => handleUpdateOption('resolverPath')(value),
+                      onChange: (value) => handleUpdateOption('resolverPath')(value),
                     }}
                     validate={isRequired}
                   />
@@ -123,7 +138,7 @@ const NewResolution = ({
                   <Text
                     input={{
                       value: options.args,
-                      onChange: e => handleUpdateOption('args')(e.target.value),
+                      onChange: (e) => handleUpdateOption('args')(e.target.value),
                     }}
                   />
                 </td>
@@ -132,7 +147,8 @@ const NewResolution = ({
           </table>
         </motion.div>
         <AnimatePresence>
-          { showResolverPreview &&
+          { showResolverPreview
+            && (
             <motion.div
               layout
               className="new-resolution__preview"
@@ -141,10 +157,16 @@ const NewResolution = ({
             >
               <h4>Resolver command preview</h4>
               <div className="new-resolution__preview-container">
-                <code>{options.interpreterPath} {options.resolverPath} {options.args}</code>
+                <code>
+                  {options.interpreterPath}
+                  {' '}
+                  {options.resolverPath}
+                  {' '}
+                  {options.args}
+                </code>
               </div>
             </motion.div>
-          }
+            )}
         </AnimatePresence>
       </motion.div>
     </AnimateSharedLayout>

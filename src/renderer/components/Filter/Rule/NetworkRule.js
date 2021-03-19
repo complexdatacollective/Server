@@ -40,8 +40,8 @@ class NetworkRule extends PureComponent {
   };
 
   showValue() {
-    return !!this.props.logic.operator &&
-      !includes(['ANY', 'NONE'], this.props.logic.operator);
+    return !!this.props.logic.operator
+      && !includes(['ANY', 'NONE'], this.props.logic.operator);
   }
 
   render() {
@@ -58,7 +58,7 @@ class NetworkRule extends PureComponent {
                 options={operators}
                 value={operator}
                 placeholder="{rule}"
-                onChange={newValue => this.onUpdateRule(newValue, 'operator')}
+                onChange={(newValue) => this.onUpdateRule(newValue, 'operator')}
               />
             </div>
             {this.showValue() && (
@@ -66,7 +66,7 @@ class NetworkRule extends PureComponent {
                 <Input
                   type="number"
                   value={value}
-                  onChange={newValue => this.onUpdateRule(newValue, 'value')}
+                  onChange={(newValue) => this.onUpdateRule(newValue, 'value')}
                 />
               </div>
             )}

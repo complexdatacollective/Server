@@ -59,7 +59,7 @@ const EntityResolverScreen = ({
 
   const handleSubmit = () => {
     resolver.current.resolveProtocol(protocol, resolverOptions)
-      .catch(e => logger.error(e));
+      .catch((e) => logger.error(e));
   };
 
   if (protocolsHaveLoaded && !protocolId) { // This protocol doesn't exist
@@ -71,7 +71,7 @@ const EntityResolverScreen = ({
   }
 
   return (
-    <React.Fragment>
+    <>
       <EntityResolver
         ref={resolver}
         onSaveResolution={saveResolution}
@@ -95,7 +95,8 @@ const EntityResolverScreen = ({
         <div className="export__options">
           <AnimateSharedLayout>
             <AnimatePresence>
-              { resolutions.length > 0 &&
+              { resolutions.length > 0
+                && (
                 <motion.div
                   className="export__section"
                   initial={{ opacity: 1 }}
@@ -104,7 +105,9 @@ const EntityResolverScreen = ({
                   <h3>Existing Resolutions</h3>
                   <p>Existing resolutions can be review, exported and deleted here.</p>
                   <p>
-                    <em>Export</em> will create a resolved network based on the cases
+                    <em>Export</em>
+                    {' '}
+                    will create a resolved network based on the cases
                     that were available at that point in time. Later cases will be excluded.
                   </p>
                   <p>
@@ -122,7 +125,7 @@ const EntityResolverScreen = ({
                     onDeleteResolution={deleteResolution}
                   />
                 </motion.div>
-              }
+                )}
             </AnimatePresence>
 
             <div className="export__section">
@@ -136,14 +139,23 @@ const EntityResolverScreen = ({
               </p>
               <p>
                 Resolutions are cumulative, meaning that the node list sent
-                to your script will have <em>earlier resolutions</em> applied,
+                to your script will have
+                {' '}
+                <em>earlier resolutions</em>
+                {' '}
+                applied,
                 with any nodes added since remaining unchanged. If you would prefer
                 to resolve all nodes from scratch, you will first need to delete any
                 earlier resolutions.
               </p>
 
               <Tip>
-                {unresolved} new session{unresolved === 1 ? '' : 's'} to resolve
+                {unresolved}
+                {' '}
+                new session
+                {unresolved === 1 ? '' : 's'}
+                {' '}
+                to resolve
               </Tip>
 
               <NewResolution
@@ -158,7 +170,7 @@ const EntityResolverScreen = ({
           </div>
         </div>
       </form>
-    </React.Fragment>
+    </>
   );
 };
 

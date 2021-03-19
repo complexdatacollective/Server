@@ -5,7 +5,9 @@ import AppearTransition from '@codaco/ui/lib/components/Transitions/Appear';
 import Rule from './Rule';
 
 const Rules = SortableContainer(
-  ({ rules, onUpdateRule, onDeleteRule, codebook }) => (
+  ({
+    rules, onUpdateRule, onDeleteRule, codebook,
+  }) => (
     <TransitionGroup className="rules">
       {rules.map((rule, index) => (
         <AppearTransition

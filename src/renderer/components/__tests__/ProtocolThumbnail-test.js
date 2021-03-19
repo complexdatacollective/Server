@@ -9,7 +9,9 @@ describe('<ProtocolThumbnail />', () => {
   let mockProtocol;
   let wrapper;
   beforeEach(() => {
-    mockProtocol = { id: '1', name: 'MyProtocol', createdAt: new Date(), schemaVersion: '2.0' };
+    mockProtocol = {
+      id: '1', name: 'MyProtocol', createdAt: new Date(), schemaVersion: '2.0',
+    };
     wrapper = shallow(<ProtocolThumbnail protocol={mockProtocol} />);
   });
 

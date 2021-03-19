@@ -17,7 +17,7 @@ const {
 
 expect.extend({
   networkIncludesNodes(network, nodeIds) {
-    const networkNodeIds = network.nodes.map(node => node[properties.nodePrimaryKey]);
+    const networkNodeIds = network.nodes.map((node) => node[properties.nodePrimaryKey]);
 
     const both = intersection(networkNodeIds, nodeIds);
 
@@ -36,7 +36,7 @@ expect.extend({
 
 expect.extend({
   networkExcludesNodes(network, nodeIds) {
-    const networkNodeIds = network.nodes.map(node => node[properties.nodePrimaryKey]);
+    const networkNodeIds = network.nodes.map((node) => node[properties.nodePrimaryKey]);
 
     const both = intersection(networkNodeIds, nodeIds);
 
@@ -53,7 +53,7 @@ expect.extend({
 
 expect.extend({
   networkHasNode(network, id, attributes) {
-    const node = network.nodes.find(n => n[properties.nodePrimaryKey] === id);
+    const node = network.nodes.find((n) => n[properties.nodePrimaryKey] === id);
 
     if (!node) {
       return {
@@ -83,10 +83,18 @@ ${JSON.stringify(attributes, null, 2)}`,
 
 describe('getSessionsByResolution', () => {
   const resolutions = Object.freeze([
-    { id: 'foo', transforms: [], nodes: [], date: DateTime.fromISO('2019-05-30').toJSDate() },
-    { id: 'bar', transforms: [], nodes: [], date: DateTime.fromISO('2019-06-30').toJSDate() },
-    { id: 'bazz', transforms: [], nodes: [], date: DateTime.fromISO('2019-07-30').toJSDate() },
-    { id: 'buzz', transforms: [], nodes: [], date: DateTime.fromISO('2019-08-30').toJSDate() },
+    {
+      id: 'foo', transforms: [], nodes: [], date: DateTime.fromISO('2019-05-30').toJSDate(),
+    },
+    {
+      id: 'bar', transforms: [], nodes: [], date: DateTime.fromISO('2019-06-30').toJSDate(),
+    },
+    {
+      id: 'bazz', transforms: [], nodes: [], date: DateTime.fromISO('2019-07-30').toJSDate(),
+    },
+    {
+      id: 'buzz', transforms: [], nodes: [], date: DateTime.fromISO('2019-08-30').toJSDate(),
+    },
   ]);
 
   const sessions = Object.freeze([
@@ -125,9 +133,9 @@ describe('applyTransform', () => {
   const network = Object.freeze(
     thru(
       Factory.network.build(20),
-      _network => ({
+      (_network) => ({
         ..._network,
-        nodes: _network.nodes.map(node => ({ ...node, caseId: ['1'] })),
+        nodes: _network.nodes.map((node) => ({ ...node, caseId: ['1'] })),
       }),
     ),
   );
@@ -147,7 +155,6 @@ describe('applyTransform', () => {
     expect(newNetwork)
       .networkHasNode(transform.id, transform.attributes);
 
-
     const newNode = newNetwork.nodes.find(({ _uid }) => _uid === transform.id);
 
     // New nodes should collect parentIds
@@ -163,7 +170,7 @@ describe('applyTransform', () => {
     const networkEdgeIds = network.edges.flatMap(({ from, to }) => [from, to]);
     const transformedNetworkEdgeIds = edges.flatMap(({ from, to }) => [from, to]);
     const mockTransformEdgeIds = networkEdgeIds
-      .map(id => (transform.nodes.includes(id) ? transform.id : id));
+      .map((id) => (transform.nodes.includes(id) ? transform.id : id));
     expect(transformedNetworkEdgeIds).toEqual(mockTransformEdgeIds);
   });
 });

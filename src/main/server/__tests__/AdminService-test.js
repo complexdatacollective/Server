@@ -34,7 +34,6 @@ jest.mock('../../data-managers/ResolverManager');
 //   };
 // });
 
-
 const testPortNumber = 52001;
 
 describe('the AdminService', () => {
@@ -93,7 +92,7 @@ describe('the AdminService', () => {
     });
 
     describe('running', () => {
-      beforeEach(done => adminService.start(testPortNumber).then(() => done()));
+      beforeEach((done) => adminService.start(testPortNumber).then(() => done()));
 
       describe('/health', () => {
         const endpoint = makeUrl('/health', apiBase);
@@ -181,8 +180,8 @@ describe('the AdminService', () => {
 
         beforeAll(() => {
           ProtocolManager.mockImplementation(() => ({
-            validateAndImportProtocols: files => Promise.resolve({ filenames: files.join(', ') }),
-            allProtocols: jest.fn().mockResolvedValue(mockFiles.map(f => ({ filename: f }))),
+            validateAndImportProtocols: (files) => Promise.resolve({ filenames: files.join(', ') }),
+            allProtocols: jest.fn().mockResolvedValue(mockFiles.map((f) => ({ filename: f }))),
             deleteProtocolSessions: jest.fn().mockResolvedValue({ status: 'ok' }),
             destroyProtocol: jest.fn().mockResolvedValue({ status: 'ok' }),
             getProtocol: jest.fn().mockResolvedValue(mockProtocol),

@@ -11,14 +11,12 @@ const matchTypes = {
   LEFT: 'LEFT',
 };
 
-const getIsDiffValid = (requiredAttributes, resolvedAttributes) =>
-  isEqual(requiredAttributes.sort(), Object.keys(resolvedAttributes).sort());
+const getIsDiffValid = (requiredAttributes, resolvedAttributes) => isEqual(requiredAttributes.sort(), Object.keys(resolvedAttributes).sort());
 
-const getSetAll = (variables, value) =>
-  variables.reduce(
-    (acc, variable) => ({ ...acc, [variable]: value }),
-    {},
-  );
+const getSetAll = (variables, value) => variables.reduce(
+  (acc, variable) => ({ ...acc, [variable]: value }),
+  {},
+);
 
 const getLeftRight = (nodes, variable, value) => {
   if (isNil(value)) { return {}; }
@@ -27,18 +25,16 @@ const getLeftRight = (nodes, variable, value) => {
   return {};
 };
 
-const translateResolvedAttributes = (variables, match, values) =>
-  variables.reduce(
-    (acc, variable) => {
-      const value = get(values, variable);
-      return {
-        ...acc,
-        ...getLeftRight(match.nodes, variable, value),
-      };
-    },
-    {},
-  );
-
+const translateResolvedAttributes = (variables, match, values) => variables.reduce(
+  (acc, variable) => {
+    const value = get(values, variable);
+    return {
+      ...acc,
+      ...getLeftRight(match.nodes, variable, value),
+    };
+  },
+  {},
+);
 
 // We assume that this is an already completed resolution,
 // so do not need to check resolvedAttributes length
@@ -46,8 +42,8 @@ const getCompletedMatchTypeFromAttributes = (resolvedAttributes) => {
   if (!resolvedAttributes) { return null; }
 
   const selected = Object.values(resolvedAttributes);
-  const left = selected.every(v => v === 0);
-  const right = selected.every(v => v === 1);
+  const left = selected.every((v) => v === 0);
+  const right = selected.every((v) => v === 1);
 
   if (selected.length === 0) { return matchTypes.MISMATCH; }
   if (left) { return matchTypes.LEFT; }
@@ -58,8 +54,8 @@ const getCompletedMatchTypeFromAttributes = (resolvedAttributes) => {
 
 const checkCompleted = (state) => {
   const isDiffValid = (
-    state.isMatchType === matchTypes.MISMATCH ||
-    getIsDiffValid(state.requiredAttributes, state.resolvedAttributes)
+    state.isMatchType === matchTypes.MISMATCH
+    || getIsDiffValid(state.requiredAttributes, state.resolvedAttributes)
   );
 
   const isDiffComplete = state.isTouched && isDiffValid;
@@ -80,7 +76,7 @@ const initialState = {
   resolvedAttributes: {},
 };
 
-const setAttributes = createAction('SET', attributes => ({ attributes }));
+const setAttributes = createAction('SET', (attributes) => ({ attributes }));
 const setLeft = createAction('SET_LEFT');
 const setRight = createAction('SET_RIGHT');
 const initialize = createAction('INITIALIZE');
@@ -96,19 +92,19 @@ const entityDiffReducer = handleActions({
       ...payload.attributes,
     },
   }),
-  [setLeft]: state => checkCompleted({
+  [setLeft]: (state) => checkCompleted({
     ...state,
     isTouched: true,
     isMatchType: matchTypes.LEFT,
     resolvedAttributes: getSetAll(state.requiredAttributes, 0),
   }),
-  [setRight]: state => checkCompleted({
+  [setRight]: (state) => checkCompleted({
     ...state,
     isTouched: true,
     isMatchType: matchTypes.RIGHT,
     resolvedAttributes: getSetAll(state.requiredAttributes, 1),
   }),
-  [setNotAMatch]: state => checkCompleted({
+  [setNotAMatch]: (state) => checkCompleted({
     ...state,
     resolvedAttributes: {},
     isMatchType: matchTypes.MISMATCH,

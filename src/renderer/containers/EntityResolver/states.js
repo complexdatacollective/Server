@@ -6,7 +6,9 @@ const states = {
   RESOLVING: 'RESOLVING',
 };
 
-export const getStatus = ({ hasData, isLoadingMatches, isComplete, match }) => {
+export const getStatus = ({
+  hasData, isLoadingMatches, isComplete, match,
+}) => {
   if (!hasData && isLoadingMatches) { return states.LOADING; }
   if (!hasData && !isLoadingMatches) { return states.NO_RESULTS; }
   if (isComplete) { return states.REVIEW; } // or "COMPLETE"

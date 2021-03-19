@@ -20,12 +20,10 @@ jest.mock('../../utils/adminApiClient', () => {
   return MockAdminApiClient;
 });
 
-jest.mock('../../hooks/useNetworkStatus', () =>
-  () => ({
-    deviceApiPort: '123.1.1',
-    publicAddresses: [],
-  }),
-);
+jest.mock('../../hooks/useNetworkStatus', () => () => ({
+  deviceApiPort: '123.1.1',
+  publicAddresses: [],
+}));
 
 const mockDevice = { id: '1', name: '1', createdAt: new Date() };
 
@@ -58,7 +56,7 @@ describe('<DeviceStatus />', () => {
   it('Instructions modals behave correctly', async () => {
     const deviceStatus = mount(
       React.createElement(
-        props => (
+        (props) => (
           <Provider store={store}>
             <DeviceStatus history={{}} devices={[]} {...props} />
           </Provider>

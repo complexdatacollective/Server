@@ -5,14 +5,14 @@ import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 import { actionCreators as toastActions } from '../ducks/modules/toasts';
 import useExportStatus from './useExportStatus';
 
-const renderStatus = data => (
-  <React.Fragment>
+const renderStatus = (data) => (
+  <>
     <p>{data.statusText}</p>
     <ProgressBar orientation="horizontal" percentProgress={data.progress} />
-  </React.Fragment>
+  </>
 );
 
-const renderErrors = errors => (
+const renderErrors = (errors) => (
   <div className="export-modal">
     <p>
       Your export completed, but non-fatal errors were encountered during the process. This
@@ -35,8 +35,9 @@ const EXPORT_COMPLETE_TOAST = 'export-complete-toast';
 const useExportManager = () => {
   const dispatch = useDispatch();
 
-  const { exportToFile, exportStatus, resetState, cancelExport } = useExportStatus();
-
+  const {
+    exportToFile, exportStatus, resetState, cancelExport,
+  } = useExportStatus();
 
   const handleExportFinished = (fatalError = false) => {
     dispatch(toastActions.removeToast(EXPORT_UPDATE_TOAST));
@@ -62,9 +63,9 @@ const useExportManager = () => {
       type: 'success',
       title: 'Export complete!',
       content: (
-        <React.Fragment>
+        <>
           <p>Your export finished successfully.</p>
-        </React.Fragment>
+        </>
       ),
     }));
   };
@@ -101,13 +102,12 @@ const useExportManager = () => {
     handleExportUpdate();
   }, [exportStatus.status, exportStatus.progress, exportStatus.errors]);
 
-  const handleExportToFile = (...options) =>
-    exportToFile(...options)
-      .catch((e) => {
-        handleExportFinished(true);
-        resetState();
-        throw e;
-      });
+  const handleExportToFile = (...options) => exportToFile(...options)
+    .catch((e) => {
+      handleExportFinished(true);
+      resetState();
+      throw e;
+    });
 
   return { exportToFile: handleExportToFile, exportStatus };
 };

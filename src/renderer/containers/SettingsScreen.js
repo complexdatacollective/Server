@@ -20,19 +20,19 @@ const entityName = (entityKey) => {
 };
 
 const entityVariableType = (codebook, entity, section) => (
-  codebook && codebook[entityName(entity)] && codebook[entityName(entity)][section] &&
-    codebook[entityName(entity)][section].name);
+  codebook && codebook[entityName(entity)] && codebook[entityName(entity)][section]
+    && codebook[entityName(entity)][section].name);
 
 const entityVariableName = (codebook, entity, section, variable) => {
   if (entity === 'ego') {
-    return (codebook && codebook[entityName(entity)] && codebook[entityName(entity)].variables &&
-      codebook[entityName(entity)].variables[variable] &&
-      codebook[entityName(entity)].variables[variable].name) || variable;
+    return (codebook && codebook[entityName(entity)] && codebook[entityName(entity)].variables
+      && codebook[entityName(entity)].variables[variable]
+      && codebook[entityName(entity)].variables[variable].name) || variable;
   }
 
-  return (codebook && codebook[entityName(entity)] && codebook[entityName(entity)][section] &&
-    codebook[entityName(entity)][section].variables[variable] &&
-    codebook[entityName(entity)][section].variables[variable].name) || variable;
+  return (codebook && codebook[entityName(entity)] && codebook[entityName(entity)][section]
+    && codebook[entityName(entity)][section].variables[variable]
+    && codebook[entityName(entity)][section].variables[variable].name) || variable;
 };
 
 class SettingsScreen extends Component {
@@ -44,7 +44,9 @@ class SettingsScreen extends Component {
   }
 
   get chartConfigSection() {
-    const { distributionVariables, protocol, codebook, setExcludedVariables } = this.props;
+    const {
+      distributionVariables, protocol, codebook, setExcludedVariables,
+    } = this.props;
     if (!Object.keys(distributionVariables).length) {
       return null;
     }
@@ -57,8 +59,8 @@ class SettingsScreen extends Component {
             categorical variables.
           </p>
           {
-            distributionVariables &&
-            Object.entries(distributionVariables).map(([entity, varsWithTypes]) => (
+            distributionVariables
+            && Object.entries(distributionVariables).map(([entity, varsWithTypes]) => (
               Object.entries(varsWithTypes).map(([section, vars]) => (
                 <div className="chart-section" key={section}>
                   <h4>{entityLabel(entity, entityVariableType(codebook, entity, section))}</h4>
@@ -67,12 +69,11 @@ class SettingsScreen extends Component {
                     input={{
                       value: this.includedChartVariablesForSection(entity, section),
                       onChange: (newValue) => {
-                        const newExcluded = vars.filter(v => !newValue.includes(v));
+                        const newExcluded = vars.filter((v) => !newValue.includes(v));
                         setExcludedVariables(protocol.id, entity, section, newExcluded);
                       },
                     }}
-                    options={vars.map(v =>
-                      ({ value: v, label: entityVariableName(codebook, entity, section, v) }))}
+                    options={vars.map((v) => ({ value: v, label: entityVariableName(codebook, entity, section, v) }))}
                   />
                 </div>
               ))))
@@ -98,10 +99,11 @@ class SettingsScreen extends Component {
 
   includedChartVariablesForSection = (entity, section) => {
     const { excludedChartVariables, distributionVariables } = this.props;
-    const excludeSection = excludedChartVariables[entity] &&
-      excludedChartVariables[entity][section];
+    const excludeSection = excludedChartVariables[entity]
+      && excludedChartVariables[entity][section];
     return distributionVariables[entity][section].filter(
-      variable => !excludeSection || !excludeSection.includes(variable));
+      (variable) => !excludeSection || !excludeSection.includes(variable),
+    );
   }
 
   render() {
@@ -146,7 +148,7 @@ const mapStateToProps = (state, ownProps) => ({
   distributionVariables: protocolSelectors.ordinalAndCategoricalVariables(state, ownProps),
 });
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   deleteProtocol: bindActionCreators(actionCreators.deleteProtocol, dispatch),
   setExcludedVariables: bindActionCreators(chartActionCreators.setExcludedVariables, dispatch),
   openDialog: bindActionCreators(dialogActions.openDialog, dispatch),

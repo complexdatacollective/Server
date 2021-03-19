@@ -8,10 +8,10 @@ const { entityAttributesProperty } = require('../utils/network-exporters/src/uti
 const pseudoField = 'nc_pseudo_field';
 
 // Map document results to a count of contained edges *for each interview*
-const edgeCounts = docs => docs.map(doc => doc.data.edges[pseudoField].length);
+const edgeCounts = (docs) => docs.map((doc) => doc.data.edges[pseudoField].length);
 
 // As above, but for nodes
-const nodeCounts = docs => docs.map(doc => doc.data.nodes[pseudoField].length);
+const nodeCounts = (docs) => docs.map((doc) => doc.data.nodes[pseudoField].length);
 
 // Return min/mean/max based on entityCounts (# of nodes or edges per interview)
 const summaryStats = (entityCounts) => {
@@ -25,7 +25,7 @@ const summaryStats = (entityCounts) => {
   return stats;
 };
 
-const flatten = shallowArrays => [].concat(...shallowArrays);
+const flatten = (shallowArrays) => [].concat(...shallowArrays);
 
 const entityKey = (entityName) => {
   if (entityName === 'node') return 'nodes';
@@ -36,20 +36,19 @@ const entityKey = (entityName) => {
 
 // Count entities by type, accumulating in an object.
 // See entityTimeSeries for the format of `types`
-const reduceEntityTypeCounts = (types = [], entityName = 'node') =>
-  types.reduce((sumMap, type) => {
-    const typeKey = `${entityName}_${type}`;
-    sumMap[typeKey] = sumMap[typeKey] || 0;
-    sumMap[typeKey] += 1;
-    sumMap[entityName] += 1;
-    return sumMap;
-  }, { [entityName]: 0 });
+const reduceEntityTypeCounts = (types = [], entityName = 'node') => types.reduce((sumMap, type) => {
+  const typeKey = `${entityName}_${type}`;
+  sumMap[typeKey] = sumMap[typeKey] || 0;
+  sumMap[typeKey] += 1;
+  sumMap[entityName] += 1;
+  return sumMap;
+}, { [entityName]: 0 });
 
 /**
  * Mixin for report queries on a SessionDB.
  * @class
  */
-const Reportable = Super => class extends Super {
+const Reportable = (Super) => class extends Super {
   /**
    * Summary statistics: min, max, mean, sum
    *
@@ -70,7 +69,8 @@ const Reportable = Super => class extends Super {
       [
         this.nodeStats(protocolId).catch(() => {}),
         this.edgeStats(protocolId).catch(() => {}),
-      ])
+      ],
+    )
       .then(([nodes, edges]) => ({ nodes, edges }));
   }
 
@@ -114,7 +114,9 @@ const Reportable = Super => class extends Super {
   entityTimeSeries(protocolId) {
     return new Promise((resolve, reject) => {
       let cursor = this.db.find({ protocolId });
-      cursor = cursor.projection({ 'data.edges.type': 1, 'data.nodes.type': 1, createdAt: 1, _id: 0 });
+      cursor = cursor.projection({
+        'data.edges.type': 1, 'data.nodes.type': 1, createdAt: 1, _id: 0,
+      });
       cursor = cursor.sort(leastRecentlyCreated);
       cursor.exec(resolveOrReject(((records) => {
         const entities = records.reduce((entries, record) => {
@@ -166,7 +168,8 @@ const Reportable = Super => class extends Super {
         this.countSessions(protocolId).catch(() => NaN),
         this.countNodes(protocolId).catch(() => NaN),
         this.countEdges(protocolId).catch(() => NaN),
-      ])
+      ],
+    )
       .then((([sessions, nodes, edges]) => ({
         sessions,
         nodes,
@@ -202,22 +205,21 @@ const Reportable = Super => class extends Super {
         allBuckets = { ...allBuckets, edges: edgeBuckets };
         return this.optionValueBucketsByEntity(protocolId, egoNames, 'ego');
       })
-      .then(egoBuckets => ({ ...allBuckets, ego: egoBuckets }));
+      .then((egoBuckets) => ({ ...allBuckets, ego: egoBuckets }));
   }
 
   optionValueBucketsByEntity(protocolId, variableNames, entityName) {
     return new Promise((resolve, reject) => {
       const key = entityKey(entityName);
       this.db.find({ protocolId, [`data.${key}`]: { $exists: true } }, resolveOrReject((docs) => {
-        const entities = flatten(docs.map(doc => doc.data[key]));
+        const entities = flatten(docs.map((doc) => doc.data[key]));
         const buckets = entities.reduce((acc, entity) => {
           if (entityName === 'ego') {
             acc = acc || {};
             (variableNames || []).forEach((variableName) => {
               acc[variableName] = acc[variableName] || {};
 
-              const optionValue =
-                entity[entityAttributesProperty] && entity[entityAttributesProperty][variableName];
+              const optionValue = entity[entityAttributesProperty] && entity[entityAttributesProperty][variableName];
 
               if (optionValue !== undefined) {
                 // Categorical values are expressed as arrays of multiple options
@@ -234,8 +236,7 @@ const Reportable = Super => class extends Super {
             (variableNames[entity.type] || []).forEach((variableName) => {
               acc[entity.type][variableName] = acc[entity.type][variableName] || {};
 
-              const optionValue =
-                entity[entityAttributesProperty] && entity[entityAttributesProperty][variableName];
+              const optionValue = entity[entityAttributesProperty] && entity[entityAttributesProperty][variableName];
 
               if (optionValue !== undefined) {
                 // Categorical values are expressed as arrays of multiple options
@@ -260,7 +261,7 @@ const Reportable = Super => class extends Super {
       this.db
         .find({ protocolId, 'data.nodes': { $exists: true } })
         .projection({ [`data.nodes.${[pseudoField]}`]: 1, _id: 0 })
-        .exec(resolveOrReject(docs => resolve(summaryStats(nodeCounts(docs))), reject));
+        .exec(resolveOrReject((docs) => resolve(summaryStats(nodeCounts(docs))), reject));
     });
   }
 
@@ -269,7 +270,7 @@ const Reportable = Super => class extends Super {
       this.db
         .find({ protocolId, 'data.edges': { $exists: true } })
         .projection({ [`data.edges.${[pseudoField]}`]: 1, _id: 0 })
-        .exec(resolveOrReject(docs => resolve(summaryStats(edgeCounts(docs))), reject));
+        .exec(resolveOrReject((docs) => resolve(summaryStats(edgeCounts(docs))), reject));
     });
   }
 
@@ -280,11 +281,11 @@ const Reportable = Super => class extends Super {
   }
 
   countNodes(protocolId) {
-    return this.nodeStats(protocolId).then(stats => stats && stats.sum);
+    return this.nodeStats(protocolId).then((stats) => stats && stats.sum);
   }
 
   countEdges(protocolId) {
-    return this.edgeStats(protocolId).then(stats => stats && stats.sum);
+    return this.edgeStats(protocolId).then((stats) => stats && stats.sum);
   }
 };
 

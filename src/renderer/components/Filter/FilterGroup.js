@@ -20,14 +20,13 @@ const joinOptions = [
   'AND',
 ];
 
-const filterGroupClasses = join =>
-  cx(
-    'filter-group',
-    {
-      'filter-group--and': join === 'AND',
-      'filter-group--or': join === 'OR',
-    },
-  );
+const filterGroupClasses = (join) => cx(
+  'filter-group',
+  {
+    'filter-group--and': join === 'AND',
+    'filter-group--or': join === 'OR',
+  },
+);
 
 const mergeRuleOption = (rule, option, value) => ({
   ...rule,
@@ -68,7 +67,7 @@ class FilterGroup extends PureComponent {
     const { filter, onChange } = this.props;
 
     const rules = filter.rules.map(
-      rule => (id !== rule.id ? rule : mergeRuleOption(rule, option, value)),
+      (rule) => (id !== rule.id ? rule : mergeRuleOption(rule, option, value)),
     );
 
     const newFilter = parse(
@@ -105,7 +104,7 @@ class FilterGroup extends PureComponent {
 
     onChange({
       ...filter,
-      rules: filter.rules.filter(rule => rule.id !== id),
+      rules: filter.rules.filter((rule) => rule.id !== id),
     });
   };
 

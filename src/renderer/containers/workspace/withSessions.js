@@ -21,8 +21,7 @@ const defaultMinimumSessions = 100;
  * - sessions
  * - totalSessionsCount
  */
-const withSessions = WrappedComponent =>
-  class extends Component {
+const withSessions = (WrappedComponent) => class extends Component {
     static propTypes = {
       protocol: Types.protocol,
     };
@@ -70,14 +69,15 @@ const withSessions = WrappedComponent =>
 
     componentWillUnmount() {
       this.loadPromises = this.loadPromises.map(
-        loadPromise => ({ ...loadPromise, cancelled: true }));
+        (loadPromise) => ({ ...loadPromise, cancelled: true }),
+      );
       ipcRenderer.removeListener(ipcChannels.DATA_IS_STALE, this.onSessionsImported);
     }
 
     onSessionsImported = () => this.reloadSessions();
 
     get sessionsEndpoint() {
-      const id = this.props.protocol.id;
+      const { id } = this.props.protocol;
       return id && `/protocols/${id}/sessions`;
     }
 
@@ -126,7 +126,8 @@ const withSessions = WrappedComponent =>
               // add sessions loaded previously after the just loaded indices
               if (this.state.sessions && sessions.length < this.state.sessions.length) {
                 sessions = sessions.concat(
-                  this.state.sessions.slice(stopIndex, this.state.sessions.length));
+                  this.state.sessions.slice(stopIndex, this.state.sessions.length),
+                );
               }
             }
             this.setState({
@@ -159,8 +160,8 @@ const withSessions = WrappedComponent =>
       ));
 
     reloadSessions = () => {
-      const numSessions = this.state.sessions.length < defaultMinimumSessions ?
-        defaultMinimumSessions : this.state.sessions.length;
+      const numSessions = this.state.sessions.length < defaultMinimumSessions
+        ? defaultMinimumSessions : this.state.sessions.length;
       return this.loadSessions(
         0,
         numSessions,
@@ -180,7 +181,8 @@ const withSessions = WrappedComponent =>
     deleteSelectedSessions = (selectedSessions) => {
       if (!selectedSessions) return;
       const deletePromises = selectedSessions.map(
-        session => this.apiClient.delete(this.sessionEndpoint(session)));
+        (session) => this.apiClient.delete(this.sessionEndpoint(session)),
+      );
       Promise.all(deletePromises)
         .then(() => this.reloadSessions());
     }
@@ -191,7 +193,9 @@ const withSessions = WrappedComponent =>
     }
 
     render() {
-      const { sessions, totalSessionsCount, filterValue, sortType, sortDirection } = this.state;
+      const {
+        sessions, totalSessionsCount, filterValue, sortType, sortDirection,
+      } = this.state;
       return (
         <WrappedComponent
           {...this.props}
@@ -209,7 +213,7 @@ const withSessions = WrappedComponent =>
         />
       );
     }
-  };
+};
 
 const providedPropTypes = {
   deleteAllSessions: PropTypes.function,

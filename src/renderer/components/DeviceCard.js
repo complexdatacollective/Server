@@ -31,7 +31,12 @@ const DeviceCard = ({
       </div>
       <div className="device-card__main-section">
         <h2 className="device-name"><HoverMarquee>{name}</HoverMarquee></h2>
-        <h6><HoverMarquee>Paired: {createdLabel}</HoverMarquee></h6>
+        <h6>
+          <HoverMarquee>
+            Paired:
+            {createdLabel}
+          </HoverMarquee>
+        </h6>
       </div>
       <div
         className="device-card__delete"

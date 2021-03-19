@@ -12,6 +12,7 @@ class AddButton extends PureComponent {
   }
 
   onShowAddChoices = () => { this.setState({ isOpen: true }); };
+
   onHideAddChoices = () => { this.setState({ isOpen: false }); };
 
   render() {

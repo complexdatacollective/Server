@@ -6,8 +6,7 @@ const eventTypes = {
   RESOLVE_ABORT: 'RESOLVE_ABORT',
 };
 
-const getEventName = (eventType, requestId) =>
-  `${eventType}_${requestId}`;
+const getEventName = (eventType, requestId) => `${eventType}_${requestId}`;
 
 module.exports = {
   eventTypes,

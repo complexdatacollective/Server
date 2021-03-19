@@ -9,9 +9,8 @@ const Tip = ({ type, icon, children }) => {
 
   return (
     <div className={classes}>
-      { icon &&
-        <Icon name={type} />
-      }
+      { icon
+        && <Icon name={type} />}
       {children}
     </div>
   );

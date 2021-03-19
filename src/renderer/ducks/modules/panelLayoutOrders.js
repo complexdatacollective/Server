@@ -7,7 +7,7 @@ const initialState = {};
 const reducer = (state = initialState, action = {}) => {
   switch (action.type) {
     case SET_PANEL_LAYOUT_ORDER: {
-      const protocolId = action.protocolId;
+      const { protocolId } = action;
       if (!protocolId) {
         return state;
       }
@@ -25,7 +25,6 @@ const setPanelLayoutOrder = (protocolId, layoutOrder) => ({
   protocolId,
   layoutOrder,
 });
-
 
 const panelLayoutOrderForCurrentProtocol = (state, props) => {
   const protocol = protocolSelectors.currentProtocol(state, props);

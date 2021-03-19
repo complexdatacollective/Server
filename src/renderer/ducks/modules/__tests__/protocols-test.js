@@ -152,7 +152,8 @@ describe('the protocols module', () => {
         const state = { protocols: [{ id: '1', codebook: {} }] };
         const props = { match: { params: { id: '1' } } };
         expect(ordinalAndCategoricalVariables(state, props)).toEqual(
-          { nodes: {}, edges: {}, ego: {} });
+          { nodes: {}, edges: {}, ego: {} },
+        );
       });
 
       it('returns an empty object if protocol unavailable', () => {

@@ -18,7 +18,9 @@ describe('versionGatekeeper', () => {
     expect(next.mock.calls[0][0]).toBe(false);
     expect(res.send.mock.calls[0]).toEqual([
       400,
-      { status: 'version_mismatch', device: '-999', error: 'Device API version mismatch.', server: '1' },
+      {
+        status: 'version_mismatch', device: '-999', error: 'Device API version mismatch.', server: '1',
+      },
     ]);
   });
 

@@ -21,35 +21,37 @@ const ControlBar = ({
   return (
     <div key="loading-controls" className="resolver__control-bar">
       <div className="resolver__controls resolver__controls--left">
-        { status === states.NO_RESULTS &&
-          <Button color="white" key="close" onClick={onClose}>Close</Button>
-        }
-        { status !== states.NO_RESULTS &&
-          <Button color="white" key="cancel" onClick={onCancel}>Cancel</Button>
-        }
+        { status === states.NO_RESULTS
+          && <Button color="white" key="close" onClick={onClose}>Close</Button>}
+        { status !== states.NO_RESULTS
+          && <Button color="white" key="cancel" onClick={onCancel}>Cancel</Button>}
       </div>
       <div className="resolver__controls resolver__controls--center">
         { (status === states.RESOLVING || status === states.WAITING) && (
-          <React.Fragment>
-            {currentMatch} of&nbsp;<span className={totalClasses}>{totalMatches}</span>
-          </React.Fragment>
+          <>
+            {currentMatch}
+            {' '}
+            of&nbsp;
+            <span className={totalClasses}>{totalMatches}</span>
+          </>
         )}
       </div>
       <div className="resolver__controls resolver__controls--right">
-        { status === states.RESOLVING && currentMatch > 1 &&
-          <Button color="white" onClick={onBack}>Back</Button>
-        }
-        { status === states.RESOLVING &&
+        { status === states.RESOLVING && currentMatch > 1
+          && <Button color="white" onClick={onBack}>Back</Button>}
+        { status === states.RESOLVING
+          && (
           <Button
             disabled={!isDiffComplete}
             onClick={onNext}
             autoFocus
             type="submit"
-          >Next</Button>
-        }
-        { status === states.REVIEW &&
-          <Button onClick={onFinish} autoFocus type="submit">Save and export</Button>
-        }
+          >
+            Next
+          </Button>
+          )}
+        { status === states.REVIEW
+          && <Button onClick={onFinish} autoFocus type="submit">Save and export</Button>}
       </div>
     </div>
   );

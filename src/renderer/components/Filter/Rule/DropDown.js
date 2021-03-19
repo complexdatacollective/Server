@@ -5,8 +5,7 @@ import { isArray, find } from 'lodash';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 
-const withLabels = options =>
-  options.map(option => (isArray(option) ? option : [option, option]));
+const withLabels = (options) => options.map((option) => (isArray(option) ? option : [option, option]));
 
 // Returns string used to give div correct width (hidden)
 const getSpacer = (optionsWithLabels, placeholder, value) => {
@@ -28,17 +27,16 @@ const DropDown = ({
   const spacer = getSpacer(optionsWithLabels, placeholder, value);
 
   return (
-    <label className={cx('rule-drop-down', className)} >
+    <label className={cx('rule-drop-down', className)}>
       <div className="rule-drop-down__spacer">{ spacer }</div>
       <select
         value={value}
-        onChange={e => onChange(e.target.value)}
+        onChange={(e) => onChange(e.target.value)}
         className="rule-drop-down__options"
       >
         { placeholder && <option value="" disabled>{placeholder}</option> }
         {optionsWithLabels.map(
-          ([optionValue, optionLabel], index) =>
-            <option key={index} value={optionValue}>{optionLabel}</option>,
+          ([optionValue, optionLabel], index) => <option key={index} value={optionValue}>{optionLabel}</option>,
         )}
       </select>
     </label>

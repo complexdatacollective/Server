@@ -10,7 +10,7 @@ import DialogManager from '../components/DialogManager';
 import AppRoutes from './AppRoutes';
 import ProtocolNav from './ProtocolNav';
 import AdminApiClient from '../utils/adminApiClient';
-import SessionFileDropTarget from '../containers/SessionFileDropTarget';
+import SessionFileDropTarget from './SessionFileDropTarget';
 import { actionCreators } from '../ducks/modules/pairingRequest';
 import { actionCreators as connectionInfoActionCreators } from '../ducks/modules/connectionInfo';
 import { actionCreators as deviceActionCreators } from '../ducks/modules/devices';
@@ -99,7 +99,7 @@ const App = ({
         autoDismiss: false,
         onDismiss: dismissPairingRequest,
         content: (
-          <React.Fragment>
+          <>
             <p>
               A device is attempting to pair with this computer.
               This will give it access to your interview protocols and allow it to upload data.
@@ -108,7 +108,7 @@ const App = ({
               <Button color="platinum--dark" onClick={handleDismissPair}>Dismiss</Button>
               <Button color="neon-coral" onClick={handleAcknowledgePair}>Pair With Device</Button>
             </div>
-          </React.Fragment>
+          </>
         ),
       }));
       newPairingRequest(data.id, data.pairingCode);
@@ -147,25 +147,35 @@ const App = ({
       <div className="app__content">
         {
           apiReady && (
-            <React.Fragment>
+            <>
               <ProtocolNav className="app__sidebar" />
               <SessionFileDropTarget>
                 <div className="app__screen">
-                  { insecure &&
+                  { insecure
+                    && (
                     <div className="unsafe-pairing-warning">
                       <h3>Warning: Unsafe Pairing Enabled!</h3>
                       <p>
-                        You have started Server with the <code>unsafe-pairing-code</code> option
+                        You have started Server with the
+                        {' '}
+                        <code>unsafe-pairing-code</code>
+                        {' '}
+                        option
                         set. This option severely undermines the security of Server,
-                        and should <strong>not be used when conducting a study under any
-                          circumstances</strong>.
+                        and should
+                        {' '}
+                        <strong>
+                          not be used when conducting a study under any
+                          circumstances
+                        </strong>
+                        .
                       </p>
                     </div>
-                  }
+                    )}
                   <AppRoutes networkStatusError={networkStatusError} />
                 </div>
               </SessionFileDropTarget>
-            </React.Fragment>
+            </>
           )
         }
       </div>

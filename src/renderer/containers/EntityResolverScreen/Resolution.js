@@ -42,7 +42,7 @@ const Resolution = ({
   };
 
   return [
-    <motion.tr layout key="summary" className={summaryClasses} onClick={handleOpen} >
+    <motion.tr layout key="summary" className={summaryClasses} onClick={handleOpen}>
       <td className={toggleClasses}>
         <img src={caretRightImage} className="resolution__toggle-icon-default" alt="View more" />
         <img src={caretDownImage} className="resolution__toggle-icon-open" alt="Close" />
@@ -59,7 +59,8 @@ const Resolution = ({
     <motion.tr layout key="parameters" className="resolution__parameters">
       <td colSpan="5">
         <AnimatePresence>
-          { isOpen &&
+          { isOpen
+            && (
             <motion.div
               key="parameters-container"
               className="resolution__parameters-container"
@@ -72,7 +73,13 @@ const Resolution = ({
                 <tbody>
                   <tr>
                     <th>Node Type</th>
-                    <td>{egoCastType} ({egoCastTypeLabel})</td>
+                    <td>
+                      {egoCastType}
+                      {' '}
+                      (
+                      {egoCastTypeLabel}
+                      )
+                    </td>
                   </tr>
                   <tr>
                     <th>Interpreter Path</th>
@@ -92,7 +99,7 @@ const Resolution = ({
                 <Button onClick={() => onDelete(id)} color="tomato" size="small">Delete resolution</Button>
               </div>
             </motion.div>
-          }
+            )}
         </AnimatePresence>
       </td>
     </motion.tr>,

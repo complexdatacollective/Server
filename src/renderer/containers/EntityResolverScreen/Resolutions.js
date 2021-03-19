@@ -15,12 +15,11 @@ const Resolutions = ({
   resolutions,
 }) => {
   const dispatch = useDispatch();
-  const nodeTypes = useSelector(state => getNodeTypes(state, protocolId));
-  const openDialog = dialog => dispatch(dialogActions.openDialog(dialog));
+  const nodeTypes = useSelector((state) => getNodeTypes(state, protocolId));
+  const openDialog = (dialog) => dispatch(dialogActions.openDialog(dialog));
 
   const [activeResolution, setActiveResolution] = useState(undefined);
-  const toggleActiveResolution = resolutionId =>
-    setActiveResolution(s => (s === resolutionId ? undefined : resolutionId));
+  const toggleActiveResolution = (resolutionId) => setActiveResolution((s) => (s === resolutionId ? undefined : resolutionId));
 
   const handleDelete = (resolutionId) => {
     openDialog({
@@ -48,7 +47,7 @@ const Resolutions = ({
           <tbody>
             {
               resolutions
-                .map(resolution => (
+                .map((resolution) => (
                   <Resolution
                     key={resolution.id}
                     isOpen={resolution.id === activeResolution}

@@ -13,8 +13,7 @@ const eventTypes = {
 };
 
 // TODO:  can we share this with the client?
-const getEventName = (eventType, requestId) =>
-  `${eventType}_${requestId}`;
+const getEventName = (eventType, requestId) => `${eventType}_${requestId}`;
 
 /**
  * Provides an IPC API for resolution clients on the same machine.
@@ -69,7 +68,7 @@ class ResolverService {
           event.sender.send(getEventName(eventTypes.RESOLVE_DATA, requestId), data.toString());
         });
 
-        resolverStream.on('error', e => handleError(e));
+        resolverStream.on('error', (e) => handleError(e));
 
         resolverStream.on('end', () => {
           logger.debug('[ResolverService:end]');

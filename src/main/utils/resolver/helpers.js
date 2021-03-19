@@ -26,14 +26,13 @@ const formatResolution = ({
   transforms,
 });
 
-const unionOfNetworks = networks =>
-  networks.reduce((union, network) => {
-    const meta = { caseId: [get(network, 'sessionVariables.caseId')] };
-    return {
-      nodes: [...union.nodes, ...network.nodes.map(assign(meta))],
-      edges: [...union.edges, ...network.edges.map(assign(meta))],
-    };
-  }, { nodes: [], edges: [] });
+const unionOfNetworks = (networks) => networks.reduce((union, network) => {
+  const meta = { caseId: [get(network, 'sessionVariables.caseId')] };
+  return {
+    nodes: [...union.nodes, ...network.nodes.map(assign(meta))],
+    edges: [...union.edges, ...network.edges.map(assign(meta))],
+  };
+}, { nodes: [], edges: [] });
 
 module.exports = {
   formatSession,

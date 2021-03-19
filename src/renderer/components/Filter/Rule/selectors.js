@@ -21,20 +21,18 @@ const validTypes = [
 // Codebook is supplied as a prop to keep Filter contained & reusable
 const getCodebook = (state, props) => props.codebook;
 
-export const getVariableOptions = type =>
-  mapValues(
-    type,
-    meta =>
-      reduce(
-        meta.variables,
-        (memo, variableMeta, variableId) => (
-          validTypes.includes(variableMeta.type) ?
-            [...memo, [variableId, variableMeta.name]] :
-            memo
-        ),
-        [],
-      ),
-  );
+export const getVariableOptions = (type) => mapValues(
+  type,
+  (meta) => reduce(
+    meta.variables,
+    (memo, variableMeta, variableId) => (
+      validTypes.includes(variableMeta.type)
+        ? [...memo, [variableId, variableMeta.name]]
+        : memo
+    ),
+    [],
+  ),
+);
 
 /**
  * Return a map of variable types:
@@ -51,16 +49,15 @@ export const getVariableOptions = type =>
  */
 export const getVariableTypes = createDeepEqualSelector(
   getCodebook,
-  codebook =>
-    reduce(
-      codebook,
-      (memo, entities, type) => ({
-        ...memo,
-        [type]: mapValues(
-          entities,
-          entityMeta => mapValues(entityMeta.variables, 'type'),
-        ),
-      }),
-      {},
-    ),
+  (codebook) => reduce(
+    codebook,
+    (memo, entities, type) => ({
+      ...memo,
+      [type]: mapValues(
+        entities,
+        (entityMeta) => mapValues(entityMeta.variables, 'type'),
+      ),
+    }),
+    {},
+  ),
 );

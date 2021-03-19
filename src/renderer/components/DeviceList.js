@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Text } from '@codaco/ui/lib/components/Fields';
 import { Scroller } from '@codaco/ui/lib/components';
-import DeviceCard from '../components/DeviceCard';
+import DeviceCard from './DeviceCard';
 import { actionCreators } from '../ducks/modules/devices';
 import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 
@@ -80,13 +80,15 @@ const DeviceList = ({
           }}
         />
       </div>
-      { filteredDevices.length === 0 &&
+      { filteredDevices.length === 0
+        && (
         <div className="device-list__empty">
           <h4>No paired devices.</h4>
         </div>
-      }
-      { filteredDevices.length !== 0 &&
-        <React.Fragment>
+        )}
+      { filteredDevices.length !== 0
+        && (
+        <>
           <div className="device-list__list">
             <Scroller>
               <motion.div
@@ -98,7 +100,7 @@ const DeviceList = ({
               >
                 <AnimatePresence>
                   {
-                    filteredDevices.map(device => (
+                    filteredDevices.map((device) => (
                       <motion.div
                         variants={itemVariants}
                         key={device.id}
@@ -117,8 +119,8 @@ const DeviceList = ({
               </motion.div>
             </Scroller>
           </div>
-        </React.Fragment>
-      }
+        </>
+        )}
     </div>
   );
 };

@@ -11,7 +11,7 @@ const reducer = (state = initialState, action = {}) => {
   }
 };
 
-const setConnectionInfo = connectionInfo => ({
+const setConnectionInfo = (connectionInfo) => ({
   type: SET_CONNECTION_INFO,
   connectionInfo,
 });

@@ -7,7 +7,7 @@ import { actionTypes } from '../modules/pairingRequest';
  * to the main process, so that it can take action as needed (for example, responding
  * to an outstanding, long-lived pairing request.)
  */
-const pairingObserver = () => next => (action) => {
+const pairingObserver = () => (next) => (action) => {
   if (action.type === actionTypes.ACKNOWLEDGE_PAIRING_REQUEST) {
     ipcRenderer.send('PairingCodeAcknowledged');
   } else if (action.type === actionTypes.DISMISS_PAIRING_REQUEST) {

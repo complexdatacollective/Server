@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const renderItem = item => <div key={item} className="panel-item__value">{item}</div>;
+const renderItem = (item) => <div key={item} className="panel-item__value">{item}</div>;
 
 const renderValue = (value, placeholder) => {
   if (Array.isArray(value)) {
-    return value.map(item => renderItem(item));
+    return value.map((item) => renderItem(item));
   }
   if (value) {
     return renderItem(value);

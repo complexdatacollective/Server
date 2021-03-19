@@ -10,31 +10,29 @@ const { currentCodebook } = protocolSelectors;
 
 // Data series are keyed with node_[subtype] and edge_[subtype]; we can assume subtypes are
 // meaningfully unique and label with just the subtype
-const subtypeLabel = subtype => subtype.split('_')[1];
+const subtypeLabel = (subtype) => subtype.split('_')[1];
 const codebookSubtypeLabel = (codebook, entityType, subtype) => (
-  (codebook && codebook[entityType][subtypeLabel(subtype)] &&
-    codebook[entityType][subtypeLabel(subtype)].name) || subtypeLabel(subtype)
+  (codebook && codebook[entityType][subtypeLabel(subtype)]
+    && codebook[entityType][subtypeLabel(subtype)].name) || subtypeLabel(subtype)
 );
 
 // Based on the API response, determine which series to render.
 // If there's only one node subtype (e.g., 'person'), don't render it.
 const dataSeries = (timeSeriesKeys = [], codebook) => {
   const series = [];
-  const nodeSubtypes = timeSeriesKeys.filter(key => (/node_/).test(key));
-  const edgeSubtypes = timeSeriesKeys.filter(key => (/edge_/).test(key));
+  const nodeSubtypes = timeSeriesKeys.filter((key) => (/node_/).test(key));
+  const edgeSubtypes = timeSeriesKeys.filter((key) => (/edge_/).test(key));
   if (timeSeriesKeys.includes('node')) {
     series.push({ key: 'node', label: 'node' });
   }
   if (nodeSubtypes.length > 1) {
-    series.push(...nodeSubtypes.map(subtype =>
-      ({ key: subtype, label: codebookSubtypeLabel(codebook, 'node', subtype) })));
+    series.push(...nodeSubtypes.map((subtype) => ({ key: subtype, label: codebookSubtypeLabel(codebook, 'node', subtype) })));
   }
   if (timeSeriesKeys.includes('edge')) {
     series.push({ key: 'edge', label: 'edge' });
   }
   if (edgeSubtypes.length > 1) {
-    series.push(...edgeSubtypes.map(subtype =>
-      ({ key: subtype, label: codebookSubtypeLabel(codebook, 'edge', subtype) })));
+    series.push(...edgeSubtypes.map((subtype) => ({ key: subtype, label: codebookSubtypeLabel(codebook, 'edge', subtype) })));
   }
   return series;
 };

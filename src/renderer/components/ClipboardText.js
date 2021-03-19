@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import cx from 'classnames';
 import copy from '../images/copy.svg';
 
-const clipboard = electron.remote.clipboard;
+const { clipboard } = electron.remote;
 
 const ClipboardText = ({
   showTag,

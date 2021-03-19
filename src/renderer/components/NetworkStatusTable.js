@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ClipboardText from '../components/ClipboardText';
+import ClipboardText from './ClipboardText';
 
-const getMdnsLabel = mdnsStatus => ({
+const getMdnsLabel = (mdnsStatus) => ({
   error: 'Unsupported',
   ok: 'Enabled and Broadcasting',
   pending: 'Pending',
@@ -31,42 +31,57 @@ const NetworkStatusTable = ({
     <div className="network-status-table">
       <table>
         <tbody>
-          { hostname &&
+          { hostname
+            && (
             <tr>
-              <th>Computer name</th><td>{networkStatus.hostname}</td>
+              <th>Computer name</th>
+              <td>{networkStatus.hostname}</td>
             </tr>
-          }
-          { uptime &&
+            )}
+          { uptime
+            && (
             <tr>
-              <th>Uptime</th><td>{uptimeBadge} {uptimeDisplay}</td>
+              <th>Uptime</th>
+              <td>
+                {uptimeBadge}
+                {' '}
+                {uptimeDisplay}
+              </td>
             </tr>
-          }
-          { discoverable &&
+            )}
+          { discoverable
+            && (
             <tr>
               <th>Automatic Server Discovery</th>
-              <td>{mdnsBadge} {getMdnsLabel(getMdnsStatus(networkStatus))}</td>
+              <td>
+                {mdnsBadge}
+                {' '}
+                {getMdnsLabel(getMdnsStatus(networkStatus))}
+              </td>
             </tr>
-          }
-          { port &&
+            )}
+          { port
+            && (
             <tr>
               <th>Port</th>
               <td>
                 <div><ClipboardText>{networkStatus.deviceApiPort}</ClipboardText></div>
               </td>
             </tr>
-          }
-          { addresses &&
+            )}
+          { addresses
+            && (
             <tr>
-              <th>IP Address{networkStatus.publicAddresses.length > 0 ? 'es' : ''}</th>
+              <th>
+                IP Address
+                {networkStatus.publicAddresses.length > 0 ? 'es' : ''}
+              </th>
               <td>
-                {networkStatus.publicAddresses &&
-                  networkStatus.publicAddresses.map(ip =>
-                    <div key={ip}><ClipboardText>{ip}</ClipboardText></div>,
-                  )
-                }
+                {networkStatus.publicAddresses
+                  && networkStatus.publicAddresses.map((ip) => <div key={ip}><ClipboardText>{ip}</ClipboardText></div>)}
               </td>
             </tr>
-          }
+            )}
         </tbody>
       </table>
     </div>

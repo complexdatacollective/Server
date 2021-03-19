@@ -35,14 +35,16 @@ class SessionDB extends Reportable(DatabaseAdapter) {
       // Requiring UUID ensures uniqueness; removing this check would provide a fallback for clients
       // to import data without caring about uniqueness.
       // Requiring a nested data field ensures metadata is kept separate.
-      const isInvalid = s => s[sessionUidField] === undefined || s[sessionDataField] === undefined;
+      const isInvalid = (s) => s[sessionUidField] === undefined || s[sessionDataField] === undefined;
       if (sessions.some(isInvalid)) {
         reject(new RequestError(`'${sessionUidField}' and '${sessionDataField}' required on session`));
         return;
       }
-      sessions = sessions.map(s => (
+      sessions = sessions.map((s) => (
         // Use client-provided uid for PK; nedb drops field if undefined.
-        { ...s, _id: s[sessionUidField], [sessionUidField]: undefined, protocolId: protocol._id }
+        {
+          ...s, _id: s[sessionUidField], [sessionUidField]: undefined, protocolId: protocol._id,
+        }
       ));
       this.db.insert(sessions, (err, docs) => {
         if (err) {

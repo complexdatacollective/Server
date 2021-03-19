@@ -1,4 +1,4 @@
-const consumeResponse = resp => (
+const consumeResponse = (resp) => (
   resp.json()
     .then((respJson) => {
       if (resp.ok) {

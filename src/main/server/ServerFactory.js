@@ -8,8 +8,8 @@ const { deviceServiceEvents } = require('./devices/DeviceService');
 const startServer = (dataDir, httpPort, httpsPort) => (
   cipherReady
     .then(ensurePemKeyPair)
-    .then(keys => new Server({ dataDir, keys }))
-    .then(server => server.startServices(httpPort, httpsPort))
+    .then((keys) => new Server({ dataDir, keys }))
+    .then((server) => server.startServices(httpPort, httpsPort))
 );
 
 /**

@@ -45,7 +45,7 @@ const reducer = (state = initialState, action = {}) => {
   }
 };
 
-const requestIsPending = state => (state.pairingRequest.status === PairingStatus.Pending);
+const requestIsPending = (state) => (state.pairingRequest.status === PairingStatus.Pending);
 
 const acknowledgePairingRequest = () => (
   {
@@ -59,20 +59,19 @@ const completedPairingRequest = () => (
   }
 );
 
-const dismissPairingRequest = (cancel = false) =>
-  (dispatch, getState) => {
-    if (cancel) {
-      const requestId = get(getState(), ['pairingRequest', 'id']);
+const dismissPairingRequest = (cancel = false) => (dispatch, getState) => {
+  if (cancel) {
+    const requestId = get(getState(), ['pairingRequest', 'id']);
 
-      if (requestId) {
-        ipcRenderer.send(ipcChannels.PAIRING_CANCELLED, requestId);
-      }
+    if (requestId) {
+      ipcRenderer.send(ipcChannels.PAIRING_CANCELLED, requestId);
     }
+  }
 
-    dispatch({
-      type: DISMISS_PAIRING_REQUEST,
-    });
-  };
+  dispatch({
+    type: DISMISS_PAIRING_REQUEST,
+  });
+};
 
 const newPairingRequest = (id, pairingCode) => (
   {

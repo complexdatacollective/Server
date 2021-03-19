@@ -36,8 +36,7 @@ const EntityResolver = React.forwardRef(({
     }
   }, [ref, resolverState.requestId]);
 
-  const [resolutionsState, resolutionsActions] =
-    useResolutionsState(resolverState.matches, [resolverState.requestId]);
+  const [resolutionsState, resolutionsActions] = useResolutionsState(resolverState.matches, [resolverState.requestId]);
 
   const codebook = get(resolverState, ['protocol', 'codebook'], {});
 
@@ -48,8 +47,8 @@ const EntityResolver = React.forwardRef(({
 
   const previousDiff = () => {
     if (!(
-      !diffState.isTouched || (diffState.isMatchType === 'MISMATCH' && diffState.isTouched) ||
-      window.confirm('Any choices for this match will be lost, continue?') // eslint-disable-line
+      !diffState.isTouched || (diffState.isMatchType === 'MISMATCH' && diffState.isTouched)
+      || window.confirm('Any choices for this match will be lost, continue?') // eslint-disable-line
     )) {
       return;
     }

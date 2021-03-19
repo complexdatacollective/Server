@@ -8,7 +8,7 @@ import { PairingStatus } from '../../ducks/modules/pairingRequest';
 
 const mockPin = '1a';
 
-const makeProps = status => ({
+const makeProps = (status) => ({
   apiClient: {
     checkPairingCodeExpired: jest.fn().mockResolvedValue({}),
   },

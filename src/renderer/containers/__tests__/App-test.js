@@ -37,11 +37,10 @@ const mockDispatched = {
   },
 };
 
-
 // This is madness. See here: https://github.com/enzymejs/enzyme/issues/2086
 jest.mock('react', () => ({
   ...jest.requireActual('react'),
-  useEffect: f => f(),
+  useEffect: (f) => f(),
 }));
 
 describe('<App />', () => {
@@ -144,7 +143,7 @@ describe('<App />', () => {
         stopPropagation: jest.fn(),
       };
       shallow(<App {...mockDispatched} />);
-      handlers.forEach(handler => handler(mockEvent));
+      handlers.forEach((handler) => handler(mockEvent));
       expect(mockEvent.preventDefault).toHaveBeenCalled();
       expect(mockEvent.stopPropagation).toHaveBeenCalled();
     });

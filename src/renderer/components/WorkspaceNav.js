@@ -12,9 +12,24 @@ function WorkspaceNav(props) {
   return (
     <div className="workspace-nav">
       <ul>
-        <NavLink exact activeClassName="active" to={`/workspaces/${protocolId}`}><li><img src={overview} alt="overview" />Overview</li></NavLink>
-        <NavLink exact activeClassName="active" to={`/workspaces/${protocolId}/casemanagement`}><li><img src={cases} alt="cases" />Manage Cases</li></NavLink>
-        <NavLink exact activeClassName="active" to={`/workspaces/${protocolId}/export`}><li><img src={share} alt="share" />Export Data</li></NavLink>
+        <NavLink exact activeClassName="active" to={`/workspaces/${protocolId}`}>
+          <li>
+            <img src={overview} alt="overview" />
+            Overview
+          </li>
+        </NavLink>
+        <NavLink exact activeClassName="active" to={`/workspaces/${protocolId}/casemanagement`}>
+          <li>
+            <img src={cases} alt="cases" />
+            Manage Cases
+          </li>
+        </NavLink>
+        <NavLink exact activeClassName="active" to={`/workspaces/${protocolId}/export`}>
+          <li>
+            <img src={share} alt="share" />
+            Export Data
+          </li>
+        </NavLink>
         {/*
           <NavLink
             exact
@@ -24,7 +39,12 @@ function WorkspaceNav(props) {
             <li><img src={resolve} alt="resolve" />Resolve data</li>
           </NavLink>
         */}
-        <NavLink exact activeClassName="active" to={`/workspaces/${protocolId}/settings`}><li><img src={settings} alt="settings" />Settings</li></NavLink>
+        <NavLink exact activeClassName="active" to={`/workspaces/${protocolId}/settings`}>
+          <li>
+            <img src={settings} alt="settings" />
+            Settings
+          </li>
+        </NavLink>
       </ul>
     </div>
   );

@@ -30,7 +30,7 @@ const readdir = (path, options) => (new Promise((resolve, reject) => {
   } catch (err) { reject(err); }
 }));
 
-const rmdir = path => (new Promise((resolve, reject) => {
+const rmdir = (path) => (new Promise((resolve, reject) => {
   fs.rmdir(path, resolveOrRejectWith(resolve, reject));
 }));
 
@@ -62,14 +62,14 @@ const rename = (oldPath, newPath) => (new Promise((resolve, reject) => {
   } catch (err) { reject(err); }
 }));
 
-const unlink = path => (new Promise((resolve, reject) => {
+const unlink = (path) => (new Promise((resolve, reject) => {
   try {
     fs.unlink(path, resolveOrRejectWith(resolve, reject));
   } catch (err) { reject(err); }
 }));
 
 // Ignore "file/directory doesn't exist" errors.
-const tryUnlink = path => unlink(path).catch((err) => {
+const tryUnlink = (path) => unlink(path).catch((err) => {
   if (err.code !== 'ENOENT') { throw err; }
 });
 

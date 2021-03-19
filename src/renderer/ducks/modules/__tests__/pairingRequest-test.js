@@ -1,7 +1,9 @@
 /* eslint-env jest */
 
 import { ipcRenderer } from 'electron';
-import reducer, { actionCreators, actionTypes, PairingStatus, selectors } from '../pairingRequest';
+import reducer, {
+  actionCreators, actionTypes, PairingStatus, selectors,
+} from '../pairingRequest';
 
 const id = 'request1';
 const pairingCode = 'abc123';

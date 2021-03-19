@@ -64,7 +64,7 @@ describe('ensurePemKeyPair', () => {
     it('writes pems to files', async () => {
       const pair = await ensurePemKeyPair();
       expect(promisedFs.readFile).toHaveBeenCalledTimes(4);
-      Object.keys(mockPems).forEach(prop => expect(pair).toHaveProperty(prop));
+      Object.keys(mockPems).forEach((prop) => expect(pair).toHaveProperty(prop));
     });
 
     it('throws if they cannot be read', async () => {

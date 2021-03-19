@@ -125,7 +125,7 @@ describe('useResolutionsState', () => {
     it('RESOLVE deletes resolutions beyond the match index', () => {
       const nodeIds = ['abc', 'def'];
       const match = Factory.match.build(
-        { index: 2, nodes: nodeIds.map(id => ({ [properties.nodePrimaryKey]: id })) },
+        { index: 2, nodes: nodeIds.map((id) => ({ [properties.nodePrimaryKey]: id })) },
       );
 
       const resolveMatchAction = actionCreators.resolveMatch(
@@ -149,14 +149,12 @@ describe('useResolutionsState', () => {
 
     it('RESOLVE combines prior node references', () => {
       const nodesForExistingEntries = [['a', 'b'], ['c', 'd'], ['e', 'f']];
-      const combineInitialState = nodesForExistingEntries.map(nodes =>
-        Factory.resolutionEntry.build({ nodes }),
-      );
+      const combineInitialState = nodesForExistingEntries.map((nodes) => Factory.resolutionEntry.build({ nodes }));
 
       const nodeIds = ['d', 'f'];
 
       const match = Factory.match.build(
-        { index: 100, nodes: nodeIds.map(id => ({ [properties.nodePrimaryKey]: id })) },
+        { index: 100, nodes: nodeIds.map((id) => ({ [properties.nodePrimaryKey]: id })) },
       );
 
       const resolveMatchAction = actionCreators.resolveMatch(

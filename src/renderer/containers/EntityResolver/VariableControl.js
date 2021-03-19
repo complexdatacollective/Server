@@ -7,8 +7,13 @@ export const formatVariable = (variable) => {
   if (isNil(variable)) { return 'not set'; }
   if (isPlainObject(variable)) {
     return Object.keys(variable)
-      .map(key => (
-        <div key={key}>{key}: {variable[key]}</div>
+      .map((key) => (
+        <div key={key}>
+          {key}
+          :
+          {' '}
+          {variable[key]}
+        </div>
       ));
   }
   return variable.toString();
@@ -16,14 +21,15 @@ export const formatVariable = (variable) => {
 
 const Variable = ({ value, selected, onChange }) => (
   <td>
-    { isNil(value) ?
-      formatVariable(value) :
-      <Radio
-        label={formatVariable(value)}
-        checked={selected}
-        input={{ onChange }}
-      />
-    }
+    { isNil(value)
+      ? formatVariable(value)
+      : (
+        <Radio
+          label={formatVariable(value)}
+          checked={selected}
+          input={{ onChange }}
+        />
+      )}
   </td>
 );
 

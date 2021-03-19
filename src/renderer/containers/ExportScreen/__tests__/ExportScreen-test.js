@@ -79,7 +79,7 @@ describe('<ExportScreen />', () => {
         }),
       );
       await act(async () => {
-        const radioWrapper = subject.findWhere(n => n.name() === 'Checkbox' && n.prop('label') === 'CSV');
+        const radioWrapper = subject.findWhere((n) => n.name() === 'Checkbox' && n.prop('label') === 'CSV');
         radioWrapper.find('input').simulate('click');
         subject.find('form').simulate('submit');
       });

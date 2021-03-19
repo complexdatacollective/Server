@@ -16,7 +16,9 @@ const withValidation = (WrappedComponent) => {
       if (metaState.value !== value) {
         const error = props.validate(value);
 
-        setMetaState(prevState => ({ ...prevState, touched: true, error, invalid: !!error }));
+        setMetaState((prevState) => ({
+          ...prevState, touched: true, error, invalid: !!error,
+        }));
       }
     }, [value]);
 

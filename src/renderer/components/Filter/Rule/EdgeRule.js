@@ -3,7 +3,9 @@ import { connect } from 'react-redux';
 import { compose } from 'recompose';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { has, includes, map, get } from 'lodash';
+import {
+  has, includes, map, get,
+} from 'lodash';
 import { SortableElement } from 'react-sortable-hoc';
 import DragHandle from './DragHandle';
 import DropDown from './DropDown';
@@ -59,8 +61,8 @@ class EdgeRule extends PureComponent {
   }
 
   showValue() {
-    return !!this.props.options.operator &&
-      !includes(['EXISTS', 'NOT_EXISTS'], this.props.options.operator);
+    return !!this.props.options.operator
+      && !includes(['EXISTS', 'NOT_EXISTS'], this.props.options.operator);
   }
 
   render() {
@@ -70,7 +72,9 @@ class EdgeRule extends PureComponent {
       edgeAttributes,
       onUpdateRule,
       onDeleteRule,
-      options: { type, operator, attribute, value },
+      options: {
+        type, operator, attribute, value,
+      },
       valueInputType,
       className,
     } = this.props;
@@ -84,7 +88,7 @@ class EdgeRule extends PureComponent {
               options={edgeTypes}
               value={type}
               placeholder="{type}"
-              onChange={newValue => onUpdateRule(newValue, id, 'type')}
+              onChange={(newValue) => onUpdateRule(newValue, id, 'type')}
             />
           </div>
           {this.showAttributes() && (
@@ -93,7 +97,7 @@ class EdgeRule extends PureComponent {
                 options={has(edgeAttributes, type) ? edgeAttributes[type] : []}
                 value={attribute}
                 placeholder="{variable}"
-                onChange={newValue => onUpdateRule(newValue, id, 'attribute')}
+                onChange={(newValue) => onUpdateRule(newValue, id, 'attribute')}
               />
             </div>
           )}
@@ -103,7 +107,7 @@ class EdgeRule extends PureComponent {
                 options={getOperatorsForType(valueInputType)}
                 value={operator}
                 placeholder="{rule}"
-                onChange={newValue => onUpdateRule(newValue, id, 'operator')}
+                onChange={(newValue) => onUpdateRule(newValue, id, 'operator')}
               />
             </div>
           )}
@@ -112,7 +116,7 @@ class EdgeRule extends PureComponent {
               <Input
                 value={value}
                 type={valueInputType}
-                onChange={newValue => onUpdateRule(newValue, id, 'value')}
+                onChange={(newValue) => onUpdateRule(newValue, id, 'value')}
               />
             </div>
           )}
@@ -126,9 +130,9 @@ class EdgeRule extends PureComponent {
 function mapStateToProps(state, { options, codebook }) {
   // const codebook = getCodebook(state);
   const edgeTypes = map(codebook.edge, (edge, edgeId) => [edgeId, edge.name]);
-  const valueInputType = options ?
-    get(codebook.node, [options.type, 'variables', options.attribute, 'type']) :
-    undefined;
+  const valueInputType = options
+    ? get(codebook.node, [options.type, 'variables', options.attribute, 'type'])
+    : undefined;
 
   return {
     edgeTypes,
@@ -143,4 +147,3 @@ export default compose(
   SortableElement,
   connect(mapStateToProps),
 )(EdgeRule);
-

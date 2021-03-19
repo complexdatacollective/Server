@@ -5,7 +5,6 @@ const { PairingRequestService } = require('../PairingRequestService');
 const { ErrorMessages, RequestError } = require('../../../errors/RequestError');
 const { decrypt } = require('../../../utils/shared-api/cipher');
 
-
 jest.mock('electron-log');
 jest.mock('../../../utils/shared-api/cipher');
 

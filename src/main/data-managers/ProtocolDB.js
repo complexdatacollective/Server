@@ -8,7 +8,7 @@ const { hexDigest } = require('../utils/sha256');
 // Name is the unique identifier for a protocol.
 // This normalizes unicode points, but leaves otherwise unchanged
 // (any characters, including unprintable, are valid).
-const normalizedName = protocol => protocol.name && protocol.name.normalize();
+const normalizedName = (protocol) => protocol.name && protocol.name.normalize();
 
 // lastModified is optional, but if supplied must be a valid date string after 1970
 const validatedModifyTime = (protocol) => {

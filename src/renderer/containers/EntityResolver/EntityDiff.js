@@ -51,10 +51,12 @@ const EntityDiff = ({
   }, [getMatchId(match)]);
 
   useEffect(() => {
-    onChange({ isMatchType, isTouched, isDiffComplete, resolvedAttributes });
+    onChange({
+      isMatchType, isTouched, isDiffComplete, resolvedAttributes,
+    });
   }, [isMatchType, isTouched, isDiffComplete, JSON.stringify(resolvedAttributes)]);
 
-  const handleToggleHidden = () => setShowHidden(s => !s);
+  const handleToggleHidden = () => setShowHidden((s) => !s);
 
   const [a, b] = get(match, 'nodes', []);
 
@@ -62,11 +64,11 @@ const EntityDiff = ({
   const variables = get(entityDefinition, 'variables', {});
   const nodePropsA = { label: getLabel(entityDefinition, a), color };
   const nodePropsB = { label: getLabel(entityDefinition, b), color };
-  const getVariableResolution = variable => get(resolvedAttributes, variable);
-  const getVariableName = variable => get(variables, [variable, 'name']);
+  const getVariableResolution = (variable) => get(resolvedAttributes, variable);
+  const getVariableName = (variable) => get(variables, [variable, 'name']);
 
   const rows = Object.keys(variables)
-    .map(variable => ({
+    .map((variable) => ({
       variable,
       notSet: isNil(a.attributes[variable]) && isNil(b.attributes[variable]),
       required: requiredAttributes.includes(variable),
@@ -89,7 +91,8 @@ const EntityDiff = ({
           <tr>
             <td className="entity-diff__table-heading">
               <div className="entity-diff__table-heading-context">
-                {(match.probability * 100).toFixed(0)}% match
+                {(match.probability * 100).toFixed(0)}
+                % match
               </div>
               <div className="entity-diff__table-heading-fill" />
             </td>
@@ -170,19 +173,21 @@ const EntityDiff = ({
                 </td>
                 <td />
               </tr>
-            ))
-          }
-          { !showHidden && matchingRowCount > 0 &&
+            ))}
+          { !showHidden && matchingRowCount > 0
+            && (
             <tr>
               <th />
               <td colSpan="3" className="hidden-rows">
 
                 <Button onClick={handleToggleHidden} size="small" color="platinum">
-                  {matchingRowCount} matching rows...
+                  {matchingRowCount}
+                  {' '}
+                  matching rows...
                 </Button>
               </td>
             </tr>
-          }
+            )}
         </tbody>
       </table>
     </div>
