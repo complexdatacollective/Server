@@ -89,7 +89,7 @@
         "mini-css-extract-plugin": "^0.8.0",
         "node-sass": "^4.14.1",
         "postcss-loader": "^2.1.6",
-        "react-dev-utils": "^6.1.1",
+        "react-dev-utils": "^11.0.4",
         "react-draggable": "^4.4.3",
         "react-dropzone": "^11.2.0",
         "react-markdown": "^3.6.0",
