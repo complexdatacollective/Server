@@ -112,7 +112,9 @@ class WorkspaceScreen extends Component {
   }
 
   render() {
-    const { protocol, sessions, setPanelLayoutOrder } = this.props;
+    const {
+      protocol, sessions, setPanelLayoutOrder, scrollContainerRef,
+    } = this.props;
 
     if (!protocol || !sessions) {
       return <div className="workspace--loading"><Spinner /></div>;
@@ -131,7 +133,7 @@ class WorkspaceScreen extends Component {
         <h1>Overview</h1>
         <WelcomePanel protocolName={protocol.name} />
         <SortablePanels
-          getContainer={() => this.props.scrollContainerRef.current}
+          getContainer={() => scrollContainerRef.current}
           className="dashboard"
           helperClass="sortable--dragging"
           panels={sortedPanels}

@@ -52,13 +52,13 @@ class CaseManagement extends Component {
 
     return (
       <div>
-        { this.state.sessionsToDelete.length > 0
+        { sessionsToDelete.length > 0
           && (
           <div className="case-management__delete-section">
             {sessionsToDelete.length}
             {' '}
             cases are selected
-            <Button size="small" onClick={() => this.deleteSelectedSessions(this.state.sessionsToDelete)}>
+            <Button size="small" onClick={() => this.deleteSelectedSessions(sessionsToDelete)}>
               Delete selected cases
             </Button>
             { this.allSessionsSelected() && sessionsToDelete.length !== totalSessionsCount
@@ -80,19 +80,27 @@ class CaseManagement extends Component {
     );
   }
 
-  isSessionSelected = (id) => includes(this.state.sessionsToDelete, id);
+  isSessionSelected = (id) => {
+    const { sessionsToDelete } = this.state;
+    return includes(sessionsToDelete, id);
+  };
 
-  allSessionsSelected = () => this.state.sessionsToDelete.length === this.props.sessions.filter(
-    (session) => !!session,
-  ).length;
+  allSessionsSelected = () => {
+    const { sessionsToDelete } = this.state;
+    const { sessions } = this.props;
+    return sessionsToDelete.length === sessions.filter(
+      (session) => !!session,
+    ).length;
+  }
 
   updateSessionsToDelete = (id) => {
-    if (includes(this.state.sessionsToDelete, id)) {
-      this.setState({ sessionsToDelete: without(this.state.sessionsToDelete, id) });
+    const { sessionsToDelete } = this.state;
+    if (includes(sessionsToDelete, id)) {
+      this.setState({ sessionsToDelete: without(sessionsToDelete, id) });
     } else {
       this.setState({
         sessionsToDelete: [
-          ...this.state.sessionsToDelete,
+          ...sessionsToDelete,
           id,
         ],
       });
@@ -100,9 +108,12 @@ class CaseManagement extends Component {
   };
 
   toggleAllSessions = () => {
+    const { sessionsToDelete } = this.state;
+    const { sessions } = this.props;
+
     let selectedSessions = [];
-    if (this.state.sessionsToDelete.length !== this.props.sessions.length) {
-      selectedSessions = this.props.sessions.filter(
+    if (sessionsToDelete.length !== sessions.length) {
+      selectedSessions = sessions.filter(
         (session) => !!session,
       ).map((session) => session.id);
     }
@@ -112,14 +123,15 @@ class CaseManagement extends Component {
   };
 
   deleteSelectedSessions = (sessionsToDelete) => {
+    const { openDialog, deleteSelectedSessions } = this.props;
     if (!sessionsToDelete || sessionsToDelete.length < 1) return;
 
-    this.props.openDialog({
+    openDialog({
       type: 'Warning',
       title: 'Delete selected interview sessions?',
       confirmLabel: 'Delete selected sessions',
       onConfirm: () => {
-        this.props.deleteSelectedSessions(sessionsToDelete);
+        deleteSelectedSessions(sessionsToDelete);
         this.setState({ sessionsToDelete: [] });
       },
       message: 'Are you sure you want to delete selected interview sessions? This action cannot be undone!',
@@ -127,11 +139,12 @@ class CaseManagement extends Component {
   }
 
   deleteAllSessions = () => {
-    this.props.openDialog({
+    const { openDialog, deleteAllSessions } = this.props;
+    openDialog({
       type: 'Warning',
       title: 'Delete all interview sessions?',
       confirmLabel: 'Delete all sessions',
-      onConfirm: () => this.props.deleteAllSessions(),
+      onConfirm: () => deleteAllSessions(),
       message: 'Are you sure you want to delete all interview sessions? This action cannot be undone!',
     });
   }

@@ -54,8 +54,8 @@ class EntityTimeSeriesPanel extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
+    const { sessionCount: newCount } = this.props;
     const prevCount = prevProps.sessionCount;
-    const newCount = this.props.sessionCount;
     // When mounted (on each workspace load), sessionCount is null.
     // Only reload data when session count changes (i.e., a session was
     // imported or deleted while on this workspace).
@@ -65,8 +65,9 @@ class EntityTimeSeriesPanel extends PureComponent {
   }
 
   loadData() {
-    const route = `/protocols/${this.props.protocolId}/reports/entity_time_series`;
-    this.props.apiClient.get(route)
+    const { protocolId, apiClient } = this.props;
+    const route = `/protocols/${protocolId}/reports/entity_time_series`;
+    apiClient.get(route)
       .then(({ entities, keys }) => entities && this.setState({
         timeSeriesData: entities,
         timeSeriesKeys: keys,
@@ -79,7 +80,7 @@ class EntityTimeSeriesPanel extends PureComponent {
     let content;
     if (timeSeriesData.length > 0) {
       const series = dataSeries(timeSeriesKeys, codebook);
-      content = <TimeSeriesChart data={this.state.timeSeriesData} series={series} />;
+      content = <TimeSeriesChart data={timeSeriesData} series={series} />;
     } else {
       content = <EmptyData />;
     }

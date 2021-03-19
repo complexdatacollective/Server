@@ -6,7 +6,7 @@ const decimalFormatter = new Intl.NumberFormat(undefined, { maximumFractionDigit
 
 const formatDate = (d) => (d ? d.toLocaleString(undefined, dateOpts) : '');
 const formatDatetime = (d) => (d ? d.toLocaleString(undefined, datetimeOpts) : '');
-const formatDecimal = (n) => (isNaN(n) ? '' : decimalFormatter.format(n));
+const formatDecimal = (n) => (Number.isNaN(n) ? '' : decimalFormatter.format(n));
 const formatNumber = (n) => (Number.isInteger(n) ? n.toString() : formatDecimal(n));
 
 export {

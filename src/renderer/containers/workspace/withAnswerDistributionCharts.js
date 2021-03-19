@@ -63,7 +63,9 @@ const shapeBucketDataByType = (
   return acc;
 }, []);
 
-const shapeBucketData = (codebook, buckets, excludedChartVariables) => Object.entries(buckets).reduce((acc, [entityKey]) => {
+const shapeBucketData = (
+  codebook, buckets, excludedChartVariables,
+) => Object.entries(buckets).reduce((acc, [entityKey]) => {
   const entityCodebook = entityKey === 'ego' ? { ego: codebook[entityKey] } : codebook[entityKey];
   const bucketsByType = buckets[entityKey];
   const shapeData = shapeBucketDataByType(
@@ -82,19 +84,6 @@ const withAnswerDistributionCharts = (WrappedComponent) => {
    * Renders a collection of ordinal & categorical distribution panels
    */
   const AnswerDistributionPanels = class extends Component {
-    static propTypes = {
-      excludedChartVariables: PropTypes.object,
-      protocolId: PropTypes.string,
-      totalSessionsCount: PropTypes.number,
-      codebook: Types.codebook.isRequired,
-    }
-
-    static defaultProps = {
-      excludedChartVariables: {},
-      protocolId: null,
-      totalSessionsCount: null,
-    }
-
     constructor(props) {
       super(props);
       this.state = {
@@ -108,14 +97,14 @@ const withAnswerDistributionCharts = (WrappedComponent) => {
     }
 
     componentDidUpdate(prevProps) {
+      const { totalSessionsCount: newCount, protocolId } = this.props;
       const prevCount = prevProps.totalSessionsCount;
-      const newCount = this.props.totalSessionsCount;
       // When mounted (on each workspace load), totalSessionsCount is null.
       // Only reload data when session count changes (i.e., a session was
       // imported or deleted while on this workspace).
       if (newCount !== null && prevCount !== null && newCount !== prevCount) {
         this.loadData();
-      } else if (prevProps.protocolId !== this.props.protocolId) {
+      } else if (prevProps.protocolId !== protocolId) {
         this.loadData();
       }
     }
@@ -150,7 +139,7 @@ const withAnswerDistributionCharts = (WrappedComponent) => {
       }
 
       const variableNames = { nodes: nodeCodebook, edges: edgeCodebook, ego: egoCodebook };
-      const route = `/protocols/${this.props.protocolId}/reports/option_buckets`;
+      const route = `/protocols/${protocolId}/reports/option_buckets`;
       const query = { nodeNames, edgeNames, egoNames };
 
       this.apiClient.post(route, query)
@@ -162,8 +151,22 @@ const withAnswerDistributionCharts = (WrappedComponent) => {
     }
 
     render() {
+      // eslint-disable-next-line react/jsx-props-no-spreading, react/destructuring-assignment
       return <WrappedComponent {...this.props} answerDistributionCharts={this.state.charts} />;
     }
+  };
+
+  AnswerDistributionPanels.propTypes = {
+    excludedChartVariables: PropTypes.object,
+    protocolId: PropTypes.string,
+    totalSessionsCount: PropTypes.number,
+    codebook: Types.codebook.isRequired,
+  };
+
+  AnswerDistributionPanels.defaultProps = {
+    excludedChartVariables: {},
+    protocolId: null,
+    totalSessionsCount: null,
   };
 
   const mapStateToProps = (state, ownProps) => ({

@@ -36,13 +36,6 @@ const entityVariableName = (codebook, entity, section, variable) => {
 };
 
 class SettingsScreen extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      excludedChartVariables: {},
-    };
-  }
-
   get chartConfigSection() {
     const {
       distributionVariables, protocol, codebook, setExcludedVariables,
@@ -73,7 +66,11 @@ class SettingsScreen extends Component {
                         setExcludedVariables(protocol.id, entity, section, newExcluded);
                       },
                     }}
-                    options={vars.map((v) => ({ value: v, label: entityVariableName(codebook, entity, section, v) }))}
+                    options={vars.map(
+                      (v) => (
+                        { value: v, label: entityVariableName(codebook, entity, section, v) }
+                      ),
+                    )}
                   />
                 </div>
               ))))
@@ -155,7 +152,6 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 SettingsScreen.defaultProps = {
-  apiClient: null,
   distributionVariables: {},
   excludedChartVariables: {},
   codebook: {},
