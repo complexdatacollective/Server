@@ -1,13 +1,13 @@
 {
     "name": "network-canvas-server-6",
-    "version": "6.0.1",
+    "version": "6.1.0",
     "productName": "Network Canvas Server",
     "description": "A tool for storing, analyzing, and exporting Network Canvas interview data.",
     "private": true,
     "author": "Complex Data Collective",
     "engines": {
         "node": "12.11.4",
-        "npm": "6.13.4"
+        "npm": "7.6.3"
     },
     "dependencies": {
         "archiver": "^4.0.1",
@@ -39,8 +39,7 @@
         "mississippi": "^4.0.0"
     },
     "devDependencies": {
-      "supertest": "^5.0.0",
-      "electron": "^9.2.0"
+        "supertest": "^5.0.0"
     },
     "main": "./index.js"
 }
