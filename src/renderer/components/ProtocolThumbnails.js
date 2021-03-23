@@ -21,6 +21,8 @@ const ProtocolThumbnails = ({ location, protocols, onClickAddProtocol }) => {
       }
       <div data-tip="Create a new workspace from a protocol" data-for="protocol-tooltip">
         <button
+          type="button"
+          aria-label="Create workspace"
           className="protocol-thumbnail protocol-thumbnail--add"
           onClick={onClickAddProtocol}
         />
@@ -41,8 +43,7 @@ ProtocolThumbnails.defaultProps = {
 };
 
 ProtocolThumbnails.propTypes = {
-  // location is needed for nav items to update active state during nav
-  location: PropTypes.object,
+  location: PropTypes.object, // location is needed for nav items to update active state during nav
   onClickAddProtocol: PropTypes.func.isRequired,
   protocols: Types.protocols,
 };

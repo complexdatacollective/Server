@@ -52,7 +52,9 @@ class ResolverManager {
     // TODO: fix
 
     return this.getResolvedSessions(protocolId, options.resolutionId, options.egoCastType)
-      .then(([[network], { codebook }]) => getNetworkResolver(requestId, command, codebook, network));
+      .then(([
+        [network], { codebook },
+      ]) => getNetworkResolver(requestId, command, codebook, network));
   }
 
   getSessions(protocolId) {

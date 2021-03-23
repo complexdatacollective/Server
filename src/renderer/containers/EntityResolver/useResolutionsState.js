@@ -63,7 +63,10 @@ const resolveMatchAction = createAction(
   }),
 );
 
-const resolveMatch = (match, attributes) => resolveMatchAction(match, resolveTypes.match, attributes);
+const resolveMatch = (
+  match, attributes,
+) => resolveMatchAction(match, resolveTypes.match, attributes);
+
 const skipMatch = (match) => resolveMatchAction(match, resolveTypes.skip);
 const nextMatch = createAction('NEXT_ENTITY');
 const previousMatch = createAction('PREVIOUS_ENTITY');
@@ -76,7 +79,9 @@ export const actionCreators = {
   previousMatch,
 };
 
-export const reduceActions = (matches) => ({ actions, resolutions }, { payload: { match, action } }) => {
+export const reduceActions = (
+  matches,
+) => ({ actions, resolutions }, { payload: { match, action } }) => {
   const newEntry = { index: match.index, action };
   const matchIndex = actions.findIndex(({ index }) => index === match.index);
   const priorMatches = matchIndex !== -1 ? actions.slice(0, matchIndex) : actions;

@@ -16,12 +16,10 @@ import {
   actionCreators as layoutActionCreators,
   selectors as layoutSelectors,
 } from '../../ducks/modules/panelLayoutOrders';
-import {
-  AnswerDistributionPanel,
-  SessionHistoryPanel,
-  SessionPanel,
-  SortablePanels,
-} from '../../components';
+import SessionHistoryPanel from '../../components/workspace/SessionHistoryPanel';
+import SessionPanel from '../../components/workspace/SessionPanel';
+import SortablePanels from '../../components/workspace/SortablePanels';
+import AnswerDistributionPanel from '../../components/workspace/AnswerDistributionPanel';
 import WelcomePanel from './WelcomePanel';
 
 class WorkspaceScreen extends Component {

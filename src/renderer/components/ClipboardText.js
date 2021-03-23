@@ -42,6 +42,7 @@ const ClipboardText = ({
 
   return (
     <button
+      type="button"
       className={classes}
       onClick={handleCopy}
     >

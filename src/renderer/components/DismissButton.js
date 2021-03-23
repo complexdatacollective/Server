@@ -12,10 +12,15 @@ const DismissButton = ({
   if (inline) { baseClass += ' dismiss-button--inline'; }
 
   return (
-    <a onClick={onClick} className={baseClass} role="button" tabIndex={0}>
+    <button
+      type="button"
+      onClick={onClick}
+      className={baseClass}
+      tabIndex={0}
+    >
       <Icon name="close" className="dismiss-button__icon" />
       {title || children}
-    </a>
+    </button>
   );
 };
 

@@ -723,7 +723,9 @@ class DeviceAPI extends EventEmitter {
 
       protocolList: (req, res, next) => {
         this.protocolManager.allProtocols()
-          .then((protocols) => protocols.map((p) => Schema.protocol(p, this.httpBase, this.httpsBase)))
+          .then((protocols) => protocols.map((
+            p,
+          ) => Schema.protocol(p, this.httpBase, this.httpsBase)))
           .then((schemas) => res.json({ status: 'ok', data: schemas }))
           .catch((err) => this.handlers.onError(err, res))
           .then(() => next());

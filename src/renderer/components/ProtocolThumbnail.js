@@ -10,8 +10,6 @@ const nickname = (name = '') => name.substr(0, 2);
 class ProtocolThumbnail extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = { hover: false };
-
     this.palette = [
       getCSSVariableAsString('--cat-color-seq-1'),
       getCSSVariableAsString('--cat-color-seq-2'),

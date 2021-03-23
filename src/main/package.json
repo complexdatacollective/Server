@@ -39,7 +39,8 @@
         "mississippi": "^4.0.0"
     },
     "devDependencies": {
-        "supertest": "^5.0.0"
+        "supertest": "^5.0.0",
+        "electron": "9.4.4"
     },
     "main": "./index.js"
 }

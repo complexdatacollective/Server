@@ -7,6 +7,7 @@ const Overflow = ({
   const classes = `overflow overflow--${size} ${className}`;
 
   return (
+    // eslint-disable-next-line react/jsx-props-no-spreading
     <div className={classes} {...props}>
       { children }
     </div>

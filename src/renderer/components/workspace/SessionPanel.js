@@ -7,7 +7,8 @@ import { compose } from 'recompose';
 import { caseProperty } from '../../../main/utils/network-exporters/src/utils/reservedAttributes';
 import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
 import { selectors as protocolSelectors } from '../../ducks/modules/protocols';
-import { DismissButton, ScrollingPanelItem } from '..';
+import DismissButton from '../DismissButton';
+import ScrollingPanelItem from '../ScrollingPanelItem';
 import { formatDate } from '../../utils/formatters';
 
 const emptyContent = (
@@ -41,11 +42,16 @@ class SessionPanel extends Component {
       return;
     }
 
-    this.props.openDialog({
+    const {
+      openDialog,
+      deleteSession,
+    } = this.props;
+
+    openDialog({
       type: 'Confirm',
       title: 'Delete this interview session?',
       confirmLabel: 'Delete this session',
-      onConfirm: () => this.props.deleteSession(sessionId),
+      onConfirm: () => deleteSession(sessionId),
       message: 'Are you sure you want to delete this interview session? This action cannot be undone!',
     });
   }

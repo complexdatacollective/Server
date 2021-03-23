@@ -10,8 +10,13 @@ function withApiClient(WrappedComponent) {
     }
 
     render() {
+      const { apiClient } = this.state;
       return (
-        <WrappedComponent {...this.props} apiClient={this.state.apiClient} />
+        <WrappedComponent
+          // eslint-disable-next-line react/jsx-props-no-spreading
+          {...this.props}
+          apiClient={apiClient}
+        />
       );
     }
   }

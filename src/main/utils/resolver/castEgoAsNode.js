@@ -24,7 +24,9 @@ const castEgoAsNode = (codebook, nodeType) => ({ ego, ...network }) => {
   const castEgoAttributes = egoVariables
     .reduce((acc, [egoVariableId, egoVariableDefinition]) => {
       const [castVariableId] = nodeVariables
-        .find(([, nodeVariableDefinition]) => matchVariable(nodeVariableDefinition, egoVariableDefinition)) || [egoVariableId]; // If match isn't found use the original egoVariableId
+        .find(([, nodeVariableDefinition]) => matchVariable(
+          nodeVariableDefinition, egoVariableDefinition,
+        )) || [egoVariableId]; // If match isn't found use the original egoVariableId
 
       return {
         ...acc,

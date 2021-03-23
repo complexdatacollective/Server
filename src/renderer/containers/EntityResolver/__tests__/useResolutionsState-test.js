@@ -149,7 +149,9 @@ describe('useResolutionsState', () => {
 
     it('RESOLVE combines prior node references', () => {
       const nodesForExistingEntries = [['a', 'b'], ['c', 'd'], ['e', 'f']];
-      const combineInitialState = nodesForExistingEntries.map((nodes) => Factory.resolutionEntry.build({ nodes }));
+      const combineInitialState = nodesForExistingEntries.map((
+        nodes,
+      ) => Factory.resolutionEntry.build({ nodes }));
 
       const nodeIds = ['d', 'f'];
 

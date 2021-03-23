@@ -19,7 +19,9 @@ const Resolutions = ({
   const openDialog = (dialog) => dispatch(dialogActions.openDialog(dialog));
 
   const [activeResolution, setActiveResolution] = useState(undefined);
-  const toggleActiveResolution = (resolutionId) => setActiveResolution((s) => (s === resolutionId ? undefined : resolutionId));
+  const toggleActiveResolution = (
+    resolutionId,
+  ) => setActiveResolution((s) => (s === resolutionId ? undefined : resolutionId));
 
   const handleDelete = (resolutionId) => {
     openDialog({
@@ -41,7 +43,7 @@ const Resolutions = ({
               <th>Date</th>
               <th title="New sessions since they were last resolved">New Sessions</th>
               <th>Resolved Nodes</th>
-              <th />
+              <th aria-label="Export column" />
             </tr>
           </thead>
           <tbody>
@@ -55,6 +57,7 @@ const Resolutions = ({
                     onDelete={handleDelete}
                     onExport={onExportResolution}
                     nodeTypes={nodeTypes}
+                    // eslint-disable-next-line react/jsx-props-no-spreading
                     {...resolution}
                   />
                 ))

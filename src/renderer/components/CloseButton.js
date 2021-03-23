@@ -8,6 +8,7 @@ const CloseButton = (props) => (
     whileHover={{ scale: 1.1 }}
     whileTap={{ scale: 0.95 }}
     style={{ cursor: 'pointer' }}
+    // eslint-disable-next-line react/jsx-props-no-spreading
     {...props}
   >
     <Icon name="close" />

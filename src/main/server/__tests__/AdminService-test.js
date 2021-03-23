@@ -158,8 +158,8 @@ describe('the AdminService', () => {
         describe('when manager fails', () => {
           beforeAll(() => {
             DeviceManager.mockImplementation(() => ({
-              destroy: () => Promise.reject({ error: 'mock' }),
-              fetchDeviceList: () => Promise.reject({ error: 'mock' }),
+              destroy: () => Promise.reject(new Error('mock')),
+              fetchDeviceList: () => Promise.reject(new Error('mock')),
             }));
           });
 

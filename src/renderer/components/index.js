@@ -1,4 +1,3 @@
-export { default as AnswerDistributionPanel } from './workspace/AnswerDistributionPanel';
 export { default as BarChart } from './charts/BarChart';
 export { default as CountsWidget } from './charts/CountsWidget';
 export { default as CaseTable } from './CaseTable';

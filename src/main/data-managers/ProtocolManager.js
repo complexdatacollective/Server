@@ -459,9 +459,13 @@ class ProtocolManager {
      * @throws {RequestError|Error} Rejects if there is a problem uploading, or on invalid input
      */
   handleSessionImport(fileList) {
-    const sessionFileList = fileList.filter((filepath) => hasValidSessionExtension(filepath && path.basename(filepath)));
-    const invalidFileList = fileList.filter((filepath) => !hasValidSessionExtension(filepath && path.basename(filepath)))
-      .map((filepath) => path.basename(filepath));
+    const sessionFileList = fileList.filter((
+      filepath,
+    ) => hasValidSessionExtension(filepath && path.basename(filepath)));
+
+    const invalidFileList = fileList.filter((filepath) => !hasValidSessionExtension(
+      filepath && path.basename(filepath),
+    )).map((filepath) => path.basename(filepath));
 
     // Create an array to store the result of each processFile action
     const processFilePromises = [];
@@ -570,8 +574,11 @@ class ProtocolManager {
         .then((xmlDoc) => this.processGraphML(xmlDoc)) // Parse into javascript session objects
         .then(({ protocolId, sessions }) => sessions.map( // Could be one or many sessions
           (session) => this.addSessionData(protocolId, session),
-        )) // Attept to import each session into db
-        .then((addSessionPromises) => Promise.allSettled(addSessionPromises)) // Wait for result of all import actions
+        )) // Attempt to import each session into db
+        .then(
+          // Wait for result of all import actions
+          (addSessionPromises) => Promise.allSettled(addSessionPromises),
+        )
         .then((importedSessions) => {
           // Determine which addSessionData calls succeeded, and which failed.
           const validImportedSessions = importedSessions
@@ -603,7 +610,9 @@ class ProtocolManager {
         })
         // err is either a RequestError or the result of constructErrorObject
         // either way, just pass on the message
-        .catch((err) => Promise.reject(constructErrorObject(err.message, err.caseID, fileBasename)));
+        .catch((err) => Promise.reject(
+          constructErrorObject(err.message, err.caseID, fileBasename),
+        ));
     });
 
     return Promise.allSettled(promisedFileImportTask)

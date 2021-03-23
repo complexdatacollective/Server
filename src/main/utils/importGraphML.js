@@ -166,8 +166,7 @@ const convertGraphML = (xmlDoc, protocol) => {
               entityElements[i], session.data.ego, xmlDoc, protocol.codebook.ego,
             );
             break;
-          // eslint-disable-next-line no-case-declarations
-          case 'node':
+          case 'node': {
             const nodeElement = entityElements[i].childNodes;
             let node = {};
             node.attributes = {};
@@ -181,8 +180,8 @@ const convertGraphML = (xmlDoc, protocol) => {
             });
             session.data.nodes.push(node);
             break;
-          // eslint-disable-next-line no-case-declarations
-          case 'edge':
+          }
+          case 'edge': {
             const edgeElement = entityElements[i].childNodes;
             let edge = {};
             edge.attributes = {};
@@ -196,6 +195,7 @@ const convertGraphML = (xmlDoc, protocol) => {
             });
             session.data.edges.push(edge);
             break;
+          }
           default:
             break;
         }

@@ -4,6 +4,7 @@ import { get } from 'lodash';
 
 const withValidation = (WrappedComponent) => {
   const ValidatedComponent = (props) => {
+    const { meta } = props;
     const value = get(props, 'input.value', null);
     const [metaState, setMetaState] = useState({
       value,
@@ -25,16 +26,17 @@ const withValidation = (WrappedComponent) => {
     const componentProps = {
       ...props,
       meta: {
-        ...props.meta,
+        ...meta,
         ...metaState,
       },
     };
 
+    // eslint-disable-next-line react/jsx-props-no-spreading
     return <WrappedComponent {...componentProps} />;
   };
 
   ValidatedComponent.propTypes = {
-    meta: PropTypes.obj,
+    meta: PropTypes.object,
     validate: PropTypes.func.isRequired,
   };
 

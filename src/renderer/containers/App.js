@@ -200,7 +200,6 @@ App.propTypes = {
 };
 
 App.defaultProps = {
-  showConfirmationMessage: () => {},
   history: {
     push: () => {},
   },

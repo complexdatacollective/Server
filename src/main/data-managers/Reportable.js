@@ -1,4 +1,5 @@
 /* eslint-disable no-param-reassign */ // disabled for reducers
+const { get } = require('lodash');
 const { leastRecentlyCreated, resolveOrReject } = require('../utils/db');
 const { entityAttributesProperty } = require('../utils/network-exporters/src/utils/reservedAttributes');
 
@@ -219,7 +220,7 @@ const Reportable = (Super) => class extends Super {
             (variableNames || []).forEach((variableName) => {
               acc[variableName] = acc[variableName] || {};
 
-              const optionValue = entity[entityAttributesProperty] && entity[entityAttributesProperty][variableName];
+              const optionValue = get(entity, [entityAttributesProperty, variableName]);
 
               if (optionValue !== undefined) {
                 // Categorical values are expressed as arrays of multiple options
@@ -236,7 +237,7 @@ const Reportable = (Super) => class extends Super {
             (variableNames[entity.type] || []).forEach((variableName) => {
               acc[entity.type][variableName] = acc[entity.type][variableName] || {};
 
-              const optionValue = entity[entityAttributesProperty] && entity[entityAttributesProperty][variableName];
+              const optionValue = get(entity, [entityAttributesProperty, variableName]);
 
               if (optionValue !== undefined) {
                 // Categorical values are expressed as arrays of multiple options

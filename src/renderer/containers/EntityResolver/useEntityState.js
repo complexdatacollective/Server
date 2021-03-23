@@ -11,7 +11,9 @@ const matchTypes = {
   LEFT: 'LEFT',
 };
 
-const getIsDiffValid = (requiredAttributes, resolvedAttributes) => isEqual(requiredAttributes.sort(), Object.keys(resolvedAttributes).sort());
+const getIsDiffValid = (
+  requiredAttributes, resolvedAttributes,
+) => isEqual(requiredAttributes.sort(), Object.keys(resolvedAttributes).sort());
 
 const getSetAll = (variables, value) => variables.reduce(
   (acc, variable) => ({ ...acc, [variable]: value }),

@@ -77,8 +77,9 @@ const NetworkStatusTable = ({
                 {networkStatus.publicAddresses.length > 0 ? 'es' : ''}
               </th>
               <td>
-                {networkStatus.publicAddresses
-                  && networkStatus.publicAddresses.map((ip) => <div key={ip}><ClipboardText>{ip}</ClipboardText></div>)}
+                {networkStatus.publicAddresses && networkStatus.publicAddresses.map(
+                  (ip) => <div key={ip}><ClipboardText>{ip}</ClipboardText></div>,
+                )}
               </td>
             </tr>
             )}

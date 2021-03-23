@@ -6,6 +6,7 @@ import Text from '@codaco/ui/lib/components/Fields/Text';
 import './BrowseInput.scss';
 
 const BrowseInput = (props) => {
+  const { input, ...rest } = props;
   const fileRef = useRef();
 
   const handleSelectFile = (e) => {
@@ -15,10 +16,10 @@ const BrowseInput = (props) => {
   };
 
   const inputProps = {
-    ...props,
+    ...rest,
     input: {
-      ...props.input,
-      onChange: (e) => props.input.onChange(e.target.value),
+      ...input,
+      onChange: (e) => input.onChange(e.target.value),
     },
   };
 
@@ -34,12 +35,15 @@ const BrowseInput = (props) => {
         type="file"
         ref={fileRef}
         onChange={handleSelectFile}
-        disabled={props.input.disabled}
+        disabled={input.disabled}
       />
       <div className="form-field-browse__button">
         <Button onClick={handleClick} size="small">Browse</Button>
       </div>
-      <Text {...inputProps} />
+      <Text
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        {...inputProps}
+      />
     </div>
   );
 };

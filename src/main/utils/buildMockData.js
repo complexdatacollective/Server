@@ -88,7 +88,9 @@ const makeNetwork = (protocol) => {
   const networkMinNodes = 2;
 
   codebookNodeTypes.forEach((nodeType) => {
-    const nodesOfThisType = Math.round(Math.random() * ((networkMaxNodes - networkMinNodes) + networkMinNodes));
+    const nodesOfThisType = Math.round(
+      Math.random() * ((networkMaxNodes - networkMinNodes) + networkMinNodes),
+    );
     nodes.push(...[...Array(nodesOfThisType)].map(() => makeEntity(
       nodeType,
       protocol.codebook.node[nodeType].variables,
@@ -104,7 +106,9 @@ const makeNetwork = (protocol) => {
   const pickNodeUid = () => nodes[~~(Math.random() * (nodes.length - 1))][entityPrimaryKeyProperty];
 
   codebookEdgeTypes.forEach((edgeType) => {
-    const edgesOfThisType = Math.round(Math.random() * ((networkMaxEdges - networkMinEdges) + networkMinEdges));
+    const edgesOfThisType = Math.round(
+      Math.random() * ((networkMaxEdges - networkMinEdges) + networkMinEdges),
+    );
 
     edges.push(...[...Array(edgesOfThisType)].map(() => ({
       ...makeEntity(

@@ -36,7 +36,10 @@ const EntityResolver = React.forwardRef(({
     }
   }, [ref, resolverState.requestId]);
 
-  const [resolutionsState, resolutionsActions] = useResolutionsState(resolverState.matches, [resolverState.requestId]);
+  const [
+    resolutionsState,
+    resolutionsActions,
+  ] = useResolutionsState(resolverState.matches, [resolverState.requestId]);
 
   const codebook = get(resolverState, ['protocol', 'codebook'], {});
 

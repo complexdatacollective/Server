@@ -108,6 +108,7 @@ const DeviceList = ({
                         layout
                       >
                         <DeviceCard
+                          // eslint-disable-next-line react/jsx-props-no-spreading
                           {...device}
                           key={device.id}
                           onDeleteHandler={() => confirmDelete(device.id)}

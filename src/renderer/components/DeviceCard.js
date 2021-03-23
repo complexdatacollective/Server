@@ -60,7 +60,6 @@ DeviceCard.propTypes = {
 DeviceCard.defaultProps = {
   name: undefined,
   onDeleteHandler: undefined,
-  id: null,
   createdAt: null,
   disabled: false,
 };

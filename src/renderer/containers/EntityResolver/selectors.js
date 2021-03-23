@@ -1,4 +1,4 @@
-import { findKey, get } from 'lodash';
+import { findKey, find, get } from 'lodash';
 import { properties } from '../../../main/utils/resolver/helpers';
 
 export const getMatch = (matches, index) => {
@@ -34,6 +34,7 @@ export const getMatchOrResolved = (match, resolutions) => {
   };
 };
 
+// TODO: Move this to a shared implementation with Interviewer
 // See: https://github.com/codaco/Network-Canvas/wiki/Node-Labeling
 export const labelLogic = (codebookForNodeType, nodeAttributes) => {
   // In the codebook for the stage's subject, look for a variable with a name

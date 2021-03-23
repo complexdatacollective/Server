@@ -34,12 +34,14 @@ class ProtocolNav extends Component {
   }
 
   componentDidMount() {
-    this.props.loadProtocols();
-    ipcRenderer.on(FileImportUpdated, this.props.loadProtocols);
+    const { loadProtocols } = this.props;
+    loadProtocols();
+    ipcRenderer.on(FileImportUpdated, loadProtocols);
   }
 
   componentWillUnmount() {
-    ipcRenderer.removeListener(FileImportUpdated, this.props.loadProtocols);
+    const { loadProtocols } = this.props;
+    ipcRenderer.removeListener(FileImportUpdated, loadProtocols);
   }
 
   render() {

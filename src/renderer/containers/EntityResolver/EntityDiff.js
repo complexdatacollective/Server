@@ -99,7 +99,10 @@ const EntityDiff = ({
             <td className="entity-diff__table-heading">
               <div className="entity-diff__table-heading-context" title={a[properties.nodePrimaryKey]}>
                 {renderCaseID(get(a, properties.case))}
-                <Node {...nodePropsA} />
+                <Node
+                  // eslint-disable-next-line react/jsx-props-no-spreading
+                  {...nodePropsA}
+                />
               </div>
               <div className="entity-diff__table-heading-cell" title="Use all attributes from this node">
                 <Radio
@@ -112,7 +115,10 @@ const EntityDiff = ({
             <td className="entity-diff__table-heading" title={b[properties.nodePrimaryKey]}>
               <div className="entity-diff__table-heading-context">
                 {renderCaseID(get(b, properties.case))}
-                <Node {...nodePropsB} />
+                <Node
+                  // eslint-disable-next-line react/jsx-props-no-spreading
+                  {...nodePropsB}
+                />
               </div>
               <div className="entity-diff__table-heading-cell" title="Use all attributes from this node">
                 <Radio
@@ -125,8 +131,14 @@ const EntityDiff = ({
             <td className="entity-diff__table-heading">
               <div className="entity-diff__table-heading-context">
                 <div className="entity-diff__node-stack">
-                  <Node {...nodePropsB} />
-                  <Node {...nodePropsA} />
+                  <Node
+                    // eslint-disable-next-line react/jsx-props-no-spreading
+                    {...nodePropsB}
+                  />
+                  <Node
+                    // eslint-disable-next-line react/jsx-props-no-spreading
+                    {...nodePropsA}
+                  />
                 </div>
               </div>
               <div className="entity-diff__table-heading-cell">
@@ -177,9 +189,8 @@ const EntityDiff = ({
           { !showHidden && matchingRowCount > 0
             && (
             <tr>
-              <th />
+              <th aria-label="matching rows" />
               <td colSpan="3" className="hidden-rows">
-
                 <Button onClick={handleToggleHidden} size="small" color="platinum">
                   {matchingRowCount}
                   {' '}

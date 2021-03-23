@@ -12,16 +12,25 @@ const DefaultExpiredCheckInterval = 1000;
 
 class PairDevice extends Component {
   componentDidUpdate() {
-    if (!this.timer
-        && this.props.pairingRequest.status === PairingStatus.Acknowledged) {
-      const { apiClient, dismissPairingRequest, pairingRequest } = this.props;
+    const {
+      apiClient,
+      dismissPairingRequest,
+      pairingRequest,
+      removeToast,
+      addToast,
+    } = this.props;
+
+    if (
+      !this.timer
+      && pairingRequest.status === PairingStatus.Acknowledged
+    ) {
       const doCheck = () => {
         apiClient.checkPairingCodeExpired(pairingRequest.id)
           .then(({ isExpired, expiresAt }) => {
             if (isExpired) {
               dismissPairingRequest();
-              this.props.removeToast('pairing-error-toast');
-              this.props.addToast({
+              removeToast('pairing-error-toast');
+              addToast({
                 id: 'pairing-error-toast',
                 type: 'error',
                 title: 'Pairing timed out',
@@ -38,7 +47,7 @@ class PairDevice extends Component {
               this.timer = null;
             } else {
               let expiresIn = new Date(expiresAt) - new Date();
-              if (isNaN(expiresIn) || expiresIn < DefaultExpiredCheckInterval) {
+              if (Number.isNaN(expiresIn) || expiresIn < DefaultExpiredCheckInterval) {
                 expiresIn = DefaultExpiredCheckInterval;
               }
               this.timer = setTimeout(doCheck, expiresIn);
@@ -48,13 +57,13 @@ class PairDevice extends Component {
       this.timer = setTimeout(doCheck, DefaultExpiredCheckInterval);
     }
 
-    if (this.timer && this.props.pairingRequest.status !== PairingStatus.Acknowledged) {
+    if (this.timer && pairingRequest.status !== PairingStatus.Acknowledged) {
       clearTimeout(this.timer);
       this.timer = null;
     }
 
-    if (this.props.pairingRequest.status === PairingStatus.Complete) {
-      this.props.addToast({
+    if (pairingRequest.status === PairingStatus.Complete) {
+      addToast({
         id: 'pairing-success-toast',
         type: 'success',
         title: 'Pairing complete!',
@@ -68,7 +77,7 @@ class PairDevice extends Component {
           </>
         ),
       });
-      this.props.dismissPairingRequest();
+      dismissPairingRequest();
     }
   }
 
