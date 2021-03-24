@@ -1,3 +1,4 @@
+/* eslint-disable react/static-property-placement */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import logger from 'electron-log';
@@ -22,12 +23,10 @@ const defaultMinimumSessions = 100;
  * - totalSessionsCount
  */
 const withSessions = (WrappedComponent) => class extends Component {
-  // eslint-disable-next-line react/static-property-placement
   static propTypes = {
     protocol: Types.protocol,
   };
 
-  // eslint-disable-next-line react/static-property-placement
   static defaultProps = {
     protocol: null,
   };
@@ -47,8 +46,6 @@ const withSessions = (WrappedComponent) => class extends Component {
     }
     return null;
   }
-
-  debouncedReload = debounce(this.reloadSessions, 200);
 
   constructor(props) {
     super(props);
@@ -94,7 +91,7 @@ const withSessions = (WrappedComponent) => class extends Component {
     changeFilter = (event) => {
       this.setState({
         filterValue: event.target.value,
-      }, this.debouncedReload);
+      }, this.debouncedReload());
     }
 
     sortSessions = (newSortType) => {
@@ -155,6 +152,8 @@ const withSessions = (WrappedComponent) => class extends Component {
           resolve();
         }))));
     }
+
+    debouncedReload = () => debounce(this.reloadSessions, 200);
 
     loadMoreSessions = (startIndex, stopIndex) => {
       const {
