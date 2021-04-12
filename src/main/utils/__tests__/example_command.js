@@ -2,9 +2,7 @@ const split = require('split');
 
 const args = process.argv.slice(2);
 
-const doThing = input =>
-  // input.split('').reverse().join('');
-  [input.toUpperCase(), '.end'].join('');
+const doThing = (input) => [input.toUpperCase(), '.end'].join('');
 
 if (args[0] === '--buffered') {
   // BUFFER MODE

@@ -6,43 +6,39 @@ const REMOVE_TOAST = Symbol('PROTOCOL/REMOVE_TOAST');
 
 const initialState = [];
 
-const getToast = (state, id) =>
-  state.toasts.find(t => t.id === id);
+const getToast = (state, id) => state.toasts.find((t) => t.id === id);
 
-const addToast = toast =>
-  (dispatch) => {
-    const id = toast.id || uuid();
-    dispatch({
-      type: ADD_TOAST,
-      toast: {
-        ...toast,
-        id,
-      },
-    });
-
-    return id;
-  };
-
-const updateToast = (id, toast) =>
-  ({
-    type: UPDATE_TOAST,
-    id,
-    toast,
+const addToast = (toast) => (dispatch) => {
+  const id = toast.id || uuid();
+  dispatch({
+    type: ADD_TOAST,
+    toast: {
+      ...toast,
+      id,
+    },
   });
 
-const removeToast = (id, callback = true) =>
-  (dispatch, getState) => {
-    const toast = getToast(getState(), id);
+  return id;
+};
 
-    if (toast.onDismiss && callback) {
-      toast.onDismiss();
-    }
+const updateToast = (id, toast) => ({
+  type: UPDATE_TOAST,
+  id,
+  toast,
+});
 
-    dispatch({
-      type: REMOVE_TOAST,
-      id,
-    });
-  };
+const removeToast = (id, callback = true) => (dispatch, getState) => {
+  const toast = getToast(getState(), id);
+
+  if (toast.onDismiss && callback) {
+    toast.onDismiss();
+  }
+
+  dispatch({
+    type: REMOVE_TOAST,
+    id,
+  });
+};
 
 function reducer(state = initialState, action = {}) {
   switch (action.type) {
@@ -64,7 +60,7 @@ function reducer(state = initialState, action = {}) {
     }
     case REMOVE_TOAST:
       return [
-        ...state.filter(toast => toast.id !== action.id),
+        ...state.filter((toast) => toast.id !== action.id),
       ];
     default:
       return state;

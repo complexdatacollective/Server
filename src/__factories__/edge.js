@@ -2,7 +2,7 @@ const { Factory } = require('rosie');
 const { times } = require('lodash');
 
 const edge = new Factory()
-  .option('range', times(100, n => n))
+  .option('range', times(100, (n) => n))
   .option('nodes', null)
   .attr('from', ['nodes', 'range'], (nodes, range) => {
     const ids = nodes ? nodes.map(({ _uid }) => _uid) : range;

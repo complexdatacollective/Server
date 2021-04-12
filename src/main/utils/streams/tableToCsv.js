@@ -6,7 +6,7 @@ const csvEOL = '\r\n'; // always this, not os-specific
  * @param  {string} value a string potentially containing quotes
  * @return {string} a quote-delimited string, with internal quotation marks escaped (as '""')
  */
-const quoteValue = value => `"${value.replace(/"/g, '""')}"`;
+const quoteValue = (value) => `"${value.replace(/"/g, '""')}"`;
 
 /**
  * Returned strings are already quote-escaped as needed.
@@ -24,7 +24,7 @@ const cellValue = (value) => {
       serialized = value.toString(); // value will never be null here
     }
     return quoteValue(serialized);
-  } else if (typeof value === 'string') {
+  } if (typeof value === 'string') {
     let escapedValue = value;
     if (value.indexOf('"') >= 0) {
       escapedValue = quoteValue(value);
@@ -36,8 +36,7 @@ const cellValue = (value) => {
   return value;
 };
 
-const csvRow = cells =>
-  `${cells.map(v => cellValue(v)).join(',')}${csvEOL}`;
+const csvRow = (cells) => `${cells.map((v) => cellValue(v)).join(',')}${csvEOL}`;
 
 const tableToCsv = () => miss.through(
   (row, enc, push) => {

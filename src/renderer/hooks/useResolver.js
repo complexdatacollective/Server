@@ -42,9 +42,9 @@ const resolverReducer = (state, action) => {
       };
     case 'RESET':
       return (
-        action.payload.hard ?
-          { ...initialState } :
-          {
+        action.payload.hard
+          ? { ...initialState }
+          : {
             ...state,
             protocol: null,
             options: {},
@@ -66,8 +66,7 @@ const useBuffer = () => {
     queue.current.push(data);
   };
 
-  const drain = () =>
-    queue.current.splice(0, queue.current.length);
+  const drain = () => queue.current.splice(0, queue.current.length);
 
   return [add, drain];
 };
@@ -88,11 +87,9 @@ const useResolver = () => {
     updateMatches();
   };
 
-  const updateState = props =>
-    resolverDispatch({ type: 'UPDATE', payload: props });
+  const updateState = (props) => resolverDispatch({ type: 'UPDATE', payload: props });
 
-  const resetState = (hard = false) =>
-    resolverDispatch({ type: 'RESET', payload: { hard } });
+  const resetState = (hard = false) => resolverDispatch({ type: 'RESET', payload: { hard } });
 
   const startResolve = (settings) => {
     drainMatches();

@@ -11,7 +11,7 @@ const finializeResolutions = (resolutions) => {
     resolutions,
     (acc, resolution) => {
       // if any of the nodes in this resolution are accounted for, this resolution is complete
-      if (resolution.nodes.some(node => acc.nodes.includes(node))) { return acc; }
+      if (resolution.nodes.some((node) => acc.nodes.includes(node))) { return acc; }
 
       // otherwise collect the resolution, and add the nodes to the account
       return {

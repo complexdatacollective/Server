@@ -32,6 +32,7 @@ class DeviceService extends EventEmitter {
   }
 
   get httpPort() { return this.api.httpPort; }
+
   get httpsPort() { return this.api.httpsPort; }
 
   createApi(dataDir, keys) { // eslint-disable-line class-methods-use-this

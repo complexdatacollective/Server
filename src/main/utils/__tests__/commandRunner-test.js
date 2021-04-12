@@ -1,7 +1,7 @@
 /* eslint-env jest */
-const commandRunner = require('../commandRunner');
 const miss = require('mississippi');
 const split = require('split');
+const commandRunner = require('../commandRunner');
 
 // example_command.js reverses stdin
 const testCommand = ['node', './src/main/utils/__tests__/example_command.js'];
@@ -9,14 +9,12 @@ const testCommand = ['node', './src/main/utils/__tests__/example_command.js'];
 describe('commandRunner', () => {
   it('can initialize', () => commandRunner(testCommand));
 
-  it('is writable', () =>
-    commandRunner(testCommand)
-      .then((startProcess) => {
-        const p = startProcess();
-        p.write('buzz');
-        p.end();
-      }),
-  );
+  it('is writable', () => commandRunner(testCommand)
+    .then((startProcess) => {
+      const p = startProcess();
+      p.write('buzz');
+      p.end();
+    }));
 
   it('is readable', () => {
     const dataHandler = jest.fn();
@@ -25,7 +23,7 @@ describe('commandRunner', () => {
 
     return expect(
       commandRunner(testCommand)
-        .then(runProcess => new Promise((resolve) => {
+        .then((runProcess) => new Promise((resolve) => {
           const stream = miss.pipeline(
             runProcess(),
             split(),

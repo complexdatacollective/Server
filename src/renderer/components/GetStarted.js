@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@codaco/ui';
-import Instructions from '../components/Instructions';
+import Instructions from './Instructions';
 import serverLogo from '../images/Srv-Flat.svg';
 import nc from '../images/NC-Mark.svg';
 import getStarted from '../images/charts.svg';

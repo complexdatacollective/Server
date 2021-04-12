@@ -14,15 +14,14 @@ const egoHeading = {
 const getHeadings = (codebook, initialHeadings = defaultHeadings) => {
   const headings = reduce(
     codebook.node,
-    (attributes, nodeDefinition) =>
-      reduce(
-        nodeDefinition.variables,
-        (memo, variable, id) => ({
-          ...memo,
-          [id]: `${id}`,
-        }),
-        attributes,
-      ),
+    (attributes, nodeDefinition) => reduce(
+      nodeDefinition.variables,
+      (memo, variable, id) => ({
+        ...memo,
+        [id]: `${id}`,
+      }),
+      attributes,
+    ),
     { ...initialHeadings },
   );
 

@@ -6,7 +6,7 @@
         "es6": true,
         "node": true
     },
-    "parser": "babel-eslint",
+    "parser": "@babel/eslint-parser",
     "parserOptions": {
         "ecmaVersion": 7,
         "ecmaFeatures": {
@@ -23,6 +23,7 @@
       "react/forbid-prop-types": "off",
       "react/no-array-index-key": "off",
       "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
+      "jsx-a11y/click-events-have-key-events": "off",
       "no-mixed-operators": [1, {"allowSamePrecedence": true}]
     }
 }

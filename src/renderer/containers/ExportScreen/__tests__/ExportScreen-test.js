@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 /* eslint-env jest */
 import React from 'react';
 import { createStore } from 'redux';
@@ -79,7 +80,7 @@ describe('<ExportScreen />', () => {
         }),
       );
       await act(async () => {
-        const radioWrapper = subject.findWhere(n => n.name() === 'Checkbox' && n.prop('label') === 'CSV');
+        const radioWrapper = subject.findWhere((n) => n.name() === 'Checkbox' && n.prop('label') === 'CSV');
         radioWrapper.find('input').simulate('click');
         subject.find('form').simulate('submit');
       });

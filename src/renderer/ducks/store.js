@@ -22,7 +22,7 @@ export const store = createStore(
     applyMiddleware(thunk, pairingObserver, logger),
     typeof window === 'object' && typeof window.devToolsExtension !== 'undefined'
       ? window.devToolsExtension()
-      : f => f,
+      : (f) => f,
   ),
 );
 

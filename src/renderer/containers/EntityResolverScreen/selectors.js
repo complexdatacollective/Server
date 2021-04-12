@@ -6,7 +6,7 @@ export const getNodeTypes = (state, protocolId) => {
   const nodeDefinitions = protocolSelectors.nodeDefinitions(state, protocolId);
 
   const options = Object.keys(nodeDefinitions)
-    .map(nodeType => ({
+    .map((nodeType) => ({
       label: nodeDefinitions[nodeType].name,
       value: nodeType,
     }));

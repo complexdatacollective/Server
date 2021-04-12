@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 /* eslint-env jest */
 import React from 'react';
 import { mount, shallow } from 'enzyme';
@@ -37,11 +38,10 @@ const mockDispatched = {
   },
 };
 
-
 // This is madness. See here: https://github.com/enzymejs/enzyme/issues/2086
 jest.mock('react', () => ({
   ...jest.requireActual('react'),
-  useEffect: f => f(),
+  useEffect: (f) => f(),
 }));
 
 describe('<App />', () => {
@@ -144,7 +144,7 @@ describe('<App />', () => {
         stopPropagation: jest.fn(),
       };
       shallow(<App {...mockDispatched} />);
-      handlers.forEach(handler => handler(mockEvent));
+      handlers.forEach((handler) => handler(mockEvent));
       expect(mockEvent.preventDefault).toHaveBeenCalled();
       expect(mockEvent.stopPropagation).toHaveBeenCalled();
     });

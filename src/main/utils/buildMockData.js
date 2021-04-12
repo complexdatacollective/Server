@@ -17,7 +17,7 @@ const {
   sessionExportTimeProperty,
 } = require('./network-exporters/src/utils/reservedAttributes');
 
-const nameDigest = name => name && crypto.createHash('sha256').update(name).digest('hex');
+const nameDigest = (name) => name && crypto.createHash('sha256').update(name).digest('hex');
 
 const mockCoord = () => faker.random.number({ min: 0, max: 1, precision: 0.000001 });
 
@@ -88,13 +88,13 @@ const makeNetwork = (protocol) => {
   const networkMinNodes = 2;
 
   codebookNodeTypes.forEach((nodeType) => {
-    const nodesOfThisType =
-      Math.round(Math.random() * ((networkMaxNodes - networkMinNodes) + networkMinNodes));
-    nodes.push(...[...Array(nodesOfThisType)].map(() =>
-      makeEntity(
-        nodeType,
-        protocol.codebook.node[nodeType].variables,
-      )));
+    const nodesOfThisType = Math.round(
+      Math.random() * ((networkMaxNodes - networkMinNodes) + networkMinNodes),
+    );
+    nodes.push(...[...Array(nodesOfThisType)].map(() => makeEntity(
+      nodeType,
+      protocol.codebook.node[nodeType].variables,
+    )));
   });
 
   const ego = makeEntity(null, (protocol.codebook.ego || {}).variables);
@@ -106,8 +106,9 @@ const makeNetwork = (protocol) => {
   const pickNodeUid = () => nodes[~~(Math.random() * (nodes.length - 1))][entityPrimaryKeyProperty];
 
   codebookEdgeTypes.forEach((edgeType) => {
-    const edgesOfThisType =
-      Math.round(Math.random() * ((networkMaxEdges - networkMinEdges) + networkMinEdges));
+    const edgesOfThisType = Math.round(
+      Math.random() * ((networkMaxEdges - networkMinEdges) + networkMinEdges),
+    );
 
     edges.push(...[...Array(edgesOfThisType)].map(() => ({
       ...makeEntity(
@@ -154,8 +155,7 @@ const makeSession = (protocol) => {
 const buildMockData = (
   protocol,
   sessionCount = 4500,
-) =>
-  times(sessionCount, () => makeSession(protocol));
+) => times(sessionCount, () => makeSession(protocol));
 
 module.exports = {
   buildMockData,

@@ -14,7 +14,6 @@ const useNetworkStatus = (deps = []) => {
   const apiClient = useRef(new AdminApiClient());
   const [networkState, setNetworkState] = useState(initialState);
 
-
   useEffect(() => {
     apiClient.current.get('/health')
       .then((resp) => {

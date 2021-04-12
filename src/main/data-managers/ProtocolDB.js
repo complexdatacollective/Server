@@ -8,13 +8,13 @@ const { hexDigest } = require('../utils/sha256');
 // Name is the unique identifier for a protocol.
 // This normalizes unicode points, but leaves otherwise unchanged
 // (any characters, including unprintable, are valid).
-const normalizedName = protocol => protocol.name && protocol.name.normalize();
+const normalizedName = (protocol) => protocol.name && protocol.name.normalize();
 
 // lastModified is optional, but if supplied must be a valid date string after 1970
 const validatedModifyTime = (protocol) => {
   const datetime = protocol.lastModified;
   const timestamp = Date.parse(datetime);
-  if (isNaN(timestamp) || timestamp < 0) {
+  if (Number.isNaN(timestamp) || timestamp < 0) {
     return undefined;
   }
   return datetime;
@@ -42,6 +42,10 @@ class ProtocolDB extends DatabaseAdapter {
    * @throws If DB save fails
    */
   save(filename, contentsDigest, metadata, { returnOldDoc = false } = {}) {
+    // Rule is disabled because its nicer to await `this.first` than
+    // wrap entire rest of the block in a .then(). We wrap `this.first`
+    // in a try block to handle correctly rejecting the parent promise.
+    // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       if (!filename || !contentsDigest) {
         reject(new RequestError(ErrorMessages.InvalidContainerFile));
@@ -64,7 +68,11 @@ class ProtocolDB extends DatabaseAdapter {
 
       let oldDoc;
       if (returnOldDoc) {
-        oldDoc = await this.first({ name });
+        try {
+          oldDoc = await this.first({ name });
+        } catch (e) {
+          reject(e);
+        }
       }
 
       this.db.update({

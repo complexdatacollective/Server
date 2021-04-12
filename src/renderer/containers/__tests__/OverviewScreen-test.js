@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 /* eslint-env jest */
 import React from 'react';
 import { createStore } from 'redux';
@@ -24,7 +25,9 @@ describe('<OverviewScreen />', () => {
   });
 
   it('redirects to a protocol after startup', () => {
-    const mockProtocol = { id: 'abc123', name: '1', createdAt: new Date(), updatedAt: new Date() };
+    const mockProtocol = {
+      id: 'abc123', name: '1', createdAt: new Date(), updatedAt: new Date(),
+    };
     const subject = shallow((
       <OverviewScreen loadDevices={loadDevices} protocols={[mockProtocol]} />
     ));

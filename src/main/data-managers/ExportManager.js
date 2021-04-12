@@ -41,7 +41,7 @@ class ExportManager {
 
     // Get all sessions associated with this protocol
     const sessions = await this.sessionDB.findAll(protocol._id, null, null)
-      .then(s => s.map(session => ({ ...session.data })));
+      .then((s) => s.map((session) => ({ ...session.data })));
 
     return [sessions, formatProtocol(protocol, sessions)];
   }
@@ -79,8 +79,7 @@ class ExportManager {
       .then(([sessions, protocols]) => {
         const fileExportManager = new FileExportManager(options);
 
-        const exportSessions = () =>
-          fileExportManager.exportSessions(sessions, protocols);
+        const exportSessions = () => fileExportManager.exportSessions(sessions, protocols);
 
         return { exportSessions, fileExportManager };
       });

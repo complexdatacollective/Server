@@ -5,29 +5,28 @@ const tableToCsv = require('../tableToCsv');
 
 const csvEOL = '\r\n';
 
-const streamLines = stream =>
-  lines => new Promise((resolve, reject) => {
-    let output;
+const streamLines = (stream) => (lines) => new Promise((resolve, reject) => {
+  let output;
 
-    return miss.pipe(
-      miss.from({ objectMode: true }, (size, next) => {
-        if (lines.length <= 0) { return next(null, null); }
+  return miss.pipe(
+    miss.from({ objectMode: true }, (size, next) => {
+      if (lines.length <= 0) { return next(null, null); }
 
-        const nextLine = JSON.stringify(lines.shift());
+      const nextLine = JSON.stringify(lines.shift());
 
-        return next(null, nextLine);
-      }),
-      stream,
-      miss.concat((data) => {
-        output = data.toString().split(csvEOL);
-      }),
-      (err) => {
-        if (err) { return reject(err); }
+      return next(null, nextLine);
+    }),
+    stream,
+    miss.concat((data) => {
+      output = data.toString().split(csvEOL);
+    }),
+    (err) => {
+      if (err) { return reject(err); }
 
-        return resolve(output);
-      },
-    );
-  });
+      return resolve(output);
+    },
+  );
+});
 
 describe('tableToCsv', () => {
   it('escapes quotes', async () => {

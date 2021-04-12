@@ -36,11 +36,14 @@ class FileDropTarget extends Component {
 
   componentWillUnmount() {
     ipcRenderer.removeListener(
-      ipcChannels.PROTOCOL_IMPORT_START, this.showStartProtocolImportToast);
+      ipcChannels.PROTOCOL_IMPORT_START, this.showStartProtocolImportToast,
+    );
     ipcRenderer.removeListener(
-      ipcChannels.PROTOCOL_IMPORT_FAILURE, this.showProtocolImportFailureToast);
+      ipcChannels.PROTOCOL_IMPORT_FAILURE, this.showProtocolImportFailureToast,
+    );
     ipcRenderer.removeListener(
-      ipcChannels.PROTOCOL_IMPORT_SUCCESS, this.showCompleteProtocolImportToast);
+      ipcChannels.PROTOCOL_IMPORT_SUCCESS, this.showCompleteProtocolImportToast,
+    );
   }
 
   onDragEnter() {
@@ -48,9 +51,10 @@ class FileDropTarget extends Component {
   }
 
   onDragLeave(evt) {
+    const { isOverlay } = this.props;
     evt.stopPropagation();
     // Ignore event if dragging over a contained child (where evt.target is the child)
-    if (this.containerRef.current === evt.target || (this.props.isOverlay && evt.target.className === 'file-drop-target__overlay')) {
+    if (this.containerRef.current === evt.target || (isOverlay && evt.target.className === 'file-drop-target__overlay')) {
       this.setState({ draggingOver: false });
     }
   }
@@ -80,11 +84,13 @@ class FileDropTarget extends Component {
     this.apiClient
       .post('/importProtocols', { files })
       .then(() => loadProtocols()) // Refresh protocols
-      .catch(err => this.showErrorDialog(err.message || 'Could not save file'));
+      .catch((err) => this.showErrorDialog(err.message || 'Could not save file'));
   }
 
   showErrorDialog = (error) => {
-    this.props.openDialog({
+    const { openDialog } = this.props;
+
+    openDialog({
       type: 'Warning',
       canCancel: false,
       title: 'Import Error',
@@ -93,58 +99,77 @@ class FileDropTarget extends Component {
   }
 
   showStartProtocolImportToast = (_, fileBasename) => {
-    this.props.addToast({
+    const { addToast } = this.props;
+
+    addToast({
       id: fileBasename,
       type: 'info',
       title: 'Importing...',
       CustomIcon: (<Spinner small />),
       autoDismiss: false,
       content: (
-        <React.Fragment>
+        <>
           <p>
-            Importing {fileBasename}...
+            Importing
+            {' '}
+            {fileBasename}
+            ...
           </p>
           <ProgressBar orientation="horizontal" percentProgress={30} />
-        </React.Fragment>
+        </>
       ),
     });
   };
 
   showProtocolImportFailureToast = (_, fileBasename, err) => {
-    this.props.updateToast(fileBasename, {
+    const { updateToast } = this.props;
+
+    updateToast(fileBasename, {
       type: 'warning',
       title: 'Import failed',
       CustomIcon: (<Icon name="error" />),
       autoDismiss: false,
       content: (
-        <React.Fragment>
+        <>
           <p>
-            Importing {fileBasename} failed!
+            Importing
+            {' '}
+            {fileBasename}
+            {' '}
+            failed!
           </p>
           <strong>Error details:</strong>
           <p>{(err && err.message) || err}</p>
-        </React.Fragment>
+        </>
       ),
     });
   };
 
   showCompleteProtocolImportToast = (_, fileBasename, protocolName) => {
-    this.props.removeToast(fileBasename);
+    const {
+      removeToast,
+      addToast,
+    } = this.props;
 
-    this.props.addToast({
+    removeToast(fileBasename);
+
+    addToast({
       type: 'success',
       title: 'Import protocol complete!',
       content: (
-        <React.Fragment>
+        <>
           <p>
-            The protocol &quot;{protocolName}&quot; was imported successfully.
+            The protocol &quot;
+            {protocolName}
+            &quot; was imported successfully.
           </p>
-        </React.Fragment>
+        </>
       ),
     });
   };
 
   render() {
+    const { children } = this.props;
     const { draggingOver } = this.state;
     const containerProps = {
       className: 'file-drop-target',
@@ -158,8 +183,9 @@ class FileDropTarget extends Component {
     }
 
     return (
+      // eslint-disable-next-line react/jsx-props-no-spreading
       <div {...containerProps} ref={this.containerRef}>
-        { this.props.children }
+        { children }
       </div>
     );
   }
@@ -185,7 +211,7 @@ FileDropTarget.propTypes = {
   updateToast: PropTypes.func,
 };
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   loadProtocols: bindActionCreators(protocolActionCreators.loadProtocols, dispatch),
   openDialog: bindActionCreators(dialogActions.openDialog, dispatch),
   addToast: bindActionCreators(toastActions.addToast, dispatch),

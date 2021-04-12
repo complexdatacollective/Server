@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { compose } from 'recompose';
@@ -117,7 +116,7 @@ DeviceStatus.propTypes = {
   loadDevices: PropTypes.func,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   devices: state.devices,
   hasPendingRequest: selectors.requestIsPending(state),
 });

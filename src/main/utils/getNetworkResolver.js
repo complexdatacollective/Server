@@ -11,7 +11,7 @@ const { properties } = require('./resolver/helpers');
 const commandRunner = require('./commandRunner');
 
 const getNode = (nodes, id) => {
-  const node = nodes.find(n => id === n[properties.nodePrimaryKey]);
+  const node = nodes.find((n) => id === n[properties.nodePrimaryKey]);
 
   if (!node) {
     throw new Error(
@@ -29,39 +29,38 @@ const getNode = (nodes, id) => {
  * { networkCanvasAlterID_1, networkCanvasAlterID_2, prob: '0.0' } ->
  *   { nodes: [ { id, attributes }, { id, attributes } ], prob: 0.0 }
  */
-const appendNodeNetworkData = nodes =>
-  miss.through((chunk, encoding, callback) => {
-    try {
-      const obj = JSON.parse(chunk);
+const appendNodeNetworkData = (nodes) => miss.through((chunk, encoding, callback) => {
+  try {
+    const obj = JSON.parse(chunk);
 
-      if (
-        !has(obj, 'networkCanvasAlterID_1') ||
-        !has(obj, 'networkCanvasAlterID_2') ||
-        !has(obj, 'prob')
-      ) {
-        throw new Error('getNetworkResolver: Data must contain variables: networkCanvasAlterID_1, networkCanvasAlterID_2, prob');
-      }
-
-      const pair = [
-        getNode(nodes, obj.networkCanvasAlterID_1),
-        getNode(nodes, obj.networkCanvasAlterID_2),
-      ];
-
-      const probability = parseFloat(obj.prob);
-
-      const result = {
-        nodes: pair,
-        probability,
-      };
-
-      const output = JSON.stringify(result);
-
-      callback(null, output);
-    } catch (err) {
-      console.log({ err }); // eslint-disable-line
-      callback(err);
+    if (
+      !has(obj, 'networkCanvasAlterID_1')
+        || !has(obj, 'networkCanvasAlterID_2')
+        || !has(obj, 'prob')
+    ) {
+      throw new Error('getNetworkResolver: Data must contain variables: networkCanvasAlterID_1, networkCanvasAlterID_2, prob');
     }
-  });
+
+    const pair = [
+      getNode(nodes, obj.networkCanvasAlterID_1),
+      getNode(nodes, obj.networkCanvasAlterID_2),
+    ];
+
+    const probability = parseFloat(obj.prob);
+
+    const result = {
+      nodes: pair,
+      probability,
+    };
+
+    const output = JSON.stringify(result);
+
+    callback(null, output);
+  } catch (err) {
+      console.log({ err }); // eslint-disable-line
+    callback(err);
+  }
+});
 
 /**
  * Create a fully formed pipeline that emits each match as a json
@@ -78,32 +77,31 @@ const getNetworkResolver = (
   command,
   codebook,
   network,
-) =>
-  commandRunner(command)
-    .then((startResolver) => {
-      const resolverProcess = startResolver();
+) => commandRunner(command)
+  .then((startResolver) => {
+    const resolverProcess = startResolver();
 
-      const resolverStream = miss.pipeline(
-        tableToCsv(),
-        sampleStream(`${requestId}:sent`, 3),
-        countStream(`${requestId}:sent`),
-        resolverProcess,
-        split(),
-        csvToJson(),
-        sampleStream(`${requestId}:received`, 3),
-        countStream(`${requestId}:received`),
-        appendNodeNetworkData(network.nodes),
-      );
+    const resolverStream = miss.pipeline(
+      tableToCsv(),
+      sampleStream(`${requestId}:sent`, 3),
+      countStream(`${requestId}:sent`),
+      resolverProcess,
+      split(),
+      csvToJson(),
+      sampleStream(`${requestId}:received`, 3),
+      countStream(`${requestId}:received`),
+      appendNodeNetworkData(network.nodes),
+    );
 
-      resolverStream.abort = () => {
-        resolverStream.destroy();
-        resolverProcess.kill();
-      };
+    resolverStream.abort = () => {
+      resolverStream.destroy();
+      resolverProcess.kill();
+    };
 
-      miss.pipe(nodesToTable(codebook, null, [...network.nodes]), resolverStream);
+    miss.pipe(nodesToTable(codebook, null, [...network.nodes]), resolverStream);
 
-      return resolverStream;
-    });
+    return resolverStream;
+  });
 
 module.exports = {
   getNetworkResolver,

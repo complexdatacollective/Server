@@ -20,8 +20,8 @@ class Server extends EventEmitter {
    * @return {Server} this
    */
   startServices(httpPort, httpsPort) {
-    const dataDir = this.options.dataDir;
-    const keys = this.options.keys;
+    const { dataDir } = this.options;
+    const { keys } = this.options;
     this.adminService = new AdminService({ statusDelegate: this, dataDir });
     this.resolverService = new ResolverService({ dataDir });
     this.deviceService = new DeviceService({ dataDir, keys });
@@ -31,7 +31,7 @@ class Server extends EventEmitter {
       this.resolverService.start(),
       this.deviceService
         .start(httpPort, httpsPort)
-        .then(service => this.advertiseDeviceService(service)),
+        .then((service) => this.advertiseDeviceService(service)),
     ]).then(() => this);
   }
 

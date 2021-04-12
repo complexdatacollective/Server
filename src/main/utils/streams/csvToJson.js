@@ -1,8 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 const { Transform } = require('stream');
 
-const trim = string =>
-  string.trim().replace(/^"(.+)"$/g, '$1');
+const trim = (string) => string.trim().replace(/^"(.+)"$/g, '$1');
 
 class CsvAsJsonStream extends Transform {
   constructor(options) {
@@ -40,8 +39,7 @@ class CsvAsJsonStream extends Transform {
 
       const obj = this._keys
         .reduce(
-          (memo, key, index) =>
-            ({ ...memo, [key]: values[index] }),
+          (memo, key, index) => ({ ...memo, [key]: values[index] }),
           {},
         );
 

@@ -26,11 +26,12 @@ const initialState = {};
 const reducer = (state = initialState, action = {}) => {
   switch (action.type) {
     case SET_EXCLUDED_VARIABLES: {
-      const protocolId = action.protocolId;
+      const { protocolId } = action;
       if (!protocolId) {
         return state;
       }
-      const protocolState = { ...state[protocolId],
+      const protocolState = {
+        ...state[protocolId],
         [action.entity]: {
           ...(state[protocolId] || {})[action.entity],
           [action.section]: action.variables,

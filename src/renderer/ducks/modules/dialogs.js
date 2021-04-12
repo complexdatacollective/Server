@@ -39,18 +39,16 @@ const initialState = {
   ],
 };
 
-const openDialog = dialog =>
-  ({
-    id: uuid(),
-    type: OPEN_DIALOG,
-    dialog,
-  });
+const openDialog = (dialog) => ({
+  id: uuid(),
+  type: OPEN_DIALOG,
+  dialog,
+});
 
-const closeDialog = id =>
-  ({
-    type: CLOSE_DIALOG,
-    id,
-  });
+const closeDialog = (id) => ({
+  type: CLOSE_DIALOG,
+  id,
+});
 
 function reducer(state = initialState, action = {}) {
   switch (action.type) {
@@ -65,7 +63,7 @@ function reducer(state = initialState, action = {}) {
     case CLOSE_DIALOG:
       return {
         ...state,
-        dialogs: state.dialogs.filter(dialog => dialog.id !== action.id),
+        dialogs: state.dialogs.filter((dialog) => dialog.id !== action.id),
       };
     default:
       return state;

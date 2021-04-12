@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import PropTypes from 'prop-types';
@@ -33,11 +34,11 @@ const SessionFileDropTarget = ({
       CustomIcon: (<Spinner small />),
       autoDismiss: false,
       content: (
-        <React.Fragment>
+        <>
           <p>
             Your sessions are being imported...
           </p>
-        </React.Fragment>
+        </>
       ),
     }));
   };
@@ -56,7 +57,7 @@ const SessionFileDropTarget = ({
         title: 'Import error details',
         onConfirm: () => dispatch(toastActions.removeToast('import-result')),
         message: (
-          <React.Fragment>
+          <>
             <p>
               Errors were encountered when trying to import the files and sessions you
               selected. Expand the error types below to see specific details.
@@ -64,15 +65,29 @@ const SessionFileDropTarget = ({
             <div className="import-error-details">
               { importErrors.length > 0 && (
                 <details className="error-section">
-                  <summary> <h2>Session errors ({importErrors.length})</h2></summary>
+                  <summary>
+                    {' '}
+                    <h2>
+                      Session errors (
+                      {importErrors.length}
+                      )
+                    </h2>
+                  </summary>
                   {Object.keys(importErrorsByFile).map((fileWithError, index) => (
                     <div className="error-item" key={index}>
                       <h4>
-                        <span role="img" aria-label="warning">⚠️</span> {fileWithError}:
+                        <span role="img" aria-label="warning">⚠️</span>
+                        {' '}
+                        {fileWithError}
+                        :
                       </h4>
                       <ul>
-                        {importErrorsByFile[fileWithError].map((importFileError, fileIndex) =>
-                          <li key={fileIndex}>{importFileError.caseID ? `Case ID: ${importFileError.caseID} - ` : null}{importFileError.message}</li>)}
+                        {importErrorsByFile[fileWithError].map((importFileError, fileIndex) => (
+                          <li key={fileIndex}>
+                            {importFileError.caseID ? `Case ID: ${importFileError.caseID} - ` : null}
+                            {importFileError.message}
+                          </li>
+                        ))}
                       </ul>
                     </div>
                   ))}
@@ -80,18 +95,29 @@ const SessionFileDropTarget = ({
               )}
               { fileErrors.length > 0 && (
                 <details className="error-section">
-                  <summary><h2>File errors ({fileErrors.length})</h2></summary>
+                  <summary>
+                    <h2>
+                      File errors (
+                      {fileErrors.length}
+                      )
+                    </h2>
+                  </summary>
                   {fileErrors.map((fileWithError, errorIndex) => (
                     <div className="error-item" key={errorIndex}>
                       <h4>
-                        <span role="img" aria-label="warning">⚠️</span> {fileWithError.file}: {fileWithError.message}
+                        <span role="img" aria-label="warning">⚠️</span>
+                        {' '}
+                        {fileWithError.file}
+                        :
+                        {' '}
+                        {fileWithError.message}
                       </h4>
                     </div>
                   ))}
                 </details>
               )}
             </div>
-          </React.Fragment>
+          </>
         ),
       });
 
@@ -101,23 +127,31 @@ const SessionFileDropTarget = ({
         title: 'Finished with errors',
         autoDismiss: false,
         content: (
-          <React.Fragment>
+          <>
             <p>
               The import process finished, but errors were encountered with some files or
               sessions. Click &quot;more information&quot; to see details.
             </p>
             <p>
-              <span role="img" aria-label="success">✔️</span> {numberSucceeded} session(s) imported successfully.
+              <span role="img" aria-label="success">✔️</span>
+              {' '}
+              {numberSucceeded}
+              {' '}
+              session(s) imported successfully.
             </p>
             <p>
-              <span role="img" aria-label="warning">⚠️</span> { importErrors.length + fileErrors.length} file(s) or session(s) enountered an
+              <span role="img" aria-label="warning">⚠️</span>
+              {' '}
+              { importErrors.length + fileErrors.length}
+              {' '}
+              file(s) or session(s) enountered an
               error during import.
             </p>
             <div className="toast-button-group">
               <Button size="small" color="platinum--dark" onClick={() => dispatch(toastActions.removeToast('import-result'))}>Dismiss</Button>
               <Button color="neon-coral" size="small" onClick={showMoreInfo}>More Information</Button>
             </div>
-          </React.Fragment>
+          </>
         ),
       }));
       return;
@@ -127,14 +161,18 @@ const SessionFileDropTarget = ({
       type: 'success',
       title: 'Finished!',
       content: (
-        <React.Fragment>
+        <>
           <p>
             The import process finished successfully.
           </p>
           <p>
-            <span role="img" aria-label="success">✔️</span> {numberSucceeded} session(s) imported.
+            <span role="img" aria-label="success">✔️</span>
+            {' '}
+            {numberSucceeded}
+            {' '}
+            session(s) imported.
           </p>
-        </React.Fragment>
+        </>
       ),
     }));
   };
@@ -147,10 +185,10 @@ const SessionFileDropTarget = ({
       canCancel: false,
       title: 'Import Failed',
       message: (
-        <React.Fragment>
+        <>
           <strong>{message}</strong>
           <pre>{errors}</pre>
-        </React.Fragment>
+        </>
       ),
     });
   };
@@ -159,7 +197,7 @@ const SessionFileDropTarget = ({
     setIsImporting(true);
 
     apiClient
-      .post('/importSessions', { files: acceptedFiles.map(file => file.path) })
+      .post('/importSessions', { files: acceptedFiles.map((file) => file.path) })
       .catch(({ message, error }) => {
         setIsImporting(false);
         showErrorDialog(message, error);
@@ -225,7 +263,8 @@ const SessionFileDropTarget = ({
     <div {...getRootProps()} style={{ flex: 1, overflowY: 'auto', display: 'flex' }}>
       <input {...getInputProps()} />
       <AnimatePresence>
-        { isDragActive && !isImporting &&
+        { isDragActive && !isImporting
+          && (
           <motion.div
             className="file-drop-target__overlay"
             animate="show"
@@ -247,12 +286,16 @@ const SessionFileDropTarget = ({
               </div>
               <h2>Import interview sessions to Server</h2>
               <p>
-                Drop <code>.graphml</code> session files from Network Canvas Interviewer here
+                Drop
+                {' '}
+                <code>.graphml</code>
+                {' '}
+                session files from Network Canvas Interviewer here
                 to import them into Server.
               </p>
             </motion.div>
           </motion.div>
-        }
+          )}
       </AnimatePresence>
       { children }
     </div>
@@ -269,7 +312,7 @@ SessionFileDropTarget.propTypes = {
   openDialog: PropTypes.func,
 };
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   loadProtocols: bindActionCreators(protocolActionCreators.loadProtocols, dispatch),
   openDialog: bindActionCreators(dialogActions.openDialog, dispatch),
 });

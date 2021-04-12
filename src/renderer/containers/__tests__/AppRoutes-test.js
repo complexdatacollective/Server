@@ -13,7 +13,7 @@ jest.mock('../workspace/WorkspaceScreen', () => () => <div>Workspace</div>);
 describe('<AppRoutes />', () => {
   let wrapper;
   const routesMatching = (routes, pattern) => (
-    routes.findWhere(route => (new RegExp(pattern)).test(route.prop('path')))
+    routes.findWhere((route) => (new RegExp(pattern)).test(route.prop('path')))
   );
 
   beforeEach(() => {

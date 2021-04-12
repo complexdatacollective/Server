@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { PieChart as RechartPieChart, Pie, Cell, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+  PieChart as RechartPieChart, Pie, Cell, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+} from 'recharts';
 
 import { getCSSValueRange } from '../../utils/CSSVariables';
 

@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 /* eslint-env jest */
 import React from 'react';
 import { mount } from 'enzyme';
@@ -26,7 +27,8 @@ const mockStore = createStore(() => (
 describe('<SessionPanel />', () => {
   it('renders a title', () => {
     const subject = mount(
-      <HashRouter><Provider store={mockStore}><SessionPanel {...props} /></Provider></HashRouter>);
+      <HashRouter><Provider store={mockStore}><SessionPanel {...props} /></Provider></HashRouter>,
+    );
     expect(subject.text()).toMatch('Most Recent Sessions');
   });
 
@@ -34,16 +36,20 @@ describe('<SessionPanel />', () => {
     const subject = mount(
       <HashRouter>
         <Provider store={mockStore}><SessionPanel {...props} /></Provider>
-      </HashRouter>);
+      </HashRouter>,
+    );
     expect(subject.find('.session-panel__list').find('li')).toHaveLength(1);
   });
 
   it('renders total count if greater than loaded count', () => {
     const mockTotal = 991199;
     const subject = mount(
-      <HashRouter><Provider store={mockStore}>
-        <SessionPanel {...props} totalCount={mockTotal} />
-      </Provider></HashRouter>);
+      <HashRouter>
+        <Provider store={mockStore}>
+          <SessionPanel {...props} totalCount={mockTotal} />
+        </Provider>
+      </HashRouter>,
+    );
     expect(subject.text()).toContain(`${mockSessions.length} of ${mockTotal}`);
   });
 

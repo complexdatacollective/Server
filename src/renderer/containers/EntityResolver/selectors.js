@@ -1,4 +1,4 @@
-import { findKey, get } from 'lodash';
+import { findKey, find, get } from 'lodash';
 import { properties } from '../../../main/utils/resolver/helpers';
 
 export const getMatch = (matches, index) => {
@@ -17,7 +17,7 @@ export const getMatchOrResolved = (match, resolutions) => {
 
   const nodes = match.nodes.map((node) => {
     const resolution = reversedResolutions
-      .find(r => r.nodes.includes(node[properties.nodePrimaryKey]));
+      .find((r) => r.nodes.includes(node[properties.nodePrimaryKey]));
 
     if (!resolution) { return node; }
 
@@ -34,16 +34,16 @@ export const getMatchOrResolved = (match, resolutions) => {
   };
 };
 
+// TODO: Move this to a shared implementation with Interviewer
 // See: https://github.com/codaco/Network-Canvas/wiki/Node-Labeling
 export const labelLogic = (codebookForNodeType, nodeAttributes) => {
   // In the codebook for the stage's subject, look for a variable with a name
   // property of "name", and try to retrieve this value by key in the node's
   // attributes
-  const variableCalledName =
-    codebookForNodeType &&
-    codebookForNodeType.variables &&
+  const variableCalledName = codebookForNodeType
+    && codebookForNodeType.variables
     // Ignore case when looking for 'name'
-    findKey(codebookForNodeType.variables, variable => variable.name.toLowerCase() === 'name');
+    && findKey(codebookForNodeType.variables, (variable) => variable.name.toLowerCase() === 'name');
 
   if (variableCalledName && nodeAttributes[variableCalledName]) {
     return nodeAttributes[variableCalledName];
@@ -66,14 +66,11 @@ export const labelLogic = (codebookForNodeType, nodeAttributes) => {
   return 'No \'name\' variable!';
 };
 
-export const getMatchId = match =>
-  `${get(match, ['nodes', 0, '_uid'], 0)}_${get(match, ['nodes', 1, '_uid'], 0)}`;
+export const getMatchId = (match) => `${get(match, ['nodes', 0, '_uid'], 0)}_${get(match, ['nodes', 1, '_uid'], 0)}`;
 
-export const getNodeTypeDefinition = (codebook, nodeType) =>
-  get(codebook, ['node', nodeType]);
+export const getNodeTypeDefinition = (codebook, nodeType) => get(codebook, ['node', nodeType]);
 
-export const getVariableName = (nodeTypeDefinition, variable) =>
-  get(nodeTypeDefinition, ['variables', variable, 'name']);
+export const getVariableName = (nodeTypeDefinition, variable) => get(nodeTypeDefinition, ['variables', variable, 'name']);
 
 export const getRequiredAttributes = (nodeTypeDefinition, match) => {
   if (!match) { return []; }
@@ -97,4 +94,3 @@ export const getLabel = (nodeTypeDefinition, node) => {
   const nodeLabel = labelLogic(nodeTypeDefinition, get(node, properties.nodeAttributes, {}));
   return nodeLabel;
 };
-

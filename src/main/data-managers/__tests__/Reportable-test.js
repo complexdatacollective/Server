@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 /* eslint-env jest */
 import NeDB from 'nedb';
 import ReportableMixin from '../Reportable';

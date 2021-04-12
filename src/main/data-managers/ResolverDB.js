@@ -107,6 +107,7 @@ class ResolverDB extends DatabaseAdapter {
       );
     });
   }
+
   /**
    * Delete a specific resolution
    *
@@ -116,7 +117,7 @@ class ResolverDB extends DatabaseAdapter {
     return new Promise((resolve, reject) => {
       if (!resolutionIds) { reject(new Error(missingRequiredIdMessage)); }
       this.db.remove(
-        { $or: resolutionIds.map(_id => ({ _id })) },
+        { $or: resolutionIds.map((_id) => ({ _id })) },
         { multi: true },
         resolveOrReject(resolve, reject),
       );

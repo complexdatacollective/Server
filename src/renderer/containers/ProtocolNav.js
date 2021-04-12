@@ -34,18 +34,20 @@ class ProtocolNav extends Component {
   }
 
   componentDidMount() {
-    this.props.loadProtocols();
-    ipcRenderer.on(FileImportUpdated, this.props.loadProtocols);
+    const { loadProtocols } = this.props;
+    loadProtocols();
+    ipcRenderer.on(FileImportUpdated, loadProtocols);
   }
 
   componentWillUnmount() {
-    ipcRenderer.removeListener(FileImportUpdated, this.props.loadProtocols);
+    const { loadProtocols } = this.props;
+    ipcRenderer.removeListener(FileImportUpdated, loadProtocols);
   }
 
   render() {
     const { className, location, protocols } = this.props;
     return (
-      <React.Fragment>
+      <>
         <nav className={className}>
           <FileDropTarget>
             <ProtocolThumbnails
@@ -56,10 +58,14 @@ class ProtocolNav extends Component {
           </FileDropTarget>
           <div className="app-version">
             <img src={server} alt="Network Canvas Server" />
-            <span>{versionParts[0]} {versionParts[1]}</span>
+            <span>
+              {versionParts[0]}
+              {' '}
+              {versionParts[1]}
+            </span>
           </div>
         </nav>
-      </React.Fragment>
+      </>
     );
   }
 }
@@ -76,11 +82,11 @@ ProtocolNav.propTypes = {
   protocols: Types.protocols,
 };
 
-const mapStateToProps = reduxState => ({
+const mapStateToProps = (reduxState) => ({
   protocols: reduxState.protocols,
 });
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   loadProtocols: bindActionCreators(actionCreators.loadProtocols, dispatch),
 });
 

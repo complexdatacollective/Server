@@ -56,7 +56,7 @@ const useExportOptions = () => {
   const [formState, setFormState] = useState({ ...initialState });
 
   const handleUpdateFormState = (key, value) => {
-    setFormState(s => ({ ...set(s, key, value) }));
+    setFormState((s) => ({ ...set(s, key, value) }));
   };
 
   const exportCSVOptions = {
@@ -69,7 +69,7 @@ const useExportOptions = () => {
     ...pick(formState, Object.keys(baseGlobalOptions)),
   };
 
-  const resolverSettings = formState.resolverSettings;
+  const { resolverSettings } = formState;
 
   const exportOptions = {
     exportGraphML: formState.exportFormats.includes('GRAPHML'),

@@ -30,7 +30,7 @@ export default (state = initialState, { type, payload } = { type: null, payload:
   }
 };
 
-const getDismissedState = name => state => get(state.dismissibleState, name, []);
+const getDismissedState = (name) => (state) => get(state.dismissibleState, name, []);
 
 export const selectors = {
   getDismissedState,

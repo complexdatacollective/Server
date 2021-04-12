@@ -72,7 +72,7 @@ describe('getNetworkResolver()', () => {
     it('when network is empty it returns an empty array', (done) => {
       const mockNetwork = { nodes: [] };
       getNetworkResolver(defaultArgs[0], defaultArgs[1], defaultArgs[2], mockNetwork)
-        .then(stream => new Promise((resolve) => {
+        .then((stream) => new Promise((resolve) => {
           const getResult = miss.concat(resolve);
           stream.pipe(getResult);
         }))
@@ -84,7 +84,7 @@ describe('getNetworkResolver()', () => {
 
     it('promise resolves to a stream of json objects', (done) => {
       getNetworkResolver(...defaultArgs)
-        .then(stream => new Promise((resolve) => {
+        .then((stream) => new Promise((resolve) => {
           const getResult = miss.concat(resolve);
           stream.pipe(getResult);
         }))

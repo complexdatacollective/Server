@@ -29,22 +29,22 @@ const useExportStatus = () => {
   }, [setState, state.id]);
 
   const handleStartExport = useCallback((_, data) => {
-    setState(s => ({ ...s, ...data, status: 'starting' }));
+    setState((s) => ({ ...s, ...data, status: 'starting' }));
   }, [setState]);
 
   const handleExportStatus = useCallback((_, data) => {
-    setState(s => ({ ...s, ...data, status: 'exporting' }));
+    setState((s) => ({ ...s, ...data, status: 'exporting' }));
   }, [setState]);
 
   // Throttle errors here, rather than in network-exporters AdminService,
   // because we need immediate notification of errors - we just don't want
   // to cause render thrashing by rendering them.
   const handleExportError = throttle((_, data) => {
-    setState(s => ({ ...s, errors: [...s.errors, data.error] }));
+    setState((s) => ({ ...s, errors: [...s.errors, data.error] }));
   }, 1000);
 
   const handleCompleteExport = useCallback((_, data) => {
-    setState(s => ({ ...s, ...data, status: 'finished' }));
+    setState((s) => ({ ...s, ...data, status: 'finished' }));
   }, [setState]);
 
   useEffect(() => {
@@ -65,7 +65,9 @@ const useExportStatus = () => {
     return unmount;
   }, []);
 
-  return { exportToFile, exportStatus: state, cancelExport, resetState };
+  return {
+    exportToFile, exportStatus: state, cancelExport, resetState,
+  };
 };
 
 export default useExportStatus;

@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 /* eslint-env jest */
 import React from 'react';
 import { createStore } from 'redux';
@@ -8,7 +9,7 @@ import { PairingStatus } from '../../ducks/modules/pairingRequest';
 
 const mockPin = '1a';
 
-const makeProps = status => ({
+const makeProps = (status) => ({
   apiClient: {
     checkPairingCodeExpired: jest.fn().mockResolvedValue({}),
   },

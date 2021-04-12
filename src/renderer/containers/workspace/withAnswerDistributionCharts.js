@@ -11,7 +11,7 @@ import Types from '../../types';
 const { currentProtocolId, isDistributionVariable, currentCodebook } = protocolSelectors;
 const { excludedVariablesForCurrentProtocol } = variableSelectors;
 
-const hasData = bucket => bucket && Object.keys(bucket).length > 0;
+const hasData = (bucket) => bucket && Object.keys(bucket).length > 0;
 
 /**
  * Translates the node variables and the data available for ordinal & categorical variables
@@ -29,48 +29,50 @@ const hasData = bucket => bucket && Object.keys(bucket).length > 0;
  * @return {Array} chartDefinitions
  */
 const shapeBucketDataByType = (
-  nodeCodebook, buckets, excludedChartVariables, entityKey) =>
-  Object.entries(nodeCodebook).reduce((acc, [entityType, { variables }]) => {
-    const excludedSectionVariables = (excludedChartVariables[entityKey] &&
-      excludedChartVariables[entityKey][entityType]) || [];
-    Object.keys(variables || []).forEach((variableName) => {
-      const def = variables[variableName];
-      if (!isDistributionVariable(def) || excludedSectionVariables.includes(variableName)) {
-        return;
-      }
-      const dataPath = entityKey === 'ego' ? [variableName] : [entityType, variableName];
-      const data = get(buckets, dataPath);
-      const values = hasData(data) && def.options.map((option) => {
-        // Option defs are usually in the format { label, value }, however:
-        // - options may be strings or numerics instead of objects
-        const isOptionObject = option && typeof option === 'object';
-        // - label is optional, in which case `value` is used as the label
-        const name = isOptionObject ? (option.label || option.value) : option;
-        const dataKey = (isOptionObject ? option.value : option).toString();
-        return {
-          name,
-          value: data[dataKey] || 0,
-        };
-      });
-      acc.push({
-        entityKey,
-        entityType: nodeCodebook[entityType].name,
-        variableType: def.type,
-        variableDefinition: def,
-        chartData: values || [],
-      });
+  nodeCodebook, buckets, excludedChartVariables, entityKey,
+) => Object.entries(nodeCodebook).reduce((acc, [entityType, { variables }]) => {
+  const excludedSectionVariables = (excludedChartVariables[entityKey]
+      && excludedChartVariables[entityKey][entityType]) || [];
+  Object.keys(variables || []).forEach((variableName) => {
+    const def = variables[variableName];
+    if (!isDistributionVariable(def) || excludedSectionVariables.includes(variableName)) {
+      return;
+    }
+    const dataPath = entityKey === 'ego' ? [variableName] : [entityType, variableName];
+    const data = get(buckets, dataPath);
+    const values = hasData(data) && def.options.map((option) => {
+      // Option defs are usually in the format { label, value }, however:
+      // - options may be strings or numerics instead of objects
+      const isOptionObject = option && typeof option === 'object';
+      // - label is optional, in which case `value` is used as the label
+      const name = isOptionObject ? (option.label || option.value) : option;
+      const dataKey = (isOptionObject ? option.value : option).toString();
+      return {
+        name,
+        value: data[dataKey] || 0,
+      };
     });
-    return acc;
-  }, []);
+    acc.push({
+      entityKey,
+      entityType: nodeCodebook[entityType].name,
+      variableType: def.type,
+      variableDefinition: def,
+      chartData: values || [],
+    });
+  });
+  return acc;
+}, []);
 
-const shapeBucketData = (codebook, buckets, excludedChartVariables) =>
-  Object.entries(buckets).reduce((acc, [entityKey]) => {
-    const entityCodebook = entityKey === 'ego' ? { ego: codebook[entityKey] } : codebook[entityKey];
-    const bucketsByType = buckets[entityKey];
-    const shapeData = shapeBucketDataByType(
-      entityCodebook, bucketsByType, excludedChartVariables, entityKey);
-    return acc.concat(shapeData);
-  }, []);
+const shapeBucketData = (
+  codebook, buckets, excludedChartVariables,
+) => Object.entries(buckets).reduce((acc, [entityKey]) => {
+  const entityCodebook = entityKey === 'ego' ? { ego: codebook[entityKey] } : codebook[entityKey];
+  const bucketsByType = buckets[entityKey];
+  const shapeData = shapeBucketDataByType(
+    entityCodebook, bucketsByType, excludedChartVariables, entityKey,
+  );
+  return acc.concat(shapeData);
+}, []);
 
 /**
  * HOC that provides chart definitions for the 'answer distribution' panels.
@@ -82,19 +84,6 @@ const withAnswerDistributionCharts = (WrappedComponent) => {
    * Renders a collection of ordinal & categorical distribution panels
    */
   const AnswerDistributionPanels = class extends Component {
-    static propTypes = {
-      excludedChartVariables: PropTypes.object,
-      protocolId: PropTypes.string,
-      totalSessionsCount: PropTypes.number,
-      codebook: Types.codebook.isRequired,
-    }
-
-    static defaultProps = {
-      excludedChartVariables: {},
-      protocolId: null,
-      totalSessionsCount: null,
-    }
-
     constructor(props) {
       super(props);
       this.state = {
@@ -108,14 +97,14 @@ const withAnswerDistributionCharts = (WrappedComponent) => {
     }
 
     componentDidUpdate(prevProps) {
+      const { totalSessionsCount: newCount, protocolId } = this.props;
       const prevCount = prevProps.totalSessionsCount;
-      const newCount = this.props.totalSessionsCount;
       // When mounted (on each workspace load), totalSessionsCount is null.
       // Only reload data when session count changes (i.e., a session was
       // imported or deleted while on this workspace).
       if (newCount !== null && prevCount !== null && newCount !== prevCount) {
         this.loadData();
-      } else if (prevProps.protocolId !== this.props.protocolId) {
+      } else if (prevProps.protocolId !== protocolId) {
         this.loadData();
       }
     }
@@ -150,7 +139,7 @@ const withAnswerDistributionCharts = (WrappedComponent) => {
       }
 
       const variableNames = { nodes: nodeCodebook, edges: edgeCodebook, ego: egoCodebook };
-      const route = `/protocols/${this.props.protocolId}/reports/option_buckets`;
+      const route = `/protocols/${protocolId}/reports/option_buckets`;
       const query = { nodeNames, edgeNames, egoNames };
 
       this.apiClient.post(route, query)
@@ -162,8 +151,22 @@ const withAnswerDistributionCharts = (WrappedComponent) => {
     }
 
     render() {
+      // eslint-disable-next-line react/jsx-props-no-spreading, react/destructuring-assignment
       return <WrappedComponent {...this.props} answerDistributionCharts={this.state.charts} />;
     }
+  };
+
+  AnswerDistributionPanels.propTypes = {
+    excludedChartVariables: PropTypes.object,
+    protocolId: PropTypes.string,
+    totalSessionsCount: PropTypes.number,
+    codebook: Types.codebook.isRequired,
+  };
+
+  AnswerDistributionPanels.defaultProps = {
+    excludedChartVariables: {},
+    protocolId: null,
+    totalSessionsCount: null,
   };
 
   const mapStateToProps = (state, ownProps) => ({

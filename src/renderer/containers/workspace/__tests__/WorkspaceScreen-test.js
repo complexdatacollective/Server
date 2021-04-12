@@ -7,9 +7,9 @@ import ConnectedWorkspaceScreen, { UnconnectedWorkspaceScreen as WorkspaceScreen
 import { mockProtocol } from '../../../../../config/jest/setupTestEnv';
 
 jest.mock('electron-log');
-jest.mock('../withAnswerDistributionCharts', () => c => c);
-jest.mock('../withSessions', () => c => c);
-jest.mock('../../../components/withApiClient', () => component => component);
+jest.mock('../withAnswerDistributionCharts', () => (c) => c);
+jest.mock('../withSessions', () => (c) => c);
+jest.mock('../../../components/withApiClient', () => (component) => component);
 
 describe('<WorkspaceScreen />', () => {
   let wrapper;
@@ -46,10 +46,10 @@ describe('<WorkspaceScreen />', () => {
     });
 
     it('orders panels', () => {
-      const unsortedKeys = wrapper.instance().panels.map(panel => panel.key);
+      const unsortedKeys = wrapper.instance().panels.map((panel) => panel.key);
       const panelLayoutOrder = unsortedKeys.reverse();
       wrapper.setProps({ panelLayoutOrder });
-      const sortedKeys = wrapper.instance().sortedPanels.map(panel => panel.key);
+      const sortedKeys = wrapper.instance().sortedPanels.map((panel) => panel.key);
       expect(sortedKeys).toEqual(panelLayoutOrder);
     });
   });
@@ -57,7 +57,7 @@ describe('<WorkspaceScreen />', () => {
   describe('when connected', () => {
     const panelLayoutOrders = { [mockProtocol.id]: ['a', 'b'] };
     const defaultState = { protocols: [mockProtocol], sessions: [] };
-    const makeSubjectWithState = state => shallow((
+    const makeSubjectWithState = (state) => shallow((
       <ConnectedWorkspaceScreen
         store={createStore(() => state)}
         match={{ params: { id: mockProtocol.id } }}

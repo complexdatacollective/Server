@@ -17,7 +17,7 @@ import { formatDatetime } from '../../utils/formatters';
 const colors = getCSSValueRange('--graph-data-', 1, 15);
 const tooltipColor = getCSSValue('--graph-tooltip');
 
-const timeFormatter = timestamp => formatDatetime(new Date(timestamp));
+const timeFormatter = (timestamp) => formatDatetime(new Date(timestamp));
 
 // 99% width to work around recharts problem with resizing
 const TimeSeriesChart = ({ className, data, series }) => (
@@ -27,8 +27,8 @@ const TimeSeriesChart = ({ className, data, series }) => (
       className={className}
     >
       {
-        series &&
-        series.map((oneSeries, i) => (
+        series
+        && series.map((oneSeries, i) => (
           <Line
             key={oneSeries.key}
             dataKey={oneSeries.key}

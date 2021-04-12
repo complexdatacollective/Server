@@ -53,13 +53,13 @@ describe('promisified fs', () => {
       fs.writeFile.mockImplementation((f, d, cb) => cb(mockErr));
     });
 
-    helpers.filter(h => (/try/).test(h)).forEach((helper) => {
+    helpers.filter((h) => (/try/).test(h)).forEach((helper) => {
       it('resolves despite ENOENT error', async () => {
         await expect(pfs[helper]('.')).resolves.toBe(undefined);
       });
     });
 
-    helpers.filter(h => !(/try/).test(h)).forEach((helper) => {
+    helpers.filter((h) => !(/try/).test(h)).forEach((helper) => {
       it('rejects with error in callback', async () => {
         await expect(pfs[helper]('.')).rejects.toMatchObject(mockErr);
       });

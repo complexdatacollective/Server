@@ -23,8 +23,8 @@ class ProtocolCountsPanel extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
+    const { sessionCount: newCount } = this.props;
     const prevCount = prevProps.sessionCount;
-    const newCount = this.props.sessionCount;
     // When mounted (on each workspace load), sessionCount is null.
     // Only reload data when session count changes (i.e., a session was
     // imported or deleted while on this workspace).
@@ -34,18 +34,20 @@ class ProtocolCountsPanel extends PureComponent {
   }
 
   loadData() {
-    const route = `/protocols/${this.props.protocolId}/reports/total_counts`;
-    this.props.apiClient.get(route)
+    const { protocolId, apiClient } = this.props;
+    const route = `/protocols/${protocolId}/reports/total_counts`;
+    apiClient.get(route)
       .then(({ counts }) => counts && this.setState({
         countsData: shapeCountData(counts.nodes, counts.edges, counts.sessions),
       }));
   }
 
   render() {
+    const { countsData } = this.state;
     return (
       <div className="dashboard__panel">
         <h4>Total Counts</h4>
-        <CountsWidget data={this.state.countsData} />
+        <CountsWidget data={countsData} />
       </div>
     );
   }

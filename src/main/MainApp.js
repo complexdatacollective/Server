@@ -58,18 +58,17 @@ const createApp = () => {
     });
   };
 
-  const showImportProtocolDialog = () =>
-    protocolManager.presentImportProtocolDialog(mainWindow.window)
-      .then(() => mainWindow.send(FileImportUpdated))
-      .catch((err) => {
-        dialog.showErrorBox('Protocol Import Error', err && err.message);
-      });
+  const showImportProtocolDialog = () => protocolManager.presentImportProtocolDialog(
+    mainWindow.window,
+  ).then(() => mainWindow.send(FileImportUpdated)).catch((err) => {
+    dialog.showErrorBox('Protocol Import Error', err && err.message);
+  });
 
-  const showImportSessionDialog = () =>
-    protocolManager.presentImportSessionDialog(mainWindow.window)
-      .catch((err) => {
-        dialog.showErrorBox('Session Import Error', err && err.message);
-      });
+  const showImportSessionDialog = () => protocolManager.presentImportSessionDialog(
+    mainWindow.window,
+  ).catch((err) => {
+    dialog.showErrorBox('Session Import Error', err && err.message);
+  });
 
   const generateTestSessions = (number) => {
     protocolManager.allProtocols().then((allProtocols) => {

@@ -6,15 +6,17 @@ const logger = require('electron-log');
 const path = require('path');
 const uuid = require('uuid/v4');
 const objectHash = require('object-hash');
+const { get, debounce } = require('lodash');
 const ProtocolDB = require('./ProtocolDB');
 const SessionDB = require('./SessionDB');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
 const { readFile, rename, tryUnlink } = require('../utils/promised-fs');
 const { validateGraphML, convertGraphML } = require('../utils/importGraphML');
-const { caseProperty, protocolName: protocolNameProperty, protocolProperty, codebookHashProperty } = require('../utils/network-exporters/src/utils/reservedAttributes');
+const {
+  caseProperty, protocolName: protocolNameProperty, protocolProperty, codebookHashProperty,
+} = require('../utils/network-exporters/src/utils/reservedAttributes');
 const { hexDigest } = require('../utils/sha256');
 const { sendToGui } = require('../guiProxy');
-const { get, debounce } = require('lodash');
 
 const validProtocolFileExts = ['netcanvas'];
 const validSessionFileExts = ['graphml'];
@@ -22,8 +24,8 @@ const protocolDirName = 'protocols';
 
 const ProtocolDataFile = 'protocol.json';
 
-const hasValidProtocolExtension = filepath => validProtocolFileExts.includes(path.extname(filepath).replace(/^\./, ''));
-const hasValidSessionExtension = filepath => validSessionFileExts.includes(path.extname(filepath).replace(/^\./, ''));
+const hasValidProtocolExtension = (filepath) => validProtocolFileExts.includes(path.extname(filepath).replace(/^\./, ''));
+const hasValidSessionExtension = (filepath) => validSessionFileExts.includes(path.extname(filepath).replace(/^\./, ''));
 
 const emittedEvents = {
   PROTOCOL_IMPORT_START: 'PROTOCOL_IMPORT_START',
@@ -39,11 +41,11 @@ const emitDataStale = debounce(() => sendToGui(emittedEvents.DATA_IS_STALE), 500
   trailing: true,
 });
 
-const promiseWithStaleEmitter = wrappedPromise => new Promise((resolve, reject) => {
+const promiseWithStaleEmitter = (wrappedPromise) => new Promise((resolve, reject) => {
   wrappedPromise.then((result) => {
     emitDataStale();
     resolve(result);
-  }).catch(err => reject(err));
+  }).catch((err) => reject(err));
 });
 
 const constructErrorObject = (message, caseID = null, file = null) => ({
@@ -163,12 +165,12 @@ class ProtocolManager {
       .then((importedPaths) => {
         // Remove any imports that failed
         const validImportedProtocolFiles = importedPaths
-          .filter(protocolPath => protocolPath.status === 'fulfilled')
-          .map(filteredPath => filteredPath.value);
+          .filter((protocolPath) => protocolPath.status === 'fulfilled')
+          .map((filteredPath) => filteredPath.value);
 
         const invalidImportedFileErrors = importedPaths
-          .filter(protocolPath => protocolPath.status === 'rejected')
-          .map(filteredPath => filteredPath.reason);
+          .filter((protocolPath) => protocolPath.status === 'rejected')
+          .map((filteredPath) => filteredPath.reason);
 
         // FatalError if no sessions survived the cull
         if (validImportedProtocolFiles.length === 0) {
@@ -249,7 +251,7 @@ class ProtocolManager {
    */
   async processFile(tmpFilepath, destFilepath, protocolName) {
     let fileContents;
-    const cleanUpAndThrow = err => tryUnlink(destFilepath).then(() => { throw err; });
+    const cleanUpAndThrow = (err) => tryUnlink(destFilepath).then(() => { throw err; });
 
     try {
       fileContents = await readFile(tmpFilepath);
@@ -324,8 +326,8 @@ class ProtocolManager {
   // TODO: Probably remove after alpha testing
   destroyAllProtocols() {
     return this.allProtocols()
-      .then(protocols => protocols.map(p => this.destroyProtocol(p)))
-      .then(promises => Promise.all(promises))
+      .then((protocols) => protocols.map((p) => this.destroyProtocol(p)))
+      .then((promises) => Promise.all(promises))
       .then(() => this.destroyProtocolDirectory())
       .catch((err) => {
         logger.error(err);
@@ -457,11 +459,13 @@ class ProtocolManager {
      * @throws {RequestError|Error} Rejects if there is a problem uploading, or on invalid input
      */
   handleSessionImport(fileList) {
-    const sessionFileList = fileList.filter(filepath =>
-      hasValidSessionExtension(filepath && path.basename(filepath)));
-    const invalidFileList = fileList.filter(filepath =>
-      !hasValidSessionExtension(filepath && path.basename(filepath)))
-      .map(filepath => path.basename(filepath));
+    const sessionFileList = fileList.filter((
+      filepath,
+    ) => hasValidSessionExtension(filepath && path.basename(filepath)));
+
+    const invalidFileList = fileList.filter((filepath) => !hasValidSessionExtension(
+      filepath && path.basename(filepath),
+    )).map((filepath) => path.basename(filepath));
 
     // Create an array to store the result of each processFile action
     const processFilePromises = [];
@@ -481,7 +485,7 @@ class ProtocolManager {
     // If there are invalid files push them to the promise list as rejections
     if (invalidFileList.length > 0) {
       processFilePromises.push(
-        Promise.reject(invalidFileList.map(invalidFile => constructErrorObject(
+        Promise.reject(invalidFileList.map((invalidFile) => constructErrorObject(
           ErrorMessages.InvalidSessionFileExtension,
           null,
           invalidFile,
@@ -566,17 +570,19 @@ class ProtocolManager {
 
       // Main processing here. Should return Promise.reject or Promise.resolve
       return this.fileContents(userFilepath, '')
-        .then(bufferContents => validateGraphML(bufferContents)) // Check basic structure is valid
-        .then(xmlDoc => this.processGraphML(xmlDoc)) // Parse into javascript session objects
+        .then((bufferContents) => validateGraphML(bufferContents)) // Check basic structure is valid
+        .then((xmlDoc) => this.processGraphML(xmlDoc)) // Parse into javascript session objects
         .then(({ protocolId, sessions }) => sessions.map( // Could be one or many sessions
-          session =>
-            this.addSessionData(protocolId, session))) // Attept to import each session into db
-        .then(addSessionPromises =>
-          Promise.allSettled(addSessionPromises)) // Wait for result of all import actions
+          (session) => this.addSessionData(protocolId, session),
+        )) // Attempt to import each session into db
+        .then(
+          // Wait for result of all import actions
+          (addSessionPromises) => Promise.allSettled(addSessionPromises),
+        )
         .then((importedSessions) => {
           // Determine which addSessionData calls succeeded, and which failed.
           const validImportedSessions = importedSessions
-            .filter(sessionPath => sessionPath.status === 'fulfilled')
+            .filter((sessionPath) => sessionPath.status === 'fulfilled')
             // eslint-disable-next-line arrow-body-style
             .map((filteredPath) => {
               // We don't care about the specifics of the successful imports so just return
@@ -586,7 +592,7 @@ class ProtocolManager {
             });
 
           const failedImportedSessions = importedSessions
-            .filter(sessionPath => sessionPath.status === 'rejected')
+            .filter((sessionPath) => sessionPath.status === 'rejected')
             // eslint-disable-next-line arrow-body-style
             .map((filteredPath) => {
               // At this level we know the filename, so add it to the error object
@@ -604,7 +610,9 @@ class ProtocolManager {
         })
         // err is either a RequestError or the result of constructErrorObject
         // either way, just pass on the message
-        .catch(err => Promise.reject(constructErrorObject(err.message, err.caseID, fileBasename)));
+        .catch((err) => Promise.reject(
+          constructErrorObject(err.message, err.caseID, fileBasename),
+        ));
     });
 
     return Promise.allSettled(promisedFileImportTask)
@@ -668,7 +676,7 @@ class ProtocolManager {
         }
 
         return convertGraphML(xmlDoc, protocol);
-      }).catch(err => Promise.reject(constructErrorObject(err.message, caseId)));
+      }).catch((err) => Promise.reject(constructErrorObject(err.message, caseId)));
   }
 
   /**
@@ -730,7 +738,8 @@ class ProtocolManager {
         }
 
         return promiseWithStaleEmitter(
-          this.sessionDb.insertAllForProtocol(sessionOrSessions, protocol));
+          this.sessionDb.insertAllForProtocol(sessionOrSessions, protocol),
+        );
       })
       .catch((insertErr) => {
         // Protocol not imported or version mismatch

@@ -15,7 +15,7 @@ const mockCodebook = {
   },
 };
 
-const readLines = stream => new Promise((resolve, reject) => {
+const readLines = (stream) => new Promise((resolve, reject) => {
   const output = [];
 
   return miss.pipe(

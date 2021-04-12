@@ -7,7 +7,7 @@ const format = (req, res, tag = 'API') => (
 /**
  * Logging plugin to be used on restify's `after` event
  */
-const apiRequestLogger = tag => (req, res/* , route, err */) => {
+const apiRequestLogger = (tag) => (req, res/* , route, err */) => {
   logger.debug(format(req, res, tag));
 };
 

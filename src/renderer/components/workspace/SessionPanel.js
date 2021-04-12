@@ -7,20 +7,24 @@ import { compose } from 'recompose';
 import { caseProperty } from '../../../main/utils/network-exporters/src/utils/reservedAttributes';
 import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
 import { selectors as protocolSelectors } from '../../ducks/modules/protocols';
-import { DismissButton, ScrollingPanelItem } from '../../components';
+import DismissButton from '../DismissButton';
+import ScrollingPanelItem from '../ScrollingPanelItem';
 import { formatDate } from '../../utils/formatters';
 
-const emptyContent = (<p>
-  Interviews you import from Network Canvas Interviewer will appear here.</p>);
+const emptyContent = (
+  <p>
+    Interviews you import from Network Canvas Interviewer will appear here.
+  </p>
+);
 const maxRecentSessions = 5;
 
 class SessionPanel extends Component {
   get header() {
     const { sessions, totalCount } = this.props;
-    const visibleSessions = maxRecentSessions < sessions.length ?
-      maxRecentSessions : sessions.length;
-    const countText = (totalCount && visibleSessions < totalCount) ?
-      `(${visibleSessions} of ${totalCount})` : '';
+    const visibleSessions = maxRecentSessions < sessions.length
+      ? maxRecentSessions : sessions.length;
+    const countText = (totalCount && visibleSessions < totalCount)
+      ? `(${visibleSessions} of ${totalCount})` : '';
     return (
       <div className="dashboard__header session-panel__header">
         <h4 className="dashboard__header-text">
@@ -38,11 +42,16 @@ class SessionPanel extends Component {
       return;
     }
 
-    this.props.openDialog({
+    const {
+      openDialog,
+      deleteSession,
+    } = this.props;
+
+    openDialog({
       type: 'Confirm',
       title: 'Delete this interview session?',
       confirmLabel: 'Delete this session',
-      onConfirm: () => this.props.deleteSession(sessionId),
+      onConfirm: () => deleteSession(sessionId),
       message: 'Are you sure you want to delete this interview session? This action cannot be undone!',
     });
   }
@@ -62,8 +71,8 @@ class SessionPanel extends Component {
                     <DismissButton small inline onClick={() => this.deleteSession(s.id)} />
                     <span>{formatDate(s.updatedAt)}</span>
                     <span className="session-panel__id">
-                      {s.data && s.data.sessionVariables &&
-                        (s.data.sessionVariables[caseProperty])}
+                      {s.data && s.data.sessionVariables
+                        && (s.data.sessionVariables[caseProperty])}
                       {' - '}
                       {s.id && s.id.substring(0, 13)}
                     </span>

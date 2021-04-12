@@ -144,7 +144,7 @@ class AdminService {
 
     api.get('/devices', (req, res, next) => {
       this.deviceManager.fetchDeviceList()
-        .then(devices => res.send({ status: 'ok', devices }))
+        .then((devices) => res.send({ status: 'ok', devices }))
         .catch((err) => {
           logger.error(err);
           res.send(500, { status: 'error' });
@@ -182,7 +182,7 @@ class AdminService {
     });
 
     api.post('/importProtocols', (req, res, next) => {
-      const files = req.body.files;
+      const { files } = req.body;
 
       // Handle imported files deals with processing both session and protocol files.
       // It emits IPC messages about its progress.
@@ -206,7 +206,7 @@ class AdminService {
     });
 
     api.post('/importSessions', (req, res, next) => {
-      const files = req.body.files;
+      const { files } = req.body;
 
       // Handle imported files deals with processing both session and protocol files.
       // It emits IPC messages about its progress.
@@ -231,7 +231,7 @@ class AdminService {
 
     api.get('/protocols', (req, res, next) => {
       this.protocolManager.allProtocols()
-        .then(protocols => res.send({ status: 'ok', protocols }))
+        .then((protocols) => res.send({ status: 'ok', protocols }))
         .catch((err) => {
           logger.error(err);
           res.send(500, { status: 'error' });
@@ -242,7 +242,7 @@ class AdminService {
     // Deprecated; will remove if not needed.
     api.get('/protocols/:id', (req, res, next) => {
       this.protocolManager.getProtocol(req.params.id)
-        .then(protocol => res.send({ status: 'ok', protocol }))
+        .then((protocol) => res.send({ status: 'ok', protocol }))
         .catch((err) => {
           logger.error(err);
           res.send(500, { status: 'error' });
@@ -253,14 +253,14 @@ class AdminService {
     // "counts": { "sessions": 1, "nodes": 20, "edges": 0 }
     api.get('/protocols/:id/reports/total_counts', (req, res, next) => {
       this.reportDb.totalCounts(req.params.id)
-        .then(counts => res.send({ status: 'ok', counts }))
+        .then((counts) => res.send({ status: 'ok', counts }))
         .then(() => next());
     });
 
     // "stats": { "nodes": { "min":0, "max":0, "mean":0 }, "edges": { "min":0, "max":0, "mean":0 } }
     api.get('/protocols/:id/reports/summary_stats', (req, res, next) => {
       this.reportDb.summaryStats(req.params.id)
-        .then(stats => res.send({ status: 'ok', stats }))
+        .then((stats) => res.send({ status: 'ok', stats }))
         .then(() => next());
     });
 
@@ -277,7 +277,7 @@ class AdminService {
     api.post('/protocols/:id/reports/option_buckets', (req, res, next) => {
       const { nodeNames = '', edgeNames = '', egoNames = '' } = req.body;
       this.reportDb.optionValueBuckets(req.params.id, nodeNames, edgeNames, egoNames)
-        .then(buckets => res.send({ status: 'ok', buckets }))
+        .then((buckets) => res.send({ status: 'ok', buckets }))
         .then(() => next());
     });
 
@@ -296,7 +296,7 @@ class AdminService {
       const sort = getSort(sortType, direction);
       const filterValue = req.params.filter || '';
       this.protocolManager.getProtocolSessions(req.params.id, undefined, sort, filterValue)
-        .then(sessions => res.send({
+        .then((sessions) => res.send({
           status: 'ok',
           totalSessions: sessions.length,
           sessions: sessions.slice(startIndex, stopIndex),
@@ -308,14 +308,11 @@ class AdminService {
         .then(() => next());
     });
 
-
     api.get('/protocols/:protocolId/resolutions', (req, res, next) => {
       apiRequestLogger('AdminAPI')(req, { statusCode: 0 }); // log request start
 
       this.resolverManager.getResolutionsWithSessionCounts(req.params.protocolId)
-        .then(results =>
-          res.send({ status: 'ok', ...results }),
-        )
+        .then((results) => res.send({ status: 'ok', ...results }))
         .catch((err) => {
           logger.error(err);
           res.send(500, { status: 'error' });
@@ -332,9 +329,7 @@ class AdminService {
         req.params.protocolId,
         resolution,
       )
-        .then(({ _id: resolutionId }) =>
-          res.send({ status: 'ok', resolutionId }),
-        )
+        .then(({ _id: resolutionId }) => res.send({ status: 'ok', resolutionId }))
         .catch((err) => {
           logger.error(err);
           res.send(codeForError(err), { status: 'error', message: err.message });
@@ -349,7 +344,7 @@ class AdminService {
         req.params.protocolId,
         req.params.resolutionId,
       )
-        .then(ids => res.send({ status: 'ok', ids }))
+        .then((ids) => res.send({ status: 'ok', ids }))
         .catch((err) => {
           logger.error(err);
           res.send(codeForError(err), { status: 'error', message: err.message });
@@ -376,9 +371,7 @@ class AdminService {
       const sender = BrowserWindow.getAllWindows()[0];
 
       this.protocolManager.getProtocol(req.params.protocolId)
-        .then(protocol =>
-          this.exportManager.exportSessions(protocol, req.body),
-        )
+        .then((protocol) => this.exportManager.exportSessions(protocol, req.body))
         .then(({
           exportSessions, // Export promise decorated with abort method
           fileExportManager, // Instance of FileExportManager for event binding
@@ -438,7 +431,7 @@ class AdminService {
       this.resolverManager.deleteProtocolResolutions(protocolId)
         .then(() => this.protocolManager.deleteProtocolSessions(protocolId))
         .then(() => this.protocolManager.getProtocol(protocolId))
-        .then(protocol => this.protocolManager.destroyProtocol(protocol))
+        .then((protocol) => this.protocolManager.destroyProtocol(protocol))
         .then(() => res.send({ status: 'ok' }))
         .catch((err) => {
           logger.error(err);
@@ -448,7 +441,7 @@ class AdminService {
     });
 
     api.del('/protocols/:protocolId/sessions', (req, res, next) => {
-      const protocolId = req.params.protocolId;
+      const { protocolId } = req.params;
       this.resolverManager.deleteProtocolResolutions(protocolId)
         .then(() => this.protocolManager.deleteProtocolSessions(protocolId))
         .then(() => res.send({ status: 'ok' }))
@@ -461,7 +454,7 @@ class AdminService {
 
     api.del('/protocols/:protocolId/sessions/:id', (req, res, next) => {
       // Delete resolutions after session id?
-      const protocolId = req.params.protocolId;
+      const { protocolId } = req.params;
       const sessionId = req.params.id;
 
       this.protocolManager.getProtocolSession(protocolId, sessionId)

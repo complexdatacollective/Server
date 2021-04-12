@@ -15,10 +15,12 @@ describe('castEgoAsNode', () => {
     const egoCaster = castEgoAsNode({
       ego: { variables: { name: { name: 'name', type: 'string' }, phrase: { name: 'phrase', type: 'string' } } },
       node: {
-        person: { variables: {
-          personName: { name: 'name', type: 'string' },
-          personPhrase: { name: 'phrase', type: 'string' },
-        } },
+        person: {
+          variables: {
+            personName: { name: 'name', type: 'string' },
+            personPhrase: { name: 'phrase', type: 'string' },
+          },
+        },
       },
     }, 'person');
 
@@ -44,16 +46,20 @@ describe('castEgoAsNode', () => {
     const networkTemplate = Factory.network.build();
 
     const egoCaster = castEgoAsNode({
-      ego: { variables: {
-        name: { name: 'name', type: 'string' },
-        phrase: { name: 'phrase', type: 'string' },
-        newProperty: { name: 'newProperty', type: 'string' },
-      } },
-      node: {
-        person: { variables: {
+      ego: {
+        variables: {
           name: { name: 'name', type: 'string' },
           phrase: { name: 'phrase', type: 'string' },
-        } },
+          newProperty: { name: 'newProperty', type: 'string' },
+        },
+      },
+      node: {
+        person: {
+          variables: {
+            name: { name: 'name', type: 'string' },
+            phrase: { name: 'phrase', type: 'string' },
+          },
+        },
       },
     }, 'person');
 
