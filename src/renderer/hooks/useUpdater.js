@@ -94,7 +94,7 @@ const useUpdater = (updateEndpoint, timeout = 0) => {
       confirmLabel: buttonText,
       onConfirm: () => openExternalLink(buttonLink),
       message: (
-        <div className="dialog-release-notes allow-text-selection">
+        <div className="dialog-release-notes">
           <p>
             Please read the following release notes carefully, as changes in the software
             may impact your ability to receive and export data.

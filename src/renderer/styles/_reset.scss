@@ -103,6 +103,8 @@ li {
 }
 
 .dialog-release-notes {
+  @include allow-text-selection;
+
   &__notes {
     max-height: 50vh;
     overflow-y: auto;
