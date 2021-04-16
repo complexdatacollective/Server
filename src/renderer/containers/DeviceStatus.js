@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { compose } from 'recompose';
 import { connect } from 'react-redux';
 import { Button } from '@codaco/ui';
-import ReactTooltip from 'react-tooltip';
 import Types from '../types';
 import { actionCreators } from '../ducks/modules/devices';
 import { selectors } from '../ducks/modules/pairingRequest';
@@ -34,13 +33,12 @@ const DeviceStatus = ({
 
   useEffect(() => {
     loadDevices();
-    ReactTooltip.rebuild();
   }, [hasPendingRequest]);
 
   return [
     <div
       data-tip="Manage paired devices"
-      data-for="device-status-tooltip"
+      data-for="app-tooltip"
       className="device-status"
       data-test="view-device-panel"
       onClick={() => setShowDevicesModal(true)}
@@ -94,13 +92,6 @@ const DeviceStatus = ({
         </Button>
       </div>
     </Overlay>,
-    <ReactTooltip
-      key="device-status-tooltip"
-      id="device-status-tooltip"
-      delayShow={300}
-      place="bottom"
-      effect="solid"
-    />,
   ];
 };
 

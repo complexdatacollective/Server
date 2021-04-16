@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
-import ReactTooltip from 'react-tooltip';
 import Overlay from '../components/Overlay';
 import NetworkStatusTable from '../components/NetworkStatusTable';
 import useNetworkStatus from '../hooks/useNetworkStatus';
@@ -41,7 +40,7 @@ const NetworkStatus = (props) => {
   return [
     <div
       data-tip={tooltip()}
-      data-for="network-status-tooltip"
+      data-for="app-tooltip"
       className={networkStatusClasses}
       onClick={() => setShowNetworkModal(true)}
       key="button"
@@ -61,14 +60,6 @@ const NetworkStatus = (props) => {
     >
       <NetworkStatusTable networkStatus={networkStatus} />
     </Overlay>,
-    <ReactTooltip
-      key="network-status-tooltip"
-      id="network-status-tooltip"
-      delayShow={300}
-      place="bottom"
-      effect="solid"
-      multiline
-    />,
   ];
 };
 
