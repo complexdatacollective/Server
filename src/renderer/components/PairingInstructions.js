@@ -75,7 +75,7 @@ const PairingInstructions = ({
       <p>
         Please see our
         {' '}
-        <ExternalLink href="https://documentation.networkcanvas.com/docs/key-concepts/pairing/">documentation</ExternalLink>
+        <ExternalLink href="https://documentation.networkcanvas.com/reference/key-concepts/pairing/">documentation</ExternalLink>
         {' '}
         for further information on pairing and networking setup.
       </p>
