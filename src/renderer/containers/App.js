@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import logger from 'electron-log';
+
+import ReactTooltip from 'react-tooltip';
 import { bindActionCreators } from 'redux';
 import { connect, useDispatch } from 'react-redux';
 import { ipcRenderer, remote } from 'electron';
@@ -179,6 +181,15 @@ const App = ({
           )
         }
       </div>
+      <ReactTooltip
+        key="app-tooltip"
+        id="app-tooltip"
+        className="app-tooltip"
+        delayShow={300}
+        place="bottom"
+        effect="solid"
+        multiline
+      />
       <DialogManager />
       <ToastManager />
     </div>

@@ -31,6 +31,8 @@
   }
 
   @include element(code) {
+    @include allow-text-selection;
+
     // Note: margin-top set by description sibling selector above
     padding: spacing(huge) 0;
     text-align: center;

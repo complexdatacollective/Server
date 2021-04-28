@@ -98,7 +98,7 @@ const withSessions = (WrappedComponent) => class extends Component {
       const { sortType, sortDirection } = this.state;
       const newSortDirection = sortType === newSortType ? (0 - sortDirection) : 1;
       this.setState({
-        sortType,
+        sortType: newSortType,
         sortDirection: newSortDirection,
       }, () => this.reloadSessions());
     }

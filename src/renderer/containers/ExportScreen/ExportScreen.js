@@ -101,18 +101,21 @@ const ExportScreen = ({
                 <ul>
                   <li>
                     an
+                    {' '}
                     <strong>attribute list file</strong>
                     {' '}
                     for each node type
                   </li>
                   <li>
                     an
+                    {' '}
                     <strong>edge list file</strong>
                     {' '}
                     for each edge type
                   </li>
                   <li>
                     an
+                    {' '}
                     <strong>egoattribute file</strong>
                     {' '}
                     that also contains session data
