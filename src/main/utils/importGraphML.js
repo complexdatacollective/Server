@@ -119,11 +119,16 @@ const processVariable = (element, entity, xmlDoc, codebookEntity, entityType = '
     const catKey = keyValue.substring(0, keyValue.indexOf('_'));
     const catVar = (entity.attributes && entity.attributes[catKey]) || []; // previous options
     const codebookVarName = codebookEntity.variables[catKey].name;
+    const codebookOptions = codebookEntity.variables[catKey].options || [];
     const catValue = xmlDoc.getElementById(keyValue).getAttributeNode('attr.name').value; // variable_option
     const optionIndex = codebookVarName.length + 1; // add one for the underscore
-    // fallback to using whatever it after the first underscore
-    const codebookOptionName = optionIndex > 0 ? catValue.substring(optionIndex) : catValue.substring(catValue.indexOf('_') + 1);
-    catVar.push(codebookOptionName);
+    // fallback to using whatever is after the first underscore
+    const optionValue = optionIndex > 0 ? catValue.substring(optionIndex) : catValue.substring(catValue.indexOf('_') + 1);
+    // lookup in codebook the option's values (because numbers could be strings here)
+    const codebookOption = codebookOptions.find(option => option.value.toString() === optionValue);
+    // fallback to graphml value if not matched in codebook
+    const codebookOptionValue = (codebookOption && codebookOption.value) || optionValue;
+    catVar.push(codebookOptionValue);
     return { ...entity, attributes: { ...entity.attributes, [catKey]: catVar } };
   }
   return entity;
