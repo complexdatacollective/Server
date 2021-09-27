@@ -125,7 +125,9 @@ const processVariable = (element, entity, xmlDoc, codebookEntity, entityType = '
     // fallback to using whatever is after the first underscore
     const optionValue = optionIndex > 0 ? catValue.substring(optionIndex) : catValue.substring(catValue.indexOf('_') + 1);
     // lookup in codebook the option's values (because numbers could be strings here)
-    const codebookOption = codebookOptions.find(option => option.value.toString() === optionValue);
+    const codebookOption = codebookOptions.find(
+      (option) => option.value.toString() === optionValue,
+    );
     // fallback to graphml value if not matched in codebook
     const codebookOptionValue = (codebookOption && codebookOption.value) || optionValue;
     catVar.push(codebookOptionValue);
