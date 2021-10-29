@@ -1,4 +1,5 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
+const { get } = require('lodash');
 const DatabaseAdapter = require('./DatabaseAdapter');
 const Reportable = require('./Reportable');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
@@ -81,6 +82,21 @@ class SessionDB extends Reportable(DatabaseAdapter) {
   find(query) {
     return new Promise((resolve, reject) => {
       this.db.find(query, { multi: true }, resolveOrReject(resolve, reject));
+    });
+  }
+
+  /**
+   * Update session associated with a protocol
+   */
+  update(protocolId, session) {
+    if (!protocolId) {
+      return Promise.reject(new Error(`Invalid protocol ID (${protocolId})`));
+    }
+    const query = { protocolId };
+    query._id = get(session, '_id');
+
+    return new Promise((resolve, reject) => {
+      this.db.update(query, session, { multi: true }, resolveOrReject(resolve, reject));
     });
   }
 

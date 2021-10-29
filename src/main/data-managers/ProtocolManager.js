@@ -11,7 +11,7 @@ const ProtocolDB = require('./ProtocolDB');
 const SessionDB = require('./SessionDB');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
 const { readFile, rename, tryUnlink } = require('../utils/promised-fs');
-const { validateGraphML, convertGraphML } = require('../utils/importGraphML');
+const { validateGraphML, convertGraphML, getCorrectEntityVariableTypes } = require('../utils/importGraphML');
 const {
   caseProperty, protocolName: protocolNameProperty, protocolProperty, codebookHashProperty,
 } = require('../utils/network-exporters/src/utils/reservedAttributes');
@@ -677,6 +677,44 @@ class ProtocolManager {
 
         return convertGraphML(xmlDoc, protocol);
       }).catch((err) => Promise.reject(constructErrorObject(err.message, caseId)));
+  }
+
+  correctSessionVariableTypes() {
+    this.allProtocols().then((allProtocols) => {
+      allProtocols.forEach((protocol) => {
+        const protocolId = get(protocol, '_id');
+        this.getProtocolSessions(protocolId)
+          .then((sessions) => {
+            sessions.forEach((session) => {
+              const sessionId = get(session, '_id');
+              this.getProtocolSession(protocolId, sessionId)
+                .then((sessionData) => {
+                  const nodes = getCorrectEntityVariableTypes(sessionData.data.nodes,
+                    protocol.codebook.node);
+                  const edges = getCorrectEntityVariableTypes(sessionData.data.edges,
+                    protocol.codebook.edge);
+                  const ego = getCorrectEntityVariableTypes(sessionData.data.ego, protocol.codebook, 'ego');
+
+                  if (nodes.altered || edges.altered || ego.altered) {
+                    logger.log(`CORRECTING SESSION ${sessionId} FROM INVALID CATEGORICAL OPTIONS`);
+                    const updatedSession = {
+                      ...sessionData,
+                      data: {
+                        ...sessionData.data,
+                        nodes: nodes.correctedEntities,
+                        edges: edges.correctedEntities,
+                        ego: ego.correctedEntity,
+                      },
+                    };
+                    return promiseWithStaleEmitter(this.sessionDb.update(protocolId,
+                      updatedSession));
+                  }
+                  return Promise.resolve;
+                });
+            });
+          });
+      });
+    });
   }
 
   /**
