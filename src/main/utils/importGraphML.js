@@ -1,6 +1,6 @@
 const dom = require('xmldom');
 const {
-  get, map, reduce, difference, isArray,
+  get, map, reduce, difference, isArray, isNil,
 } = require('lodash');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
 const {
@@ -132,7 +132,8 @@ const processVariable = (element, entity, xmlDoc, codebookEntity, entityType = '
       (option) => option.value.toString() === optionValue,
     );
     // fallback to graphml value if not matched in codebook
-    const codebookOptionValue = (codebookOption && codebookOption.value) || optionValue;
+    const codebookOptionValue = (codebookOption
+      && !isNil(codebookOption.value)) ? codebookOption.value : optionValue;
     catVar.push(codebookOptionValue);
     return { ...entity, attributes: { ...entity.attributes, [catKey]: catVar } };
   }
@@ -230,7 +231,8 @@ const getCorrectEntityVariableType = (entity, codebookEntity, entityType) => {
           const codebookOption = options.find(
             (option) => option.value.toString() === value,
           );
-          const codebookOptionValue = (codebookOption && codebookOption.value) || value;
+          const codebookOptionValue = (codebookOption
+            && !isNil(codebookOption.value)) ? codebookOption.value : value;
           return codebookOptionValue;
         })) : attributeValue;
 
