@@ -120,6 +120,7 @@
         "archiver": "^4.0.1",
         "async": "^3.2.0",
         "big-integer": "^1.6.43",
+        "caniuse-lite": "^1.0.30001302",
         "classnames": "^2.2.6",
         "compare-versions": "^3.6.0",
         "detect-port": "^1.2.3",

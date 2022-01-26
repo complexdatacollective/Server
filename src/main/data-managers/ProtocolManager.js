@@ -679,8 +679,10 @@ class ProtocolManager {
       }).catch((err) => Promise.reject(constructErrorObject(err.message, caseId)));
   }
 
-  correctSessionVariableTypes() {
-    this.allProtocols().then((allProtocols) => {
+  async correctSessionVariableTypes() {
+    let changesMade = false;
+
+    await this.allProtocols().then((allProtocols) => {
       allProtocols.forEach((protocol) => {
         const protocolId = get(protocol, '_id');
         this.getProtocolSessions(protocolId)
@@ -696,7 +698,8 @@ class ProtocolManager {
                   const ego = getCorrectEntityVariableTypes(sessionData.data.ego, protocol.codebook, 'ego');
 
                   if (nodes.altered || edges.altered || ego.altered) {
-                    logger.log(`CORRECTING SESSION ${sessionId} FROM INVALID CATEGORICAL OPTIONS`);
+                    changesMade = true;
+                    logger.log(`CORRECTING INVALID CATEGORICAL OPTIONS FOUND IN SESSION ${sessionId} `);
                     const updatedSession = {
                       ...sessionData,
                       data: {
@@ -715,6 +718,22 @@ class ProtocolManager {
           });
       });
     });
+
+    if (changesMade) {
+      dialog.showMessageBox(null, {
+        type: 'info',
+        title: 'Session Variable Type Correction',
+        message: 'Some session variables had invalid options. These have been corrected.',
+        buttons: ['OK'],
+      });
+    } else {
+      dialog.showMessageBox(null, {
+        type: 'info',
+        title: 'Session Variable Type Correction',
+        message: 'No session variables had invalid options. No changes were made to your data.',
+        buttons: ['OK'],
+      });
+    }
   }
 
   /**

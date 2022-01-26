@@ -70,7 +70,18 @@ const createApp = () => {
     dialog.showErrorBox('Session Import Error', err && err.message);
   });
 
-  const correctSessionVariableTypes = () => protocolManager.correctSessionVariableTypes();
+  const correctSessionVariableTypes = () => dialog.showMessageBox(mainWindow.window, {
+    type: 'warning',
+    title: 'Correcting variable types',
+    message: 'This action will attempt to correct issues with sessions imported from graphml files that contain categorical data. If this scenario does not apply to you, click cancel. Please export or backup your data prior to proceeding as this process could result in data loss.',
+    buttons: ['Cancel', 'Continue'],
+    cancelId: 0,
+    defaultId: 0,
+  }).then(({ response }) => {
+    if (response === 1) {
+      protocolManager.correctSessionVariableTypes();
+    }
+  });
 
   const generateTestSessions = (number) => {
     protocolManager.allProtocols().then((allProtocols) => {

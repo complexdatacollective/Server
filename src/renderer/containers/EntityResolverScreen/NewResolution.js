@@ -9,6 +9,7 @@ import Tip from '../../components/Tip';
 import BrowseInput from '../../components/BrowseInput';
 import withValidation from './withValidation';
 import { getNodeTypes } from './selectors';
+import { ExternalLink } from '../../components/ExternalLink';
 
 const ValidatedBrowseInput = withValidation(BrowseInput);
 
@@ -114,10 +115,9 @@ const NewResolution = ({
                     This should be the path of your custom resolver script. Please
                     read the documentation for more information on
                     {' '}
-                    <a href="">
-                      how
-                      to create a resolver script
-                    </a>
+                    <ExternalLink href="https://github.com/complexdatacollective/entity-resolution-sample">
+                      how to create a resolver script
+                    </ExternalLink>
                     .
                   </p>
                   <ValidatedBrowseInput
