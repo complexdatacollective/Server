@@ -46,7 +46,7 @@ const shapeBucketDataByType = (
       const isOptionObject = option && typeof option === 'object';
       // - label is optional, in which case `value` is used as the label
       const name = isOptionObject ? (option.label || option.value) : option;
-      const dataKey = (isOptionObject ? option.value : option).toString();
+      const dataKey = (isOptionObject ? option.value : option);
       return {
         name,
         value: data[dataKey] || 0,

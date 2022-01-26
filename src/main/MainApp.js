@@ -70,6 +70,8 @@ const createApp = () => {
     dialog.showErrorBox('Session Import Error', err && err.message);
   });
 
+  const correctSessionVariableTypes = () => protocolManager.correctSessionVariableTypes();
+
   const generateTestSessions = (number) => {
     protocolManager.allProtocols().then((allProtocols) => {
       const developmentProtocol = find(allProtocols, ['name', 'Development']);
@@ -145,15 +147,20 @@ const createApp = () => {
         { role: 'toggledevtools' },
         { type: 'separator' },
         {
-          label: 'Generate large test dataset...',
+          label: 'Correct Inconsistent Variable Types',
+          click: correctSessionVariableTypes,
+        },
+        { type: 'separator' },
+        {
+          label: 'Generate large test dataset',
           click: () => generateTestSessions(4500),
         },
         {
-          label: 'Generate small test dataset...',
+          label: 'Generate small test dataset',
           click: () => generateTestSessions(100),
         },
         {
-          label: 'Generate tiny test dataset...',
+          label: 'Generate tiny test dataset',
           click: () => generateTestSessions(3),
         },
         { type: 'separator' },

@@ -79,6 +79,14 @@ describe('SessionDB', () => {
     expect(found).toHaveLength(0);
   });
 
+  it('updates sessions', async () => {
+    await sessions.insertAllForProtocol(mockSession, mockProtocol);
+    const found = await sessions.find({ protocolId: mockProtocol._id, _id: mockSession.uuid });
+    await sessions.update(mockProtocol._id, { ...found[0], data: { something: 'new' } });
+    const result = await sessions.find({ protocolId: mockProtocol._id, _id: mockSession.uuid });
+    expect(result[0]).toMatchObject({ data: { something: 'new' } });
+  });
+
   it('requires IDs on sessions', async () => {
     jest.spyOn(sessions.db, 'insert');
     const promise = sessions.insertAllForProtocol([{}], mockProtocol);

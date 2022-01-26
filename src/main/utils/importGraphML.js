@@ -1,4 +1,7 @@
 const dom = require('xmldom');
+const {
+  get, map, reduce, difference, isArray, isNil,
+} = require('lodash');
 const { ErrorMessages, RequestError } = require('../errors/RequestError');
 const {
   caseProperty,
@@ -119,11 +122,19 @@ const processVariable = (element, entity, xmlDoc, codebookEntity, entityType = '
     const catKey = keyValue.substring(0, keyValue.indexOf('_'));
     const catVar = (entity.attributes && entity.attributes[catKey]) || []; // previous options
     const codebookVarName = codebookEntity.variables[catKey].name;
+    const codebookOptions = codebookEntity.variables[catKey].options || [];
     const catValue = xmlDoc.getElementById(keyValue).getAttributeNode('attr.name').value; // variable_option
     const optionIndex = codebookVarName.length + 1; // add one for the underscore
-    // fallback to using whatever it after the first underscore
-    const codebookOptionName = optionIndex > 0 ? catValue.substring(optionIndex) : catValue.substring(catValue.indexOf('_') + 1);
-    catVar.push(codebookOptionName);
+    // fallback to using whatever is after the first underscore
+    const optionValue = optionIndex > 0 ? catValue.substring(optionIndex) : catValue.substring(catValue.indexOf('_') + 1);
+    // lookup in codebook the option's values (because numbers could be strings here)
+    const codebookOption = codebookOptions.find(
+      (option) => option.value.toString() === optionValue,
+    );
+    // fallback to graphml value if not matched in codebook
+    const codebookOptionValue = (codebookOption
+      && !isNil(codebookOption.value)) ? codebookOption.value : optionValue;
+    catVar.push(codebookOptionValue);
     return { ...entity, attributes: { ...entity.attributes, [catKey]: catVar } };
   }
   return entity;
@@ -207,7 +218,54 @@ const convertGraphML = (xmlDoc, protocol) => {
   return { protocolId, sessions };
 };
 
+const getCorrectEntityVariableType = (entity, codebookEntity, entityType) => {
+  let altered = false;
+  const codebookVariables = get(codebookEntity, `${entityType}.variables`);
+  const entityAttributes = reduce(
+    entity.attributes,
+    (newAttributes, attributeValue, attributeKey) => {
+      if (codebookVariables[attributeKey] && codebookVariables[attributeKey].type === 'categorical') {
+        const options = get(codebookVariables, `${attributeKey}.options`);
+        // compare each value in attributeValue
+        const verifiedValues = isArray(attributeValue) ? map(attributeValue, ((value) => {
+          const codebookOption = options.find(
+            (option) => option.value.toString() === value,
+          );
+          const codebookOptionValue = (codebookOption
+            && !isNil(codebookOption.value)) ? codebookOption.value : value;
+          return codebookOptionValue;
+        })) : attributeValue;
+
+        if (difference(verifiedValues, attributeValue).length > 0) {
+          altered = true;
+        }
+        return { ...newAttributes, [attributeKey]: verifiedValues };
+      }
+      return { ...newAttributes, [attributeKey]: attributeValue };
+    }, {},
+  );
+
+  return { correctedEntity: { ...entity, attributes: entityAttributes }, altered };
+};
+
+const getCorrectEntityVariableTypes = (entities, codebookEntity, entityType) => {
+  if (entityType === 'ego') {
+    return getCorrectEntityVariableType(entities, codebookEntity, entityType);
+  }
+
+  let altered = false;
+  const correctedEntities = entities.map((entity) => {
+    const corrections = getCorrectEntityVariableType(entity, codebookEntity, entity.type);
+    if (corrections.altered) {
+      altered = true;
+    }
+    return corrections.correctedEntity;
+  });
+  return { correctedEntities, altered };
+};
+
 module.exports = {
   validateGraphML,
   convertGraphML,
+  getCorrectEntityVariableTypes,
 };
