@@ -682,14 +682,14 @@ class ProtocolManager {
   async correctSessionVariableTypes() {
     let changesMade = false;
 
-    await this.allProtocols().then((allProtocols) => {
-      allProtocols.forEach((protocol) => {
+    await this.allProtocols().then((allProtocols) => (
+      promiseWithStaleEmitter(Promise.allSettled(allProtocols.map((protocol) => {
         const protocolId = get(protocol, '_id');
-        this.getProtocolSessions(protocolId)
-          .then((sessions) => {
-            sessions.forEach((session) => {
+        return this.getProtocolSessions(protocolId)
+          .then((sessions) => (
+            Promise.allSettled(sessions.map((session) => {
               const sessionId = get(session, '_id');
-              this.getProtocolSession(protocolId, sessionId)
+              return this.getProtocolSession(protocolId, sessionId)
                 .then((sessionData) => {
                   const nodes = getCorrectEntityVariableTypes(sessionData.data.nodes,
                     protocol.codebook.node);
@@ -709,15 +709,14 @@ class ProtocolManager {
                         ego: ego.correctedEntity,
                       },
                     };
-                    return promiseWithStaleEmitter(this.sessionDb.update(protocolId,
-                      updatedSession));
+                    return this.sessionDb.update(protocolId, updatedSession);
                   }
                   return Promise.resolve;
                 });
-            });
-          });
-      });
-    });
+            }))
+          ));
+      })))
+    ));
 
     if (changesMade) {
       dialog.showMessageBox(null, {

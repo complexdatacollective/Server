@@ -79,7 +79,10 @@ const createApp = () => {
     defaultId: 0,
   }).then(({ response }) => {
     if (response === 1) {
-      protocolManager.correctSessionVariableTypes();
+      protocolManager.correctSessionVariableTypes()
+        .catch((err) => {
+          dialog.showErrorBox('Correct Variable Types Error', err && err.message);
+        });
     }
   });
 
