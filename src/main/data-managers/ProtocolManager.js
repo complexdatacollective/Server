@@ -679,15 +679,17 @@ class ProtocolManager {
       }).catch((err) => Promise.reject(constructErrorObject(err.message, caseId)));
   }
 
-  correctSessionVariableTypes() {
-    this.allProtocols().then((allProtocols) => {
-      allProtocols.forEach((protocol) => {
+  async correctSessionVariableTypes() {
+    let changesMade = false;
+
+    await this.allProtocols().then((allProtocols) => (
+      promiseWithStaleEmitter(Promise.allSettled(allProtocols.map((protocol) => {
         const protocolId = get(protocol, '_id');
-        this.getProtocolSessions(protocolId)
-          .then((sessions) => {
-            sessions.forEach((session) => {
+        return this.getProtocolSessions(protocolId)
+          .then((sessions) => (
+            Promise.allSettled(sessions.map((session) => {
               const sessionId = get(session, '_id');
-              this.getProtocolSession(protocolId, sessionId)
+              return this.getProtocolSession(protocolId, sessionId)
                 .then((sessionData) => {
                   const nodes = getCorrectEntityVariableTypes(sessionData.data.nodes,
                     protocol.codebook.node);
@@ -696,7 +698,8 @@ class ProtocolManager {
                   const ego = getCorrectEntityVariableTypes(sessionData.data.ego, protocol.codebook, 'ego');
 
                   if (nodes.altered || edges.altered || ego.altered) {
-                    logger.log(`CORRECTING SESSION ${sessionId} FROM INVALID CATEGORICAL OPTIONS`);
+                    changesMade = true;
+                    logger.log(`CORRECTING INVALID CATEGORICAL OPTIONS FOUND IN SESSION ${sessionId} `);
                     const updatedSession = {
                       ...sessionData,
                       data: {
@@ -706,15 +709,30 @@ class ProtocolManager {
                         ego: ego.correctedEntity,
                       },
                     };
-                    return promiseWithStaleEmitter(this.sessionDb.update(protocolId,
-                      updatedSession));
+                    return this.sessionDb.update(protocolId, updatedSession);
                   }
                   return Promise.resolve;
                 });
-            });
-          });
+            }))
+          ));
+      })))
+    ));
+
+    if (changesMade) {
+      dialog.showMessageBox(null, {
+        type: 'info',
+        title: 'Session Variable Type Correction',
+        message: 'Some session variables had invalid options. These have been corrected.',
+        buttons: ['OK'],
       });
-    });
+    } else {
+      dialog.showMessageBox(null, {
+        type: 'info',
+        title: 'Session Variable Type Correction',
+        message: 'No session variables had invalid options. No changes were made to your data.',
+        buttons: ['OK'],
+      });
+    }
   }
 
   /**
