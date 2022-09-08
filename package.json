@@ -125,7 +125,7 @@
         "compare-versions": "^3.6.0",
         "detect-port": "^1.2.3",
         "duplex-child-process": "^1.0.1",
-        "jszip": "^3.4.0",
+        "jszip": "^3.7.0",
         "libsodium-wrappers": "^0.7.8",
         "lodash": "^4.17.20",
         "mdns": "^2.7.2",
