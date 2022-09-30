@@ -142,7 +142,7 @@
         "react-test-renderer": "^16.13.1",
         "react-tooltip": "^4.2.10",
         "react-transition-group": "^2.5.0",
-        "recharts": "^1.0.1",
+        "recharts": "^2.1.14",
         "recompose": "^0.30.0",
         "redux": "^4.0.5",
         "redux-actions": "~2.6.5",
